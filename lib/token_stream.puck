@@ -1,0 +1,207 @@
+let isIdentifier = require('./ast').isIdentifier
+let operators = require('./ast').operators
+let textToToken = require('./ast').textToToken
+let SyntaxKind = require('./ast').SyntaxKind
+let NULL = require('./ast').NULL
+
+fn TokenStream(input) {
+  let mut current = null
+  let mut currentNewline = null
+  let longestOperator = operators.reduce(fn (longest, curr) {
+    if curr.length > longest then curr.length else longest
+  }, 0)
+
+  fn tryParseToken() {
+    let mut length = 0
+    let mut searchString = ''
+    let mut found
+
+    while length < longestOperator {
+      let ch = input.peek(length)
+      if isWhitespaceOrNewline(ch) then break
+      searchString += ch
+
+      let hasMatches = operators
+        .filter(fn (token) {
+          if token.length < length
+            then false
+            else token.substr(0, length + 1) == searchString
+        })
+        .length > 0
+
+      if hasMatches {
+        length += 1
+        found = searchString
+      } else break
+    }
+
+    if textToToken[found] {
+      let mut i = 0
+      while i < length {
+        input.next()
+        i += 1
+      }
+      {kind: textToToken[found]}
+    }
+  }
+
+  fn isDigit(ch) {
+    // /[0-9]/i.test(ch)
+    RegExp('[0-9]').test(ch)
+  }
+
+  fn isIdStart(ch) {
+    // /[a-z_]/i.test(ch)
+    RegExp('[a-z_]', 'i').test(ch)
+  }
+
+  fn isId(ch) {
+    isIdStart(ch) or isDigit(ch)
+  }
+
+  fn isNewline(ch) {
+    ch == '\n'
+  }
+
+  fn isWhitespace(ch) {
+    ' \t'.indexOf(ch) >= 0
+  }
+
+  fn isWhitespaceOrNewline(ch) {
+    isNewline(ch) or isWhitespace(ch)
+  }
+
+  fn readWhile(predicate) {
+    let mut str = ''
+    while not input.eof() and predicate(input.peek()) then
+        str += input.next()
+    str
+  }
+
+  fn readNumber() {
+    let mut hasDot = false
+    let number = readWhile(fn (ch) {
+      if ch == '.' {
+        if hasDot then return false
+        else {
+          hasDot = true
+          return true
+        }
+      }
+      isDigit(ch)
+    })
+
+    {kind: SyntaxKind.NumberLiteral, value: parseFloat(number)}
+  }
+
+  fn readIdent() {
+    let id = readWhile(isId)
+    if textToToken[id] != undefined then {kind: textToToken[id]}
+    else {{
+      kind: SyntaxKind.Identifier,
+      name: id,
+    }}
+  }
+
+  fn readEscaped(end) {
+    let mut escaped = false
+    let mut str = ''
+
+    input.next()
+    while not input.eof() {
+      let ch = input.next()
+      if escaped {
+        if ch == 'n' then str += '\n'
+        else if ch == 'r' then str += '\r'
+        else if ch == 't' then str += '\t'
+        else if ch == '\'' then str += '\''
+        else if ch == '\"' then str += '\"'
+        else if ch == '\\' then str += '\\'
+        else if ch == '\n' then null
+        else input.croak('Invalid escape character ' + ch)
+        escaped = false
+      }
+      else if ch == '\\' then escaped = true
+      else if ch == end then break
+      else str += ch
+    }
+    str
+  }
+
+  fn readString() {
+    {kind: SyntaxKind.StringLiteral, value: readEscaped(input.peek())}
+  }
+
+  fn readComment() {
+    input.next()
+    input.next()
+    readWhile(isWhitespace)
+    let comment = readWhile(fn (ch) {ch != '\n'})
+    input.next()
+
+    {
+      kind: SyntaxKind.Comment,
+      text: comment,
+    }
+  }
+
+  fn readNext(tokenizeNewline) {
+    readWhile(isWhitespace)
+    if isNewline(input.peek()) {
+      let token = {kind: SyntaxKind.NewlineToken}
+      if tokenizeNewline then return token
+      else currentNewline = token
+    } else {
+      currentNewline = null
+    }
+    readWhile(isWhitespaceOrNewline)
+    if input.eof() then return null
+
+    let ch = input.peek()
+
+    if ch == '/' and input.peek(1) == '/' then return readComment()
+    if ch == '\'' or ch == '"' then return readString()
+    if isDigit(ch) then return readNumber()
+    if isIdStart(ch) then return readIdent()
+    let token = tryParseToken()
+    if not token then input.croak('Unexpected token: ${ch}')
+    token
+  }
+
+  fn peek(tokenizeNewline) {
+    if tokenizeNewline and currentNewline then return currentNewline
+    if current then return current
+    let token = readNext(tokenizeNewline)
+
+    if tokenizeNewline and token.kind == SyntaxKind.NewlineToken
+      then currentNewline = token
+      else current = token
+  }
+
+  fn next(tokenizeNewline) {
+    let mut token = current
+    if tokenizeNewline and currentNewline {
+      token = currentNewline
+      currentNewline = null
+      return token
+    }
+    current = null
+
+    token or readNext(tokenizeNewline)
+  }
+
+  fn eof() {
+    peek() == null
+  }
+
+  {next, peek, eof, croak: input.croak}
+}
+
+module.exports.TokenStream = TokenStream
+
+// export type TokenStream = {
+//  next: (tokenizeNewline?: boolean) => Token,
+//  peek: (tokenizeNewline?: boolean) => Token,
+//  eof: () => boolean,
+//  croak: (message: string) => void
+// }

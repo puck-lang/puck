@@ -1,0 +1,33 @@
+fn InputStream(input) {
+  let mut pos = 0
+  let mut line = 1
+  let mut col = 1
+
+  fn next() {
+    let ch = input.charAt(pos)
+    pos = pos + 1
+    if (ch == '\n') {
+      line = line + 1
+      col = 1
+    } else {
+      col = col + 1
+    }
+    ch
+  }
+
+  fn peek(distance = 0) {
+    input.charAt(pos + distance)
+  }
+
+  fn eof() {
+    peek() == ''
+  }
+
+  fn croak(msg) {
+    throw Error(msg + ' (' + line + ':' + col + ')')
+  }
+
+  {next, peek, eof, croak, getLine: fn(){line}, getCol: fn(){col}}
+}
+
+module.exports.InputStream = InputStream

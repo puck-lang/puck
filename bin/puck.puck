@@ -1,0 +1,86 @@
+Array.prototype.takeFrom = fn (predicate) {
+  let index = this.findIndex(predicate)
+  this.slice(index)
+}
+let exec = require('child_process').exec
+
+let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puck') > 0}).slice(1)
+let command = arguments[0]
+
+fn cmd(cmd, cb) {
+  exec(
+    cmd, {
+      cwd: process.cwd(),
+      shell: '/bin/bash',
+    },
+    fn (error, stdout, stderr) {
+      if stderr then console.error(stderr)
+      if stdout then console.log(stdout)
+      if error then throw error
+      if cb then cb()
+    },
+  )
+}
+
+fn build(file, cb, outDir = 'dist', compiler = 'dist', backup = true) {
+  let mut puck = if file.slice(-5) == '.puck' then file else file + '.puck'
+  let mut js = outDir + '/' + puck.replace(RegExp('\\.puck'), '.js')
+  if puck.substring(0, 4) == 'bin/' then js = js.replace(RegExp('\\.js'), '')
+
+
+  cmd('cat ' + puck + ' | node ' + compiler + '/lib/compiler > ' + js + '.tmp', fn () {
+    let mut compileCmd = 'babel ' + js + '.tmp --out-file ' + js + ' && chmod +x ' + js
+    if backup {
+      compileCmd = 'cp ' + js + ' ' + js + '.bak-$(date +%d-%H-%M-%S) && ' + compileCmd
+    }
+    cmd(compileCmd, cb)
+  })
+}
+
+fn buildAll(folder, cb, compiler = 'dist', backup = false) {
+  cmd('find {bin,lib} -name "*.puck" -exec puck build {} ' + folder + ' ' + compiler + ' ' + backup + ' \\;', cb)
+}
+
+fn buildTestCompiler(cb) {
+  cmd('rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}', fn () {
+    buildAll('.tmp/old', fn () {
+      cmd('cp dist/lib/{ast,compiler,parser,emitter}.js .tmp/old/lib &&\
+           cp dist/lib/{ast,compiler,parser,emitter}.js .tmp/new/lib', fn () {
+        cb()
+      })
+    })
+  })
+}
+
+if command == 'build' {
+  let file = arguments[1]
+  let outDir = arguments[2]
+  let compiler = arguments[3]
+  let backup = arguments[4] != 'false'
+  if not file {
+    console.error('Must specify a file to build')
+    process.exit(1)
+  }
+
+  build(file, fn () {
+    console.log('done')
+  }, outDir, compiler, backup)
+}
+else if command == 'test' {
+  buildTestCompiler(fn () {
+    cmd('')
+  })
+}
+else if command == 'self-test' {
+  buildTestCompiler(fn () {
+    buildAll('.tmp/new', fn () {
+      cmd('diff -Nr .tmp/old .tmp/new', fn () {
+        console.log('done')
+      })
+    }, '.tmp/old')
+  })
+}
+else {
+  console.error('Unknown command', command)
+  process.exit(1)
+}
