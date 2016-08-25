@@ -40,7 +40,7 @@ The build tool is located in `bin/puck.puck` and is built to `dist/bin/puck`, a 
 is included in the repo. Add `export PATH=$PATH:dist/bin` to your `.bashrc` or `.zshrc`, or use
 `dist/bin/puck` instead of `puck` below.
 
-Run `puck build path/to/file` to build the specified file.
+Run `puck build path/to/file` to build the specified file.  
 Run `puck self-test` for a self test of the compiler, which consists of:  
 
 1. Build the full compiler to .tmp/old
