@@ -1,6 +1,6 @@
 .idea/
 .tmp/
-dist*/
+dist.*/
 language-puck/
 node_modules/
 old/

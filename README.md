@@ -36,12 +36,17 @@ greet(process.argv[2])
 The compiler is currently a mix of TypeScript and Puck but will eventually only be written in puck,
 until then, run `npm run watch` to build and watch the TS code.
 
-The build tool is located in `bin/puck.puck` and is built to `dist/bin/puck`, a precompiled version
-is included in the repo. Add `export PATH=$PATH:dist/bin` to your `.bashrc` or `.zshrc`, or use
-`dist/bin/puck` instead of `puck` below.
+The build tool is called `puck` and the compiler `puckc`. Binaries are placed in `bin/` and 
+library files in `lib/`
 
-Run `puck build path/to/file` to build the specified file.  
-Run `puck self-test` for a self test of the compiler, which consists of:  
+is included in the repo. Add `export PATH=$PATH:dist/bin` to your `.bashrc` or `.zshrc`, or prefix 
+the following commands with `dist/bin/`.
+
+Run `puckc some/file some/other/file` to build the specified file(s).  
+Run `puck build` to build the project.  
+Run `puck test` to run the testsuite.  
+Run `puck update-baselines` to update the baselines (accept the current behaviour) for the testsuite.  
+Run `puck self-test` to run a self test of the compiler, which consists of:  
 
 1. Build the full compiler to .tmp/old
 2. Build the full compiler to .tmp/new using the version in .tmp/old
