@@ -40,8 +40,9 @@ The build tool is located in `bin/puck.puck` and is built to `dist/bin/puck`, a 
 is included in the repo. Add `export PATH=$PATH:dist/bin` to your `.bashrc` or `.zshrc`, or use
 `dist/bin/puck` instead of `puck` below.
 
-Run `puck build path/to/file` to build the specified file.
-Run `puck self-test` for a self test of the compiler, which consists of:
+Run `puck build path/to/file` to build the specified file.  
+Run `puck self-test` for a self test of the compiler, which consists of:  
+
 1. Build the full compiler to .tmp/old
 2. Build the full compiler to .tmp/new using the version in .tmp/old
 3. diff .tmp/new and .tmp/old to make sure the output is exactly the same
@@ -49,4 +50,4 @@ Run `puck self-test` for a self test of the compiler, which consists of:
 ## Editors
 There are avalible plugins for Atom and Visual Studio Code, as well as a textmate grammar
 that can be used to create plugins for most editors. 
-See [puck/editors](https://github.com/puck-lang/editors) for details.
+See [puck-lang/editors](https://github.com/puck-lang/editors) for details.
