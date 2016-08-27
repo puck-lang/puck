@@ -310,10 +310,6 @@ function parse(input) {
     }
     function parseAtom() {
         return maybeCall((function innerParseAtom() {
-            if (isToken(ast_1.SyntaxKind.Comment)) {
-                input.next();
-                return null;
-            }
             if (isToken(ast_1.SyntaxKind.OpenParenToken)) {
                 input.next();
                 var exp = parseExpression();
@@ -369,15 +365,15 @@ function parse(input) {
             unexpected();
         })());
     }
-    function expectSemiOrNewline() {
-        while (isToken(ast_1.SyntaxKind.Comment))
-            input.next();
+    function expectSeparator(kind) {
         if (!input.eof()) {
-            if (input.peek(true).kind == ast_1.SyntaxKind.NewlineToken) {
+            var token = input.peek(true);
+            if (token.kind == ast_1.SyntaxKind.NewlineToken
+                || token.kind == ast_1.SyntaxKind.Comment) {
                 input.next(true);
             }
             else {
-                consumeToken(ast_1.SyntaxKind.SemicolonToken);
+                consumeToken(kind);
             }
         }
     }
@@ -389,14 +385,12 @@ function parse(input) {
                 prog.push(expression);
             }
             if (!input.eof())
-                expectSemiOrNewline();
+                expectSeparator(ast_1.SyntaxKind.SemicolonToken);
         }
         return { kind: ast_1.SyntaxKind.Block, block: prog };
     }
     function parseBlock() {
-        var block = delimited("{", "}", expectSemiOrNewline, parseExpression);
-        // if (block.length == 0) return NULL
-        // if (block.length == 1) return block[0]
+        var block = delimited("{", "}", function () { return expectSeparator(ast_1.SyntaxKind.SemicolonToken); }, parseExpression);
         return { kind: ast_1.SyntaxKind.Block, block: block };
     }
     function parseExpression() {

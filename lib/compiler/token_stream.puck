@@ -6,7 +6,7 @@ let NULL = require('./ast').NULL
 
 fn TokenStream(input) {
   let mut current = null
-  let mut currentNewline = null
+  let mut currentDummy = null
   let longestOperator = operators.reduce(fn (longest, curr) {
     if curr.length > longest then curr.length else longest
   }, 0)
@@ -144,20 +144,15 @@ fn TokenStream(input) {
     }
   }
 
-  fn readNext(tokenizeNewline) {
+  fn readNext() {
     readWhile(isWhitespace)
-    if isNewline(input.peek()) {
-      let token = {kind: SyntaxKind.NewlineToken}
-      if tokenizeNewline then return token
-      else currentNewline = token
-    } else {
-      currentNewline = null
-    }
-    readWhile(isWhitespaceOrNewline)
     if input.eof() then return null
 
     let ch = input.peek()
-
+    if isNewline(ch) {
+      input.next()
+      return {kind: SyntaxKind.NewlineToken}
+    }
     if ch == '/' and input.peek(1) == '/' then return readComment()
     if ch == '\'' or ch == '"' then return readString()
     if isDigit(ch) then return readNumber()
@@ -167,26 +162,47 @@ fn TokenStream(input) {
     token
   }
 
-  fn peek(tokenizeNewline) {
-    if tokenizeNewline and currentNewline then return currentNewline
-    if current then return current
-    let token = readNext(tokenizeNewline)
+  fn isDummy(token) {
+    if not token then return false
 
-    if tokenizeNewline and token.kind == SyntaxKind.NewlineToken
-      then currentNewline = token
-      else current = token
+    token.kind == SyntaxKind.NewlineToken
+      or token.kind == SyntaxKind.Comment
   }
 
-  fn next(tokenizeNewline) {
-    let mut token = current
-    if tokenizeNewline and currentNewline {
-      token = currentNewline
-      currentNewline = null
-      return token
-    }
-    current = null
+  fn peek(returnDummy) {
+    if returnDummy and currentDummy then return currentDummy
+    if current then
+      if returnDummy or not isDummy(current) then return current
 
-    token or readNext(tokenizeNewline)
+    current = readNext()
+    currentDummy = current
+
+    while isDummy(current) and not returnDummy then
+      current = readNext()
+
+    current
+  }
+
+  fn next(returnDummy) {
+    if currentDummy {
+      let token = currentDummy
+      currentDummy = null
+
+      if returnDummy then return token
+    }
+    if current {
+      let token = current
+      current = null
+
+      if returnDummy or not isDummy(token) then return token
+    }
+
+    let mut token = readNext()
+
+    while isDummy(token) and not returnDummy then
+      token = readNext()
+
+    token
   }
 
   fn eof() {

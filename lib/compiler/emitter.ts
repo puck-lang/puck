@@ -251,7 +251,7 @@ function emitUnaryExpression(e: BinaryExpression) {
 function emitWhileExpression(e: WhileExpression) {
   let body = () => emitBlock(e.body)
 
-  if (!context) return `while (${emitExpression(e.condition)}) {${body()}}`
+  if (!context) return `while (${emitExpression(e.condition)}) ${body()}`
 
   let hoisted = ''
   let hoist = code => hoisted += `\n${indent(code)};\n`

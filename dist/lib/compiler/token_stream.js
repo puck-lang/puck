@@ -9,7 +9,7 @@ var SyntaxKind = require("./ast").SyntaxKind;
 var NULL = require("./ast").NULL;
 function TokenStream(input) {
   var current = null;
-  var currentNewline = null;
+  var currentDummy = null;
   var longestOperator = operators.reduce(function (longest, curr) {
     if (curr.length > longest) {
       return curr.length;
@@ -22,34 +22,30 @@ function TokenStream(input) {
     var searchString = "";
     var found = void 0;
     while (length < longestOperator) {
-      {
-        var ch = input.peek(length);
-        if (isWhitespaceOrNewline(ch)) {
-          break;
-        };
-        searchString += ch;
-        var hasMatches = operators.filter(function (token) {
-          if (token.length < length) {
-            return false;
-          } else {
-            return token.substr(0, length + 1) == searchString;
-          };
-        }).length > 0;
-        if (hasMatches) {
-          length += 1;
-          found = searchString;
+      var ch = input.peek(length);
+      if (isWhitespaceOrNewline(ch)) {
+        break;
+      };
+      searchString += ch;
+      var hasMatches = operators.filter(function (token) {
+        if (token.length < length) {
+          return false;
         } else {
-          break;
+          return token.substr(0, length + 1) == searchString;
         };
-      }
+      }).length > 0;
+      if (hasMatches) {
+        length += 1;
+        found = searchString;
+      } else {
+        break;
+      };
     };
     if (textToToken[found]) {
       var i = 0;
       while (i < length) {
-        {
-          input.next();
-          i += 1;
-        }
+        input.next();
+        i += 1;
       };
       return { kind: textToToken[found] };
     };
@@ -89,8 +85,9 @@ function TokenStream(input) {
           hasDot = true;
           return true;
         };
+      } else {
+        return isDigit(ch);
       };
-      return isDigit(ch);
     });
     return {
       kind: SyntaxKind.NumberLiteral,
@@ -113,51 +110,49 @@ function TokenStream(input) {
     var str = "";
     input.next();
     while (!input.eof()) {
-      {
-        var ch = input.next();
-        if (escaped) {
-          if (ch == "n") {
-            str += "\n";
-          } else {
-            if (ch == "r") {
-              str += "\r";
-            } else {
-              if (ch == "t") {
-                str += "\t";
-              } else {
-                if (ch == "'") {
-                  str += "'";
-                } else {
-                  if (ch == "\"") {
-                    str += "\"";
-                  } else {
-                    if (ch == "\\") {
-                      str += "\\";
-                    } else {
-                      if (ch == "\n") {
-                        null;
-                      } else {
-                        input.croak("Invalid escape character " + ch);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          };
-          escaped = false;
+      var ch = input.next();
+      if (escaped) {
+        if (ch == "n") {
+          str += "\n";
         } else {
-          if (ch == "\\") {
-            escaped = true;
+          if (ch == "r") {
+            str += "\r";
           } else {
-            if (ch == end) {
-              break;
+            if (ch == "t") {
+              str += "\t";
             } else {
-              str += ch;
-            }
-          }
+              if (ch == "'") {
+                str += "'";
+              } else {
+                if (ch == "\"") {
+                  str += "\"";
+                } else {
+                  if (ch == "\\") {
+                    str += "\\";
+                  } else {
+                    if (ch == "\n") {
+                      null;
+                    } else {
+                      input.croak("Invalid escape character " + ch);
+                    };
+                  };
+                };
+              };
+            };
+          };
         };
-      }
+        escaped = false;
+      } else {
+        if (ch == "\\") {
+          escaped = true;
+        } else {
+          if (ch == end) {
+            break;
+          } else {
+            str += ch;
+          };
+        };
+      };
     };
     return str;
   };
@@ -180,23 +175,16 @@ function TokenStream(input) {
       text: comment
     };
   };
-  function readNext(tokenizeNewline) {
+  function readNext() {
     readWhile(isWhitespace);
-    if (isNewline(input.peek())) {
-      var _token = { kind: SyntaxKind.NewlineToken };
-      if (tokenizeNewline) {
-        return _token;
-      } else {
-        currentNewline = _token;
-      };
-    } else {
-      currentNewline = null;
-    };
-    readWhile(isWhitespaceOrNewline);
     if (input.eof()) {
       return null;
     };
     var ch = input.peek();
+    if (isNewline(ch)) {
+      input.next();
+      return { kind: SyntaxKind.NewlineToken };
+    };
     if (ch == "/" && input.peek(1) == "/") {
       return readComment();
     };
@@ -215,29 +203,48 @@ function TokenStream(input) {
     };
     return token;
   };
-  function peek(tokenizeNewline) {
-    if (tokenizeNewline && currentNewline) {
-      return currentNewline;
+  function isDummy(token) {
+    if (!token) {
+      return false;
+    };
+    return token.kind == SyntaxKind.NewlineToken || token.kind == SyntaxKind.Comment;
+  };
+  function peek(returnDummy) {
+    if (returnDummy && currentDummy) {
+      return currentDummy;
     };
     if (current) {
-      return current;
+      if (returnDummy || !isDummy(current)) {
+        return current;
+      };
     };
-    var token = readNext(tokenizeNewline);
-    if (tokenizeNewline && token.kind == SyntaxKind.NewlineToken) {
-      return currentNewline = token;
-    } else {
-      return current = token;
+    current = readNext();
+    currentDummy = current;
+    while (isDummy(current) && !returnDummy) {
+      current = readNext();
     };
+    return current;
   };
-  function next(tokenizeNewline) {
-    var token = current;
-    if (tokenizeNewline && currentNewline) {
-      token = currentNewline;
-      currentNewline = null;
-      return token;
+  function next(returnDummy) {
+    if (currentDummy) {
+      var _token = currentDummy;
+      currentDummy = null;
+      if (returnDummy) {
+        return _token;
+      };
     };
-    current = null;
-    return token || readNext(tokenizeNewline);
+    if (current) {
+      var _token2 = current;
+      current = null;
+      if (returnDummy || !isDummy(_token2)) {
+        return _token2;
+      };
+    };
+    var token = readNext();
+    while (isDummy(token) && !returnDummy) {
+      token = readNext();
+    };
+    return token;
   };
   function eof() {
     return peek() == null;

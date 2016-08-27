@@ -205,7 +205,7 @@ function emitUnaryExpression(e) {
 function emitWhileExpression(e) {
     var body = function () { return emitBlock(e.body); };
     if (!context)
-        return "while (" + emitExpression(e.condition) + ") {" + body() + "}";
+        return "while (" + emitExpression(e.condition) + ") " + body();
     var hoisted = '';
     var hoist = function (code) { return hoisted += "\n" + indent(code) + ";\n"; };
     return "(() => {" +

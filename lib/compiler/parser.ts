@@ -342,10 +342,6 @@ export function parse(input: TokenStream) {
   }
   function parseAtom() {
     return maybeCall((function innerParseAtom() {
-      if (isToken(SyntaxKind.Comment)) {
-        input.next()
-        return null
-      }
       if (isToken(SyntaxKind.OpenParenToken)) {
         input.next()
         let exp = parseExpression()
@@ -405,13 +401,15 @@ export function parse(input: TokenStream) {
     })())
   }
 
-  function expectSemiOrNewline() {
-    while (isToken(SyntaxKind.Comment)) input.next()
+  function expectSeparator(kind: SyntaxKind) {
     if (!input.eof()) {
-      if (input.peek(true).kind == SyntaxKind.NewlineToken) {
+      let token = input.peek(true)
+      if (token.kind == SyntaxKind.NewlineToken
+       || token.kind == SyntaxKind.Comment
+      ) {
         input.next(true)
       } else {
-        consumeToken(SyntaxKind.SemicolonToken)
+        consumeToken(kind)
       }
     }
   }
@@ -421,15 +419,13 @@ export function parse(input: TokenStream) {
     while (!input.eof()) {
       let expression = parseExpression()
       if (expression) {prog.push(expression)}
-      if (!input.eof()) expectSemiOrNewline()
+      if (!input.eof()) expectSeparator(SyntaxKind.SemicolonToken)
     }
     return { kind: SyntaxKind.Block, block: prog }
   }
 
   function parseBlock(): BlockNode {
-    let block = delimited(`{`, `}`, expectSemiOrNewline, parseExpression)
-    // if (block.length == 0) return NULL
-    // if (block.length == 1) return block[0]
+    let block = delimited(`{`, `}`, () => expectSeparator(SyntaxKind.SemicolonToken), parseExpression)
     return { kind: SyntaxKind.Block, block }
   }
 

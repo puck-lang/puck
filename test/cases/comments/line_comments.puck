@@ -1,0 +1,35 @@
+// Comment
+
+// Comment
+let a = 5 // Comment
+// Comment
+
+let // Comment
+  a2 // Comment
+  = // Comment
+  5 // Comment
+
+// Comment
+fn b() { // Comment
+  // Comment
+  a + a // Comment
+  a // Comment
+    + // Comment
+    a // Comment
+  // Comment
+  {a: a} // Comment
+  // Comment
+  {// Comment
+    a: a // Comment
+    // Comment
+  }// Comment
+  {
+    // Comment
+    a// Comment
+      :// Comment
+      a// Comment
+    // Comment
+  }
+  // Comment
+}// Comment
+// Comment

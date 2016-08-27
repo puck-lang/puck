@@ -61,7 +61,7 @@ if (command == "build") {
       } else {
         console.error("Unknown command", command);
         process.exit(1);
-      }
-    }
-  }
+      };
+    };
+  };
 }

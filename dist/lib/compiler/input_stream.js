@@ -26,7 +26,7 @@ function InputStream(input, file) {
     return peek() == "";
   };
   function croak(msg) {
-    console.log(msg + " (" + line + ":" + col + ")\n    at " + file);
+    console.log(msg + " (" + line + ":" + col + ")\n    at " + file + "\n\n");
     return process.exit(1);
   };
   return {
