@@ -15,9 +15,10 @@ var PRECEDENCE = (_a = {},
     _a[ast_1.SyntaxKind.LessThanEqualsToken] = 7,
     _a[ast_1.SyntaxKind.PlusToken] = 10,
     _a[ast_1.SyntaxKind.MinusToken] = 10,
-    _a['*'] = 20,
-    _a['/'] = 20,
-    _a['%'] = 20,
+    _a[ast_1.SyntaxKind.AsteriskToken] = 20,
+    _a[ast_1.SyntaxKind.AsteriskAsteriskToken] = 20,
+    _a[ast_1.SyntaxKind.SlashToken] = 20,
+    _a[ast_1.SyntaxKind.PercentToken] = 20,
     _a
 );
 function parse(input) {
@@ -79,6 +80,11 @@ function parse(input) {
             || isToken(ast_1.SyntaxKind.LessThanToken)
             || isToken(ast_1.SyntaxKind.LessThanEqualsToken)
             || isToken(ast_1.SyntaxKind.PlusToken)
+            || isToken(ast_1.SyntaxKind.MinusToken)
+            || isToken(ast_1.SyntaxKind.AsteriskToken)
+            || isToken(ast_1.SyntaxKind.AsteriskAsteriskToken)
+            || isToken(ast_1.SyntaxKind.SlashToken)
+            || isToken(ast_1.SyntaxKind.PercentToken)
             || isToken(ast_1.SyntaxKind.AndKeyword)
             || isToken(ast_1.SyntaxKind.OrKeyword)
             || isToken(ast_1.SyntaxKind.NotKeyword)) {

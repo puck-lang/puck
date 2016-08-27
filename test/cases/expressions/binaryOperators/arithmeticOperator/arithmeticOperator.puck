@@ -1,51 +1,51 @@
 // let a;
 // let b;
 
-// // operator *
+// operator *
 
-// let ra1 = a * a;
-// let ra2 = a * b;
-// let ra3 = a * 0;
-// let ra4 = 0 * a;
-// let ra5 = 0 * 0;
-// let ra6 = b * 0;
-// let ra7 = 0 * b;
-// let ra8 = b * b;
+let ra1 = a * a;
+let ra2 = a * b;
+let ra3 = a * 0;
+let ra4 = 0 * a;
+let ra5 = 0 * 0;
+let ra6 = b * 0;
+let ra7 = 0 * b;
+let ra8 = b * b;
 
-// // operator /
+// operator /
 
-// let rb1 = a / a;
-// let rb2 = a / b;
-// let rb3 = a / 0;
-// let rb4 = 0 / a;
-// let rb5 = 0 / 0;
-// let rb6 = b / 0;
-// let rb7 = 0 / b;
-// let rb8 = b / b;
+let rb1 = a / a;
+let rb2 = a / b;
+let rb3 = a / 0;
+let rb4 = 0 / a;
+let rb5 = 0 / 0;
+let rb6 = b / 0;
+let rb7 = 0 / b;
+let rb8 = b / b;
 
-// // operator %
+// operator %
 
-// let rc1 = a % a;
-// let rc2 = a % b;
-// let rc3 = a % 0;
-// let rc4 = 0 % a;
-// let rc5 = 0 % 0;
-// let rc6 = b % 0;
-// let rc7 = 0 % b;
-// let rc8 = b % b;
+let rc1 = a % a;
+let rc2 = a % b;
+let rc3 = a % 0;
+let rc4 = 0 % a;
+let rc5 = 0 % 0;
+let rc6 = b % 0;
+let rc7 = 0 % b;
+let rc8 = b % b;
 
-// // operator -
+// operator -
 
-// let rd1 = a - a;
-// let rd2 = a - b;
-// let rd3 = a - 0;
-// let rd4 = 0 - a;
-// let rd5 = 0 - 0;
-// let rd6 = b - 0;
-// let rd7 = 0 - b;
-// let rd8 = b - b;
+let rd1 = a - a;
+let rd2 = a - b;
+let rd3 = a - 0;
+let rd4 = 0 - a;
+let rd5 = 0 - 0;
+let rd6 = b - 0;
+let rd7 = 0 - b;
+let rd8 = b - b;
 
-// // operator +
+// operator +
 
 let re1 = a + a;
 let re2 = a + b;
@@ -56,13 +56,13 @@ let re6 = b + 0;
 let re7 = 0 + b;
 let re8 = b + b;
 
-// // operator **
+// operator **
 
-// let rf1 = a ** a;
-// let rf2 = a ** b;
-// let rf3 = a ** 0;
-// let rf4 = 0 ** a;
-// let rf5 = 0 ** 0;
-// let rf6 = b ** 0;
-// let rf7 = 0 ** b;
-// let rf8 = b ** b;
+let rf1 = a ** a;
+let rf2 = a ** b;
+let rf3 = a ** 0;
+let rf4 = 0 ** a;
+let rf5 = 0 ** 0;
+let rf6 = b ** 0;
+let rf7 = 0 ** b;
+let rf8 = b ** b;

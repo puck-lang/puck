@@ -44,7 +44,10 @@ const PRECEDENCE = {
   [SyntaxKind.LessThanEqualsToken]: 7,
   [SyntaxKind.PlusToken]: 10,
   [SyntaxKind.MinusToken]: 10,
-  '*': 20, '/': 20, '%': 20,
+  [SyntaxKind.AsteriskToken]: 20,
+  [SyntaxKind.AsteriskAsteriskToken]: 20,
+  [SyntaxKind.SlashToken]: 20,
+  [SyntaxKind.PercentToken]: 20,
 }
 
 export function parse(input: TokenStream) {
@@ -112,6 +115,11 @@ export function parse(input: TokenStream) {
      || isToken(SyntaxKind.LessThanToken)
      || isToken(SyntaxKind.LessThanEqualsToken)
      || isToken(SyntaxKind.PlusToken)
+     || isToken(SyntaxKind.MinusToken)
+     || isToken(SyntaxKind.AsteriskToken)
+     || isToken(SyntaxKind.AsteriskAsteriskToken)
+     || isToken(SyntaxKind.SlashToken)
+     || isToken(SyntaxKind.PercentToken)
      || isToken(SyntaxKind.AndKeyword)
      || isToken(SyntaxKind.OrKeyword)
      || isToken(SyntaxKind.NotKeyword)
