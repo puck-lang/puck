@@ -266,12 +266,15 @@ export function parse(input: TokenStream) {
   function parseIf(): IfExpression {
     skipKeyword(SyntaxKind.IfKeyword)
     let condition = parseExpression()
-    let then
+    let then: BlockNode
     if (isToken(SyntaxKind.OpenBraceToken)) {
       then = parseBlock()
     } else {
       skipKeyword(SyntaxKind.ThenKeyword)
-      then = parseExpression()
+      then = {
+        kind: SyntaxKind.Block,
+        block: [parseExpression()],
+      }
     }
     let ret: IfExpression = {
       kind: SyntaxKind.IfExpression,
@@ -283,7 +286,10 @@ export function parse(input: TokenStream) {
       if (isToken(SyntaxKind.OpenBraceToken)) {
         ret.else = parseBlock()
       } else {
-        ret.else = parseExpression()
+        ret.else = {
+          kind: SyntaxKind.Block,
+          block: [parseExpression()],
+        }
       }
     }
     return ret
@@ -292,12 +298,15 @@ export function parse(input: TokenStream) {
   function parseWhile(): WhileExpression {
     skipKeyword(SyntaxKind.WhileKeyword)
     let condition = parseExpression()
-    let body
+    let body: BlockNode
     if (isToken(SyntaxKind.OpenBraceToken)) {
       body = parseBlock()
     } else {
       skipKeyword(SyntaxKind.ThenKeyword)
-      body = parseExpression()
+      body = {
+        kind: SyntaxKind.Block,
+        block: [parseExpression()],
+      }
     }
 
     return {

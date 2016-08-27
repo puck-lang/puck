@@ -2,12 +2,8 @@
 
 'use strict';
 
-function a() {
-  undefined;
-};
-function b(a) {
-  undefined;
-};
+function a() {};
+function b(a) {};
 function c(a) {
   return a;
 };

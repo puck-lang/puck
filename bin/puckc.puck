@@ -7,8 +7,7 @@ let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puckc') >= 0}).slic
 
 let outDir = flag(arguments, '--out-dir', 'dist')
 let outFile = flag(arguments, '--out-file')
-let mut extension
-if flag(arguments, '--skip-extension') then extension = '' else extension = '.js'
+let extension = if flag(arguments, '--skip-extension') then '' else '.js'
 
 if arguments.length > 1 and outFile {
   console.error("Can't specify --out-file with more than one input file")
@@ -32,7 +31,6 @@ if arguments.length == 0 {
 } else {
   let builds = arguments.map(fn (file) {
     let out = outFile or outDir + '/' + file.replace(RegExp('\\.puck'), extension)
-    // else if file.substring(0, 4) == 'bin/' then outDir + file.replace(RegExp('\\.puck'), '')
 
     build(file, out)
       .catch(fn () {process.exit(1)})

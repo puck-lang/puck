@@ -1,0 +1,105 @@
+let z = 5
+fn a() {}
+fn b() {}
+
+if z then a()
+if z then a() else b()
+if z {a()} else b()
+if z then a() else {b()}
+if z {a()} else {b()}
+
+let q1 = if z then true
+let q2 = if z then true else false
+let q3 = if z then if z % 2 then 1 else 2 else 3
+let q4 = if z then z / 2 else b(z)
+let q5 = if z {z / 2} else {b(z)}
+let q6 =
+  if z {
+    let x = z / 2
+    let y = if z < 0 then -z else a(z) + b(z)
+    a(x ** y)
+  }
+  else if z == 0 {
+    q6
+  }
+  else 0
+let q7 = if z {
+  5
+}
+
+fn c() {
+  if z then z / 2
+}
+
+fn d() {
+  if z then z / 2 else b(z)
+}
+
+fn e() {
+  if z {z / 2} else {b(z)}
+}
+
+fn g() {
+  if z {
+    let x = z / 2
+    let y = if z < 0 then -z else a(z) + b(z)
+    a(x ** y)
+  }
+  else if z == 0 {
+    q6
+  }
+}
+
+fn h() {
+  let z = 5
+  fn a() {}
+  fn b() {}
+
+  if z then a()
+  if z then a() else b()
+  if z {a()} else b()
+  if z then a() else {b()}
+  if z {a()} else {b()}
+
+  let q1 = if z then true
+  let q2 = if z then true else false
+  let q3 = if z then if z % 2 then 1 else 2 else 3
+  let q4 = if z then z / 2 else b(z)
+  let q5 = if z {z / 2} else {b(z)}
+  let q6 =
+    if z {
+      let x = z / 2
+      let y = if z < 0 then -z else a(z) + b(z)
+      a(x ** y)
+    }
+    else if z == 0 {
+      q6
+    }
+    else 0
+  let q7 = if z {
+    5
+  }
+
+  fn c() {
+    if z then z / 2
+  }
+
+  fn d() {
+    if z then z / 2 else b(z)
+  }
+
+  fn e() {
+    if z {z / 2} else {b(z)}
+  }
+
+  fn g() {
+    if z {
+      let x = z / 2
+      let y = if z < 0 then -z else a(z) + b(z)
+      a(x ** y)
+    }
+    else if z == 0 {
+      q6
+    }
+  }
+}

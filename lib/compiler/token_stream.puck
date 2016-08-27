@@ -82,13 +82,12 @@ fn TokenStream(input) {
     let mut hasDot = false
     let number = readWhile(fn (ch) {
       if ch == '.' {
-        if hasDot then return false
+        if hasDot then false
         else {
           hasDot = true
-          return true
+          true
         }
-      }
-      isDigit(ch)
+      } else isDigit(ch)
     })
 
     {kind: SyntaxKind.NumberLiteral, value: parseFloat(number)}

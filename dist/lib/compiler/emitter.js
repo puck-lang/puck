@@ -41,27 +41,32 @@ function indent(lines, level_) {
         return indentation + lines;
     }
 }
-function emitInnerBlock(block) {
+function emitLines(block) {
+    var wasInContext = context;
+    context = null;
+    var lines = [];
+    var outerHoist = hoist;
+    hoist = function (code) {
+        lines.push(code);
+    };
+    for (var i = 0; i < block.length; i++) {
+        if (wasInContext && i == block.length - 1) {
+            context = wasInContext;
+        }
+        lines.push(emitExpressionKeepContext(block[i]));
+    }
+    hoist = outerHoist;
+    return lines;
 }
 function emitProgram(program) {
     var preamble = "#!/usr/bin/env node\n'use strict';\n";
-    return preamble + program.block.map(emitExpressionKeepContext).join(';\n');
+    var lines = emitLines(program.block);
+    return preamble + lines.join(';\n');
 }
 exports.emitProgram = emitProgram;
 function emitBlock(block) {
     level++;
-    var wasInContext = context;
-    context = null;
-    var lines = [];
-    hoist = function (code) {
-        lines.push(code);
-    };
-    for (var i = 0; i < block.block.length; i++) {
-        if (wasInContext && i == block.block.length - 1) {
-            context = wasInContext;
-        }
-        lines.push(emitExpressionKeepContext(block.block[i]));
-    }
+    var lines = emitLines(block.block);
     var body;
     var end = '}';
     if (lines.length !== 0) {
@@ -73,7 +78,7 @@ function emitBlock(block) {
         end = indent(end, level - 1);
     }
     level--;
-    return "{" + body + end;
+    return "{" + (body || '') + end;
 }
 exports.emitBlock = emitBlock;
 function emitScalarExpression(expression) {
@@ -97,23 +102,37 @@ function emitScalarExpression(expression) {
         case ast_1.SyntaxKind.StringLiteral: return emitStringLiteral(expression);
     }
 }
+var currentValueVariableContext;
 function emitExpressionKeepContext(expression) {
-    var scalarExpression = emitScalarExpression(expression);
-    if (scalarExpression) {
-        if (context == Context.Return) {
-            return "return " + scalarExpression;
+    var outerValueVariableContext = currentValueVariableContext;
+    if (currentValueVariableContext == valueVariable) {
+        valueVariable = null;
+    }
+    else {
+        currentValueVariableContext = valueVariable;
+    }
+    try {
+        var scalarExpression = emitScalarExpression(expression);
+        if (scalarExpression) {
+            if (context == Context.Return) {
+                return "return " + scalarExpression;
+            }
+            else if (context == Context.Value && valueVariable) {
+                return valueVariable + " = " + scalarExpression;
+            }
+            else {
+                allowReturnContext = true;
+                return scalarExpression;
+            }
         }
-        else if (context == Context.Value && valueVariable) {
-            return valueVariable + " = " + scalarExpression;
-        }
-        else {
-            allowReturnContext = true;
-            return scalarExpression;
+        switch (expression.kind) {
+            case ast_1.SyntaxKind.IfExpression: return emitIfExpression(expression);
+            default: throw ast_1.SyntaxKind[expression.kind] + " is not supported";
         }
     }
-    switch (expression.kind) {
-        case ast_1.SyntaxKind.IfExpression: return emitIfExpression(expression);
-        default: throw ast_1.SyntaxKind[expression.kind] + " is not supported";
+    finally {
+        valueVariable = currentValueVariableContext;
+        currentValueVariableContext = outerValueVariableContext;
     }
 }
 function emitExpression(expression, context) {
@@ -164,20 +183,18 @@ function emitIfExpression(e) {
     if (produceValue) {
         valueVariable = newValueVariable();
     }
-    var then = ast_1.isBlock(e.then)
-        ? emitBlock(e.then)
-        : "{" + emitExpressionKeepContext(e.then) + "}";
+    var then = emitBlock(e.then);
     var el = e.else
-        ? ("\n" + indent('else') + " " + (e.else.kind === ast_1.SyntaxKind.Block
-            ? emitBlock(e.else)
-            : "{" + emitExpressionKeepContext(e.else) + "}"))
+        ? ("\n" + indent('else') + " " + emitBlock(e.else))
         : '';
     var code = "if (" + condition + ") " + then + el;
     if (produceValue) {
         hoist("let " + valueVariable + ";\n" + indent(code));
         var thisValueVariable = valueVariable;
         valueVariable = outerValueVariable;
-        return thisValueVariable;
+        return valueVariable
+            ? valueVariable + " = " + thisValueVariable
+            : thisValueVariable;
     }
     else
         return code;
@@ -186,9 +203,7 @@ function emitUnaryExpression(e) {
     return "" + tokenToJs[e.operator.kind] + emitExpression(e.rhs);
 }
 function emitWhileExpression(e) {
-    var body = function () { return ast_1.isBlock(e.body)
-        ? emitBlock(e.body)
-        : emitExpressionKeepContext(e.body); };
+    var body = function () { return emitBlock(e.body); };
     if (!context)
         return "while (" + emitExpression(e.condition) + ") {" + body() + "}";
     var hoisted = '';

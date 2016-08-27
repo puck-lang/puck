@@ -273,17 +273,17 @@ export interface ForExpression extends Token {
 
 export interface IfExpression extends Token {
   condition: Expression,
-  then: Expression,
-  else?: Expression,
+  then: BlockNode,
+  else?: BlockNode,
 }
 
 export interface LoopExpression extends Token {
-  body: Expression,
+  body: BlockNode,
 }
 
 export interface WhileExpression extends Token {
   condition: Expression,
-  body: Expression,
+  body: BlockNode,
 }
 
 export interface IndexAccess extends Expression {

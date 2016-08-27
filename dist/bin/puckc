@@ -11,12 +11,13 @@ var _arguments = process.argv.takeFrom(function (arg) {
 }).slice(1);
 var outDir = flag(_arguments, "--out-dir", "dist");
 var outFile = flag(_arguments, "--out-file");
-var extension = void 0;
+var __PUCK__value__1 = void 0;
 if (flag(_arguments, "--skip-extension")) {
-  extension = "";
+  __PUCK__value__1 = "";
 } else {
-  extension = ".js";
+  __PUCK__value__1 = ".js";
 };
+var extension = __PUCK__value__1;
 if (_arguments.length > 1 && outFile) {
   console.error("Can't specify --out-file with more than one input file");
   process.exit(1);
@@ -37,7 +38,9 @@ if (_arguments.length == 0) {
 } else {
   var builds = _arguments.map(function (file) {
     var out = outFile || outDir + "/" + file.replace(RegExp("\\.puck"), extension);
-    return build(file, out);
+    return build(file, out).catch(function () {
+      return process.exit(1);
+    });
   });
   Promise.all(builds);
 }

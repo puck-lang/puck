@@ -73,29 +73,33 @@ function indent(lines, level_ = level) {
   }
 }
 
-function emitInnerBlock(block: BlockNode) {
-
+function emitLines(block: Expression[]) {
+  let wasInContext = context
+  context = null
+  let lines: any[] = []
+  let outerHoist = hoist
+  hoist = code => {
+    lines.push(code)
+  }
+  for (let i = 0; i < block.length; i++) {
+    if (wasInContext && i == block.length - 1) {
+      context = wasInContext
+    }
+    lines.push(emitExpressionKeepContext(block[i]))
+  }
+  hoist = outerHoist
+  return lines
 }
 
 export function emitProgram(program: BlockNode) {
   let preamble = `#!/usr/bin/env node\n'use strict';\n`
-  return preamble + program.block.map(emitExpressionKeepContext).join(';\n')
+  let lines = emitLines(program.block)
+  return preamble + lines.join(';\n')
 }
 
 export function emitBlock(block: BlockNode) {
   level++
-  let wasInContext = context
-  context = null
-  let lines: any[] = []
-  hoist = code => {
-    lines.push(code)
-  }
-  for (let i = 0; i < block.block.length; i++) {
-    if (wasInContext && i == block.block.length - 1) {
-      context = wasInContext
-    }
-    lines.push(emitExpressionKeepContext(block.block[i]))
-  }
+  let lines = emitLines(block.block)
   let body
   let end = '}'
   if (lines.length !== 0) {
@@ -107,7 +111,7 @@ export function emitBlock(block: BlockNode) {
     end = indent(end, level - 1)
   }
   level--
-  return `{${body}${end}`
+  return `{${body || ''}${end}`
 }
 
 function emitScalarExpression(expression: any) {
@@ -132,23 +136,35 @@ function emitScalarExpression(expression: any) {
   }
 }
 
+let currentValueVariableContext
 function emitExpressionKeepContext(expression: any) {
-  let scalarExpression = emitScalarExpression(expression)
-  if (scalarExpression) {
-    if (context == Context.Return) {
-      return `return ${scalarExpression}`
-    }
-    else if (context == Context.Value && valueVariable) {
-      return `${valueVariable} = ${scalarExpression}`
-    }
-    else {
-      allowReturnContext = true
-      return scalarExpression
-    }
+  let outerValueVariableContext = currentValueVariableContext
+  if (currentValueVariableContext == valueVariable) {
+    valueVariable = null
+  } else {
+    currentValueVariableContext = valueVariable
   }
-  switch (expression.kind) {
-    case SyntaxKind.IfExpression: return emitIfExpression(expression);
-    default: throw `${SyntaxKind[expression.kind]} is not supported`
+  try {
+    let scalarExpression = emitScalarExpression(expression)
+    if (scalarExpression) {
+      if (context == Context.Return) {
+        return `return ${scalarExpression}`
+      }
+      else if (context == Context.Value && valueVariable) {
+        return `${valueVariable} = ${scalarExpression}`
+      }
+      else {
+        allowReturnContext = true
+        return scalarExpression
+      }
+    }
+    switch (expression.kind) {
+      case SyntaxKind.IfExpression: return emitIfExpression(expression);
+      default: throw `${SyntaxKind[expression.kind]} is not supported`
+    }
+  } finally {
+    valueVariable = currentValueVariableContext
+    currentValueVariableContext = outerValueVariableContext
   }
 }
 
@@ -210,15 +226,9 @@ function emitIfExpression(e: IfExpression) {
   if (produceValue) {
     valueVariable = newValueVariable()
   }
-  let then = isBlock(e.then)
-    ? emitBlock(e.then)
-    : `{${emitExpressionKeepContext(e.then)}}`
+  let then = emitBlock(e.then)
   let el = e.else
-    ? (`\n${indent('else')} ${
-      e.else.kind === SyntaxKind.Block
-        ? emitBlock(e.else as any)
-        : `{${emitExpressionKeepContext(e.else)}}`
-    }`)
+    ? (`\n${indent('else')} ${emitBlock(e.else as any)}`)
     : ''
 
   let code = `if (${condition}) ${then}${el}`
@@ -227,7 +237,9 @@ function emitIfExpression(e: IfExpression) {
     hoist(`let ${valueVariable};\n${indent(code)}`)
     let thisValueVariable = valueVariable
     valueVariable = outerValueVariable
-    return thisValueVariable
+    return valueVariable
+      ? `${valueVariable} = ${thisValueVariable}`
+      : thisValueVariable
   }
   else return code
 }
@@ -237,9 +249,7 @@ function emitUnaryExpression(e: BinaryExpression) {
 }
 
 function emitWhileExpression(e: WhileExpression) {
-  let body = () => isBlock(e.body)
-    ? emitBlock(e.body)
-    : emitExpressionKeepContext(e.body)
+  let body = () => emitBlock(e.body)
 
   if (!context) return `while (${emitExpression(e.condition)}) {${body()}}`
 

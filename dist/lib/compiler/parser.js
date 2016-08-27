@@ -241,7 +241,10 @@ function parse(input) {
         }
         else {
             skipKeyword(ast_1.SyntaxKind.ThenKeyword);
-            then = parseExpression();
+            then = {
+                kind: ast_1.SyntaxKind.Block,
+                block: [parseExpression()],
+            };
         }
         var ret = {
             kind: ast_1.SyntaxKind.IfExpression,
@@ -254,7 +257,10 @@ function parse(input) {
                 ret.else = parseBlock();
             }
             else {
-                ret.else = parseExpression();
+                ret.else = {
+                    kind: ast_1.SyntaxKind.Block,
+                    block: [parseExpression()],
+                };
             }
         }
         return ret;
@@ -268,7 +274,10 @@ function parse(input) {
         }
         else {
             skipKeyword(ast_1.SyntaxKind.ThenKeyword);
-            body = parseExpression();
+            body = {
+                kind: ast_1.SyntaxKind.Block,
+                block: [parseExpression()],
+            };
         }
         return {
             kind: ast_1.SyntaxKind.WhileExpression,
