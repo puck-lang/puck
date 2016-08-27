@@ -2,102 +2,66 @@
 
 'use strict';
 
-Array.prototype.takeFrom = function (predicate) {
-  var index = this.findIndex(predicate);
-  return this.slice(index);
-};
-var exec = require("child_process").exec;
+var cmd = require("../lib/helpers").cmd;
 var _arguments = process.argv.takeFrom(function (arg) {
   return arg.indexOf("puck") > 0;
 }).slice(1);
 var command = _arguments[0];
-function cmd(cmd, cb) {
-  return exec(cmd, {
-    cwd: process.cwd(),
-    shell: "/bin/bash"
-  }, function (error, stdout, stderr) {
-    if (stderr) {
-      console.error(stderr);
-    };
-    if (stdout) {
-      console.log(stdout);
-    };
-    if (error) {
-      throw error;
-    };
-    if (cb) {
-      return cb();
-    };
-  });
-};
-function build(file, cb) {
-  var outDir = arguments.length <= 2 || arguments[2] === undefined ? "dist" : arguments[2];
-  var compiler = arguments.length <= 3 || arguments[3] === undefined ? "dist" : arguments[3];
-  var backup = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
+function buildAll() {
+  var outFolder = arguments.length <= 0 || arguments[0] === undefined ? "dist" : arguments[0];
+  var compiler = arguments.length <= 1 || arguments[1] === undefined ? "dist" : arguments[1];
 
-  var __PUCK__value__1 = void 0;
-  if (file.slice(-5) == ".puck") {
-    __PUCK__value__1 = file;
-  } else {
-    __PUCK__value__1 = file + ".puck";
-  };
-  var puck = __PUCK__value__1;
-  var js = outDir + "/" + puck.replace(RegExp("\\.puck"), ".js");
-  if (puck.substring(0, 4) == "bin/") {
-    js = js.replace(RegExp("\\.js"), "");
-  };
-  return cmd("cat " + puck + " | node " + compiler + "/lib/compiler > " + js + ".tmp", function () {
-    var compileCmd = "babel " + js + ".tmp --out-file " + js + " && chmod +x " + js;
-    if (backup) {
-      compileCmd = "cp " + js + " " + js + ".bak-$(date +%d-%H-%M-%S) && " + compileCmd;
-    };
-    return cmd(compileCmd, cb);
-  });
+  return cmd("shopt -s globstar && " + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
 };
-function buildAll(folder, cb) {
-  var compiler = arguments.length <= 2 || arguments[2] === undefined ? "dist" : arguments[2];
-  var backup = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
-
-  return cmd("find {bin,lib} -name \"*.puck\" -exec puck build {} " + folder + " " + compiler + " " + backup + " \\;", cb);
-};
-function buildTestCompiler(cb) {
-  return cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}", function () {
-    return buildAll(".tmp/old", function () {
-      return cmd("cp dist/lib/{ast,compiler,parser,emitter}.js .tmp/old/lib &&           cp dist/lib/{ast,compiler,parser,emitter}.js .tmp/new/lib", function () {
-        return cb();
-      });
-    });
+function buildTestCompiler() {
+  return cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler")["then"](function () {
+    return buildAll(".tmp/old");
+  })["then"](function () {
+    return cmd("cp dist/lib/compiler/{ast,parser,emitter}.js .tmp/old/lib/compiler &&       cp dist/lib/js.js .tmp/old/lib &&       cp dist/lib/compiler/{ast,parser,emitter}.js .tmp/new/lib/compiler/ &&       cp dist/lib/js.js .tmp/new/lib    ");
   });
 };
 if (command == "build") {
-  var file = _arguments[1];
-  var outDir = _arguments[2];
-  var compiler = _arguments[3];
-  var backup = _arguments[4] != "false";
-  if (!file) {
-    console.error("Must specify a file to build");
-    process.exit(1);
-  };
-  build(file, function () {
+  var outDir = _arguments[1];
+  buildAll(outDir)["then"](function () {
     return console.log("done");
-  }, outDir, compiler, backup);
+  }).catch(function () {
+    return process.exit(1);
+  });
 } else {
   if (command == "test") {
-    buildTestCompiler(function () {
-      return cmd("");
+    buildTestCompiler()["then"](function () {
+      return cmd("shopt -s globstar && " + ".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/*.puck");
+    })["then"](function () {
+      return cmd("diff -Nr test/baselines .tmp/cases");
+    })["then"](function () {
+      return console.log("done");
+    }).catch(function () {
+      return process.exit(1);
     });
   } else {
-    if (command == "self-test") {
-      buildTestCompiler(function () {
-        return buildAll(".tmp/new", function () {
-          return cmd("diff -Nr .tmp/old .tmp/new", function () {
-            return console.log("done");
-          });
-        }, ".tmp/old");
+    if (command == "update-baselines") {
+      buildTestCompiler()["then"](function () {
+        return cmd("shopt -s globstar && " + ".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/*.puck");
+      })["then"](function () {
+        return console.log("done");
+      }).catch(function () {
+        return process.exit(1);
       });
     } else {
-      console.error("Unknown command", command);
-      process.exit(1);
+      if (command == "self-test") {
+        buildTestCompiler()["then"](function () {
+          return buildAll(".tmp/new", ".tmp/old");
+        })["then"](function () {
+          return cmd("diff -Nr .tmp/old .tmp/new");
+        })["then"](function () {
+          return console.log("done");
+        }).catch(function () {
+          return process.exit(1);
+        });
+      } else {
+        console.error("Unknown command", command);
+        process.exit(1);
+      }
     }
   }
 }

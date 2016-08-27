@@ -1,0 +1,109 @@
+let mut a1
+let mut a2
+let mut a3
+let mut a4
+let mut a5
+let mut a6
+
+let mut b1
+let mut b2
+let mut b3
+let mut b4
+let mut b5
+let mut b6
+
+// operator <
+
+let mut r1a1 = a1 < b1
+let mut r1a3 = a2 < b2
+let mut r1a4 = a3 < b3
+let mut r1a5 = a4 < b4
+let mut r1a6 = a5 < b5
+let mut r1a7 = a6 < b6
+
+let mut r1b1 = b1 < a1
+let mut r1b3 = b2 < a2
+let mut r1b4 = b3 < a3
+let mut r1b5 = b4 < a4
+let mut r1b6 = b5 < a5
+let mut r1b7 = b6 < a6
+
+// operator >
+
+let mut r2a1 = a1 > b1
+let mut r2a3 = a2 > b2
+let mut r2a4 = a3 > b3
+let mut r2a5 = a4 > b4
+let mut r2a6 = a5 > b5
+let mut r2a7 = a6 > b6
+
+let mut r2b1 = b1 > a1
+let mut r2b3 = b2 > a2
+let mut r2b4 = b3 > a3
+let mut r2b5 = b4 > a4
+let mut r2b6 = b5 > a5
+let mut r2b7 = b6 > a6
+
+// operator <=
+
+let mut r3a1 = a1 <= b1
+let mut r3a3 = a2 <= b2
+let mut r3a4 = a3 <= b3
+let mut r3a5 = a4 <= b4
+let mut r3a6 = a5 <= b5
+let mut r3a7 = a6 <= b6
+
+let mut r3b1 = b1 <= a1
+let mut r3b3 = b2 <= a2
+let mut r3b4 = b3 <= a3
+let mut r3b5 = b4 <= a4
+let mut r3b6 = b5 <= a5
+let mut r3b7 = b6 <= a6
+
+// operator >=
+
+let mut r4a1 = a1 >= b1
+let mut r4a3 = a2 >= b2
+let mut r4a4 = a3 >= b3
+let mut r4a5 = a4 >= b4
+let mut r4a6 = a5 >= b5
+let mut r4a7 = a6 >= b6
+
+let mut r4b1 = b1 >= a1
+let mut r4b3 = b2 >= a2
+let mut r4b4 = b3 >= a3
+let mut r4b5 = b4 >= a4
+let mut r4b6 = b5 >= a5
+let mut r4b7 = b6 >= a6
+
+// operator ==
+
+let mut r5a1 = a1 == b1
+let mut r5a3 = a2 == b2
+let mut r5a4 = a3 == b3
+let mut r5a5 = a4 == b4
+let mut r5a6 = a5 == b5
+let mut r5a7 = a6 == b6
+
+let mut r5b1 = b1 == a1
+let mut r5b3 = b2 == a2
+let mut r5b4 = b3 == a3
+let mut r5b5 = b4 == a4
+let mut r5b6 = b5 == a5
+let mut r5b7 = b6 == a6
+
+// operator !=
+
+let mut r6a1 = a1 != b1
+let mut r6a3 = a2 != b2
+let mut r6a4 = a3 != b3
+let mut r6a5 = a4 != b4
+let mut r6a6 = a5 != b5
+let mut r6a7 = a6 != b6
+
+let mut r6b1 = b1 != a1
+let mut r6b3 = b2 != a2
+let mut r6b4 = b3 != a3
+let mut r6b5 = b4 != a4
+let mut r6b6 = b5 != a5
+let mut r6b7 = b6 != a6

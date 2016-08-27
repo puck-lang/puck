@@ -5,9 +5,13 @@
     "target": "es5",
     "noImplicitAny": false,
     "sourceMap": false,
-    "outDir": "dist/lib"
+    "outDir": "dist/lib/compiler"
   },
   "files": [
-    "lib/compiler.ts"
+    "lib/compiler/ast.ts",
+    "lib/compiler/emitter.ts",
+    // "lib/compiler/input_stream_type.ts",
+    "lib/compiler/parser.ts",
+    "lib/compiler/token_stream_type.ts"
   ]
 }

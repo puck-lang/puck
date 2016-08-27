@@ -1,84 +1,58 @@
-Array.prototype.takeFrom = fn (predicate) {
-  let index = this.findIndex(predicate)
-  this.slice(index)
-}
-let exec = require('child_process').exec
+let cmd = require('../lib/helpers').cmd
 
 let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puck') > 0}).slice(1)
 let command = arguments[0]
 
-fn cmd(cmd, cb) {
-  exec(
-    cmd, {
-      cwd: process.cwd(),
-      shell: '/bin/bash',
-    },
-    fn (error, stdout, stderr) {
-      if stderr then console.error(stderr)
-      if stdout then console.log(stdout)
-      if error then throw error
-      if cb then cb()
-    },
+fn buildAll(outFolder = 'dist', compiler = 'dist') {
+  cmd(
+    'shopt -s globstar && ' +
+    compiler + '/bin/puckc --out-dir ' + outFolder + ' --skip-extension true bin/**/*.puck && ' +
+    compiler + '/bin/puckc --out-dir ' + outFolder + ' lib/**/*.puck'
   )
 }
 
-fn build(file, cb, outDir = 'dist', compiler = 'dist', backup = true) {
-  let mut puck = if file.slice(-5) == '.puck' then file else file + '.puck'
-  let mut js = outDir + '/' + puck.replace(RegExp('\\.puck'), '.js')
-  if puck.substring(0, 4) == 'bin/' then js = js.replace(RegExp('\\.js'), '')
-
-
-  cmd('cat ' + puck + ' | node ' + compiler + '/lib/compiler > ' + js + '.tmp', fn () {
-    let mut compileCmd = 'babel ' + js + '.tmp --out-file ' + js + ' && chmod +x ' + js
-    if backup {
-      compileCmd = 'cp ' + js + ' ' + js + '.bak-$(date +%d-%H-%M-%S) && ' + compileCmd
-    }
-    cmd(compileCmd, cb)
-  })
-}
-
-fn buildAll(folder, cb, compiler = 'dist', backup = false) {
-  cmd('find {bin,lib} -name "*.puck" -exec puck build {} ' + folder + ' ' + compiler + ' ' + backup + ' \\;', cb)
-}
-
-fn buildTestCompiler(cb) {
-  cmd('rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}', fn () {
-    buildAll('.tmp/old', fn () {
-      cmd('cp dist/lib/{ast,compiler,parser,emitter}.js .tmp/old/lib &&\
-           cp dist/lib/{ast,compiler,parser,emitter}.js .tmp/new/lib', fn () {
-        cb()
-      })
-    })
-  })
+fn buildTestCompiler() {
+  cmd('rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler')
+    ['then'](fn () {buildAll('.tmp/old')})
+    ['then'](fn () {cmd('cp dist/lib/compiler/{ast,parser,emitter}.js .tmp/old/lib/compiler && \
+      cp dist/lib/js.js .tmp/old/lib && \
+      cp dist/lib/compiler/{ast,parser,emitter}.js .tmp/new/lib/compiler/ && \
+      cp dist/lib/js.js .tmp/new/lib\
+    ')})
 }
 
 if command == 'build' {
-  let file = arguments[1]
-  let outDir = arguments[2]
-  let compiler = arguments[3]
-  let backup = arguments[4] != 'false'
-  if not file {
-    console.error('Must specify a file to build')
-    process.exit(1)
-  }
+  let outDir = arguments[1]
 
-  build(file, fn () {
-    console.log('done')
-  }, outDir, compiler, backup)
+  buildAll(outDir)
+    ['then'](fn () {console.log('done')})
+    .catch(fn () {process.exit(1)})
 }
 else if command == 'test' {
-  buildTestCompiler(fn () {
-    cmd('')
-  })
+  buildTestCompiler()
+    ['then'](fn () {cmd(
+      'shopt -s globstar && ' +
+      '.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/*.puck'
+    )})
+    ['then'](fn () {cmd('diff -Nr test/baselines .tmp/cases')})
+    ['then'](fn () {console.log('done')})
+    .catch(fn () {process.exit(1)})
+}
+else if command == 'update-baselines' {
+  buildTestCompiler()
+    ['then'](fn () {cmd(
+      'shopt -s globstar && ' +
+      '.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/*.puck'
+    )})
+    ['then'](fn () {console.log('done')})
+    .catch(fn () {process.exit(1)})
 }
 else if command == 'self-test' {
-  buildTestCompiler(fn () {
-    buildAll('.tmp/new', fn () {
-      cmd('diff -Nr .tmp/old .tmp/new', fn () {
-        console.log('done')
-      })
-    }, '.tmp/old')
-  })
+  buildTestCompiler()
+    ['then'](fn () {buildAll('.tmp/new', '.tmp/old')})
+    ['then'](fn () {cmd('diff -Nr .tmp/old .tmp/new')})
+    ['then'](fn () {console.log('done')})
+    .catch(fn () {process.exit(1)})
 }
 else {
   console.error('Unknown command', command)

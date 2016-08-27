@@ -1,0 +1,36 @@
+let exec = require('child_process').exec
+let _new = require('./js')._new
+
+Array.prototype.takeFrom = fn (predicate) {
+  let index = this.findIndex(predicate)
+  this.slice(index)
+}
+
+fn cmd(cmd) {
+  _new(Promise)(fn (resolve, reject) {
+    exec(
+      cmd,
+      {
+        cwd: process.cwd(),
+        shell: '/bin/bash',
+      },
+      fn (error, stdout, stderr) {
+        if stderr then console.error(stderr)
+        if stdout then console.log(stdout)
+        if error then reject(error) else resolve()
+      },
+    )
+  })
+}
+
+fn flag(arguments, name, defaultValue) {
+  let index = arguments.indexOf(name)
+  if index >= 0 {
+    let value = arguments[index + 1]
+    arguments.splice(index, 2)
+    value
+  } else defaultValue
+}
+
+module.exports.cmd = cmd
+module.exports.flag = flag

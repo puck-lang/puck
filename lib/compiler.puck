@@ -1,0 +1,27 @@
+let fs = require('fs')
+let path = require('path')
+let InputStream = require('./compiler/input_stream').InputStream
+let TokenStream = require('./compiler/token_stream').TokenStream
+let parse = require('./compiler/parser').parse
+let emitProgram = require('./compiler/emitter').emitProgram
+let cmd = require('./helpers').cmd
+
+fn buildString(puck, file) {
+  emitProgram(parse(TokenStream(InputStream(puck, file))))
+}
+
+fn build(file, outFile) {
+  file = path.normalize(file)
+  outFile = path.normalize(outFile)
+  let outDir = path.dirname(outFile)
+  let puck = fs.readFileSync(file, {encoding: 'utf-8'})
+  let js = buildString(puck, file)
+  cmd('mkdir -p ' + outDir)
+    ['then'](fn () {fs.writeFileSync(outFile + '.tmp', js)})
+    ['then'](fn () {cmd('babel ' + outFile + '.tmp --out-file ' + outFile + ' && chmod +x ' + outFile)})
+    ['then'](fn () {fs.unlinkSync(outFile + '.tmp')})
+}
+
+module.exports.buildString = buildString
+module.exports.build = build
+

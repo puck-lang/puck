@@ -1,4 +1,4 @@
-fn InputStream(input) {
+fn InputStream(input, file) {
   let mut pos = 0
   let mut line = 1
   let mut col = 1
@@ -24,7 +24,9 @@ fn InputStream(input) {
   }
 
   fn croak(msg) {
-    throw Error(msg + ' (' + line + ':' + col + ')')
+    console.log(msg + ' (' + line + ':' + col + ')
+    at ' + file + '\n\n')
+    process.exit(1)
   }
 
   {next, peek, eof, croak, getLine: fn(){line}, getCol: fn(){col}}
