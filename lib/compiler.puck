@@ -17,9 +17,9 @@ fn build(file, outFile) {
   let puck = fs.readFileSync(file, {encoding: 'utf-8'})
   let js = buildString(puck, file)
   cmd('mkdir -p ' + outDir)
-    ['then'](fn () {fs.writeFileSync(outFile + '.tmp', js)})
-    ['then'](fn () {cmd('babel ' + outFile + '.tmp --out-file ' + outFile + ' && chmod +x ' + outFile)})
-    ['then'](fn () {fs.unlinkSync(outFile + '.tmp')})
+    ['then'](fn () then fs.writeFileSync(outFile + '.tmp', js))
+    ['then'](fn () then cmd('babel ' + outFile + '.tmp --out-file ' + outFile + ' && chmod +x ' + outFile))
+    ['then'](fn () then fs.unlinkSync(outFile + '.tmp'))
 }
 
 module.exports.buildString = buildString

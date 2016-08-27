@@ -245,13 +245,16 @@ export function parse(input: TokenStream) {
       name = input.next()
     }
     let parameterList = delimited(`(`, `)`, `,`, () => maybeInitializer(parseVariableDeclaration()))
-    let body
+    let body: BlockNode
     if (isToken(SyntaxKind.OpenBraceToken)) {
       body = parseBlock()
     } else {
-      // ret.else = parseExpression()
+      skipKeyword(SyntaxKind.ThenKeyword)
+      body = {
+        kind: SyntaxKind.Block,
+        block: [parseExpression()],
+      }
     }
-    // let body = parseExpression()
     return {
       kind: SyntaxKind.Function,
       name,

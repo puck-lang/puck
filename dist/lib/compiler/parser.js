@@ -219,8 +219,12 @@ function parse(input) {
             body = parseBlock();
         }
         else {
+            skipKeyword(ast_1.SyntaxKind.ThenKeyword);
+            body = {
+                kind: ast_1.SyntaxKind.Block,
+                block: [parseExpression()],
+            };
         }
-        // let body = parseExpression()
         return {
             kind: ast_1.SyntaxKind.Function,
             name: name,
