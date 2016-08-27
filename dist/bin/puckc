@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var cmd = require("../lib/helpers").cmd;
+var flag = require("../lib/helpers").flag;
+var buildString = require("../lib/compiler").buildString;
+var build = require("../lib/compiler").build;
+var _arguments = process.argv.takeFrom(function (arg) {
+  return arg.indexOf("puckc") >= 0;
+}).slice(1);
+var outDir = flag(_arguments, "--out-dir", "dist");
+var outFile = flag(_arguments, "--out-file");
+var extension = void 0;
+if (flag(_arguments, "--skip-extension")) {
+  extension = "";
+} else {
+  extension = ".js";
+};
+if (_arguments.length > 1 && outFile) {
+  console.error("Can't specify --out-file with more than one input file");
+  process.exit(1);
+};
+if (_arguments.length == 0) {
+  (function () {
+    var stdin = process.stdin;
+    var inputChunks = Array();
+    stdin.resume();
+    stdin.setEncoding("utf8");
+    stdin.on("data", inputChunks.push);
+    stdin.on("end", function () {
+      var puck = inputChunks.join();
+      var js = buildString(puck);
+      return console.log(js);
+    });
+  })();
+} else {
+  var builds = _arguments.map(function (file) {
+    var out = outFile || outDir + "/" + file.replace(RegExp("\\.puck"), extension);
+    return build(file, out);
+  });
+  Promise.all(builds);
+}
