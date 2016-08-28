@@ -53,13 +53,6 @@ function parse(input) {
         console.error('token', token, typeof token);
         input.croak("Unexpected token: " + ast_1.tokenToText[token.kind]);
     }
-    function maybeInitializer(e) {
-        if (isToken(ast_1.SyntaxKind.EqualsToken)) {
-            input.next();
-            e.initializer = parseExpression();
-        }
-        return e;
-    }
     function isAssignment(token) {
         if (!token)
             return;
@@ -195,6 +188,19 @@ function parse(input) {
             closeParen: input.peek(),
         };
     }
+    function parseTypeBound() {
+        expect(ast_1.SyntaxKind.Identifier, 'identifier');
+        var name = input.next();
+        var parameters;
+        if (isToken(ast_1.SyntaxKind.LessThanToken)) {
+            parameters = delimited('<', '>', ',', parseTypeBound);
+        }
+        return {
+            kind: ast_1.SyntaxKind.TypeBound,
+            name: name,
+            parameters: parameters,
+        };
+    }
     function parseVariableDeclaration() {
         var mutable = false;
         if (isToken(ast_1.SyntaxKind.MutKeyword)) {
@@ -202,18 +208,32 @@ function parse(input) {
             mutable = true;
         }
         expect(ast_1.SyntaxKind.Identifier, 'identifier');
-        return {
+        var declaration = {
             kind: ast_1.SyntaxKind.VariableDeclaration,
             identifier: input.next(),
             mutable: mutable,
         };
+        if (isToken(ast_1.SyntaxKind.ColonToken)) {
+            input.next();
+            declaration.typeBound = parseTypeBound();
+        }
+        if (isToken(ast_1.SyntaxKind.EqualsToken)) {
+            input.next();
+            declaration.initializer = parseExpression();
+        }
+        return declaration;
     }
     function parseFunction() {
         var name;
         if (isToken(ast_1.SyntaxKind.Identifier)) {
             name = input.next();
         }
-        var parameterList = delimited("(", ")", ",", function () { return maybeInitializer(parseVariableDeclaration()); });
+        var parameterList = delimited("(", ")", ",", function () { return parseVariableDeclaration(); });
+        var returnType;
+        if (isToken(ast_1.SyntaxKind.ColonToken)) {
+            input.next();
+            returnType = parseTypeBound();
+        }
         var body;
         if (isToken(ast_1.SyntaxKind.OpenBraceToken)) {
             body = parseBlock();
@@ -229,6 +249,7 @@ function parse(input) {
             kind: ast_1.SyntaxKind.Function,
             name: name,
             parameterList: parameterList,
+            returnType: returnType,
             body: body,
         };
     }
@@ -328,7 +349,7 @@ function parse(input) {
             }
             if (isToken(ast_1.SyntaxKind.LetKeyword)) {
                 input.next();
-                return maybeInitializer(parseVariableDeclaration());
+                return parseVariableDeclaration();
             }
             if (isToken(ast_1.SyntaxKind.NotKeyword)
                 || isToken(ast_1.SyntaxKind.MinusToken)

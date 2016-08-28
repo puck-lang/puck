@@ -23,6 +23,7 @@ import {
   StringLiteral,
   SyntaxKind,
   Token,
+  TypeBound,
   UnaryExpression,
   VariableDeclaration,
   WhileExpression,

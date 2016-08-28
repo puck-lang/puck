@@ -54,22 +54,23 @@
     SyntaxKind[SyntaxKind["Block"] = 50] = "Block";
     SyntaxKind[SyntaxKind["Function"] = 51] = "Function";
     SyntaxKind[SyntaxKind["Identifier"] = 52] = "Identifier";
-    SyntaxKind[SyntaxKind["VariableDeclaration"] = 53] = "VariableDeclaration";
-    SyntaxKind[SyntaxKind["AssignmentExpression"] = 54] = "AssignmentExpression";
-    SyntaxKind[SyntaxKind["BinaryExpression"] = 55] = "BinaryExpression";
-    SyntaxKind[SyntaxKind["CallExpression"] = 56] = "CallExpression";
-    SyntaxKind[SyntaxKind["ForExpression"] = 57] = "ForExpression";
-    SyntaxKind[SyntaxKind["IfExpression"] = 58] = "IfExpression";
-    SyntaxKind[SyntaxKind["LoopExpression"] = 59] = "LoopExpression";
-    SyntaxKind[SyntaxKind["UnaryExpression"] = 60] = "UnaryExpression";
-    SyntaxKind[SyntaxKind["WhileExpression"] = 61] = "WhileExpression";
-    SyntaxKind[SyntaxKind["IndexAccess"] = 62] = "IndexAccess";
-    SyntaxKind[SyntaxKind["MemberAccess"] = 63] = "MemberAccess";
-    SyntaxKind[SyntaxKind["BooleanLiteral"] = 64] = "BooleanLiteral";
-    SyntaxKind[SyntaxKind["NumberLiteral"] = 65] = "NumberLiteral";
-    SyntaxKind[SyntaxKind["ObjectLiteral"] = 66] = "ObjectLiteral";
-    SyntaxKind[SyntaxKind["StringLiteral"] = 67] = "StringLiteral";
-    SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 68] = "ObjectLiteralMember";
+    SyntaxKind[SyntaxKind["TypeBound"] = 53] = "TypeBound";
+    SyntaxKind[SyntaxKind["VariableDeclaration"] = 54] = "VariableDeclaration";
+    SyntaxKind[SyntaxKind["AssignmentExpression"] = 55] = "AssignmentExpression";
+    SyntaxKind[SyntaxKind["BinaryExpression"] = 56] = "BinaryExpression";
+    SyntaxKind[SyntaxKind["CallExpression"] = 57] = "CallExpression";
+    SyntaxKind[SyntaxKind["ForExpression"] = 58] = "ForExpression";
+    SyntaxKind[SyntaxKind["IfExpression"] = 59] = "IfExpression";
+    SyntaxKind[SyntaxKind["LoopExpression"] = 60] = "LoopExpression";
+    SyntaxKind[SyntaxKind["UnaryExpression"] = 61] = "UnaryExpression";
+    SyntaxKind[SyntaxKind["WhileExpression"] = 62] = "WhileExpression";
+    SyntaxKind[SyntaxKind["IndexAccess"] = 63] = "IndexAccess";
+    SyntaxKind[SyntaxKind["MemberAccess"] = 64] = "MemberAccess";
+    SyntaxKind[SyntaxKind["BooleanLiteral"] = 65] = "BooleanLiteral";
+    SyntaxKind[SyntaxKind["NumberLiteral"] = 66] = "NumberLiteral";
+    SyntaxKind[SyntaxKind["ObjectLiteral"] = 67] = "ObjectLiteral";
+    SyntaxKind[SyntaxKind["StringLiteral"] = 68] = "StringLiteral";
+    SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 69] = "ObjectLiteralMember";
 })(exports.SyntaxKind || (exports.SyntaxKind = {}));
 var SyntaxKind = exports.SyntaxKind;
 exports.textToToken = {
@@ -134,8 +135,6 @@ exports.textToToken = {
     '*': SyntaxKind.AsteriskToken,
     '/': SyntaxKind.SlashToken,
     '%': SyntaxKind.PercentToken,
-    // '<<': SyntaxKind.LessThanLessThanToken,
-    // '>>': SyntaxKind.GreaterThanGreaterThanToken,
     '=': SyntaxKind.EqualsToken,
     '+=': SyntaxKind.PlusEqualsToken,
     '-=': SyntaxKind.MinusEqualsToken,

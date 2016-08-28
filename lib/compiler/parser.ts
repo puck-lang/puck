@@ -23,6 +23,7 @@ import {
   StringLiteral,
   SyntaxKind,
   Token,
+  TypeBound,
   UnaryExpression,
   VariableDeclaration,
   WhileExpression,
@@ -84,15 +85,6 @@ export function parse(input: TokenStream) {
     let token = input.peek()
     console.error('token', token, typeof token)
     input.croak(`Unexpected token: ${tokenToText[token.kind]}`)
-  }
-
-
-  function maybeInitializer(e: VariableDeclaration) {
-    if (isToken(SyntaxKind.EqualsToken)) {
-      input.next()
-      e.initializer = parseExpression()
-    }
-    return e
   }
 
   function isAssignment(token: Token) {
@@ -225,6 +217,21 @@ export function parse(input: TokenStream) {
     }
   }
 
+  function parseTypeBound(): TypeBound {
+    expect(SyntaxKind.Identifier, 'identifier')
+    let name = input.next() as Identifier
+    let parameters
+    if (isToken(SyntaxKind.LessThanToken)) {
+      parameters = delimited('<', '>', ',', parseTypeBound)
+    }
+
+    return {
+      kind: SyntaxKind.TypeBound,
+      name,
+      parameters,
+    }
+  }
+
   function parseVariableDeclaration(): VariableDeclaration {
     let mutable = false
     if (isToken(SyntaxKind.MutKeyword)) {
@@ -232,11 +239,23 @@ export function parse(input: TokenStream) {
       mutable = true
     }
     expect(SyntaxKind.Identifier, 'identifier')
-    return {
+    let declaration: VariableDeclaration = {
       kind: SyntaxKind.VariableDeclaration,
       identifier: input.next() as Identifier,
       mutable,
     }
+
+    if (isToken(SyntaxKind.ColonToken)) {
+      input.next()
+      declaration.typeBound = parseTypeBound()
+    }
+
+    if (isToken(SyntaxKind.EqualsToken)) {
+      input.next()
+      declaration.initializer = parseExpression()
+    }
+
+    return declaration
   }
 
   function parseFunction(): FunctionNode {
@@ -244,7 +263,14 @@ export function parse(input: TokenStream) {
     if (isToken(SyntaxKind.Identifier)) {
       name = input.next()
     }
-    let parameterList = delimited(`(`, `)`, `,`, () => maybeInitializer(parseVariableDeclaration()))
+    let parameterList = delimited(`(`, `)`, `,`, () => parseVariableDeclaration())
+
+    let returnType
+    if (isToken(SyntaxKind.ColonToken)) {
+      input.next()
+      returnType = parseTypeBound()
+    }
+
     let body: BlockNode
     if (isToken(SyntaxKind.OpenBraceToken)) {
       body = parseBlock()
@@ -255,10 +281,12 @@ export function parse(input: TokenStream) {
         block: [parseExpression()],
       }
     }
+
     return {
       kind: SyntaxKind.Function,
       name,
       parameterList,
+      returnType,
       body,
     }
   }
@@ -357,7 +385,7 @@ export function parse(input: TokenStream) {
       }
       if (isToken(SyntaxKind.LetKeyword)) {
         input.next()
-        return maybeInitializer(parseVariableDeclaration())
+        return parseVariableDeclaration()
       }
       if (isToken(SyntaxKind.NotKeyword)
        || isToken(SyntaxKind.MinusToken)

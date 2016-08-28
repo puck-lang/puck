@@ -57,6 +57,7 @@ export enum SyntaxKind {
   Block,
   Function,
   Identifier,
+  TypeBound,
   VariableDeclaration,
 
   AssignmentExpression,
@@ -141,8 +142,6 @@ export const textToToken = {
   '*': SyntaxKind.AsteriskToken,
   '/': SyntaxKind.SlashToken,
   '%': SyntaxKind.PercentToken,
-  // '<<': SyntaxKind.LessThanLessThanToken,
-  // '>>': SyntaxKind.GreaterThanGreaterThanToken,
   '=': SyntaxKind.EqualsToken,
   '+=': SyntaxKind.PlusEqualsToken,
   '-=': SyntaxKind.MinusEqualsToken,
@@ -150,8 +149,6 @@ export const textToToken = {
   '**=': SyntaxKind.AsteriskAsteriskEqualsToken,
   '/=': SyntaxKind.SlashEqualsToken,
   '%=': SyntaxKind.PercentEqualsToken,
-  // '<<=': SyntaxKind.LessThanLessThanEqualsToken,
-  // '>>=': SyntaxKind.GreaterThanGreaterThanEqualsToken,
 }
 
 function reverse(object) {
@@ -224,6 +221,7 @@ export interface BlockNode extends Token {
 export interface FunctionNode extends Token {
   name?: Identifier
   parameterList: Array<VariableDeclaration>
+  returnType?: TypeBound
   body: BlockNode
 }
 
@@ -231,9 +229,15 @@ export interface SimpleIdentifier extends Token {
   name: string
 }
 
+export interface TypeBound extends Token {
+  name: SimpleIdentifier
+  parameters: Array<TypeBound>
+}
+
 export interface VariableDeclaration extends Token {
   identifier: SimpleIdentifier
   mutable: boolean
+  typeBound?: TypeBound
   initializer?: Expression
 }
 
