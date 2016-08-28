@@ -3,6 +3,7 @@ import {
   isMember,
   textToToken,
   tokenToText,
+  ArrayLiteral,
   AssignmentExpression,
   BinaryExpression,
   BlockNode,
@@ -344,6 +345,11 @@ export function parse(input: TokenStream) {
     }
   }
 
+  function parseArrayLiteral(): ArrayLiteral {
+    let members = delimited(`[`, `]`, `,`, parseExpression)
+    return { kind: SyntaxKind.ArrayLiteral, members }
+  }
+
   function parseObjectLiteralMember(): ObjectLiteralMember {
     let name = consumeToken(SyntaxKind.Identifier) as Identifier
     let value
@@ -376,6 +382,7 @@ export function parse(input: TokenStream) {
         consumeToken(SyntaxKind.CloseParenToken)
         return exp
       }
+      if (isToken(SyntaxKind.OpenBracketToken)) return parseArrayLiteral()
       if (isToken(SyntaxKind.OpenBraceToken)) return parseObjectLiteral()
       if (isToken(SyntaxKind.IfKeyword)) return parseIf()
       if (isToken(SyntaxKind.WhileKeyword)) return parseWhile()

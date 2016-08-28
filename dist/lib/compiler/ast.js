@@ -66,11 +66,12 @@
     SyntaxKind[SyntaxKind["WhileExpression"] = 62] = "WhileExpression";
     SyntaxKind[SyntaxKind["IndexAccess"] = 63] = "IndexAccess";
     SyntaxKind[SyntaxKind["MemberAccess"] = 64] = "MemberAccess";
-    SyntaxKind[SyntaxKind["BooleanLiteral"] = 65] = "BooleanLiteral";
-    SyntaxKind[SyntaxKind["NumberLiteral"] = 66] = "NumberLiteral";
-    SyntaxKind[SyntaxKind["ObjectLiteral"] = 67] = "ObjectLiteral";
-    SyntaxKind[SyntaxKind["StringLiteral"] = 68] = "StringLiteral";
-    SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 69] = "ObjectLiteralMember";
+    SyntaxKind[SyntaxKind["ArrayLiteral"] = 65] = "ArrayLiteral";
+    SyntaxKind[SyntaxKind["BooleanLiteral"] = 66] = "BooleanLiteral";
+    SyntaxKind[SyntaxKind["NumberLiteral"] = 67] = "NumberLiteral";
+    SyntaxKind[SyntaxKind["ObjectLiteral"] = 68] = "ObjectLiteral";
+    SyntaxKind[SyntaxKind["StringLiteral"] = 69] = "StringLiteral";
+    SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 70] = "ObjectLiteralMember";
 })(exports.SyntaxKind || (exports.SyntaxKind = {}));
 var SyntaxKind = exports.SyntaxKind;
 exports.textToToken = {

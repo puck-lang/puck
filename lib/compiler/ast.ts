@@ -72,6 +72,7 @@ export enum SyntaxKind {
   IndexAccess,
   MemberAccess,
 
+  ArrayLiteral,
   BooleanLiteral,
   NumberLiteral,
   ObjectLiteral,
@@ -187,6 +188,10 @@ export function isMember(token: Token): token is MemberAccess {
 
 export interface Token {
   kind: SyntaxKind
+}
+
+export interface ArrayLiteral extends Expression {
+  members: Array<Expression>
 }
 
 export interface BooleanLiteral extends Expression {

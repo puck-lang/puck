@@ -96,6 +96,7 @@ function emitScalarExpression(expression) {
         case ast_1.SyntaxKind.BreakKeyword: return emitBreak(expression);
         case ast_1.SyntaxKind.ReturnKeyword: return emitReturn(expression);
         case ast_1.SyntaxKind.ThrowKeyword: return emitThrow(expression);
+        case ast_1.SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
         case ast_1.SyntaxKind.BooleanLiteral: return emitBooleanLiteral(expression);
         case ast_1.SyntaxKind.NumberLiteral: return emitNumberLiteral(expression);
         case ast_1.SyntaxKind.ObjectLiteral: return emitObjectLiteral(expression);
@@ -233,6 +234,22 @@ function emitThrow(e) {
     allowReturnContext = false;
     context = null;
     return "throw " + emitExpression(e.expression, Context.Value);
+}
+function emitArrayLiteral(l) {
+    var members = l.members.map(function (e) { return emitExpression(e); });
+    var body;
+    if (members.length == 0) {
+        body = ']';
+    }
+    else if (l.members.length == 1) {
+        body = members[0] + "]";
+    }
+    else {
+        level++;
+        body = "\n" + indent(members).join(",\n") + ",\n" + indent(']', level - 1);
+        level--;
+    }
+    return "[" + body;
 }
 function emitBooleanLiteral(l) {
     return "" + l.value;

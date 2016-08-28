@@ -306,6 +306,10 @@ function parse(input) {
             body: body,
         };
     }
+    function parseArrayLiteral() {
+        var members = delimited("[", "]", ",", parseExpression);
+        return { kind: ast_1.SyntaxKind.ArrayLiteral, members: members };
+    }
     function parseObjectLiteralMember() {
         var name = consumeToken(ast_1.SyntaxKind.Identifier);
         var value;
@@ -337,6 +341,8 @@ function parse(input) {
                 consumeToken(ast_1.SyntaxKind.CloseParenToken);
                 return exp;
             }
+            if (isToken(ast_1.SyntaxKind.OpenBracketToken))
+                return parseArrayLiteral();
             if (isToken(ast_1.SyntaxKind.OpenBraceToken))
                 return parseObjectLiteral();
             if (isToken(ast_1.SyntaxKind.IfKeyword))

@@ -3,6 +3,7 @@ import {
   isIdentifier,
   textToToken,
   tokenToText,
+  ArrayLiteral,
   AssignmentExpression,
   BinaryExpression,
   BlockNode,
@@ -130,6 +131,7 @@ function emitScalarExpression(expression: any) {
     case SyntaxKind.BreakKeyword: return emitBreak(expression);
     case SyntaxKind.ReturnKeyword: return emitReturn(expression);
     case SyntaxKind.ThrowKeyword: return emitThrow(expression);
+    case SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
     case SyntaxKind.BooleanLiteral: return emitBooleanLiteral(expression);
     case SyntaxKind.NumberLiteral: return emitNumberLiteral(expression);
     case SyntaxKind.ObjectLiteral: return emitObjectLiteral(expression);
@@ -287,6 +289,23 @@ function emitThrow(e) {
   allowReturnContext = false
   context = null
   return `throw ${emitExpression(e.expression, Context.Value)}`
+}
+
+function emitArrayLiteral(l: ArrayLiteral) {
+  let members: any[] = l.members.map(e => emitExpression(e))
+  let body
+
+  if (members.length == 0) {
+    body = ']'
+  } else if (l.members.length == 1) {
+    body = `${members[0]}]`
+  } else {
+    level++
+    body = `\n${indent(members).join(`,\n`)},\n${indent(']', level - 1)}`
+    level--
+  }
+
+  return `[${body}`
 }
 
 function emitBooleanLiteral(l: BooleanLiteral) {
