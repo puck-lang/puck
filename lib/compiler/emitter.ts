@@ -217,7 +217,7 @@ function emitBinaryExpression(e: BinaryExpression) {
 }
 
 function emitCallExpression(fn: CallExpression) {
-  return `${emitExpression(fn.fn)}(${fn.argumentList.map(
+  return `${emitExpression(fn.func)}(${fn.argumentList.map(
     arg => emitExpression(arg, Context.Value)
   ).join(', ')})`
 }
@@ -229,9 +229,9 @@ function emitIfExpression(e: IfExpression) {
   if (produceValue) {
     valueVariable = newValueVariable()
   }
-  let then = emitBlock(e.then)
-  let el = e.else
-    ? (`\n${indent('else')} ${emitBlock(e.else as any)}`)
+  let then = emitBlock(e._then)
+  let el = e._else
+    ? (`\n${indent('else')} ${emitBlock(e._else as any)}`)
     : ''
 
   let code = `if (${condition}) ${then}${el}`

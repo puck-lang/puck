@@ -17,7 +17,7 @@ function buildTestCompiler() {
   return cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler")["then"](function () {
     return buildAll(".tmp/old");
   })["then"](function () {
-    return cmd("cp dist/lib/compiler/{ast,parser,emitter}.js .tmp/old/lib/compiler &&       cp dist/lib/js.js .tmp/old/lib &&       cp dist/lib/compiler/{ast,parser,emitter}.js .tmp/new/lib/compiler/ &&       cp dist/lib/js.js .tmp/new/lib    ");
+    return cmd("cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler &&       cp dist/lib/js.js .tmp/old/lib &&       cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ &&       cp dist/lib/js.js .tmp/new/lib    ");
   });
 };
 if (command == "build") {

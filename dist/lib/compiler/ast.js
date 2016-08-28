@@ -158,9 +158,30 @@ exports.operators = [
     '==', '!=', '<', '<=', '>', '>=',
     '=>',
 ];
-exports.tokenToText = Object['assign'](reverse(exports.textToToken), (_a = {},
-    _a[SyntaxKind.Identifier] = 'identifier',
+exports.precedence = (_a = {},
+    _a[SyntaxKind.EqualsToken] = 1,
+    _a[SyntaxKind.PlusEqualsToken] = 1.1,
+    _a[SyntaxKind.MinusEqualsToken] = 1.1,
+    _a[SyntaxKind.OrKeyword] = 2,
+    _a[SyntaxKind.AndKeyword] = 3,
+    _a[SyntaxKind.NotKeyword] = 4,
+    _a[SyntaxKind.EqualsEqualsToken] = 7,
+    _a[SyntaxKind.ExclamationEqualsToken] = 7,
+    _a[SyntaxKind.GreaterThanToken] = 7,
+    _a[SyntaxKind.GreaterThanEqualsToken] = 7,
+    _a[SyntaxKind.LessThanToken] = 7,
+    _a[SyntaxKind.LessThanEqualsToken] = 7,
+    _a[SyntaxKind.PlusToken] = 10,
+    _a[SyntaxKind.MinusToken] = 10,
+    _a[SyntaxKind.AsteriskToken] = 20,
+    _a[SyntaxKind.AsteriskAsteriskToken] = 20,
+    _a[SyntaxKind.SlashToken] = 20,
+    _a[SyntaxKind.PercentToken] = 20,
     _a
+);
+exports.tokenToText = Object['assign'](reverse(exports.textToToken), (_b = {},
+    _b[SyntaxKind.Identifier] = 'identifier',
+    _b
 ));
 function isBlock(token) {
     return token.kind === SyntaxKind.Block;
@@ -174,5 +195,5 @@ function isMember(token) {
     return token.kind === SyntaxKind.MemberAccess;
 }
 exports.isMember = isMember;
-var _a;
+var _a, _b;
 // export const NULL: Token = { kind: SyntaxKind.NullKeyword }

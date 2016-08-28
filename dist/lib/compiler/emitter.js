@@ -175,7 +175,7 @@ function emitBinaryExpression(e) {
     return emitExpression(e.lhs) + " " + tokenToJs[e.operator.kind] + " " + emitExpression(e.rhs);
 }
 function emitCallExpression(fn) {
-    return emitExpression(fn.fn) + "(" + fn.argumentList.map(function (arg) { return emitExpression(arg, Context.Value); }).join(', ') + ")";
+    return emitExpression(fn.func) + "(" + fn.argumentList.map(function (arg) { return emitExpression(arg, Context.Value); }).join(', ') + ")";
 }
 function emitIfExpression(e) {
     var condition = emitExpression(e.condition, Context.Value);
@@ -184,9 +184,9 @@ function emitIfExpression(e) {
     if (produceValue) {
         valueVariable = newValueVariable();
     }
-    var then = emitBlock(e.then);
-    var el = e.else
-        ? ("\n" + indent('else') + " " + emitBlock(e.else))
+    var then = emitBlock(e._then);
+    var el = e._else
+        ? ("\n" + indent('else') + " " + emitBlock(e._else))
         : '';
     var code = "if (" + condition + ") " + then + el;
     if (produceValue) {

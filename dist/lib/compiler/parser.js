@@ -182,7 +182,7 @@ function parse(input) {
     function parseCall(fn) {
         return {
             kind: ast_1.SyntaxKind.CallExpression,
-            fn: fn,
+            func: fn,
             openParen: input.peek(),
             argumentList: delimited("(", ")", ",", parseExpression),
             closeParen: input.peek(),
@@ -256,13 +256,13 @@ function parse(input) {
     function parseIf() {
         skipKeyword(ast_1.SyntaxKind.IfKeyword);
         var condition = parseExpression();
-        var then;
+        var _then;
         if (isToken(ast_1.SyntaxKind.OpenBraceToken)) {
-            then = parseBlock();
+            _then = parseBlock();
         }
         else {
             skipKeyword(ast_1.SyntaxKind.ThenKeyword);
-            then = {
+            _then = {
                 kind: ast_1.SyntaxKind.Block,
                 block: [parseExpression()],
             };
@@ -270,15 +270,15 @@ function parse(input) {
         var ret = {
             kind: ast_1.SyntaxKind.IfExpression,
             condition: condition,
-            then: then,
+            _then: _then,
         };
         if (isToken(ast_1.SyntaxKind.ElseKeyword)) {
             input.next();
             if (isToken(ast_1.SyntaxKind.OpenBraceToken)) {
-                ret.else = parseBlock();
+                ret._else = parseBlock();
             }
             else {
-                ret.else = {
+                ret._else = {
                     kind: ast_1.SyntaxKind.Block,
                     block: [parseExpression()],
                 };

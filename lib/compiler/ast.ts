@@ -170,6 +170,27 @@ export const operators =[
   '=>',
 ]
 
+export const precedence = {
+  [SyntaxKind.EqualsToken]: 1,
+  [SyntaxKind.PlusEqualsToken]: 1.1,
+  [SyntaxKind.MinusEqualsToken]: 1.1,
+  [SyntaxKind.OrKeyword]: 2,
+  [SyntaxKind.AndKeyword]: 3,
+  [SyntaxKind.NotKeyword]: 4,
+  [SyntaxKind.EqualsEqualsToken]: 7,
+  [SyntaxKind.ExclamationEqualsToken]: 7,
+  [SyntaxKind.GreaterThanToken]: 7,
+  [SyntaxKind.GreaterThanEqualsToken]: 7,
+  [SyntaxKind.LessThanToken]: 7,
+  [SyntaxKind.LessThanEqualsToken]: 7,
+  [SyntaxKind.PlusToken]: 10,
+  [SyntaxKind.MinusToken]: 10,
+  [SyntaxKind.AsteriskToken]: 20,
+  [SyntaxKind.AsteriskAsteriskToken]: 20,
+  [SyntaxKind.SlashToken]: 20,
+  [SyntaxKind.PercentToken]: 20,
+}
+
 export const tokenToText = Object['assign'](reverse(textToToken), {
   [SyntaxKind.Identifier]: 'identifier',
 })
@@ -255,7 +276,7 @@ export interface AssignmentExpression extends Expression {
 }
 
 export interface CallExpression extends Expression {
-  fn: Expression
+  func: Expression
   openParen: Token
   argumentList: Array<Expression>
   closeParen: Token
@@ -282,8 +303,8 @@ export interface ForExpression extends Token {
 
 export interface IfExpression extends Token {
   condition: Expression,
-  then: BlockNode,
-  else?: BlockNode,
+  _then: BlockNode,
+  _else?: BlockNode,
 }
 
 export interface LoopExpression extends Token {
