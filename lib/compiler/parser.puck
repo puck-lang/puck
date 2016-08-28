@@ -17,16 +17,16 @@ fn parse(input: TokenStream) {
       let token = input.peek()
       let expectedText =
         if tokenToText[expect]
-          then ': "${tokenToText[expect]}"'
+          then ': "' + tokenToText[expect] + '"'
           else ''
 
       let but =
         if token
-          then 'got "${tokenToText[token.kind]}"'
+          then 'got "' + tokenToText[token.kind] + '"'
           else 'reached end of file'
 
       console.error(token)
-      input.croak('Expected ${name}${expectedText}, but ${but}')
+      input.croak('Expected $name$expectedText, but $but')
     }
   }
 
@@ -43,7 +43,8 @@ fn parse(input: TokenStream) {
   fn unexpected() {
     let token = input.peek()
     console.error('token', token, typeof(token))
-    input.croak('Unexpected token: ${tokenToText[token.kind]}')
+    let name = tokenToText[token.kind]
+    input.croak('Unexpected token: $name')
   }
 
   fn isAssignment(token: Token) {
@@ -84,8 +85,11 @@ fn parse(input: TokenStream) {
     if (operator) {
       let mut hisprecedence = precedence[operator.kind]
 
-      if hisprecedence == undefined then
-        throw 'No precedence for ${tokenToText[operator.kind]}: ${JSON.stringify(operator)}'
+      if hisprecedence == undefined {
+        let name = tokenToText[operator.kind]
+        let json = JSON.stringify(operator)
+        throw 'No precedence for $name: $json'
+      }
 
       if (hisprecedence > myprecedence) {
         input.next()

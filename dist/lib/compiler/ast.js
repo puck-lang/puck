@@ -72,6 +72,7 @@
     SyntaxKind[SyntaxKind["ObjectLiteral"] = 68] = "ObjectLiteral";
     SyntaxKind[SyntaxKind["StringLiteral"] = 69] = "StringLiteral";
     SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 70] = "ObjectLiteralMember";
+    SyntaxKind[SyntaxKind["StringLiteralPart"] = 71] = "StringLiteralPart";
 })(exports.SyntaxKind || (exports.SyntaxKind = {}));
 var SyntaxKind = exports.SyntaxKind;
 exports.textToToken = {

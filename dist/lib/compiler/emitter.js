@@ -273,7 +273,16 @@ function emitObjectLiteral(l) {
     }
     return "{" + body;
 }
+function emitStringLiteralPart(l) {
+    return JSON.stringify(l.value);
+}
 function emitStringLiteral(l) {
-    return "" + JSON.stringify(l.value);
+    if (l.value !== undefined)
+        return emitStringLiteralPart(l);
+    return l.parts
+        .map(function (p) { return p.kind === ast_1.SyntaxKind.StringLiteralPart
+        ? emitStringLiteralPart(p)
+        : emitIdentifier(p); })
+        .join(' + ');
 }
 var _a;

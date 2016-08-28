@@ -6,8 +6,8 @@ let command = arguments[0]
 fn buildAll(outFolder = 'dist', compiler = 'dist') {
   cmd(
     'shopt -s globstar && ' +
-    compiler + '/bin/puckc --out-dir ' + outFolder + ' --skip-extension true bin/**/*.puck && ' +
-    compiler + '/bin/puckc --out-dir ' + outFolder + ' lib/**/*.puck'
+    '$compiler/bin/puckc --out-dir $outFolder --skip-extension true bin/**/*.puck && ' +
+    '$compiler/bin/puckc --out-dir $outFolder lib/**/*.puck'
   )
 }
 

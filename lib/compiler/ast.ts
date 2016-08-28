@@ -79,6 +79,7 @@ export enum SyntaxKind {
   StringLiteral,
 
   ObjectLiteralMember,
+  StringLiteralPart,
 }
 
 export const textToToken = {
@@ -232,8 +233,12 @@ export interface ObjectLiteralMember extends Token {
   value: Expression
 }
 
-export interface StringLiteral extends Expression {
+export interface StringLiteralPart extends Expression {
   value: string
+}
+
+export interface StringLiteral extends Expression {
+  parts: Array<StringLiteralPart|Identifier>
 }
 
 export interface CommentNode extends Token {

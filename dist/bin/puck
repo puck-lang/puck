@@ -11,7 +11,7 @@ function buildAll() {
   var outFolder = arguments.length <= 0 || arguments[0] === undefined ? "dist" : arguments[0];
   var compiler = arguments.length <= 1 || arguments[1] === undefined ? "dist" : arguments[1];
 
-  return cmd("shopt -s globstar && " + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
+  return cmd("shopt -s globstar && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
 };
 function buildTestCompiler() {
   return cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler")["then"](function () {

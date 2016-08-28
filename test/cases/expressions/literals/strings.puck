@@ -1,0 +1,10 @@
+let a = 'string'
+let b = 'string of $a'
+let c = 'multi
+line'
+let d = 'escapes \$c\\n\n\r\t\'\"'
+let e = "string"
+let f = "string of $a"
+let g = "multi
+line"
+let h = "escapes \$c\\n\n\r\t\'\""

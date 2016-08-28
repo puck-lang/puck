@@ -102,15 +102,18 @@ fn TokenStream(input) {
     }}
   }
 
-  fn readEscaped(end) {
+  fn readString() {
     let mut escaped = false
+    let mut parts = []
     let mut str = ''
 
-    input.next()
+    let delimiter = input.next()
+
     while not input.eof() {
       let ch = input.next()
       if escaped {
-        if ch == 'n' then str += '\n'
+        if ch == '$' then str += '$'
+        else if ch == 'n' then str += '\n'
         else if ch == 'r' then str += '\r'
         else if ch == 't' then str += '\t'
         else if ch == '\'' then str += '\''
@@ -121,14 +124,17 @@ fn TokenStream(input) {
         escaped = false
       }
       else if ch == '\\' then escaped = true
-      else if ch == end then break
+      else if ch == '$' and isIdStart(input.peek()) {
+        parts.push({kind: SyntaxKind.StringLiteralPart, value: str})
+        parts.push(readIdent())
+        str = ''
+      }
+      else if ch == delimiter then break
       else str += ch
     }
-    str
-  }
+    parts.push({kind: SyntaxKind.StringLiteralPart, value: str})
 
-  fn readString() {
-    {kind: SyntaxKind.StringLiteral, value: readEscaped(input.peek())}
+    {kind: SyntaxKind.StringLiteral, parts}
   }
 
   fn readComment() {

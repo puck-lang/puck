@@ -22,6 +22,7 @@ import {
   ObjectLiteral,
   SimpleIdentifier,
   StringLiteral,
+  StringLiteralPart,
   SyntaxKind,
   Token,
   TypeBound,
@@ -333,6 +334,16 @@ function emitObjectLiteral(l: ObjectLiteral) {
   return `{${body}`
 }
 
+function emitStringLiteralPart(l: StringLiteralPart) {
+  return JSON.stringify(l.value)
+}
+
 function emitStringLiteral(l: StringLiteral) {
-  return `${JSON.stringify(l.value)}`
+  if ((l as any).value !== undefined) return emitStringLiteralPart(l as any)
+  return l.parts
+    .map(p => p.kind === SyntaxKind.StringLiteralPart
+      ? emitStringLiteralPart(p as StringLiteralPart)
+      : emitIdentifier(p as Identifier)
+    )
+    .join(' + ')
 }
