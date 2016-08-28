@@ -27,4 +27,22 @@ function g(a, b) {
     };
     return g();
   };
+};
+function h(a, b) {
+  return a == b;
+};
+function i(a, b) {
+  return a == b;
+};
+function j(a, b) {
+  return a == b;
+};
+function k(a, b) {
+  return a == b;
+};
+function l(a, b) {
+  return a == b;
+};
+function m(a, b) {
+  return a == b;
 }

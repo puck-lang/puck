@@ -1,0 +1,431 @@
+let isIdentifier = require('./ast').isIdentifier
+let isMember = require('./ast').isMember
+let textToToken = require('./ast').textToToken
+let tokenToText = require('./ast').tokenToText
+let SyntaxKind = require('./ast').SyntaxKind
+let precedence = require('./ast').precedence
+
+fn parse(input: TokenStream) {
+
+  fn isToken(kind: SyntaxKind, peekDistance) {
+    let token = input.peek(false, peekDistance)
+    token and token.kind == kind
+  }
+
+  fn expect(expect: SyntaxKind, name = 'token') {
+    if not isToken(expect) {
+      let token = input.peek()
+      let expectedText =
+        if tokenToText[expect]
+          then ': "' + tokenToText[expect] + '"'
+          else ''
+
+      let but =
+        if token
+          then 'got "' + tokenToText[token.kind] + '"'
+          else 'reached end of file'
+
+      console.error(token)
+      input.croak('Expected $name$expectedText, but $but')
+    }
+  }
+
+  fn consumeToken(token: SyntaxKind) {
+    expect(token)
+    return input.next()
+  }
+
+  fn skipKeyword(kw: SyntaxKind) {
+    expect(kw, 'keyword')
+    input.next()
+  }
+
+  fn unexpected() {
+    let token = input.peek()
+    console.error('token', token, typeof(token))
+    let name = tokenToText[token.kind]
+    input.croak('Unexpected token: $name')
+  }
+
+  fn isAssignment(token: Token) {
+    if not token then return undefined
+
+    token.kind == SyntaxKind.EqualsToken
+      or token.kind == SyntaxKind.PlusEqualsToken
+      or token.kind == SyntaxKind.MinusEqualsToken
+      or token.kind == SyntaxKind.AsteriskEqualsToken
+      or token.kind == SyntaxKind.AsteriskAsteriskEqualsToken
+      or token.kind == SyntaxKind.SlashEqualsToken
+      or token.kind == SyntaxKind.PercentEqualsToken
+  }
+
+  fn maybeParseOperator(): Token {
+    if isAssignment(input.peek())
+      or isToken(SyntaxKind.EqualsEqualsToken)
+      or isToken(SyntaxKind.ExclamationEqualsToken)
+      or isToken(SyntaxKind.GreaterThanToken)
+      or isToken(SyntaxKind.GreaterThanEqualsToken)
+      or isToken(SyntaxKind.LessThanToken)
+      or isToken(SyntaxKind.LessThanEqualsToken)
+      or isToken(SyntaxKind.PlusToken)
+      or isToken(SyntaxKind.MinusToken)
+      or isToken(SyntaxKind.AsteriskToken)
+      or isToken(SyntaxKind.AsteriskAsteriskToken)
+      or isToken(SyntaxKind.SlashToken)
+      or isToken(SyntaxKind.PercentToken)
+      or isToken(SyntaxKind.AndKeyword)
+      or isToken(SyntaxKind.OrKeyword)
+      or isToken(SyntaxKind.NotKeyword)
+    then input.peek()
+    else null
+  }
+
+  fn maybeBinary(left: Expression, myprecedence): Expression {
+    let mut operator = maybeParseOperator()
+    if (operator) {
+      let mut hisprecedence = precedence[operator.kind]
+
+      if hisprecedence == undefined {
+        let name = tokenToText[operator.kind]
+        let json = JSON.stringify(operator)
+        throw 'No precedence for $name: $json'
+      }
+
+      if (hisprecedence > myprecedence) {
+        input.next()
+        let mut e
+        let mut innerExpression = maybeBinary(parseAtom(), hisprecedence)
+        if isAssignment(operator) {
+          if isIdentifier(left) or isMember(left) { //TODO:  or isIndex(left)
+            let a: AssignmentExpression = {
+              kind: SyntaxKind.AssignmentExpression,
+              lhs: left,
+              token: operator,
+              rhs: innerExpression,
+            }
+            e = a
+          }
+          else {
+            input.croak('Can only assign to an identifier')
+          }
+        }
+        else {
+          let b: BinaryExpression = {
+            kind: SyntaxKind.BinaryExpression,
+            lhs: left,
+            operator,
+            rhs: innerExpression,
+          }
+          e = b
+        }
+        return maybeBinary(e, myprecedence)
+      }
+    }
+    left
+  }
+
+  fn maybeMemberAccess(token: Expression): Expression {
+    if isToken(SyntaxKind.DotToken) {
+      input.next()
+      expect(SyntaxKind.Identifier, 'identifier')
+      return {
+        kind: SyntaxKind.MemberAccess,
+        object: token,
+        member: maybeMemberAccess(maybeCall(input.next()))
+      }
+    }
+    if isToken(SyntaxKind.OpenBracketToken) {
+      input.next()
+      let mut index = parseExpression()
+      consumeToken(SyntaxKind.CloseBracketToken)
+
+      return maybeMemberAccess(maybeCall({
+        kind: SyntaxKind.IndexAccess,
+        object: token,
+        index,
+      }))
+    }
+    token
+  }
+
+  // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T): Array<T> {
+  fn delimited(start, stop, separator, parser): Array {
+    if typeof(start) == 'string' then start = textToToken[start]
+    if typeof(stop) == 'string' then stop = textToToken[stop]
+    if typeof(separator) == 'string' then separator = textToToken[separator]
+
+    let mut parts = []
+    let mut first = true
+    consumeToken(start)
+
+    while not input.eof() {
+      if isToken(stop) then break
+
+      if first then first = false
+      else if typeof(separator) == 'function' then separator()
+      else consumeToken(separator)
+
+      let mut part
+      while not part {
+        if isToken(stop) then break
+        part = parser()
+      }
+
+      if part then parts.push(part)
+    }
+
+    consumeToken(stop)
+    parts
+  }
+
+  fn parseCall(func: Expression): CallExpression then {
+    kind: SyntaxKind.CallExpression,
+    func,
+    openParen: input.peek(),
+    argumentList: delimited('(', ')', ',', parseExpression),
+    closeParen: input.peek(),
+  }
+
+  fn parseTypeBound(): TypeBound {
+    expect(SyntaxKind.Identifier, 'identifier')
+    let name = input.next()
+    let parameters =
+      if isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeBound)
+
+    {
+      kind: SyntaxKind.TypeBound,
+      name,
+      parameters,
+    }
+  }
+
+  fn parseVariableDeclaration(): VariableDeclaration {
+    let mut mutable = false
+    if isToken(SyntaxKind.MutKeyword) {
+      input.next()
+      mutable = true
+    }
+    expect(SyntaxKind.Identifier, 'identifier')
+
+    let mut declaration: VariableDeclaration = {
+      kind: SyntaxKind.VariableDeclaration,
+      identifier: input.next(),
+      mutable,
+    }
+
+    if isToken(SyntaxKind.ColonToken) {
+      input.next()
+      declaration.typeBound = parseTypeBound()
+    }
+
+    if isToken(SyntaxKind.EqualsToken) {
+      input.next()
+      declaration.initializer = parseExpression()
+    }
+
+    declaration
+  }
+
+  fn parseFunction(): fnNode {
+    let mut name = if isToken(SyntaxKind.Identifier) then input.next()
+    let mut parameterList = delimited('(', ')', ',', parseVariableDeclaration)
+
+    let returnType =
+      if isToken(SyntaxKind.ColonToken) {
+        input.next()
+        parseTypeBound()
+      }
+
+    let mut body: BlockNode =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then parseBlock()
+        else {
+          skipKeyword(SyntaxKind.ThenKeyword)
+          {
+            kind: SyntaxKind.Block,
+            block: [parseExpression()],
+          }
+        }
+
+    {
+      kind: SyntaxKind.Function,
+      name,
+      parameterList,
+      body,
+    }
+  }
+
+  fn parseIf(): IfExpression {
+    skipKeyword(SyntaxKind.IfKeyword)
+
+    let condition = parseExpression()
+
+    let mut _then: BlockNode =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then parseBlock()
+        else {
+          skipKeyword(SyntaxKind.ThenKeyword)
+          {
+            kind: SyntaxKind.Block,
+            block: [parseExpression()],
+          }
+        }
+
+    let mut ret: IfExpression = {
+      kind: SyntaxKind.IfExpression,
+      condition,
+      _then,
+    }
+
+    if isToken(SyntaxKind.ElseKeyword) {
+      input.next()
+      ret._else =
+        if isToken(SyntaxKind.OpenBraceToken)
+          then parseBlock()
+          else ({
+            kind: SyntaxKind.Block,
+            block: [parseExpression()],
+          })
+    }
+
+    ret
+  }
+
+  fn parseWhile(): WhileExpression {
+    skipKeyword(SyntaxKind.WhileKeyword)
+
+    let condition = parseExpression()
+    let mut body: BlockNode =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then parseBlock()
+        else {
+          skipKeyword(SyntaxKind.ThenKeyword)
+          {
+            kind: SyntaxKind.Block,
+            block: [parseExpression()],
+          }
+        }
+
+    return {
+      kind: SyntaxKind.WhileExpression,
+      condition,
+      body,
+    }
+  }
+
+  fn parseArrayLiteral(): ArrayLiteral {
+    let members = delimited('[', ']', ',', parseExpression)
+    { kind: SyntaxKind.ArrayLiteral, members }
+  }
+
+  fn parseObjectLiteralMember(): ObjectLiteralMember {
+    let name = consumeToken(SyntaxKind.Identifier)
+    let value =
+      if isToken(SyntaxKind.ColonToken) {
+        input.next()
+        parseExpression()
+      }
+      else name
+
+    {
+      kind: SyntaxKind.ObjectLiteralMember,
+      name,
+      value,
+    }
+  }
+
+  fn parseObjectLiteral(): ObjectLiteral {
+    let members = delimited('{', '}', ',', parseObjectLiteralMember)
+    { kind: SyntaxKind.ObjectLiteral, members }
+  }
+
+  fn maybeCall(expr: Expression) then
+    if isToken(SyntaxKind.OpenParenToken)
+      then parseCall(expr)
+      else expr
+
+  fn parseAtom() {
+    maybeCall((fn innerParseAtom() {
+      if isToken(SyntaxKind.OpenParenToken) {
+        input.next()
+        let mut exp = parseExpression()
+        consumeToken(SyntaxKind.CloseParenToken)
+        exp
+      }
+      else if isToken(SyntaxKind.OpenBracketToken) then parseArrayLiteral()
+      else if isToken(SyntaxKind.OpenBraceToken) then parseObjectLiteral()
+      else if isToken(SyntaxKind.IfKeyword) then parseIf()
+      else if isToken(SyntaxKind.WhileKeyword) then parseWhile()
+      else if isToken(SyntaxKind.FnKeyword) {
+        input.next()
+        parseFunction()
+      }
+      else if isToken(SyntaxKind.LetKeyword) {
+        input.next()
+        parseVariableDeclaration()
+      }
+      else if isToken(SyntaxKind.NotKeyword)
+           or isToken(SyntaxKind.MinusToken)
+           or isToken(SyntaxKind.PlusToken)
+        then {
+          kind: SyntaxKind.UnaryExpression,
+          operator: input.next(),
+          rhs: parseExpression(),
+        }
+      else if isToken(SyntaxKind.BreakKeyword) then input.next()
+      else if isToken(SyntaxKind.ReturnKeyword)
+           or isToken(SyntaxKind.ThrowKeyword)
+        then {
+          kind: input.next().kind,
+          expression: parseExpression(),
+        }
+      else if isToken(SyntaxKind.TrueKeyword)
+           or isToken(SyntaxKind.FalseKeyword)
+        then
+          maybeMemberAccess({
+            kind: SyntaxKind.BooleanLiteral,
+            value: input.next().kind == SyntaxKind.TrueKeyword,
+          })
+      else if isToken(SyntaxKind.NumberLiteral)
+           or isToken(SyntaxKind.StringLiteral)
+           or isToken(SyntaxKind.Identifier)
+        then maybeMemberAccess(input.next())
+      else unexpected()
+    })())
+  }
+
+  fn expectSeparator(kind: SyntaxKind) {
+    if not input.eof() {
+      let mut token = input.peek(true)
+
+      if token.kind == SyntaxKind.NewlineToken
+        or token.kind == SyntaxKind.Comment
+        then input.next(true)
+      else consumeToken(kind)
+    }
+  }
+
+  fn parseToplevel() {
+    let mut prog = []
+    while not input.eof() {
+      let mut expression = parseExpression()
+      if expression then prog.push(expression)
+      if not input.eof() then expectSeparator(SyntaxKind.SemicolonToken)
+    }
+    { kind: SyntaxKind.Block, block: prog }
+  }
+
+  fn parseBlock(): BlockNode {
+    let block = delimited('{', '}', fn () then expectSeparator(SyntaxKind.SemicolonToken), parseExpression)
+    { kind: SyntaxKind.Block, block }
+  }
+
+  fn parseExpression(): Expression {
+    maybeMemberAccess(maybeCall(maybeBinary(parseAtom(), 0)))
+  }
+
+  parseToplevel()
+}
+
+module.exports.parse = parse

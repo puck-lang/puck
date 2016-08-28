@@ -57,6 +57,7 @@ export enum SyntaxKind {
   Block,
   Function,
   Identifier,
+  TypeBound,
   VariableDeclaration,
 
   AssignmentExpression,
@@ -71,12 +72,14 @@ export enum SyntaxKind {
   IndexAccess,
   MemberAccess,
 
+  ArrayLiteral,
   BooleanLiteral,
   NumberLiteral,
   ObjectLiteral,
   StringLiteral,
 
   ObjectLiteralMember,
+  StringLiteralPart,
 }
 
 export const textToToken = {
@@ -141,8 +144,6 @@ export const textToToken = {
   '*': SyntaxKind.AsteriskToken,
   '/': SyntaxKind.SlashToken,
   '%': SyntaxKind.PercentToken,
-  // '<<': SyntaxKind.LessThanLessThanToken,
-  // '>>': SyntaxKind.GreaterThanGreaterThanToken,
   '=': SyntaxKind.EqualsToken,
   '+=': SyntaxKind.PlusEqualsToken,
   '-=': SyntaxKind.MinusEqualsToken,
@@ -150,8 +151,6 @@ export const textToToken = {
   '**=': SyntaxKind.AsteriskAsteriskEqualsToken,
   '/=': SyntaxKind.SlashEqualsToken,
   '%=': SyntaxKind.PercentEqualsToken,
-  // '<<=': SyntaxKind.LessThanLessThanEqualsToken,
-  // '>>=': SyntaxKind.GreaterThanGreaterThanEqualsToken,
 }
 
 function reverse(object) {
@@ -171,6 +170,27 @@ export const operators =[
   '==', '!=', '<', '<=', '>', '>=',
   '=>',
 ]
+
+export const precedence = {
+  [SyntaxKind.EqualsToken]: 1,
+  [SyntaxKind.PlusEqualsToken]: 1.1,
+  [SyntaxKind.MinusEqualsToken]: 1.1,
+  [SyntaxKind.OrKeyword]: 2,
+  [SyntaxKind.AndKeyword]: 3,
+  [SyntaxKind.NotKeyword]: 4,
+  [SyntaxKind.EqualsEqualsToken]: 7,
+  [SyntaxKind.ExclamationEqualsToken]: 7,
+  [SyntaxKind.GreaterThanToken]: 7,
+  [SyntaxKind.GreaterThanEqualsToken]: 7,
+  [SyntaxKind.LessThanToken]: 7,
+  [SyntaxKind.LessThanEqualsToken]: 7,
+  [SyntaxKind.PlusToken]: 10,
+  [SyntaxKind.MinusToken]: 10,
+  [SyntaxKind.AsteriskToken]: 20,
+  [SyntaxKind.AsteriskAsteriskToken]: 20,
+  [SyntaxKind.SlashToken]: 20,
+  [SyntaxKind.PercentToken]: 20,
+}
 
 export const tokenToText = Object['assign'](reverse(textToToken), {
   [SyntaxKind.Identifier]: 'identifier',
@@ -192,6 +212,10 @@ export interface Token {
   kind: SyntaxKind
 }
 
+export interface ArrayLiteral extends Expression {
+  members: Array<Expression>
+}
+
 export interface BooleanLiteral extends Expression {
   value: boolean
 }
@@ -209,8 +233,12 @@ export interface ObjectLiteralMember extends Token {
   value: Expression
 }
 
-export interface StringLiteral extends Expression {
+export interface StringLiteralPart extends Expression {
   value: string
+}
+
+export interface StringLiteral extends Expression {
+  parts: Array<StringLiteralPart|Identifier>
 }
 
 export interface CommentNode extends Token {
@@ -224,6 +252,7 @@ export interface BlockNode extends Token {
 export interface FunctionNode extends Token {
   name?: Identifier
   parameterList: Array<VariableDeclaration>
+  returnType?: TypeBound
   body: BlockNode
 }
 
@@ -231,9 +260,15 @@ export interface SimpleIdentifier extends Token {
   name: string
 }
 
+export interface TypeBound extends Token {
+  name: SimpleIdentifier
+  parameters: Array<TypeBound>
+}
+
 export interface VariableDeclaration extends Token {
   identifier: SimpleIdentifier
   mutable: boolean
+  typeBound?: TypeBound
   initializer?: Expression
 }
 
@@ -246,7 +281,7 @@ export interface AssignmentExpression extends Expression {
 }
 
 export interface CallExpression extends Expression {
-  fn: Expression
+  func: Expression
   openParen: Token
   argumentList: Array<Expression>
   closeParen: Token
@@ -273,8 +308,8 @@ export interface ForExpression extends Token {
 
 export interface IfExpression extends Token {
   condition: Expression,
-  then: BlockNode,
-  else?: BlockNode,
+  _then: BlockNode,
+  _else?: BlockNode,
 }
 
 export interface LoopExpression extends Token {

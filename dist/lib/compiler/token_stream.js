@@ -105,35 +105,40 @@ function TokenStream(input) {
       };
     };
   };
-  function readEscaped(end) {
+  function readString() {
     var escaped = false;
+    var parts = [];
     var str = "";
-    input.next();
+    var delimiter = input.next();
     while (!input.eof()) {
       var ch = input.next();
       if (escaped) {
-        if (ch == "n") {
-          str += "\n";
+        if (ch == "$") {
+          str += "$";
         } else {
-          if (ch == "r") {
-            str += "\r";
+          if (ch == "n") {
+            str += "\n";
           } else {
-            if (ch == "t") {
-              str += "\t";
+            if (ch == "r") {
+              str += "\r";
             } else {
-              if (ch == "'") {
-                str += "'";
+              if (ch == "t") {
+                str += "\t";
               } else {
-                if (ch == "\"") {
-                  str += "\"";
+                if (ch == "'") {
+                  str += "'";
                 } else {
-                  if (ch == "\\") {
-                    str += "\\";
+                  if (ch == "\"") {
+                    str += "\"";
                   } else {
-                    if (ch == "\n") {
-                      null;
+                    if (ch == "\\") {
+                      str += "\\";
                     } else {
-                      input.croak("Invalid escape character " + ch);
+                      if (ch == "\n") {
+                        null;
+                      } else {
+                        input.croak("Invalid escape character " + ch);
+                      };
                     };
                   };
                 };
@@ -146,20 +151,30 @@ function TokenStream(input) {
         if (ch == "\\") {
           escaped = true;
         } else {
-          if (ch == end) {
-            break;
+          if (ch == "$" && isIdStart(input.peek())) {
+            parts.push({
+              kind: SyntaxKind.StringLiteralPart,
+              value: str
+            });
+            parts.push(readIdent());
+            str = "";
           } else {
-            str += ch;
+            if (ch == delimiter) {
+              break;
+            } else {
+              str += ch;
+            };
           };
         };
       };
     };
-    return str;
-  };
-  function readString() {
+    parts.push({
+      kind: SyntaxKind.StringLiteralPart,
+      value: str
+    });
     return {
       kind: SyntaxKind.StringLiteral,
-      value: readEscaped(input.peek())
+      parts: parts
     };
   };
   function readComment() {

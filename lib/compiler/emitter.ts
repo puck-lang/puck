@@ -3,6 +3,7 @@ import {
   isIdentifier,
   textToToken,
   tokenToText,
+  ArrayLiteral,
   AssignmentExpression,
   BinaryExpression,
   BlockNode,
@@ -21,8 +22,10 @@ import {
   ObjectLiteral,
   SimpleIdentifier,
   StringLiteral,
+  StringLiteralPart,
   SyntaxKind,
   Token,
+  TypeBound,
   UnaryExpression,
   VariableDeclaration,
   WhileExpression,
@@ -129,6 +132,7 @@ function emitScalarExpression(expression: any) {
     case SyntaxKind.BreakKeyword: return emitBreak(expression);
     case SyntaxKind.ReturnKeyword: return emitReturn(expression);
     case SyntaxKind.ThrowKeyword: return emitThrow(expression);
+    case SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
     case SyntaxKind.BooleanLiteral: return emitBooleanLiteral(expression);
     case SyntaxKind.NumberLiteral: return emitNumberLiteral(expression);
     case SyntaxKind.ObjectLiteral: return emitObjectLiteral(expression);
@@ -214,7 +218,7 @@ function emitBinaryExpression(e: BinaryExpression) {
 }
 
 function emitCallExpression(fn: CallExpression) {
-  return `${emitExpression(fn.fn)}(${fn.argumentList.map(
+  return `${emitExpression(fn.func)}(${fn.argumentList.map(
     arg => emitExpression(arg, Context.Value)
   ).join(', ')})`
 }
@@ -226,9 +230,9 @@ function emitIfExpression(e: IfExpression) {
   if (produceValue) {
     valueVariable = newValueVariable()
   }
-  let then = emitBlock(e.then)
-  let el = e.else
-    ? (`\n${indent('else')} ${emitBlock(e.else as any)}`)
+  let then = emitBlock(e._then)
+  let el = e._else
+    ? (`\n${indent('else')} ${emitBlock(e._else as any)}`)
     : ''
 
   let code = `if (${condition}) ${then}${el}`
@@ -288,6 +292,23 @@ function emitThrow(e) {
   return `throw ${emitExpression(e.expression, Context.Value)}`
 }
 
+function emitArrayLiteral(l: ArrayLiteral) {
+  let members: any[] = l.members.map(e => emitExpression(e))
+  let body
+
+  if (members.length == 0) {
+    body = ']'
+  } else if (l.members.length == 1) {
+    body = `${members[0]}]`
+  } else {
+    level++
+    body = `\n${indent(members).join(`,\n`)},\n${indent(']', level - 1)}`
+    level--
+  }
+
+  return `[${body}`
+}
+
 function emitBooleanLiteral(l: BooleanLiteral) {
   return `${l.value}`
 }
@@ -313,6 +334,16 @@ function emitObjectLiteral(l: ObjectLiteral) {
   return `{${body}`
 }
 
+function emitStringLiteralPart(l: StringLiteralPart) {
+  return JSON.stringify(l.value)
+}
+
 function emitStringLiteral(l: StringLiteral) {
-  return `${JSON.stringify(l.value)}`
+  if ((l as any).value !== undefined) return emitStringLiteralPart(l as any)
+  return l.parts
+    .map(p => p.kind === SyntaxKind.StringLiteralPart
+      ? emitStringLiteralPart(p as StringLiteralPart)
+      : emitIdentifier(p as Identifier)
+    )
+    .join(' + ')
 }

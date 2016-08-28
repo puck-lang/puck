@@ -54,22 +54,25 @@
     SyntaxKind[SyntaxKind["Block"] = 50] = "Block";
     SyntaxKind[SyntaxKind["Function"] = 51] = "Function";
     SyntaxKind[SyntaxKind["Identifier"] = 52] = "Identifier";
-    SyntaxKind[SyntaxKind["VariableDeclaration"] = 53] = "VariableDeclaration";
-    SyntaxKind[SyntaxKind["AssignmentExpression"] = 54] = "AssignmentExpression";
-    SyntaxKind[SyntaxKind["BinaryExpression"] = 55] = "BinaryExpression";
-    SyntaxKind[SyntaxKind["CallExpression"] = 56] = "CallExpression";
-    SyntaxKind[SyntaxKind["ForExpression"] = 57] = "ForExpression";
-    SyntaxKind[SyntaxKind["IfExpression"] = 58] = "IfExpression";
-    SyntaxKind[SyntaxKind["LoopExpression"] = 59] = "LoopExpression";
-    SyntaxKind[SyntaxKind["UnaryExpression"] = 60] = "UnaryExpression";
-    SyntaxKind[SyntaxKind["WhileExpression"] = 61] = "WhileExpression";
-    SyntaxKind[SyntaxKind["IndexAccess"] = 62] = "IndexAccess";
-    SyntaxKind[SyntaxKind["MemberAccess"] = 63] = "MemberAccess";
-    SyntaxKind[SyntaxKind["BooleanLiteral"] = 64] = "BooleanLiteral";
-    SyntaxKind[SyntaxKind["NumberLiteral"] = 65] = "NumberLiteral";
-    SyntaxKind[SyntaxKind["ObjectLiteral"] = 66] = "ObjectLiteral";
-    SyntaxKind[SyntaxKind["StringLiteral"] = 67] = "StringLiteral";
-    SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 68] = "ObjectLiteralMember";
+    SyntaxKind[SyntaxKind["TypeBound"] = 53] = "TypeBound";
+    SyntaxKind[SyntaxKind["VariableDeclaration"] = 54] = "VariableDeclaration";
+    SyntaxKind[SyntaxKind["AssignmentExpression"] = 55] = "AssignmentExpression";
+    SyntaxKind[SyntaxKind["BinaryExpression"] = 56] = "BinaryExpression";
+    SyntaxKind[SyntaxKind["CallExpression"] = 57] = "CallExpression";
+    SyntaxKind[SyntaxKind["ForExpression"] = 58] = "ForExpression";
+    SyntaxKind[SyntaxKind["IfExpression"] = 59] = "IfExpression";
+    SyntaxKind[SyntaxKind["LoopExpression"] = 60] = "LoopExpression";
+    SyntaxKind[SyntaxKind["UnaryExpression"] = 61] = "UnaryExpression";
+    SyntaxKind[SyntaxKind["WhileExpression"] = 62] = "WhileExpression";
+    SyntaxKind[SyntaxKind["IndexAccess"] = 63] = "IndexAccess";
+    SyntaxKind[SyntaxKind["MemberAccess"] = 64] = "MemberAccess";
+    SyntaxKind[SyntaxKind["ArrayLiteral"] = 65] = "ArrayLiteral";
+    SyntaxKind[SyntaxKind["BooleanLiteral"] = 66] = "BooleanLiteral";
+    SyntaxKind[SyntaxKind["NumberLiteral"] = 67] = "NumberLiteral";
+    SyntaxKind[SyntaxKind["ObjectLiteral"] = 68] = "ObjectLiteral";
+    SyntaxKind[SyntaxKind["StringLiteral"] = 69] = "StringLiteral";
+    SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 70] = "ObjectLiteralMember";
+    SyntaxKind[SyntaxKind["StringLiteralPart"] = 71] = "StringLiteralPart";
 })(exports.SyntaxKind || (exports.SyntaxKind = {}));
 var SyntaxKind = exports.SyntaxKind;
 exports.textToToken = {
@@ -134,8 +137,6 @@ exports.textToToken = {
     '*': SyntaxKind.AsteriskToken,
     '/': SyntaxKind.SlashToken,
     '%': SyntaxKind.PercentToken,
-    // '<<': SyntaxKind.LessThanLessThanToken,
-    // '>>': SyntaxKind.GreaterThanGreaterThanToken,
     '=': SyntaxKind.EqualsToken,
     '+=': SyntaxKind.PlusEqualsToken,
     '-=': SyntaxKind.MinusEqualsToken,
@@ -158,9 +159,30 @@ exports.operators = [
     '==', '!=', '<', '<=', '>', '>=',
     '=>',
 ];
-exports.tokenToText = Object['assign'](reverse(exports.textToToken), (_a = {},
-    _a[SyntaxKind.Identifier] = 'identifier',
+exports.precedence = (_a = {},
+    _a[SyntaxKind.EqualsToken] = 1,
+    _a[SyntaxKind.PlusEqualsToken] = 1.1,
+    _a[SyntaxKind.MinusEqualsToken] = 1.1,
+    _a[SyntaxKind.OrKeyword] = 2,
+    _a[SyntaxKind.AndKeyword] = 3,
+    _a[SyntaxKind.NotKeyword] = 4,
+    _a[SyntaxKind.EqualsEqualsToken] = 7,
+    _a[SyntaxKind.ExclamationEqualsToken] = 7,
+    _a[SyntaxKind.GreaterThanToken] = 7,
+    _a[SyntaxKind.GreaterThanEqualsToken] = 7,
+    _a[SyntaxKind.LessThanToken] = 7,
+    _a[SyntaxKind.LessThanEqualsToken] = 7,
+    _a[SyntaxKind.PlusToken] = 10,
+    _a[SyntaxKind.MinusToken] = 10,
+    _a[SyntaxKind.AsteriskToken] = 20,
+    _a[SyntaxKind.AsteriskAsteriskToken] = 20,
+    _a[SyntaxKind.SlashToken] = 20,
+    _a[SyntaxKind.PercentToken] = 20,
     _a
+);
+exports.tokenToText = Object['assign'](reverse(exports.textToToken), (_b = {},
+    _b[SyntaxKind.Identifier] = 'identifier',
+    _b
 ));
 function isBlock(token) {
     return token.kind === SyntaxKind.Block;
@@ -174,5 +196,5 @@ function isMember(token) {
     return token.kind === SyntaxKind.MemberAccess;
 }
 exports.isMember = isMember;
-var _a;
+var _a, _b;
 // export const NULL: Token = { kind: SyntaxKind.NullKeyword }
