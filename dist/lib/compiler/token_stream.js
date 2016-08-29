@@ -137,7 +137,7 @@ function TokenStream(input) {
                       if (ch == "\n") {
                         null;
                       } else {
-                        input.croak("Invalid escape character " + ch);
+                        input.croak("Invalid escape character " + ch + "");
                       };
                     };
                   };
@@ -214,7 +214,7 @@ function TokenStream(input) {
     };
     var token = tryParseToken();
     if (!token) {
-      input.croak("Unexpected token: ${ch}");
+      input.croak("Unexpected token: " + ch + "");
     };
     return token;
   };

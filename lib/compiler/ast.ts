@@ -29,6 +29,7 @@ export enum SyntaxKind {
   AsteriskAsteriskToken,
   AsteriskEqualsToken,
   AsteriskToken,
+  BarToken,
   ColonToken,
   CommaToken,
   DotToken,
@@ -126,6 +127,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   ']': SyntaxKind.CloseBracketToken,
   '(': SyntaxKind.OpenParenToken,
   ')': SyntaxKind.CloseParenToken,
+  '|': SyntaxKind.BarToken,
   ',': SyntaxKind.CommaToken,
   ':': SyntaxKind.ColonToken,
   '.': SyntaxKind.DotToken,
@@ -164,7 +166,7 @@ function reverse(object) {
 }
 
 export const operators =[
-  ',', ';', ':', '.', '{', '}', '[', ']', '(', ')',
+  ',', ';', ':', '.', '{', '}', '[', ']', '(', ')', '|',
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',

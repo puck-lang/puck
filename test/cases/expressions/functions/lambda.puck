@@ -1,0 +1,10 @@
+let a = |a, b| a + b
+let b = || a()
+let c = |a, b| {
+  if a then b()
+  a
+}
+let d = || {
+  a()
+  b()
+}

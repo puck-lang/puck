@@ -122,7 +122,7 @@ fn TokenStream(input) {
         else if ch == '\"' then str += '\"'
         else if ch == '\\' then str += '\\'
         else if ch == '\n' then null
-        else input.croak('Invalid escape character ' + ch)
+        else input.croak('Invalid escape character $ch')
         escaped = false
       }
       else if ch == '\\' then escaped = true
@@ -166,7 +166,7 @@ fn TokenStream(input) {
     if isDigit(ch) then return readNumber()
     if isIdStart(ch) then return readIdent()
     let token = tryParseToken()
-    if not token then input.croak('Unexpected token: ${ch}')
+    if not token then input.croak('Unexpected token: $ch')
     token
   }
 

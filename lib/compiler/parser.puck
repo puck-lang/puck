@@ -236,7 +236,7 @@ fn parse(input: TokenStream) {
     declaration
   }
 
-  fn parseFunction(): fnNode {
+  fn parseFunction(): FunctionNode {
     let mut name = if isToken(SyntaxKind.Identifier) then input.next()
     let mut parameterList = delimited('(', ')', ',', parseVariableDeclaration)
 
@@ -260,6 +260,25 @@ fn parse(input: TokenStream) {
     {
       kind: SyntaxKind.Function,
       name,
+      parameterList,
+      returnType,
+      body,
+    }
+  }
+
+  fn parseLambda(): FunctionNode {
+    let mut parameterList = delimited('|', '|', ',', parseVariableDeclaration)
+
+    let mut body: BlockNode =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then parseBlock()
+        else {{
+          kind: SyntaxKind.Block,
+          block: [parseExpression()],
+        }}
+
+    {
+      kind: SyntaxKind.Function,
       parameterList,
       body,
     }
@@ -359,6 +378,7 @@ fn parse(input: TokenStream) {
       }
       else if isToken(SyntaxKind.OpenBracketToken) then parseArrayLiteral()
       else if isToken(SyntaxKind.OpenBraceToken) then parseObjectLiteral()
+      else if isToken(SyntaxKind.BarToken) then parseLambda()
       else if isToken(SyntaxKind.IfKeyword) then parseIf()
       else if isToken(SyntaxKind.WhileKeyword) then parseWhile()
       else if isToken(SyntaxKind.FnKeyword) {
