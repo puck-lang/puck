@@ -52,6 +52,17 @@ fn parse(input: TokenStream) {
     input.croak('Unexpected token: $name')
   }
 
+  fn consumeSeparator(kind: SyntaxKind) {
+    if not input.eof() {
+      let mut token = input.peek(true)
+
+      if token.kind == SyntaxKind.NewlineToken
+        or token.kind == SyntaxKind.Comment
+        then input.next(true)
+      else consumeToken(kind)
+    }
+  }
+
   fn isAssignment(token: Token) {
     if not token then return undefined
 
@@ -180,7 +191,7 @@ fn parse(input: TokenStream) {
 
       if first then first = false
       else if typeof(separator) == 'function' then separator()
-      else consumeToken(separator)
+      else consumeSeparator(separator)
 
       let mut part
       while not part {
@@ -419,29 +430,18 @@ fn parse(input: TokenStream) {
     })())
   }
 
-  fn expectSeparator(kind: SyntaxKind) {
-    if not input.eof() {
-      let mut token = input.peek(true)
-
-      if token.kind == SyntaxKind.NewlineToken
-        or token.kind == SyntaxKind.Comment
-        then input.next(true)
-      else consumeToken(kind)
-    }
-  }
-
   fn parseToplevel() {
     let mut prog = []
     while not input.eof() {
       let mut expression = parseExpression()
       if expression then prog.push(expression)
-      if not input.eof() then expectSeparator(SyntaxKind.SemicolonToken)
+      if not input.eof() then consumeSeparator(SyntaxKind.SemicolonToken)
     }
     { kind: SyntaxKind.Block, block: prog }
   }
 
   fn parseBlock(): BlockNode {
-    let block = delimited('{', '}', fn () then expectSeparator(SyntaxKind.SemicolonToken), parseExpression)
+    let block = delimited('{', '}', ';', parseExpression)
     { kind: SyntaxKind.Block, block }
   }
 
