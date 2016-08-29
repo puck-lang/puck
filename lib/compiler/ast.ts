@@ -82,7 +82,7 @@ export enum SyntaxKind {
   StringLiteralPart,
 }
 
-export const textToToken = {
+export const textToToken = Object['assign'](Object.create(null), {
   'and': SyntaxKind.AndKeyword,
   'break': SyntaxKind.BreakKeyword,
   // 'any': SyntaxKind.AnyKeyword,
@@ -151,7 +151,7 @@ export const textToToken = {
   '**=': SyntaxKind.AsteriskAsteriskEqualsToken,
   '/=': SyntaxKind.SlashEqualsToken,
   '%=': SyntaxKind.PercentEqualsToken,
-}
+})
 
 function reverse(object) {
   let reverse = {}
@@ -193,7 +193,9 @@ export const precedence = {
 }
 
 export const tokenToText = Object['assign'](reverse(textToToken), {
-  [SyntaxKind.Identifier]: 'identifier',
+  [SyntaxKind.Identifier]: (i: Identifier) => (i && i.name)
+    ? `identifier: ${i.name}`
+    : 'identifier',
 })
 
 export function isBlock(token: Token): token is BlockNode {

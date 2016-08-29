@@ -272,7 +272,10 @@ function emitIndexAccess(e: IndexAccess) {
 }
 
 function emitMemberAccess(e: MemberAccess) {
-  return `${emitExpression(e.object)}.${emitExpression(e.member, Context.Value)}`
+  let object = e.object.kind == SyntaxKind.NumberLiteral
+    ? `(${emitExpression(e.object)})`
+    : emitExpression(e.object)
+  return `${object}.${emitExpression(e.member, Context.Value)}`
 }
 
 function emitBreak(_) {

@@ -32,7 +32,8 @@ fn TokenStream(input) {
       if hasMatches {
         length += 1
         found = searchString
-      } else break
+      }
+      else break
     }
 
     if textToToken[found] {
@@ -82,11 +83,12 @@ fn TokenStream(input) {
     let mut hasDot = false
     let number = readWhile(fn (ch) {
       if ch == '.' {
-        if hasDot then false
-        else {
-          hasDot = true
-          true
-        }
+        if hasDot or not isDigit(input.peek(1))
+          then false
+          else {
+            hasDot = true
+            true
+          }
       } else isDigit(ch)
     })
 

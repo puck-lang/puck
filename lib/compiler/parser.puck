@@ -12,18 +12,23 @@ fn parse(input: TokenStream) {
     token and token.kind == kind
   }
 
+  fn tokenName(token: Token) {
+    if typeof(tokenToText[token.kind]) == 'function' then tokenToText[token.kind](token)
+    else if tokenToText[token.kind] then tokenToText[token.kind]
+    else SyntaxKind[token.kind]
+  }
+
   fn expect(expect: SyntaxKind, name = 'token') {
     if not isToken(expect) {
       let token = input.peek()
-      let expectedText =
-        if tokenToText[expect]
-          then ': "' + tokenToText[expect] + '"'
-          else ''
+      let expectedText = ': "' + tokenName({kind: expect}) + '"'
 
       let but =
-        if token
-          then 'got "' + tokenToText[token.kind] + '"'
-          else 'reached end of file'
+        if token {
+          let got = tokenName(token)
+          'got "$got"'
+        }
+        else 'reached end of file'
 
       console.error(token)
       input.croak('Expected $name$expectedText, but $but')
@@ -124,6 +129,18 @@ fn parse(input: TokenStream) {
     left
   }
 
+  fn maybeCall(expr: Expression) {
+    if isToken(SyntaxKind.OpenParenToken)
+      then {
+        kind: SyntaxKind.CallExpression,
+        func: expr,
+        openParen: input.peek(),
+        argumentList: delimited('(', ')', ',', parseExpression),
+        closeParen: input.peek(),
+      }
+      else expr
+  }
+
   fn maybeMemberAccess(token: Expression): Expression {
     if isToken(SyntaxKind.DotToken) {
       input.next()
@@ -176,14 +193,6 @@ fn parse(input: TokenStream) {
 
     consumeToken(stop)
     parts
-  }
-
-  fn parseCall(func: Expression): CallExpression then {
-    kind: SyntaxKind.CallExpression,
-    func,
-    openParen: input.peek(),
-    argumentList: delimited('(', ')', ',', parseExpression),
-    closeParen: input.peek(),
   }
 
   fn parseTypeBound(): TypeBound {
@@ -340,16 +349,11 @@ fn parse(input: TokenStream) {
     { kind: SyntaxKind.ObjectLiteral, members }
   }
 
-  fn maybeCall(expr: Expression) then
-    if isToken(SyntaxKind.OpenParenToken)
-      then parseCall(expr)
-      else expr
-
   fn parseAtom() {
     maybeCall((fn innerParseAtom() {
       if isToken(SyntaxKind.OpenParenToken) {
         input.next()
-        let mut exp = parseExpression()
+        let exp = parseExpression()
         consumeToken(SyntaxKind.CloseParenToken)
         exp
       }

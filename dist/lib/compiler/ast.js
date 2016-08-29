@@ -75,7 +75,7 @@
     SyntaxKind[SyntaxKind["StringLiteralPart"] = 71] = "StringLiteralPart";
 })(exports.SyntaxKind || (exports.SyntaxKind = {}));
 var SyntaxKind = exports.SyntaxKind;
-exports.textToToken = {
+exports.textToToken = Object['assign'](Object.create(null), {
     'and': SyntaxKind.AndKeyword,
     'break': SyntaxKind.BreakKeyword,
     // 'any': SyntaxKind.AnyKeyword,
@@ -144,7 +144,7 @@ exports.textToToken = {
     '**=': SyntaxKind.AsteriskAsteriskEqualsToken,
     '/=': SyntaxKind.SlashEqualsToken,
     '%=': SyntaxKind.PercentEqualsToken,
-};
+});
 function reverse(object) {
     var reverse = {};
     Object.keys(object).forEach(function (key) {
@@ -181,7 +181,9 @@ exports.precedence = (_a = {},
     _a
 );
 exports.tokenToText = Object['assign'](reverse(exports.textToToken), (_b = {},
-    _b[SyntaxKind.Identifier] = 'identifier',
+    _b[SyntaxKind.Identifier] = function (i) { return (i && i.name)
+        ? "identifier: " + i.name
+        : 'identifier'; },
     _b
 ));
 function isBlock(token) {

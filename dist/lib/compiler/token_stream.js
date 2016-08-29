@@ -79,7 +79,7 @@ function TokenStream(input) {
     var hasDot = false;
     var number = readWhile(function (ch) {
       if (ch == ".") {
-        if (hasDot) {
+        if (hasDot || !isDigit(input.peek(1))) {
           return false;
         } else {
           hasDot = true;

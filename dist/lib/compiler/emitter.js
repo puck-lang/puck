@@ -219,7 +219,10 @@ function emitIndexAccess(e) {
     return emitExpression(e.object) + "[" + emitExpression(e.index, Context.Value) + "]";
 }
 function emitMemberAccess(e) {
-    return emitExpression(e.object) + "." + emitExpression(e.member, Context.Value);
+    var object = e.object.kind == ast_1.SyntaxKind.NumberLiteral
+        ? "(" + emitExpression(e.object) + ")"
+        : emitExpression(e.object);
+    return object + "." + emitExpression(e.member, Context.Value);
 }
 function emitBreak(_) {
     allowReturnContext = false;

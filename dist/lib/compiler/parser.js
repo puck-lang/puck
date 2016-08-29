@@ -15,25 +15,31 @@ function parse(input) {
     var token = input.peek(false, peekDistance);
     return token && token.kind == kind;
   };
+  function tokenName(token) {
+    if (typeof tokenToText[token.kind] == "function") {
+      return tokenToText[token.kind](token);
+    } else {
+      if (tokenToText[token.kind]) {
+        return tokenToText[token.kind];
+      } else {
+        return SyntaxKind[token.kind];
+      };
+    };
+  };
   function expect(expect) {
     var name = arguments.length <= 1 || arguments[1] === undefined ? "token" : arguments[1];
 
     if (!isToken(expect)) {
       var token = input.peek();
+      var expectedText = ": \"" + tokenName({ kind: expect }) + "\"";
       var __PUCK__value__1 = void 0;
-      if (tokenToText[expect]) {
-        __PUCK__value__1 = ": \"" + tokenToText[expect] + "\"";
-      } else {
-        __PUCK__value__1 = "";
-      };
-      var expectedText = __PUCK__value__1;
-      var __PUCK__value__2 = void 0;
       if (token) {
-        __PUCK__value__2 = "got \"" + tokenToText[token.kind] + "\"";
+        var got = tokenName(token);
+        __PUCK__value__1 = "got \"" + got + "\"";
       } else {
-        __PUCK__value__2 = "reached end of file";
+        __PUCK__value__1 = "reached end of file";
       };
-      var but = __PUCK__value__2;
+      var but = __PUCK__value__1;
       console.error(token);
       return input.croak("Expected " + name + "" + expectedText + ", but " + but + "");
     };
@@ -104,6 +110,19 @@ function parse(input) {
     };
     return left;
   };
+  function maybeCall(expr) {
+    if (isToken(SyntaxKind.OpenParenToken)) {
+      return {
+        kind: SyntaxKind.CallExpression,
+        func: expr,
+        openParen: input.peek(),
+        argumentList: delimited("(", ")", ",", parseExpression),
+        closeParen: input.peek()
+      };
+    } else {
+      return expr;
+    };
+  };
   function maybeMemberAccess(token) {
     if (isToken(SyntaxKind.DotToken)) {
       input.next();
@@ -166,23 +185,14 @@ function parse(input) {
     consumeToken(stop);
     return parts;
   };
-  function parseCall(func) {
-    return {
-      kind: SyntaxKind.CallExpression,
-      func: func,
-      openParen: input.peek(),
-      argumentList: delimited("(", ")", ",", parseExpression),
-      closeParen: input.peek()
-    };
-  };
   function parseTypeBound() {
     expect(SyntaxKind.Identifier, "identifier");
     var name = input.next();
-    var __PUCK__value__3 = void 0;
+    var __PUCK__value__2 = void 0;
     if (isToken(SyntaxKind.LessThanToken)) {
-      __PUCK__value__3 = delimited("<", ">", ",", parseTypeBound);
+      __PUCK__value__2 = delimited("<", ">", ",", parseTypeBound);
     };
-    var parameters = __PUCK__value__3;
+    var parameters = __PUCK__value__2;
     return {
       kind: SyntaxKind.TypeBound,
       name: name,
@@ -212,29 +222,29 @@ function parse(input) {
     return declaration;
   };
   function parseFunction() {
-    var __PUCK__value__4 = void 0;
+    var __PUCK__value__3 = void 0;
     if (isToken(SyntaxKind.Identifier)) {
-      __PUCK__value__4 = input.next();
+      __PUCK__value__3 = input.next();
     };
-    var name = __PUCK__value__4;
+    var name = __PUCK__value__3;
     var parameterList = delimited("(", ")", ",", parseVariableDeclaration);
-    var __PUCK__value__5 = void 0;
+    var __PUCK__value__4 = void 0;
     if (isToken(SyntaxKind.ColonToken)) {
       input.next();
-      __PUCK__value__5 = parseTypeBound();
+      __PUCK__value__4 = parseTypeBound();
     };
-    var returnType = __PUCK__value__5;
-    var __PUCK__value__6 = void 0;
+    var returnType = __PUCK__value__4;
+    var __PUCK__value__5 = void 0;
     if (isToken(SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__6 = parseBlock();
+      __PUCK__value__5 = parseBlock();
     } else {
       skipKeyword(SyntaxKind.ThenKeyword);
-      __PUCK__value__6 = {
+      __PUCK__value__5 = {
         kind: SyntaxKind.Block,
         block: [parseExpression()]
       };
     };
-    var body = __PUCK__value__6;
+    var body = __PUCK__value__5;
     return {
       kind: SyntaxKind.Function,
       name: name,
@@ -245,17 +255,17 @@ function parse(input) {
   function parseIf() {
     skipKeyword(SyntaxKind.IfKeyword);
     var condition = parseExpression();
-    var __PUCK__value__7 = void 0;
+    var __PUCK__value__6 = void 0;
     if (isToken(SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__7 = parseBlock();
+      __PUCK__value__6 = parseBlock();
     } else {
       skipKeyword(SyntaxKind.ThenKeyword);
-      __PUCK__value__7 = {
+      __PUCK__value__6 = {
         kind: SyntaxKind.Block,
         block: [parseExpression()]
       };
     };
-    var _then = __PUCK__value__7;
+    var _then = __PUCK__value__6;
     var ret = {
       kind: SyntaxKind.IfExpression,
       condition: condition,
@@ -263,33 +273,33 @@ function parse(input) {
     };
     if (isToken(SyntaxKind.ElseKeyword)) {
       input.next();
-      var __PUCK__value__8 = void 0;
+      var __PUCK__value__7 = void 0;
       if (isToken(SyntaxKind.OpenBraceToken)) {
-        __PUCK__value__8 = parseBlock();
+        __PUCK__value__7 = parseBlock();
       } else {
-        __PUCK__value__8 = {
+        __PUCK__value__7 = {
           kind: SyntaxKind.Block,
           block: [parseExpression()]
         };
       };
-      ret._else = __PUCK__value__8;
+      ret._else = __PUCK__value__7;
     };
     return ret;
   };
   function parseWhile() {
     skipKeyword(SyntaxKind.WhileKeyword);
     var condition = parseExpression();
-    var __PUCK__value__9 = void 0;
+    var __PUCK__value__8 = void 0;
     if (isToken(SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__9 = parseBlock();
+      __PUCK__value__8 = parseBlock();
     } else {
       skipKeyword(SyntaxKind.ThenKeyword);
-      __PUCK__value__9 = {
+      __PUCK__value__8 = {
         kind: SyntaxKind.Block,
         block: [parseExpression()]
       };
     };
-    var body = __PUCK__value__9;
+    var body = __PUCK__value__8;
     return {
       kind: SyntaxKind.WhileExpression,
       condition: condition,
@@ -305,14 +315,14 @@ function parse(input) {
   };
   function parseObjectLiteralMember() {
     var name = consumeToken(SyntaxKind.Identifier);
-    var __PUCK__value__10 = void 0;
+    var __PUCK__value__9 = void 0;
     if (isToken(SyntaxKind.ColonToken)) {
       input.next();
-      __PUCK__value__10 = parseExpression();
+      __PUCK__value__9 = parseExpression();
     } else {
-      __PUCK__value__10 = name;
+      __PUCK__value__9 = name;
     };
-    var value = __PUCK__value__10;
+    var value = __PUCK__value__9;
     return {
       kind: SyntaxKind.ObjectLiteralMember,
       name: name,
@@ -324,13 +334,6 @@ function parse(input) {
     return {
       kind: SyntaxKind.ObjectLiteral,
       members: members
-    };
-  };
-  function maybeCall(expr) {
-    if (isToken(SyntaxKind.OpenParenToken)) {
-      return parseCall(expr);
-    } else {
-      return expr;
     };
   };
   function parseAtom() {
