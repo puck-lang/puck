@@ -178,8 +178,21 @@ function emitExpression(expression, context = null) {
 
 function emitFunctionDeclaration(fn: FunctionNode) {
   let name = fn.name ? emitIdentifier(fn.name) : ''
-  let code = `function ${name}(${fn.parameterList.map(emitFunctionParameter).join(', ')}) `
-  code += withContext(Context.Return, () => emitBlock(fn.body))
+  let parameterList = fn.parameterList
+  let body = fn.body
+  if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
+    parameterList = fn.parameterList.slice(1)
+    body = Object['assign']({}, body, {
+      block: [Object['assign'](fn.parameterList[0], {
+        initializer: {
+          kind: SyntaxKind.Identifier,
+          name: 'this',
+        } as Identifier
+      }), ...body.block]
+    })
+  }
+  let code = `function ${name}(${parameterList.map(emitFunctionParameter).join(', ')}) `
+  code += withContext(Context.Return, () => emitBlock(body))
 
   return code
 }

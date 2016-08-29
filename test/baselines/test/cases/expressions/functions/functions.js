@@ -45,4 +45,16 @@ function l(a, b) {
 };
 function m(a, b) {
   return a == b;
+};
+function n() {
+  var self = this;
+  return self.toString();
+};
+function o() {
+  var self = this;
+  return self.toString();
+};
+function p(a) {
+  var self = this;
+  return self.toString();
 }

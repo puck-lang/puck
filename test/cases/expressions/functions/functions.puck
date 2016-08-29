@@ -29,3 +29,6 @@ fn l(a, b: String) {
 fn m(a, b): Bool {
   a == b
 }
+fn n(self) then self.toString()
+fn o(mut self) then self.toString()
+fn p(self, a) then self.toString()

@@ -142,8 +142,21 @@ function emitExpression(expression, context) {
 }
 function emitFunctionDeclaration(fn) {
     var name = fn.name ? emitIdentifier(fn.name) : '';
-    var code = "function " + name + "(" + fn.parameterList.map(emitFunctionParameter).join(', ') + ") ";
-    code += withContext(Context.Return, function () { return emitBlock(fn.body); });
+    var parameterList = fn.parameterList;
+    var body = fn.body;
+    if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
+        parameterList = fn.parameterList.slice(1);
+        body = Object['assign']({}, body, {
+            block: [Object['assign'](fn.parameterList[0], {
+                initializer: {
+                    kind: ast_1.SyntaxKind.Identifier,
+                    name: 'this',
+                }
+            })].concat(body.block)
+        });
+    }
+    var code = "function " + name + "(" + parameterList.map(emitFunctionParameter).join(', ') + ") ";
+    code += withContext(Context.Return, function () { return emitBlock(body); });
     return code;
 }
 function emitFunctionParameter(vd) {
