@@ -11,7 +11,7 @@ function buildAll() {
   var outFolder = arguments.length <= 0 || arguments[0] === undefined ? "dist" : arguments[0];
   var compiler = arguments.length <= 1 || arguments[1] === undefined ? "dist" : arguments[1];
 
-  return cmd("shopt -s globstar && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
+  return cmd("" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
 };
 function buildTestCompiler() {
   return cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler")["then"](function () {
@@ -30,7 +30,7 @@ if (command == "build") {
 } else {
   if (command == "test") {
     buildTestCompiler()["then"](function () {
-      return cmd("shopt -s globstar && " + ".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/*.puck");
+      return cmd(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck && " + "! (.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/*.error.puck 2> /dev/null && echo \"error case did not error\")");
     })["then"](function () {
       return cmd("diff -Nr test/baselines .tmp/cases");
     })["then"](function () {
@@ -41,7 +41,7 @@ if (command == "build") {
   } else {
     if (command == "update-baselines") {
       buildTestCompiler()["then"](function () {
-        return cmd("shopt -s globstar && " + ".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/*.puck");
+        return cmd(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
       })["then"](function () {
         return console.log("done");
       }).catch(function () {

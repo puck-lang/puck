@@ -5,12 +5,15 @@ let TokenStream = require('./compiler/token_stream').TokenStream
 let parse = require('./compiler/parser').parse
 let emitProgram = require('./compiler/emitter').emitProgram
 let cmd = require('./helpers').cmd
+let scopeVisitor = require('./typeck/scope').scopeVisitor
 
 fn buildString(puck, file) {
-  emitProgram(parse(TokenStream(InputStream(puck, file))))
+  let mut ast = parse(TokenStream(InputStream(puck, file)))
+  scopeVisitor.visitBlock(ast)
+  emitProgram(ast)
 }
 
-fn build(file, outFile) {
+fn build(mut file, mut outFile) {
   file = path.normalize(file)
   outFile = path.normalize(outFile)
   let outDir = path.dirname(outFile)

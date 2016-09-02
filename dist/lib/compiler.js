@@ -9,8 +9,11 @@ var TokenStream = require("./compiler/token_stream").TokenStream;
 var parse = require("./compiler/parser").parse;
 var emitProgram = require("./compiler/emitter").emitProgram;
 var cmd = require("./helpers").cmd;
+var scopeVisitor = require("./typeck/scope").scopeVisitor;
 function buildString(puck, file) {
-  return emitProgram(parse(TokenStream(InputStream(puck, file))));
+  var ast = parse(TokenStream(InputStream(puck, file)));
+  scopeVisitor.visitBlock(ast);
+  return emitProgram(ast);
 };
 function build(file, outFile) {
   file = path.normalize(file);

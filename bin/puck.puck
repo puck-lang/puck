@@ -5,7 +5,6 @@ let command = arguments[0]
 
 fn buildAll(outFolder = 'dist', compiler = 'dist') {
   cmd(
-    'shopt -s globstar && ' +
     '$compiler/bin/puckc --out-dir $outFolder --skip-extension true bin/**/*.puck && ' +
     '$compiler/bin/puckc --out-dir $outFolder lib/**/*.puck'
   )
@@ -31,8 +30,8 @@ if command == 'build' {
 else if command == 'test' {
   buildTestCompiler()
     ['then'](fn () {cmd(
-      'shopt -s globstar && ' +
-      '.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/*.puck'
+      '.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck && ' +
+      '! (.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/*.error.puck 2> /dev/null && echo "error case did not error")'
     )})
     ['then'](fn () {cmd('diff -Nr test/baselines .tmp/cases')})
     ['then'](fn () {console.log('done')})
@@ -41,8 +40,7 @@ else if command == 'test' {
 else if command == 'update-baselines' {
   buildTestCompiler()
     ['then'](fn () {cmd(
-      'shopt -s globstar && ' +
-      '.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/*.puck'
+      '.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck'
     )})
     ['then'](fn () {console.log('done')})
     .catch(fn () {process.exit(1)})

@@ -9,16 +9,20 @@ Array.prototype.takeFrom = fn (predicate) {
 fn cmd(cmd) {
   _new(Promise)(fn (resolve, reject) {
     exec(
-      cmd,
+      cmd
       {
-        cwd: process.cwd(),
-        shell: '/bin/bash',
-      },
+        cwd: process.cwd()
+        shell: '/bin/bash'
+        env: {
+          BASHOPTS: 'globstar:extglob'
+          PATH: process.env.PATH
+        }
+      }
       fn (error, stdout, stderr) {
         if stderr then console.error(stderr)
         if stdout then console.log(stdout)
         if error then reject(error) else resolve()
-      },
+      }
     )
   })
 }

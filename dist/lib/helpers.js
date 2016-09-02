@@ -12,7 +12,11 @@ function cmd(cmd) {
   return _new(Promise)(function (resolve, reject) {
     return exec(cmd, {
       cwd: process.cwd(),
-      shell: "/bin/bash"
+      shell: "/bin/bash",
+      env: {
+        BASHOPTS: "globstar:extglob",
+        PATH: process.env.PATH
+      }
     }, function (error, stdout, stderr) {
       if (stderr) {
         console.error(stderr);

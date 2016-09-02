@@ -1,0 +1,3 @@
+let a = 5
+// Assignment to immutable variable
+a = 10

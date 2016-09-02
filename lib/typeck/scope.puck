@@ -1,0 +1,165 @@
+let Visitor = require('../ast/visit').Visitor
+let walkExpression = require('../ast/visit').walkExpression
+let walkBlock = require('../ast/visit').walkBlock
+let walkFunction = require('../ast/visit').walkFunction
+let walkIdentifier = require('../ast/visit').walkIdentifier
+let walkTypeBound = require('../ast/visit').walkTypeBound
+let walkVariableDeclaration = require('../ast/visit').walkVariableDeclaration
+let walkAssignmentExpression = require('../ast/visit').walkAssignmentExpression
+let walkBinaryExpression = require('../ast/visit').walkBinaryExpression
+let walkCallExpression = require('../ast/visit').walkCallExpression
+let walkForExpression = require('../ast/visit').walkForExpression
+let walkIfExpression = require('../ast/visit').walkIfExpression
+let walkLoopExpression = require('../ast/visit').walkLoopExpression
+let walkUnaryExpression = require('../ast/visit').walkUnaryExpression
+let walkWhileExpression = require('../ast/visit').walkWhileExpression
+let walkIndexAccess = require('../ast/visit').walkIndexAccess
+let walkMemberAccess = require('../ast/visit').walkMemberAccess
+let walkBreak = require('../ast/visit').walkBreak
+let walkReturn = require('../ast/visit').walkReturn
+let walkArrayLiteral = require('../ast/visit').walkArrayLiteral
+let walkBooleanLiteral = require('../ast/visit').walkBooleanLiteral
+let walkNumberLiteral = require('../ast/visit').walkNumberLiteral
+let walkObjectLiteral = require('../ast/visit').walkObjectLiteral
+let walkStringLiteral = require('../ast/visit').walkStringLiteral
+let SyntaxKind = require('../compiler/ast').SyntaxKind
+
+// type Binding = {
+//   mutable: boolean
+// }
+
+// type Scope = {
+//   getLocalBinding: (String) => Binding
+//   getBinding: (String) => Binding
+//   declare: (String, Binding) => Binding
+// }
+
+// type ScopeAware = {
+//   scope: Scope
+// }
+
+fn createScope(parent) {
+  let bindings = {}
+
+  {
+    parent
+    getLocalBinding: |name| bindings[name]
+    getBinding: |name| bindings[name] or (parent and parent.getBinding(name))
+    declare: |name, binding: Binding| bindings[name] = binding
+  }
+}
+
+export let scopeVisitor = Object.assign({}, Visitor, { // Object.create(Visitor)
+  scope: createScope()
+
+  visitBlock: |self, b: Block| {
+    b.scope = self.scope
+    walkBlock(self, b)
+  }
+  visitFunction: |self, f: FunctionNode| {
+    if f.name then
+      self.scope.declare(f.name.name, {mutable: false})
+    self.scope = createScope(self.scope)
+    f.scope = self.scope
+    walkFunction(self, f)
+    self.scope = self.scope.parent
+  }
+  visitIdentifier: |self, i: Identifier| {
+    i.scope = self.scope
+    walkIdentifier(self, i)
+  }
+  visitTypeBound: |self, t: TypeBound| {
+    t.scope = self.scope
+    walkTypeBound(self, t)
+  }
+  visitVariableDeclaration: |self, d: VariableDeclaration| {
+    self.scope.declare(d.identifier.name, {mutable: d.mutable})
+    d.scope = self.scope
+    walkVariableDeclaration(self, d)
+  }
+
+  visitAssignmentExpression: |self, e: AssignmentExpression| {
+    e.scope = self.scope
+    if e.lhs.kind == SyntaxKind.Identifier {
+      let binding = e.scope.getBinding(e.lhs.name)
+      if binding and not binding.mutable then throw "Can't assign to immutable variable " + e.lhs.name
+    }
+    walkAssignmentExpression(self, e)
+  }
+  visitBinaryExpression: |self, e: BinaryExpression| {
+    e.scope = self.scope
+    walkBinaryExpression(self, e)
+  }
+  visitCallExpression: |self, e: CallExpression| {
+    e.scope = self.scope
+    walkCallExpression(self, e)
+  }
+  visitForExpression: |self, e: ForExpression| {
+    self.scope = createScope(self.scope)
+    e.scope = self.scope
+    walkForExpression(self, e)
+    self.scope = self.scope.parent
+  }
+  visitIfExpression: |self, e: IfExpression| {
+    self.scope = createScope(self.scope)
+    e.scope = self.scope
+    walkIfExpression(self, e)
+    self.scope = self.scope.parent
+  }
+  visitLoopExpression: |self, e: LoopExpression| {
+    self.scope = createScope(self.scope)
+    e.scope = self.scope
+    walkLoopExpression(self, e)
+    self.scope = self.scope.parent
+  }
+  visitUnaryExpression: |self, e: UnaryExpression| {
+    e.scope = self.scope
+    walkUnaryExpression(self, e)
+  }
+  visitWhileExpression: |self, e: WhileExpression| {
+    self.scope = createScope(self.scope)
+    e.scope = self.scope
+    walkWhileExpression(self, e)
+    self.scope = self.scope.parent
+  }
+  visitIndexAccess: |self, a: IndexAccess| {
+    a.scope = self.scope
+    walkIndexAccess(self, a)
+  }
+  visitMemberAccess: |self, a: MemberAccess| {
+    a.scope = self.scope
+    walkMemberAccess(self, a)
+  }
+
+  visitBreak: |self, b: Token| {
+    b.scope = self.scope
+    walkBreak(self, b)
+  }
+  visitReturn: |self, r: ReturnStatement| {
+    r.scope = self.scope
+    walkReturn(self, r)
+  }
+
+  visitArrayLiteral: |self, l: ArrayLiteral| {
+    l.scope = self.scope
+    walkArrayLiteral(self, l)
+  }
+  visitBooleanLiteral: |self, l: BooleanLiteral| {
+    l.scope = self.scope
+    walkBooleanLiteral(self, l)
+  }
+  visitNumberLiteral: |self, l: NumberLiteral| {
+    l.scope = self.scope
+    walkNumberLiteral(self, l)
+  }
+  visitObjectLiteral: |self, l: ObjectLiteral| {
+    l.scope = self.scope
+    walkObjectLiteral(self, l)
+  }
+  visitStringLiteral: |self, l: StringLiteral| {
+    l.scope = self.scope
+    walkStringLiteral(self, l)
+  }
+})
+
+module.exports.scopeVisitor = scopeVisitor

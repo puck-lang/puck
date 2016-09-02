@@ -1,0 +1,174 @@
+let SyntaxKind = require('../compiler/ast').SyntaxKind
+
+// Comments and Design based on [Rust](https://github.com/rust-lang/rust/blob/86dde9bbda92c02c61282b5df5d38338a798ef3b/src/libsyntax/visit.rs)
+
+//! AST walker. Each overridden visit method has full control over what
+//! happens with its node, it can do its own traversal of the node's children,
+//! call `visit::walk*` to apply the default traversal algorithm, or prevent
+//! deeper traversal by doing nothing.
+//!
+//! Note: it is an important invariant that the default visitor walks the body
+//! of a function in "execution order" (more concretely, reverse post-order
+//! with respect to the CFG implied by the AST), meaning that if AST node A may
+//! execute before AST node B, then A is visited first.  The borrow checker in
+//! particular relies on this property.
+//!
+//! Note: walking an AST before macro expansion is probably a bad idea. For
+//! instance, a walker looking for item names in a module will miss all of
+//! those that are created by the expansion of a macro.
+
+/// Each method of the Visitor trait is a hook to be potentially
+/// overridden.  Each method's default implementation recursively visits
+/// the substructure of the input via the corresponding `walk` function;
+/// e.g. the `visitBlock` method by default calls `walkMod`.
+///
+/// If you want to ensure that your code handles every variant
+/// explicitly, you need to override each method.  (And you also need
+/// to monitor future changes to `Visitor` in case a new method with a
+/// new default implementation gets introduced.)
+export let Visitor = {
+  visitExpression: |self, e: Expression| walkExpression(self, e)
+
+  visitBlock: |self, b: Block| walkBlock(self, b)
+  visitFunction: |self, f: FunctionNode| walkFunction(self, f)
+  visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
+  visitTypeBound: |self, i: TypeBound| walkTypeBound(self, t)
+  visitVariableDeclaration: |self, d: VariableDeclaration| walkVariableDeclaration(self, d)
+
+  visitAssignmentExpression: |self, e: AssignmentExpression| walkAssignmentExpression(self, e)
+  visitBinaryExpression: |self, e: BinaryExpression| walkBinaryExpression(self, e)
+  visitCallExpression: |self, e: CallExpression| walkCallExpression(self, e)
+  visitForExpression: |self, e: ForExpression| walkForExpression(self, e)
+  visitIfExpression: |self, e: IfExpression| walkIfExpression(self, e)
+  visitLoopExpression: |self, e: LoopExpression| walkLoopExpression(self, e)
+  visitUnaryExpression: |self, e: UnaryExpression| walkUnaryExpression(self, e)
+  visitWhileExpression: |self, e: WhileExpression| walkWhileExpression(self, e)
+
+  visitIndexAccess: |self, a: IndexAccess| walkIndexAccess(self, a)
+  visitMemberAccess: |self, a: MemberAccess| walkMemberAccess(self, a)
+
+  visitBreak: |self, b: Token| walkBreak(self, b)
+  visitExport: |self, e: ExportStatement| walkExport(self, e)
+  visitReturn: |self, r: ReturnStatement| walkReturn(self, r)
+
+  visitArrayLiteral: |self, l: ArrayLiteral| walkArrayLiteral(self, l)
+  visitBooleanLiteral: |self, l: BooleanLiteral| walkBooleanLiteral(self, l)
+  visitNumberLiteral: |self, l: NumberLiteral| walkNumberLiteral(self, l)
+  visitObjectLiteral: |self, l: ObjectLiteral| walkObjectLiteral(self, l)
+  visitStringLiteral: |self, l: StringLiteral| walkStringLiteral(self, l)
+}
+
+export fn walkExpression(visitor: Visitor, e: Expression) {
+  if e.kind == SyntaxKind.Block then visitor.visitBlock(e)
+  else if e.kind == SyntaxKind.Function then visitor.visitFunction(e)
+  else if e.kind == SyntaxKind.Identifier then visitor.visitIdentifier(e)
+  else if e.kind == SyntaxKind.TypeBound then visitor.visitTypeBound(e)
+  else if e.kind == SyntaxKind.VariableDeclaration then visitor.visitVariableDeclaration(e)
+
+  else if e.kind == SyntaxKind.AssignmentExpression then visitor.visitAssignmentExpression(e)
+  else if e.kind == SyntaxKind.BinaryExpression then visitor.visitBinaryExpression(e)
+  else if e.kind == SyntaxKind.CallExpression then visitor.visitCallExpression(e)
+  else if e.kind == SyntaxKind.ForExpression then visitor.visitForExpression(e)
+  else if e.kind == SyntaxKind.IfExpression then visitor.visitIfExpression(e)
+  else if e.kind == SyntaxKind.LoopExpression then visitor.visitLoopExpression(e)
+  else if e.kind == SyntaxKind.UnaryExpression then visitor.visitUnaryExpression(e)
+  else if e.kind == SyntaxKind.WhileExpression then visitor.visitWhileExpression(e)
+
+  else if e.kind == SyntaxKind.IndexAccess then visitor.visitIndexAccess(e)
+  else if e.kind == SyntaxKind.MemberAccess then visitor.visitMemberAccess(e)
+
+  else if e.kind == SyntaxKind.BreakKeyword then visitor.visitBreak(e)
+  else if e.kind == SyntaxKind.ExportStatement then visitor.visitExport(e)
+  else if e.kind == SyntaxKind.ReturnStatement then visitor.visitReturn(e)
+
+  else if e.kind == SyntaxKind.ArrayLiteral then visitor.visitArrayLiteral(e)
+  else if e.kind == SyntaxKind.BooleanLiteral then visitor.visitBooleanLiteral(e)
+  else if e.kind == SyntaxKind.NumberLiteral then visitor.visitNumberLiteral(e)
+  else if e.kind == SyntaxKind.ObjectLiteral then visitor.visitObjectLiteral(e)
+  else if e.kind == SyntaxKind.StringLiteral then visitor.visitStringLiteral(e)
+}
+
+export fn walkBlock(visitor: Visitor, b: Block) {
+  b.block.forEach(visitor.visitExpression.bind(visitor))
+}
+export fn walkFunction(visitor: Visitor, f: FunctionNode) {
+  f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
+  if f.returnType then visitor.visitTypeBound(f.returnType)
+  visitor.visitBlock(f.body)
+}
+export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
+export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
+  if t.parameters then
+    t.parameters.forEach(visitor.visitTypeBound.bind(visitor))
+}
+export fn walkVariableDeclaration(visitor: Visitor, d: VariableDeclaration) {
+  visitor.visitIdentifier(d.identifier)
+  if d.typeBound then visitor.visitTypeBound(d.typeBound)
+  if d.initializer then visitor.visitExpression(d.initializer)
+}
+
+export fn walkAssignmentExpression(visitor: Visitor, e: AssignmentExpression) {
+  visitor.visitExpression(e.lhs)
+  visitor.visitExpression(e.rhs)
+}
+export fn walkBinaryExpression(visitor: Visitor, e: BinaryExpression) {
+  visitor.visitExpression(e.lhs)
+  visitor.visitExpression(e.rhs)
+}
+export fn walkCallExpression(visitor: Visitor, e: CallExpression) {
+  visitor.visitExpression(e.func)
+  e.argumentList.forEach(visitor.visitExpression.bind(visitor))
+}
+export fn walkForExpression(visitor: Visitor, e: ForExpression) {
+
+}
+export fn walkIfExpression(visitor: Visitor, e: IfExpression) {
+  visitor.visitExpression(e.condition)
+  visitor.visitBlock(e._then)
+  if e._else then visitor.visitBlock(e._else)
+
+}
+export fn walkLoopExpression(visitor: Visitor, e: LoopExpression) {
+  visitor.visitBlock(e.body)
+}
+export fn walkUnaryExpression(visitor: Visitor, e: UnaryExpression) {
+  visitor.visitExpression(e.rhs)
+}
+export fn walkWhileExpression(visitor: Visitor, e: WhileExpression) {
+  visitor.visitExpression(e.condition)
+  visitor.visitBlock(e.body)
+}
+
+export fn walkIndexAccess(visitor: Visitor, a: IndexAccess) {
+  visitor.visitExpression(a.object)
+  visitor.visitExpression(a.index)
+}
+export fn walkMemberAccess(visitor: Visitor, a: MemberAccess) {
+  visitor.visitExpression(a.object)
+  visitor.visitExpression(a.member)
+}
+
+export fn walkBreak(visitor: Visitor, b: Token) {}
+export fn walkExport(visitor: Visitor, e: ExportStatement) {
+  visitor.visitExpression(e.expression)
+}
+export fn walkReturn(visitor: Visitor, r: ReturnStatement) {
+  visitor.visitExpression(r.expression)
+}
+
+export fn walkArrayLiteral(visitor: Visitor, l: ArrayLiteral) {
+  l.members.forEach(visitor.visitExpression.bind(visitor))
+}
+export fn walkBooleanLiteral(visitor: Visitor, l: BooleanLiteral) {}
+export fn walkNumberLiteral(visitor: Visitor, l: NumberLiteral) {}
+export fn walkObjectLiteral(visitor: Visitor, l: ObjectLiteral) {
+  l.members.forEach(|m| {
+    visitor.visitIdentifier(m.name)
+    visitor.visitExpression(m.value)
+  })
+}
+export fn walkStringLiteral(visitor: Visitor, l: StringLiteral) {
+  l.parts
+    .filter(|p| p.kind == SyntaxKind.Identifier)
+    .forEach(visitor.visitIdentifier.bind(visitor))
+}

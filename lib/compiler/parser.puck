@@ -178,7 +178,7 @@ fn parse(input: TokenStream) {
   }
 
   // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T): Array<T> {
-  fn delimited(start, stop, separator, parser): Array {
+  fn delimited(mut start, mut stop, mut separator, parser): Array {
     if typeof(start) == 'string' then start = textToToken[start]
     if typeof(stop) == 'string' then stop = textToToken[stop]
     if typeof(separator) == 'string' then separator = textToToken[separator]
