@@ -1,4 +1,5 @@
 let isIdentifier = require('./ast').isIdentifier
+let isIndex = require('./ast').isIndex
 let isMember = require('./ast').isMember
 let textToToken = require('./ast').textToToken
 let tokenToText = require('./ast').tokenToText
@@ -112,7 +113,7 @@ fn parse(input: TokenStream) {
         let mut e
         let mut innerExpression = maybeBinary(parseAtom(), hisprecedence)
         if isAssignment(operator) {
-          if isIdentifier(left) or isMember(left) { //TODO:  or isIndex(left)
+          if isIdentifier(left) or isMember(left) or isIndex(left) {
             let a: AssignmentExpression = {
               kind: SyntaxKind.AssignmentExpression,
               lhs: left,

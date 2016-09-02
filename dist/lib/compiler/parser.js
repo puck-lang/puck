@@ -5,6 +5,7 @@
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var isIdentifier = require("./ast").isIdentifier;
+var isIndex = require("./ast").isIndex;
 var isMember = require("./ast").isMember;
 var textToToken = require("./ast").textToToken;
 var tokenToText = require("./ast").tokenToText;
@@ -95,7 +96,7 @@ function parse(input) {
         var e = void 0;
         var innerExpression = maybeBinary(parseAtom(), hisprecedence);
         if (isAssignment(operator)) {
-          if (isIdentifier(left) || isMember(left)) {
+          if (isIdentifier(left) || isMember(left) || isIndex(left)) {
             var a = {
               kind: SyntaxKind.AssignmentExpression,
               lhs: left,
@@ -406,22 +407,30 @@ function parse(input) {
                         if (isToken(SyntaxKind.BreakKeyword)) {
                           return input.next();
                         } else {
-                          if (isToken(SyntaxKind.ReturnKeyword) || isToken(SyntaxKind.ThrowKeyword)) {
+                          if (isToken(SyntaxKind.ReturnKeyword)) {
                             return {
-                              kind: input.next().kind,
+                              kind: SyntaxKind.ReturnStatement,
+                              keyword: input.next(),
                               expression: parseExpression()
                             };
                           } else {
-                            if (isToken(SyntaxKind.TrueKeyword) || isToken(SyntaxKind.FalseKeyword)) {
-                              return maybeMemberAccess({
-                                kind: SyntaxKind.BooleanLiteral,
-                                value: input.next().kind == SyntaxKind.TrueKeyword
-                              });
+                            if (isToken(SyntaxKind.ThrowKeyword)) {
+                              return {
+                                kind: input.next().kind,
+                                expression: parseExpression()
+                              };
                             } else {
-                              if (isToken(SyntaxKind.NumberLiteral) || isToken(SyntaxKind.StringLiteral) || isToken(SyntaxKind.Identifier)) {
-                                return maybeMemberAccess(input.next());
+                              if (isToken(SyntaxKind.TrueKeyword) || isToken(SyntaxKind.FalseKeyword)) {
+                                return maybeMemberAccess({
+                                  kind: SyntaxKind.BooleanLiteral,
+                                  value: input.next().kind == SyntaxKind.TrueKeyword
+                                });
                               } else {
-                                return unexpected();
+                                if (isToken(SyntaxKind.NumberLiteral) || isToken(SyntaxKind.StringLiteral) || isToken(SyntaxKind.Identifier)) {
+                                  return maybeMemberAccess(input.next());
+                                } else {
+                                  return unexpected();
+                                };
                               };
                             };
                           };
@@ -437,10 +446,41 @@ function parse(input) {
       };
     }());
   };
+  function parseExport() {
+    var keyword = consumeToken(SyntaxKind.ExportKeyword);
+    var expression = void 0;
+    var identifier = void 0;
+    if (isToken(SyntaxKind.FnKeyword)) {
+      input.next();
+      expression = parseFunction();
+      identifier = expression.name;
+    } else {
+      if (isToken(SyntaxKind.LetKeyword)) {
+        input.next();
+        expression = parseVariableDeclaration();
+        identifier = expression.identifier;
+      } else {
+        input.croak("Expected function or variable declaration after export");
+      };
+    };
+    return {
+      kind: SyntaxKind.ExportStatement,
+      keyword: keyword,
+      identifier: identifier,
+      expression: expression
+    };
+  };
+  function parseTopLevelExpression() {
+    if (isToken(SyntaxKind.ExportKeyword)) {
+      return parseExport();
+    } else {
+      return parseExpression();
+    };
+  };
   function parseToplevel() {
     var prog = [];
     while (!input.eof()) {
-      var expression = parseExpression();
+      var expression = parseTopLevelExpression();
       if (expression) {
         prog.push(expression);
       };

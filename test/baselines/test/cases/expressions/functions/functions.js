@@ -32,6 +32,9 @@ function h(a, b) {
   return a == b;
 };
 function i(a, b) {
+  if (a > 0) {
+    return b;
+  };
   return a == b;
 };
 function j(a, b) {

@@ -204,5 +204,9 @@ function isMember(token) {
     return token.kind === SyntaxKind.MemberAccess;
 }
 exports.isMember = isMember;
+function isIndex(token) {
+    return token.kind === SyntaxKind.IndexAccess;
+}
+exports.isIndex = isIndex;
 var _a, _b;
 // export const NULL: Token = { kind: SyntaxKind.NullKeyword }

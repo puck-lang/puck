@@ -1,6 +1,7 @@
 import {
   isBlock,
   isIdentifier,
+  isMember,
   textToToken,
   tokenToText,
   ArrayLiteral,
@@ -133,7 +134,7 @@ function emitScalarExpression(expression: any) {
     case SyntaxKind.MemberAccess: return emitMemberAccess(expression);
     case SyntaxKind.BreakKeyword: return emitBreak(expression);
     case SyntaxKind.ExportStatement: return emitExportStatement(expression);
-    case SyntaxKind.ReturnKeyword: return emitReturn(expression);
+    case SyntaxKind.ReturnStatement: return emitReturn(expression);
     case SyntaxKind.ThrowKeyword: return emitThrow(expression);
     case SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
     case SyntaxKind.BooleanLiteral: return emitBooleanLiteral(expression);
@@ -225,7 +226,9 @@ function emitVariableDeclaration(vd: VariableDeclaration) {
 function emitAssignmentExpression(e: AssignmentExpression) {
   let left = isIdentifier(e.lhs)
     ? emitIdentifier(e.lhs)
-    : emitMemberAccess(e.lhs)
+    : (isMember(e.lhs)
+        ? emitMemberAccess(e.lhs)
+        : emitIndexAccess(e.lhs))
   return `${left} ${tokenToJs[e.token.kind]} ${emitExpression(e.rhs, Context.Value)}`
 }
 

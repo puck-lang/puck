@@ -15,6 +15,7 @@ fn g(a,b) {
 
 fn h(a: Num, b: String): Bool then a == b
 fn i(a: Num, b: String): Bool {
+  if a > 0 then return b
   a == b
 }
 fn j(a: Num, b: String) {

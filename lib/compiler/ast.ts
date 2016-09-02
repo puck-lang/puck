@@ -217,6 +217,10 @@ export function isMember(token: Token): token is MemberAccess {
   return token.kind === SyntaxKind.MemberAccess
 }
 
+export function isIndex(token: Token): token is IndexAccess {
+  return token.kind === SyntaxKind.IndexAccess
+}
+
 export interface Token {
   kind: SyntaxKind
 }
@@ -299,7 +303,7 @@ export interface ReturnStatement extends Token {
 export interface Expression extends Token {}
 
 export interface AssignmentExpression extends Expression {
-  lhs: Identifier|MemberAccess
+  lhs: Identifier|MemberAccess|IndexAccess
   token: Token
   rhs: Expression
 }

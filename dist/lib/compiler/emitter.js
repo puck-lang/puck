@@ -95,7 +95,7 @@ function emitScalarExpression(expression) {
         case ast_1.SyntaxKind.MemberAccess: return emitMemberAccess(expression);
         case ast_1.SyntaxKind.BreakKeyword: return emitBreak(expression);
         case ast_1.SyntaxKind.ExportStatement: return emitExportStatement(expression);
-        case ast_1.SyntaxKind.ReturnKeyword: return emitReturn(expression);
+        case ast_1.SyntaxKind.ReturnStatement: return emitReturn(expression);
         case ast_1.SyntaxKind.ThrowKeyword: return emitThrow(expression);
         case ast_1.SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
         case ast_1.SyntaxKind.BooleanLiteral: return emitBooleanLiteral(expression);
@@ -182,7 +182,9 @@ function emitVariableDeclaration(vd) {
 function emitAssignmentExpression(e) {
     var left = ast_1.isIdentifier(e.lhs)
         ? emitIdentifier(e.lhs)
-        : emitMemberAccess(e.lhs);
+        : (ast_1.isMember(e.lhs)
+            ? emitMemberAccess(e.lhs)
+            : emitIndexAccess(e.lhs));
     return left + " " + tokenToJs[e.token.kind] + " " + emitExpression(e.rhs, Context.Value);
 }
 function emitBinaryExpression(e) {
