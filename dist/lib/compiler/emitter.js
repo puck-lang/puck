@@ -94,6 +94,7 @@ function emitScalarExpression(expression) {
         case ast_1.SyntaxKind.IndexAccess: return emitIndexAccess(expression);
         case ast_1.SyntaxKind.MemberAccess: return emitMemberAccess(expression);
         case ast_1.SyntaxKind.BreakKeyword: return emitBreak(expression);
+        case ast_1.SyntaxKind.ExportStatement: return emitExportStatement(expression);
         case ast_1.SyntaxKind.ReturnKeyword: return emitReturn(expression);
         case ast_1.SyntaxKind.ThrowKeyword: return emitThrow(expression);
         case ast_1.SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
@@ -240,6 +241,9 @@ function emitMemberAccess(e) {
 function emitBreak(_) {
     allowReturnContext = false;
     return "break";
+}
+function emitExportStatement(e) {
+    return "export " + emitExpression(e.expression);
 }
 function emitReturn(e) {
     allowReturnContext = false;

@@ -58,6 +58,16 @@ function parse(input) {
     var name = tokenToText[token.kind];
     return input.croak("Unexpected token: " + name + "");
   };
+  function consumeSeparator(kind) {
+    if (!input.eof()) {
+      var token = input.peek(true);
+      if (token.kind == SyntaxKind.NewlineToken || token.kind == SyntaxKind.Comment) {
+        return input.next(true);
+      } else {
+        return consumeToken(kind);
+      };
+    };
+  };
   function isAssignment(token) {
     if (!token) {
       return undefined;
@@ -168,7 +178,7 @@ function parse(input) {
         if (typeof separator == "function") {
           separator();
         } else {
-          consumeToken(separator);
+          consumeSeparator(separator);
         };
       };
       var part = void 0;
@@ -427,16 +437,6 @@ function parse(input) {
       };
     }());
   };
-  function expectSeparator(kind) {
-    if (!input.eof()) {
-      var token = input.peek(true);
-      if (token.kind == SyntaxKind.NewlineToken || token.kind == SyntaxKind.Comment) {
-        return input.next(true);
-      } else {
-        return consumeToken(kind);
-      };
-    };
-  };
   function parseToplevel() {
     var prog = [];
     while (!input.eof()) {
@@ -445,7 +445,7 @@ function parse(input) {
         prog.push(expression);
       };
       if (!input.eof()) {
-        expectSeparator(SyntaxKind.SemicolonToken);
+        consumeSeparator(SyntaxKind.SemicolonToken);
       };
     };
     return {
@@ -454,9 +454,7 @@ function parse(input) {
     };
   };
   function parseBlock() {
-    var block = delimited("{", "}", function () {
-      return expectSeparator(SyntaxKind.SemicolonToken);
-    }, parseExpression);
+    var block = delimited("{", "}", ";", parseExpression);
     return {
       kind: SyntaxKind.Block,
       block: block

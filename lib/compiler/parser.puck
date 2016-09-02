@@ -409,12 +409,15 @@ fn parse(input: TokenStream) {
           rhs: parseExpression(),
         }
       else if isToken(SyntaxKind.BreakKeyword) then input.next()
-      else if isToken(SyntaxKind.ReturnKeyword)
-           or isToken(SyntaxKind.ThrowKeyword)
-        then {
-          kind: input.next().kind,
-          expression: parseExpression(),
-        }
+      else if isToken(SyntaxKind.ReturnKeyword) then {
+        kind: SyntaxKind.ReturnStatement,
+        keyword: input.next(),
+        expression: parseExpression(),
+      }
+      else if isToken(SyntaxKind.ThrowKeyword) then {
+        kind: input.next().kind,
+        expression: parseExpression(),
+      }
       else if isToken(SyntaxKind.TrueKeyword)
            or isToken(SyntaxKind.FalseKeyword)
         then
@@ -430,10 +433,38 @@ fn parse(input: TokenStream) {
     })())
   }
 
+  fn parseExport() {
+    let keyword = consumeToken(SyntaxKind.ExportKeyword)
+    let mut expression
+    let mut identifier
+    if isToken(SyntaxKind.FnKeyword) {
+      input.next()
+      expression = parseFunction()
+      identifier = expression.name
+    }
+    else if isToken(SyntaxKind.LetKeyword) {
+      input.next()
+      expression = parseVariableDeclaration()
+      identifier = expression.identifier
+    }
+    else input.croak('Expected function or variable declaration after export')
+    {
+      kind: SyntaxKind.ExportStatement
+      keyword
+      identifier
+      expression
+    }
+  }
+
+  fn parseTopLevelExpression() {
+    if isToken(SyntaxKind.ExportKeyword) then parseExport()
+    else parseExpression()
+  }
+
   fn parseToplevel() {
     let mut prog = []
     while not input.eof() {
-      let mut expression = parseExpression()
+      let expression = parseTopLevelExpression()
       if expression then prog.push(expression)
       if not input.eof() then consumeSeparator(SyntaxKind.SemicolonToken)
     }

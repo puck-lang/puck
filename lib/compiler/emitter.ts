@@ -10,6 +10,7 @@ import {
   BooleanLiteral,
   CallExpression,
   CommentNode,
+  ExportStatement,
   Expression,
   ForExpression,
   FunctionNode,
@@ -20,6 +21,7 @@ import {
   MemberAccess,
   NumberLiteral,
   ObjectLiteral,
+  ReturnStatement,
   SimpleIdentifier,
   StringLiteral,
   StringLiteralPart,
@@ -130,6 +132,7 @@ function emitScalarExpression(expression: any) {
     case SyntaxKind.IndexAccess: return emitIndexAccess(expression);
     case SyntaxKind.MemberAccess: return emitMemberAccess(expression);
     case SyntaxKind.BreakKeyword: return emitBreak(expression);
+    case SyntaxKind.ExportStatement: return emitExportStatement(expression);
     case SyntaxKind.ReturnKeyword: return emitReturn(expression);
     case SyntaxKind.ThrowKeyword: return emitThrow(expression);
     case SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
@@ -296,7 +299,11 @@ function emitBreak(_) {
   return `break`
 }
 
-function emitReturn(e) {
+function emitExportStatement(e: ExportStatement) {
+  return `export ${emitExpression(e.expression)}`
+}
+
+function emitReturn(e: ReturnStatement) {
   allowReturnContext = false
   context = null
   return `return ${emitExpression(e.expression, Context.Value)}`

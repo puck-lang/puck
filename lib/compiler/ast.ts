@@ -2,6 +2,7 @@ export enum SyntaxKind {
   AndKeyword,
   BreakKeyword,
   ElseKeyword,
+  ExportKeyword,
   FalseKeyword,
   FnKeyword,
   ForKeyword,
@@ -73,6 +74,10 @@ export enum SyntaxKind {
   IndexAccess,
   MemberAccess,
 
+  BreakStatement,
+  ExportStatement,
+  ReturnStatement,
+
   ArrayLiteral,
   BooleanLiteral,
   NumberLiteral,
@@ -92,7 +97,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   // 'delete': SyntaxKind.DeleteKeyword,
   'else': SyntaxKind.ElseKeyword,
   // 'enum': SyntaxKind.EnumKeyword,
-  // 'export': SyntaxKind.ExportKeyword,
+  'export': SyntaxKind.ExportKeyword,
   'false': SyntaxKind.FalseKeyword,
   'for': SyntaxKind.ForKeyword,
   // 'from': SyntaxKind.FromKeyword,
@@ -274,6 +279,21 @@ export interface VariableDeclaration extends Token {
   mutable: boolean
   typeBound?: TypeBound
   initializer?: Expression
+}
+
+export interface BreakStatement extends Token {
+  keyword: Token
+}
+
+export interface ExportStatement extends Token {
+  keyword: Token
+  expression: VariableDeclaration|FunctionNode
+  identifier: Identifier
+}
+
+export interface ReturnStatement extends Token {
+  keyword: Token
+  expression: Expression
 }
 
 export interface Expression extends Token {}
