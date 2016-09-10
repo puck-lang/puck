@@ -36,8 +36,8 @@ fn parse(input: TokenStream) {
     }
   }
 
-  fn consumeToken(token: SyntaxKind) {
-    expect(token)
+  fn consumeToken(token: SyntaxKind, name) {
+    expect(token, name)
     return input.next()
   }
 
@@ -178,7 +178,7 @@ fn parse(input: TokenStream) {
   }
 
   // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T): Array<T> {
-  fn delimited(mut start, mut stop, mut separator, parser): Array {
+  fn delimited(mut start, mut stop, mut separator, parser, consumeStop = true): Array {
     if typeof(start) == 'string' then start = textToToken[start]
     if typeof(stop) == 'string' then stop = textToToken[stop]
     if typeof(separator) == 'string' then separator = textToToken[separator]
@@ -203,13 +203,12 @@ fn parse(input: TokenStream) {
       if part then parts.push(part)
     }
 
-    consumeToken(stop)
+    if consumeStop then consumeToken(stop)
     parts
   }
 
   fn parseTypeBound(): TypeBound {
-    expect(SyntaxKind.Identifier, 'identifier')
-    let name = input.next()
+    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
     let parameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeBound)
@@ -218,6 +217,53 @@ fn parse(input: TokenStream) {
       kind: SyntaxKind.TypeBound,
       name,
       parameters,
+    }
+  }
+
+  fn parseTypeParameter(): TypeParameter {
+    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let defaultValue = if isToken(SyntaxKind.EqualsToken) {
+      input.next()
+      parseTypeBound()
+    }
+    {
+      kind: SyntaxKind.TypeParameter
+      name
+      defaultValue
+    }
+  }
+
+  fn parseTypeProperty(): TypeProperty {
+    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    consumeToken(SyntaxKind.ColonToken)
+    let typeBound = parseTypeBound()
+    {
+      kind: SyntaxKind.TypeProperty
+      name
+      typeBound
+    }
+  }
+
+  fn parseTypeDeclaration(): TypeDeclaration {
+    let keyword = consumeToken(SyntaxKind.TypeKeyword)
+    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let parameters =
+      if isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeParameter)
+      else []
+    consumeToken(SyntaxKind.EqualsToken)
+    expect(SyntaxKind.OpenBraceToken)
+    let openBrace = input.peek()
+    let properties = delimited('{', '}', ',', parseTypeProperty, false)
+    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
+
+    {
+      kind: SyntaxKind.TypeDeclaration
+      name
+      parameters
+      openBrace
+      properties
+      closeBrace
     }
   }
 
@@ -459,6 +505,7 @@ fn parse(input: TokenStream) {
 
   fn parseTopLevelExpression() {
     if isToken(SyntaxKind.ExportKeyword) then parseExport()
+    else if isToken(SyntaxKind.TypeKeyword) then parseTypeDeclaration()
     else parseExpression()
   }
 

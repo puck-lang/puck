@@ -18,66 +18,70 @@
     SyntaxKind[SyntaxKind["ThenKeyword"] = 14] = "ThenKeyword";
     SyntaxKind[SyntaxKind["ThrowKeyword"] = 15] = "ThrowKeyword";
     SyntaxKind[SyntaxKind["TrueKeyword"] = 16] = "TrueKeyword";
-    SyntaxKind[SyntaxKind["WhileKeyword"] = 17] = "WhileKeyword";
-    SyntaxKind[SyntaxKind["OpenBraceToken"] = 18] = "OpenBraceToken";
-    SyntaxKind[SyntaxKind["CloseBraceToken"] = 19] = "CloseBraceToken";
-    SyntaxKind[SyntaxKind["OpenBracketToken"] = 20] = "OpenBracketToken";
-    SyntaxKind[SyntaxKind["CloseBracketToken"] = 21] = "CloseBracketToken";
-    SyntaxKind[SyntaxKind["OpenParenToken"] = 22] = "OpenParenToken";
-    SyntaxKind[SyntaxKind["CloseParenToken"] = 23] = "CloseParenToken";
-    SyntaxKind[SyntaxKind["AsteriskAsteriskEqualsToken"] = 24] = "AsteriskAsteriskEqualsToken";
-    SyntaxKind[SyntaxKind["AsteriskAsteriskToken"] = 25] = "AsteriskAsteriskToken";
-    SyntaxKind[SyntaxKind["AsteriskEqualsToken"] = 26] = "AsteriskEqualsToken";
-    SyntaxKind[SyntaxKind["AsteriskToken"] = 27] = "AsteriskToken";
-    SyntaxKind[SyntaxKind["BarToken"] = 28] = "BarToken";
-    SyntaxKind[SyntaxKind["ColonToken"] = 29] = "ColonToken";
-    SyntaxKind[SyntaxKind["CommaToken"] = 30] = "CommaToken";
-    SyntaxKind[SyntaxKind["DotToken"] = 31] = "DotToken";
-    SyntaxKind[SyntaxKind["EqualsEqualsToken"] = 32] = "EqualsEqualsToken";
-    SyntaxKind[SyntaxKind["EqualsGreaterThanToken"] = 33] = "EqualsGreaterThanToken";
-    SyntaxKind[SyntaxKind["EqualsToken"] = 34] = "EqualsToken";
-    SyntaxKind[SyntaxKind["ExclamationEqualsToken"] = 35] = "ExclamationEqualsToken";
-    SyntaxKind[SyntaxKind["GreaterThanEqualsToken"] = 36] = "GreaterThanEqualsToken";
-    SyntaxKind[SyntaxKind["GreaterThanToken"] = 37] = "GreaterThanToken";
-    SyntaxKind[SyntaxKind["LessThanEqualsToken"] = 38] = "LessThanEqualsToken";
-    SyntaxKind[SyntaxKind["LessThanToken"] = 39] = "LessThanToken";
-    SyntaxKind[SyntaxKind["MinusEqualsToken"] = 40] = "MinusEqualsToken";
-    SyntaxKind[SyntaxKind["MinusToken"] = 41] = "MinusToken";
-    SyntaxKind[SyntaxKind["PercentEqualsToken"] = 42] = "PercentEqualsToken";
-    SyntaxKind[SyntaxKind["PercentToken"] = 43] = "PercentToken";
-    SyntaxKind[SyntaxKind["PlusEqualsToken"] = 44] = "PlusEqualsToken";
-    SyntaxKind[SyntaxKind["PlusToken"] = 45] = "PlusToken";
-    SyntaxKind[SyntaxKind["SemicolonToken"] = 46] = "SemicolonToken";
-    SyntaxKind[SyntaxKind["SlashEqualsToken"] = 47] = "SlashEqualsToken";
-    SyntaxKind[SyntaxKind["SlashToken"] = 48] = "SlashToken";
-    SyntaxKind[SyntaxKind["NewlineToken"] = 49] = "NewlineToken";
-    SyntaxKind[SyntaxKind["EndOfFileToken"] = 50] = "EndOfFileToken";
-    SyntaxKind[SyntaxKind["Comment"] = 51] = "Comment";
-    SyntaxKind[SyntaxKind["Block"] = 52] = "Block";
-    SyntaxKind[SyntaxKind["Function"] = 53] = "Function";
-    SyntaxKind[SyntaxKind["Identifier"] = 54] = "Identifier";
-    SyntaxKind[SyntaxKind["TypeBound"] = 55] = "TypeBound";
-    SyntaxKind[SyntaxKind["VariableDeclaration"] = 56] = "VariableDeclaration";
-    SyntaxKind[SyntaxKind["AssignmentExpression"] = 57] = "AssignmentExpression";
-    SyntaxKind[SyntaxKind["BinaryExpression"] = 58] = "BinaryExpression";
-    SyntaxKind[SyntaxKind["CallExpression"] = 59] = "CallExpression";
-    SyntaxKind[SyntaxKind["ForExpression"] = 60] = "ForExpression";
-    SyntaxKind[SyntaxKind["IfExpression"] = 61] = "IfExpression";
-    SyntaxKind[SyntaxKind["LoopExpression"] = 62] = "LoopExpression";
-    SyntaxKind[SyntaxKind["UnaryExpression"] = 63] = "UnaryExpression";
-    SyntaxKind[SyntaxKind["WhileExpression"] = 64] = "WhileExpression";
-    SyntaxKind[SyntaxKind["IndexAccess"] = 65] = "IndexAccess";
-    SyntaxKind[SyntaxKind["MemberAccess"] = 66] = "MemberAccess";
-    SyntaxKind[SyntaxKind["BreakStatement"] = 67] = "BreakStatement";
-    SyntaxKind[SyntaxKind["ExportStatement"] = 68] = "ExportStatement";
-    SyntaxKind[SyntaxKind["ReturnStatement"] = 69] = "ReturnStatement";
-    SyntaxKind[SyntaxKind["ArrayLiteral"] = 70] = "ArrayLiteral";
-    SyntaxKind[SyntaxKind["BooleanLiteral"] = 71] = "BooleanLiteral";
-    SyntaxKind[SyntaxKind["NumberLiteral"] = 72] = "NumberLiteral";
-    SyntaxKind[SyntaxKind["ObjectLiteral"] = 73] = "ObjectLiteral";
-    SyntaxKind[SyntaxKind["StringLiteral"] = 74] = "StringLiteral";
-    SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 75] = "ObjectLiteralMember";
-    SyntaxKind[SyntaxKind["StringLiteralPart"] = 76] = "StringLiteralPart";
+    SyntaxKind[SyntaxKind["TypeKeyword"] = 17] = "TypeKeyword";
+    SyntaxKind[SyntaxKind["WhileKeyword"] = 18] = "WhileKeyword";
+    SyntaxKind[SyntaxKind["OpenBraceToken"] = 19] = "OpenBraceToken";
+    SyntaxKind[SyntaxKind["CloseBraceToken"] = 20] = "CloseBraceToken";
+    SyntaxKind[SyntaxKind["OpenBracketToken"] = 21] = "OpenBracketToken";
+    SyntaxKind[SyntaxKind["CloseBracketToken"] = 22] = "CloseBracketToken";
+    SyntaxKind[SyntaxKind["OpenParenToken"] = 23] = "OpenParenToken";
+    SyntaxKind[SyntaxKind["CloseParenToken"] = 24] = "CloseParenToken";
+    SyntaxKind[SyntaxKind["AsteriskAsteriskEqualsToken"] = 25] = "AsteriskAsteriskEqualsToken";
+    SyntaxKind[SyntaxKind["AsteriskAsteriskToken"] = 26] = "AsteriskAsteriskToken";
+    SyntaxKind[SyntaxKind["AsteriskEqualsToken"] = 27] = "AsteriskEqualsToken";
+    SyntaxKind[SyntaxKind["AsteriskToken"] = 28] = "AsteriskToken";
+    SyntaxKind[SyntaxKind["BarToken"] = 29] = "BarToken";
+    SyntaxKind[SyntaxKind["ColonToken"] = 30] = "ColonToken";
+    SyntaxKind[SyntaxKind["CommaToken"] = 31] = "CommaToken";
+    SyntaxKind[SyntaxKind["DotToken"] = 32] = "DotToken";
+    SyntaxKind[SyntaxKind["EqualsEqualsToken"] = 33] = "EqualsEqualsToken";
+    SyntaxKind[SyntaxKind["EqualsGreaterThanToken"] = 34] = "EqualsGreaterThanToken";
+    SyntaxKind[SyntaxKind["EqualsToken"] = 35] = "EqualsToken";
+    SyntaxKind[SyntaxKind["ExclamationEqualsToken"] = 36] = "ExclamationEqualsToken";
+    SyntaxKind[SyntaxKind["GreaterThanEqualsToken"] = 37] = "GreaterThanEqualsToken";
+    SyntaxKind[SyntaxKind["GreaterThanToken"] = 38] = "GreaterThanToken";
+    SyntaxKind[SyntaxKind["LessThanEqualsToken"] = 39] = "LessThanEqualsToken";
+    SyntaxKind[SyntaxKind["LessThanToken"] = 40] = "LessThanToken";
+    SyntaxKind[SyntaxKind["MinusEqualsToken"] = 41] = "MinusEqualsToken";
+    SyntaxKind[SyntaxKind["MinusToken"] = 42] = "MinusToken";
+    SyntaxKind[SyntaxKind["PercentEqualsToken"] = 43] = "PercentEqualsToken";
+    SyntaxKind[SyntaxKind["PercentToken"] = 44] = "PercentToken";
+    SyntaxKind[SyntaxKind["PlusEqualsToken"] = 45] = "PlusEqualsToken";
+    SyntaxKind[SyntaxKind["PlusToken"] = 46] = "PlusToken";
+    SyntaxKind[SyntaxKind["SemicolonToken"] = 47] = "SemicolonToken";
+    SyntaxKind[SyntaxKind["SlashEqualsToken"] = 48] = "SlashEqualsToken";
+    SyntaxKind[SyntaxKind["SlashToken"] = 49] = "SlashToken";
+    SyntaxKind[SyntaxKind["NewlineToken"] = 50] = "NewlineToken";
+    SyntaxKind[SyntaxKind["EndOfFileToken"] = 51] = "EndOfFileToken";
+    SyntaxKind[SyntaxKind["Comment"] = 52] = "Comment";
+    SyntaxKind[SyntaxKind["Block"] = 53] = "Block";
+    SyntaxKind[SyntaxKind["Function"] = 54] = "Function";
+    SyntaxKind[SyntaxKind["Identifier"] = 55] = "Identifier";
+    SyntaxKind[SyntaxKind["TypeBound"] = 56] = "TypeBound";
+    SyntaxKind[SyntaxKind["TypeDeclaration"] = 57] = "TypeDeclaration";
+    SyntaxKind[SyntaxKind["TypeParameter"] = 58] = "TypeParameter";
+    SyntaxKind[SyntaxKind["TypeProperty"] = 59] = "TypeProperty";
+    SyntaxKind[SyntaxKind["VariableDeclaration"] = 60] = "VariableDeclaration";
+    SyntaxKind[SyntaxKind["AssignmentExpression"] = 61] = "AssignmentExpression";
+    SyntaxKind[SyntaxKind["BinaryExpression"] = 62] = "BinaryExpression";
+    SyntaxKind[SyntaxKind["CallExpression"] = 63] = "CallExpression";
+    SyntaxKind[SyntaxKind["ForExpression"] = 64] = "ForExpression";
+    SyntaxKind[SyntaxKind["IfExpression"] = 65] = "IfExpression";
+    SyntaxKind[SyntaxKind["LoopExpression"] = 66] = "LoopExpression";
+    SyntaxKind[SyntaxKind["UnaryExpression"] = 67] = "UnaryExpression";
+    SyntaxKind[SyntaxKind["WhileExpression"] = 68] = "WhileExpression";
+    SyntaxKind[SyntaxKind["IndexAccess"] = 69] = "IndexAccess";
+    SyntaxKind[SyntaxKind["MemberAccess"] = 70] = "MemberAccess";
+    SyntaxKind[SyntaxKind["BreakStatement"] = 71] = "BreakStatement";
+    SyntaxKind[SyntaxKind["ExportStatement"] = 72] = "ExportStatement";
+    SyntaxKind[SyntaxKind["ReturnStatement"] = 73] = "ReturnStatement";
+    SyntaxKind[SyntaxKind["ArrayLiteral"] = 74] = "ArrayLiteral";
+    SyntaxKind[SyntaxKind["BooleanLiteral"] = 75] = "BooleanLiteral";
+    SyntaxKind[SyntaxKind["NumberLiteral"] = 76] = "NumberLiteral";
+    SyntaxKind[SyntaxKind["ObjectLiteral"] = 77] = "ObjectLiteral";
+    SyntaxKind[SyntaxKind["StringLiteral"] = 78] = "StringLiteral";
+    SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 79] = "ObjectLiteralMember";
+    SyntaxKind[SyntaxKind["StringLiteralPart"] = 80] = "StringLiteralPart";
 })(exports.SyntaxKind || (exports.SyntaxKind = {}));
 var SyntaxKind = exports.SyntaxKind;
 exports.textToToken = Object['assign'](Object.create(null), {
@@ -112,7 +116,7 @@ exports.textToToken = Object['assign'](Object.create(null), {
     'true': SyntaxKind.TrueKeyword,
     'then': SyntaxKind.ThenKeyword,
     // 'try': SyntaxKind.TryKeyword,
-    // 'type': SyntaxKind.TypeKeyword,
+    'type': SyntaxKind.TypeKeyword,
     'while': SyntaxKind.WhileKeyword,
     // 'yield': SyntaxKind.YieldKeyword,
     // 'async': SyntaxKind.AsyncKeyword,
@@ -208,5 +212,6 @@ function isIndex(token) {
     return token.kind === SyntaxKind.IndexAccess;
 }
 exports.isIndex = isIndex;
+isIndex;
 var _a, _b;
 // export const NULL: Token = { kind: SyntaxKind.NullKeyword }

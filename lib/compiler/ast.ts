@@ -17,6 +17,7 @@ export enum SyntaxKind {
   ThenKeyword,
   ThrowKeyword,
   TrueKeyword,
+  TypeKeyword,
   WhileKeyword,
 
   OpenBraceToken,
@@ -60,6 +61,9 @@ export enum SyntaxKind {
   Function,
   Identifier,
   TypeBound,
+  TypeDeclaration,
+  TypeParameter,
+  TypeProperty,
   VariableDeclaration,
 
   AssignmentExpression,
@@ -120,7 +124,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   'true': SyntaxKind.TrueKeyword,
   'then': SyntaxKind.ThenKeyword,
   // 'try': SyntaxKind.TryKeyword,
-  // 'type': SyntaxKind.TypeKeyword,
+  'type': SyntaxKind.TypeKeyword,
   'while': SyntaxKind.WhileKeyword,
   // 'yield': SyntaxKind.YieldKeyword,
   // 'async': SyntaxKind.AsyncKeyword,
@@ -278,6 +282,25 @@ export interface TypeBound extends Token {
   parameters: Array<TypeBound>
 }
 
+export interface TypeDeclaration extends Token {
+  keyword: Token
+  name: Identifier
+  typeParameters: Array<TypeParameter>
+  openBrace: Token
+  properties: Array<TypeProperty>
+  closeBrace: Token
+}
+
+export interface TypeParameter extends Token {
+  name: Identifier
+  defaultValue: TypeBound
+}
+
+export interface TypeProperty extends Token {
+  name: Identifier
+  typeBound: TypeBound
+}
+
 export interface VariableDeclaration extends Token {
   identifier: SimpleIdentifier
   mutable: boolean
@@ -358,5 +381,5 @@ export interface MemberAccess extends Expression {
   object: Expression
   member: Identifier|MemberAccess
 }
-
+isIndex
 // export const NULL: Token = { kind: SyntaxKind.NullKeyword }

@@ -60,7 +60,7 @@ function emitLines(block) {
 }
 function emitProgram(program) {
     var preamble = "#!/usr/bin/env node\n'use strict';\n";
-    var lines = emitLines(program.block);
+    var lines = emitLines(program.block.filter(function (e) { return e.kind !== ast_1.SyntaxKind.TypeDeclaration; }));
     return preamble + lines.join(';\n');
 }
 exports.emitProgram = emitProgram;

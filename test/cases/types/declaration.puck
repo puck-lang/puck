@@ -1,0 +1,10 @@
+type Foo = {
+  bar: Generic<String>
+  nested: Generic<String, Generic<Num>>
+  number: Num
+}
+
+type Generic<A, B=A> = {
+  a: A
+  b: B
+}
