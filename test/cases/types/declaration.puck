@@ -8,3 +8,7 @@ type Generic<A, B=A> = {
   a: A
   b: B
 }
+
+export type A<B=Generic<Foo>> = {
+  c: B
+}

@@ -200,6 +200,10 @@ function isBlock(token) {
     return token.kind === SyntaxKind.Block;
 }
 exports.isBlock = isBlock;
+function isExport(token) {
+    return token.kind === SyntaxKind.ExportStatement;
+}
+exports.isExport = isExport;
 function isIdentifier(token) {
     return token.kind === SyntaxKind.Identifier;
 }

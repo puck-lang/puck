@@ -484,7 +484,11 @@ fn parse(input: TokenStream) {
     let keyword = consumeToken(SyntaxKind.ExportKeyword)
     let mut expression
     let mut identifier
-    if isToken(SyntaxKind.FnKeyword) {
+    if isToken(SyntaxKind.TypeKeyword) {
+      expression = parseTypeDeclaration()
+      identifier = expression.name
+    }
+    else if isToken(SyntaxKind.FnKeyword) {
       input.next()
       expression = parseFunction()
       identifier = expression.name
@@ -494,7 +498,7 @@ fn parse(input: TokenStream) {
       expression = parseVariableDeclaration()
       identifier = expression.identifier
     }
-    else input.croak('Expected function or variable declaration after export')
+    else input.croak('Expected type, function or variable declaration after export')
     {
       kind: SyntaxKind.ExportStatement
       keyword

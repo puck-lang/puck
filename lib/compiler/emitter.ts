@@ -1,5 +1,6 @@
 import {
   isBlock,
+  isExport,
   isIdentifier,
   isMember,
   textToToken,
@@ -99,7 +100,10 @@ function emitLines(block: Expression[]) {
 
 export function emitProgram(program: BlockNode) {
   let preamble = `#!/usr/bin/env node\n'use strict';\n`
-  let lines = emitLines(program.block.filter(e => e.kind !== SyntaxKind.TypeDeclaration))
+  let lines = emitLines(program.block.filter(e => !(
+    e.kind === SyntaxKind.TypeDeclaration ||
+    (isExport(e) && e.expression.kind === SyntaxKind.TypeDeclaration)
+  )))
   return preamble + lines.join(';\n')
 }
 

@@ -213,6 +213,10 @@ export function isBlock(token: Token): token is BlockNode {
   return token.kind === SyntaxKind.Block
 }
 
+export function isExport(token: Token): token is ExportStatement {
+  return token.kind === SyntaxKind.ExportStatement
+}
+
 export function isIdentifier(token: Token): token is Identifier {
   return token.kind === SyntaxKind.Identifier
 }
@@ -314,7 +318,7 @@ export interface BreakStatement extends Token {
 
 export interface ExportStatement extends Token {
   keyword: Token
-  expression: VariableDeclaration|FunctionNode
+  expression: VariableDeclaration|FunctionNode|TypeDeclaration
   identifier: Identifier
 }
 
