@@ -86,6 +86,7 @@ function emitScalarExpression(expression) {
     switch (expression.kind) {
         case ast_1.SyntaxKind.Function: return emitFunctionDeclaration(expression);
         case ast_1.SyntaxKind.Identifier: return emitIdentifier(expression);
+        case ast_1.SyntaxKind.ImportDirective: return emitImportDirective(expression);
         case ast_1.SyntaxKind.VariableDeclaration: return emitVariableDeclaration(expression);
         case ast_1.SyntaxKind.AssignmentExpression: return emitAssignmentExpression(expression);
         case ast_1.SyntaxKind.BinaryExpression: return emitBinaryExpression(expression);
@@ -141,6 +142,34 @@ function emitExpressionKeepContext(expression) {
 function emitExpression(expression, context) {
     if (context === void 0) { context = null; }
     return withContext(context, function () { return emitExpressionKeepContext(expression); });
+}
+function emitImportDirective(i) {
+    var specifier = ast_1.isIdentifier(i.specifier)
+        ? "* as " + emitIdentifier(i.specifier)
+        : "{" + i.specifier.members
+            .map(function (_a) {
+            var property = _a.property, local = _a.local;
+            return property.name === local.name
+                ? property.name
+                : property.name + " as " + local.name;
+        })
+            .join(', ') + "}";
+    var path;
+    if (i.domain && i.domain == 'npm') {
+        path = i.path;
+    }
+    else if (!i.domain) {
+        if (i.path.charAt(0) == '/') {
+            path = i.path;
+        }
+        else {
+            path = "./" + i.path;
+        }
+    }
+    else {
+        throw "Unsupported import-domain \"" + i.domain + "\"";
+    }
+    return "import " + specifier + " from '" + path + "'";
 }
 function emitFunctionDeclaration(fn) {
     var name = fn.name ? emitIdentifier(fn.name) : '';

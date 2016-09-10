@@ -1,5 +1,6 @@
 export enum SyntaxKind {
   AndKeyword,
+  AsKeyword,
   BreakKeyword,
   ElseKeyword,
   ExportKeyword,
@@ -7,6 +8,7 @@ export enum SyntaxKind {
   FnKeyword,
   ForKeyword,
   IfKeyword,
+  ImportKeyword,
   LetKeyword,
   LoopKeyword,
   MutKeyword,
@@ -56,10 +58,14 @@ export enum SyntaxKind {
   NewlineToken,
   EndOfFileToken,
 
+  ImportDirective,
+
   Comment,
   Block,
   Function,
   Identifier,
+  ObjectDestructure,
+  ObjectDestructureMember,
   TypeBound,
   TypeDeclaration,
   TypeParameter,
@@ -108,7 +114,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   'fn': SyntaxKind.FnKeyword,
   // 'get': SyntaxKind.GetKeyword,
   'if': SyntaxKind.IfKeyword,
-  // 'import': SyntaxKind.ImportKeyword,
+  'import': SyntaxKind.ImportKeyword,
   // 'interface': SyntaxKind.InterfaceKeyword,
   // 'is': SyntaxKind.IsKeyword,
   'let': SyntaxKind.LetKeyword,
@@ -262,6 +268,14 @@ export interface StringLiteral extends Expression {
   parts: Array<StringLiteralPart|Identifier>
 }
 
+export interface ImportDirective extends Token {
+  importKeyword: Token
+  domain?: string
+  path: string
+  asKeyword: Token
+  specifier: Identifier|ObjectDestructure
+}
+
 export interface CommentNode extends Token {
   text: string
 }
@@ -275,6 +289,17 @@ export interface FunctionNode extends Token {
   parameterList: Array<VariableDeclaration>
   returnType?: TypeBound
   body: BlockNode
+}
+
+export interface ObjectDestructure extends Token {
+  openBrace: Token
+  members: Array<ObjectDestructureMember>
+  closeBrace: Token
+}
+
+export interface ObjectDestructureMember extends Token {
+  property: SimpleIdentifier
+  local: SimpleIdentifier
 }
 
 export interface SimpleIdentifier extends Token {

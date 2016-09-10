@@ -18,6 +18,7 @@ import {
   FunctionNode,
   Identifier,
   IfExpression,
+  ImportDirective,
   IndexAccess,
   LoopExpression,
   MemberAccess,
@@ -128,6 +129,7 @@ function emitScalarExpression(expression: any) {
   switch (expression.kind) {
     case SyntaxKind.Function: return emitFunctionDeclaration(expression);
     case SyntaxKind.Identifier: return emitIdentifier(expression);
+    case SyntaxKind.ImportDirective: return emitImportDirective(expression);
     case SyntaxKind.VariableDeclaration: return emitVariableDeclaration(expression);
     case SyntaxKind.AssignmentExpression: return emitAssignmentExpression(expression);
     case SyntaxKind.BinaryExpression: return emitBinaryExpression(expression);
@@ -182,6 +184,33 @@ function emitExpressionKeepContext(expression: any) {
 
 function emitExpression(expression, context = null) {
   return withContext(context, () => emitExpressionKeepContext(expression))
+}
+
+function emitImportDirective(i: ImportDirective) {
+  let specifier = isIdentifier(i.specifier)
+    ? `* as ${emitIdentifier(i.specifier)}`
+    : `{${i.specifier.members
+        .map(({property, local}) => property.name === local.name
+          ? property.name
+          : `${property.name} as ${local.name}`
+        )
+        .join(', ')
+      }}`
+
+  let path
+  if (i.domain && i.domain == 'npm') {
+    path = i.path
+  } else if (!i.domain) {
+    if (i.path.charAt(0) == '/') {
+      path = i.path
+    } else {
+      path = `./${i.path}`
+    }
+  } else {
+    throw `Unsupported import-domain "${i.domain}"`
+  }
+
+  return `import ${specifier} from '${path}'`
 }
 
 function emitFunctionDeclaration(fn: FunctionNode) {

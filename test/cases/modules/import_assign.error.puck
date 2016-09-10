@@ -1,0 +1,3 @@
+import 'npm:module' as a
+
+a = 5

@@ -12,6 +12,7 @@ var walkFunction = require("../ast/visit").walkFunction;
 var walkIdentifier = require("../ast/visit").walkIdentifier;
 var walkTypeBound = require("../ast/visit").walkTypeBound;
 var walkVariableDeclaration = require("../ast/visit").walkVariableDeclaration;
+var walkImportDirective = require("../ast/visit").walkImportDirective;
 var walkAssignmentExpression = require("../ast/visit").walkAssignmentExpression;
 var walkBinaryExpression = require("../ast/visit").walkBinaryExpression;
 var walkCallExpression = require("../ast/visit").walkCallExpression;
@@ -67,6 +68,13 @@ var scopeVisitor = exports.scopeVisitor = Object.assign({}, Visitor, {
     i.scope = self.scope;
     return walkIdentifier(self, i);
   },
+  visitObjectDestructure: function visitObjectDestructure(i) {
+    var self = this;
+    i.scope = self.scope;
+    return i.members.forEach(function (m) {
+      return self.scope.declare(m.local.name, { mutable: false });
+    });
+  },
   visitTypeBound: function visitTypeBound(t) {
     var self = this;
     t.scope = self.scope;
@@ -77,6 +85,15 @@ var scopeVisitor = exports.scopeVisitor = Object.assign({}, Visitor, {
     self.scope.declare(d.identifier.name, { mutable: d.mutable });
     d.scope = self.scope;
     return walkVariableDeclaration(self, d);
+  },
+  visitImportDirective: function visitImportDirective(i) {
+    var self = this;
+    i.scope = self.scope;
+    if (i.specifier.kind == SyntaxKind.Identifier) {
+      return self.scope.declare(i.specifier.name, { mutable: false });
+    } else {
+      return walkImportDirective(self, i);
+    };
   },
   visitAssignmentExpression: function visitAssignmentExpression(e) {
     var self = this;

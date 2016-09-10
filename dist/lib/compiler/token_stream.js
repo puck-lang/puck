@@ -10,6 +10,7 @@ var NULL = require("./ast").NULL;
 function TokenStream(input) {
   var current = null;
   var currentDummy = null;
+  var inImport = false;
   var longestOperator = operators.reduce(function (longest, curr) {
     if (curr.length > longest) {
       return curr.length;
@@ -17,7 +18,7 @@ function TokenStream(input) {
       return longest;
     };
   }, 0);
-  function tryParseToken() {
+  function tryParseOperator() {
     var length = 0;
     var searchString = "";
     var found = void 0;
@@ -96,12 +97,22 @@ function TokenStream(input) {
   };
   function readIdent() {
     var id = readWhile(isId);
-    if (textToToken[id] != undefined) {
-      return { kind: textToToken[id] };
+    if (id == "import") {
+      inImport = true;
+      return { kind: SyntaxKind.ImportKeyword };
     } else {
-      return {
-        kind: SyntaxKind.Identifier,
-        name: id
+      if (id == "as") {
+        inImport = false;
+        return { kind: SyntaxKind.AsKeyword };
+      } else {
+        if (textToToken[id] != undefined) {
+          return { kind: textToToken[id] };
+        } else {
+          return {
+            kind: SyntaxKind.Identifier,
+            name: id
+          };
+        };
       };
     };
   };
@@ -151,7 +162,7 @@ function TokenStream(input) {
         if (ch == "\\") {
           escaped = true;
         } else {
-          if (ch == "$" && isIdStart(input.peek())) {
+          if (ch == "$" && isIdStart(input.peek()) && !inImport) {
             parts.push({
               kind: SyntaxKind.StringLiteralPart,
               value: str
@@ -212,11 +223,11 @@ function TokenStream(input) {
     if (isIdStart(ch)) {
       return readIdent();
     };
-    var token = tryParseToken();
-    if (!token) {
+    var operator = tryParseOperator();
+    if (!operator) {
       input.croak("Unexpected token: " + ch + "");
     };
-    return token;
+    return operator;
   };
   function isDummy(token) {
     if (!token) {

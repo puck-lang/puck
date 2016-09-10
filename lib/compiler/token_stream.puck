@@ -7,11 +7,13 @@ let NULL = require('./ast').NULL
 fn TokenStream(input) {
   let mut current = null
   let mut currentDummy = null
+  let mut inImport = false
+
   let longestOperator = operators.reduce(fn (longest, curr) {
     if curr.length > longest then curr.length else longest
   }, 0)
 
-  fn tryParseToken() {
+  fn tryParseOperator() {
     let mut length = 0
     let mut searchString = ''
     let mut found
@@ -97,7 +99,15 @@ fn TokenStream(input) {
 
   fn readIdent() {
     let id = readWhile(isId)
-    if textToToken[id] != undefined then {kind: textToToken[id]}
+    if id == 'import' {
+      inImport = true
+      {kind: SyntaxKind.ImportKeyword}
+    }
+    else if id == 'as' {
+      inImport = false
+      {kind: SyntaxKind.AsKeyword}
+    }
+    else if textToToken[id] != undefined then {kind: textToToken[id]}
     else {{
       kind: SyntaxKind.Identifier,
       name: id,
@@ -126,7 +136,7 @@ fn TokenStream(input) {
         escaped = false
       }
       else if ch == '\\' then escaped = true
-      else if ch == '$' and isIdStart(input.peek()) {
+      else if ch == '$' and isIdStart(input.peek()) and not inImport {
         parts.push({kind: SyntaxKind.StringLiteralPart, value: str})
         parts.push(readIdent())
         str = ''
@@ -165,9 +175,9 @@ fn TokenStream(input) {
     if ch == '\'' or ch == '"' then return readString()
     if isDigit(ch) then return readNumber()
     if isIdStart(ch) then return readIdent()
-    let token = tryParseToken()
-    if not token then input.croak('Unexpected token: $ch')
-    token
+    let operator = tryParseOperator()
+    if not operator then input.croak('Unexpected token: $ch')
+    operator
   }
 
   fn isDummy(token) {

@@ -32,8 +32,11 @@ export let Visitor = {
   visitBlock: |self, b: Block| walkBlock(self, b)
   visitFunction: |self, f: FunctionNode| walkFunction(self, f)
   visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
+  visitObjectDestructure: |self, o: ObjectDestructure| walkObjectDestructure(self, o)
   visitTypeBound: |self, i: TypeBound| walkTypeBound(self, t)
   visitVariableDeclaration: |self, d: VariableDeclaration| walkVariableDeclaration(self, d)
+
+  visitImportDirective: |self, i: ImportDirective| walkImportDirective(self, i)
 
   visitAssignmentExpression: |self, e: AssignmentExpression| walkAssignmentExpression(self, e)
   visitBinaryExpression: |self, e: BinaryExpression| walkBinaryExpression(self, e)
@@ -62,8 +65,11 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   if e.kind == SyntaxKind.Block then visitor.visitBlock(e)
   else if e.kind == SyntaxKind.Function then visitor.visitFunction(e)
   else if e.kind == SyntaxKind.Identifier then visitor.visitIdentifier(e)
+  else if e.kind == SyntaxKind.ObjectDestructure then visitor.visitObjectDestructure(e)
   else if e.kind == SyntaxKind.TypeBound then visitor.visitTypeBound(e)
   else if e.kind == SyntaxKind.VariableDeclaration then visitor.visitVariableDeclaration(e)
+
+  else if e.kind == SyntaxKind.ImportDirective then visitor.visitImportDirective(e)
 
   else if e.kind == SyntaxKind.AssignmentExpression then visitor.visitAssignmentExpression(e)
   else if e.kind == SyntaxKind.BinaryExpression then visitor.visitBinaryExpression(e)
@@ -97,6 +103,12 @@ export fn walkFunction(visitor: Visitor, f: FunctionNode) {
   visitor.visitBlock(f.body)
 }
 export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
+export fn walkObjectDestructure(visitor: Visitor, o: ObjectDestructure) {
+  o.members.forEach(|m| {
+    visitor.visitIdentifier(m.property)
+    visitor.visitIdentifier(m.local)
+  })
+}
 export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
   if t.parameters then
     t.parameters.forEach(visitor.visitTypeBound.bind(visitor))
@@ -105,6 +117,12 @@ export fn walkVariableDeclaration(visitor: Visitor, d: VariableDeclaration) {
   visitor.visitIdentifier(d.identifier)
   if d.typeBound then visitor.visitTypeBound(d.typeBound)
   if d.initializer then visitor.visitExpression(d.initializer)
+}
+
+export fn walkImportDirective(visitor: Visitor, i: ImportDirective) {
+  if i.specifier.kind == SyntaxKind.Identifier
+    then visitor.visitIdentifier(i.specifier)
+    else visitor.visitObjectDestructure(i.specifier)
 }
 
 export fn walkAssignmentExpression(visitor: Visitor, e: AssignmentExpression) {

@@ -1,0 +1,4 @@
+import 'export.puck' as e
+import 'npm:module' as {a, b: c}
+
+export let foo = e.b + a + c

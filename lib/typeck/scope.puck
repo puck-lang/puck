@@ -5,6 +5,7 @@ let walkFunction = require('../ast/visit').walkFunction
 let walkIdentifier = require('../ast/visit').walkIdentifier
 let walkTypeBound = require('../ast/visit').walkTypeBound
 let walkVariableDeclaration = require('../ast/visit').walkVariableDeclaration
+let walkImportDirective = require('../ast/visit').walkImportDirective
 let walkAssignmentExpression = require('../ast/visit').walkAssignmentExpression
 let walkBinaryExpression = require('../ast/visit').walkBinaryExpression
 let walkCallExpression = require('../ast/visit').walkCallExpression
@@ -49,7 +50,7 @@ fn createScope(parent) {
   }
 }
 
-export let scopeVisitor = Object.assign({}, Visitor, { // Object.create(Visitor)
+export let scopeVisitor = Object.assign({}, Visitor, {
   scope: createScope()
 
   visitBlock: |self, b: Block| {
@@ -68,6 +69,10 @@ export let scopeVisitor = Object.assign({}, Visitor, { // Object.create(Visitor)
     i.scope = self.scope
     walkIdentifier(self, i)
   }
+  visitObjectDestructure: |self, i: ObjectDestructure| {
+    i.scope = self.scope
+    i.members.forEach(|m| self.scope.declare(m.local.name, {mutable: false}))
+  }
   visitTypeBound: |self, t: TypeBound| {
     t.scope = self.scope
     walkTypeBound(self, t)
@@ -76,6 +81,13 @@ export let scopeVisitor = Object.assign({}, Visitor, { // Object.create(Visitor)
     self.scope.declare(d.identifier.name, {mutable: d.mutable})
     d.scope = self.scope
     walkVariableDeclaration(self, d)
+  }
+
+  visitImportDirective: |self, i: ImportDirective| {
+    i.scope = self.scope
+    if i.specifier.kind == SyntaxKind.Identifier
+      then self.scope.declare(i.specifier.name, {mutable: false})
+      else walkImportDirective(self, i)
   }
 
   visitAssignmentExpression: |self, e: AssignmentExpression| {
