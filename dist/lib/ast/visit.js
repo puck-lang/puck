@@ -12,6 +12,7 @@ exports.walkIdentifier = walkIdentifier;
 exports.walkObjectDestructure = walkObjectDestructure;
 exports.walkTypeBound = walkTypeBound;
 exports.walkVariableDeclaration = walkVariableDeclaration;
+exports.walkExportDirective = walkExportDirective;
 exports.walkImportDirective = walkImportDirective;
 exports.walkAssignmentExpression = walkAssignmentExpression;
 exports.walkBinaryExpression = walkBinaryExpression;
@@ -24,7 +25,6 @@ exports.walkWhileExpression = walkWhileExpression;
 exports.walkIndexAccess = walkIndexAccess;
 exports.walkMemberAccess = walkMemberAccess;
 exports.walkBreak = walkBreak;
-exports.walkExport = walkExport;
 exports.walkReturn = walkReturn;
 exports.walkArrayLiteral = walkArrayLiteral;
 exports.walkBooleanLiteral = walkBooleanLiteral;
@@ -60,6 +60,10 @@ var Visitor = exports.Visitor = {
   visitVariableDeclaration: function visitVariableDeclaration(d) {
     var self = this;
     return walkVariableDeclaration(self, d);
+  },
+  visitExportDirective: function visitExportDirective(e) {
+    var self = this;
+    return walkExportDirective(self, e);
   },
   visitImportDirective: function visitImportDirective(i) {
     var self = this;
@@ -109,10 +113,6 @@ var Visitor = exports.Visitor = {
     var self = this;
     return walkBreak(self, b);
   },
-  visitExport: function visitExport(e) {
-    var self = this;
-    return walkExport(self, e);
-  },
   visitReturn: function visitReturn(r) {
     var self = this;
     return walkReturn(self, r);
@@ -157,44 +157,44 @@ function walkExpression(visitor, e) {
             if (e.kind == SyntaxKind.VariableDeclaration) {
               return visitor.visitVariableDeclaration(e);
             } else {
-              if (e.kind == SyntaxKind.ImportDirective) {
-                return visitor.visitImportDirective(e);
+              if (e.kind == SyntaxKind.ExportDirective) {
+                return visitor.visitExportDirective(e);
               } else {
-                if (e.kind == SyntaxKind.AssignmentExpression) {
-                  return visitor.visitAssignmentExpression(e);
+                if (e.kind == SyntaxKind.ImportDirective) {
+                  return visitor.visitImportDirective(e);
                 } else {
-                  if (e.kind == SyntaxKind.BinaryExpression) {
-                    return visitor.visitBinaryExpression(e);
+                  if (e.kind == SyntaxKind.AssignmentExpression) {
+                    return visitor.visitAssignmentExpression(e);
                   } else {
-                    if (e.kind == SyntaxKind.CallExpression) {
-                      return visitor.visitCallExpression(e);
+                    if (e.kind == SyntaxKind.BinaryExpression) {
+                      return visitor.visitBinaryExpression(e);
                     } else {
-                      if (e.kind == SyntaxKind.ForExpression) {
-                        return visitor.visitForExpression(e);
+                      if (e.kind == SyntaxKind.CallExpression) {
+                        return visitor.visitCallExpression(e);
                       } else {
-                        if (e.kind == SyntaxKind.IfExpression) {
-                          return visitor.visitIfExpression(e);
+                        if (e.kind == SyntaxKind.ForExpression) {
+                          return visitor.visitForExpression(e);
                         } else {
-                          if (e.kind == SyntaxKind.LoopExpression) {
-                            return visitor.visitLoopExpression(e);
+                          if (e.kind == SyntaxKind.IfExpression) {
+                            return visitor.visitIfExpression(e);
                           } else {
-                            if (e.kind == SyntaxKind.UnaryExpression) {
-                              return visitor.visitUnaryExpression(e);
+                            if (e.kind == SyntaxKind.LoopExpression) {
+                              return visitor.visitLoopExpression(e);
                             } else {
-                              if (e.kind == SyntaxKind.WhileExpression) {
-                                return visitor.visitWhileExpression(e);
+                              if (e.kind == SyntaxKind.UnaryExpression) {
+                                return visitor.visitUnaryExpression(e);
                               } else {
-                                if (e.kind == SyntaxKind.IndexAccess) {
-                                  return visitor.visitIndexAccess(e);
+                                if (e.kind == SyntaxKind.WhileExpression) {
+                                  return visitor.visitWhileExpression(e);
                                 } else {
-                                  if (e.kind == SyntaxKind.MemberAccess) {
-                                    return visitor.visitMemberAccess(e);
+                                  if (e.kind == SyntaxKind.IndexAccess) {
+                                    return visitor.visitIndexAccess(e);
                                   } else {
-                                    if (e.kind == SyntaxKind.BreakKeyword) {
-                                      return visitor.visitBreak(e);
+                                    if (e.kind == SyntaxKind.MemberAccess) {
+                                      return visitor.visitMemberAccess(e);
                                     } else {
-                                      if (e.kind == SyntaxKind.ExportStatement) {
-                                        return visitor.visitExport(e);
+                                      if (e.kind == SyntaxKind.BreakKeyword) {
+                                        return visitor.visitBreak(e);
                                       } else {
                                         if (e.kind == SyntaxKind.ReturnStatement) {
                                           return visitor.visitReturn(e);
@@ -270,6 +270,9 @@ function walkVariableDeclaration(visitor, d) {
     return visitor.visitExpression(d.initializer);
   };
 };
+function walkExportDirective(visitor, e) {
+  return visitor.visitExpression(e.expression);
+};
 function walkImportDirective(visitor, i) {
   if (i.specifier.kind == SyntaxKind.Identifier) {
     return visitor.visitIdentifier(i.specifier);
@@ -316,9 +319,6 @@ function walkMemberAccess(visitor, a) {
   return visitor.visitExpression(a.member);
 };
 function walkBreak(visitor, b) {};
-function walkExport(visitor, e) {
-  return visitor.visitExpression(e.expression);
-};
 function walkReturn(visitor, r) {
   return visitor.visitExpression(r.expression);
 };

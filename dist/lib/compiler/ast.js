@@ -55,30 +55,30 @@
     SyntaxKind[SyntaxKind["SlashToken"] = 51] = "SlashToken";
     SyntaxKind[SyntaxKind["NewlineToken"] = 52] = "NewlineToken";
     SyntaxKind[SyntaxKind["EndOfFileToken"] = 53] = "EndOfFileToken";
-    SyntaxKind[SyntaxKind["ImportDirective"] = 54] = "ImportDirective";
-    SyntaxKind[SyntaxKind["Comment"] = 55] = "Comment";
-    SyntaxKind[SyntaxKind["Block"] = 56] = "Block";
-    SyntaxKind[SyntaxKind["Function"] = 57] = "Function";
-    SyntaxKind[SyntaxKind["Identifier"] = 58] = "Identifier";
-    SyntaxKind[SyntaxKind["ObjectDestructure"] = 59] = "ObjectDestructure";
-    SyntaxKind[SyntaxKind["ObjectDestructureMember"] = 60] = "ObjectDestructureMember";
-    SyntaxKind[SyntaxKind["TypeBound"] = 61] = "TypeBound";
-    SyntaxKind[SyntaxKind["TypeDeclaration"] = 62] = "TypeDeclaration";
-    SyntaxKind[SyntaxKind["TypeParameter"] = 63] = "TypeParameter";
-    SyntaxKind[SyntaxKind["TypeProperty"] = 64] = "TypeProperty";
-    SyntaxKind[SyntaxKind["VariableDeclaration"] = 65] = "VariableDeclaration";
-    SyntaxKind[SyntaxKind["AssignmentExpression"] = 66] = "AssignmentExpression";
-    SyntaxKind[SyntaxKind["BinaryExpression"] = 67] = "BinaryExpression";
-    SyntaxKind[SyntaxKind["CallExpression"] = 68] = "CallExpression";
-    SyntaxKind[SyntaxKind["ForExpression"] = 69] = "ForExpression";
-    SyntaxKind[SyntaxKind["IfExpression"] = 70] = "IfExpression";
-    SyntaxKind[SyntaxKind["LoopExpression"] = 71] = "LoopExpression";
-    SyntaxKind[SyntaxKind["UnaryExpression"] = 72] = "UnaryExpression";
-    SyntaxKind[SyntaxKind["WhileExpression"] = 73] = "WhileExpression";
-    SyntaxKind[SyntaxKind["IndexAccess"] = 74] = "IndexAccess";
-    SyntaxKind[SyntaxKind["MemberAccess"] = 75] = "MemberAccess";
-    SyntaxKind[SyntaxKind["BreakStatement"] = 76] = "BreakStatement";
-    SyntaxKind[SyntaxKind["ExportStatement"] = 77] = "ExportStatement";
+    SyntaxKind[SyntaxKind["Comment"] = 54] = "Comment";
+    SyntaxKind[SyntaxKind["Block"] = 55] = "Block";
+    SyntaxKind[SyntaxKind["Function"] = 56] = "Function";
+    SyntaxKind[SyntaxKind["Identifier"] = 57] = "Identifier";
+    SyntaxKind[SyntaxKind["ObjectDestructure"] = 58] = "ObjectDestructure";
+    SyntaxKind[SyntaxKind["ObjectDestructureMember"] = 59] = "ObjectDestructureMember";
+    SyntaxKind[SyntaxKind["TypeBound"] = 60] = "TypeBound";
+    SyntaxKind[SyntaxKind["TypeDeclaration"] = 61] = "TypeDeclaration";
+    SyntaxKind[SyntaxKind["TypeParameter"] = 62] = "TypeParameter";
+    SyntaxKind[SyntaxKind["TypeProperty"] = 63] = "TypeProperty";
+    SyntaxKind[SyntaxKind["VariableDeclaration"] = 64] = "VariableDeclaration";
+    SyntaxKind[SyntaxKind["ExportDirective"] = 65] = "ExportDirective";
+    SyntaxKind[SyntaxKind["ImportDirective"] = 66] = "ImportDirective";
+    SyntaxKind[SyntaxKind["AssignmentExpression"] = 67] = "AssignmentExpression";
+    SyntaxKind[SyntaxKind["BinaryExpression"] = 68] = "BinaryExpression";
+    SyntaxKind[SyntaxKind["CallExpression"] = 69] = "CallExpression";
+    SyntaxKind[SyntaxKind["ForExpression"] = 70] = "ForExpression";
+    SyntaxKind[SyntaxKind["IfExpression"] = 71] = "IfExpression";
+    SyntaxKind[SyntaxKind["LoopExpression"] = 72] = "LoopExpression";
+    SyntaxKind[SyntaxKind["UnaryExpression"] = 73] = "UnaryExpression";
+    SyntaxKind[SyntaxKind["WhileExpression"] = 74] = "WhileExpression";
+    SyntaxKind[SyntaxKind["IndexAccess"] = 75] = "IndexAccess";
+    SyntaxKind[SyntaxKind["MemberAccess"] = 76] = "MemberAccess";
+    SyntaxKind[SyntaxKind["BreakStatement"] = 77] = "BreakStatement";
     SyntaxKind[SyntaxKind["ReturnStatement"] = 78] = "ReturnStatement";
     SyntaxKind[SyntaxKind["ArrayLiteral"] = 79] = "ArrayLiteral";
     SyntaxKind[SyntaxKind["BooleanLiteral"] = 80] = "BooleanLiteral";
@@ -206,7 +206,7 @@ function isBlock(token) {
 }
 exports.isBlock = isBlock;
 function isExport(token) {
-    return token.kind === SyntaxKind.ExportStatement;
+    return token.kind === SyntaxKind.ExportDirective;
 }
 exports.isExport = isExport;
 function isIdentifier(token) {
@@ -221,6 +221,4 @@ function isIndex(token) {
     return token.kind === SyntaxKind.IndexAccess;
 }
 exports.isIndex = isIndex;
-isIndex;
 var _a, _b;
-// export const NULL: Token = { kind: SyntaxKind.NullKeyword }

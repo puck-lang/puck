@@ -12,7 +12,7 @@ import {
   BooleanLiteral,
   CallExpression,
   CommentNode,
-  ExportStatement,
+  ExportDirective,
   Expression,
   ForExpression,
   FunctionNode,
@@ -129,19 +129,24 @@ function emitScalarExpression(expression: any) {
   switch (expression.kind) {
     case SyntaxKind.Function: return emitFunctionDeclaration(expression);
     case SyntaxKind.Identifier: return emitIdentifier(expression);
-    case SyntaxKind.ImportDirective: return emitImportDirective(expression);
     case SyntaxKind.VariableDeclaration: return emitVariableDeclaration(expression);
+
+    case SyntaxKind.ExportDirective: return emitExportDirective(expression);
+    case SyntaxKind.ImportDirective: return emitImportDirective(expression);
+
     case SyntaxKind.AssignmentExpression: return emitAssignmentExpression(expression);
     case SyntaxKind.BinaryExpression: return emitBinaryExpression(expression);
     case SyntaxKind.CallExpression: return emitCallExpression(expression);
     case SyntaxKind.UnaryExpression: return emitUnaryExpression(expression);
     case SyntaxKind.WhileExpression: return emitWhileExpression(expression);
+
     case SyntaxKind.IndexAccess: return emitIndexAccess(expression);
     case SyntaxKind.MemberAccess: return emitMemberAccess(expression);
+
     case SyntaxKind.BreakKeyword: return emitBreak(expression);
-    case SyntaxKind.ExportStatement: return emitExportStatement(expression);
     case SyntaxKind.ReturnStatement: return emitReturn(expression);
     case SyntaxKind.ThrowKeyword: return emitThrow(expression);
+
     case SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
     case SyntaxKind.BooleanLiteral: return emitBooleanLiteral(expression);
     case SyntaxKind.NumberLiteral: return emitNumberLiteral(expression);
@@ -186,33 +191,6 @@ function emitExpression(expression, context = null) {
   return withContext(context, () => emitExpressionKeepContext(expression))
 }
 
-function emitImportDirective(i: ImportDirective) {
-  let specifier = isIdentifier(i.specifier)
-    ? `* as ${emitIdentifier(i.specifier)}`
-    : `{${i.specifier.members
-        .map(({property, local}) => property.name === local.name
-          ? property.name
-          : `${property.name} as ${local.name}`
-        )
-        .join(', ')
-      }}`
-
-  let path
-  if (i.domain && i.domain == 'npm') {
-    path = i.path
-  } else if (!i.domain) {
-    if (i.path.charAt(0) == '/') {
-      path = i.path
-    } else {
-      path = `./${i.path}`
-    }
-  } else {
-    throw `Unsupported import-domain "${i.domain}"`
-  }
-
-  return `import ${specifier} from '${path}'`
-}
-
 function emitFunctionDeclaration(fn: FunctionNode) {
   let name = fn.name ? emitIdentifier(fn.name) : ''
   let parameterList = fn.parameterList
@@ -254,6 +232,37 @@ function emitVariableDeclaration(vd: VariableDeclaration) {
     ? ` = ${emitExpression(vd.initializer, Context.Value)}`
     : ''
   return `${kw} ${emitIdentifier(vd.identifier)}${initializer}`
+}
+
+function emitExportDirective(e: ExportDirective) {
+  return `export ${emitExpression(e.expression)}`
+}
+
+function emitImportDirective(i: ImportDirective) {
+  let specifier = isIdentifier(i.specifier)
+    ? `* as ${emitIdentifier(i.specifier)}`
+    : `{${i.specifier.members
+        .map(({property, local}) => property.name === local.name
+          ? property.name
+          : `${property.name} as ${local.name}`
+        )
+        .join(', ')
+      }}`
+
+  let path
+  if (i.domain && i.domain == 'npm') {
+    path = i.path
+  } else if (!i.domain) {
+    if (i.path.charAt(0) == '/') {
+      path = i.path
+    } else {
+      path = `./${i.path}`
+    }
+  } else {
+    throw `Unsupported import-domain "${i.domain}"`
+  }
+
+  return `import ${specifier} from '${path}'`
 }
 
 function emitAssignmentExpression(e: AssignmentExpression) {
@@ -333,10 +342,6 @@ function emitMemberAccess(e: MemberAccess) {
 function emitBreak(_) {
   allowReturnContext = false
   return `break`
-}
-
-function emitExportStatement(e: ExportStatement) {
-  return `export ${emitExpression(e.expression)}`
 }
 
 function emitReturn(e: ReturnStatement) {

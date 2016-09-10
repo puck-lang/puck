@@ -58,8 +58,6 @@ export enum SyntaxKind {
   NewlineToken,
   EndOfFileToken,
 
-  ImportDirective,
-
   Comment,
   Block,
   Function,
@@ -71,6 +69,9 @@ export enum SyntaxKind {
   TypeParameter,
   TypeProperty,
   VariableDeclaration,
+
+  ExportDirective,
+  ImportDirective,
 
   AssignmentExpression,
   BinaryExpression,
@@ -85,7 +86,6 @@ export enum SyntaxKind {
   MemberAccess,
 
   BreakStatement,
-  ExportStatement,
   ReturnStatement,
 
   ArrayLiteral,
@@ -219,8 +219,8 @@ export function isBlock(token: Token): token is BlockNode {
   return token.kind === SyntaxKind.Block
 }
 
-export function isExport(token: Token): token is ExportStatement {
-  return token.kind === SyntaxKind.ExportStatement
+export function isExport(token: Token): token is ExportDirective {
+  return token.kind === SyntaxKind.ExportDirective
 }
 
 export function isIdentifier(token: Token): token is Identifier {
@@ -239,42 +239,7 @@ export interface Token {
   kind: SyntaxKind
 }
 
-export interface ArrayLiteral extends Expression {
-  members: Array<Expression>
-}
-
-export interface BooleanLiteral extends Expression {
-  value: boolean
-}
-
-export interface NumberLiteral extends Expression {
-  value: number
-}
-
-export interface ObjectLiteral extends Expression {
-  members: Array<ObjectLiteralMember>
-}
-
-export interface ObjectLiteralMember extends Token {
-  name: SimpleIdentifier
-  value: Expression
-}
-
-export interface StringLiteralPart extends Expression {
-  value: string
-}
-
-export interface StringLiteral extends Expression {
-  parts: Array<StringLiteralPart|Identifier>
-}
-
-export interface ImportDirective extends Token {
-  importKeyword: Token
-  domain?: string
-  path: string
-  asKeyword: Token
-  specifier: Identifier|ObjectDestructure
-}
+export interface Expression extends Token {}
 
 export interface CommentNode extends Token {
   text: string
@@ -289,6 +254,10 @@ export interface FunctionNode extends Token {
   parameterList: Array<VariableDeclaration>
   returnType?: TypeBound
   body: BlockNode
+}
+
+export interface Identifier extends SimpleIdentifier, Expression {
+  name: string
 }
 
 export interface ObjectDestructure extends Token {
@@ -337,38 +306,23 @@ export interface VariableDeclaration extends Token {
   initializer?: Expression
 }
 
-export interface BreakStatement extends Token {
-  keyword: Token
-}
-
-export interface ExportStatement extends Token {
+export interface ExportDirective extends Token {
   keyword: Token
   expression: VariableDeclaration|FunctionNode|TypeDeclaration
   identifier: Identifier
 }
 
-export interface ReturnStatement extends Token {
-  keyword: Token
-  expression: Expression
+export interface ImportDirective extends Token {
+  importKeyword: Token
+  domain?: string
+  path: string
+  asKeyword: Token
+  specifier: Identifier|ObjectDestructure
 }
-
-export interface Expression extends Token {}
 
 export interface AssignmentExpression extends Expression {
   lhs: Identifier|MemberAccess|IndexAccess
   token: Token
-  rhs: Expression
-}
-
-export interface CallExpression extends Expression {
-  func: Expression
-  openParen: Token
-  argumentList: Array<Expression>
-  closeParen: Token
-}
-
-export interface UnaryExpression extends Expression {
-  operator: Token
   rhs: Expression
 }
 
@@ -378,8 +332,11 @@ export interface BinaryExpression extends Expression {
   rhs: Expression
 }
 
-export interface Identifier extends SimpleIdentifier, Expression {
-  name: string
+export interface CallExpression extends Expression {
+  func: Expression
+  openParen: Token
+  argumentList: Array<Expression>
+  closeParen: Token
 }
 
 export interface ForExpression extends Token {
@@ -396,6 +353,11 @@ export interface LoopExpression extends Token {
   body: BlockNode,
 }
 
+export interface UnaryExpression extends Expression {
+  operator: Token
+  rhs: Expression
+}
+
 export interface WhileExpression extends Token {
   condition: Expression,
   body: BlockNode,
@@ -410,5 +372,41 @@ export interface MemberAccess extends Expression {
   object: Expression
   member: Identifier|MemberAccess
 }
-isIndex
-// export const NULL: Token = { kind: SyntaxKind.NullKeyword }
+
+export interface BreakStatement extends Token {
+  keyword: Token
+}
+
+export interface ReturnStatement extends Token {
+  keyword: Token
+  expression: Expression
+}
+
+export interface ArrayLiteral extends Expression {
+  members: Array<Expression>
+}
+
+export interface BooleanLiteral extends Expression {
+  value: boolean
+}
+
+export interface NumberLiteral extends Expression {
+  value: number
+}
+
+export interface ObjectLiteral extends Expression {
+  members: Array<ObjectLiteralMember>
+}
+
+export interface ObjectLiteralMember extends Token {
+  name: SimpleIdentifier
+  value: Expression
+}
+
+export interface StringLiteralPart extends Expression {
+  value: string
+}
+
+export interface StringLiteral extends Expression {
+  parts: Array<StringLiteralPart|Identifier>
+}

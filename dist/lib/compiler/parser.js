@@ -547,7 +547,7 @@ function parse(input) {
       };
     };
     return {
-      kind: SyntaxKind.ExportStatement,
+      kind: SyntaxKind.ExportDirective,
       keyword: keyword,
       identifier: identifier,
       expression: expression

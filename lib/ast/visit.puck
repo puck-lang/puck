@@ -36,6 +36,7 @@ export let Visitor = {
   visitTypeBound: |self, i: TypeBound| walkTypeBound(self, t)
   visitVariableDeclaration: |self, d: VariableDeclaration| walkVariableDeclaration(self, d)
 
+  visitExportDirective: |self, e: ExportDirective| walkExportDirective(self, e)
   visitImportDirective: |self, i: ImportDirective| walkImportDirective(self, i)
 
   visitAssignmentExpression: |self, e: AssignmentExpression| walkAssignmentExpression(self, e)
@@ -51,7 +52,6 @@ export let Visitor = {
   visitMemberAccess: |self, a: MemberAccess| walkMemberAccess(self, a)
 
   visitBreak: |self, b: Token| walkBreak(self, b)
-  visitExport: |self, e: ExportStatement| walkExport(self, e)
   visitReturn: |self, r: ReturnStatement| walkReturn(self, r)
 
   visitArrayLiteral: |self, l: ArrayLiteral| walkArrayLiteral(self, l)
@@ -69,6 +69,7 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.TypeBound then visitor.visitTypeBound(e)
   else if e.kind == SyntaxKind.VariableDeclaration then visitor.visitVariableDeclaration(e)
 
+  else if e.kind == SyntaxKind.ExportDirective then visitor.visitExportDirective(e)
   else if e.kind == SyntaxKind.ImportDirective then visitor.visitImportDirective(e)
 
   else if e.kind == SyntaxKind.AssignmentExpression then visitor.visitAssignmentExpression(e)
@@ -84,7 +85,6 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.MemberAccess then visitor.visitMemberAccess(e)
 
   else if e.kind == SyntaxKind.BreakKeyword then visitor.visitBreak(e)
-  else if e.kind == SyntaxKind.ExportStatement then visitor.visitExport(e)
   else if e.kind == SyntaxKind.ReturnStatement then visitor.visitReturn(e)
 
   else if e.kind == SyntaxKind.ArrayLiteral then visitor.visitArrayLiteral(e)
@@ -119,6 +119,9 @@ export fn walkVariableDeclaration(visitor: Visitor, d: VariableDeclaration) {
   if d.initializer then visitor.visitExpression(d.initializer)
 }
 
+export fn walkExportDirective(visitor: Visitor, e: ExportDirective) {
+  visitor.visitExpression(e.expression)
+}
 export fn walkImportDirective(visitor: Visitor, i: ImportDirective) {
   if i.specifier.kind == SyntaxKind.Identifier
     then visitor.visitIdentifier(i.specifier)
@@ -167,9 +170,6 @@ export fn walkMemberAccess(visitor: Visitor, a: MemberAccess) {
 }
 
 export fn walkBreak(visitor: Visitor, b: Token) {}
-export fn walkExport(visitor: Visitor, e: ExportStatement) {
-  visitor.visitExpression(e.expression)
-}
 export fn walkReturn(visitor: Visitor, r: ReturnStatement) {
   visitor.visitExpression(r.expression)
 }

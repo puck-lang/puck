@@ -529,7 +529,7 @@ fn parse(input: TokenStream) {
     }
     else input.croak('Expected type, function or variable declaration after export')
     {
-      kind: SyntaxKind.ExportStatement
+      kind: SyntaxKind.ExportDirective
       keyword
       identifier
       expression

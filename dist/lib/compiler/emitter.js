@@ -86,8 +86,9 @@ function emitScalarExpression(expression) {
     switch (expression.kind) {
         case ast_1.SyntaxKind.Function: return emitFunctionDeclaration(expression);
         case ast_1.SyntaxKind.Identifier: return emitIdentifier(expression);
-        case ast_1.SyntaxKind.ImportDirective: return emitImportDirective(expression);
         case ast_1.SyntaxKind.VariableDeclaration: return emitVariableDeclaration(expression);
+        case ast_1.SyntaxKind.ExportDirective: return emitExportDirective(expression);
+        case ast_1.SyntaxKind.ImportDirective: return emitImportDirective(expression);
         case ast_1.SyntaxKind.AssignmentExpression: return emitAssignmentExpression(expression);
         case ast_1.SyntaxKind.BinaryExpression: return emitBinaryExpression(expression);
         case ast_1.SyntaxKind.CallExpression: return emitCallExpression(expression);
@@ -96,7 +97,6 @@ function emitScalarExpression(expression) {
         case ast_1.SyntaxKind.IndexAccess: return emitIndexAccess(expression);
         case ast_1.SyntaxKind.MemberAccess: return emitMemberAccess(expression);
         case ast_1.SyntaxKind.BreakKeyword: return emitBreak(expression);
-        case ast_1.SyntaxKind.ExportStatement: return emitExportStatement(expression);
         case ast_1.SyntaxKind.ReturnStatement: return emitReturn(expression);
         case ast_1.SyntaxKind.ThrowKeyword: return emitThrow(expression);
         case ast_1.SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
@@ -143,34 +143,6 @@ function emitExpression(expression, context) {
     if (context === void 0) { context = null; }
     return withContext(context, function () { return emitExpressionKeepContext(expression); });
 }
-function emitImportDirective(i) {
-    var specifier = ast_1.isIdentifier(i.specifier)
-        ? "* as " + emitIdentifier(i.specifier)
-        : "{" + i.specifier.members
-            .map(function (_a) {
-            var property = _a.property, local = _a.local;
-            return property.name === local.name
-                ? property.name
-                : property.name + " as " + local.name;
-        })
-            .join(', ') + "}";
-    var path;
-    if (i.domain && i.domain == 'npm') {
-        path = i.path;
-    }
-    else if (!i.domain) {
-        if (i.path.charAt(0) == '/') {
-            path = i.path;
-        }
-        else {
-            path = "./" + i.path;
-        }
-    }
-    else {
-        throw "Unsupported import-domain \"" + i.domain + "\"";
-    }
-    return "import " + specifier + " from '" + path + "'";
-}
 function emitFunctionDeclaration(fn) {
     var name = fn.name ? emitIdentifier(fn.name) : '';
     var parameterList = fn.parameterList;
@@ -208,6 +180,37 @@ function emitVariableDeclaration(vd) {
         ? " = " + emitExpression(vd.initializer, Context.Value)
         : '';
     return kw + " " + emitIdentifier(vd.identifier) + initializer;
+}
+function emitExportDirective(e) {
+    return "export " + emitExpression(e.expression);
+}
+function emitImportDirective(i) {
+    var specifier = ast_1.isIdentifier(i.specifier)
+        ? "* as " + emitIdentifier(i.specifier)
+        : "{" + i.specifier.members
+            .map(function (_a) {
+            var property = _a.property, local = _a.local;
+            return property.name === local.name
+                ? property.name
+                : property.name + " as " + local.name;
+        })
+            .join(', ') + "}";
+    var path;
+    if (i.domain && i.domain == 'npm') {
+        path = i.path;
+    }
+    else if (!i.domain) {
+        if (i.path.charAt(0) == '/') {
+            path = i.path;
+        }
+        else {
+            path = "./" + i.path;
+        }
+    }
+    else {
+        throw "Unsupported import-domain \"" + i.domain + "\"";
+    }
+    return "import " + specifier + " from '" + path + "'";
 }
 function emitAssignmentExpression(e) {
     var left = ast_1.isIdentifier(e.lhs)
@@ -273,9 +276,6 @@ function emitMemberAccess(e) {
 function emitBreak(_) {
     allowReturnContext = false;
     return "break";
-}
-function emitExportStatement(e) {
-    return "export " + emitExpression(e.expression);
 }
 function emitReturn(e) {
     allowReturnContext = false;
