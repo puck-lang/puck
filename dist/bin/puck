@@ -3,6 +3,7 @@
 'use strict';
 
 var cmd = require("../lib/helpers").cmd;
+var walkSync = require("../lib/helpers").walkSync;
 var _arguments = process.argv.takeFrom(function (arg) {
   return arg.indexOf("puck") > 0;
 }).slice(1);
@@ -14,50 +15,50 @@ function buildAll() {
   return cmd("" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
 };
 function buildTestCompiler() {
-  return cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler")["then"](function () {
-    return buildAll(".tmp/old");
-  })["then"](function () {
-    return cmd("cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler &&       cp dist/lib/js.js .tmp/old/lib &&       cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ &&       cp dist/lib/js.js .tmp/new/lib    ");
-  });
+  cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler");
+  buildAll(".tmp/old");
+  return cmd("cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler &&     cp dist/lib/js.js .tmp/old/lib &&     cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ &&     cp dist/lib/js.js .tmp/new/lib  ");
 };
 if (command == "build") {
   var outDir = _arguments[1];
-  buildAll(outDir)["then"](function () {
-    return console.log("done");
-  }).catch(function () {
-    return process.exit(1);
-  });
+  buildAll(outDir);
+  console.log("done");
 } else {
   if (command == "test") {
-    buildTestCompiler()["then"](function () {
-      return cmd(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck && " + "! (.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/*.error.puck 2> /dev/null && echo \"error case did not error\")");
-    })["then"](function () {
-      return cmd("diff -Nr test/baselines .tmp/cases");
-    })["then"](function () {
-      return console.log("done");
-    }).catch(function () {
-      return process.exit(1);
-    });
+    (function () {
+      buildTestCompiler();
+      var puckPattern = RegExp("\\.puck$", "i");
+      var failPattern = RegExp("\\.error\\.puck$", "i");
+      var caseFiles = walkSync("test/cases");
+      var puckFiles = caseFiles.filter(function (f) {
+        return puckPattern.test(f);
+      });
+      var successCases = puckFiles.filter(function (f) {
+        return !failPattern.test(f);
+      });
+      var failCases = puckFiles.filter(function (f) {
+        return failPattern.test(f);
+      });
+      successCases.forEach(function (f) {
+        return cmd(".tmp/old/bin/puckc --out-dir .tmp/cases " + f + "");
+      });
+      failCases.forEach(function (f) {
+        return cmd("! (.tmp/old/bin/puckc --out-dir .tmp/cases " + f + " 2> /dev/null && " + "echo \"error case did not error for " + f + "\")");
+      });
+      cmd("diff -Nr test/baselines .tmp/cases");
+      console.log("done");
+    })();
   } else {
     if (command == "update-baselines") {
-      buildTestCompiler()["then"](function () {
-        return cmd(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
-      })["then"](function () {
-        return console.log("done");
-      }).catch(function () {
-        return process.exit(1);
-      });
+      buildTestCompiler();
+      cmd(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
+      console.log("done");
     } else {
       if (command == "self-test") {
-        buildTestCompiler()["then"](function () {
-          return buildAll(".tmp/new", ".tmp/old");
-        })["then"](function () {
-          return cmd("diff -Nr .tmp/old .tmp/new");
-        })["then"](function () {
-          return console.log("done");
-        }).catch(function () {
-          return process.exit(1);
-        });
+        buildTestCompiler();
+        buildAll(".tmp/new", ".tmp/old");
+        cmd("diff -Nr .tmp/old .tmp/new");
+        console.log("done");
       } else {
         console.error("Unknown command", command);
         process.exit(1);

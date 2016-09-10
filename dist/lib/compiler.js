@@ -2,6 +2,11 @@
 
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.buildString = buildString;
+exports.build = build;
 var fs = require("fs");
 var path = require("path");
 var InputStream = require("./compiler/input_stream").InputStream;
@@ -21,13 +26,8 @@ function build(file, outFile) {
   var outDir = path.dirname(outFile);
   var puck = fs.readFileSync(file, { encoding: "utf-8" });
   var js = buildString(puck, file);
-  return cmd("mkdir -p " + outDir)["then"](function () {
-    return fs.writeFileSync(outFile + ".tmp", js);
-  })["then"](function () {
-    return cmd("babel " + outFile + ".tmp --out-file " + outFile + " && chmod +x " + outFile);
-  })["then"](function () {
-    return fs.unlinkSync(outFile + ".tmp");
-  });
-};
-module.exports.buildString = buildString;
-module.exports.build = build;
+  cmd("mkdir -p " + outDir + "");
+  fs.writeFileSync("" + outFile + ".tmp", js);
+  cmd("babel " + outFile + ".tmp --out-file " + outFile + " && chmod +x " + outFile + "");
+  return fs.unlinkSync("" + outFile + ".tmp");
+}

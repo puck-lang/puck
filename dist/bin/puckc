@@ -36,11 +36,8 @@ if (_arguments.length == 0) {
     });
   })();
 } else {
-  var builds = _arguments.map(function (file) {
+  _arguments.forEach(function (file) {
     var out = outFile || outDir + "/" + file.replace(RegExp("\\.puck"), extension);
-    return build(file, out).catch(function () {
-      return process.exit(1);
-    });
+    return build(file, out);
   });
-  Promise.all(builds);
 }

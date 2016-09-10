@@ -1,4 +1,5 @@
 let cmd = require('../lib/helpers').cmd
+let walkSync = require('../lib/helpers').walkSync
 
 let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puck') > 0}).slice(1)
 let command = arguments[0]
@@ -12,45 +13,49 @@ fn buildAll(outFolder = 'dist', compiler = 'dist') {
 
 fn buildTestCompiler() {
   cmd('rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler')
-    ['then'](fn () {buildAll('.tmp/old')})
-    ['then'](fn () {cmd('cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler && \
-      cp dist/lib/js.js .tmp/old/lib && \
-      cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ && \
-      cp dist/lib/js.js .tmp/new/lib\
-    ')})
+  buildAll('.tmp/old')
+  cmd('cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler && \
+    cp dist/lib/js.js .tmp/old/lib && \
+    cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ && \
+    cp dist/lib/js.js .tmp/new/lib\
+  ')
 }
 
 if command == 'build' {
   let outDir = arguments[1]
 
   buildAll(outDir)
-    ['then'](fn () {console.log('done')})
-    .catch(fn () {process.exit(1)})
+  console.log('done')
 }
 else if command == 'test' {
   buildTestCompiler()
-    ['then'](fn () {cmd(
-      '.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck && ' +
-      '! (.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/*.error.puck 2> /dev/null && echo "error case did not error")'
-    )})
-    ['then'](fn () {cmd('diff -Nr test/baselines .tmp/cases')})
-    ['then'](fn () {console.log('done')})
-    .catch(fn () {process.exit(1)})
+
+  let puckPattern = RegExp('\\.puck$', 'i')
+  let failPattern = RegExp('\\.error\\.puck$', 'i')
+  let caseFiles = walkSync('test/cases')
+  let puckFiles = caseFiles.filter(|f| puckPattern.test(f))
+  let successCases = puckFiles.filter(|f| not failPattern.test(f))
+  let failCases = puckFiles.filter(|f| failPattern.test(f))
+
+  successCases.forEach(|f| cmd('.tmp/old/bin/puckc --out-dir .tmp/cases $f'))
+  failCases.forEach(|f| cmd(
+    '! (.tmp/old/bin/puckc --out-dir .tmp/cases $f 2> /dev/null && ' +
+    'echo "error case did not error for $f")'
+  ))
+
+  cmd('diff -Nr test/baselines .tmp/cases')
+  console.log('done')
 }
 else if command == 'update-baselines' {
   buildTestCompiler()
-    ['then'](fn () {cmd(
-      '.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck'
-    )})
-    ['then'](fn () {console.log('done')})
-    .catch(fn () {process.exit(1)})
+  cmd('.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck')
+  console.log('done')
 }
 else if command == 'self-test' {
   buildTestCompiler()
-    ['then'](fn () {buildAll('.tmp/new', '.tmp/old')})
-    ['then'](fn () {cmd('diff -Nr .tmp/old .tmp/new')})
-    ['then'](fn () {console.log('done')})
-    .catch(fn () {process.exit(1)})
+  buildAll('.tmp/new', '.tmp/old')
+  cmd('diff -Nr .tmp/old .tmp/new')
+  console.log('done')
 }
 else {
   console.error('Unknown command', command)

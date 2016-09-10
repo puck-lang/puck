@@ -7,24 +7,20 @@ let emitProgram = require('./compiler/emitter').emitProgram
 let cmd = require('./helpers').cmd
 let scopeVisitor = require('./typeck/scope').scopeVisitor
 
-fn buildString(puck, file) {
+export fn buildString(puck, file) {
   let mut ast = parse(TokenStream(InputStream(puck, file)))
   scopeVisitor.visitBlock(ast)
   emitProgram(ast)
 }
 
-fn build(mut file, mut outFile) {
+export fn build(mut file, mut outFile) {
   file = path.normalize(file)
   outFile = path.normalize(outFile)
   let outDir = path.dirname(outFile)
   let puck = fs.readFileSync(file, {encoding: 'utf-8'})
   let js = buildString(puck, file)
-  cmd('mkdir -p ' + outDir)
-    ['then'](fn () then fs.writeFileSync(outFile + '.tmp', js))
-    ['then'](fn () then cmd('babel ' + outFile + '.tmp --out-file ' + outFile + ' && chmod +x ' + outFile))
-    ['then'](fn () then fs.unlinkSync(outFile + '.tmp'))
+  cmd('mkdir -p $outDir')
+  fs.writeFileSync('$outFile.tmp', js)
+  cmd('babel $outFile.tmp --out-file $outFile && chmod +x $outFile')
+  fs.unlinkSync('$outFile.tmp')
 }
-
-module.exports.buildString = buildString
-module.exports.build = build
-
