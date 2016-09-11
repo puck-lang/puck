@@ -7,9 +7,9 @@ import './ast' as {
   textToToken
   tokenToText
 }
-import '../stdlib/js' as {null, undefined}
+import '../stdlib/js' as {console, global, null, typeof, undefined}
 
-fn parse(input: TokenStream) {
+export fn parse(input: TokenStream) {
 
   fn isToken(kind: SyntaxKind, peekDistance) {
     let token = input.peek(false, peekDistance)
@@ -107,7 +107,7 @@ fn parse(input: TokenStream) {
 
       if hisprecedence == undefined {
         let name = tokenToText[operator.kind]
-        let json = JSON.stringify(operator)
+        let json = global.JSON.stringify(operator)
         throw 'No precedence for $name: $json'
       }
 
@@ -146,13 +146,13 @@ fn parse(input: TokenStream) {
 
   fn maybeCall(expr: Expression) {
     if isToken(SyntaxKind.OpenParenToken)
-      then {
+      then maybeCall(maybeMemberAccess({
         kind: SyntaxKind.CallExpression,
         func: expr,
         openParen: input.peek(),
-        argumentList: delimited('(', ')', ',', parseExpression),
-        closeParen: input.peek(),
-      }
+        argumentList: delimited('(', ')', ',', parseExpression, false),
+        closeParen: consumeToken(SyntaxKind.CloseParenToken),
+      }))
       else expr
   }
 
@@ -163,7 +163,7 @@ fn parse(input: TokenStream) {
       return {
         kind: SyntaxKind.MemberAccess,
         object: token,
-        member: maybeMemberAccess(maybeCall(input.next()))
+        member: maybeMemberAccess(input.next())
       }
     }
     if isToken(SyntaxKind.OpenBracketToken) {
@@ -171,11 +171,11 @@ fn parse(input: TokenStream) {
       let mut index = parseExpression()
       consumeToken(SyntaxKind.CloseBracketToken)
 
-      return maybeMemberAccess(maybeCall({
+      return maybeMemberAccess({
         kind: SyntaxKind.IndexAccess,
         object: token,
         index,
-      }))
+      })
     }
     token
   }
@@ -587,10 +587,8 @@ fn parse(input: TokenStream) {
   }
 
   fn parseExpression(): Expression {
-    maybeMemberAccess(maybeCall(maybeBinary(parseAtom(), 0)))
+    maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), 0)))
   }
 
   parseToplevel()
 }
-
-module.exports.parse = parse

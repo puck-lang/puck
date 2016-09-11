@@ -2,9 +2,11 @@
 
 'use strict';
 
-var cmd = require("../lib/helpers").cmd;
-var walkSync = require("../lib/helpers").walkSync;
-var _arguments = process.argv.takeFrom(function (arg) {
+var _helpers = require('./../lib/helpers');
+
+var _js = require('./../lib/stdlib/js');
+
+var _arguments = _js.process.argv.takeFrom(function (arg) {
   return arg.indexOf("puck") > 0;
 }).slice(1);
 var command = _arguments[0];
@@ -12,47 +14,47 @@ function buildAll() {
   var outFolder = arguments.length <= 0 || arguments[0] === undefined ? "dist" : arguments[0];
   var compiler = arguments.length <= 1 || arguments[1] === undefined ? "dist" : arguments[1];
 
-  return cmd("" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
+  return (0, _helpers.cmd)("" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
 };
 function buildTestCompiler() {
-  cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/bin .tmp/{old,new}/lib/compiler .tmp/{old,new}/lib/stdlib/js");
+  (0, _helpers.cmd)("rm -rf .tmp && mkdir -p .tmp/{old,new}/bin .tmp/{old,new}/lib/compiler .tmp/{old,new}/lib/stdlib/js");
   buildAll(".tmp/old");
-  return cmd("cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler &&     cp dist/lib/js.js .tmp/old/lib &&     cp dist/lib/stdlib/js/js.js .tmp/old/lib/stdlib/js/ &&     cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ &&     cp dist/lib/js.js .tmp/new/lib &&     cp dist/lib/stdlib/js/js.js .tmp/new/lib/stdlib/js/  ");
+  return (0, _helpers.cmd)("cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler &&     cp dist/lib/js.js .tmp/old/lib &&     cp dist/lib/stdlib/js/js.js .tmp/old/lib/stdlib/js/ &&     cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ &&     cp dist/lib/js.js .tmp/new/lib &&     cp dist/lib/stdlib/js/js.js .tmp/new/lib/stdlib/js/  ");
 };
 if (command == "build") {
   var outDir = _arguments[1];
   buildAll(outDir);
-  console.log("done");
+  _js.console.log("done");
 } else {
   if (command == "test") {
     (function () {
       buildTestCompiler();
-      var failPattern = RegExp("\\.error\\.puck$", "i");
-      var caseFiles = walkSync("test/cases");
+      var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
+      var caseFiles = (0, _helpers.walkSync)("test/cases");
       var failCases = caseFiles.filter(function (f) {
         return failPattern.test(f);
       });
-      cmd(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
+      (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
       failCases.forEach(function (f) {
-        return cmd("! (.tmp/old/bin/puckc --out-dir .tmp/cases " + f + " 2> /dev/null && " + "echo \"error case did not error for " + f + "\")");
+        return (0, _helpers.cmd)("! (.tmp/old/bin/puckc --out-dir .tmp/cases " + f + " 2> /dev/null && " + "echo \"error case did not error for " + f + "\")");
       });
-      cmd("diff -Nr test/baselines .tmp/cases");
-      console.log("done");
+      (0, _helpers.cmd)("diff -Nr test/baselines .tmp/cases");
+      _js.console.log("done");
     })();
   } else {
     if (command == "update-baselines") {
       buildTestCompiler();
-      cmd(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
-      console.log("done");
+      (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
+      _js.console.log("done");
     } else {
       if (command == "self-test") {
         buildTestCompiler();
         buildAll(".tmp/new", ".tmp/old");
-        cmd("diff -Nr .tmp/old .tmp/new");
-        console.log("done");
+        (0, _helpers.cmd)("diff -Nr .tmp/old .tmp/new");
+        _js.console.log("done");
       } else {
-        console.error("Unknown command", command);
-        process.exit(1);
+        _js.console.error("Unknown command", command);
+        _js.process.exit(1);
       };
     };
   };

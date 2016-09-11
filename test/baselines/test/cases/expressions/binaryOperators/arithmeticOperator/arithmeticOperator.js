@@ -2,6 +2,8 @@
 
 'use strict';
 
+var a = 0;
+var b = 1;
 var ra1 = a * a;
 var ra2 = a * b;
 var ra3 = a * 0;

@@ -36,7 +36,7 @@ import {
   WhileExpression,
 } from './ast'
 
-const jsKeywords = ['arguments', 'new', 'null', 'undefined']
+const jsKeywords = ['arguments', 'module', 'new', 'null', 'Object', 'typeof', 'undefined']
 const tokenToJs = Object['assign'](tokenToText, {
   [SyntaxKind.AndKeyword]: '&&',
   [SyntaxKind.OrKeyword]: '||',

@@ -36,7 +36,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function buildString(puck, file) {
   var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(puck, file)));
-  (0, _scope.ScopeVisitor)().visitBlock(ast);
+  (0, _scope.ScopeVisitor)(file).visitBlock(ast);
   return (0, _emitter.emitProgram)(ast);
 };
 function build(files) {

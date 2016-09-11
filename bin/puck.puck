@@ -1,5 +1,5 @@
-let cmd = require('../lib/helpers').cmd
-let walkSync = require('../lib/helpers').walkSync
+import '../lib/helpers' as {cmd, walkSync}
+import '../lib/stdlib/js' as {RegExp, console, process}
 
 let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puck') > 0}).slice(1)
 let command = arguments[0]

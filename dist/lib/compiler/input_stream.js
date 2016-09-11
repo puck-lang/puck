@@ -2,6 +2,13 @@
 
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.InputStream = InputStream;
+
+var _js = require('./../stdlib/js');
+
 function InputStream(input, file) {
   var pos = 0;
   var line = 1;
@@ -26,8 +33,8 @@ function InputStream(input, file) {
     return peek() == "";
   };
   function croak(msg) {
-    console.log(msg + " (" + line + ":" + col + ")\n    at " + file + "\n\n");
-    return process.exit(1);
+    _js.console.log(msg + " (" + line + ":" + col + ")\n    at " + file + "\n\n");
+    return _js.process.exit(1);
   };
   return {
     next: next,
@@ -41,5 +48,4 @@ function InputStream(input, file) {
       return col;
     }
   };
-};
-module.exports.InputStream = InputStream;
+}

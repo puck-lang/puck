@@ -1,5 +1,5 @@
-// let a;
-// let b;
+let a = 0
+let b = 1
 
 // operator *
 

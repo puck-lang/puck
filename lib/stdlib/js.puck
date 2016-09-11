@@ -1,6 +1,6 @@
-//! Contains variables that are usually avalible in JavaScript contexts
-
 import 'js/js.js' as js
+
+//! Contains variables that are usually avalible in JavaScript contexts
 
 export let null = js._null
 export let undefined = js._undefined
@@ -14,8 +14,20 @@ export let window = js._window
 /// The self object that is avalible in workers
 export let _self = js._self
 
+export let Array = js._Array
+export let Boolean = js._Boolean
+export let Date = js._Date
+export let Number = js._Number
+export let Object = js._Object
+export let RegExp = js._RegExp
+export let String = js._String
+
+export let console = global.console
+
 /// The module object that is avalible in node and other commonjs modules (for example Browserify and Webpack)
 export let module = js._module
+/// The process object that is avalible in node and other commonjs modules (for example Browserify and Webpack)
+export let process = js._process
 /// The require function that is avalible in node and other commonjs modules (for example Browserify and Webpack)
 export let require = js._require
 
@@ -24,3 +36,4 @@ export let require = js._require
 /// Example:
 ///    let date = new(Date)('2000') // is equal to the JavaScript: new Date('2000')
 export let new = js._new
+export let typeof = js._typeof

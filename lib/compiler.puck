@@ -16,7 +16,7 @@ type File = {
 
 export fn buildString(puck, file) {
   let mut ast = parse(TokenStream(InputStream(puck, file)))
-  ScopeVisitor().visitBlock(ast)
+  ScopeVisitor(file).visitBlock(ast)
   emitProgram(ast)
 }
 

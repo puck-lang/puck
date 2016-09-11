@@ -2,7 +2,10 @@
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.parse = parse;
 
 var _ast = require('././ast');
 
@@ -14,7 +17,7 @@ function parse(input) {
     return token && token.kind == kind;
   };
   function tokenName(token) {
-    if (typeof _ast.tokenToText[token.kind] == "function") {
+    if ((0, _js._typeof)(_ast.tokenToText[token.kind]) == "function") {
       return _ast.tokenToText[token.kind](token);
     } else {
       if (_ast.tokenToText[token.kind]) {
@@ -38,7 +41,7 @@ function parse(input) {
         __PUCK__value__1 = "reached end of file";
       };
       var but = __PUCK__value__1;
-      console.error(token);
+      _js.console.error(token);
       return input.croak("Expected " + name + "" + expectedText + ", but " + but + "");
     };
   };
@@ -52,7 +55,7 @@ function parse(input) {
   };
   function unexpected() {
     var token = input.peek();
-    console.error("token", token, typeof token === 'undefined' ? 'undefined' : _typeof(token));
+    _js.console.error("token", token, (0, _js._typeof)(token));
     var name = _ast.tokenToText[token.kind];
     return input.croak("Unexpected token: " + name + "");
   };
@@ -85,7 +88,7 @@ function parse(input) {
       var hisprecedence = _ast.precedence[operator.kind];
       if (hisprecedence == _js._undefined) {
         var name = _ast.tokenToText[operator.kind];
-        var json = JSON.stringify(operator);
+        var json = _js.global.JSON.stringify(operator);
         throw "No precedence for " + name + ": " + json + "";
       };
       if (hisprecedence > myprecedence) {
@@ -120,13 +123,13 @@ function parse(input) {
   };
   function maybeCall(expr) {
     if (isToken(_ast.SyntaxKind.OpenParenToken)) {
-      return {
+      return maybeCall(maybeMemberAccess({
         kind: _ast.SyntaxKind.CallExpression,
         func: expr,
         openParen: input.peek(),
-        argumentList: delimited("(", ")", ",", parseExpression),
-        closeParen: input.peek()
-      };
+        argumentList: delimited("(", ")", ",", parseExpression, false),
+        closeParen: consumeToken(_ast.SyntaxKind.CloseParenToken)
+      }));
     } else {
       return expr;
     };
@@ -138,31 +141,31 @@ function parse(input) {
       return {
         kind: _ast.SyntaxKind.MemberAccess,
         object: token,
-        member: maybeMemberAccess(maybeCall(input.next()))
+        member: maybeMemberAccess(input.next())
       };
     };
     if (isToken(_ast.SyntaxKind.OpenBracketToken)) {
       input.next();
       var index = parseExpression();
       consumeToken(_ast.SyntaxKind.CloseBracketToken);
-      return maybeMemberAccess(maybeCall({
+      return maybeMemberAccess({
         kind: _ast.SyntaxKind.IndexAccess,
         object: token,
         index: index
-      }));
+      });
     };
     return token;
   };
   function delimited(start, stop, separator, parser) {
     var consumeStop = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
 
-    if (typeof start == "string") {
+    if ((0, _js._typeof)(start) == "string") {
       start = _ast.textToToken[start];
     };
-    if (typeof stop == "string") {
+    if ((0, _js._typeof)(stop) == "string") {
       stop = _ast.textToToken[stop];
     };
-    if (typeof separator == "string") {
+    if ((0, _js._typeof)(separator) == "string") {
       separator = _ast.textToToken[separator];
     };
     var parts = [];
@@ -175,7 +178,7 @@ function parse(input) {
       if (first) {
         first = false;
       } else {
-        if (typeof separator == "function") {
+        if ((0, _js._typeof)(separator) == "function") {
           separator();
         } else {
           consumeSeparator(separator);
@@ -628,8 +631,7 @@ function parse(input) {
     };
   };
   function parseExpression() {
-    return maybeMemberAccess(maybeCall(maybeBinary(parseAtom(), 0)));
+    return maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), 0)));
   };
   return parseToplevel();
-};
-module.exports.parse = parse;
+}

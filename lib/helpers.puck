@@ -2,10 +2,11 @@ import 'node:child_process' as {execSync}
 import 'node:fs' as fs
 import 'node:path' as path
 import 'js.js' as {asResult}
+import 'stdlib/js' as {Array, console, process}
 
-Array.prototype.takeFrom = fn (predicate) {
-  let index = this.findIndex(predicate)
-  this.slice(index)
+Array.prototype.takeFrom = fn (self, predicate) {
+  let index = self.findIndex(predicate)
+  self.slice(index)
 }
 
 export fn cmd(cmd) {

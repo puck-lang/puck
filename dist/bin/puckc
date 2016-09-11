@@ -8,7 +8,9 @@ var _helpers = require('./../lib/helpers');
 
 var _compiler = require('./../lib/compiler');
 
-var _arguments = process.argv.takeFrom(function (arg) {
+var _js = require('./../lib/stdlib/js');
+
+var _arguments = _js.process.argv.takeFrom(function (arg) {
   return arg.indexOf("puckc") >= 0;
 }).slice(1);
 var outDir = (0, _helpers.flag)(_arguments, "--out-dir", "dist");
@@ -21,27 +23,27 @@ if ((0, _helpers.flag)(_arguments, "--skip-extension")) {
 };
 var extension = __PUCK__value__1;
 if (_arguments.length > 1 && outFile) {
-  console.error("Can't specify --out-file with more than one input file");
-  process.exit(1);
+  _js.console.error("Can't specify --out-file with more than one input file");
+  _js.process.exit(1);
 };
 if (_arguments.length == 0) {
   (function () {
-    var stdin = process.stdin;
-    var inputChunks = Array();
+    var stdin = _js.process.stdin;
+    var inputChunks = (0, _js.Array)();
     stdin.resume();
     stdin.setEncoding("utf8");
     stdin.on("data", inputChunks.push);
     stdin.on("end", function () {
       var puck = inputChunks.join();
       var js = (0, _compiler.buildString)(puck);
-      return console.log(js);
+      return _js.console.log(js);
     });
   })();
 } else {
   var files = _arguments.map(function (file) {
     return {
       file: file,
-      outFile: outFile || (0, _path.join)(outDir, file.replace(RegExp("\\.puck$"), extension))
+      outFile: outFile || (0, _path.join)(outDir, file.replace((0, _js.RegExp)("\\.puck$"), extension))
     };
   });
   (0, _compiler.build)(files);

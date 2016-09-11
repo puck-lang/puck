@@ -21,20 +21,23 @@ var path = _interopRequireWildcard(_path);
 
 var _js = require('./js.js');
 
+var _js2 = require('./stdlib/js');
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-Array.prototype.takeFrom = function (predicate) {
-  var index = this.findIndex(predicate);
-  return this.slice(index);
+_js2.Array.prototype.takeFrom = function (predicate) {
+  var self = this;
+  var index = self.findIndex(predicate);
+  return self.slice(index);
 };
 function cmd(cmd) {
   var result = (0, _js.asResult)(function () {
     return (0, _child_process.execSync)(cmd, {
-      cwd: process.cwd(),
+      cwd: _js2.process.cwd(),
       shell: "/bin/bash",
       env: {
         BASHOPTS: "globstar:extglob",
-        PATH: process.env.PATH
+        PATH: _js2.process.env.PATH
       }
     });
   });
@@ -42,15 +45,15 @@ function cmd(cmd) {
     var stdout = result.error.stdout.toString();
     var stderr = result.error.stderr.toString();
     if (stdout) {
-      console.log(stdout.trim());
+      _js2.console.log(stdout.trim());
     };
     if (stderr) {
-      console.error(stderr.trim());
+      _js2.console.error(stderr.trim());
     };
     throw result.error;
   } else {
     if (result.result.toString()) {
-      console.log(result.result.toString().trim());
+      _js2.console.log(result.result.toString().trim());
     };
   };
 };

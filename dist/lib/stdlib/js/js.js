@@ -1,24 +1,24 @@
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var _null = exports._null = null;
-var _undefined = exports._undefined = undefined;
-
-var _global = exports._global = typeof global !== 'undefined' && global;
-var _self = exports._self = typeof self !== 'undefined' && self;
-var _window = exports._window = typeof window !== 'undefined' && window;
-
-var _module = exports._module = typeof module !== 'undefined' && module;
-var _require = exports._require = typeof require === 'function' && require;
-
-var _new = exports._new = function _new(constructor) {
-  return function () {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+"use strict";
+exports._null = null;
+exports._undefined = undefined;
+exports._global = typeof global !== 'undefined' && global;
+exports._self = typeof self !== 'undefined' && self;
+exports._window = typeof window !== 'undefined' && window;
+exports._Array = Array;
+exports._Boolean = Boolean;
+exports._Date = Date;
+exports._Number = Number;
+exports._Object = Object;
+exports._RegExp = RegExp;
+exports._String = String;
+exports._module = typeof module !== 'undefined' && module;
+exports._process = typeof process !== 'undefined' && process;
+exports._require = typeof require === 'function' && require;
+exports._new = function (constructor) { return function () {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i - 0] = arguments[_i];
     }
-
-    return new (Function.prototype.bind.apply(constructor, [null].concat(args)))();
-  };
-};
+    return new (constructor.bind.apply(constructor, [void 0].concat(args)))();
+}; };
+exports._typeof = function (object) { return typeof object; };

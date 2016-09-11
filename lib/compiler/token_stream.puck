@@ -1,7 +1,7 @@
 import './ast' as {SyntaxKind, operators, textToToken}
-import '../stdlib/js' as {null, undefined}
+import '../stdlib/js' as {RegExp, global, null, undefined}
 
-fn TokenStream(input) {
+export fn TokenStream(input) {
   let mut current = null
   let mut currentDummy = null
   let mut inImport = false
@@ -91,7 +91,7 @@ fn TokenStream(input) {
       } else isDigit(ch)
     })
 
-    {kind: SyntaxKind.NumberLiteral, value: parseFloat(number)}
+    {kind: SyntaxKind.NumberLiteral, value: global.parseFloat(number)}
   }
 
   fn readIdent() {
@@ -226,12 +226,3 @@ fn TokenStream(input) {
 
   {next, peek, eof, croak: input.croak}
 }
-
-module.exports.TokenStream = TokenStream
-
-// export type TokenStream = {
-//  next: (tokenizeNewline?: boolean) => Token,
-//  peek: (tokenizeNewline?: boolean) => Token,
-//  eof: () => boolean,
-//  croak: (message: string) => void
-// }

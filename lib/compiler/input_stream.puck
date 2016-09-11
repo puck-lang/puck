@@ -1,4 +1,6 @@
-fn InputStream(input, file) {
+import '../stdlib/js' as {console, process, typeof}
+
+export fn InputStream(input, file) {
   let mut pos = 0
   let mut line = 1
   let mut col = 1
@@ -31,5 +33,3 @@ fn InputStream(input, file) {
 
   {next, peek, eof, croak, getLine: fn(){line}, getCol: fn(){col}}
 }
-
-module.exports.InputStream = InputStream

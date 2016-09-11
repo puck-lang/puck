@@ -2,6 +2,11 @@
 
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.TokenStream = TokenStream;
+
 var _ast = require('././ast');
 
 var _js = require('./../stdlib/js');
@@ -51,10 +56,10 @@ function TokenStream(input) {
     };
   };
   function isDigit(ch) {
-    return RegExp("[0-9]").test(ch);
+    return (0, _js.RegExp)("[0-9]").test(ch);
   };
   function isIdStart(ch) {
-    return RegExp("[a-z_]", "i").test(ch);
+    return (0, _js.RegExp)("[a-z_]", "i").test(ch);
   };
   function isId(ch) {
     return isIdStart(ch) || isDigit(ch);
@@ -91,7 +96,7 @@ function TokenStream(input) {
     });
     return {
       kind: _ast.SyntaxKind.NumberLiteral,
-      value: parseFloat(number)
+      value: _js.global.parseFloat(number)
     };
   };
   function readIdent() {
@@ -280,5 +285,4 @@ function TokenStream(input) {
     eof: eof,
     croak: input.croak
   };
-};
-module.exports.TokenStream = TokenStream;
+}

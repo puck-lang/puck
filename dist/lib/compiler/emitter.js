@@ -1,6 +1,6 @@
 "use strict";
 var ast_1 = require('./ast');
-var jsKeywords = ['arguments', 'new', 'null', 'undefined'];
+var jsKeywords = ['arguments', 'module', 'new', 'null', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
     _a[ast_1.SyntaxKind.OrKeyword] = '||',
@@ -187,10 +187,15 @@ function emitVariableDeclaration(vd) {
     if (binding && binding.previous) {
         return "" + emitIdentifier(vd.identifier) + initializer;
     }
+    // if (context) {
+    //   hoist(`let ${emitIdentifier(vd.identifier)}`)
+    //   return `${emitIdentifier(vd.identifier)}${initializer}`
+    // }
     var kw = (vd.mutable || willBeRedefined) ? 'let' : 'const';
     return kw + " " + emitIdentifier(vd.identifier) + initializer;
 }
 function emitExportDirective(e) {
+    // return `module.exports = ${emitExpression(e.expression, Context.Value)}`
     return "export " + emitExpression(e.expression);
 }
 function emitImportDirective(i) {
