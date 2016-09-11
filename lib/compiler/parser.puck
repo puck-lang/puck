@@ -1,10 +1,13 @@
-let isIdentifier = require('./ast').isIdentifier
-let isIndex = require('./ast').isIndex
-let isMember = require('./ast').isMember
-let textToToken = require('./ast').textToToken
-let tokenToText = require('./ast').tokenToText
-let SyntaxKind = require('./ast').SyntaxKind
-let precedence = require('./ast').precedence
+import './ast' as {
+  SyntaxKind
+  isIdentifier
+  isIndex
+  isMember
+  precedence
+  textToToken
+  tokenToText
+}
+import '../stdlib/js' as {null, undefined}
 
 fn parse(input: TokenStream) {
 

@@ -15,9 +15,9 @@ function buildAll() {
   return cmd("" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
 };
 function buildTestCompiler() {
-  cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler");
+  cmd("rm -rf .tmp && mkdir -p .tmp/{old,new}/bin .tmp/{old,new}/lib/compiler .tmp/{old,new}/lib/stdlib/js");
   buildAll(".tmp/old");
-  return cmd("cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler &&     cp dist/lib/js.js .tmp/old/lib &&     cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ &&     cp dist/lib/js.js .tmp/new/lib  ");
+  return cmd("cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler &&     cp dist/lib/js.js .tmp/old/lib &&     cp dist/lib/stdlib/js/js.js .tmp/old/lib/stdlib/js/ &&     cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ &&     cp dist/lib/js.js .tmp/new/lib &&     cp dist/lib/stdlib/js/js.js .tmp/new/lib/stdlib/js/  ");
 };
 if (command == "build") {
   var outDir = _arguments[1];

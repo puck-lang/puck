@@ -1,8 +1,5 @@
-let isIdentifier = require('./ast').isIdentifier
-let operators = require('./ast').operators
-let textToToken = require('./ast').textToToken
-let SyntaxKind = require('./ast').SyntaxKind
-let NULL = require('./ast').NULL
+import './ast' as {SyntaxKind, operators, textToToken}
+import '../stdlib/js' as {null, undefined}
 
 fn TokenStream(input) {
   let mut current = null

@@ -1,5 +1,6 @@
 "use strict";
 var ast_1 = require('./ast');
+var jsKeywords = ['arguments', 'new', 'null', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
     _a[ast_1.SyntaxKind.OrKeyword] = '||',
@@ -169,7 +170,7 @@ function emitFunctionParameter(vd) {
     return "" + emitIdentifier(vd.identifier) + initializer;
 }
 function emitIdentifier(identifier) {
-    if (['arguments'].indexOf(identifier.name) != -1) {
+    if (jsKeywords.indexOf(identifier.name) != -1) {
         return "_" + identifier.name;
     }
     return identifier.name;
@@ -199,8 +200,8 @@ function emitImportDirective(i) {
             .map(function (_a) {
             var property = _a.property, local = _a.local;
             return property.name === local.name
-                ? property.name
-                : property.name + " as " + local.name;
+                ? emitIdentifier(property)
+                : emitIdentifier(property) + " as " + emitIdentifier(local);
         })
             .join(', ') + "}";
     var path;

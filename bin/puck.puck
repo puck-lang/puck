@@ -12,12 +12,14 @@ fn buildAll(outFolder = 'dist', compiler = 'dist') {
 }
 
 fn buildTestCompiler() {
-  cmd('rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,lib}/compiler')
+  cmd('rm -rf .tmp && mkdir -p .tmp/{old,new}/bin .tmp/{old,new}/lib/compiler .tmp/{old,new}/lib/stdlib/js')
   buildAll('.tmp/old')
   cmd('cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler && \
     cp dist/lib/js.js .tmp/old/lib && \
+    cp dist/lib/stdlib/js/js.js .tmp/old/lib/stdlib/js/ && \
     cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ && \
-    cp dist/lib/js.js .tmp/new/lib\
+    cp dist/lib/js.js .tmp/new/lib && \
+    cp dist/lib/stdlib/js/js.js .tmp/new/lib/stdlib/js/\
   ')
 }
 

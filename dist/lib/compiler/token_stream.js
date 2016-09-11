@@ -2,16 +2,15 @@
 
 'use strict';
 
-var isIdentifier = require("./ast").isIdentifier;
-var operators = require("./ast").operators;
-var textToToken = require("./ast").textToToken;
-var SyntaxKind = require("./ast").SyntaxKind;
-var NULL = require("./ast").NULL;
+var _ast = require('././ast');
+
+var _js = require('./../stdlib/js');
+
 function TokenStream(input) {
-  var current = null;
-  var currentDummy = null;
+  var current = _js._null;
+  var currentDummy = _js._null;
   var inImport = false;
-  var longestOperator = operators.reduce(function (longest, curr) {
+  var longestOperator = _ast.operators.reduce(function (longest, curr) {
     if (curr.length > longest) {
       return curr.length;
     } else {
@@ -28,7 +27,7 @@ function TokenStream(input) {
         break;
       };
       searchString += ch;
-      var hasMatches = operators.filter(function (token) {
+      var hasMatches = _ast.operators.filter(function (token) {
         if (token.length < length) {
           return false;
         } else {
@@ -42,13 +41,13 @@ function TokenStream(input) {
         break;
       };
     };
-    if (textToToken[found]) {
+    if (_ast.textToToken[found]) {
       var i = 0;
       while (i < length) {
         input.next();
         i += 1;
       };
-      return { kind: textToToken[found] };
+      return { kind: _ast.textToToken[found] };
     };
   };
   function isDigit(ch) {
@@ -91,7 +90,7 @@ function TokenStream(input) {
       };
     });
     return {
-      kind: SyntaxKind.NumberLiteral,
+      kind: _ast.SyntaxKind.NumberLiteral,
       value: parseFloat(number)
     };
   };
@@ -99,17 +98,17 @@ function TokenStream(input) {
     var id = readWhile(isId);
     if (id == "import") {
       inImport = true;
-      return { kind: SyntaxKind.ImportKeyword };
+      return { kind: _ast.SyntaxKind.ImportKeyword };
     } else {
       if (id == "as") {
         inImport = false;
-        return { kind: SyntaxKind.AsKeyword };
+        return { kind: _ast.SyntaxKind.AsKeyword };
       } else {
-        if (textToToken[id] != undefined) {
-          return { kind: textToToken[id] };
+        if (_ast.textToToken[id] != _js._undefined) {
+          return { kind: _ast.textToToken[id] };
         } else {
           return {
-            kind: SyntaxKind.Identifier,
+            kind: _ast.SyntaxKind.Identifier,
             name: id
           };
         };
@@ -146,7 +145,7 @@ function TokenStream(input) {
                       str += "\\";
                     } else {
                       if (ch == "\n") {
-                        null;
+                        _js._null;
                       } else {
                         input.croak("Invalid escape character " + ch + "");
                       };
@@ -164,7 +163,7 @@ function TokenStream(input) {
         } else {
           if (ch == "$" && isIdStart(input.peek()) && !inImport) {
             parts.push({
-              kind: SyntaxKind.StringLiteralPart,
+              kind: _ast.SyntaxKind.StringLiteralPart,
               value: str
             });
             parts.push(readIdent());
@@ -180,11 +179,11 @@ function TokenStream(input) {
       };
     };
     parts.push({
-      kind: SyntaxKind.StringLiteralPart,
+      kind: _ast.SyntaxKind.StringLiteralPart,
       value: str
     });
     return {
-      kind: SyntaxKind.StringLiteral,
+      kind: _ast.SyntaxKind.StringLiteral,
       parts: parts
     };
   };
@@ -197,19 +196,19 @@ function TokenStream(input) {
     });
     input.next();
     return {
-      kind: SyntaxKind.Comment,
+      kind: _ast.SyntaxKind.Comment,
       text: comment
     };
   };
   function readNext() {
     readWhile(isWhitespace);
     if (input.eof()) {
-      return null;
+      return _js._null;
     };
     var ch = input.peek();
     if (isNewline(ch)) {
       input.next();
-      return { kind: SyntaxKind.NewlineToken };
+      return { kind: _ast.SyntaxKind.NewlineToken };
     };
     if (ch == "/" && input.peek(1) == "/") {
       return readComment();
@@ -233,7 +232,7 @@ function TokenStream(input) {
     if (!token) {
       return false;
     };
-    return token.kind == SyntaxKind.NewlineToken || token.kind == SyntaxKind.Comment;
+    return token.kind == _ast.SyntaxKind.NewlineToken || token.kind == _ast.SyntaxKind.Comment;
   };
   function peek(returnDummy) {
     if (returnDummy && currentDummy) {
@@ -254,14 +253,14 @@ function TokenStream(input) {
   function next(returnDummy) {
     if (currentDummy) {
       var _token = currentDummy;
-      currentDummy = null;
+      currentDummy = _js._null;
       if (returnDummy) {
         return _token;
       };
     };
     if (current) {
       var _token2 = current;
-      current = null;
+      current = _js._null;
       if (returnDummy || !isDummy(_token2)) {
         return _token2;
       };
@@ -273,7 +272,7 @@ function TokenStream(input) {
     return token;
   };
   function eof() {
-    return peek() == null;
+    return peek() == _js._null;
   };
   return {
     next: next,

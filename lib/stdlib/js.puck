@@ -1,0 +1,26 @@
+//! Contains variables that are usually avalible in JavaScript contexts
+
+import 'js/js.js' as js
+
+export let null = js._null
+export let undefined = js._undefined
+
+/// The global object
+///
+/// Will reference global in node, window in browsers and self in workers
+export let global = js._global or js._window or js._self
+/// The window object that is avalible in browsers
+export let window = js._window
+/// The self object that is avalible in workers
+export let _self = js._self
+
+/// The module object that is avalible in node and other commonjs modules (for example Browserify and Webpack)
+export let module = js._module
+/// The require function that is avalible in node and other commonjs modules (for example Browserify and Webpack)
+export let require = js._require
+
+/// Wraps the passed function so that it will be called with new
+///
+/// Example:
+///    let date = new(Date)('2000') // is equal to the JavaScript: new Date('2000')
+export let new = js._new

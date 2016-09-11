@@ -36,6 +36,7 @@ import {
   WhileExpression,
 } from './ast'
 
+const jsKeywords = ['arguments', 'new', 'null', 'undefined']
 const tokenToJs = Object['assign'](tokenToText, {
   [SyntaxKind.AndKeyword]: '&&',
   [SyntaxKind.OrKeyword]: '||',
@@ -220,7 +221,7 @@ function emitFunctionParameter(vd: VariableDeclaration) {
 }
 
 function emitIdentifier(identifier: SimpleIdentifier) {
-  if (['arguments'].indexOf(identifier.name) != -1) {
+  if (jsKeywords.indexOf(identifier.name) != -1) {
     return `_${identifier.name}`
   }
   return identifier.name
@@ -254,8 +255,8 @@ function emitImportDirective(i: ImportDirective) {
     ? `* as ${emitIdentifier(i.specifier)}`
     : `{${i.specifier.members
         .map(({property, local}) => property.name === local.name
-          ? property.name
-          : `${property.name} as ${local.name}`
+          ? emitIdentifier(property)
+          : `${emitIdentifier(property)} as ${emitIdentifier(local)}`
         )
         .join(', ')
       }}`

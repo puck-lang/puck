@@ -1,29 +1,32 @@
-let Visitor = require('../ast/visit').Visitor
-let walkExpression = require('../ast/visit').walkExpression
-let walkBlock = require('../ast/visit').walkBlock
-let walkFunction = require('../ast/visit').walkFunction
-let walkIdentifier = require('../ast/visit').walkIdentifier
-let walkTypeBound = require('../ast/visit').walkTypeBound
-let walkVariableDeclaration = require('../ast/visit').walkVariableDeclaration
-let walkImportDirective = require('../ast/visit').walkImportDirective
-let walkAssignmentExpression = require('../ast/visit').walkAssignmentExpression
-let walkBinaryExpression = require('../ast/visit').walkBinaryExpression
-let walkCallExpression = require('../ast/visit').walkCallExpression
-let walkForExpression = require('../ast/visit').walkForExpression
-let walkIfExpression = require('../ast/visit').walkIfExpression
-let walkLoopExpression = require('../ast/visit').walkLoopExpression
-let walkUnaryExpression = require('../ast/visit').walkUnaryExpression
-let walkWhileExpression = require('../ast/visit').walkWhileExpression
-let walkIndexAccess = require('../ast/visit').walkIndexAccess
-let walkMemberAccess = require('../ast/visit').walkMemberAccess
-let walkBreak = require('../ast/visit').walkBreak
-let walkReturn = require('../ast/visit').walkReturn
-let walkArrayLiteral = require('../ast/visit').walkArrayLiteral
-let walkBooleanLiteral = require('../ast/visit').walkBooleanLiteral
-let walkNumberLiteral = require('../ast/visit').walkNumberLiteral
-let walkObjectLiteral = require('../ast/visit').walkObjectLiteral
-let walkStringLiteral = require('../ast/visit').walkStringLiteral
-let SyntaxKind = require('../compiler/ast').SyntaxKind
+import '../ast/visit' as {
+  Visitor
+  walkExpression
+  walkBlock
+  walkFunction
+  walkIdentifier
+  walkTypeBound
+  walkVariableDeclaration
+  walkImportDirective
+  walkAssignmentExpression
+  walkBinaryExpression
+  walkCallExpression
+  walkForExpression
+  walkIfExpression
+  walkLoopExpression
+  walkUnaryExpression
+  walkWhileExpression
+  walkIndexAccess
+  walkMemberAccess
+  walkBreak
+  walkReturn
+  walkArrayLiteral
+  walkBooleanLiteral
+  walkNumberLiteral
+  walkObjectLiteral
+  walkStringLiteral
+}
+import '../compiler/ast' as {SyntaxKind}
+import '../stdlib/js' as {undefined}
 
 // type Binding = {
 //   identifier: Identifier

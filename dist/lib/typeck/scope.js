@@ -6,32 +6,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ScopeVisitor = ScopeVisitor;
-var Visitor = require("../ast/visit").Visitor;
-var walkExpression = require("../ast/visit").walkExpression;
-var walkBlock = require("../ast/visit").walkBlock;
-var walkFunction = require("../ast/visit").walkFunction;
-var walkIdentifier = require("../ast/visit").walkIdentifier;
-var walkTypeBound = require("../ast/visit").walkTypeBound;
-var walkVariableDeclaration = require("../ast/visit").walkVariableDeclaration;
-var walkImportDirective = require("../ast/visit").walkImportDirective;
-var walkAssignmentExpression = require("../ast/visit").walkAssignmentExpression;
-var walkBinaryExpression = require("../ast/visit").walkBinaryExpression;
-var walkCallExpression = require("../ast/visit").walkCallExpression;
-var walkForExpression = require("../ast/visit").walkForExpression;
-var walkIfExpression = require("../ast/visit").walkIfExpression;
-var walkLoopExpression = require("../ast/visit").walkLoopExpression;
-var walkUnaryExpression = require("../ast/visit").walkUnaryExpression;
-var walkWhileExpression = require("../ast/visit").walkWhileExpression;
-var walkIndexAccess = require("../ast/visit").walkIndexAccess;
-var walkMemberAccess = require("../ast/visit").walkMemberAccess;
-var walkBreak = require("../ast/visit").walkBreak;
-var walkReturn = require("../ast/visit").walkReturn;
-var walkArrayLiteral = require("../ast/visit").walkArrayLiteral;
-var walkBooleanLiteral = require("../ast/visit").walkBooleanLiteral;
-var walkNumberLiteral = require("../ast/visit").walkNumberLiteral;
-var walkObjectLiteral = require("../ast/visit").walkObjectLiteral;
-var walkStringLiteral = require("../ast/visit").walkStringLiteral;
-var SyntaxKind = require("../compiler/ast").SyntaxKind;
+
+var _visit = require('./../ast/visit');
+
+var _ast = require('./../compiler/ast');
+
+var _js = require('./../stdlib/js');
+
 function createScope(parent) {
   var bindings = {};
   return {
@@ -44,7 +25,7 @@ function createScope(parent) {
     },
     define: function define(binding) {
       var name = binding.identifier.name;
-      binding.redefined = bindings[name] != undefined;
+      binding.redefined = bindings[name] != _js._undefined;
       if (binding.redefined) {
         bindings[name].redefined = true;
         binding.previous = bindings[name];
@@ -54,12 +35,12 @@ function createScope(parent) {
   };
 };
 function ScopeVisitor() {
-  return Object.assign({}, Visitor, {
+  return Object.assign({}, _visit.Visitor, {
     scope: createScope(),
     visitBlock: function visitBlock(b) {
       var self = this;
       b.scope = self.scope;
-      return walkBlock(self, b);
+      return (0, _visit.walkBlock)(self, b);
     },
     visitFunction: function visitFunction(f) {
       var self = this;
@@ -71,13 +52,13 @@ function ScopeVisitor() {
       };
       self.scope = createScope(self.scope);
       f.scope = self.scope;
-      walkFunction(self, f);
+      (0, _visit.walkFunction)(self, f);
       return self.scope = self.scope.parent;
     },
     visitIdentifier: function visitIdentifier(i) {
       var self = this;
       i.scope = self.scope;
-      return walkIdentifier(self, i);
+      return (0, _visit.walkIdentifier)(self, i);
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
@@ -92,7 +73,7 @@ function ScopeVisitor() {
     visitTypeBound: function visitTypeBound(t) {
       var self = this;
       t.scope = self.scope;
-      return walkTypeBound(self, t);
+      return (0, _visit.walkTypeBound)(self, t);
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
@@ -101,118 +82,118 @@ function ScopeVisitor() {
         mutable: d.mutable
       });
       d.scope = self.scope;
-      return walkVariableDeclaration(self, d);
+      return (0, _visit.walkVariableDeclaration)(self, d);
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
       i.scope = self.scope;
-      if (i.specifier.kind == SyntaxKind.Identifier) {
+      if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
         return self.scope.define({
           identifier: i.specifier,
           mutable: false
         });
       } else {
-        return walkImportDirective(self, i);
+        return (0, _visit.walkImportDirective)(self, i);
       };
     },
     visitAssignmentExpression: function visitAssignmentExpression(e) {
       var self = this;
       e.scope = self.scope;
-      if (e.lhs.kind == SyntaxKind.Identifier) {
+      if (e.lhs.kind == _ast.SyntaxKind.Identifier) {
         var binding = e.scope.getBinding(e.lhs.name);
         if (binding && !binding.mutable) {
           throw "Can't assign to immutable variable " + e.lhs.name;
         };
       };
-      return walkAssignmentExpression(self, e);
+      return (0, _visit.walkAssignmentExpression)(self, e);
     },
     visitBinaryExpression: function visitBinaryExpression(e) {
       var self = this;
       e.scope = self.scope;
-      return walkBinaryExpression(self, e);
+      return (0, _visit.walkBinaryExpression)(self, e);
     },
     visitCallExpression: function visitCallExpression(e) {
       var self = this;
       e.scope = self.scope;
-      return walkCallExpression(self, e);
+      return (0, _visit.walkCallExpression)(self, e);
     },
     visitForExpression: function visitForExpression(e) {
       var self = this;
       self.scope = createScope(self.scope);
       e.scope = self.scope;
-      walkForExpression(self, e);
+      (0, _visit.walkForExpression)(self, e);
       return self.scope = self.scope.parent;
     },
     visitIfExpression: function visitIfExpression(e) {
       var self = this;
       self.scope = createScope(self.scope);
       e.scope = self.scope;
-      walkIfExpression(self, e);
+      (0, _visit.walkIfExpression)(self, e);
       return self.scope = self.scope.parent;
     },
     visitLoopExpression: function visitLoopExpression(e) {
       var self = this;
       self.scope = createScope(self.scope);
       e.scope = self.scope;
-      walkLoopExpression(self, e);
+      (0, _visit.walkLoopExpression)(self, e);
       return self.scope = self.scope.parent;
     },
     visitUnaryExpression: function visitUnaryExpression(e) {
       var self = this;
       e.scope = self.scope;
-      return walkUnaryExpression(self, e);
+      return (0, _visit.walkUnaryExpression)(self, e);
     },
     visitWhileExpression: function visitWhileExpression(e) {
       var self = this;
       self.scope = createScope(self.scope);
       e.scope = self.scope;
-      walkWhileExpression(self, e);
+      (0, _visit.walkWhileExpression)(self, e);
       return self.scope = self.scope.parent;
     },
     visitIndexAccess: function visitIndexAccess(a) {
       var self = this;
       a.scope = self.scope;
-      return walkIndexAccess(self, a);
+      return (0, _visit.walkIndexAccess)(self, a);
     },
     visitMemberAccess: function visitMemberAccess(a) {
       var self = this;
       a.scope = self.scope;
-      return walkMemberAccess(self, a);
+      return (0, _visit.walkMemberAccess)(self, a);
     },
     visitBreak: function visitBreak(b) {
       var self = this;
       b.scope = self.scope;
-      return walkBreak(self, b);
+      return (0, _visit.walkBreak)(self, b);
     },
     visitReturn: function visitReturn(r) {
       var self = this;
       r.scope = self.scope;
-      return walkReturn(self, r);
+      return (0, _visit.walkReturn)(self, r);
     },
     visitArrayLiteral: function visitArrayLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      return walkArrayLiteral(self, l);
+      return (0, _visit.walkArrayLiteral)(self, l);
     },
     visitBooleanLiteral: function visitBooleanLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      return walkBooleanLiteral(self, l);
+      return (0, _visit.walkBooleanLiteral)(self, l);
     },
     visitNumberLiteral: function visitNumberLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      return walkNumberLiteral(self, l);
+      return (0, _visit.walkNumberLiteral)(self, l);
     },
     visitObjectLiteral: function visitObjectLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      return walkObjectLiteral(self, l);
+      return (0, _visit.walkObjectLiteral)(self, l);
     },
     visitStringLiteral: function visitStringLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      return walkStringLiteral(self, l);
+      return (0, _visit.walkStringLiteral)(self, l);
     }
   });
 }
