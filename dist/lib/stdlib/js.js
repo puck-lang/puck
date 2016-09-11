@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports._typeof = exports._new = exports.require = exports.process = exports._module = exports.console = exports.String = exports.RegExp = exports._Object = exports.Number = exports.Date = exports.Boolean = exports.Array = exports._self = exports.window = exports.global = exports._undefined = exports._null = undefined;
+exports.asResult = exports._typeof = exports._new = exports.require = exports.process = exports._module = exports.console = exports.String = exports.RegExp = exports._Object = exports.Number = exports.Date = exports.Boolean = exports.Array = exports._self = exports.window = exports.global = exports._undefined = exports._null = undefined;
 
 var _js = require('./js/js.js');
 
@@ -32,3 +32,4 @@ var _require = js._require;
 exports.require = _require;
 var _new = exports._new = js._new;
 var _typeof = exports._typeof = js._typeof;
+var asResult = exports.asResult = js.asResult;

@@ -1,4 +1,4 @@
-import '../stdlib/js' as {console, process, typeof}
+import '../stdlib/js.puck' as {console, process, typeof}
 
 export fn InputStream(input, file) {
   let mut pos = 0

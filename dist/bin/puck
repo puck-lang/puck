@@ -2,9 +2,9 @@
 
 'use strict';
 
-var _helpers = require('./../lib/helpers');
+var _helpers = require('./../lib/helpers.js');
 
-var _js = require('./../lib/stdlib/js');
+var _js = require('./../lib/stdlib/js.js');
 
 var _arguments = _js.process.argv.takeFrom(function (arg) {
   return arg.indexOf("puck") > 0;

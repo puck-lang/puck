@@ -1,5 +1,5 @@
-import './ast' as {SyntaxKind, operators, textToToken}
-import '../stdlib/js' as {RegExp, global, null, undefined}
+import 'ast.ts' as {SyntaxKind, operators, textToToken}
+import '../stdlib/js.puck' as {RegExp, global, null, undefined}
 
 export fn TokenStream(input) {
   let mut current = null

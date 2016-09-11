@@ -22,3 +22,12 @@ exports._new = function (constructor) { return function () {
     return new (constructor.bind.apply(constructor, [void 0].concat(args)))();
 }; };
 exports._typeof = function (object) { return typeof object; };
+function asResult(fn) {
+    try {
+        return { result: fn() };
+    }
+    catch (error) {
+        return { error: error };
+    }
+}
+exports.asResult = asResult;

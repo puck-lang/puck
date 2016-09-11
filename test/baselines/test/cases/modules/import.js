@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.foo = undefined;
 
-var _export = require('./export.puck');
+var _export = require('./export.js');
 
 var e = _interopRequireWildcard(_export);
 

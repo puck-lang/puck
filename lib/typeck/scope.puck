@@ -1,6 +1,6 @@
-import '../ast/visit' as visit
-import '../compiler/ast' as {SyntaxKind}
-import '../stdlib/js' as {Object, undefined}
+import '../ast/visit.puck' as visit
+import '../compiler/ast.ts' as {SyntaxKind}
+import '../stdlib/js.puck' as {Object, undefined}
 
 // type Binding = {
 //   identifier: Identifier
@@ -38,12 +38,9 @@ fn createScope(parent) {
   }
 }
 
-export fn ScopeVisitor(file) {
+export fn ScopeVisitor(context, file) {
   let mut scope = createScope()
-
-  fn reportError(token, message) {
-    throw '$message in $file'
-  }
+  let reportError = context.reportError.bind(context, file)
 
   fn defineFunction(f: FunctionNode) {
     if f.name then

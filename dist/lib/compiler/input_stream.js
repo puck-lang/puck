@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.InputStream = InputStream;
 
-var _js = require('./../stdlib/js');
+var _js = require('./../stdlib/js.js');
 
 function InputStream(input, file) {
   var pos = 0;

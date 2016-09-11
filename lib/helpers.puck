@@ -1,8 +1,7 @@
 import 'node:child_process' as {execSync}
 import 'node:fs' as fs
 import 'node:path' as path
-import 'js.js' as {asResult}
-import 'stdlib/js' as {Array, console, process}
+import 'stdlib/js.puck' as {Array, asResult, console, process}
 
 Array.prototype.takeFrom = fn (self, predicate) {
   let index = self.findIndex(predicate)

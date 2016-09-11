@@ -1,0 +1,35 @@
+import 'node:fs' as {statSync}
+import '../ast/visit.puck' as visit
+import '../compiler/ast.ts' as {SyntaxKind}
+import '../stdlib/js.puck' as {Object, RegExp, asResult}
+
+let puckFile = RegExp('\\.puck$', 'i')
+
+export fn ImportVisitor(context, file) {
+  let reportError = context.reportError.bind(context, file)
+
+  Object.assign({}, visit.Visitor, {
+
+    visitBlock: |self, b: Block| {
+      b.block.forEach(|e| {
+        if e.kind == SyntaxKind.ImportDirective {
+          self.visitImportDirective(e)
+        }
+      })
+    }
+
+    visitImportDirective: |self, i: ImportDirective| {
+      if not i.domain {
+        let path = context.resolvePath(i.path, file)
+        let result = asResult(|| statSync(path))
+        if result.error
+          then reportError(i, 'Imported file $path not found')
+        else if not result.result.isFile()
+          then reportError(i, 'Imported file $path is not a file')
+
+        if puckFile.test(path)
+          then context.importFile(path)
+      }
+    }
+  })
+}

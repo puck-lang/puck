@@ -7,9 +7,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.parse = parse;
 
-var _ast = require('././ast');
+var _ast = require('./ast.js');
 
-var _js = require('./../stdlib/js');
+var _js = require('./../stdlib/js.js');
 
 function parse(input) {
   function isToken(kind, peekDistance) {

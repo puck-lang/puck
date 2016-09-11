@@ -33,7 +33,7 @@ exports.walkNumberLiteral = walkNumberLiteral;
 exports.walkObjectLiteral = walkObjectLiteral;
 exports.walkStringLiteral = walkStringLiteral;
 
-var _ast = require('./../compiler/ast');
+var _ast = require('./../compiler/ast.js');
 
 var Visitor = exports.Visitor = {
   visitExpression: function visitExpression(e) {

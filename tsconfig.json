@@ -10,6 +10,6 @@
   "files": [
     "lib/compiler/ast.ts",
     "lib/compiler/emitter.ts",
-    "lib/stdlib/js/js.ts"
+    "lib/stdlib/js/js.js"
   ]
 }

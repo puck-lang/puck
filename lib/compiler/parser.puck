@@ -1,4 +1,4 @@
-import './ast' as {
+import 'ast.ts' as {
   SyntaxKind
   isIdentifier
   isIndex
@@ -7,7 +7,7 @@ import './ast' as {
   textToToken
   tokenToText
 }
-import '../stdlib/js' as {console, global, null, typeof, undefined}
+import '../stdlib/js.puck' as {console, global, null, typeof, undefined}
 
 export fn parse(input: TokenStream) {
 

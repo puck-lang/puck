@@ -1,12 +1,14 @@
 import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
-import 'compiler/emitter.js' as {emitProgram}
-import 'compiler/input_stream.js' as {InputStream}
-import 'compiler/parser.js' as {parse}
-import 'compiler/token_stream.js' as {TokenStream}
-import 'helpers.js' as {cmd}
-import 'typeck/scope.js' as {ScopeVisitor}
+import 'compiler/emitter.ts' as {Emitter}
+import 'compiler/input_stream.puck' as {InputStream}
+import 'compiler/parser.puck' as {parse}
+import 'compiler/token_stream.puck' as {TokenStream}
+import 'stdlib/js.puck' as {console, typeof}
+import 'helpers.puck' as {cmd}
+import 'typeck/import.puck' as {ImportVisitor}
+import 'typeck/scope.puck' as {ScopeVisitor}
 
 type File = {
   file: String
@@ -14,25 +16,49 @@ type File = {
   outFile: String
 }
 
-export fn buildString(puck, file) {
+export fn buildString(context, puck, file) {
   let mut ast = parse(TokenStream(InputStream(puck, file)))
-  ScopeVisitor(file).visitBlock(ast)
-  emitProgram(ast)
+  ImportVisitor(context, file).visitBlock(ast)
+  ScopeVisitor(context, file).visitBlock(ast)
+  Emitter().emitProgram(ast)
 }
 
 export fn build(files: Array<File>) {
   let files = files.map(|f| {
-    let file = path.normalize(f.file)
+    let file = path.resolve(path.normalize(f.file))
     let outFile = path.normalize(f.outFile)
     let outDir = path.dirname(outFile)
 
     {file, outFile, outDir}
   })
 
-  files.forEach(|f| {
-    f.puck = fs.readFileSync(f.file, {encoding: 'utf-8'})
-    f.js = buildString(f.puck, f.file)
-  })
+  let context = {
+    files: {}
+    resolvePath: fn (file, relativeTo) {
+      path.resolve(path.normalize(path.join(path.dirname(relativeTo), file)))
+    }
+    importFile: fn (self, mut file) {
+      if typeof(file) == 'string'
+        then file = {file}
+      else if self.files[file.file] {
+        self.files[file.file].outDir = file.outDir
+        self.files[file.file].outFile = file.outFile
+      }
+
+      if not self.files[file.file] {
+        file.puck = fs.readFileSync(file.file, {encoding: 'utf-8'})
+        file.js = buildString(context, file.puck, file.file)
+
+        self.files[file.file] = file
+      }
+      self.files[file.file]
+    }
+    reportError: fn (file, token, message) {
+      throw '$message in $file'
+    }
+  }
+
+  let files = files.map(|f| context.importFile(f))
 
   files.forEach(|f| {
     f.babel = babel.transform(f.js, {

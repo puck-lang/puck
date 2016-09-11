@@ -1,7 +1,7 @@
 import 'node:path' as {join}
-import '../lib/helpers' as {cmd, flag}
-import '../lib/compiler' as {buildString, build}
-import '../lib/stdlib/js' as {Array, RegExp, console, process}
+import '../lib/helpers.puck' as {cmd, flag}
+import '../lib/compiler.puck' as {buildString, build}
+import '../lib/stdlib/js.puck' as {Array, RegExp, console, process}
 
 let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puckc') >= 0}).slice(1)
 
