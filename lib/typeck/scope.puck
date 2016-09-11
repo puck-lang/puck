@@ -26,15 +26,16 @@ let walkStringLiteral = require('../ast/visit').walkStringLiteral
 let SyntaxKind = require('../compiler/ast').SyntaxKind
 
 // type Binding = {
+//   identifier: Identifier
 //   mutable: boolean
-//   redeclared: boolean
+//   redefined: boolean
 //   previous: Binding?
 // }
 
 // type Scope = {
 //   getLocalBinding: (String) => Binding
 //   getBinding: (String) => Binding
-//   declare: (String, Binding) => Binding
+//   define: (String, Binding) => Binding
 // }
 
 // type ScopeAware = {
@@ -48,10 +49,11 @@ fn createScope(parent) {
     parent
     getLocalBinding: |name| bindings[name]
     getBinding: |name| bindings[name] or (parent and parent.getBinding(name))
-    declare: |name, mut binding: Binding| {
-      binding.redeclared = bindings[name] != undefined
-      if binding.redeclared {
-        bindings[name].redeclared = true
+    define: |mut binding: Binding| {
+      let name = binding.identifier.name
+      binding.redefined = bindings[name] != undefined
+      if binding.redefined {
+        bindings[name].redefined = true
         binding.previous = bindings[name]
       }
       bindings[name] = binding
@@ -59,128 +61,129 @@ fn createScope(parent) {
   }
 }
 
-export let scopeVisitor = Object.assign({}, Visitor, {
-  scope: createScope()
+export fn ScopeVisitor() {
+  Object.assign({}, Visitor, {
+    scope: createScope()
 
-  visitBlock: |self, b: Block| {
-    b.scope = self.scope
-    walkBlock(self, b)
-  }
-  visitFunction: |self, f: FunctionNode| {
-    if f.name then
-      self.scope.declare(f.name.name, {mutable: false})
-    self.scope = createScope(self.scope)
-    f.scope = self.scope
-    walkFunction(self, f)
-    self.scope = self.scope.parent
-  }
-  visitIdentifier: |self, i: Identifier| {
-    i.scope = self.scope
-    walkIdentifier(self, i)
-  }
-  visitObjectDestructure: |self, i: ObjectDestructure| {
-    i.scope = self.scope
-    i.members.forEach(|m| self.scope.declare(m.local.name, {mutable: false}))
-  }
-  visitTypeBound: |self, t: TypeBound| {
-    t.scope = self.scope
-    walkTypeBound(self, t)
-  }
-  visitVariableDeclaration: |self, d: VariableDeclaration| {
-    self.scope.declare(d.identifier.name, {mutable: d.mutable})
-    d.scope = self.scope
-    walkVariableDeclaration(self, d)
-  }
-
-  visitImportDirective: |self, i: ImportDirective| {
-    i.scope = self.scope
-    if i.specifier.kind == SyntaxKind.Identifier
-      then self.scope.declare(i.specifier.name, {mutable: false})
-      else walkImportDirective(self, i)
-  }
-
-  visitAssignmentExpression: |self, e: AssignmentExpression| {
-    e.scope = self.scope
-    if e.lhs.kind == SyntaxKind.Identifier {
-      let binding = e.scope.getBinding(e.lhs.name)
-      if binding and not binding.mutable then throw "Can't assign to immutable variable " + e.lhs.name
+    visitBlock: |self, b: Block| {
+      b.scope = self.scope
+      walkBlock(self, b)
     }
-    walkAssignmentExpression(self, e)
-  }
-  visitBinaryExpression: |self, e: BinaryExpression| {
-    e.scope = self.scope
-    walkBinaryExpression(self, e)
-  }
-  visitCallExpression: |self, e: CallExpression| {
-    e.scope = self.scope
-    walkCallExpression(self, e)
-  }
-  visitForExpression: |self, e: ForExpression| {
-    self.scope = createScope(self.scope)
-    e.scope = self.scope
-    walkForExpression(self, e)
-    self.scope = self.scope.parent
-  }
-  visitIfExpression: |self, e: IfExpression| {
-    self.scope = createScope(self.scope)
-    e.scope = self.scope
-    walkIfExpression(self, e)
-    self.scope = self.scope.parent
-  }
-  visitLoopExpression: |self, e: LoopExpression| {
-    self.scope = createScope(self.scope)
-    e.scope = self.scope
-    walkLoopExpression(self, e)
-    self.scope = self.scope.parent
-  }
-  visitUnaryExpression: |self, e: UnaryExpression| {
-    e.scope = self.scope
-    walkUnaryExpression(self, e)
-  }
-  visitWhileExpression: |self, e: WhileExpression| {
-    self.scope = createScope(self.scope)
-    e.scope = self.scope
-    walkWhileExpression(self, e)
-    self.scope = self.scope.parent
-  }
-  visitIndexAccess: |self, a: IndexAccess| {
-    a.scope = self.scope
-    walkIndexAccess(self, a)
-  }
-  visitMemberAccess: |self, a: MemberAccess| {
-    a.scope = self.scope
-    walkMemberAccess(self, a)
-  }
+    visitFunction: |self, f: FunctionNode| {
+      if f.name then
+        self.scope.define({identifier: f.name, mutable: false})
+      self.scope = createScope(self.scope)
+      f.scope = self.scope
+      walkFunction(self, f)
+      self.scope = self.scope.parent
+    }
+    visitIdentifier: |self, i: Identifier| {
+      i.scope = self.scope
+      walkIdentifier(self, i)
+    }
+    visitObjectDestructure: |self, i: ObjectDestructure| {
+      i.scope = self.scope
+      i.members.forEach(|m| self.scope.define({identifier: m.local, mutable: false}))
+    }
+    visitTypeBound: |self, t: TypeBound| {
+      t.scope = self.scope
+      walkTypeBound(self, t)
+    }
+    visitVariableDeclaration: |self, d: VariableDeclaration| {
+      self.scope.define({identifier: d.identifier, mutable: d.mutable})
+      d.scope = self.scope
+      walkVariableDeclaration(self, d)
+    }
 
-  visitBreak: |self, b: Token| {
-    b.scope = self.scope
-    walkBreak(self, b)
-  }
-  visitReturn: |self, r: ReturnStatement| {
-    r.scope = self.scope
-    walkReturn(self, r)
-  }
+    visitImportDirective: |self, i: ImportDirective| {
+      i.scope = self.scope
+      if i.specifier.kind == SyntaxKind.Identifier
+        then self.scope.define({identifier: i.specifier, mutable: false})
+        else walkImportDirective(self, i)
+    }
 
-  visitArrayLiteral: |self, l: ArrayLiteral| {
-    l.scope = self.scope
-    walkArrayLiteral(self, l)
-  }
-  visitBooleanLiteral: |self, l: BooleanLiteral| {
-    l.scope = self.scope
-    walkBooleanLiteral(self, l)
-  }
-  visitNumberLiteral: |self, l: NumberLiteral| {
-    l.scope = self.scope
-    walkNumberLiteral(self, l)
-  }
-  visitObjectLiteral: |self, l: ObjectLiteral| {
-    l.scope = self.scope
-    walkObjectLiteral(self, l)
-  }
-  visitStringLiteral: |self, l: StringLiteral| {
-    l.scope = self.scope
-    walkStringLiteral(self, l)
-  }
-})
+    visitAssignmentExpression: |self, e: AssignmentExpression| {
+      e.scope = self.scope
+      if e.lhs.kind == SyntaxKind.Identifier {
+        let binding = e.scope.getBinding(e.lhs.name)
+        if binding and not binding.mutable then throw "Can't assign to immutable variable " + e.lhs.name
+      }
+      walkAssignmentExpression(self, e)
+    }
+    visitBinaryExpression: |self, e: BinaryExpression| {
+      e.scope = self.scope
+      walkBinaryExpression(self, e)
+    }
+    visitCallExpression: |self, e: CallExpression| {
+      e.scope = self.scope
+      walkCallExpression(self, e)
+    }
+    visitForExpression: |self, e: ForExpression| {
+      self.scope = createScope(self.scope)
+      e.scope = self.scope
+      walkForExpression(self, e)
+      self.scope = self.scope.parent
+    }
+    visitIfExpression: |self, e: IfExpression| {
+      self.scope = createScope(self.scope)
+      e.scope = self.scope
+      walkIfExpression(self, e)
+      self.scope = self.scope.parent
+    }
+    visitLoopExpression: |self, e: LoopExpression| {
+      self.scope = createScope(self.scope)
+      e.scope = self.scope
+      walkLoopExpression(self, e)
+      self.scope = self.scope.parent
+    }
+    visitUnaryExpression: |self, e: UnaryExpression| {
+      e.scope = self.scope
+      walkUnaryExpression(self, e)
+    }
+    visitWhileExpression: |self, e: WhileExpression| {
+      self.scope = createScope(self.scope)
+      e.scope = self.scope
+      walkWhileExpression(self, e)
+      self.scope = self.scope.parent
+    }
+    visitIndexAccess: |self, a: IndexAccess| {
+      a.scope = self.scope
+      walkIndexAccess(self, a)
+    }
+    visitMemberAccess: |self, a: MemberAccess| {
+      a.scope = self.scope
+      walkMemberAccess(self, a)
+    }
 
-module.exports.scopeVisitor = scopeVisitor
+    visitBreak: |self, b: Token| {
+      b.scope = self.scope
+      walkBreak(self, b)
+    }
+    visitReturn: |self, r: ReturnStatement| {
+      r.scope = self.scope
+      walkReturn(self, r)
+    }
+
+    visitArrayLiteral: |self, l: ArrayLiteral| {
+      l.scope = self.scope
+      walkArrayLiteral(self, l)
+    }
+    visitBooleanLiteral: |self, l: BooleanLiteral| {
+      l.scope = self.scope
+      walkBooleanLiteral(self, l)
+    }
+    visitNumberLiteral: |self, l: NumberLiteral| {
+      l.scope = self.scope
+      walkNumberLiteral(self, l)
+    }
+    visitObjectLiteral: |self, l: ObjectLiteral| {
+      l.scope = self.scope
+      walkObjectLiteral(self, l)
+    }
+    visitStringLiteral: |self, l: StringLiteral| {
+      l.scope = self.scope
+      walkStringLiteral(self, l)
+    }
+  })
+}
+

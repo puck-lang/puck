@@ -1,8 +1,7 @@
-let execSync = require('child_process').execSync
-let fs = require('fs')
-let path = require('path')
-let _new = require('./js')._new
-let asResult = require('./js').asResult
+import 'node:child_process' as {execSync}
+import 'node:fs' as fs
+import 'node:path' as path
+import 'js.js' as {asResult}
 
 Array.prototype.takeFrom = fn (predicate) {
   let index = this.findIndex(predicate)

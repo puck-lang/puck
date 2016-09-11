@@ -1,15 +1,15 @@
-let fs = require('fs')
-let path = require('path')
-let InputStream = require('./compiler/input_stream').InputStream
-let TokenStream = require('./compiler/token_stream').TokenStream
-let parse = require('./compiler/parser').parse
-let emitProgram = require('./compiler/emitter').emitProgram
-let cmd = require('./helpers').cmd
-let scopeVisitor = require('./typeck/scope').scopeVisitor
+import 'node:fs' as fs
+import 'node:path' as path
+import 'compiler/emitter.js' as {emitProgram}
+import 'compiler/input_stream.js' as {InputStream}
+import 'compiler/parser.js' as {parse}
+import 'compiler/token_stream.js' as {TokenStream}
+import 'helpers.js' as {cmd}
+import 'typeck/scope.js' as {ScopeVisitor}
 
 export fn buildString(puck, file) {
   let mut ast = parse(TokenStream(InputStream(puck, file)))
-  scopeVisitor.visitBlock(ast)
+  ScopeVisitor().visitBlock(ast)
   emitProgram(ast)
 }
 

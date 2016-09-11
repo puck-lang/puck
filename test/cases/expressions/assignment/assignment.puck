@@ -19,3 +19,7 @@ a.b[
 
 let b = 5
 let b = 6
+
+fn c(a) {
+  let a = a * 2
+}
