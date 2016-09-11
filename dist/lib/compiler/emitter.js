@@ -175,10 +175,17 @@ function emitIdentifier(identifier) {
     return identifier.name;
 }
 function emitVariableDeclaration(vd) {
-    var kw = vd.mutable ? 'let' : 'const';
+    var binding = vd.scope.getBinding(vd.identifier.name);
     var initializer = vd.initializer
         ? " = " + emitExpression(vd.initializer, Context.Value)
         : '';
+    if (binding.emitted) {
+        if (!vd.initializer)
+            return '';
+        return "" + emitIdentifier(vd.identifier) + initializer;
+    }
+    binding.emitted = true;
+    var kw = (vd.mutable || binding.redeclared) ? 'let' : 'const';
     return kw + " " + emitIdentifier(vd.identifier) + initializer;
 }
 function emitExportDirective(e) {

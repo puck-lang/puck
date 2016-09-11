@@ -27,6 +27,8 @@ let SyntaxKind = require('../compiler/ast').SyntaxKind
 
 // type Binding = {
 //   mutable: boolean
+//   redeclared: boolean
+//   previous: Binding?
 // }
 
 // type Scope = {
@@ -46,7 +48,14 @@ fn createScope(parent) {
     parent
     getLocalBinding: |name| bindings[name]
     getBinding: |name| bindings[name] or (parent and parent.getBinding(name))
-    declare: |name, binding: Binding| bindings[name] = binding
+    declare: |name, mut binding: Binding| {
+      binding.redeclared = bindings[name] != undefined
+      if binding.redeclared {
+        bindings[name].redeclared = true
+        binding.previous = bindings[name]
+      }
+      bindings[name] = binding
+    }
   }
 }
 

@@ -42,6 +42,11 @@ function createScope(parent) {
       return bindings[name] || parent && parent.getBinding(name);
     },
     declare: function declare(name, binding) {
+      binding.redeclared = bindings[name] != undefined;
+      if (binding.redeclared) {
+        bindings[name].redeclared = true;
+        binding.previous = bindings[name];
+      };
       return bindings[name] = binding;
     }
   };

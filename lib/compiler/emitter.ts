@@ -226,11 +226,20 @@ function emitIdentifier(identifier: SimpleIdentifier) {
   return identifier.name
 }
 
-function emitVariableDeclaration(vd: VariableDeclaration) {
-  let kw = vd.mutable ? 'let' : 'const'
+function emitVariableDeclaration(vd: VariableDeclaration & {scope: any}) {
+  const binding = vd.scope.getBinding(vd.identifier.name)
   let initializer = vd.initializer
     ? ` = ${emitExpression(vd.initializer, Context.Value)}`
     : ''
+
+  if (binding.emitted) {
+    if (!vd.initializer) return ''
+
+    return `${emitIdentifier(vd.identifier)}${initializer}`
+  }
+  binding.emitted = true
+
+  let kw = (vd.mutable || binding.redeclared) ? 'let' : 'const'
   return `${kw} ${emitIdentifier(vd.identifier)}${initializer}`
 }
 
