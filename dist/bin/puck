@@ -27,21 +27,12 @@ if (command == "build") {
   if (command == "test") {
     (function () {
       buildTestCompiler();
-      var puckPattern = RegExp("\\.puck$", "i");
       var failPattern = RegExp("\\.error\\.puck$", "i");
       var caseFiles = walkSync("test/cases");
-      var puckFiles = caseFiles.filter(function (f) {
-        return puckPattern.test(f);
-      });
-      var successCases = puckFiles.filter(function (f) {
-        return !failPattern.test(f);
-      });
-      var failCases = puckFiles.filter(function (f) {
+      var failCases = caseFiles.filter(function (f) {
         return failPattern.test(f);
       });
-      successCases.forEach(function (f) {
-        return cmd(".tmp/old/bin/puckc --out-dir .tmp/cases " + f + "");
-      });
+      cmd(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
       failCases.forEach(function (f) {
         return cmd("! (.tmp/old/bin/puckc --out-dir .tmp/cases " + f + " 2> /dev/null && " + "echo \"error case did not error for " + f + "\")");
       });

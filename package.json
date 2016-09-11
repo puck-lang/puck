@@ -12,10 +12,11 @@
   "author": "Rasmus Eneman <rasmus@eneman.eu>",
   "license": "MIT",
   "dependencies": {
-    "babel-cli": "^6.14.0",
+    "babel-core": "^6.14.0",
     "babel-preset-latest": "^6.14.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.14.0",
     "npm-run-all": "^3.0.0",
     "typescript": "^2.0.0"
   }

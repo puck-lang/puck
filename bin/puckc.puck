@@ -1,7 +1,6 @@
-let cmd = require('../lib/helpers').cmd
-let flag = require('../lib/helpers').flag
-let buildString = require('../lib/compiler').buildString
-let build = require('../lib/compiler').build
+import 'node:path' as {join}
+import '../lib/helpers' as {cmd, flag}
+import '../lib/compiler' as {buildString, build}
 
 let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puckc') >= 0}).slice(1)
 
@@ -29,9 +28,9 @@ if arguments.length == 0 {
     console.log(js)
   })
 } else {
-  arguments.forEach(fn (file) {
-    let out = outFile or outDir + '/' + file.replace(RegExp('\\.puck'), extension)
-
-    build(file, out)
+  let files = arguments.map(fn (file) then {
+    file
+    outFile: outFile or join(outDir, file.replace(RegExp('\\.puck$'), extension))
   })
+  build(files)
 }

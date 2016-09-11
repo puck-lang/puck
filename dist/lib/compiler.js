@@ -8,6 +8,10 @@ Object.defineProperty(exports, "__esModule", {
 exports.buildString = buildString;
 exports.build = build;
 
+var _babelCore = require('babel-core');
+
+var babel = _interopRequireWildcard(_babelCore);
+
 var _fs = require('fs');
 
 var fs = _interopRequireWildcard(_fs);
@@ -35,14 +39,32 @@ function buildString(puck, file) {
   (0, _scope.ScopeVisitor)().visitBlock(ast);
   return (0, _emitter.emitProgram)(ast);
 };
-function build(file, outFile) {
-  file = path.normalize(file);
-  outFile = path.normalize(outFile);
-  var outDir = path.dirname(outFile);
-  var puck = fs.readFileSync(file, { encoding: "utf-8" });
-  var js = buildString(puck, file);
-  (0, _helpers.cmd)("mkdir -p " + outDir + "");
-  fs.writeFileSync("" + outFile + ".tmp", js);
-  (0, _helpers.cmd)("babel " + outFile + ".tmp --out-file " + outFile + " && chmod +x " + outFile + "");
-  return fs.unlinkSync("" + outFile + ".tmp");
+function build(files) {
+  files = files.map(function (f) {
+    var file = path.normalize(f.file);
+    var outFile = path.normalize(f.outFile);
+    var outDir = path.dirname(outFile);
+    return {
+      file: file,
+      outFile: outFile,
+      outDir: outDir
+    };
+  });
+  files.forEach(function (f) {
+    f.puck = fs.readFileSync(f.file, { encoding: "utf-8" });
+    return f.js = buildString(f.puck, f.file);
+  });
+  files.forEach(function (f) {
+    return f.babel = babel.transform(f.js, {
+      filename: f.file,
+      presets: "latest",
+      babelrc: false
+    }).code;
+  });
+  return files.forEach(function (f) {
+    var outDir = f.outDir;
+    var outFile = f.outFile;
+    (0, _helpers.cmd)("mkdir -p " + outDir + "");
+    return fs.writeFileSync("" + outFile + "", f.babel + "\n", { mode: 511 });
+  });
 }

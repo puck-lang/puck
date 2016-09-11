@@ -1,3 +1,4 @@
+import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
 import 'compiler/emitter.js' as {emitProgram}
@@ -7,20 +8,45 @@ import 'compiler/token_stream.js' as {TokenStream}
 import 'helpers.js' as {cmd}
 import 'typeck/scope.js' as {ScopeVisitor}
 
+type File = {
+  file: String
+  outDir: String
+  outFile: String
+}
+
 export fn buildString(puck, file) {
   let mut ast = parse(TokenStream(InputStream(puck, file)))
   ScopeVisitor().visitBlock(ast)
   emitProgram(ast)
 }
 
-export fn build(mut file, mut outFile) {
-  file = path.normalize(file)
-  outFile = path.normalize(outFile)
-  let outDir = path.dirname(outFile)
-  let puck = fs.readFileSync(file, {encoding: 'utf-8'})
-  let js = buildString(puck, file)
-  cmd('mkdir -p $outDir')
-  fs.writeFileSync('$outFile.tmp', js)
-  cmd('babel $outFile.tmp --out-file $outFile && chmod +x $outFile')
-  fs.unlinkSync('$outFile.tmp')
+export fn build(files: Array<File>) {
+  let files = files.map(|f| {
+    let file = path.normalize(f.file)
+    let outFile = path.normalize(f.outFile)
+    let outDir = path.dirname(outFile)
+
+    {file, outFile, outDir}
+  })
+
+  files.forEach(|f| {
+    f.puck = fs.readFileSync(f.file, {encoding: 'utf-8'})
+    f.js = buildString(f.puck, f.file)
+  })
+
+  files.forEach(|f| {
+    f.babel = babel.transform(f.js, {
+      filename: f.file
+      presets: 'latest'
+      babelrc: false
+    }).code
+  })
+
+  files.forEach(|f| {
+    let outDir = f.outDir
+    let outFile = f.outFile
+    cmd('mkdir -p $outDir')
+
+    fs.writeFileSync('$outFile', f.babel + '\n', {mode: 511}) // 511 = 0o777
+  })
 }

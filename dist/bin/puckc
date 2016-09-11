@@ -2,17 +2,19 @@
 
 'use strict';
 
-var cmd = require("../lib/helpers").cmd;
-var flag = require("../lib/helpers").flag;
-var buildString = require("../lib/compiler").buildString;
-var build = require("../lib/compiler").build;
+var _path = require('path');
+
+var _helpers = require('./../lib/helpers');
+
+var _compiler = require('./../lib/compiler');
+
 var _arguments = process.argv.takeFrom(function (arg) {
   return arg.indexOf("puckc") >= 0;
 }).slice(1);
-var outDir = flag(_arguments, "--out-dir", "dist");
-var outFile = flag(_arguments, "--out-file");
+var outDir = (0, _helpers.flag)(_arguments, "--out-dir", "dist");
+var outFile = (0, _helpers.flag)(_arguments, "--out-file");
 var __PUCK__value__1 = void 0;
-if (flag(_arguments, "--skip-extension")) {
+if ((0, _helpers.flag)(_arguments, "--skip-extension")) {
   __PUCK__value__1 = "";
 } else {
   __PUCK__value__1 = ".js";
@@ -31,13 +33,16 @@ if (_arguments.length == 0) {
     stdin.on("data", inputChunks.push);
     stdin.on("end", function () {
       var puck = inputChunks.join();
-      var js = buildString(puck);
+      var js = (0, _compiler.buildString)(puck);
       return console.log(js);
     });
   })();
 } else {
-  _arguments.forEach(function (file) {
-    var out = outFile || outDir + "/" + file.replace(RegExp("\\.puck"), extension);
-    return build(file, out);
+  var files = _arguments.map(function (file) {
+    return {
+      file: file,
+      outFile: outFile || (0, _path.join)(outDir, file.replace(RegExp("\\.puck$"), extension))
+    };
   });
+  (0, _compiler.build)(files);
 }

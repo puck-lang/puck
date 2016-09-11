@@ -32,14 +32,11 @@ if command == 'build' {
 else if command == 'test' {
   buildTestCompiler()
 
-  let puckPattern = RegExp('\\.puck$', 'i')
   let failPattern = RegExp('\\.error\\.puck$', 'i')
   let caseFiles = walkSync('test/cases')
-  let puckFiles = caseFiles.filter(|f| puckPattern.test(f))
-  let successCases = puckFiles.filter(|f| not failPattern.test(f))
-  let failCases = puckFiles.filter(|f| failPattern.test(f))
+  let failCases = caseFiles.filter(|f| failPattern.test(f))
 
-  successCases.forEach(|f| cmd('.tmp/old/bin/puckc --out-dir .tmp/cases $f'))
+  cmd('.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck')
   failCases.forEach(|f| cmd(
     '! (.tmp/old/bin/puckc --out-dir .tmp/cases $f 2> /dev/null && ' +
     'echo "error case did not error for $f")'
