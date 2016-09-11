@@ -203,7 +203,7 @@ function emitImportDirective(i) {
         })
             .join(', ') + "}";
     var path;
-    if (i.domain && i.domain == 'npm') {
+    if (i.domain && i.domain == 'node') {
         path = i.path;
     }
     else if (!i.domain) {

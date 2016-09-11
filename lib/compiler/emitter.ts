@@ -259,7 +259,7 @@ function emitImportDirective(i: ImportDirective) {
       }}`
 
   let path
-  if (i.domain && i.domain == 'npm') {
+  if (i.domain && i.domain == 'node') {
     path = i.path
   } else if (!i.domain) {
     if (i.path.charAt(0) == '/') {
