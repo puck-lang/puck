@@ -1,6 +1,6 @@
+import 'puck:js' as {Object, undefined}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../stdlib/js.puck' as {Object, undefined}
 
 // type Binding = {
 //   identifier: Identifier

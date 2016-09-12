@@ -7,9 +7,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.TokenStream = TokenStream;
 
-var _ast = require('./ast.js');
+var _js = require('puck-lang/dist/lib/stdlib/js');
 
-var _js = require('./../stdlib/js.js');
+var _ast = require('./ast.js');
 
 function TokenStream(input) {
   var current = _js._null;

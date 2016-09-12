@@ -9,6 +9,8 @@ exports.cmd = cmd;
 exports.walkSync = walkSync;
 exports.flag = flag;
 
+var _js = require('puck-lang/dist/lib/stdlib/js');
+
 var _child_process = require('child_process');
 
 var _fs = require('fs');
@@ -18,8 +20,6 @@ var fs = _interopRequireWildcard(_fs);
 var _path = require('path');
 
 var path = _interopRequireWildcard(_path);
-
-var _js = require('./stdlib/js.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 

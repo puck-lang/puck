@@ -1,3 +1,4 @@
+import 'puck:js' as {console, process, typeof}
 import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
@@ -5,7 +6,6 @@ import 'compiler/emitter.ts' as {Emitter}
 import 'compiler/input_stream.puck' as {InputStream}
 import 'compiler/parser.puck' as {parse}
 import 'compiler/token_stream.puck' as {TokenStream}
-import 'stdlib/js.puck' as {console, process, typeof}
 import 'helpers.puck' as {cmd}
 import 'typeck/import.puck' as {ImportVisitor}
 import 'typeck/scope.puck' as {ScopeVisitor}

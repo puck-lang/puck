@@ -1,3 +1,4 @@
+import 'puck:js' as {console, global, null, typeof, undefined}
 import 'ast.ts' as {
   SyntaxKind
   isIdentifier
@@ -7,7 +8,6 @@ import 'ast.ts' as {
   textToToken
   tokenToText
 }
-import '../stdlib/js.puck' as {console, global, null, typeof, undefined}
 
 export fn parse(input: TokenStream) {
 

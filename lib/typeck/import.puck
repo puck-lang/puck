@@ -1,9 +1,11 @@
+import 'puck:js' as {Object, RegExp, asResult}
 import 'node:fs' as {statSync}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../stdlib/js.puck' as {Object, RegExp, asResult}
 
+let domains = ['node', 'puck']
 let puckFile = RegExp('\\.puck$', 'i')
+let puckModules = ['js']
 
 export fn ImportVisitor(context, file) {
   let reportError = context.reportError.bind(context, file)
@@ -19,7 +21,11 @@ export fn ImportVisitor(context, file) {
     }
 
     visitImportDirective: |self, i: ImportDirective| {
-      if not i.domain {
+      if i.domain == 'puck' {
+        if puckModules.indexOf(i.path) == -1
+          then reportError(i, 'Invalid puck module ' + i.path)
+      }
+      else if not i.domain {
         let importedFile = context.resolvePath(i.path, file)
         let path = importedFile.absolutePath
         let result = asResult(|| statSync(path))
@@ -38,6 +44,8 @@ export fn ImportVisitor(context, file) {
           }
         }
       }
+      else if domains.indexOf(i.domain)
+        then reportError(i, 'Invalid import domain ' + i.domain)
     }
   })
 }

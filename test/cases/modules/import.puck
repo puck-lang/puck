@@ -1,4 +1,5 @@
-import 'export.puck' as e
+import 'puck:js' as {console, typeof}
 import 'node:module' as {a, b: c}
+import 'export.puck' as e
 
 export let foo = e.b + a + c

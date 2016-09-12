@@ -213,6 +213,9 @@ function Emitter() {
         if (i.domain && i.domain == 'node') {
             path = i.path;
         }
+        else if (i.domain && i.domain == 'puck') {
+            path = "puck-lang/dist/lib/stdlib/" + i.path;
+        }
         else if (!i.domain) {
             if (i.path.charAt(0) == '/') {
                 path = i.path;

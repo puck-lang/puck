@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.InputStream = InputStream;
 
-var _js = require('./../stdlib/js.js');
+var _js = require('puck-lang/dist/lib/stdlib/js');
 
 function InputStream(file) {
   var pos = 0;

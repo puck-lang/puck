@@ -9,6 +9,8 @@ exports.parseString = parseString;
 exports.compile = compile;
 exports.build = build;
 
+var _js = require('puck-lang/dist/lib/stdlib/js');
+
 var _babelCore = require('babel-core');
 
 var babel = _interopRequireWildcard(_babelCore);
@@ -28,8 +30,6 @@ var _input_stream = require('./compiler/input_stream.js');
 var _parser = require('./compiler/parser.js');
 
 var _token_stream = require('./compiler/token_stream.js');
-
-var _js = require('./stdlib/js.js');
 
 var _helpers = require('./helpers.js');
 

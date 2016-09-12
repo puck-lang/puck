@@ -273,8 +273,10 @@ export function Emitter() {
         }}`
 
     let path
-    if (i.domain && i.domain == 'node') {
+    if (i.domain == 'node') {
       path = i.path
+    } else if (i.domain == 'puck') {
+      path = `puck-lang/dist/lib/stdlib/${i.path}`
     } else if (!i.domain) {
       if (i.path.charAt(0) == '/') {
         path = i.path
