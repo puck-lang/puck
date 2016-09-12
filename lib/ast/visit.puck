@@ -32,6 +32,7 @@ export let Visitor = {
   visitBlock: |self, b: Block| walkBlock(self, b)
   visitFunction: |self, f: FunctionNode| walkFunction(self, f)
   visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
+  visitModule: |self, m: Module| walkModule(self, m)
   visitObjectDestructure: |self, o: ObjectDestructure| walkObjectDestructure(self, o)
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitVariableDeclaration: |self, d: VariableDeclaration| walkVariableDeclaration(self, d)
@@ -103,6 +104,9 @@ export fn walkFunction(visitor: Visitor, f: FunctionNode) {
   visitor.visitBlock(f.body)
 }
 export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
+export fn walkModule(visitor: Visitor, m: Module) {
+  m.lines.forEach(visitor.visitExpression.bind(visitor))
+}
 export fn walkObjectDestructure(visitor: Visitor, o: ObjectDestructure) {
   o.members.forEach(|m| {
     visitor.visitIdentifier(m.property)

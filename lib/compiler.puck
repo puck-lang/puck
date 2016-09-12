@@ -5,64 +5,79 @@ import 'compiler/emitter.ts' as {Emitter}
 import 'compiler/input_stream.puck' as {InputStream}
 import 'compiler/parser.puck' as {parse}
 import 'compiler/token_stream.puck' as {TokenStream}
-import 'stdlib/js.puck' as {console, typeof}
+import 'stdlib/js.puck' as {console, process, typeof}
 import 'helpers.puck' as {cmd}
 import 'typeck/import.puck' as {ImportVisitor}
 import 'typeck/scope.puck' as {ScopeVisitor}
 
 type File = {
-  file: String
+  fileName: String
+  projectPath: String
+  absolutePath: String
   outDir: String
   outFile: String
+
+  puck: String
+  ast: Module
+  js: String
 }
 
-export fn buildString(context, puck, file) {
-  let mut ast = parse(TokenStream(InputStream(puck, file)))
-  ImportVisitor(context, file).visitBlock(ast)
-  ScopeVisitor(context, file).visitBlock(ast)
-  Emitter().emitProgram(ast)
+export fn parseString(context, file: File) {
+  let mut ast = parse(TokenStream(InputStream(file)), file)
+  ImportVisitor(context, file).visitModule(ast)
+  ScopeVisitor(context, file).visitModule(ast)
+  ast
+}
+
+export fn compile(context, file: File) {
+  Emitter().emitModule(file.ast)
 }
 
 export fn build(files: Array<File>) {
   let files = files.map(|f| {
-    let file = path.resolve(path.normalize(f.file))
+    let fileName = path.basename(f.file)
+    let absolutePath = path.resolve(path.normalize(f.file))
     let outFile = path.normalize(f.outFile)
     let outDir = path.dirname(outFile)
 
-    {file, outFile, outDir}
+    {absolutePath, outFile, outDir}
   })
 
   let context = {
     files: {}
-    resolvePath: fn (file, relativeTo) {
-      path.resolve(path.normalize(path.join(path.dirname(relativeTo), file)))
+    resolvePath: fn (file, relativeTo): File {
+      let filePath = path.join(path.dirname(relativeTo.absolutePath), file)
+      let absolutePath = path.resolve(path.normalize(filePath))
+      let fileName = path.basename(absolutePath)
+
+      {absolutePath, fileName}
     }
-    importFile: fn (self, mut file) {
-      if typeof(file) == 'string'
-        then file = {file}
-      else if self.files[file.file] {
-        self.files[file.file].outDir = file.outDir
-        self.files[file.file].outFile = file.outFile
+    importFile: fn (self, mut file: File) {
+      if self.files[file.absolutePath] and file.outDir and file.outFile {
+        self.files[file.absolutePath].outDir = file.outDir
+        self.files[file.absolutePath].outFile = file.outFile
       }
 
-      if not self.files[file.file] {
-        file.puck = fs.readFileSync(file.file, {encoding: 'utf-8'})
-        file.js = buildString(context, file.puck, file.file)
+      if not self.files[file.absolutePath] {
+        file.puck = fs.readFileSync(file.absolutePath, {encoding: 'utf-8'})
+        file.ast = parseString(context, file)
 
-        self.files[file.file] = file
+        self.files[file.absolutePath] = file
       }
-      self.files[file.file]
+      self.files[file.absolutePath]
     }
-    reportError: fn (file, token, message) {
-      throw '$message in $file'
+    reportError: fn (file: File, token, message) {
+      console.error('$message\n  in ' + file.absolutePath)
+      process.exit(1)
     }
   }
 
   let files = files.map(|f| context.importFile(f))
 
-  files.forEach(|f| {
-    f.babel = babel.transform(f.js, {
-      filename: f.file
+  files.forEach(|file| {
+    file.js = compile(context, file)
+    file.babel = babel.transform(file.js, {
+      filename: file.absolutePath
       presets: 'latest'
       babelrc: false
     }).code

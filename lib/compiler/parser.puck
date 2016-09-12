@@ -571,14 +571,25 @@ export fn parse(input: TokenStream) {
     else parseExpression()
   }
 
-  fn parseToplevel() {
-    let mut prog = []
+  fn parseModule() {
+    let mut exports = {}
+    let mut lines = []
     while not input.eof() {
       let expression = parseTopLevelExpression()
-      if expression then prog.push(expression)
+      if expression {
+        lines.push(expression)
+        if expression.kind == SyntaxKind.ExportDirective
+          then exports[expression.identifier.name] = expression
+      }
       if not input.eof() then consumeSeparator(SyntaxKind.SemicolonToken)
     }
-    { kind: SyntaxKind.Block, block: prog }
+    {
+      kind: SyntaxKind.Module
+      fileName: input.file.fileName
+      path: input.file.absolutePath
+      exports
+      lines
+    }
   }
 
   fn parseBlock(): BlockNode {
@@ -590,5 +601,5 @@ export fn parse(input: TokenStream) {
     maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), 0)))
   }
 
-  parseToplevel()
+  parseModule()
 }

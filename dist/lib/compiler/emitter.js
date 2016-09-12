@@ -66,6 +66,12 @@ function Emitter() {
             (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TypeDeclaration)); }));
         return preamble + lines.join(';\n');
     }
+    function emitModule(module) {
+        var preamble = "#!/usr/bin/env node\n'use strict';\n";
+        var lines = emitLines(module.lines.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.TypeDeclaration ||
+            (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TypeDeclaration)); }));
+        return preamble + lines.join(';\n');
+    }
     function emitBlock(block) {
         level++;
         var lines = emitLines(block.block);
@@ -346,7 +352,7 @@ function Emitter() {
             : emitIdentifier(p); })
             .join(' + ');
     }
-    return { emitProgram: emitProgram };
+    return { emitModule: emitModule, emitProgram: emitProgram };
 }
 exports.Emitter = Emitter;
 var _a;

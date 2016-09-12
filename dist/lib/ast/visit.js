@@ -10,6 +10,7 @@ exports.walkExpression = walkExpression;
 exports.walkBlock = walkBlock;
 exports.walkFunction = walkFunction;
 exports.walkIdentifier = walkIdentifier;
+exports.walkModule = walkModule;
 exports.walkObjectDestructure = walkObjectDestructure;
 exports.walkTypeBound = walkTypeBound;
 exports.walkVariableDeclaration = walkVariableDeclaration;
@@ -51,6 +52,10 @@ var Visitor = exports.Visitor = {
   visitIdentifier: function visitIdentifier(i) {
     var self = this;
     return walkIdentifier(self, i);
+  },
+  visitModule: function visitModule(m) {
+    var self = this;
+    return walkModule(self, m);
   },
   visitObjectDestructure: function visitObjectDestructure(o) {
     var self = this;
@@ -253,6 +258,9 @@ function walkFunction(visitor, f) {
   return visitor.visitBlock(f.body);
 };
 function walkIdentifier(visitor, i) {};
+function walkModule(visitor, m) {
+  return m.lines.forEach(visitor.visitExpression.bind(visitor));
+};
 function walkObjectDestructure(visitor, o) {
   return o.members.forEach(function (m) {
     visitor.visitIdentifier(m.property);

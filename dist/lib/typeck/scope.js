@@ -49,20 +49,23 @@ function ScopeVisitor(context, file) {
       });
     };
   };
+  function definedHosted(expressions) {
+    return expressions.forEach(function (e) {
+      if (e.kind == _ast.SyntaxKind.Function) {
+        defineFunction(e);
+        e.hoisted = true;
+      };
+      if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
+        defineFunction(e.expression);
+        return e.expression.hoisted = true;
+      };
+    });
+  };
   return _js._Object.assign({}, visit.Visitor, {
     visitBlock: function visitBlock(b) {
       var self = this;
       b.scope = scope;
-      b.block.forEach(function (e) {
-        if (e.kind == _ast.SyntaxKind.Function) {
-          defineFunction(e);
-          e.hoisted = true;
-        };
-        if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
-          defineFunction(e.expression);
-          return e.expression.hoisted = true;
-        };
-      });
+      definedHosted(b.block);
       return visit.walkBlock(self, b);
     },
     visitFunction: function visitFunction(f) {
@@ -83,6 +86,12 @@ function ScopeVisitor(context, file) {
         reportError(i, "Use of undefined variable " + i.name);
       };
       return visit.walkIdentifier(self, i);
+    },
+    visitModule: function visitModule(m) {
+      var self = this;
+      m.scope = scope;
+      definedHosted(m.lines);
+      return visit.walkModule(self, m);
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;

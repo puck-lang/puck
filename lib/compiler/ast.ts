@@ -62,6 +62,7 @@ export enum SyntaxKind {
   Block,
   Function,
   Identifier,
+  Module,
   ObjectDestructure,
   ObjectDestructureMember,
   TypeBound,
@@ -258,6 +259,13 @@ export interface FunctionNode extends Token {
 
 export interface Identifier extends SimpleIdentifier, Expression {
   name: string
+}
+
+export interface Module extends Token {
+  fileName: string
+  path: string
+  exports: {[name: string]: ExportDirective}
+  lines: Array<Expression>
 }
 
 export interface ObjectDestructure extends Token {

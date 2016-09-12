@@ -607,20 +607,27 @@ function parse(input) {
       };
     };
   };
-  function parseToplevel() {
-    var prog = [];
+  function parseModule() {
+    var exports = {};
+    var lines = [];
     while (!input.eof()) {
       var expression = parseTopLevelExpression();
       if (expression) {
-        prog.push(expression);
+        lines.push(expression);
+        if (expression.kind == _ast.SyntaxKind.ExportDirective) {
+          exports[expression.identifier.name] = expression;
+        };
       };
       if (!input.eof()) {
         consumeSeparator(_ast.SyntaxKind.SemicolonToken);
       };
     };
     return {
-      kind: _ast.SyntaxKind.Block,
-      block: prog
+      kind: _ast.SyntaxKind.Module,
+      fileName: input.file.fileName,
+      path: input.file.absolutePath,
+      exports: exports,
+      lines: lines
     };
   };
   function parseBlock() {
@@ -633,5 +640,5 @@ function parse(input) {
   function parseExpression() {
     return maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), 0)));
   };
-  return parseToplevel();
+  return parseModule();
 }

@@ -22,6 +22,7 @@ import {
   IndexAccess,
   LoopExpression,
   MemberAccess,
+  Module,
   NumberLiteral,
   ObjectLiteral,
   ReturnStatement,
@@ -104,6 +105,15 @@ export function Emitter() {
   function emitProgram(program: BlockNode) {
     let preamble = `#!/usr/bin/env node\n'use strict';\n`
     let lines = emitLines(program.block.filter(e => !(
+      e.kind === SyntaxKind.TypeDeclaration ||
+      (isExport(e) && e.expression.kind === SyntaxKind.TypeDeclaration)
+    )))
+    return preamble + lines.join(';\n')
+  }
+
+  function emitModule(module: Module) {
+    let preamble = `#!/usr/bin/env node\n'use strict';\n`
+    let lines = emitLines(module.lines.filter(e => !(
       e.kind === SyntaxKind.TypeDeclaration ||
       (isExport(e) && e.expression.kind === SyntaxKind.TypeDeclaration)
     )))
@@ -426,5 +436,5 @@ export function Emitter() {
       .join(' + ')
   }
 
-  return {emitProgram}
+  return {emitModule, emitProgram}
 }

@@ -1,6 +1,6 @@
 import 'node:path' as {join}
 import '../lib/helpers.puck' as {cmd, flag}
-import '../lib/compiler.puck' as {buildString, build}
+import '../lib/compiler.puck' as {build}
 import '../lib/stdlib/js.puck' as {Array, RegExp, console, process}
 
 let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puckc') >= 0}).slice(1)
@@ -15,19 +15,10 @@ if arguments.length > 1 and outFile {
 }
 
 if arguments.length == 0 {
-  let stdin = process.stdin
-  let inputChunks = Array()
-
-  stdin.resume()
-  stdin.setEncoding('utf8')
-
-  stdin.on('data', inputChunks.push)
-
-  stdin.on('end', fn () {
-    let puck = inputChunks.join()
-    let js = buildString(puck)
-    console.log(js)
-  })
+  console.log('Usage:
+  puckc [--outfile \$file] [--out-dir \$dir=dist] [--skip-extension true] ...files
+')
+  process.exit(1)
 } else {
   let files = arguments.map(fn (file) then {
     file

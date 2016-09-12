@@ -26,9 +26,9 @@ var puckFile = (0, _js.RegExp)("\\.puck$", "i");
 function ImportVisitor(context, file) {
   var reportError = context.reportError.bind(context, file);
   return _js._Object.assign({}, visit.Visitor, {
-    visitBlock: function visitBlock(b) {
+    visitModule: function visitModule(m) {
       var self = this;
-      return b.block.forEach(function (e) {
+      return m.lines.forEach(function (e) {
         if (e.kind == _ast.SyntaxKind.ImportDirective) {
           return self.visitImportDirective(e);
         };
@@ -38,7 +38,8 @@ function ImportVisitor(context, file) {
       var self = this;
       if (!i.domain) {
         var _ret = function () {
-          var path = context.resolvePath(i.path, file);
+          var importedFile = context.resolvePath(i.path, file);
+          var path = importedFile.absolutePath;
           var result = (0, _js.asResult)(function () {
             return (0, _fs.statSync)(path);
           });
@@ -50,9 +51,22 @@ function ImportVisitor(context, file) {
             };
           };
           if (puckFile.test(path)) {
-            return {
-              v: context.importFile(path)
-            };
+            var _ret2 = function () {
+              var _module = context.importFile(importedFile).ast;
+              if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
+                return {
+                  v: {
+                    v: i.specifier.members.forEach(function (m) {
+                      if (!_module.exports[m.property.name]) {
+                        return reportError(m, importedFile.fileName + " has no export named " + m.property.name);
+                      };
+                    })
+                  }
+                };
+              };
+            }();
+
+            if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
           };
         }();
 

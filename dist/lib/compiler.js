@@ -5,7 +5,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.buildString = buildString;
+exports.parseString = parseString;
+exports.compile = compile;
 exports.build = build;
 
 var _babelCore = require('babel-core');
@@ -38,19 +39,23 @@ var _scope = require('./typeck/scope.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function buildString(context, puck, file) {
-  var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(puck, file)));
-  (0, _import.ImportVisitor)(context, file).visitBlock(ast);
-  (0, _scope.ScopeVisitor)(context, file).visitBlock(ast);
-  return (0, _emitter.Emitter)().emitProgram(ast);
+function parseString(context, file) {
+  var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(file)), file);
+  (0, _import.ImportVisitor)(context, file).visitModule(ast);
+  (0, _scope.ScopeVisitor)(context, file).visitModule(ast);
+  return ast;
+};
+function compile(context, file) {
+  return (0, _emitter.Emitter)().emitModule(file.ast);
 };
 function build(files) {
   files = files.map(function (f) {
-    var file = path.resolve(path.normalize(f.file));
+    var fileName = path.basename(f.file);
+    var absolutePath = path.resolve(path.normalize(f.file));
     var outFile = path.normalize(f.outFile);
     var outDir = path.dirname(outFile);
     return {
-      file: file,
+      absolutePath: absolutePath,
       outFile: outFile,
       outDir: outDir
     };
@@ -58,35 +63,39 @@ function build(files) {
   var context = {
     files: {},
     resolvePath: function resolvePath(file, relativeTo) {
-      return path.resolve(path.normalize(path.join(path.dirname(relativeTo), file)));
+      var filePath = path.join(path.dirname(relativeTo.absolutePath), file);
+      var absolutePath = path.resolve(path.normalize(filePath));
+      var fileName = path.basename(absolutePath);
+      return {
+        absolutePath: absolutePath,
+        fileName: fileName
+      };
     },
     importFile: function importFile(file) {
       var self = this;
-      if ((0, _js._typeof)(file) == "string") {
-        file = { file: file };
-      } else {
-        if (self.files[file.file]) {
-          self.files[file.file].outDir = file.outDir;
-          self.files[file.file].outFile = file.outFile;
-        };
+      if (self.files[file.absolutePath] && file.outDir && file.outFile) {
+        self.files[file.absolutePath].outDir = file.outDir;
+        self.files[file.absolutePath].outFile = file.outFile;
       };
-      if (!self.files[file.file]) {
-        file.puck = fs.readFileSync(file.file, { encoding: "utf-8" });
-        file.js = buildString(context, file.puck, file.file);
-        self.files[file.file] = file;
+      if (!self.files[file.absolutePath]) {
+        file.puck = fs.readFileSync(file.absolutePath, { encoding: "utf-8" });
+        file.ast = parseString(context, file);
+        self.files[file.absolutePath] = file;
       };
-      return self.files[file.file];
+      return self.files[file.absolutePath];
     },
     reportError: function reportError(file, token, message) {
-      throw "" + message + " in " + file + "";
+      _js.console.error("" + message + "\n  in " + file.absolutePath);
+      return _js.process.exit(1);
     }
   };
   files = files.map(function (f) {
     return context.importFile(f);
   });
-  files.forEach(function (f) {
-    return f.babel = babel.transform(f.js, {
-      filename: f.file,
+  files.forEach(function (file) {
+    file.js = compile(context, file);
+    return file.babel = babel.transform(file.js, {
+      filename: file.absolutePath,
       presets: "latest",
       babelrc: false
     }).code;

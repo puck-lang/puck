@@ -9,12 +9,12 @@ exports.InputStream = InputStream;
 
 var _js = require('./../stdlib/js.js');
 
-function InputStream(input, file) {
+function InputStream(file) {
   var pos = 0;
   var line = 1;
   var col = 1;
   function next() {
-    var ch = input.charAt(pos);
+    var ch = file.puck.charAt(pos);
     pos = pos + 1;
     if (ch == "\n") {
       line = line + 1;
@@ -27,13 +27,13 @@ function InputStream(input, file) {
   function peek() {
     var distance = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
-    return input.charAt(pos + distance);
+    return file.puck.charAt(pos + distance);
   };
   function eof() {
     return peek() == "";
   };
   function croak(msg) {
-    _js.console.log(msg + " (" + line + ":" + col + ")\n    at " + file + "\n\n");
+    _js.console.log("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
     return _js.process.exit(1);
   };
   return {
@@ -41,6 +41,7 @@ function InputStream(input, file) {
     peek: peek,
     eof: eof,
     croak: croak,
+    file: file,
     getLine: function getLine() {
       return line;
     },

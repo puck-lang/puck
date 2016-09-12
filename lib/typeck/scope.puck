@@ -47,23 +47,25 @@ export fn ScopeVisitor(context, file) {
       scope.define({identifier: f.name, mutable: false})
   }
 
+  fn definedHosted(expressions: Array<Expression>) {
+    expressions.forEach(|e| {
+      if e.kind == SyntaxKind.Function {
+        defineFunction(e)
+        e.hoisted = true
+      }
+      if e.kind == SyntaxKind.ExportDirective and
+          e.expression.kind == SyntaxKind.Function {
+        defineFunction(e.expression)
+        e.expression.hoisted = true
+      }
+    })
+  }
+
   Object.assign({}, visit.Visitor, {
 
     visitBlock: |self, b: Block| {
       b.scope = scope
-
-      b.block.forEach(|e| {
-        if e.kind == SyntaxKind.Function {
-          defineFunction(e)
-          e.hoisted = true
-        }
-        if e.kind == SyntaxKind.ExportDirective and
-           e.expression.kind == SyntaxKind.Function {
-          defineFunction(e.expression)
-          e.expression.hoisted = true
-        }
-      })
-
+      definedHosted(b.block)
       visit.walkBlock(self, b)
     }
     visitFunction: |self, f: FunctionNode| {
@@ -78,6 +80,11 @@ export fn ScopeVisitor(context, file) {
       let binding = i.scope.getBinding(i.name)
       if not binding then reportError(i, 'Use of undefined variable ' + i.name)
       visit.walkIdentifier(self, i)
+    }
+    visitModule: |self, m: Module| {
+      m.scope = scope
+      definedHosted(m.lines)
+      visit.walkModule(self, m)
     }
     visitObjectDestructure: |self, i: ObjectDestructure| {
       i.scope = scope

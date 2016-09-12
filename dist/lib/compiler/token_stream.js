@@ -283,6 +283,7 @@ function TokenStream(input) {
     next: next,
     peek: peek,
     eof: eof,
-    croak: input.croak
+    croak: input.croak,
+    file: input.file
   };
 }

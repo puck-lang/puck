@@ -224,5 +224,5 @@ export fn TokenStream(input) {
     peek() == null
   }
 
-  {next, peek, eof, croak: input.croak}
+  {next, peek, eof, croak: input.croak, file: input.file}
 }

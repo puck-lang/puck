@@ -10,8 +10,8 @@ export fn ImportVisitor(context, file) {
 
   Object.assign({}, visit.Visitor, {
 
-    visitBlock: |self, b: Block| {
-      b.block.forEach(|e| {
+    visitModule: |self, m: Module| {
+      m.lines.forEach(|e| {
         if e.kind == SyntaxKind.ImportDirective {
           self.visitImportDirective(e)
         }
@@ -20,15 +20,23 @@ export fn ImportVisitor(context, file) {
 
     visitImportDirective: |self, i: ImportDirective| {
       if not i.domain {
-        let path = context.resolvePath(i.path, file)
+        let importedFile = context.resolvePath(i.path, file)
+        let path = importedFile.absolutePath
         let result = asResult(|| statSync(path))
         if result.error
           then reportError(i, 'Imported file $path not found')
         else if not result.result.isFile()
           then reportError(i, 'Imported file $path is not a file')
 
-        if puckFile.test(path)
-          then context.importFile(path)
+        if puckFile.test(path) {
+          let module = context.importFile(importedFile).ast
+          if i.specifier.kind == SyntaxKind.ObjectDestructure {
+            i.specifier.members.forEach(|m| {
+              if not (module.exports[m.property.name])
+                then reportError(m, importedFile.fileName + ' has no export named ' + m.property.name)
+            })
+          }
+        }
       }
     }
   })
