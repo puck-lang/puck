@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
+    "postinstall": "ln -s .. node_modules/puck-lang",
     "build": "tsc",
     "watch": "npm run build -- --watch",
     "test": "npm-run-all test:*",
