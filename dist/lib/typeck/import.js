@@ -10,9 +10,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 exports.ImportVisitor = ImportVisitor;
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _fs = require('fs');
+
+var _path = require('path');
+
+var path = _interopRequireWildcard(_path);
 
 var _visit = require('./../ast/visit.js');
 
@@ -24,10 +30,41 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var domains = ["node", "puck"];
 var puckFile = (0, _js.RegExp)("\\.puck$", "i");
-var puckModules = ["js"];
+var puckModules = ["core", "js"];
 function ImportVisitor(context, file) {
   var reportError = context.reportError.bind(context, file);
   var moduleScope = void 0;
+  function importModule(i, importedFile) {
+    var _module = context.importFile(importedFile).ast;
+    if (!_module) {
+      return context.defer(file, function () {
+        return importModule(i, importedFile);
+      });
+    };
+    if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
+      return i.specifier.members.forEach(function (m) {
+        if (!_module.exports[m.property.name]) {
+          return reportError(m, importedFile.fileName + " has no export named " + m.property.name);
+        };
+      });
+    } else {
+      if (i.specifier.kind == _ast.SyntaxKind.AsteriskToken) {
+        return i.specifier = {
+          kind: _ast.SyntaxKind.ObjectDestructure,
+          members: _js._Object.keys(_module.exports).filter(function (e) {
+            return !moduleScope.getBinding(e);
+          }).map(function (e) {
+            var property = _module.exports[e].identifier;
+            return {
+              kind: _ast.SyntaxKind.ObjectDestructureMember,
+              property: property,
+              local: property
+            };
+          })
+        };
+      };
+    };
+  };
   return _js._Object.assign({}, visit.Visitor, {
     visitModule: function visitModule(m) {
       var self = this;
@@ -42,8 +79,10 @@ function ImportVisitor(context, file) {
       var self = this;
       if (i.domain == "puck") {
         if (puckModules.indexOf(i.path) == -1) {
-          return reportError(i, "Invalid puck module " + i.path);
+          reportError(i, "Invalid puck module " + i.path);
         };
+        var importedFile = context.resolvePath(path.join(path.dirname(_js.require.resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
+        return importModule(i, importedFile);
       } else {
         if (!i.domain) {
           var _ret = function () {
@@ -60,42 +99,9 @@ function ImportVisitor(context, file) {
               };
             };
             if (puckFile.test(path)) {
-              var _ret2 = function () {
-                var _module = context.importFile(importedFile).ast;
-                if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
-                  return {
-                    v: {
-                      v: i.specifier.members.forEach(function (m) {
-                        if (!_module.exports[m.property.name]) {
-                          return reportError(m, importedFile.fileName + " has no export named " + m.property.name);
-                        };
-                      })
-                    }
-                  };
-                } else {
-                  if (i.specifier.kind == _ast.SyntaxKind.AsteriskToken) {
-                    return {
-                      v: {
-                        v: i.specifier = {
-                          kind: _ast.SyntaxKind.ObjectDestructure,
-                          members: _js._Object.keys(_module.exports).filter(function (e) {
-                            return !moduleScope.getBinding(e);
-                          }).map(function (e) {
-                            var property = _module.exports[e].identifier;
-                            return {
-                              kind: _ast.SyntaxKind.ObjectDestructureMember,
-                              property: property,
-                              local: property
-                            };
-                          })
-                        }
-                      }
-                    };
-                  };
-                };
-              }();
-
-              if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+              return {
+                v: importModule(i, importedFile)
+              };
             };
           }();
 

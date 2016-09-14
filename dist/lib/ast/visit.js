@@ -34,6 +34,8 @@ exports.walkNumberLiteral = walkNumberLiteral;
 exports.walkObjectLiteral = walkObjectLiteral;
 exports.walkStringLiteral = walkStringLiteral;
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _ast = require('./../compiler/ast.js');
 
 var Visitor = exports.Visitor = {

@@ -2,6 +2,8 @@
 
 'use strict';
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var a1 = void 0;
 var a2 = void 0;
 var a3 = void 0;

@@ -1,12 +1,16 @@
 import 'puck:js' as {console, process, typeof}
 
 export fn InputStream(file: File) {
+  let code =
+    if file.puck.substring(0, 13) == '//#![no_core]'
+      then file.puck.slice(13)
+      else "import 'puck:core' as *\n" + file.puck
   let mut pos = 0
-  let mut line = 1
+  let mut line = 0
   let mut col = 1
 
   fn next() {
-    let ch = file.puck.charAt(pos)
+    let ch = code.charAt(pos)
     pos = pos + 1
     if (ch == '\n') {
       line = line + 1
@@ -18,7 +22,7 @@ export fn InputStream(file: File) {
   }
 
   fn peek(distance = 0) {
-    file.puck.charAt(pos + distance)
+    code.charAt(pos + distance)
   }
 
   fn eof() {

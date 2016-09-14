@@ -8,6 +8,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.TopScopeVisitor = TopScopeVisitor;
 exports.ScopeVisitor = ScopeVisitor;
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _visit = require('./../ast/visit.js');

@@ -5,7 +5,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.b = undefined;
 exports.a = a;
+
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 function a() {
   return "exported!";
 };

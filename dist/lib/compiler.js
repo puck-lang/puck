@@ -9,6 +9,8 @@ exports.parseString = parseString;
 exports.compile = compile;
 exports.build = build;
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _babelCore = require('babel-core');
@@ -63,8 +65,19 @@ function build(files) {
   });
   var context = {
     files: {},
+    deferred: {},
+    defer: function defer(file, func) {
+      var self = this;
+      return self.deferred[file.absolutePath] = func;
+    },
     resolvePath: function resolvePath(file, relativeTo) {
-      var filePath = path.join(path.dirname(relativeTo.absolutePath), file);
+      var __PUCK__value__1 = void 0;
+      if (file.substring(0, 1) == "/") {
+        __PUCK__value__1 = file;
+      } else {
+        __PUCK__value__1 = path.join(path.dirname(relativeTo.absolutePath), file);
+      };
+      var filePath = __PUCK__value__1;
       var absolutePath = path.resolve(path.normalize(filePath));
       var fileName = path.basename(absolutePath);
       return {
@@ -79,9 +92,12 @@ function build(files) {
         self.files[file.absolutePath].outFile = file.outFile;
       };
       if (!self.files[file.absolutePath]) {
+        self.files[file.absolutePath] = file;
         file.puck = fs.readFileSync(file.absolutePath, { encoding: "utf-8" });
         file.ast = parseString(context, file);
-        self.files[file.absolutePath] = file;
+        if (self.deferred[file.absolutePath]) {
+          self.deferred[file.absolutePath]();
+        };
       };
       return self.files[file.absolutePath];
     },

@@ -9,6 +9,8 @@ exports.cmd = cmd;
 exports.walkSync = walkSync;
 exports.flag = flag;
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _child_process = require('child_process');

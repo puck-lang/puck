@@ -15,7 +15,7 @@ if arguments.length > 1 and outFile {
 }
 
 if arguments.length == 0 {
-  console.log('Usage:
+  print('Usage:
   puckc [--outfile \$file] [--out-dir \$dir=dist] [--skip-extension true] ...files
 ')
   process.exit(1)

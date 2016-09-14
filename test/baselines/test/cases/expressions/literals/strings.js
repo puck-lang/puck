@@ -2,6 +2,8 @@
 
 'use strict';
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var a = "string";
 var b = "string of " + a + "";
 var c = "multi\nline";

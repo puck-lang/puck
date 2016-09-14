@@ -25,7 +25,7 @@ if command == 'build' {
   let outDir = arguments[1]
 
   buildAll(outDir)
-  console.log('done')
+  print('done')
 }
 else if command == 'test' {
   buildTestCompiler()
@@ -41,18 +41,18 @@ else if command == 'test' {
   ))
 
   cmd('diff -Nr test/baselines .tmp/cases')
-  console.log('done')
+  print('done')
 }
 else if command == 'update-baselines' {
   buildTestCompiler()
   cmd('.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck')
-  console.log('done')
+  print('done')
 }
 else if command == 'self-test' {
   buildTestCompiler()
   buildAll('.tmp/new', '.tmp/old')
   cmd('diff -Nr .tmp/old .tmp/new')
-  console.log('done')
+  print('done')
 }
 else {
   console.error('Unknown command', command)

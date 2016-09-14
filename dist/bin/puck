@@ -2,6 +2,8 @@
 
 'use strict';
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _helpers = require('./../lib/helpers.js');
 
 var _js = require('./../lib/stdlib/js.js');
@@ -24,7 +26,7 @@ function buildTestCompiler() {
 if (command == "build") {
   var outDir = _arguments[1];
   buildAll(outDir);
-  _js.console.log("done");
+  (0, _core.print)("done");
 } else {
   if (command == "test") {
     (function () {
@@ -39,19 +41,19 @@ if (command == "build") {
         return (0, _helpers.cmd)("! (.tmp/old/bin/puckc --out-dir .tmp/cases " + f + " 2> /dev/null && " + "echo \"error case did not error for " + f + "\")");
       });
       (0, _helpers.cmd)("diff -Nr test/baselines .tmp/cases");
-      _js.console.log("done");
+      (0, _core.print)("done");
     })();
   } else {
     if (command == "update-baselines") {
       buildTestCompiler();
       (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
-      _js.console.log("done");
+      (0, _core.print)("done");
     } else {
       if (command == "self-test") {
         buildTestCompiler();
         buildAll(".tmp/new", ".tmp/old");
         (0, _helpers.cmd)("diff -Nr .tmp/old .tmp/new");
-        _js.console.log("done");
+        (0, _core.print)("done");
       } else {
         _js.console.error("Unknown command", command);
         _js.process.exit(1);

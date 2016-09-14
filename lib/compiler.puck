@@ -46,8 +46,13 @@ export fn build(files: Array<File>) {
 
   let context = {
     files: {}
+    deferred: {}
+    defer: fn (self, file, func) then self.deferred[file.absolutePath] = func
     resolvePath: fn (file, relativeTo): File {
-      let filePath = path.join(path.dirname(relativeTo.absolutePath), file)
+      let filePath =
+        if file.substring(0, 1) == '/'
+          then file
+          else path.join(path.dirname(relativeTo.absolutePath), file)
       let absolutePath = path.resolve(path.normalize(filePath))
       let fileName = path.basename(absolutePath)
 
@@ -60,10 +65,13 @@ export fn build(files: Array<File>) {
       }
 
       if not self.files[file.absolutePath] {
+        self.files[file.absolutePath] = file
+
         file.puck = fs.readFileSync(file.absolutePath, {encoding: 'utf-8'})
         file.ast = parseString(context, file)
 
-        self.files[file.absolutePath] = file
+        if self.deferred[file.absolutePath]
+          then self.deferred[file.absolutePath]()
       }
       self.files[file.absolutePath]
     }

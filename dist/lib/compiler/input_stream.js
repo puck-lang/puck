@@ -7,14 +7,23 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.InputStream = InputStream;
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 function InputStream(file) {
+  var __PUCK__value__1 = void 0;
+  if (file.puck.substring(0, 13) == "//#![no_core]") {
+    __PUCK__value__1 = file.puck.slice(13);
+  } else {
+    __PUCK__value__1 = "import 'puck:core' as *\n" + file.puck;
+  };
+  var code = __PUCK__value__1;
   var pos = 0;
-  var line = 1;
+  var line = 0;
   var col = 1;
   function next() {
-    var ch = file.puck.charAt(pos);
+    var ch = code.charAt(pos);
     pos = pos + 1;
     if (ch == "\n") {
       line = line + 1;
@@ -27,7 +36,7 @@ function InputStream(file) {
   function peek() {
     var distance = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
-    return file.puck.charAt(pos + distance);
+    return code.charAt(pos + distance);
   };
   function eof() {
     return peek() == "";

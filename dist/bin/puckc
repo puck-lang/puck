@@ -2,6 +2,8 @@
 
 'use strict';
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _path = require('path');
 
 var _helpers = require('./../lib/helpers.js');
@@ -27,7 +29,7 @@ if (_arguments.length > 1 && outFile) {
   _js.process.exit(1);
 };
 if (_arguments.length == 0) {
-  _js.console.log("Usage:\n  puckc [--outfile $file] [--out-dir $dir=dist] [--skip-extension true] ...files\n");
+  (0, _core.print)("Usage:\n  puckc [--outfile $file] [--out-dir $dir=dist] [--skip-extension true] ...files\n");
   _js.process.exit(1);
 } else {
   var files = _arguments.map(function (file) {

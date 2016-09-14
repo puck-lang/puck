@@ -1,0 +1,23 @@
+//#![no_core]
+import 'puck:js' as {undefined, console}
+
+export type Bool = {}
+export type Num = {}
+export type String = {}
+
+export type List<E> = {}
+
+export fn print(message, a, b, c) {
+  let mut args = [message]
+  if c != undefined {
+    args.push(c)
+  }
+  else if b != undefined {
+    args.push(b)
+  }
+  else if a != undefined {
+    args.push(a)
+  }
+
+  console.log.apply(console, args)
+}

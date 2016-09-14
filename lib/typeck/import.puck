@@ -1,15 +1,42 @@
-import 'puck:js' as {Object, RegExp, asResult}
+import 'puck:js' as {Object, RegExp, asResult, require}
 import 'node:fs' as {statSync}
+import 'node:path' as path
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 
 let domains = ['node', 'puck']
 let puckFile = RegExp('\\.puck$', 'i')
-let puckModules = ['js']
+let puckModules = ['core', 'js']
 
-export fn ImportVisitor(context, file) {
+export fn ImportVisitor(context, file: File) {
   let reportError = context.reportError.bind(context, file)
   let mut moduleScope
+
+  fn importModule(i: ImportDirective, importedFile: File) {
+    let module = context.importFile(importedFile).ast
+    if not module then return context.defer(file, || importModule(i, importedFile))
+    if i.specifier.kind == SyntaxKind.ObjectDestructure {
+      i.specifier.members.forEach(|m| {
+        if not (module.exports[m.property.name])
+          then reportError(m, importedFile.fileName + ' has no export named ' + m.property.name)
+      })
+    }
+    else if i.specifier.kind == SyntaxKind.AsteriskToken {
+      i.specifier = {
+        kind: SyntaxKind.ObjectDestructure
+        members: Object.keys(module.exports)
+          .filter(|e| not moduleScope.getBinding(e))
+          .map(|e| {
+            let property = module.exports[e].identifier
+            {
+              kind: SyntaxKind.ObjectDestructureMember
+              property
+              local: property
+            }
+          })
+      }
+    }
+  }
 
   Object.assign({}, visit.Visitor, {
 
@@ -26,6 +53,14 @@ export fn ImportVisitor(context, file) {
       if i.domain == 'puck' {
         if puckModules.indexOf(i.path) == -1
           then reportError(i, 'Invalid puck module ' + i.path)
+        let importedFile = context.resolvePath(
+          path.join(
+            path.dirname(require.resolve('puck-lang/dist/bin/puck'))
+            '../../lib/stdlib/' + i.path + '.puck'
+          )
+          file
+        )
+        importModule(i, importedFile)
       }
       else if not i.domain {
         let importedFile = context.resolvePath(i.path, file)
@@ -36,30 +71,7 @@ export fn ImportVisitor(context, file) {
         else if not result.result.isFile()
           then reportError(i, 'Imported file $path is not a file')
 
-        if puckFile.test(path) {
-          let module = context.importFile(importedFile).ast
-          if i.specifier.kind == SyntaxKind.ObjectDestructure {
-            i.specifier.members.forEach(|m| {
-              if not (module.exports[m.property.name])
-                then reportError(m, importedFile.fileName + ' has no export named ' + m.property.name)
-            })
-          }
-          else if i.specifier.kind == SyntaxKind.AsteriskToken {
-            i.specifier = {
-              kind: SyntaxKind.ObjectDestructure
-              members: Object.keys(module.exports)
-                .filter(|e| not moduleScope.getBinding(e))
-                .map(|e| {
-                  let property = module.exports[e].identifier
-                  {
-                    kind: SyntaxKind.ObjectDestructureMember
-                    property
-                    local: property
-                  }
-                })
-            }
-          }
-        }
+        if puckFile.test(path) then importModule(i, importedFile)
       }
       else if domains.indexOf(i.domain)
         then reportError(i, 'Invalid import domain ' + i.domain)
