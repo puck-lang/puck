@@ -38,38 +38,97 @@ fn createScope(parent) {
   }
 }
 
-export fn ScopeVisitor(context, file) {
+fn defineFunction(scope, f: FunctionNode) {
+  if f.name then
+    scope.define({identifier: f.name, mutable: false})
+}
+
+fn definedHosted(scope, expressions: Array<Expression>) {
+  expressions.forEach(|e| {
+    if e.scope then return undefined
+
+    if e.kind == SyntaxKind.Function {
+      defineFunction(scope, e)
+      e.hoisted = true
+    }
+    if e.kind == SyntaxKind.ExportDirective and
+        e.expression.kind == SyntaxKind.Function {
+      defineFunction(scope, e.expression)
+      e.expression.hoisted = true
+    }
+  })
+}
+
+export fn TopScopeVisitor(context, file) {
   let mut scope = createScope()
   let reportError = context.reportError.bind(context, file)
 
-  fn defineFunction(f: FunctionNode) {
-    if f.name then
-      scope.define({identifier: f.name, mutable: false})
-  }
+  Object.assign({}, visit.Visitor, {
 
-  fn definedHosted(expressions: Array<Expression>) {
-    expressions.forEach(|e| {
-      if e.kind == SyntaxKind.Function {
-        defineFunction(e)
-        e.hoisted = true
-      }
-      if e.kind == SyntaxKind.ExportDirective and
-          e.expression.kind == SyntaxKind.Function {
-        defineFunction(e.expression)
-        e.expression.hoisted = true
-      }
-    })
-  }
+    visitBlock: |self, b: Block| {}
+    visitFunction: |self, f: FunctionNode| {
+      f.scope = scope
+      if not f.hoisted then defineFunction(scope, f)
+    }
+    visitIdentifier: |self, i: Identifier| {}
+    visitModule: |self, m: Module| {
+      m.scope = scope
+      definedHosted(scope, m.lines)
+      visit.walkModule(self, m)
+    }
+    visitObjectDestructure: |self, i: ObjectDestructure| {
+      i.scope = scope
+      i.members.forEach(|m| scope.define({identifier: m.local, mutable: false}))
+    }
+    visitTypeBound: |self, t: TypeBound| {}
+    visitVariableDeclaration: |self, d: VariableDeclaration| {
+      d.scope = scope
+      scope.define({identifier: d.identifier, mutable: d.mutable})
+    }
+
+    visitExportDirective: |self, e: ExportDirective| {}
+    visitImportDirective: |self, i: ImportDirective| {
+      if i.specifier.kind == SyntaxKind.Identifier
+        then scope.define({identifier: i.specifier, mutable: false})
+      else if i.specifier.kind == SyntaxKind.ObjectDestructure
+        then visit.walkImportDirective(self, i)
+    }
+
+    visitAssignmentExpression: |self, e: AssignmentExpression| {}
+    visitBinaryExpression: |self, e: BinaryExpression| {}
+    visitCallExpression: |self, e: CallExpression| {}
+    visitForExpression: |self, e: ForExpression| {}
+    visitIfExpression: |self, e: IfExpression| {}
+    visitLoopExpression: |self, e: LoopExpression| {}
+    visitUnaryExpression: |self, e: UnaryExpression| {}
+    visitWhileExpression: |self, e: WhileExpression| {}
+    visitIndexAccess: |self, a: IndexAccess| {}
+    visitMemberAccess: |self, a: MemberAccess| {}
+
+    visitBreak: |self, b: Token| {}
+    visitReturn: |self, r: ReturnStatement| {}
+
+    visitArrayLiteral: |self, l: ArrayLiteral| {}
+    visitBooleanLiteral: |self, l: BooleanLiteral| {}
+    visitNumberLiteral: |self, l: NumberLiteral| {}
+    visitObjectLiteral: |self, l: ObjectLiteral| {}
+    visitStringLiteral: |self, l: StringLiteral| {}
+  })
+}
+
+export fn ScopeVisitor(context, file) {
+  let mut scope
+  let reportError = context.reportError.bind(context, file)
 
   Object.assign({}, visit.Visitor, {
 
     visitBlock: |self, b: Block| {
       b.scope = scope
-      definedHosted(b.block)
+      definedHosted(scope, b.block)
       visit.walkBlock(self, b)
     }
     visitFunction: |self, f: FunctionNode| {
-      if not f.hoisted then defineFunction(f)
+      if not f.scope and not f.hoisted then defineFunction(scope, f)
       scope = createScope(scope)
       f.scope = scope
       visit.walkFunction(self, f)
@@ -82,8 +141,7 @@ export fn ScopeVisitor(context, file) {
       visit.walkIdentifier(self, i)
     }
     visitModule: |self, m: Module| {
-      m.scope = scope
-      definedHosted(m.lines)
+      scope = m.scope
       visit.walkModule(self, m)
     }
     visitObjectDestructure: |self, i: ObjectDestructure| {
@@ -95,9 +153,11 @@ export fn ScopeVisitor(context, file) {
       visit.walkTypeBound(self, t)
     }
     visitVariableDeclaration: |self, d: VariableDeclaration| {
-      d.scope = scope
       if d.typeBound then self.visitTypeBound(d.typeBound)
-      scope.define({identifier: d.identifier, mutable: d.mutable})
+      if not d.scope {
+        d.scope = scope
+        scope.define({identifier: d.identifier, mutable: d.mutable})
+      }
       if d.initializer then self.visitExpression(d.initializer)
     }
 
@@ -105,12 +165,13 @@ export fn ScopeVisitor(context, file) {
       e.scope = scope
       visit.walkExportDirective(self, e)
     }
-    visitImportDirective: |self, i: ImportDirective| {
-      i.scope = scope
-      if i.specifier.kind == SyntaxKind.Identifier
-        then scope.define({identifier: i.specifier, mutable: false})
-        else visit.walkImportDirective(self, i)
-    }
+    // visitImportDirective: |self, i: ImportDirective| {
+    //   i.scope = scope
+    //   if i.specifier.kind == SyntaxKind.Identifier
+    //     then scope.define({identifier: i.specifier, mutable: false})
+    //   else if i.specifier.kind == SyntaxKind.ObjectDestructure
+    //     then visit.walkImportDirective(self, i)
+    // }
 
     visitAssignmentExpression: |self, e: AssignmentExpression| {
       e.scope = scope

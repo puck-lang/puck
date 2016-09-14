@@ -5,6 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.TopScopeVisitor = TopScopeVisitor;
 exports.ScopeVisitor = ScopeVisitor;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
@@ -38,40 +39,114 @@ function createScope(parent) {
     }
   };
 };
-function ScopeVisitor(context, file) {
-  var scope = createScope();
-  var reportError = context.reportError.bind(context, file);
-  function defineFunction(f) {
-    if (f.name) {
-      return scope.define({
-        identifier: f.name,
-        mutable: false
-      });
-    };
-  };
-  function definedHosted(expressions) {
-    return expressions.forEach(function (e) {
-      if (e.kind == _ast.SyntaxKind.Function) {
-        defineFunction(e);
-        e.hoisted = true;
-      };
-      if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
-        defineFunction(e.expression);
-        return e.expression.hoisted = true;
-      };
+function defineFunction(scope, f) {
+  if (f.name) {
+    return scope.define({
+      identifier: f.name,
+      mutable: false
     });
   };
+};
+function definedHosted(scope, expressions) {
+  return expressions.forEach(function (e) {
+    if (e.scope) {
+      return _js._undefined;
+    };
+    if (e.kind == _ast.SyntaxKind.Function) {
+      defineFunction(scope, e);
+      e.hoisted = true;
+    };
+    if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
+      defineFunction(scope, e.expression);
+      return e.expression.hoisted = true;
+    };
+  });
+};
+function TopScopeVisitor(context, file) {
+  var scope = createScope();
+  var reportError = context.reportError.bind(context, file);
+  return _js._Object.assign({}, visit.Visitor, {
+    visitBlock: function visitBlock(b) {},
+    visitFunction: function visitFunction(f) {
+      var self = this;
+      f.scope = scope;
+      if (!f.hoisted) {
+        return defineFunction(scope, f);
+      };
+    },
+    visitIdentifier: function visitIdentifier(i) {},
+    visitModule: function visitModule(m) {
+      var self = this;
+      m.scope = scope;
+      definedHosted(scope, m.lines);
+      return visit.walkModule(self, m);
+    },
+    visitObjectDestructure: function visitObjectDestructure(i) {
+      var self = this;
+      i.scope = scope;
+      return i.members.forEach(function (m) {
+        return scope.define({
+          identifier: m.local,
+          mutable: false
+        });
+      });
+    },
+    visitTypeBound: function visitTypeBound(t) {},
+    visitVariableDeclaration: function visitVariableDeclaration(d) {
+      var self = this;
+      d.scope = scope;
+      return scope.define({
+        identifier: d.identifier,
+        mutable: d.mutable
+      });
+    },
+    visitExportDirective: function visitExportDirective(e) {},
+    visitImportDirective: function visitImportDirective(i) {
+      var self = this;
+      if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
+        return scope.define({
+          identifier: i.specifier,
+          mutable: false
+        });
+      } else {
+        if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
+          return visit.walkImportDirective(self, i);
+        };
+      };
+    },
+    visitAssignmentExpression: function visitAssignmentExpression(e) {},
+    visitBinaryExpression: function visitBinaryExpression(e) {},
+    visitCallExpression: function visitCallExpression(e) {},
+    visitForExpression: function visitForExpression(e) {},
+    visitIfExpression: function visitIfExpression(e) {},
+    visitLoopExpression: function visitLoopExpression(e) {},
+    visitUnaryExpression: function visitUnaryExpression(e) {},
+    visitWhileExpression: function visitWhileExpression(e) {},
+    visitIndexAccess: function visitIndexAccess(a) {},
+    visitMemberAccess: function visitMemberAccess(a) {},
+    visitBreak: function visitBreak(b) {},
+    visitReturn: function visitReturn(r) {},
+    visitArrayLiteral: function visitArrayLiteral(l) {},
+    visitBooleanLiteral: function visitBooleanLiteral(l) {},
+    visitNumberLiteral: function visitNumberLiteral(l) {},
+    visitObjectLiteral: function visitObjectLiteral(l) {},
+    visitStringLiteral: function visitStringLiteral(l) {}
+  });
+};
+function ScopeVisitor(context, file) {
+  var scope = void 0;
+  var reportError = context.reportError.bind(context, file);
   return _js._Object.assign({}, visit.Visitor, {
     visitBlock: function visitBlock(b) {
       var self = this;
       b.scope = scope;
-      definedHosted(b.block);
+      definedHosted(scope, b.block);
       return visit.walkBlock(self, b);
     },
     visitFunction: function visitFunction(f) {
       var self = this;
-      if (!f.hoisted) {
-        defineFunction(f);
+      if (!f.scope && !f.hoisted) {
+        defineFunction(scope, f);
       };
       scope = createScope(scope);
       f.scope = scope;
@@ -89,8 +164,7 @@ function ScopeVisitor(context, file) {
     },
     visitModule: function visitModule(m) {
       var self = this;
-      m.scope = scope;
-      definedHosted(m.lines);
+      scope = m.scope;
       return visit.walkModule(self, m);
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
@@ -110,14 +184,16 @@ function ScopeVisitor(context, file) {
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
-      d.scope = scope;
       if (d.typeBound) {
         self.visitTypeBound(d.typeBound);
       };
-      scope.define({
-        identifier: d.identifier,
-        mutable: d.mutable
-      });
+      if (!d.scope) {
+        d.scope = scope;
+        scope.define({
+          identifier: d.identifier,
+          mutable: d.mutable
+        });
+      };
       if (d.initializer) {
         return self.visitExpression(d.initializer);
       };
@@ -126,18 +202,6 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = scope;
       return visit.walkExportDirective(self, e);
-    },
-    visitImportDirective: function visitImportDirective(i) {
-      var self = this;
-      i.scope = scope;
-      if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
-        return scope.define({
-          identifier: i.specifier,
-          mutable: false
-        });
-      } else {
-        return visit.walkImportDirective(self, i);
-      };
     },
     visitAssignmentExpression: function visitAssignmentExpression(e) {
       var self = this;

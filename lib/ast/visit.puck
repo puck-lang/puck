@@ -129,7 +129,8 @@ export fn walkExportDirective(visitor: Visitor, e: ExportDirective) {
 export fn walkImportDirective(visitor: Visitor, i: ImportDirective) {
   if i.specifier.kind == SyntaxKind.Identifier
     then visitor.visitIdentifier(i.specifier)
-    else visitor.visitObjectDestructure(i.specifier)
+  else if i.specifier.kind == SyntaxKind.ObjectDestructure
+    then visitor.visitObjectDestructure(i.specifier)
 }
 
 export fn walkAssignmentExpression(visitor: Visitor, e: AssignmentExpression) {

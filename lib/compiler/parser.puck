@@ -40,7 +40,7 @@ export fn parse(input: TokenStream) {
   }
 
   fn consumeToken(token: SyntaxKind, name) {
-    expect(token, name)
+    if token then expect(token, name)
     return input.next()
   }
 
@@ -550,8 +550,11 @@ export fn parse(input: TokenStream) {
     let path = if parts.length == 2 then parts[1] else parts[0]
 
     let asKeyword = consumeToken(SyntaxKind.AsKeyword)
-    let specifier = if isToken(SyntaxKind.OpenBraceToken)
-      then parseObjectDestructure()
+    let specifier =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then parseObjectDestructure()
+      else if isToken(SyntaxKind.AsteriskToken)
+        then consumeToken()
       else consumeToken(SyntaxKind.Identifier, 'identifier')
 
     {

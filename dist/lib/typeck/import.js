@@ -27,9 +27,11 @@ var puckFile = (0, _js.RegExp)("\\.puck$", "i");
 var puckModules = ["js"];
 function ImportVisitor(context, file) {
   var reportError = context.reportError.bind(context, file);
+  var moduleScope = void 0;
   return _js._Object.assign({}, visit.Visitor, {
     visitModule: function visitModule(m) {
       var self = this;
+      moduleScope = m.scope;
       return m.lines.forEach(function (e) {
         if (e.kind == _ast.SyntaxKind.ImportDirective) {
           return self.visitImportDirective(e);
@@ -69,6 +71,26 @@ function ImportVisitor(context, file) {
                         };
                       })
                     }
+                  };
+                } else {
+                  if (i.specifier.kind == _ast.SyntaxKind.AsteriskToken) {
+                    return {
+                      v: {
+                        v: i.specifier = {
+                          kind: _ast.SyntaxKind.ObjectDestructure,
+                          members: _js._Object.keys(_module.exports).filter(function (e) {
+                            return !moduleScope.getBinding(e);
+                          }).map(function (e) {
+                            var property = _module.exports[e].identifier;
+                            return {
+                              kind: _ast.SyntaxKind.ObjectDestructureMember,
+                              property: property,
+                              local: property
+                            };
+                          })
+                        }
+                      }
+                    };
                   };
                 };
               }();

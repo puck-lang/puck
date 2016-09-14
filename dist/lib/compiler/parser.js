@@ -46,7 +46,9 @@ function parse(input) {
     };
   };
   function consumeToken(token, name) {
-    expect(token, name);
+    if (token) {
+      expect(token, name);
+    };
     return input.next();
   };
   function skipKeyword(kw) {
@@ -580,7 +582,13 @@ function parse(input) {
     if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
       __PUCK__value__16 = parseObjectDestructure();
     } else {
-      __PUCK__value__16 = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
+      var __PUCK__value__17 = void 0;
+      if (isToken(_ast.SyntaxKind.AsteriskToken)) {
+        __PUCK__value__17 = consumeToken();
+      } else {
+        __PUCK__value__17 = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
+      };
+      __PUCK__value__16 = __PUCK__value__17;
     };
     var specifier = __PUCK__value__16;
     return {

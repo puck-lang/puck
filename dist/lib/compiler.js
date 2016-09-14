@@ -41,6 +41,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function parseString(context, file) {
   var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(file)), file);
+  (0, _scope.TopScopeVisitor)(context, file).visitModule(ast);
   (0, _import.ImportVisitor)(context, file).visitModule(ast);
   (0, _scope.ScopeVisitor)(context, file).visitModule(ast);
   return ast;

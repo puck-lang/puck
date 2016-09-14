@@ -9,10 +9,12 @@ let puckModules = ['js']
 
 export fn ImportVisitor(context, file) {
   let reportError = context.reportError.bind(context, file)
+  let mut moduleScope
 
   Object.assign({}, visit.Visitor, {
 
     visitModule: |self, m: Module| {
+      moduleScope = m.scope
       m.lines.forEach(|e| {
         if e.kind == SyntaxKind.ImportDirective {
           self.visitImportDirective(e)
@@ -41,6 +43,21 @@ export fn ImportVisitor(context, file) {
               if not (module.exports[m.property.name])
                 then reportError(m, importedFile.fileName + ' has no export named ' + m.property.name)
             })
+          }
+          else if i.specifier.kind == SyntaxKind.AsteriskToken {
+            i.specifier = {
+              kind: SyntaxKind.ObjectDestructure
+              members: Object.keys(module.exports)
+                .filter(|e| not moduleScope.getBinding(e))
+                .map(|e| {
+                  let property = module.exports[e].identifier
+                  {
+                    kind: SyntaxKind.ObjectDestructureMember
+                    property
+                    local: property
+                  }
+                })
+            }
           }
         }
       }

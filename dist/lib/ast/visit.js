@@ -288,7 +288,9 @@ function walkImportDirective(visitor, i) {
   if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
     return visitor.visitIdentifier(i.specifier);
   } else {
-    return visitor.visitObjectDestructure(i.specifier);
+    if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
+      return visitor.visitObjectDestructure(i.specifier);
+    };
   };
 };
 function walkAssignmentExpression(visitor, e) {
