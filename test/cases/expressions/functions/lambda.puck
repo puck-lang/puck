@@ -8,3 +8,6 @@ let d = || {
   a()
   b()
 }
+let e = {
+  empty: |self| {}
+}

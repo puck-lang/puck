@@ -18,3 +18,4 @@ var d = function d() {
   a();
   return b();
 };
+var e = { empty: function empty() {} };

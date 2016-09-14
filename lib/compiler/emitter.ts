@@ -209,14 +209,16 @@ export function Emitter() {
     let body = fn.body
     if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
       parameterList = fn.parameterList.slice(1)
-      body = Object['assign']({}, body, {
-        block: [Object['assign'](fn.parameterList[0], {
-          initializer: {
-            kind: SyntaxKind.Identifier,
-            name: 'this',
-          } as Identifier
-        }), ...body.block]
-      })
+      if (fn.body.block.length > 0) {
+        body = Object['assign']({}, body, {
+          block: [Object['assign'](fn.parameterList[0], {
+            initializer: {
+              kind: SyntaxKind.Identifier,
+              name: 'this',
+            } as Identifier
+          }), ...body.block]
+        })
+      }
     }
     let code = `function ${name}(${parameterList.map(emitFunctionParameter).join(', ')}) `
     code += withContext(Context.Return, () => emitBlock(body))
