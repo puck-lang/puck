@@ -7,6 +7,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.asResult = exports._typeof = exports._new = exports.require = exports.process = exports._module = exports.console = exports.String = exports.RegExp = exports._Object = exports.Number = exports.Date = exports.Boolean = exports.Array = exports._self = exports.window = exports.global = exports._undefined = exports._null = undefined;
 
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
 var _js = require('./js/js.js');
 
 var js = _interopRequireWildcard(_js);

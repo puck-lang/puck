@@ -37,7 +37,7 @@ function ImportVisitor(context, file) {
   function importModule(i, importedFile) {
     var _module = context.importFile(importedFile).ast;
     if (!_module) {
-      return context.defer(file, function () {
+      return context.defer(importedFile, function () {
         return importModule(i, importedFile);
       });
     };

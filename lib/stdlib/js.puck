@@ -1,4 +1,3 @@
-//#![no_core]
 import 'js/js.js' as js
 
 //! Contains variables that are usually avalible in JavaScript contexts
