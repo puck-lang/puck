@@ -233,29 +233,54 @@ function parse(input) {
       closeBrace: closeBrace
     };
   };
-  function parseTypeBound() {
-    var name = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
+  function parseFunctionTypeBound() {
     var __PUCK__value__3 = void 0;
     if (isToken(_ast.SyntaxKind.LessThanToken)) {
-      __PUCK__value__3 = delimited("<", ">", ",", parseTypeBound);
+      __PUCK__value__3 = delimited("<", ">", ",", parseTypeParameter);
     } else {
       __PUCK__value__3 = [];
     };
-    var parameters = __PUCK__value__3;
+    var typeParameters = __PUCK__value__3;
+    var parameters = delimited("(", ")", ",", parseTypeBound);
+    consumeToken(_ast.SyntaxKind.EqualsGreaterThanToken);
+    var returnType = parseTypeBound();
     return {
-      kind: _ast.SyntaxKind.TypeBound,
+      kind: _ast.SyntaxKind.FunctionTypeBound,
+      typeParameters: typeParameters,
+      parameters: parameters,
+      returnType: returnType
+    };
+  };
+  function parseNamedTypeBound() {
+    var name = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
+    var __PUCK__value__4 = void 0;
+    if (isToken(_ast.SyntaxKind.LessThanToken)) {
+      __PUCK__value__4 = delimited("<", ">", ",", parseTypeBound);
+    } else {
+      __PUCK__value__4 = [];
+    };
+    var parameters = __PUCK__value__4;
+    return {
+      kind: _ast.SyntaxKind.NamedTypeBound,
       name: name,
       parameters: parameters
     };
   };
+  function parseTypeBound() {
+    if (isToken(_ast.SyntaxKind.OpenParenToken) || isToken(_ast.SyntaxKind.LessThanToken)) {
+      return parseFunctionTypeBound();
+    } else {
+      return parseNamedTypeBound();
+    };
+  };
   function parseTypeParameter() {
     var name = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
-    var __PUCK__value__4 = void 0;
+    var __PUCK__value__5 = void 0;
     if (isToken(_ast.SyntaxKind.EqualsToken)) {
       input.next();
-      __PUCK__value__4 = parseTypeBound();
+      __PUCK__value__5 = parseTypeBound();
     };
-    var defaultValue = __PUCK__value__4;
+    var defaultValue = __PUCK__value__5;
     return {
       kind: _ast.SyntaxKind.TypeParameter,
       name: name,
@@ -275,13 +300,13 @@ function parse(input) {
   function parseTypeDeclaration() {
     var keyword = consumeToken(_ast.SyntaxKind.TypeKeyword);
     var name = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
-    var __PUCK__value__5 = void 0;
+    var __PUCK__value__6 = void 0;
     if (isToken(_ast.SyntaxKind.LessThanToken)) {
-      __PUCK__value__5 = delimited("<", ">", ",", parseTypeParameter);
+      __PUCK__value__6 = delimited("<", ">", ",", parseTypeParameter);
     } else {
-      __PUCK__value__5 = [];
+      __PUCK__value__6 = [];
     };
-    var parameters = __PUCK__value__5;
+    var parameters = __PUCK__value__6;
     consumeToken(_ast.SyntaxKind.EqualsToken);
     expect(_ast.SyntaxKind.OpenBraceToken);
     var openBrace = input.peek();
@@ -319,58 +344,25 @@ function parse(input) {
     return declaration;
   };
   function parseFunction() {
-    var __PUCK__value__6 = void 0;
-    if (isToken(_ast.SyntaxKind.Identifier)) {
-      __PUCK__value__6 = input.next();
-    };
-    var name = __PUCK__value__6;
-    var parameterList = delimited("(", ")", ",", parseVariableDeclaration);
     var __PUCK__value__7 = void 0;
+    if (isToken(_ast.SyntaxKind.Identifier)) {
+      __PUCK__value__7 = input.next();
+    };
+    var name = __PUCK__value__7;
+    var __PUCK__value__8 = void 0;
+    if (isToken(_ast.SyntaxKind.LessThanToken)) {
+      __PUCK__value__8 = delimited("<", ">", ",", parseTypeParameter);
+    } else {
+      __PUCK__value__8 = [];
+    };
+    var typeParameters = __PUCK__value__8;
+    var parameterList = delimited("(", ")", ",", parseVariableDeclaration);
+    var __PUCK__value__9 = void 0;
     if (isToken(_ast.SyntaxKind.ColonToken)) {
       input.next();
-      __PUCK__value__7 = parseTypeBound();
+      __PUCK__value__9 = parseTypeBound();
     };
-    var returnType = __PUCK__value__7;
-    var __PUCK__value__8 = void 0;
-    if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__8 = parseBlock();
-    } else {
-      skipKeyword(_ast.SyntaxKind.ThenKeyword);
-      __PUCK__value__8 = {
-        kind: _ast.SyntaxKind.Block,
-        block: [parseExpression()]
-      };
-    };
-    var body = __PUCK__value__8;
-    return {
-      kind: _ast.SyntaxKind.Function,
-      name: name,
-      parameterList: parameterList,
-      returnType: returnType,
-      body: body
-    };
-  };
-  function parseLambda() {
-    var parameterList = delimited("|", "|", ",", parseVariableDeclaration);
-    var __PUCK__value__9 = void 0;
-    if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__9 = parseBlock();
-    } else {
-      __PUCK__value__9 = {
-        kind: _ast.SyntaxKind.Block,
-        block: [parseExpression()]
-      };
-    };
-    var body = __PUCK__value__9;
-    return {
-      kind: _ast.SyntaxKind.Function,
-      parameterList: parameterList,
-      body: body
-    };
-  };
-  function parseIf() {
-    skipKeyword(_ast.SyntaxKind.IfKeyword);
-    var condition = parseExpression();
+    var returnType = __PUCK__value__9;
     var __PUCK__value__10 = void 0;
     if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
       __PUCK__value__10 = parseBlock();
@@ -381,29 +373,36 @@ function parse(input) {
         block: [parseExpression()]
       };
     };
-    var _then = __PUCK__value__10;
-    var ret = {
-      kind: _ast.SyntaxKind.IfExpression,
-      condition: condition,
-      _then: _then
+    var body = __PUCK__value__10;
+    return {
+      kind: _ast.SyntaxKind.Function,
+      name: name,
+      typeParameters: typeParameters,
+      parameterList: parameterList,
+      returnType: returnType,
+      body: body
     };
-    if (isToken(_ast.SyntaxKind.ElseKeyword)) {
-      input.next();
-      var __PUCK__value__11 = void 0;
-      if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
-        __PUCK__value__11 = parseBlock();
-      } else {
-        __PUCK__value__11 = {
-          kind: _ast.SyntaxKind.Block,
-          block: [parseExpression()]
-        };
-      };
-      ret._else = __PUCK__value__11;
-    };
-    return ret;
   };
-  function parseWhile() {
-    skipKeyword(_ast.SyntaxKind.WhileKeyword);
+  function parseLambda() {
+    var parameterList = delimited("|", "|", ",", parseVariableDeclaration);
+    var __PUCK__value__11 = void 0;
+    if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
+      __PUCK__value__11 = parseBlock();
+    } else {
+      __PUCK__value__11 = {
+        kind: _ast.SyntaxKind.Block,
+        block: [parseExpression()]
+      };
+    };
+    var body = __PUCK__value__11;
+    return {
+      kind: _ast.SyntaxKind.Function,
+      parameterList: parameterList,
+      body: body
+    };
+  };
+  function parseIf() {
+    skipKeyword(_ast.SyntaxKind.IfKeyword);
     var condition = parseExpression();
     var __PUCK__value__12 = void 0;
     if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
@@ -415,7 +414,41 @@ function parse(input) {
         block: [parseExpression()]
       };
     };
-    var body = __PUCK__value__12;
+    var _then = __PUCK__value__12;
+    var ret = {
+      kind: _ast.SyntaxKind.IfExpression,
+      condition: condition,
+      _then: _then
+    };
+    if (isToken(_ast.SyntaxKind.ElseKeyword)) {
+      input.next();
+      var __PUCK__value__13 = void 0;
+      if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
+        __PUCK__value__13 = parseBlock();
+      } else {
+        __PUCK__value__13 = {
+          kind: _ast.SyntaxKind.Block,
+          block: [parseExpression()]
+        };
+      };
+      ret._else = __PUCK__value__13;
+    };
+    return ret;
+  };
+  function parseWhile() {
+    skipKeyword(_ast.SyntaxKind.WhileKeyword);
+    var condition = parseExpression();
+    var __PUCK__value__14 = void 0;
+    if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
+      __PUCK__value__14 = parseBlock();
+    } else {
+      skipKeyword(_ast.SyntaxKind.ThenKeyword);
+      __PUCK__value__14 = {
+        kind: _ast.SyntaxKind.Block,
+        block: [parseExpression()]
+      };
+    };
+    var body = __PUCK__value__14;
     return {
       kind: _ast.SyntaxKind.WhileExpression,
       condition: condition,
@@ -431,14 +464,14 @@ function parse(input) {
   };
   function parseObjectLiteralMember() {
     var name = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
-    var __PUCK__value__13 = void 0;
+    var __PUCK__value__15 = void 0;
     if (isToken(_ast.SyntaxKind.ColonToken)) {
       input.next();
-      __PUCK__value__13 = parseExpression();
+      __PUCK__value__15 = parseExpression();
     } else {
-      __PUCK__value__13 = name;
+      __PUCK__value__15 = name;
     };
-    var value = __PUCK__value__13;
+    var value = __PUCK__value__15;
     return {
       kind: _ast.SyntaxKind.ObjectLiteralMember,
       name: name,
@@ -571,32 +604,32 @@ function parse(input) {
     if (parts > 2) {
       input.croak("Illegal token \":\" used in import path");
     };
-    var __PUCK__value__14 = void 0;
-    if (parts.length == 2) {
-      __PUCK__value__14 = parts[0];
-    };
-    var domain = __PUCK__value__14;
-    var __PUCK__value__15 = void 0;
-    if (parts.length == 2) {
-      __PUCK__value__15 = parts[1];
-    } else {
-      __PUCK__value__15 = parts[0];
-    };
-    var path = __PUCK__value__15;
-    var asKeyword = consumeToken(_ast.SyntaxKind.AsKeyword);
     var __PUCK__value__16 = void 0;
-    if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__16 = parseObjectDestructure();
-    } else {
-      var __PUCK__value__17 = void 0;
-      if (isToken(_ast.SyntaxKind.AsteriskToken)) {
-        __PUCK__value__17 = consumeToken();
-      } else {
-        __PUCK__value__17 = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
-      };
-      __PUCK__value__16 = __PUCK__value__17;
+    if (parts.length == 2) {
+      __PUCK__value__16 = parts[0];
     };
-    var specifier = __PUCK__value__16;
+    var domain = __PUCK__value__16;
+    var __PUCK__value__17 = void 0;
+    if (parts.length == 2) {
+      __PUCK__value__17 = parts[1];
+    } else {
+      __PUCK__value__17 = parts[0];
+    };
+    var path = __PUCK__value__17;
+    var asKeyword = consumeToken(_ast.SyntaxKind.AsKeyword);
+    var __PUCK__value__18 = void 0;
+    if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
+      __PUCK__value__18 = parseObjectDestructure();
+    } else {
+      var __PUCK__value__19 = void 0;
+      if (isToken(_ast.SyntaxKind.AsteriskToken)) {
+        __PUCK__value__19 = consumeToken();
+      } else {
+        __PUCK__value__19 = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
+      };
+      __PUCK__value__18 = __PUCK__value__19;
+    };
+    var specifier = __PUCK__value__18;
     return {
       kind: _ast.SyntaxKind.ImportDirective,
       importKeyword: importKeyword,

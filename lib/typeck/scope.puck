@@ -8,6 +8,8 @@ import '../ast/ast.puck' as {
   Module
   ObjectDestructure
   TypeBound
+  FunctionTypeBound
+  NamedTypeBound
   TypeDeclaration
   TypeParameter
   TypeProperty
@@ -52,11 +54,11 @@ type TypeBinding = {
   // parameters: {min: Num, max: Num}
 }
 
-type Scope = {}
-//   getLocalBinding: (String) => Binding
-//   getBinding: (String) => Binding
-//   define: (String, Binding) => Binding
-// }
+type Scope = {
+  getLocalBinding: (String) => Binding
+  getBinding: (String) => Binding
+  define: (String, Binding) => Binding
+}
 
 type ScopeAware = {
   scope: Scope
@@ -242,8 +244,15 @@ export fn ScopeVisitor(context, file) {
         else scope.define({identifier: m.local, mutable: false})
       })
     }
-    visitTypeBound: |self, t: TypeBound| {
+    visitFunctionTypeBound: |self, t: FunctionTypeBound| {
+      scope = createScope(context, file, scope)
       t.scope = scope
+      visit.walkFunctionTypeBound(self, t)
+      scope = scope.parent
+    }
+    visitNamedTypeBound: |self, t: NamedTypeBound| {
+      t.scope = scope
+
       let binding = t.scope.getTypeBinding(t.name.name)
       if not binding then reportError(t, 'Use of undeclared type ' + t.name.name)
 
@@ -261,7 +270,7 @@ export fn ScopeVisitor(context, file) {
               binding.parameters.max + ' required, ' + parameterCount + ' given'
         )
 
-      visit.walkTypeBound(self, t)
+      visit.walkNamedTypeBound(self, t)
     }
     visitTypeDeclaration: |self, t: TypeDeclaration| {
       scope = createScope(context, file, scope)

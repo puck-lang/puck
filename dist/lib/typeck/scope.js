@@ -245,7 +245,14 @@ function ScopeVisitor(context, file) {
         };
       });
     },
-    visitTypeBound: function visitTypeBound(t) {
+    visitFunctionTypeBound: function visitFunctionTypeBound(t) {
+      var self = this;
+      scope = createScope(context, file, scope);
+      t.scope = scope;
+      visit.walkFunctionTypeBound(self, t);
+      return scope = scope.parent;
+    },
+    visitNamedTypeBound: function visitNamedTypeBound(t) {
       var self = this;
       t.scope = scope;
       var binding = t.scope.getTypeBinding(t.name.name);
@@ -265,7 +272,7 @@ function ScopeVisitor(context, file) {
         };
         reportError(t, __PUCK__value__2);
       };
-      return visit.walkTypeBound(self, t);
+      return visit.walkNamedTypeBound(self, t);
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;

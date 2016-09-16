@@ -12,3 +12,10 @@ type Generic<A, B=A> = {
 export type A<B=Generic<Foo>> = {
   c: B
 }
+
+type Functions = {
+  noParam: () => Num
+  params: (String, Generic<Num, String>) => Generic<String>
+  typeParams: <A, B>(A, Generic<B>) => B
+  sameTypeParams: <A, B>(A, Generic<B>) => B
+}

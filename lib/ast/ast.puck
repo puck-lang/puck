@@ -17,6 +17,7 @@ export type Block = {
 export type FunctionNode = {
   // name?: Identifier
   name: Identifier
+  typeParameters: List<TypeParameter>
   parameterList: List<VariableDeclaration>
   // returnType?: TypeBound
   returnType: TypeBound
@@ -49,9 +50,17 @@ export type SimpleIdentifier = {
   name: String
 }
 
-export type TypeBound = {
+export type TypeBound = {}
+
+export type NamedTypeBound = {
   name: SimpleIdentifier
   parameters: List<TypeBound>
+}
+
+export type FunctionTypeBound = {
+  typeParameters: List<TypeParameter>
+  parameters: List<TypeBound>
+  returnType: TypeBound
 }
 
 export type TypeDeclaration = {

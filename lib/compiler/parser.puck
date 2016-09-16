@@ -9,6 +9,8 @@ import '../ast/ast.puck' as {
   ObjectDestructure
   ObjectDestructureMember
   TypeBound
+  FunctionTypeBound
+  NamedTypeBound
   TypeDeclaration
   TypeParameter
   TypeProperty
@@ -206,7 +208,7 @@ export fn parse(input) { // : TokenStream
   }
 
   // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T): Array<T> {
-  fn delimited(mut start, mut stop, mut separator, parser, consumeStop = true): List<Expression> {
+  fn delimited<T>(mut start, mut stop, mut separator, parser: () => T, consumeStop = true): List<T> {
     if typeof(start) == 'string' then start = textToToken[start]
     if typeof(stop) == 'string' then stop = textToToken[stop]
     if typeof(separator) == 'string' then separator = textToToken[separator]
@@ -264,7 +266,25 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseTypeBound(): TypeBound {
+  fn parseFunctionTypeBound(): FunctionTypeBound {
+    let typeParameters =
+      if isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeParameter)
+      else []
+
+    let parameters = delimited('(', ')', ',', parseTypeBound)
+    consumeToken(SyntaxKind.EqualsGreaterThanToken)
+    let returnType = parseTypeBound()
+
+    {
+      kind: SyntaxKind.FunctionTypeBound
+      typeParameters
+      parameters
+      returnType
+    }
+  }
+
+  fn parseNamedTypeBound(): NamedTypeBound {
     let name = consumeToken(SyntaxKind.Identifier, 'identifier')
     let parameters =
       if isToken(SyntaxKind.LessThanToken)
@@ -272,10 +292,16 @@ export fn parse(input) { // : TokenStream
       else []
 
     {
-      kind: SyntaxKind.TypeBound,
-      name,
-      parameters,
+      kind: SyntaxKind.NamedTypeBound
+      name
+      parameters
     }
+  }
+
+  fn parseTypeBound(): TypeBound {
+    if isToken(SyntaxKind.OpenParenToken) or isToken(SyntaxKind.LessThanToken)
+      then parseFunctionTypeBound()
+      else parseNamedTypeBound()
   }
 
   fn parseTypeParameter(): TypeParameter {
@@ -354,6 +380,10 @@ export fn parse(input) { // : TokenStream
 
   fn parseFunction(): FunctionNode {
     let mut name = if isToken(SyntaxKind.Identifier) then input.next()
+    let typeParameters =
+      if isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeParameter)
+      else []
     let mut parameterList = delimited('(', ')', ',', parseVariableDeclaration)
 
     let returnType =
@@ -376,6 +406,7 @@ export fn parse(input) { // : TokenStream
     {
       kind: SyntaxKind.Function,
       name,
+      typeParameters,
       parameterList,
       returnType,
       body,

@@ -35,6 +35,7 @@ export fn InputStream(file: File) {
       '$msg
     at ' + file.absolutePath + '  ($line:$col)\n\n'
     )
+    throw Error()
     process.exit(1)
   }
 

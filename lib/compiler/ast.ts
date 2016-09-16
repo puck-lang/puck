@@ -65,6 +65,8 @@ export enum SyntaxKind {
   ObjectDestructure,
   ObjectDestructureMember,
   TypeBound,
+  NamedTypeBound,
+  FunctionTypeBound,
   TypeDeclaration,
   TypeParameter,
   TypeProperty,

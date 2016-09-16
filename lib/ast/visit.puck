@@ -7,6 +7,8 @@ import 'ast.puck' as {
   Module
   ObjectDestructure
   TypeBound
+  FunctionTypeBound
+  NamedTypeBound
   TypeDeclaration
   TypeParameter
   TypeProperty
@@ -75,6 +77,8 @@ export let Visitor = {
   visitModule: |self, m: Module| walkModule(self, m)
   visitObjectDestructure: |self, o: ObjectDestructure| walkObjectDestructure(self, o)
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
+  visitFunctionTypeBound: |self, t: FunctionTypeBound| walkFunctionTypeBound(self, t)
+  visitNamedTypeBound: |self, t: NamedTypeBound| walkNamedTypeBound(self, t)
   visitTypeDeclaration: |self, t: TypeDeclaration| walkTypeDeclaration(self, t)
   visitTypeParameter: |self, t: TypeParameter| walkTypeParameter(self, t)
   visitTypeProperty: |self, t: TypeProperty| walkTypeProperty(self, t)
@@ -110,7 +114,8 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.Function then visitor.visitFunction(e)
   else if e.kind == SyntaxKind.Identifier then visitor.visitIdentifier(e)
   else if e.kind == SyntaxKind.ObjectDestructure then visitor.visitObjectDestructure(e)
-  else if e.kind == SyntaxKind.TypeBound then visitor.visitTypeBound(e)
+  else if e.kind == SyntaxKind.FunctionTypeBound then visitor.visitFunctionTypeBound(e)
+  else if e.kind == SyntaxKind.NamedTypeBound then visitor.visitNamedTypeBound(e)
   else if e.kind == SyntaxKind.TypeDeclaration then visitor.visitTypeDeclaration(e)
   else if e.kind == SyntaxKind.TypeParameter then visitor.visitTypeParameter(e)
   else if e.kind == SyntaxKind.TypeProperty then visitor.visitTypeProperty(e)
@@ -145,6 +150,8 @@ export fn walkBlock(visitor: Visitor, b: Block) {
   b.block.forEach(visitor.visitExpression.bind(visitor))
 }
 export fn walkFunction(visitor: Visitor, f: FunctionNode) {
+  if f.typeParameters
+    then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
   if f.returnType then visitor.visitTypeBound(f.returnType)
   visitor.visitBlock(f.body)
@@ -160,8 +167,20 @@ export fn walkObjectDestructure(visitor: Visitor, o: ObjectDestructure) {
   })
 }
 export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
-  if t.parameters
-    then t.parameters.forEach(visitor.visitTypeBound.bind(visitor))
+  if t.kind == SyntaxKind.FunctionTypeBound
+    then visitor.visitFunctionTypeBound(t)
+  else if t.kind == SyntaxKind.NamedTypeBound
+    then visitor.visitNamedTypeBound(t)
+  else
+    throw Error('Unkown typebound ' + SyntaxKind[t.kind])
+}
+export fn walkFunctionTypeBound(visitor: Visitor, t: FunctionTypeBound) {
+  t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
+  t.parameters.forEach(visitor.visitTypeBound.bind(visitor))
+  visitor.visitTypeBound(t.returnType)
+}
+export fn walkNamedTypeBound(visitor: Visitor, t: NamedTypeBound) {
+  t.parameters.forEach(visitor.visitTypeBound.bind(visitor))
 }
 export fn walkTypeDeclaration(visitor: Visitor, t: TypeDeclaration) {
   // visitor.visitIdentifier(t.name)

@@ -45,6 +45,7 @@ function InputStream(file) {
   };
   function croak(msg) {
     _js.console.log("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
+    throw Error();
     return _js.process.exit(1);
   };
   return {
