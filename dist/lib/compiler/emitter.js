@@ -204,6 +204,18 @@ function Emitter() {
         var specifier = ast_1.isIdentifier(i.specifier)
             ? "* as " + emitIdentifier(i.specifier)
             : "{" + i.specifier.members
+                .filter(function (_a) {
+                var property = _a.property, local = _a.local;
+                if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
+                    ['TokenStream', 'InputStream', 'TopScopeVisitor', 'ScopeVisitor', 'ImportVisitor']
+                        .indexOf(local.name) == -1) {
+                    return false;
+                }
+                if (!i['module'])
+                    return true;
+                var e = i['module'].exports[local.name];
+                return e.expression.kind !== ast_1.SyntaxKind.TypeDeclaration;
+            })
                 .map(function (_a) {
                 var property = _a.property, local = _a.local;
                 return property.name === local.name

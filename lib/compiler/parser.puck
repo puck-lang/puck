@@ -1,4 +1,29 @@
 import 'puck:js' as {console, global, null, typeof, undefined}
+import '../ast/ast.puck' as {
+  SyntaxKind
+  Token
+  Expression
+
+  Block
+  FunctionNode
+  ObjectDestructure
+  ObjectDestructureMember
+  TypeBound
+  TypeDeclaration
+  TypeParameter
+  TypeProperty
+  VariableDeclaration
+
+  AssignmentExpression
+  BinaryExpression
+  CallExpression
+  IfExpression
+  WhileExpression
+
+  ListLiteral
+  ObjectLiteral
+  ObjectLiteralMember
+}
 import 'ast.ts' as {
   SyntaxKind
   isIdentifier
@@ -9,7 +34,7 @@ import 'ast.ts' as {
   tokenToText
 }
 
-export fn parse(input: TokenStream) {
+export fn parse(input) { // : TokenStream
 
   fn isToken(kind: SyntaxKind, peekDistance) {
     let token = input.peek(false, peekDistance)
@@ -144,7 +169,7 @@ export fn parse(input: TokenStream) {
     left
   }
 
-  fn maybeCall(expr: Expression) {
+  fn maybeCall(expr: Expression): CallExpression {
     if isToken(SyntaxKind.OpenParenToken)
       then maybeCall(maybeMemberAccess({
         kind: SyntaxKind.CallExpression,
@@ -181,7 +206,7 @@ export fn parse(input: TokenStream) {
   }
 
   // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T): Array<T> {
-  fn delimited(mut start, mut stop, mut separator, parser, consumeStop = true): Array {
+  fn delimited(mut start, mut stop, mut separator, parser, consumeStop = true): List<Expression> {
     if typeof(start) == 'string' then start = textToToken[start]
     if typeof(stop) == 'string' then stop = textToToken[stop]
     if typeof(separator) == 'string' then separator = textToToken[separator]
@@ -210,19 +235,6 @@ export fn parse(input: TokenStream) {
     parts
   }
 
-  fn parseTypeBound(): TypeBound {
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
-    let parameters =
-      if isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeBound)
-
-    {
-      kind: SyntaxKind.TypeBound,
-      name,
-      parameters,
-    }
-  }
-
   fn parseObjectDestructureMember(): ObjectDestructureMember {
     let property = consumeToken(SyntaxKind.Identifier, 'identifier')
     let local =
@@ -249,6 +261,20 @@ export fn parse(input: TokenStream) {
       openBrace
       members
       closeBrace
+    }
+  }
+
+  fn parseTypeBound(): TypeBound {
+    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let parameters =
+      if isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeBound)
+      else []
+
+    {
+      kind: SyntaxKind.TypeBound,
+      name,
+      parameters,
     }
   }
 
@@ -336,7 +362,7 @@ export fn parse(input: TokenStream) {
         parseTypeBound()
       }
 
-    let mut body: BlockNode =
+    let mut body: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {
@@ -359,7 +385,7 @@ export fn parse(input: TokenStream) {
   fn parseLambda(): FunctionNode {
     let mut parameterList = delimited('|', '|', ',', parseVariableDeclaration)
 
-    let mut body: BlockNode =
+    let mut body: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {{
@@ -379,7 +405,7 @@ export fn parse(input: TokenStream) {
 
     let condition = parseExpression()
 
-    let mut _then: BlockNode =
+    let mut _then: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {
@@ -414,7 +440,7 @@ export fn parse(input: TokenStream) {
     skipKeyword(SyntaxKind.WhileKeyword)
 
     let condition = parseExpression()
-    let mut body: BlockNode =
+    let mut body: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {
@@ -432,7 +458,7 @@ export fn parse(input: TokenStream) {
     }
   }
 
-  fn parseArrayLiteral(): ArrayLiteral {
+  fn parseListLiteral(): ListLiteral {
     let members = delimited('[', ']', ',', parseExpression)
     { kind: SyntaxKind.ArrayLiteral, members }
   }
@@ -466,7 +492,7 @@ export fn parse(input: TokenStream) {
         consumeToken(SyntaxKind.CloseParenToken)
         exp
       }
-      else if isToken(SyntaxKind.OpenBracketToken) then parseArrayLiteral()
+      else if isToken(SyntaxKind.OpenBracketToken) then parseListLiteral()
       else if isToken(SyntaxKind.OpenBraceToken) then parseObjectLiteral()
       else if isToken(SyntaxKind.BarToken) then parseLambda()
       else if isToken(SyntaxKind.IfKeyword) then parseIf()
@@ -595,7 +621,7 @@ export fn parse(input: TokenStream) {
     }
   }
 
-  fn parseBlock(): BlockNode {
+  fn parseBlock(): Block {
     let block = delimited('{', '}', ';', parseExpression)
     { kind: SyntaxKind.Block, block }
   }

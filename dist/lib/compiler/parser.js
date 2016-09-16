@@ -11,6 +11,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+require('./../ast/ast.js');
+
 var _ast = require('./ast.js');
 
 function parse(input) {
@@ -204,29 +206,16 @@ function parse(input) {
     };
     return parts;
   };
-  function parseTypeBound() {
-    var name = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
-    var __PUCK__value__2 = void 0;
-    if (isToken(_ast.SyntaxKind.LessThanToken)) {
-      __PUCK__value__2 = delimited("<", ">", ",", parseTypeBound);
-    };
-    var parameters = __PUCK__value__2;
-    return {
-      kind: _ast.SyntaxKind.TypeBound,
-      name: name,
-      parameters: parameters
-    };
-  };
   function parseObjectDestructureMember() {
     var property = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
-    var __PUCK__value__3 = void 0;
+    var __PUCK__value__2 = void 0;
     if (isToken(_ast.SyntaxKind.ColonToken)) {
       input.next();
-      __PUCK__value__3 = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
+      __PUCK__value__2 = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
     } else {
-      __PUCK__value__3 = property;
+      __PUCK__value__2 = property;
     };
-    var local = __PUCK__value__3;
+    var local = __PUCK__value__2;
     return {
       kind: _ast.SyntaxKind.ObjectDestructureMember,
       property: property,
@@ -242,6 +231,21 @@ function parse(input) {
       openBrace: openBrace,
       members: members,
       closeBrace: closeBrace
+    };
+  };
+  function parseTypeBound() {
+    var name = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
+    var __PUCK__value__3 = void 0;
+    if (isToken(_ast.SyntaxKind.LessThanToken)) {
+      __PUCK__value__3 = delimited("<", ">", ",", parseTypeBound);
+    } else {
+      __PUCK__value__3 = [];
+    };
+    var parameters = __PUCK__value__3;
+    return {
+      kind: _ast.SyntaxKind.TypeBound,
+      name: name,
+      parameters: parameters
     };
   };
   function parseTypeParameter() {
@@ -418,7 +422,7 @@ function parse(input) {
       body: body
     };
   };
-  function parseArrayLiteral() {
+  function parseListLiteral() {
     var members = delimited("[", "]", ",", parseExpression);
     return {
       kind: _ast.SyntaxKind.ArrayLiteral,
@@ -457,7 +461,7 @@ function parse(input) {
         return exp;
       } else {
         if (isToken(_ast.SyntaxKind.OpenBracketToken)) {
-          return parseArrayLiteral();
+          return parseListLiteral();
         } else {
           if (isToken(_ast.SyntaxKind.OpenBraceToken)) {
             return parseObjectLiteral();

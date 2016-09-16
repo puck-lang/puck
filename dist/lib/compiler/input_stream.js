@@ -11,6 +11,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+require('./../entities.js');
+
 function InputStream(file) {
   var __PUCK__value__1 = void 0;
   if (file.puck.substring(0, 13) == "//#![no_core]") {

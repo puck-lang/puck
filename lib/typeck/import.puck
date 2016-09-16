@@ -1,7 +1,12 @@
 import 'puck:js' as {Object, RegExp, asResult, require}
 import 'node:fs' as {statSync}
 import 'node:path' as path
+import '../ast/ast.puck' as {
+  Module
+  ImportDirective
+}
 import '../ast/visit.puck' as visit
+import '../entities.puck' as {File}
 import '../compiler/ast.ts' as {SyntaxKind}
 
 let domains = ['node', 'puck']
@@ -15,6 +20,8 @@ export fn ImportVisitor(context, file: File) {
   fn importModule(i: ImportDirective, importedFile: File) {
     let module = context.importFile(importedFile).ast
     if not module then return context.defer(importedFile, || importModule(i, importedFile))
+
+    i.module = module
     if i.specifier.kind == SyntaxKind.ObjectDestructure {
       i.specifier.members.forEach(|m| {
         if not (module.exports[m.property.name])

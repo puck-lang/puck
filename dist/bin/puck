@@ -31,7 +31,7 @@ if (command == "build") {
   if (command == "test") {
     (function () {
       buildTestCompiler();
-      var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
+      var failPattern = RegExp("\\.error\\.puck$", "i");
       var caseFiles = (0, _helpers.walkSync)("test/cases");
       var failCases = caseFiles.filter(function (f) {
         return failPattern.test(f);

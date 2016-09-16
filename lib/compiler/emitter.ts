@@ -267,6 +267,18 @@ export function Emitter() {
     let specifier = isIdentifier(i.specifier)
       ? `* as ${emitIdentifier(i.specifier)}`
       : `{${i.specifier.members
+          .filter(({property, local}) => {
+            if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
+              ['TokenStream', 'InputStream', 'TopScopeVisitor', 'ScopeVisitor', 'ImportVisitor']
+                .indexOf(local.name) == -1) {
+              return false
+            }
+
+            if (!i['module']) return true
+            const e = i['module'].exports[local.name]
+
+            return e.expression.kind !== SyntaxKind.TypeDeclaration
+          })
           .map(({property, local}) => property.name === local.name
             ? emitIdentifier(property)
             : `${emitIdentifier(property)} as ${emitIdentifier(local)}`

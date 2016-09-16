@@ -20,9 +20,13 @@ var _path = require('path');
 
 var path = _interopRequireWildcard(_path);
 
+require('./../ast/ast.js');
+
 var _visit = require('./../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
+
+require('./../entities.js');
 
 var _ast = require('./../compiler/ast.js');
 
@@ -41,6 +45,7 @@ function ImportVisitor(context, file) {
         return importModule(i, importedFile);
       });
     };
+    i._module = _module;
     if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
       return i.specifier.members.forEach(function (m) {
         if (!_module.exports[m.property.name]) {

@@ -13,7 +13,6 @@ export enum SyntaxKind {
   LoopKeyword,
   MutKeyword,
   NotKeyword,
-  // NullKeyword,
   OrKeyword,
   ReturnKeyword,
   ThenKeyword,
@@ -111,22 +110,18 @@ export const textToToken = Object['assign'](Object.create(null), {
   'export': SyntaxKind.ExportKeyword,
   'false': SyntaxKind.FalseKeyword,
   'for': SyntaxKind.ForKeyword,
-  // 'from': SyntaxKind.FromKeyword,
   'fn': SyntaxKind.FnKeyword,
   // 'get': SyntaxKind.GetKeyword,
   'if': SyntaxKind.IfKeyword,
   'import': SyntaxKind.ImportKeyword,
-  // 'interface': SyntaxKind.InterfaceKeyword,
   // 'is': SyntaxKind.IsKeyword,
   'let': SyntaxKind.LetKeyword,
   'loop': SyntaxKind.LoopKeyword,
   'mut': SyntaxKind.MutKeyword,
   'not': SyntaxKind.NotKeyword,
-  // 'null': SyntaxKind.NullKeyword,
   'or': SyntaxKind.OrKeyword,
   'return': SyntaxKind.ReturnKeyword,
   // 'set': SyntaxKind.SetKeyword,
-  // 'this': SyntaxKind.ThisKeyword,
   'throw': SyntaxKind.ThrowKeyword,
   'true': SyntaxKind.TrueKeyword,
   'then': SyntaxKind.ThenKeyword,
@@ -181,7 +176,7 @@ function reverse(object) {
   return reverse
 }
 
-export const operators =[
+export const operators = [
   ',', ';', ':', '.', '{', '}', '[', ']', '(', ')', '|',
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
@@ -291,7 +286,7 @@ export interface TypeBound extends Token {
 export interface TypeDeclaration extends Token {
   keyword: Token
   name: Identifier
-  typeParameters: Array<TypeParameter>
+  parameters: Array<TypeParameter>
   openBrace: Token
   properties: Array<TypeProperty>
   closeBrace: Token

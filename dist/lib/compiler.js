@@ -39,13 +39,14 @@ var _import = require('./typeck/import.js');
 
 var _scope = require('./typeck/scope.js');
 
+require('./entities.js');
+
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function parseString(context, file) {
   var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(file)), file);
   (0, _scope.TopScopeVisitor)(context, file).visitModule(ast);
   (0, _import.ImportVisitor)(context, file).visitModule(ast);
-  (0, _scope.ScopeVisitor)(context, file).visitModule(ast);
   return ast;
 };
 function compile(context, file) {
@@ -103,11 +104,17 @@ function build(files) {
     },
     reportError: function reportError(file, token, message) {
       _js.console.error("" + message + "\n  in " + file.absolutePath);
+      throw Error();
       return _js.process.exit(1);
     }
   };
   files = files.map(function (f) {
     return context.importFile(f);
+  });
+  _js._Object.keys(context.files).map(function (path) {
+    return context.files[path];
+  }).forEach(function (file) {
+    return (0, _scope.ScopeVisitor)(context, file).visitModule(file.ast);
   });
   files.forEach(function (file) {
     file.js = compile(context, file);

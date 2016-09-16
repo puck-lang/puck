@@ -1,0 +1,13 @@
+import 'ast/ast.puck' as {Module}
+
+export type File = {
+  fileName: String
+  projectPath: String
+  absolutePath: String
+  outDir: String
+  outFile: String
+
+  puck: String
+  ast: Module
+  js: String
+}

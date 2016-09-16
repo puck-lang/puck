@@ -1,4 +1,4 @@
-import 'puck:js' as {console, process, typeof}
+import 'puck:js' as {Object, console, process, typeof}
 import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
@@ -9,24 +9,12 @@ import 'compiler/token_stream.puck' as {TokenStream}
 import 'helpers.puck' as {cmd}
 import 'typeck/import.puck' as {ImportVisitor}
 import 'typeck/scope.puck' as {ScopeVisitor, TopScopeVisitor}
-
-type File = {
-  fileName: String
-  projectPath: String
-  absolutePath: String
-  outDir: String
-  outFile: String
-
-  puck: String
-  ast: Module
-  js: String
-}
+import 'entities.puck' as {File}
 
 export fn parseString(context, file: File) {
   let mut ast = parse(TokenStream(InputStream(file)), file)
   TopScopeVisitor(context, file).visitModule(ast)
   ImportVisitor(context, file).visitModule(ast)
-  ScopeVisitor(context, file).visitModule(ast)
   ast
 }
 
@@ -34,7 +22,7 @@ export fn compile(context, file: File) {
   Emitter().emitModule(file.ast)
 }
 
-export fn build(files: Array<File>) {
+export fn build(files: List<File>) {
   let files = files.map(|f| {
     let fileName = path.basename(f.file)
     let absolutePath = path.resolve(path.normalize(f.file))
@@ -77,11 +65,16 @@ export fn build(files: Array<File>) {
     }
     reportError: fn (file: File, token, message) {
       console.error('$message\n  in ' + file.absolutePath)
+      throw Error()
       process.exit(1)
     }
   }
 
   let files = files.map(|f| context.importFile(f))
+
+  Object.keys(context.files)
+    .map(|path| context.files[path])
+    .forEach(|file| ScopeVisitor(context, file).visitModule(file.ast))
 
   files.forEach(|file| {
     file.js = compile(context, file)

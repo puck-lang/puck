@@ -12,6 +12,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+require('./../ast/ast.js');
+
 var _visit = require('./../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
@@ -20,8 +22,10 @@ var _ast = require('./../compiler/ast.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function createScope(parent) {
+function createScope(context, file, parent) {
+  var reportError = context.reportError.bind(context, file);
   var bindings = {};
+  var typeBindings = {};
   return {
     parent: parent,
     getLocalBinding: function getLocalBinding(name) {
@@ -29,6 +33,9 @@ function createScope(parent) {
     },
     getBinding: function getBinding(name) {
       return bindings[name] || parent && parent.getBinding(name);
+    },
+    getTypeBinding: function getTypeBinding(name) {
+      return typeBindings[name] || parent && parent.getTypeBinding(name);
     },
     define: function define(binding) {
       var name = binding.identifier.name;
@@ -38,6 +45,43 @@ function createScope(parent) {
         binding.previous = bindings[name];
       };
       return bindings[name] = binding;
+    },
+    defineType: function defineType(t) {
+      var name = t.name.name;
+      if (typeBindings[name]) {
+        reportError(t, "Type " + name + " is already defined");
+      };
+      var __PUCK__value__1 = void 0;
+      if (t.parameters) {
+        (function () {
+          var firstOptional = t.parameters.length;
+          var hasOptional = false;
+          t.parameters.forEach(function (t, i) {
+            if (t.defaultValue && !hasOptional) {
+              hasOptional = true;
+              return firstOptional = i;
+            } else {
+              if (!t.defaultValue && hasOptional) {
+                return reportError(t, "An optional type paramterer can't be followed by a required type parameter");
+              };
+            };
+          });
+          __PUCK__value__1 = {
+            min: firstOptional,
+            max: t.parameters.length
+          };
+        })();
+      } else {
+        __PUCK__value__1 = {
+          min: 0,
+          max: 0
+        };
+      };
+      var parameters = __PUCK__value__1;
+      return typeBindings[name] = {
+        name: t.name,
+        parameters: parameters
+      };
     }
   };
 };
@@ -65,7 +109,7 @@ function definedHosted(scope, expressions) {
   });
 };
 function TopScopeVisitor(context, file) {
-  var scope = createScope();
+  var scope = createScope(context, file);
   var reportError = context.reportError.bind(context, file);
   return _js._Object.assign({}, visit.Visitor, {
     visitBlock: function visitBlock(b) {},
@@ -94,6 +138,11 @@ function TopScopeVisitor(context, file) {
       });
     },
     visitTypeBound: function visitTypeBound(t) {},
+    visitTypeDeclaration: function visitTypeDeclaration(t) {
+      var self = this;
+      t.scope = scope;
+      return scope.defineType(t);
+    },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
       d.scope = scope;
@@ -102,7 +151,11 @@ function TopScopeVisitor(context, file) {
         mutable: d.mutable
       });
     },
-    visitExportDirective: function visitExportDirective(e) {},
+    visitExportDirective: function visitExportDirective(e) {
+      var self = this;
+      e.scope = scope;
+      return visit.walkExportDirective(self, e);
+    },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
       if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
@@ -128,7 +181,7 @@ function TopScopeVisitor(context, file) {
     visitMemberAccess: function visitMemberAccess(a) {},
     visitBreak: function visitBreak(b) {},
     visitReturn: function visitReturn(r) {},
-    visitArrayLiteral: function visitArrayLiteral(l) {},
+    visitListLiteral: function visitListLiteral(l) {},
     visitBooleanLiteral: function visitBooleanLiteral(l) {},
     visitNumberLiteral: function visitNumberLiteral(l) {},
     visitObjectLiteral: function visitObjectLiteral(l) {},
@@ -136,6 +189,7 @@ function TopScopeVisitor(context, file) {
   });
 };
 function ScopeVisitor(context, file) {
+  var importDirective = void 0;
   var scope = void 0;
   var reportError = context.reportError.bind(context, file);
   return _js._Object.assign({}, visit.Visitor, {
@@ -150,7 +204,7 @@ function ScopeVisitor(context, file) {
       if (!f.scope && !f.hoisted) {
         defineFunction(scope, f);
       };
-      scope = createScope(scope);
+      scope = createScope(context, file, scope);
       f.scope = scope;
       visit.walkFunction(self, f);
       return scope = scope.parent;
@@ -173,16 +227,57 @@ function ScopeVisitor(context, file) {
       var self = this;
       i.scope = scope;
       return i.members.forEach(function (m) {
-        return scope.define({
-          identifier: m.local,
-          mutable: false
-        });
+        if (importDirective._module) {
+          var e = importDirective._module.exports[m.local.name];
+          if (e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
+            return scope.defineType(e.expression);
+          } else {
+            return scope.define({
+              identifier: m.local,
+              mutable: false
+            });
+          };
+        } else {
+          return scope.define({
+            identifier: m.local,
+            mutable: false
+          });
+        };
       });
     },
     visitTypeBound: function visitTypeBound(t) {
       var self = this;
       t.scope = scope;
+      var binding = t.scope.getTypeBinding(t.name.name);
+      if (!binding) {
+        reportError(t, "Use of undeclared type " + t.name.name);
+      };
+      var parameterCount = t.parameters.length;
+      if (parameterCount < binding.parameters.min) {
+        reportError(t, "To few type parameters given to " + t.name.name + " min " + binding.parameters.min + " required, " + parameterCount + " given");
+      };
+      if (parameterCount > binding.parameters.max) {
+        var __PUCK__value__2 = void 0;
+        if (binding.parameters.max == 0) {
+          __PUCK__value__2 = "Type " + t.name.name + " is not generic";
+        } else {
+          __PUCK__value__2 = "To many type parameters given to " + t.name.name + " max " + binding.parameters.max + " required, " + parameterCount + " given";
+        };
+        reportError(t, __PUCK__value__2);
+      };
       return visit.walkTypeBound(self, t);
+    },
+    visitTypeDeclaration: function visitTypeDeclaration(t) {
+      var self = this;
+      scope = createScope(context, file, scope);
+      visit.walkTypeDeclaration(self, t);
+      return scope = scope.parent;
+    },
+    visitTypeParameter: function visitTypeParameter(t) {
+      var self = this;
+      t.scope = scope;
+      scope.defineType(t);
+      return visit.walkTypeParameter(self, t);
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
@@ -200,10 +295,20 @@ function ScopeVisitor(context, file) {
         return self.visitExpression(d.initializer);
       };
     },
-    visitExportDirective: function visitExportDirective(e) {
+    visitImportDirective: function visitImportDirective(i) {
       var self = this;
-      e.scope = scope;
-      return visit.walkExportDirective(self, e);
+      i.scope = scope;
+      if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
+        return scope.define({
+          identifier: i.specifier,
+          mutable: false
+        });
+      } else {
+        if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
+          importDirective = i;
+          return visit.walkImportDirective(self, i);
+        };
+      };
     },
     visitAssignmentExpression: function visitAssignmentExpression(e) {
       var self = this;
@@ -228,21 +333,21 @@ function ScopeVisitor(context, file) {
     },
     visitForExpression: function visitForExpression(e) {
       var self = this;
-      scope = createScope(scope);
+      scope = createScope(context, file, scope);
       e.scope = scope;
       visit.walkForExpression(self, e);
       return scope = scope.parent;
     },
     visitIfExpression: function visitIfExpression(e) {
       var self = this;
-      scope = createScope(scope);
+      scope = createScope(context, file, scope);
       e.scope = scope;
       visit.walkIfExpression(self, e);
       return scope = scope.parent;
     },
     visitLoopExpression: function visitLoopExpression(e) {
       var self = this;
-      scope = createScope(scope);
+      scope = createScope(context, file, scope);
       e.scope = scope;
       visit.walkLoopExpression(self, e);
       return scope = scope.parent;
@@ -254,7 +359,7 @@ function ScopeVisitor(context, file) {
     },
     visitWhileExpression: function visitWhileExpression(e) {
       var self = this;
-      scope = createScope(scope);
+      scope = createScope(context, file, scope);
       e.scope = scope;
       visit.walkWhileExpression(self, e);
       return scope = scope.parent;
@@ -279,10 +384,10 @@ function ScopeVisitor(context, file) {
       r.scope = scope;
       return visit.walkReturn(self, r);
     },
-    visitArrayLiteral: function visitArrayLiteral(l) {
+    visitListLiteral: function visitListLiteral(l) {
       var self = this;
       l.scope = scope;
-      return visit.walkArrayLiteral(self, l);
+      return visit.walkListLiteral(self, l);
     },
     visitBooleanLiteral: function visitBooleanLiteral(l) {
       var self = this;

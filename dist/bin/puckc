@@ -35,7 +35,7 @@ if (_arguments.length == 0) {
   var files = _arguments.map(function (file) {
     return {
       file: file,
-      outFile: outFile || (0, _path.join)(outDir, file.replace((0, _js.RegExp)("\\.puck$"), extension))
+      outFile: outFile || (0, _path.join)(outDir, file.replace(RegExp("\\.puck$"), extension))
     };
   });
   (0, _compiler.build)(files);

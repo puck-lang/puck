@@ -14,7 +14,6 @@
     SyntaxKind[SyntaxKind["LoopKeyword"] = 11] = "LoopKeyword";
     SyntaxKind[SyntaxKind["MutKeyword"] = 12] = "MutKeyword";
     SyntaxKind[SyntaxKind["NotKeyword"] = 13] = "NotKeyword";
-    // NullKeyword,
     SyntaxKind[SyntaxKind["OrKeyword"] = 14] = "OrKeyword";
     SyntaxKind[SyntaxKind["ReturnKeyword"] = 15] = "ReturnKeyword";
     SyntaxKind[SyntaxKind["ThenKeyword"] = 16] = "ThenKeyword";
@@ -102,22 +101,18 @@ exports.textToToken = Object['assign'](Object.create(null), {
     'export': SyntaxKind.ExportKeyword,
     'false': SyntaxKind.FalseKeyword,
     'for': SyntaxKind.ForKeyword,
-    // 'from': SyntaxKind.FromKeyword,
     'fn': SyntaxKind.FnKeyword,
     // 'get': SyntaxKind.GetKeyword,
     'if': SyntaxKind.IfKeyword,
     'import': SyntaxKind.ImportKeyword,
-    // 'interface': SyntaxKind.InterfaceKeyword,
     // 'is': SyntaxKind.IsKeyword,
     'let': SyntaxKind.LetKeyword,
     'loop': SyntaxKind.LoopKeyword,
     'mut': SyntaxKind.MutKeyword,
     'not': SyntaxKind.NotKeyword,
-    // 'null': SyntaxKind.NullKeyword,
     'or': SyntaxKind.OrKeyword,
     'return': SyntaxKind.ReturnKeyword,
     // 'set': SyntaxKind.SetKeyword,
-    // 'this': SyntaxKind.ThisKeyword,
     'throw': SyntaxKind.ThrowKeyword,
     'true': SyntaxKind.TrueKeyword,
     'then': SyntaxKind.ThenKeyword,

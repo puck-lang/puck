@@ -1,0 +1,190 @@
+export type SyntaxKind = {}
+
+export type Token = {
+  kind: SyntaxKind
+}
+
+export type Expression = {}
+
+export type CommentNode = {
+  text: String
+}
+
+export type Block = {
+  block: List<Expression>
+}
+
+export type FunctionNode = {
+  // name?: Identifier
+  name: Identifier
+  parameterList: List<VariableDeclaration>
+  // returnType?: TypeBound
+  returnType: TypeBound
+  body: Block
+}
+
+export type Identifier = {
+  name: String
+}
+
+export type Module = {
+  fileName: String
+  path: String
+  // exports: {[name: String]: ExportDirective}
+  lines: List<Expression>
+}
+
+export type ObjectDestructure = {
+  openBrace: Token
+  members: List<ObjectDestructureMember>
+  closeBrace: Token
+}
+
+export type ObjectDestructureMember = {
+  property: SimpleIdentifier
+  local: SimpleIdentifier
+}
+
+export type SimpleIdentifier = {
+  name: String
+}
+
+export type TypeBound = {
+  name: SimpleIdentifier
+  parameters: List<TypeBound>
+}
+
+export type TypeDeclaration = {
+  keyword: Token
+  name: Identifier
+  parameters: List<TypeParameter>
+  openBrace: Token
+  properties: List<TypeProperty>
+  closeBrace: Token
+}
+
+export type TypeParameter = {
+  name: Identifier
+  defaultValue: TypeBound
+}
+
+export type TypeProperty = {
+  name: Identifier
+  typeBound: TypeBound
+}
+
+export type VariableDeclaration = {
+  identifier: SimpleIdentifier
+  mutable: Bool
+  // typeBound?: TypeBound
+  typeBound: TypeBound
+  // initializer?: Expression
+  initializer: Expression
+}
+
+export type ExportDirective = {
+  keyword: Token
+  // expression: VariableDeclaration|FunctionNode|TypeDeclaration
+  identifier: Identifier
+}
+
+export type ImportDirective = {
+  importKeyword: Token
+  // domain?: String
+  domain: String
+  path: String
+  asKeyword: Token
+  // specifier: Identifier|ObjectDestructure
+}
+
+export type AssignmentExpression = {
+  // lhs: Identifier|MemberAccess|IndexAccess
+  token: Token
+  rhs: Expression
+}
+
+export type BinaryExpression = {
+  lhs: Expression
+  operator: Token
+  rhs: Expression
+}
+
+export type CallExpression = {
+  func: Expression
+  openParen: Token
+  argumentList: List<Expression>
+  closeParen: Token
+}
+
+export type ForExpression = {
+  body: Expression,
+}
+
+export type IfExpression = {
+  condition: Expression,
+  _then: Block,
+  // _else?: Block,
+  _else: Block,
+}
+
+export type LoopExpression = {
+  body: Block,
+}
+
+export type UnaryExpression = {
+  operator: Token
+  rhs: Expression
+}
+
+export type WhileExpression = {
+  condition: Expression,
+  body: Block,
+}
+
+export type IndexAccess = {
+  object: Expression
+  index: Expression
+}
+
+export type MemberAccess = {
+  object: Expression
+  // member: Identifier|MemberAccess
+}
+
+export type BreakStatement = {
+  keyword: Token
+}
+
+export type ReturnStatement = {
+  keyword: Token
+  expression: Expression
+}
+
+export type ListLiteral = {
+  members: List<Expression>
+}
+
+export type BooleanLiteral = {
+  value: Bool
+}
+
+export type NumberLiteral = {
+  value: Num
+}
+
+export type ObjectLiteral = {
+  members: List<ObjectLiteralMember>
+}
+
+export type ObjectLiteralMember = {
+  name: SimpleIdentifier
+  value: Expression
+}
+
+export type StringLiteralPart = {
+  value: String
+}
+
+export type StringLiteral = {
+  // parts: List<StringLiteralPart|Identifier>
+}

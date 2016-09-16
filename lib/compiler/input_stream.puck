@@ -1,4 +1,5 @@
 import 'puck:js' as {console, process, typeof}
+import '../entities.puck' as {File}
 
 export fn InputStream(file: File) {
   let code =
