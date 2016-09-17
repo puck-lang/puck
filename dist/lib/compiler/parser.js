@@ -465,6 +465,14 @@ function parse(input) {
     };
     return ret;
   };
+  function parseUnaryExpression() {
+    var operator = input.next();
+    return {
+      kind: _ast.SyntaxKind.UnaryExpression,
+      operator: operator,
+      rhs: parseExpression(_ast.precedence[operator.kind])
+    };
+  };
   function parseWhile() {
     skipKeyword(_ast.SyntaxKind.WhileKeyword);
     var condition = parseExpression();
@@ -546,11 +554,7 @@ function parse(input) {
                       return parseVariableDeclaration();
                     } else {
                       if (isToken(_ast.SyntaxKind.NotKeyword) || isToken(_ast.SyntaxKind.MinusToken) || isToken(_ast.SyntaxKind.PlusToken)) {
-                        return {
-                          kind: _ast.SyntaxKind.UnaryExpression,
-                          operator: input.next(),
-                          rhs: parseExpression()
-                        };
+                        return parseUnaryExpression();
                       } else {
                         if (isToken(_ast.SyntaxKind.BreakKeyword)) {
                           return input.next();
@@ -722,7 +726,9 @@ function parse(input) {
     };
   };
   function parseExpression() {
-    return maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), 0)));
+    var precedence = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+
+    return maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), precedence)));
   };
   return parseModule();
 }

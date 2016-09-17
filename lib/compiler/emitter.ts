@@ -3,6 +3,7 @@ import {
   isExport,
   isIdentifier,
   isMember,
+  precedence,
   textToToken,
   tokenToText,
   ArrayLiteral,
@@ -57,6 +58,7 @@ export function Emitter() {
   let hoist: (code: string) => void
   let valueVariable
   let valueVarableCount = 0
+  let currentPrecedence
 
   function newValueVariable() {
     valueVarableCount += 1
@@ -69,6 +71,14 @@ export function Emitter() {
     let value = fn()
     context = wasInContext
     return value
+  }
+
+  function withPrecedence(operator: Token, emitter: () => string) {
+    const parentPrecedence = currentPrecedence
+    currentPrecedence = precedence[operator.kind]
+    if (parentPrecedence > currentPrecedence)
+      return `(${emitter()})`
+    else return emitter()
   }
 
   function indent(lines: string, level?): string
@@ -311,7 +321,9 @@ export function Emitter() {
   }
 
   function emitBinaryExpression(e: BinaryExpression) {
-    return `${emitExpression(e.lhs)} ${tokenToJs[e.operator.kind]} ${emitExpression(e.rhs)}`
+    return withPrecedence(e.operator, () =>
+      `${emitExpression(e.lhs)} ${tokenToJs[e.operator.kind]} ${emitExpression(e.rhs)}`
+    )
   }
 
   function emitCallExpression(fn: CallExpression) {
@@ -346,7 +358,7 @@ export function Emitter() {
   }
 
   function emitUnaryExpression(e: BinaryExpression) {
-    return `${tokenToJs[e.operator.kind]}${emitExpression(e.rhs)}`
+    return withPrecedence(e.operator, () => `${tokenToJs[e.operator.kind]}${emitExpression(e.rhs)}`)
   }
 
   function emitWhileExpression(e: WhileExpression) {

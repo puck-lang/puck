@@ -20,6 +20,7 @@ function Emitter() {
     var hoist;
     var valueVariable;
     var valueVarableCount = 0;
+    var currentPrecedence;
     function newValueVariable() {
         valueVarableCount += 1;
         return "__PUCK__value__" + valueVarableCount;
@@ -30,6 +31,14 @@ function Emitter() {
         var value = fn();
         context = wasInContext;
         return value;
+    }
+    function withPrecedence(operator, emitter) {
+        var parentPrecedence = currentPrecedence;
+        currentPrecedence = ast_1.precedence[operator.kind];
+        if (parentPrecedence > currentPrecedence)
+            return "(" + emitter() + ")";
+        else
+            return emitter();
     }
     function indent(lines, level_) {
         if (level_ === void 0) { level_ = level; }
@@ -250,7 +259,9 @@ function Emitter() {
         return left + " " + tokenToJs[e.token.kind] + " " + emitExpression(e.rhs, Context.Value);
     }
     function emitBinaryExpression(e) {
-        return emitExpression(e.lhs) + " " + tokenToJs[e.operator.kind] + " " + emitExpression(e.rhs);
+        return withPrecedence(e.operator, function () {
+            return (emitExpression(e.lhs) + " " + tokenToJs[e.operator.kind] + " " + emitExpression(e.rhs));
+        });
     }
     function emitCallExpression(fn) {
         return emitExpression(fn.func) + "(" + fn.argumentList.map(function (arg) { return emitExpression(arg, Context.Value); }).join(', ') + ")";
@@ -279,7 +290,7 @@ function Emitter() {
             return code;
     }
     function emitUnaryExpression(e) {
-        return "" + tokenToJs[e.operator.kind] + emitExpression(e.rhs);
+        return withPrecedence(e.operator, function () { return ("" + tokenToJs[e.operator.kind] + emitExpression(e.rhs)); });
     }
     function emitWhileExpression(e) {
         var body = function () { return emitBlock(e.body); };

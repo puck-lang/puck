@@ -21,6 +21,7 @@ import '../ast/ast.puck' as {
   BinaryExpression
   CallExpression
   IfExpression
+  UnaryExpression
   WhileExpression
 
   ListLiteral
@@ -488,6 +489,16 @@ export fn parse(input) { // : TokenStream
     ret
   }
 
+  fn parseUnaryExpression(): UnaryExpression {
+    let operator = input.next()
+
+    {
+      kind: SyntaxKind.UnaryExpression
+      operator
+      rhs: parseExpression(precedence[operator.kind])
+    }
+  }
+
   fn parseWhile(): WhileExpression {
     skipKeyword(SyntaxKind.WhileKeyword)
 
@@ -557,11 +568,7 @@ export fn parse(input) { // : TokenStream
       else if isToken(SyntaxKind.NotKeyword)
            or isToken(SyntaxKind.MinusToken)
            or isToken(SyntaxKind.PlusToken)
-        then {
-          kind: SyntaxKind.UnaryExpression,
-          operator: input.next(),
-          rhs: parseExpression(),
-        }
+        then parseUnaryExpression()
       else if isToken(SyntaxKind.BreakKeyword) then input.next()
       else if isToken(SyntaxKind.ReturnKeyword) then {
         kind: SyntaxKind.ReturnStatement,
@@ -679,8 +686,8 @@ export fn parse(input) { // : TokenStream
     { kind: SyntaxKind.Block, block }
   }
 
-  fn parseExpression(): Expression {
-    maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), 0)))
+  fn parseExpression(precedence = 0): Expression {
+    maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), precedence)))
   }
 
   parseModule()
