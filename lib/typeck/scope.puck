@@ -46,6 +46,7 @@ import '../compiler/ast.ts' as {SyntaxKind}
 
 type Binding = {
   identifier: Identifier
+  token: Token
   mutable: Bool
   redefined: Bool
   previous: Binding //?
@@ -76,10 +77,12 @@ fn createScope(context, file, parent) {
     getLocalBinding: |name| bindings[name]
     getBinding: |name| bindings[name] or (parent and parent.getBinding(name))
     getTypeBinding: |name| typeBindings[name] or (parent and parent.getTypeBinding(name))
-    define: |mut binding: Binding| {
+    define: |mut binding: Binding, allowRedeclare = false| {
       let name = binding.identifier.name
       binding.redefined = bindings[name] != undefined
       if binding.redefined {
+        if not allowRedeclare
+          then reportError(binding.token, '$name has already been declared in the scope')
         bindings[name].redefined = true
         binding.previous = bindings[name]
       }
@@ -131,13 +134,11 @@ fn createScope(context, file, parent) {
 
 fn defineFunction(scope, f: FunctionDeclaration) {
   if f.name then
-    scope.define({identifier: f.name, mutable: false})
+    scope.define({identifier: f.name, mutable: false, token: f})
 }
 
 fn definedHosted(scope, expressions: List<Expression>) {
   expressions.forEach(|e| {
-    if e.scope then return undefined
-
     if e.kind == SyntaxKind.Function {
       defineFunction(scope, e)
       e.hoisted = true
@@ -145,6 +146,23 @@ fn definedHosted(scope, expressions: List<Expression>) {
     if e.kind == SyntaxKind.ExportDirective and
         e.expression.kind == SyntaxKind.Function {
       defineFunction(scope, e.expression)
+      e.expression.hoisted = true
+    }
+  })
+}
+
+fn definedHostedTopLevel(scope, expressions: List<Expression>) {
+  expressions.forEach(|e| {
+    if e.kind == SyntaxKind.TraitDeclaration
+    or e.kind == SyntaxKind.TypeDeclaration {
+      scope.defineType(e)
+      e.hoisted = true
+    }
+    if e.kind == SyntaxKind.ExportDirective and (
+      e.expression.kind == SyntaxKind.TraitDeclaration or
+      e.expression.kind == SyntaxKind.TypeDeclaration
+    ) {
+      scope.defineType(e.expression)
       e.expression.hoisted = true
     }
   })
@@ -158,40 +176,35 @@ export fn TopScopeVisitor(context, file) {
 
     visitBlock: |self, b: Block| {}
     visitFunctionDeclaration: |self, f: FunctionDeclaration| {
-      f.scope = scope
-      if not f.hoisted then defineFunction(scope, f)
+      defineFunction(scope, f)
     }
     visitIdentifier: |self, i: Identifier| {}
     visitModule: |self, m: Module| {
       m.scope = scope
-      definedHosted(scope, m.lines)
       visit.walkModule(self, m)
     }
     visitObjectDestructure: |self, i: ObjectDestructure| {
-      i.scope = scope
-      i.members.forEach(|m| scope.define({identifier: m.local, mutable: false}))
+      // Allow redeclaration in this pass as we don't yet know if the type or variable scope
+      // should be used for the imported identifiers.
+      i.members.forEach(|m| scope.define({identifier: m.local, mutable: false, token: m}, true))
     }
     visitTraitDeclaration: |self, t: TraitDeclaration| {
-      t.scope = scope
       scope.defineType(t)
     }
     visitTypeBound: |self, t: TypeBound| {}
     visitTypeDeclaration: |self, t: TypeDeclaration| {
-      t.scope = scope
       scope.defineType(t)
     }
     visitVariableDeclaration: |self, d: VariableDeclaration| {
-      d.scope = scope
-      scope.define({identifier: d.identifier, mutable: d.mutable})
+      scope.define({identifier: d.identifier, mutable: d.mutable, token: d}, true)
     }
 
     visitExportDirective: |self, e: ExportDirective| {
-      e.scope = scope
       visit.walkExportDirective(self, e)
     }
     visitImportDirective: |self, i: ImportDirective| {
       if i.specifier.kind == SyntaxKind.Identifier
-        then scope.define({identifier: i.specifier, mutable: false})
+        then scope.define({identifier: i.specifier, mutable: false, token: i})
       else if i.specifier.kind == SyntaxKind.ObjectDestructure
         then visit.walkImportDirective(self, i)
     }
@@ -220,7 +233,7 @@ export fn TopScopeVisitor(context, file) {
 
 export fn ScopeVisitor(context, file) {
   let mut importDirective: ImportDirective
-  let mut scope: Scope
+  let mut scope = createScope(context, file)
   let reportError = context.reportError.bind(context, file)
 
   Object.assign({}, visit.Visitor, {
@@ -231,7 +244,7 @@ export fn ScopeVisitor(context, file) {
       visit.walkBlock(self, b)
     }
     visitFunctionDeclaration: |self, f: FunctionDeclaration| {
-      if not f.scope and not f.hoisted then defineFunction(scope, f)
+      if not f.hoisted then defineFunction(scope, f)
       scope = createScope(context, file, scope)
       f.scope = scope
       visit.walkFunction(self, f)
@@ -244,7 +257,9 @@ export fn ScopeVisitor(context, file) {
       visit.walkIdentifier(self, i)
     }
     visitModule: |self, m: Module| {
-      scope = m.scope
+      m.scope = scope
+      definedHostedTopLevel(scope, m.lines)
+      definedHosted(scope, m.lines)
       visit.walkModule(self, m)
     }
     visitObjectDestructure: |self, i: ObjectDestructure| {
@@ -254,9 +269,9 @@ export fn ScopeVisitor(context, file) {
           let e = importDirective.module.exports[m.local.name]
           if e.expression.kind == SyntaxKind.TypeDeclaration
             then scope.defineType(e.expression)
-            else scope.define({identifier: m.local, mutable: false})
+            else scope.define({identifier: m.local, mutable: false, token: m})
         }
-        else scope.define({identifier: m.local, mutable: false})
+        else scope.define({identifier: m.local, mutable: false, token: m})
       })
     }
     visitTraitDeclaration: |self, t: TraitDeclaration| {
@@ -304,21 +319,20 @@ export fn ScopeVisitor(context, file) {
       visit.walkTypeParameter(self, t)
     }
     visitVariableDeclaration: |self, d: VariableDeclaration| {
+      d.scope = scope
       if d.typeBound then self.visitTypeBound(d.typeBound)
-      if not d.scope {
-        d.scope = scope
-        scope.define({identifier: d.identifier, mutable: d.mutable})
-      }
+      scope.define({identifier: d.identifier, mutable: d.mutable, token: d}, true)
       if d.initializer then self.visitExpression(d.initializer)
     }
 
-    // visitExportDirective: |self, e: ExportDirective| {
-    //   visit.walkExportDirective(self, e)
-    // }
+    visitExportDirective: |self, e: ExportDirective| {
+      e.scope = scope
+      visit.walkExportDirective(self, e)
+    }
     visitImportDirective: |self, i: ImportDirective| {
       i.scope = scope
       if i.specifier.kind == SyntaxKind.Identifier
-        then scope.define({identifier: i.specifier, mutable: false})
+        then scope.define({identifier: i.specifier, mutable: false, token: i})
       else if i.specifier.kind == SyntaxKind.ObjectDestructure {
         importDirective = i
         visit.walkImportDirective(self, i)

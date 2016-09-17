@@ -16,7 +16,7 @@ function e(a, b) {
   return d(a, b);
 };
 function f(a, b) {
-  return function a(a, b) {
+  return function c(a, b) {
     return f(a, b);
   };
 };

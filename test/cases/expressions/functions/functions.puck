@@ -3,7 +3,7 @@ fn b(a) {}
 fn c(a) {a}
 fn d(a,b) {c(a)}
 fn e(a,b) then d(a,b)
-fn f(a,b) then fn a(a,b) then f(a,b)
+fn f(a,b) then fn c(a,b) then f(a,b)
 fn g(a,b) {
   a()
   b()

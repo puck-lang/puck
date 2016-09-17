@@ -40,9 +40,14 @@ function createScope(context, file, parent) {
       return typeBindings[name] || parent && parent.getTypeBinding(name);
     },
     define: function define(binding) {
+      var allowRedeclare = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
       var name = binding.identifier.name;
       binding.redefined = bindings[name] != _js._undefined;
       if (binding.redefined) {
+        if (!allowRedeclare) {
+          reportError(binding.token, "" + name + " has already been declared in the scope");
+        };
         bindings[name].redefined = true;
         binding.previous = bindings[name];
       };
@@ -103,21 +108,31 @@ function defineFunction(scope, f) {
   if (f.name) {
     return scope.define({
       identifier: f.name,
-      mutable: false
+      mutable: false,
+      token: f
     });
   };
 };
 function definedHosted(scope, expressions) {
   return expressions.forEach(function (e) {
-    if (e.scope) {
-      return _js._undefined;
-    };
     if (e.kind == _ast.SyntaxKind.Function) {
       defineFunction(scope, e);
       e.hoisted = true;
     };
     if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
       defineFunction(scope, e.expression);
+      return e.expression.hoisted = true;
+    };
+  });
+};
+function definedHostedTopLevel(scope, expressions) {
+  return expressions.forEach(function (e) {
+    if (e.kind == _ast.SyntaxKind.TraitDeclaration || e.kind == _ast.SyntaxKind.TypeDeclaration) {
+      scope.defineType(e);
+      e.hoisted = true;
+    };
+    if (e.kind == _ast.SyntaxKind.ExportDirective && (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration)) {
+      scope.defineType(e.expression);
       return e.expression.hoisted = true;
     };
   });
@@ -129,50 +144,43 @@ function TopScopeVisitor(context, file) {
     visitBlock: function visitBlock(b) {},
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      f.scope = scope;
-      if (!f.hoisted) {
-        return defineFunction(scope, f);
-      };
+      return defineFunction(scope, f);
     },
     visitIdentifier: function visitIdentifier(i) {},
     visitModule: function visitModule(m) {
       var self = this;
       m.scope = scope;
-      definedHosted(scope, m.lines);
       return visit.walkModule(self, m);
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
-      i.scope = scope;
       return i.members.forEach(function (m) {
         return scope.define({
           identifier: m.local,
-          mutable: false
-        });
+          mutable: false,
+          token: m
+        }, true);
       });
     },
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
-      t.scope = scope;
       return scope.defineType(t);
     },
     visitTypeBound: function visitTypeBound(t) {},
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
-      t.scope = scope;
       return scope.defineType(t);
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
-      d.scope = scope;
       return scope.define({
         identifier: d.identifier,
-        mutable: d.mutable
-      });
+        mutable: d.mutable,
+        token: d
+      }, true);
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
-      e.scope = scope;
       return visit.walkExportDirective(self, e);
     },
     visitImportDirective: function visitImportDirective(i) {
@@ -180,7 +188,8 @@ function TopScopeVisitor(context, file) {
       if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
         return scope.define({
           identifier: i.specifier,
-          mutable: false
+          mutable: false,
+          token: i
         });
       } else {
         if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
@@ -209,7 +218,7 @@ function TopScopeVisitor(context, file) {
 };
 function ScopeVisitor(context, file) {
   var importDirective = void 0;
-  var scope = void 0;
+  var scope = createScope(context, file);
   var reportError = context.reportError.bind(context, file);
   return _js._Object.assign({}, visit.Visitor, {
     visitBlock: function visitBlock(b) {
@@ -220,7 +229,7 @@ function ScopeVisitor(context, file) {
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      if (!f.scope && !f.hoisted) {
+      if (!f.hoisted) {
         defineFunction(scope, f);
       };
       scope = createScope(context, file, scope);
@@ -239,7 +248,9 @@ function ScopeVisitor(context, file) {
     },
     visitModule: function visitModule(m) {
       var self = this;
-      scope = m.scope;
+      m.scope = scope;
+      definedHostedTopLevel(scope, m.lines);
+      definedHosted(scope, m.lines);
       return visit.walkModule(self, m);
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
@@ -253,13 +264,15 @@ function ScopeVisitor(context, file) {
           } else {
             return scope.define({
               identifier: m.local,
-              mutable: false
+              mutable: false,
+              token: m
             });
           };
         } else {
           return scope.define({
             identifier: m.local,
-            mutable: false
+            mutable: false,
+            token: m
           });
         };
       });
@@ -314,19 +327,23 @@ function ScopeVisitor(context, file) {
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
+      d.scope = scope;
       if (d.typeBound) {
         self.visitTypeBound(d.typeBound);
       };
-      if (!d.scope) {
-        d.scope = scope;
-        scope.define({
-          identifier: d.identifier,
-          mutable: d.mutable
-        });
-      };
+      scope.define({
+        identifier: d.identifier,
+        mutable: d.mutable,
+        token: d
+      }, true);
       if (d.initializer) {
         return self.visitExpression(d.initializer);
       };
+    },
+    visitExportDirective: function visitExportDirective(e) {
+      var self = this;
+      e.scope = scope;
+      return visit.walkExportDirective(self, e);
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
@@ -334,7 +351,8 @@ function ScopeVisitor(context, file) {
       if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
         return scope.define({
           identifier: i.specifier,
-          mutable: false
+          mutable: false,
+          token: i
         });
       } else {
         if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
