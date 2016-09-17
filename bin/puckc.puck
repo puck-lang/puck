@@ -7,6 +7,7 @@ let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puckc') >= 0}).slic
 
 let outDir = flag(arguments, '--out-dir', 'dist')
 let outFile = flag(arguments, '--out-file')
+let dump = flag(arguments, '--dump')
 let extension = if flag(arguments, '--skip-extension') then '' else '.js'
 
 if arguments.length > 1 and outFile {
@@ -16,7 +17,7 @@ if arguments.length > 1 and outFile {
 
 if arguments.length == 0 {
   print('Usage:
-  puckc [--outfile \$file] [--out-dir \$dir=dist] [--skip-extension true] ...files
+  puckc [--out-file \$file] [--out-dir \$dir=dist] [--dump ast|js] [--skip-extension true] ...files
 ')
   process.exit(1)
 } else {
@@ -24,5 +25,5 @@ if arguments.length == 0 {
     file
     outFile: outFile or join(outDir, file.replace(RegExp('\\.puck$'), extension))
   })
-  build(files)
+  build(files, dump)
 }

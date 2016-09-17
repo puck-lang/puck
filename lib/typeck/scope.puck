@@ -1,3 +1,4 @@
+import 'node:util' as {inspect}
 import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
   Expression
@@ -115,6 +116,15 @@ fn createScope(context, file, parent) {
         name: t.name
         parameters
       }
+    }
+    inspect: |depth, opts| {
+      let scope = {}
+      if parent then scope['[parent]'] = parent.inspect()
+      Object.assign(scope, bindings)
+
+      if not depth and not opts
+        then scope
+        else inspect(scope, Object.assign({}, opts, {depth}))
     }
   }
 }

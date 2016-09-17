@@ -1,7 +1,8 @@
-import 'puck:js' as {Object, console, process, typeof}
+import 'puck:js' as {Object, console, process, undefined, typeof}
 import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
+import 'node:util' as {inspect}
 import 'compiler/emitter.ts' as {Emitter}
 import 'compiler/input_stream.puck' as {InputStream}
 import 'compiler/parser.puck' as {parse}
@@ -22,7 +23,19 @@ export fn compile(context, file: File) {
   Emitter(context, file).emitModule(file.ast)
 }
 
-export fn build(files: List<File>) {
+fn dumpFiles(files: List<File>, prop: String) {
+  files.forEach(|file| {
+    print()
+    print(file.absolutePath)
+    let mut data = file[prop]
+    if typeof(data) != 'string' {
+      data = inspect(data, {colors: true, depth: 5})
+    }
+    print(data.split('\n').map(|line| '  $line').join('\n'))
+  })
+}
+
+export fn build(files: List<File>, dump: String) {
   let files = files.map(|f| {
     let fileName = path.basename(f.file)
     let absolutePath = path.resolve(path.normalize(f.file))
@@ -72,12 +85,25 @@ export fn build(files: List<File>) {
 
   let files = files.map(|f| context.importFile(f))
 
+  if dump == 'ast' {
+    dumpFiles(files, 'ast')
+    return undefined
+  }
+
   Object.keys(context.files)
     .map(|path| context.files[path])
     .forEach(|file| ScopeVisitor(context, file).visitModule(file.ast))
 
   files.forEach(|file| {
     file.js = compile(context, file)
+  })
+
+  if dump == 'js' {
+    dumpFiles(files, 'js')
+    return undefined
+  }
+
+  files.forEach(|file| {
     file.babel = babel.transform(file.js, {
       filename: file.absolutePath
       presets: 'latest'

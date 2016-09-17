@@ -17,6 +17,7 @@ var _arguments = _js.process.argv.takeFrom(function (arg) {
 }).slice(1);
 var outDir = (0, _helpers.flag)(_arguments, "--out-dir", "dist");
 var outFile = (0, _helpers.flag)(_arguments, "--out-file");
+var dump = (0, _helpers.flag)(_arguments, "--dump");
 var __PUCK__value__1 = void 0;
 if ((0, _helpers.flag)(_arguments, "--skip-extension")) {
   __PUCK__value__1 = "";
@@ -29,7 +30,7 @@ if (_arguments.length > 1 && outFile) {
   _js.process.exit(1);
 };
 if (_arguments.length == 0) {
-  (0, _core.print)("Usage:\n  puckc [--outfile $file] [--out-dir $dir=dist] [--skip-extension true] ...files\n");
+  (0, _core.print)("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|js] [--skip-extension true] ...files\n");
   _js.process.exit(1);
 } else {
   var files = _arguments.map(function (file) {
@@ -38,5 +39,5 @@ if (_arguments.length == 0) {
       outFile: outFile || (0, _path.join)(outDir, file.replace(RegExp("\\.puck$"), extension))
     };
   });
-  (0, _compiler.build)(files);
+  (0, _compiler.build)(files, dump);
 }

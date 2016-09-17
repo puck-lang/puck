@@ -25,6 +25,8 @@ var _path = require('path');
 
 var path = _interopRequireWildcard(_path);
 
+var _util = require('util');
+
 var _emitter = require('./compiler/emitter.js');
 
 var _input_stream = require('./compiler/input_stream.js');
@@ -50,9 +52,25 @@ function parseString(context, file) {
   return ast;
 };
 function compile(context, file) {
-  return (0, _emitter.Emitter)().emitModule(file.ast);
+  return (0, _emitter.Emitter)(context, file).emitModule(file.ast);
 };
-function build(files) {
+function dumpFiles(files, prop) {
+  return files.forEach(function (file) {
+    (0, _core.print)();
+    (0, _core.print)(file.absolutePath);
+    var data = file[prop];
+    if ((0, _js._typeof)(data) != "string") {
+      data = (0, _util.inspect)(data, {
+        colors: true,
+        depth: 5
+      });
+    };
+    return (0, _core.print)(data.split("\n").map(function (line) {
+      return "  " + line + "";
+    }).join("\n"));
+  });
+};
+function build(files, dump) {
   files = files.map(function (f) {
     var fileName = path.basename(f.file);
     var absolutePath = path.resolve(path.normalize(f.file));
@@ -111,13 +129,23 @@ function build(files) {
   files = files.map(function (f) {
     return context.importFile(f);
   });
+  if (dump == "ast") {
+    dumpFiles(files, "ast");
+    return _js._undefined;
+  };
   _js._Object.keys(context.files).map(function (path) {
     return context.files[path];
   }).forEach(function (file) {
     return (0, _scope.ScopeVisitor)(context, file).visitModule(file.ast);
   });
   files.forEach(function (file) {
-    file.js = compile(context, file);
+    return file.js = compile(context, file);
+  });
+  if (dump == "js") {
+    dumpFiles(files, "js");
+    return _js._undefined;
+  };
+  files.forEach(function (file) {
     return file.babel = babel.transform(file.js, {
       filename: file.absolutePath,
       presets: "latest",

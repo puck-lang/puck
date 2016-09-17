@@ -10,6 +10,8 @@ exports.ScopeVisitor = ScopeVisitor;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var _util = require('util');
+
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 require('./../ast/ast.js');
@@ -82,6 +84,18 @@ function createScope(context, file, parent) {
         name: t.name,
         parameters: parameters
       };
+    },
+    inspect: function inspect(depth, opts) {
+      var scope = {};
+      if (parent) {
+        scope["[parent]"] = parent.inspect();
+      };
+      _js._Object.assign(scope, bindings);
+      if (!depth && !opts) {
+        return scope;
+      } else {
+        return (0, _util.inspect)(scope, _js._Object.assign({}, opts, { depth: depth }));
+      };
     }
   };
 };
@@ -113,7 +127,7 @@ function TopScopeVisitor(context, file) {
   var reportError = context.reportError.bind(context, file);
   return _js._Object.assign({}, visit.Visitor, {
     visitBlock: function visitBlock(b) {},
-    visitFunction: function visitFunction(f) {
+    visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
       f.scope = scope;
       if (!f.hoisted) {
@@ -136,6 +150,11 @@ function TopScopeVisitor(context, file) {
           mutable: false
         });
       });
+    },
+    visitTraitDeclaration: function visitTraitDeclaration(t) {
+      var self = this;
+      t.scope = scope;
+      return scope.defineType(t);
     },
     visitTypeBound: function visitTypeBound(t) {},
     visitTypeDeclaration: function visitTypeDeclaration(t) {
@@ -199,7 +218,7 @@ function ScopeVisitor(context, file) {
       definedHosted(scope, b.block);
       return visit.walkBlock(self, b);
     },
-    visitFunction: function visitFunction(f) {
+    visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
       if (!f.scope && !f.hoisted) {
         defineFunction(scope, f);
@@ -244,6 +263,13 @@ function ScopeVisitor(context, file) {
           });
         };
       });
+    },
+    visitTraitDeclaration: function visitTraitDeclaration(t) {
+      var self = this;
+      scope = createScope(context, file, scope);
+      t.scope = scope;
+      visit.walkTraitDeclaration(self, t);
+      return scope = scope.parent;
     },
     visitFunctionTypeBound: function visitFunctionTypeBound(t) {
       var self = this;

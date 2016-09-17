@@ -8,6 +8,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.cmd = cmd;
 exports.walkSync = walkSync;
 exports.flag = flag;
+exports.isTypeScopeDeclaration = isTypeScopeDeclaration;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -22,6 +23,10 @@ var fs = _interopRequireWildcard(_fs);
 var _path = require('path');
 
 var path = _interopRequireWildcard(_path);
+
+require('./ast/ast.js');
+
+var _ast = require('./compiler/ast.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -80,4 +85,7 @@ function flag(_arguments, name, defaultValue) {
   } else {
     return defaultValue;
   };
+};
+function isTypeScopeDeclaration(t) {
+  return t.kind == _ast.SyntaxKind.TraitDeclaration || t.kind == _ast.SyntaxKind.TypeDeclaration;
 }
