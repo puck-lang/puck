@@ -1,6 +1,6 @@
 fn a() {}
 fn b(a) {}
-fn c(a) {a}
+fn c(a = 1) {a}
 fn d(a,b) {c(a)}
 fn e(a,b) then d(a,b)
 fn f(a,b) then fn c(a,b) then f(a,b)
@@ -33,3 +33,8 @@ fn m(a, b): Bool {
 fn n(self) then self.toString()
 fn o(mut self) then self.toString()
 fn p(self, a) then self.toString()
+
+a()
+b(1)
+c()
+c(2)

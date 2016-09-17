@@ -67,7 +67,60 @@ type ScopeAware = {
   scope: Scope
 }
 
-fn createScope(context, file, parent) {
+fn createFunctionType(f: FunctionDeclaration, reportError) {
+  let parameters =
+    if f.parameterList {
+      let mut firstOptional = f.parameterList.length
+      let mut hasOptional = false
+
+      f.parameterList.forEach(|v, i|
+        if v.initializer and not hasOptional {
+          hasOptional = true
+          firstOptional = i
+        }
+        else if not v.initializer and hasOptional then reportError(v
+          "An optional parameter can't be followed by a required parameter"
+        )
+      )
+
+      {
+        min: firstOptional
+        max: f.parameterList.length
+      }
+    }
+    else {{min: 0, max: 0}}
+  {
+    kind: 'function'
+    parameters
+  }
+}
+
+fn checkFunctionType(binding: Binding, c: CallExpression, reportError) {
+  if not binding.ty then return undefined
+  let name = binding.identifier.name
+
+  if binding.ty.kind != 'function'
+    then reportError(c, '$name is not callable')
+
+  let argumentCount = c.argumentList.length
+  let max = binding.ty.parameters.max
+  let min = binding.ty.parameters.min
+  let required =
+    if min == max
+      then min
+      else '$min to $max'
+
+  if argumentCount < min
+    then reportError(c
+      'Too few type parameters given to $name, $required required, $argumentCount given'
+    )
+  if argumentCount > max
+    then reportError(c
+      'Too many type parameters given to $name, $required required, $argumentCount given'
+    )
+}
+
+fn createScope(context, file, parent = undefined) {
   let reportError = context.reportError.bind(context, file)
   let bindings = {}
   let typeBindings = {}
@@ -104,7 +157,7 @@ fn createScope(context, file, parent) {
               firstOptional = i
             }
             else if not t.defaultValue and hasOptional then reportError(t
-              "An optional type paramterer can't be followed by a required type parameter"
+              "An optional type parameter can't be followed by a required type parameter"
             )
           )
 
@@ -132,20 +185,25 @@ fn createScope(context, file, parent) {
   }
 }
 
-fn defineFunction(scope, f: FunctionDeclaration) {
+fn defineFunction(scope, f: FunctionDeclaration, reportError) {
   if f.name then
-    scope.define({identifier: f.name, mutable: false, token: f})
+    scope.define({
+      identifier: f.name
+      token: f
+      mutable: false
+      ty: createFunctionType(f, reportError)
+    })
 }
 
-fn definedHosted(scope, expressions: List<Expression>) {
+fn definedHosted(scope, expressions: List<Expression>, reportError) {
   expressions.forEach(|e| {
     if e.kind == SyntaxKind.Function {
-      defineFunction(scope, e)
+      defineFunction(scope, e, reportError)
       e.hoisted = true
     }
     if e.kind == SyntaxKind.ExportDirective and
         e.expression.kind == SyntaxKind.Function {
-      defineFunction(scope, e.expression)
+      defineFunction(scope, e.expression, reportError)
       e.expression.hoisted = true
     }
   })
@@ -176,7 +234,7 @@ export fn TopScopeVisitor(context, file) {
 
     visitBlock: |self, b: Block| {}
     visitFunctionDeclaration: |self, f: FunctionDeclaration| {
-      defineFunction(scope, f)
+      defineFunction(scope, f, reportError)
     }
     visitIdentifier: |self, i: Identifier| {}
     visitModule: |self, m: Module| {
@@ -240,11 +298,11 @@ export fn ScopeVisitor(context, file) {
 
     visitBlock: |self, b: Block| {
       b.scope = scope
-      definedHosted(scope, b.block)
+      definedHosted(scope, b.block, reportError)
       visit.walkBlock(self, b)
     }
     visitFunctionDeclaration: |self, f: FunctionDeclaration| {
-      if not f.hoisted then defineFunction(scope, f)
+      if not f.hoisted then defineFunction(scope, f, reportError)
       scope = createScope(context, file, scope)
       f.scope = scope
       visit.walkFunction(self, f)
@@ -259,7 +317,7 @@ export fn ScopeVisitor(context, file) {
     visitModule: |self, m: Module| {
       m.scope = scope
       definedHostedTopLevel(scope, m.lines)
-      definedHosted(scope, m.lines)
+      definedHosted(scope, m.lines, reportError)
       visit.walkModule(self, m)
     }
     visitObjectDestructure: |self, i: ObjectDestructure| {
@@ -295,14 +353,14 @@ export fn ScopeVisitor(context, file) {
       let parameterCount = t.parameters.length
       if parameterCount < binding.parameters.min
         then reportError(t
-          'To few type parameters given to ' + t.name.name + ' min ' +
+          'Too few type parameters given to ' + t.name.name + ' min ' +
           binding.parameters.min + ' required, ' + parameterCount + ' given'
         )
       if parameterCount > binding.parameters.max
         then reportError(t
           if binding.parameters.max == 0
             then 'Type ' + t.name.name + ' is not generic'
-            else 'To many type parameters given to ' + t.name.name + ' max ' +
+            else 'Too many type parameters given to ' + t.name.name + ' max ' +
               binding.parameters.max + ' required, ' + parameterCount + ' given'
         )
 
@@ -355,6 +413,11 @@ export fn ScopeVisitor(context, file) {
     visitCallExpression: |self, e: CallExpression| {
       e.scope = scope
       visit.walkCallExpression(self, e)
+      if e.func.kind == SyntaxKind.Identifier {
+        let binding = scope.getBinding(e.func.name)
+
+        checkFunctionType(binding, e, reportError)
+      }
     }
     visitForExpression: |self, e: ForExpression| {
       scope = createScope(context, file, scope)

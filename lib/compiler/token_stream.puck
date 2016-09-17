@@ -184,7 +184,7 @@ export fn TokenStream(input) {
       or token.kind == SyntaxKind.Comment
   }
 
-  fn peek(returnDummy) {
+  fn peek(returnDummy = false) {
     if returnDummy and currentDummy then return currentDummy
     if current then
       if returnDummy or not isDummy(current) then return current

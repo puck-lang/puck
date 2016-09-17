@@ -1,6 +1,6 @@
 let z = 5
-fn a() {}
-fn b() {}
+fn a(z = 0) {}
+fn b(z = 0) {}
 
 if z then a()
 if z then a() else b()
@@ -51,10 +51,6 @@ fn g() {
 }
 
 fn h() {
-  let z = 5
-  fn a() {}
-  fn b() {}
-
   if z then a()
   if z then a() else b()
   if z {a()} else b()

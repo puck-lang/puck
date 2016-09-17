@@ -16,7 +16,9 @@ require('./../ast/ast.js');
 var _ast = require('./ast.js');
 
 function parse(input) {
-  function isToken(kind, peekDistance) {
+  function isToken(kind) {
+    var peekDistance = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+
     var token = input.peek(false, peekDistance);
     return token && token.kind == kind;
   };
@@ -49,7 +51,10 @@ function parse(input) {
       return input.croak("Expected " + name + "" + expectedText + ", but " + but + "");
     };
   };
-  function consumeToken(token, name) {
+  function consumeToken() {
+    var token = arguments.length <= 0 || arguments[0] === undefined ? _js._undefined : arguments[0];
+    var name = arguments.length <= 1 || arguments[1] === undefined ? _js._undefined : arguments[1];
+
     if (token) {
       expect(token, name);
     };

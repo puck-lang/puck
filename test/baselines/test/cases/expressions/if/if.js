@@ -5,8 +5,12 @@
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var z = 5;
-function a() {};
-function b() {};
+function a() {
+  var z = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+};
+function b() {
+  var z = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+};
 if (z) {
   a();
 };
@@ -116,7 +120,7 @@ function e() {
 };
 function g() {
   if (z) {
-    var _x = z / 2;
+    var _x3 = z / 2;
     var __PUCK__value__11 = void 0;
     if (z < 0) {
       __PUCK__value__11 = -z;
@@ -124,7 +128,7 @@ function g() {
       __PUCK__value__11 = a(z) + b(z);
     };
     var _y = __PUCK__value__11;
-    return a(Math.pow(_x, _y));
+    return a(Math.pow(_x3, _y));
   } else {
     if (z == 0) {
       return q6;
@@ -132,9 +136,6 @@ function g() {
   };
 };
 function h() {
-  var z = 5;
-  function a() {};
-  function b() {};
   if (z) {
     a();
   };
@@ -199,7 +200,7 @@ function h() {
   var q5 = __PUCK__value__17;
   var __PUCK__value__18 = void 0;
   if (z) {
-    var _x2 = z / 2;
+    var _x4 = z / 2;
     var __PUCK__value__19 = void 0;
     if (z < 0) {
       __PUCK__value__19 = -z;
@@ -207,7 +208,7 @@ function h() {
       __PUCK__value__19 = a(z) + b(z);
     };
     var _y2 = __PUCK__value__19;
-    __PUCK__value__18 = a(Math.pow(_x2, _y2));
+    __PUCK__value__18 = a(Math.pow(_x4, _y2));
   } else {
     var __PUCK__value__20 = void 0;
     if (z == 0) {
@@ -244,7 +245,7 @@ function h() {
   };
   return function g() {
     if (z) {
-      var _x3 = z / 2;
+      var _x5 = z / 2;
       var __PUCK__value__22 = void 0;
       if (z < 0) {
         __PUCK__value__22 = -z;
@@ -252,7 +253,7 @@ function h() {
         __PUCK__value__22 = a(z) + b(z);
       };
       var _y3 = __PUCK__value__22;
-      return a(Math.pow(_x3, _y3));
+      return a(Math.pow(_x5, _y3));
     } else {
       if (z == 0) {
         return q6;

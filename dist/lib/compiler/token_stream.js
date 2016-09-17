@@ -241,7 +241,9 @@ function TokenStream(input) {
     };
     return token.kind == _ast.SyntaxKind.NewlineToken || token.kind == _ast.SyntaxKind.Comment;
   };
-  function peek(returnDummy) {
+  function peek() {
+    var returnDummy = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
     if (returnDummy && currentDummy) {
       return currentDummy;
     };

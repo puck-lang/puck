@@ -24,7 +24,67 @@ var _ast = require('./../compiler/ast.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function createScope(context, file, parent) {
+function createFunctionType(f, reportError) {
+  var __PUCK__value__1 = void 0;
+  if (f.parameterList) {
+    (function () {
+      var firstOptional = f.parameterList.length;
+      var hasOptional = false;
+      f.parameterList.forEach(function (v, i) {
+        if (v.initializer && !hasOptional) {
+          hasOptional = true;
+          return firstOptional = i;
+        } else {
+          if (!v.initializer && hasOptional) {
+            return reportError(v, "An optional parameter can't be followed by a required parameter");
+          };
+        };
+      });
+      __PUCK__value__1 = {
+        min: firstOptional,
+        max: f.parameterList.length
+      };
+    })();
+  } else {
+    __PUCK__value__1 = {
+      min: 0,
+      max: 0
+    };
+  };
+  var parameters = __PUCK__value__1;
+  return {
+    kind: "function",
+    parameters: parameters
+  };
+};
+function checkFunctionType(binding, c, reportError) {
+  if (!binding.ty) {
+    return _js._undefined;
+  };
+  var name = binding.identifier.name;
+  if (binding.ty.kind != "function") {
+    reportError(c, "" + name + " is not callable");
+  };
+  var argumentCount = c.argumentList.length;
+  var max = binding.ty.parameters.max;
+  var min = binding.ty.parameters.min;
+  var __PUCK__value__2 = void 0;
+  if (min == max) {
+    __PUCK__value__2 = min;
+  } else {
+    __PUCK__value__2 = "" + min + " to " + max + "";
+  };
+  var required = __PUCK__value__2;
+  if (argumentCount < min) {
+    reportError(c, "Too few type parameters given to " + name + ", " + required + " required, " + argumentCount + " given");
+  };
+  if (argumentCount > max) {
+    return reportError(c, "Too many type parameters given to " + name + ", " + required + " required, " + argumentCount + " given");
+  };
+};
+function createScope(context, file) {
+  var parent = arguments.length <= 2 || arguments[2] === undefined ? _js._undefined : arguments[2];
+
   var reportError = context.reportError.bind(context, file);
   var bindings = {};
   var typeBindings = {};
@@ -58,7 +118,7 @@ function createScope(context, file, parent) {
       if (typeBindings[name]) {
         reportError(t, "Type " + name + " is already defined");
       };
-      var __PUCK__value__1 = void 0;
+      var __PUCK__value__3 = void 0;
       if (t.parameters) {
         (function () {
           var firstOptional = t.parameters.length;
@@ -69,22 +129,22 @@ function createScope(context, file, parent) {
               return firstOptional = i;
             } else {
               if (!t.defaultValue && hasOptional) {
-                return reportError(t, "An optional type paramterer can't be followed by a required type parameter");
+                return reportError(t, "An optional type parameter can't be followed by a required type parameter");
               };
             };
           });
-          __PUCK__value__1 = {
+          __PUCK__value__3 = {
             min: firstOptional,
             max: t.parameters.length
           };
         })();
       } else {
-        __PUCK__value__1 = {
+        __PUCK__value__3 = {
           min: 0,
           max: 0
         };
       };
-      var parameters = __PUCK__value__1;
+      var parameters = __PUCK__value__3;
       return typeBindings[name] = {
         name: t.name,
         parameters: parameters
@@ -104,23 +164,24 @@ function createScope(context, file, parent) {
     }
   };
 };
-function defineFunction(scope, f) {
+function defineFunction(scope, f, reportError) {
   if (f.name) {
     return scope.define({
       identifier: f.name,
+      token: f,
       mutable: false,
-      token: f
+      ty: createFunctionType(f, reportError)
     });
   };
 };
-function definedHosted(scope, expressions) {
+function definedHosted(scope, expressions, reportError) {
   return expressions.forEach(function (e) {
     if (e.kind == _ast.SyntaxKind.Function) {
-      defineFunction(scope, e);
+      defineFunction(scope, e, reportError);
       e.hoisted = true;
     };
     if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
-      defineFunction(scope, e.expression);
+      defineFunction(scope, e.expression, reportError);
       return e.expression.hoisted = true;
     };
   });
@@ -144,7 +205,7 @@ function TopScopeVisitor(context, file) {
     visitBlock: function visitBlock(b) {},
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      return defineFunction(scope, f);
+      return defineFunction(scope, f, reportError);
     },
     visitIdentifier: function visitIdentifier(i) {},
     visitModule: function visitModule(m) {
@@ -224,13 +285,13 @@ function ScopeVisitor(context, file) {
     visitBlock: function visitBlock(b) {
       var self = this;
       b.scope = scope;
-      definedHosted(scope, b.block);
+      definedHosted(scope, b.block, reportError);
       return visit.walkBlock(self, b);
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
       if (!f.hoisted) {
-        defineFunction(scope, f);
+        defineFunction(scope, f, reportError);
       };
       scope = createScope(context, file, scope);
       f.scope = scope;
@@ -250,7 +311,7 @@ function ScopeVisitor(context, file) {
       var self = this;
       m.scope = scope;
       definedHostedTopLevel(scope, m.lines);
-      definedHosted(scope, m.lines);
+      definedHosted(scope, m.lines, reportError);
       return visit.walkModule(self, m);
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
@@ -300,16 +361,16 @@ function ScopeVisitor(context, file) {
       };
       var parameterCount = t.parameters.length;
       if (parameterCount < binding.parameters.min) {
-        reportError(t, "To few type parameters given to " + t.name.name + " min " + binding.parameters.min + " required, " + parameterCount + " given");
+        reportError(t, "Too few type parameters given to " + t.name.name + " min " + binding.parameters.min + " required, " + parameterCount + " given");
       };
       if (parameterCount > binding.parameters.max) {
-        var __PUCK__value__2 = void 0;
+        var __PUCK__value__4 = void 0;
         if (binding.parameters.max == 0) {
-          __PUCK__value__2 = "Type " + t.name.name + " is not generic";
+          __PUCK__value__4 = "Type " + t.name.name + " is not generic";
         } else {
-          __PUCK__value__2 = "To many type parameters given to " + t.name.name + " max " + binding.parameters.max + " required, " + parameterCount + " given";
+          __PUCK__value__4 = "Too many type parameters given to " + t.name.name + " max " + binding.parameters.max + " required, " + parameterCount + " given";
         };
-        reportError(t, __PUCK__value__2);
+        reportError(t, __PUCK__value__4);
       };
       return visit.walkNamedTypeBound(self, t);
     },
@@ -380,7 +441,11 @@ function ScopeVisitor(context, file) {
     visitCallExpression: function visitCallExpression(e) {
       var self = this;
       e.scope = scope;
-      return visit.walkCallExpression(self, e);
+      visit.walkCallExpression(self, e);
+      if (e.func.kind == _ast.SyntaxKind.Identifier) {
+        var binding = scope.getBinding(e.func.name);
+        return checkFunctionType(binding, e, reportError);
+      };
     },
     visitForExpression: function visitForExpression(e) {
       var self = this;

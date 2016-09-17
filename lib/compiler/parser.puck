@@ -40,7 +40,7 @@ import 'ast.ts' as {
 
 export fn parse(input) { // : TokenStream
 
-  fn isToken(kind: SyntaxKind, peekDistance) {
+  fn isToken(kind: SyntaxKind, peekDistance = 0) {
     let token = input.peek(false, peekDistance)
     token and token.kind == kind
   }
@@ -68,7 +68,7 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn consumeToken(token: SyntaxKind, name) {
+  fn consumeToken(token: SyntaxKind = undefined, name = undefined) {
     if token then expect(token, name)
     return input.next()
   }
