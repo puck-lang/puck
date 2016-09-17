@@ -36,6 +36,7 @@ import {
   VariableDeclaration,
   WhileExpression,
 } from './ast'
+import {isTypeScopeDeclaration} from '../helpers'
 
 const jsKeywords = ['arguments', 'module', 'new', 'null', 'Object', 'typeof', 'undefined']
 const tokenToJs = Object['assign'](tokenToText, {
@@ -102,20 +103,15 @@ export function Emitter() {
     return lines
   }
 
-  function emitProgram(program: BlockNode) {
-    let preamble = `#!/usr/bin/env node\n'use strict';\n`
-    let lines = emitLines(program.block.filter(e => !(
-      e.kind === SyntaxKind.TypeDeclaration ||
-      (isExport(e) && e.expression.kind === SyntaxKind.TypeDeclaration)
-    )))
-    return preamble + lines.join(';\n')
-  }
-
   function emitModule(module: Module) {
     let preamble = `#!/usr/bin/env node\n'use strict';\n`
     let lines = emitLines(module.lines.filter(e => !(
+      e.kind === SyntaxKind.TraitDeclaration ||
       e.kind === SyntaxKind.TypeDeclaration ||
-      (isExport(e) && e.expression.kind === SyntaxKind.TypeDeclaration)
+      (isExport(e) && (
+        e.expression.kind === SyntaxKind.TraitDeclaration ||
+        e.expression.kind === SyntaxKind.TypeDeclaration
+      ))
     )))
     return preamble + lines.join(';\n')
   }
@@ -277,7 +273,7 @@ export function Emitter() {
             if (!i['module']) return true
             const e = i['module'].exports[local.name]
 
-            return e.expression.kind !== SyntaxKind.TypeDeclaration
+            return isTypeScopeDeclaration(e.expression)
           })
           .map(({property, local}) => property.name === local.name
             ? emitIdentifier(property)
@@ -452,5 +448,5 @@ export function Emitter() {
       .join(' + ')
   }
 
-  return {emitModule, emitProgram}
+  return {emitModule}
 }

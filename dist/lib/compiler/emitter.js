@@ -1,5 +1,6 @@
 "use strict";
 var ast_1 = require('./ast');
+var helpers_1 = require('../helpers');
 var jsKeywords = ['arguments', 'module', 'new', 'null', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
@@ -60,16 +61,12 @@ function Emitter() {
         hoist = outerHoist;
         return lines;
     }
-    function emitProgram(program) {
-        var preamble = "#!/usr/bin/env node\n'use strict';\n";
-        var lines = emitLines(program.block.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.TypeDeclaration ||
-            (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TypeDeclaration)); }));
-        return preamble + lines.join(';\n');
-    }
     function emitModule(module) {
         var preamble = "#!/usr/bin/env node\n'use strict';\n";
-        var lines = emitLines(module.lines.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.TypeDeclaration ||
-            (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TypeDeclaration)); }));
+        var lines = emitLines(module.lines.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.TraitDeclaration ||
+            e.kind === ast_1.SyntaxKind.TypeDeclaration ||
+            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
+                e.expression.kind === ast_1.SyntaxKind.TypeDeclaration))); }));
         return preamble + lines.join(';\n');
     }
     function emitBlock(block) {
@@ -214,7 +211,7 @@ function Emitter() {
                 if (!i['module'])
                     return true;
                 var e = i['module'].exports[local.name];
-                return e.expression.kind !== ast_1.SyntaxKind.TypeDeclaration;
+                return helpers_1.isTypeScopeDeclaration(e.expression);
             })
                 .map(function (_a) {
                 var property = _a.property, local = _a.local;
@@ -369,7 +366,7 @@ function Emitter() {
             : emitIdentifier(p); })
             .join(' + ');
     }
-    return { emitModule: emitModule, emitProgram: emitProgram };
+    return { emitModule: emitModule };
 }
 exports.Emitter = Emitter;
 var _a;

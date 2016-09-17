@@ -5,9 +5,10 @@ import '../ast/ast.puck' as {
   Expression
 
   Block
-  FunctionNode
+  FunctionDeclaration
   ObjectDestructure
   ObjectDestructureMember
+  TraitDeclaration
   TypeBound
   FunctionTypeBound
   NamedTypeBound
@@ -88,9 +89,9 @@ export fn parse(input) { // : TokenStream
       let mut token = input.peek(true)
 
       if token.kind == SyntaxKind.NewlineToken
-        or token.kind == SyntaxKind.Comment
+      or token.kind == SyntaxKind.Comment
         then input.next(true)
-      else consumeToken(kind)
+        else consumeToken(kind)
     }
   }
 
@@ -266,6 +267,23 @@ export fn parse(input) { // : TokenStream
     }
   }
 
+  fn parseTraitDeclaration(): TraitDeclaration {
+    let keyword = consumeToken(SyntaxKind.TraitKeyword)
+    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let openBrace = expect(SyntaxKind.OpenBraceToken)
+    let members = delimited('{', '}', ';', || parseFunctionDeclaration(true), false)
+    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
+
+    {
+      kind: SyntaxKind.TraitDeclaration
+      keyword
+      name
+      openBrace
+      members
+      closeBrace
+    }
+  }
+
   fn parseFunctionTypeBound(): FunctionTypeBound {
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
@@ -378,7 +396,8 @@ export fn parse(input) { // : TokenStream
     declaration
   }
 
-  fn parseFunction(): FunctionNode {
+  fn parseFunctionDeclaration(optionalBody = false): FunctionDeclaration {
+    consumeToken(SyntaxKind.FnKeyword)
     let mut name = if isToken(SyntaxKind.Identifier) then input.next()
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
@@ -395,13 +414,15 @@ export fn parse(input) { // : TokenStream
     let mut body: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
-        else {
-          skipKeyword(SyntaxKind.ThenKeyword)
-          {
-            kind: SyntaxKind.Block,
-            block: [parseExpression()],
-          }
+      else if isToken(SyntaxKind.ThenKeyword) {
+        skipKeyword(SyntaxKind.ThenKeyword)
+        {
+          kind: SyntaxKind.Block,
+          block: [parseExpression()],
         }
+      }
+      else if not optionalBody
+        then input.croak('A function declaration must be followed by a `{` or `then`')
 
     {
       kind: SyntaxKind.Function,
@@ -413,7 +434,7 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseLambda(): FunctionNode {
+  fn parseLambda(): FunctionDeclaration {
     let mut parameterList = delimited('|', '|', ',', parseVariableDeclaration)
 
     let mut body: Block =
@@ -528,10 +549,7 @@ export fn parse(input) { // : TokenStream
       else if isToken(SyntaxKind.BarToken) then parseLambda()
       else if isToken(SyntaxKind.IfKeyword) then parseIf()
       else if isToken(SyntaxKind.WhileKeyword) then parseWhile()
-      else if isToken(SyntaxKind.FnKeyword) {
-        input.next()
-        parseFunction()
-      }
+      else if isToken(SyntaxKind.FnKeyword) then parseFunctionDeclaration()
       else if isToken(SyntaxKind.LetKeyword) {
         input.next()
         parseVariableDeclaration()
@@ -573,13 +591,16 @@ export fn parse(input) { // : TokenStream
     let keyword = consumeToken(SyntaxKind.ExportKeyword)
     let mut expression
     let mut identifier
-    if isToken(SyntaxKind.TypeKeyword) {
+    if isToken(SyntaxKind.TraitKeyword) {
+      expression = parseTraitDeclaration()
+      identifier = expression.name
+    }
+    else if isToken(SyntaxKind.TypeKeyword) {
       expression = parseTypeDeclaration()
       identifier = expression.name
     }
     else if isToken(SyntaxKind.FnKeyword) {
-      input.next()
-      expression = parseFunction()
+      expression = parseFunctionDeclaration()
       identifier = expression.name
     }
     else if isToken(SyntaxKind.LetKeyword) {
@@ -587,7 +608,7 @@ export fn parse(input) { // : TokenStream
       expression = parseVariableDeclaration()
       identifier = expression.identifier
     }
-    else input.croak('Expected type, function or variable declaration after export')
+    else input.croak('Expected trait, type, function or variable declaration after export')
     {
       kind: SyntaxKind.ExportDirective
       keyword
@@ -627,6 +648,7 @@ export fn parse(input) { // : TokenStream
   fn parseTopLevelExpression() {
     if isToken(SyntaxKind.ExportKeyword) then parseExport()
     else if isToken(SyntaxKind.ImportKeyword) then parseImport()
+    else if isToken(SyntaxKind.TraitKeyword) then parseTraitDeclaration()
     else if isToken(SyntaxKind.TypeKeyword) then parseTypeDeclaration()
     else parseExpression()
   }

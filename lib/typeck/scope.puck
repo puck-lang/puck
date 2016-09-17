@@ -3,13 +3,14 @@ import '../ast/ast.puck' as {
   Expression
 
   Block
-  FunctionNode
+  FunctionDeclaration
   Identifier
   Module
   ObjectDestructure
   TypeBound
   FunctionTypeBound
   NamedTypeBound
+  TraitDeclaration
   TypeDeclaration
   TypeParameter
   TypeProperty
@@ -118,7 +119,7 @@ fn createScope(context, file, parent) {
   }
 }
 
-fn defineFunction(scope, f: FunctionNode) {
+fn defineFunction(scope, f: FunctionDeclaration) {
   if f.name then
     scope.define({identifier: f.name, mutable: false})
 }
@@ -146,7 +147,7 @@ export fn TopScopeVisitor(context, file) {
   Object.assign({}, visit.Visitor, {
 
     visitBlock: |self, b: Block| {}
-    visitFunction: |self, f: FunctionNode| {
+    visitFunctionDeclaration: |self, f: FunctionDeclaration| {
       f.scope = scope
       if not f.hoisted then defineFunction(scope, f)
     }
@@ -159,6 +160,10 @@ export fn TopScopeVisitor(context, file) {
     visitObjectDestructure: |self, i: ObjectDestructure| {
       i.scope = scope
       i.members.forEach(|m| scope.define({identifier: m.local, mutable: false}))
+    }
+    visitTraitDeclaration: |self, t: TraitDeclaration| {
+      t.scope = scope
+      scope.defineType(t)
     }
     visitTypeBound: |self, t: TypeBound| {}
     visitTypeDeclaration: |self, t: TypeDeclaration| {
@@ -215,7 +220,7 @@ export fn ScopeVisitor(context, file) {
       definedHosted(scope, b.block)
       visit.walkBlock(self, b)
     }
-    visitFunction: |self, f: FunctionNode| {
+    visitFunctionDeclaration: |self, f: FunctionDeclaration| {
       if not f.scope and not f.hoisted then defineFunction(scope, f)
       scope = createScope(context, file, scope)
       f.scope = scope
@@ -243,6 +248,12 @@ export fn ScopeVisitor(context, file) {
         }
         else scope.define({identifier: m.local, mutable: false})
       })
+    }
+    visitTraitDeclaration: |self, t: TraitDeclaration| {
+      scope = createScope(context, file, scope)
+      t.scope = scope
+      visit.walkTraitDeclaration(self, t)
+      scope = scope.parent
     }
     visitFunctionTypeBound: |self, t: FunctionTypeBound| {
       scope = createScope(context, file, scope)

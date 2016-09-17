@@ -1,0 +1,9 @@
+trait Empty {}
+trait Functions {
+  fn NoBody(): Num
+
+  fn WithBody(a: String) {
+    let b = a
+    b
+  }
+}

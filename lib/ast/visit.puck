@@ -2,10 +2,11 @@ import 'ast.puck' as {
   Expression
 
   Block
-  FunctionNode
+  FunctionDeclaration
   Identifier
   Module
   ObjectDestructure
+  TraitDeclaration
   TypeBound
   FunctionTypeBound
   NamedTypeBound
@@ -72,10 +73,11 @@ export let Visitor = {
   visitExpression: |self, e: Expression| walkExpression(self, e)
 
   visitBlock: |self, b: Block| walkBlock(self, b)
-  visitFunction: |self, f: FunctionNode| walkFunction(self, f)
+  visitFunctionDeclaration: |self, f: FunctionDeclaration| walkFunction(self, f)
   visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
   visitModule: |self, m: Module| walkModule(self, m)
   visitObjectDestructure: |self, o: ObjectDestructure| walkObjectDestructure(self, o)
+  visitTraitDeclaration: |self, t: TraitDeclaration| walkTraitDeclaration(self, t)
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitFunctionTypeBound: |self, t: FunctionTypeBound| walkFunctionTypeBound(self, t)
   visitNamedTypeBound: |self, t: NamedTypeBound| walkNamedTypeBound(self, t)
@@ -111,9 +113,10 @@ export let Visitor = {
 
 export fn walkExpression(visitor: Visitor, e: Expression) {
   if e.kind == SyntaxKind.Block then visitor.visitBlock(e)
-  else if e.kind == SyntaxKind.Function then visitor.visitFunction(e)
+  else if e.kind == SyntaxKind.Function then visitor.visitFunctionDeclaration(e)
   else if e.kind == SyntaxKind.Identifier then visitor.visitIdentifier(e)
   else if e.kind == SyntaxKind.ObjectDestructure then visitor.visitObjectDestructure(e)
+  else if e.kind == SyntaxKind.TraitDeclaration then visitor.visitTraitDeclaration(e)
   else if e.kind == SyntaxKind.FunctionTypeBound then visitor.visitFunctionTypeBound(e)
   else if e.kind == SyntaxKind.NamedTypeBound then visitor.visitNamedTypeBound(e)
   else if e.kind == SyntaxKind.TypeDeclaration then visitor.visitTypeDeclaration(e)
@@ -149,12 +152,12 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
 export fn walkBlock(visitor: Visitor, b: Block) {
   b.block.forEach(visitor.visitExpression.bind(visitor))
 }
-export fn walkFunction(visitor: Visitor, f: FunctionNode) {
+export fn walkFunction(visitor: Visitor, f: FunctionDeclaration) {
   if f.typeParameters
     then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
   if f.returnType then visitor.visitTypeBound(f.returnType)
-  visitor.visitBlock(f.body)
+  if f.body then visitor.visitBlock(f.body)
 }
 export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
 export fn walkModule(visitor: Visitor, m: Module) {
@@ -165,6 +168,9 @@ export fn walkObjectDestructure(visitor: Visitor, o: ObjectDestructure) {
     visitor.visitIdentifier(m.property)
     visitor.visitIdentifier(m.local)
   })
+}
+export fn walkTraitDeclaration(visitor: Visitor, t: TraitDeclaration) {
+  t.members.forEach(|t| visitor.visitFunctionDeclaration(t))
 }
 export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
   if t.kind == SyntaxKind.FunctionTypeBound

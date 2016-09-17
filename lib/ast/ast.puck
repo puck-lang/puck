@@ -14,7 +14,7 @@ export type Block = {
   block: List<Expression>
 }
 
-export type FunctionNode = {
+export type FunctionDeclaration = {
   // name?: Identifier
   name: Identifier
   typeParameters: List<TypeParameter>
@@ -48,6 +48,14 @@ export type ObjectDestructureMember = {
 
 export type SimpleIdentifier = {
   name: String
+}
+
+export type TraitDeclaration = {
+  keyword: Token
+  name: Identifier
+  openBrace: Token
+  members: List<FunctionDeclaration>
+  closeBrace: Token
 }
 
 export type TypeBound = {}
@@ -93,7 +101,7 @@ export type VariableDeclaration = {
 
 export type ExportDirective = {
   keyword: Token
-  // expression: VariableDeclaration|FunctionNode|TypeDeclaration
+  // expression: FunctionDeclaration|TraitDeclaration|TypeDeclaration|VariableDeclaration
   identifier: Identifier
 }
 

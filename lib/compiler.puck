@@ -19,7 +19,7 @@ export fn parseString(context, file: File) {
 }
 
 export fn compile(context, file: File) {
-  Emitter().emitModule(file.ast)
+  Emitter(context, file).emitModule(file.ast)
 }
 
 export fn build(files: List<File>) {
