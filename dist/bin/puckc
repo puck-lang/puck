@@ -25,12 +25,13 @@ if ((0, _helpers.flag)(_arguments, "--skip-extension")) {
   __PUCK__value__1 = ".js";
 };
 var extension = __PUCK__value__1;
+var ignoreErrors = (0, _helpers.flag)(_arguments, "--ignore-errors");
 if (_arguments.length > 1 && outFile) {
   _js.console.error("Can't specify --out-file with more than one input file");
   _js.process.exit(1);
 };
 if (_arguments.length == 0) {
-  (0, _core.print)("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|js] [--skip-extension true] ...files\n");
+  (0, _core.print)("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] ...files\n");
   _js.process.exit(1);
 } else {
   var files = _arguments.map(function (file) {
@@ -39,5 +40,8 @@ if (_arguments.length == 0) {
       outFile: outFile || (0, _path.join)(outDir, file.replace(RegExp("\\.puck$"), extension))
     };
   });
-  (0, _compiler.build)(files, dump);
+  (0, _compiler.build)(files, {
+    dump: dump,
+    ignoreErrors: ignoreErrors
+  });
 }

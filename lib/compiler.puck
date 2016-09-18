@@ -35,7 +35,9 @@ fn dumpFiles(files: List<File>, prop: String) {
   })
 }
 
-export fn build(files: List<File>, dump: String) {
+export fn build(files: List<File>, options = {}) {
+  let dump = options.dump
+
   let files = files.map(|f| {
     let fileName = path.basename(f.file)
     let absolutePath = path.resolve(path.normalize(f.file))
@@ -77,9 +79,11 @@ export fn build(files: List<File>, dump: String) {
       self.files[file.absolutePath]
     }
     reportError: fn (file: File, token, message) {
-      console.error('$message\n  in ' + file.absolutePath)
-      throw Error()
-      process.exit(1)
+      if not options.ignoreErrors {
+        console.error('$message\n  in ' + file.absolutePath)
+        throw Error()
+        process.exit(1)
+      }
     }
   }
 
@@ -93,6 +97,11 @@ export fn build(files: List<File>, dump: String) {
   Object.keys(context.files)
     .map(|path| context.files[path])
     .forEach(|file| ScopeVisitor(context, file).visitModule(file.ast))
+
+  if dump == 'typed-ast' {
+    dumpFiles(files, 'ast')
+    return undefined
+  }
 
   files.forEach(|file| {
     file.js = compile(context, file)

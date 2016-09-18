@@ -70,7 +70,10 @@ function dumpFiles(files, prop) {
     }).join("\n"));
   });
 };
-function build(files, dump) {
+function build(files) {
+  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+  var dump = options.dump;
   files = files.map(function (f) {
     var fileName = path.basename(f.file);
     var absolutePath = path.resolve(path.normalize(f.file));
@@ -121,9 +124,11 @@ function build(files, dump) {
       return self.files[file.absolutePath];
     },
     reportError: function reportError(file, token, message) {
-      _js.console.error("" + message + "\n  in " + file.absolutePath);
-      throw Error();
-      return _js.process.exit(1);
+      if (!options.ignoreErrors) {
+        _js.console.error("" + message + "\n  in " + file.absolutePath);
+        throw Error();
+        return _js.process.exit(1);
+      };
     }
   };
   files = files.map(function (f) {
@@ -138,6 +143,10 @@ function build(files, dump) {
   }).forEach(function (file) {
     return (0, _scope.ScopeVisitor)(context, file).visitModule(file.ast);
   });
+  if (dump == "typed-ast") {
+    dumpFiles(files, "ast");
+    return _js._undefined;
+  };
   files.forEach(function (file) {
     return file.js = compile(context, file);
   });
