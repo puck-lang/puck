@@ -53,46 +53,75 @@ type Binding = {
 }
 
 type TypeBinding = {
-  name: Identifier
+  name: String
   // parameters: {min: Num, max: Num}
 }
 
 type Scope = {
   getLocalBinding: (String) => Binding
+  // getBinding: (String, allowRedeclare = true) => Binding
   getBinding: (String) => Binding
+  getTypeBinding: (String) => Binding
   define: (String, Binding) => Binding
+  defineType: (String, Binding) => Binding
 }
 
 type ScopeAware = {
   scope: Scope
 }
 
-fn createFunctionType(f: FunctionDeclaration, reportError) {
-  let parameters =
-    if f.parameterList {
-      let mut firstOptional = f.parameterList.length
-      let mut hasOptional = false
+type MinMax = {
+  min: Num
+  max: Num
+}
 
-      f.parameterList.forEach(|v, i|
-        if v.initializer and not hasOptional {
-          hasOptional = true
-          firstOptional = i
-        }
-        else if not v.initializer and hasOptional then reportError(v
-          "An optional parameter can't be followed by a required parameter"
-        )
-      )
+fn getMinMax<T>(parameters: List<T>, isOptional: (T) => Bool, reportError, name: String): MinMax {
+  let mut firstOptional = parameters.length
+  let mut hasOptional = false
 
-      {
-        min: firstOptional
-        max: f.parameterList.length
-      }
+  parameters.forEach(|parameter, i|
+    if isOptional(parameter) and not hasOptional {
+      hasOptional = true
+      firstOptional = i
     }
-    else {{min: 0, max: 0}}
+    else if not isOptional(parameter) and hasOptional then reportError(parameter
+      "An optional $name can't be followed by a required $name"
+    )
+  )
+
   {
-    kind: 'function'
-    parameters
+    min: firstOptional
+    max: parameters.length
   }
+}
+
+fn checkMinMax<T>(arguments: List<T>, minMax: MinMax, reportError, argumentName: String, subjectName: String, token: Token) {
+  let argumentCount = arguments.length
+  let max = minMax.max
+  let min = minMax.min
+  let error =
+    if argumentCount < min
+      then 'few'
+    else if argumentCount > max
+      then 'many'
+
+  if error {
+    let required =
+      if min == max
+        then min
+        else '$min to $max'
+
+    reportError(token
+      'Too $error $argumentName given to $subjectName, $required required, $argumentCount given'
+    )
+  }
+}
+
+fn createFunctionType(f: FunctionDeclaration, reportError) then {
+  kind: 'function'
+  parameters: if f.parameterList
+    then getMinMax(f.parameterList, |p| p.initializer, reportError, 'parameter')
+    else {{min: 0, max: 0}}
 }
 
 fn checkFunctionType(binding: Binding, c: CallExpression, reportError) {
@@ -102,22 +131,7 @@ fn checkFunctionType(binding: Binding, c: CallExpression, reportError) {
   if binding.ty.kind != 'function'
     then reportError(c, '$name is not callable')
 
-  let argumentCount = c.argumentList.length
-  let max = binding.ty.parameters.max
-  let min = binding.ty.parameters.min
-  let required =
-    if min == max
-      then min
-      else '$min to $max'
-
-  if argumentCount < min
-    then reportError(c
-      'Too few type parameters given to $name, $required required, $argumentCount given'
-    )
-  if argumentCount > max
-    then reportError(c
-      'Too many type parameters given to $name, $required required, $argumentCount given'
-    )
+  checkMinMax(c.argumentList, binding.ty.parameters, reportError, 'arguments', name, c)
 }
 
 fn createScope(context, file, parent = undefined) {
@@ -146,31 +160,10 @@ fn createScope(context, file, parent = undefined) {
       if typeBindings[name]
         then reportError(t, 'Type $name is already defined')
 
-      let parameters =
-        if t.parameters {
-          let mut firstOptional = t.parameters.length
-          let mut hasOptional = false
-
-          t.parameters.forEach(|t, i|
-            if t.defaultValue and not hasOptional {
-              hasOptional = true
-              firstOptional = i
-            }
-            else if not t.defaultValue and hasOptional then reportError(t
-              "An optional type parameter can't be followed by a required type parameter"
-            )
-          )
-
-          {
-            min: firstOptional
-            max: t.parameters.length
-          }
-        }
-        else {{min: 0, max: 0}}
-
       typeBindings[name] = {
-        name: t.name
-        parameters
+        name
+        parameters: if t.parameters
+          then getMinMax(t.parameters, |p| p.defaultValue, reportError, 'type parameter')
       }
     }
     inspect: |depth, opts| {
@@ -350,19 +343,11 @@ export fn ScopeVisitor(context, file) {
       let binding = t.scope.getTypeBinding(t.name.name)
       if not binding then reportError(t, 'Use of undeclared type ' + t.name.name)
 
-      let parameterCount = t.parameters.length
-      if parameterCount < binding.parameters.min
-        then reportError(t
-          'Too few type parameters given to ' + t.name.name + ' min ' +
-          binding.parameters.min + ' required, ' + parameterCount + ' given'
-        )
-      if parameterCount > binding.parameters.max
-        then reportError(t
-          if binding.parameters.max == 0
-            then 'Type ' + t.name.name + ' is not generic'
-            else 'Too many type parameters given to ' + t.name.name + ' max ' +
-              binding.parameters.max + ' required, ' + parameterCount + ' given'
-        )
+
+      if binding.parameters
+        then checkMinMax(t.parameters, binding.parameters, reportError, 'type parameters', t.name.name, t)
+      else if t.parameters.length > 0
+        then reportError(t, 'Type ' + t.name.name + ' is not generic')
 
       visit.walkNamedTypeBound(self, t)
     }

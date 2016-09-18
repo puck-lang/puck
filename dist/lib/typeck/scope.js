@@ -24,37 +24,65 @@ var _ast = require('./../compiler/ast.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function createFunctionType(f, reportError) {
-  var __PUCK__value__1 = void 0;
-  if (f.parameterList) {
-    (function () {
-      var firstOptional = f.parameterList.length;
-      var hasOptional = false;
-      f.parameterList.forEach(function (v, i) {
-        if (v.initializer && !hasOptional) {
-          hasOptional = true;
-          return firstOptional = i;
-        } else {
-          if (!v.initializer && hasOptional) {
-            return reportError(v, "An optional parameter can't be followed by a required parameter");
-          };
-        };
-      });
-      __PUCK__value__1 = {
-        min: firstOptional,
-        max: f.parameterList.length
+function getMinMax(parameters, isOptional, reportError, name) {
+  var firstOptional = parameters.length;
+  var hasOptional = false;
+  parameters.forEach(function (parameter, i) {
+    if (isOptional(parameter) && !hasOptional) {
+      hasOptional = true;
+      return firstOptional = i;
+    } else {
+      if (!isOptional(parameter) && hasOptional) {
+        return reportError(parameter, "An optional " + name + " can't be followed by a required " + name + "");
       };
-    })();
+    };
+  });
+  return {
+    min: firstOptional,
+    max: parameters.length
+  };
+};
+function checkMinMax(_arguments, minMax, reportError, argumentName, subjectName, token) {
+  var argumentCount = _arguments.length;
+  var max = minMax.max;
+  var min = minMax.min;
+  var __PUCK__value__1 = void 0;
+  if (argumentCount < min) {
+    __PUCK__value__1 = "few";
   } else {
-    __PUCK__value__1 = {
+    var __PUCK__value__2 = void 0;
+    if (argumentCount > max) {
+      __PUCK__value__2 = "many";
+    };
+    __PUCK__value__1 = __PUCK__value__2;
+  };
+  var error = __PUCK__value__1;
+  if (error) {
+    var __PUCK__value__3 = void 0;
+    if (min == max) {
+      __PUCK__value__3 = min;
+    } else {
+      __PUCK__value__3 = "" + min + " to " + max + "";
+    };
+    var required = __PUCK__value__3;
+    return reportError(token, "Too " + error + " " + argumentName + " given to " + subjectName + ", " + required + " required, " + argumentCount + " given");
+  };
+};
+function createFunctionType(f, reportError) {
+  var __PUCK__value__4 = void 0;
+  if (f.parameterList) {
+    __PUCK__value__4 = getMinMax(f.parameterList, function (p) {
+      return p.initializer;
+    }, reportError, "parameter");
+  } else {
+    __PUCK__value__4 = {
       min: 0,
       max: 0
     };
   };
-  var parameters = __PUCK__value__1;
   return {
     kind: "function",
-    parameters: parameters
+    parameters: __PUCK__value__4
   };
 };
 function checkFunctionType(binding, c, reportError) {
@@ -65,22 +93,7 @@ function checkFunctionType(binding, c, reportError) {
   if (binding.ty.kind != "function") {
     reportError(c, "" + name + " is not callable");
   };
-  var argumentCount = c.argumentList.length;
-  var max = binding.ty.parameters.max;
-  var min = binding.ty.parameters.min;
-  var __PUCK__value__2 = void 0;
-  if (min == max) {
-    __PUCK__value__2 = min;
-  } else {
-    __PUCK__value__2 = "" + min + " to " + max + "";
-  };
-  var required = __PUCK__value__2;
-  if (argumentCount < min) {
-    reportError(c, "Too few type parameters given to " + name + ", " + required + " required, " + argumentCount + " given");
-  };
-  if (argumentCount > max) {
-    return reportError(c, "Too many type parameters given to " + name + ", " + required + " required, " + argumentCount + " given");
-  };
+  return checkMinMax(c.argumentList, binding.ty.parameters, reportError, "arguments", name, c);
 };
 function createScope(context, file) {
   var parent = arguments.length <= 2 || arguments[2] === undefined ? _js._undefined : arguments[2];
@@ -118,36 +131,15 @@ function createScope(context, file) {
       if (typeBindings[name]) {
         reportError(t, "Type " + name + " is already defined");
       };
-      var __PUCK__value__3 = void 0;
+      var __PUCK__value__5 = void 0;
       if (t.parameters) {
-        (function () {
-          var firstOptional = t.parameters.length;
-          var hasOptional = false;
-          t.parameters.forEach(function (t, i) {
-            if (t.defaultValue && !hasOptional) {
-              hasOptional = true;
-              return firstOptional = i;
-            } else {
-              if (!t.defaultValue && hasOptional) {
-                return reportError(t, "An optional type parameter can't be followed by a required type parameter");
-              };
-            };
-          });
-          __PUCK__value__3 = {
-            min: firstOptional,
-            max: t.parameters.length
-          };
-        })();
-      } else {
-        __PUCK__value__3 = {
-          min: 0,
-          max: 0
-        };
+        __PUCK__value__5 = getMinMax(t.parameters, function (p) {
+          return p.defaultValue;
+        }, reportError, "type parameter");
       };
-      var parameters = __PUCK__value__3;
       return typeBindings[name] = {
-        name: t.name,
-        parameters: parameters
+        name: name,
+        parameters: __PUCK__value__5
       };
     },
     inspect: function inspect(depth, opts) {
@@ -359,18 +351,12 @@ function ScopeVisitor(context, file) {
       if (!binding) {
         reportError(t, "Use of undeclared type " + t.name.name);
       };
-      var parameterCount = t.parameters.length;
-      if (parameterCount < binding.parameters.min) {
-        reportError(t, "Too few type parameters given to " + t.name.name + " min " + binding.parameters.min + " required, " + parameterCount + " given");
-      };
-      if (parameterCount > binding.parameters.max) {
-        var __PUCK__value__4 = void 0;
-        if (binding.parameters.max == 0) {
-          __PUCK__value__4 = "Type " + t.name.name + " is not generic";
-        } else {
-          __PUCK__value__4 = "Too many type parameters given to " + t.name.name + " max " + binding.parameters.max + " required, " + parameterCount + " given";
+      if (binding.parameters) {
+        checkMinMax(t.parameters, binding.parameters, reportError, "type parameters", t.name.name, t);
+      } else {
+        if (t.parameters.length > 0) {
+          reportError(t, "Type " + t.name.name + " is not generic");
         };
-        reportError(t, __PUCK__value__4);
       };
       return visit.walkNamedTypeBound(self, t);
     },
