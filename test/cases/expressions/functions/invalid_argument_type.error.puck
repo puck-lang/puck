@@ -1,0 +1,2 @@
+fn a(a: String, b: Num) {}
+a(1, 2)

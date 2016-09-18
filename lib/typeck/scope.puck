@@ -50,8 +50,9 @@ type MinMax = {
 }
 
 type TypeInstance = {
+  kind: String
   name: String
-  binding: TypeBinding
+  // binding: TypeBinding
   // parameters: List<TypeBinding|TypeInstance>
   // parameters: List<TypeInstance>
 }
@@ -76,7 +77,7 @@ type Binding = {
 type TypeBinding = {
   name: String
   ty: TypeInstance //?
-  // parameters: {min: Num, max: Num}
+  parameterRange: MinMax
 }
 
 type Scope = {
@@ -95,7 +96,7 @@ type ScopeAware = {
 fn getType(scope: Scope, t: TypeBound, name: String = undefined) {
   if not t then return undefined
   if t.name {
-    let binding = scope.getTypeBinding(name)
+    let binding = scope.getTypeBinding(t.name.name)
 
     binding and binding.ty
   }
@@ -104,9 +105,10 @@ fn getType(scope: Scope, t: TypeBound, name: String = undefined) {
     let returnType = getType(scope, t.returnType)
 
     {
-      name: name or getFunctionTypeName(arguments, returnType)
+      kind: 'Function'
+      name: getFunctionTypeName(arguments, returnType)
       arguments
-      argumentRange: {min: 0, max: arguments.length}
+      argumentRange: {min: arguments.length, max: arguments.length}
       returnType
     }
   }
@@ -136,6 +138,27 @@ fn getMinMax<T>(parameters: List<T>, isOptional: (T) => Bool, reportError, name:
   }
 }
 
+fn isAssignable(to: TypeInstance, subject: TypeInstance) {
+  if not subject or not to then return true
+
+  let sameKind = subject.kind == to.kind
+
+  if not sameKind then return false
+
+  if sameKind and to.kind == 'Function' {
+    if to.argumentRange.min < subject.argumentRange.min
+    or to.argumentRange.max > subject.argumentRange.max
+      then return false
+
+    to.arguments.every(fn (toArg, i) {
+      let subjectArg = subject.arguments[i]
+
+      isAssignable(toArg, subjectArg)
+    })
+  }
+  else true
+}
+
 fn checkMinMax<T>(arguments: List<T>, minMax: MinMax, reportError, argumentName: String, subjectName: String, token: Token) {
   let argumentCount = arguments.length
   let max = minMax.max
@@ -163,6 +186,7 @@ fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
   let returnType = getType(scope, f.returnType)
 
   {
+    kind: 'Function'
     name: f.name or getFunctionTypeName(arguments, returnType)
     arguments
     argumentRange: if f.parameterList
@@ -170,16 +194,6 @@ fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
       else {{min: 0, max: 0}}
     returnType
   }
-}
-
-fn checkFunctionType(binding: Binding, c: CallExpression, reportError) {
-  if not binding.ty then return undefined
-  let name = binding.identifier.name
-
-  if not binding.ty.arguments
-    then reportError(c, '$name is not callable')
-
-  checkMinMax(c.argumentList, binding.ty.argumentRange, reportError, 'arguments', name, c)
 }
 
 fn createScope(context, file, parent = undefined) {
@@ -208,11 +222,20 @@ fn createScope(context, file, parent = undefined) {
       if typeBindings[name]
         then reportError(t, 'Type $name is already defined')
 
-      typeBindings[name] = {
+      let parameterRange = if t.parameters and t.parameters.length
+        then getMinMax(t.parameters, |p| p.defaultValue, reportError, 'type parameter')
+
+      let binding = {
+        kind: name
         name
-        parameters: if t.parameters
-          then getMinMax(t.parameters, |p| p.defaultValue, reportError, 'type parameter')
+        parameterRange
       }
+
+      // Not generic types doesn't need instances so the binfing can be used directly
+      if not parameterRange
+        then binding.ty = binding
+
+      typeBindings[name] = binding
     }
     inspect: |depth, opts| {
       let scope = {}
@@ -252,14 +275,18 @@ fn definedHosted(scope: Scope, expressions: List<Expression>, reportError) {
   })
 }
 
-fn definedHostedTopLevel(scope, expressions: List<Expression>) {
+fn definedHostedTopLevel(visitor, scope: Scope, expressions: List<Expression>) {
   expressions.forEach(|e| {
-    if e.kind == SyntaxKind.TraitDeclaration
-    or e.kind == SyntaxKind.TypeDeclaration {
+    if e.kind == SyntaxKind.ImportDirective {
+      visitor.visitImportDirective(e)
+      e.hoisted = true
+    }
+    else if e.kind == SyntaxKind.TraitDeclaration
+         or e.kind == SyntaxKind.TypeDeclaration {
       scope.defineType(e)
       e.hoisted = true
     }
-    if e.kind == SyntaxKind.ExportDirective and (
+    else if e.kind == SyntaxKind.ExportDirective and (
       e.expression.kind == SyntaxKind.TraitDeclaration or
       e.expression.kind == SyntaxKind.TypeDeclaration
     ) {
@@ -336,6 +363,27 @@ export fn ScopeVisitor(context, file) {
   let mut scope = createScope(context, file)
   let reportError = context.reportError.bind(context, file)
 
+  fn reportNotAssignableError(t: Token, to: TypeInstance, subject: TypeInstance) {
+    reportError(t, subject.name + ' is not assignable to type ' + to.name)
+  }
+
+  fn checkFunctionType(binding: Binding, c: CallExpression) {
+    if not binding.ty then return undefined
+    let name = binding.identifier.name
+
+    if not binding.ty.arguments
+      then reportError(c, '$name is not callable')
+
+    checkMinMax(c.argumentList, binding.ty.argumentRange, reportError, 'arguments', name, c)
+
+    c.argumentList.forEach(|a, i| {
+      let parameterType = binding.ty.arguments[i]
+
+      if not isAssignable(parameterType, a.ty)
+        then reportNotAssignableError(a, parameterType, a.ty)
+    })
+  }
+
   Object.assign({}, visit.Visitor, {
 
     visitBlock: |self, b: Block| {
@@ -358,7 +406,7 @@ export fn ScopeVisitor(context, file) {
     }
     visitModule: |self, m: Module| {
       m.scope = scope
-      definedHostedTopLevel(scope, m.lines)
+      definedHostedTopLevel(self, scope, m.lines)
       definedHosted(scope, m.lines, reportError)
       visit.walkModule(self, m)
     }
@@ -393,8 +441,8 @@ export fn ScopeVisitor(context, file) {
       if not binding then reportError(t, 'Use of undeclared type ' + t.name.name)
 
 
-      if binding.parameters
-        then checkMinMax(t.parameters, binding.parameters, reportError, 'type parameters', t.name.name, t)
+      if binding.parameterRange
+        then checkMinMax(t.parameters, binding.parameterRange, reportError, 'type parameters', t.name.name, t)
       else if t.parameters.length > 0
         then reportError(t, 'Type ' + t.name.name + ' is not generic')
 
@@ -421,8 +469,10 @@ export fn ScopeVisitor(context, file) {
       }, true)
       if d.initializer {
         self.visitExpression(d.initializer)
-        if not binding.ty and d.initializer.ty
+        if not binding.ty
           then binding.ty = d.initializer.ty
+        else if not isAssignable(binding.ty, d.initializer.ty)
+          then reportNotAssignableError(d, binding.ty, d.initializer.ty)
       }
     }
 
@@ -431,6 +481,8 @@ export fn ScopeVisitor(context, file) {
       visit.walkExportDirective(self, e)
     }
     visitImportDirective: |self, i: ImportDirective| {
+      if i.hoisted then return undefined
+
       i.scope = scope
       if i.specifier.kind == SyntaxKind.Identifier
         then scope.define({identifier: i.specifier, mutable: false, token: i})
@@ -442,12 +494,15 @@ export fn ScopeVisitor(context, file) {
 
     visitAssignmentExpression: |self, e: AssignmentExpression| {
       e.scope = scope
+      visit.walkAssignmentExpression(self, e)
       if e.lhs.kind == SyntaxKind.Identifier {
         let binding = e.scope.getBinding(e.lhs.name)
-        if binding and not binding.mutable
+        if not binding.mutable
           then reportError(e, "Can't assign to immutable variable " + e.lhs.name)
+
+        if not isAssignable(binding.ty, e.rhs.ty)
+          then reportNotAssignableError(e, binding.ty, e.rhs.ty)
       }
-      visit.walkAssignmentExpression(self, e)
     }
     visitBinaryExpression: |self, e: BinaryExpression| {
       e.scope = scope
@@ -459,7 +514,7 @@ export fn ScopeVisitor(context, file) {
       if e.func.kind == SyntaxKind.Identifier {
         let binding = scope.getBinding(e.func.name)
 
-        checkFunctionType(binding, e, reportError)
+        checkFunctionType(binding, e)
       }
     }
     visitForExpression: |self, e: ForExpression| {
@@ -514,10 +569,12 @@ export fn ScopeVisitor(context, file) {
     }
     visitBooleanLiteral: |self, l: BooleanLiteral| {
       l.scope = scope
+      l.ty = {kind: 'Bool', name: 'Bool'}
       visit.walkBooleanLiteral(self, l)
     }
     visitNumberLiteral: |self, l: NumberLiteral| {
       l.scope = scope
+      l.ty = {kind: 'Num', name: 'Num'}
       visit.walkNumberLiteral(self, l)
     }
     visitObjectLiteral: |self, l: ObjectLiteral| {
@@ -528,6 +585,7 @@ export fn ScopeVisitor(context, file) {
     }
     visitStringLiteral: |self, l: StringLiteral| {
       l.scope = scope
+      l.ty = {kind: 'String', name: 'String'}
       visit.walkStringLiteral(self, l)
     }
   })
