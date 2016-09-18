@@ -405,7 +405,7 @@ export function Emitter() {
   }
 
   function emitArrayLiteral(l: ArrayLiteral) {
-    let members: any[] = l.members.map(e => emitExpression(e))
+    let members: any[] = l.members.map(e => emitExpression(e, Context.Value))
     let body
 
     if (members.length == 0) {
@@ -430,7 +430,8 @@ export function Emitter() {
   }
 
   function emitObjectLiteral(l: ObjectLiteral) {
-    let members: any[] = l.members.map(member => `${member.name.name}: ${emitExpression(member.value)}`)
+    let members: any[] = l.members.map(member => `${member.name.name}: ${
+      emitExpression(member.value, Context.Value)}`)
     let body
 
     if (members.length == 0) {

@@ -3,6 +3,7 @@ let a = ['a', 1, true, [
   'c',
   [[[[[[[[[[[[[]]]]]]]]]]]]],
   fn (a) then 3
+  if true then 5
 ]]
 let b = [
   a

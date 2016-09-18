@@ -1,0 +1,7 @@
+let a = {a: 1, b: 2
+  c: 4
+  d: if false then 3
+  e: if true then 3 else 1
+}
+
+let b = {a, b: a}

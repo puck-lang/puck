@@ -328,7 +328,7 @@ function Emitter() {
         return "throw " + emitExpression(e.expression, Context.Value);
     }
     function emitArrayLiteral(l) {
-        var members = l.members.map(function (e) { return emitExpression(e); });
+        var members = l.members.map(function (e) { return emitExpression(e, Context.Value); });
         var body;
         if (members.length == 0) {
             body = ']';
@@ -350,7 +350,7 @@ function Emitter() {
         return "" + l.value;
     }
     function emitObjectLiteral(l) {
-        var members = l.members.map(function (member) { return (member.name.name + ": " + emitExpression(member.value)); });
+        var members = l.members.map(function (member) { return (member.name.name + ": " + emitExpression(member.value, Context.Value)); });
         var body;
         if (members.length == 0) {
             body = '}';
