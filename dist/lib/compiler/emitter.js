@@ -350,7 +350,7 @@ function Emitter() {
         return "" + l.value;
     }
     function emitObjectLiteral(l) {
-        var members = l.members.map(function (member) { return (member.name.name + ": " + emitExpression(member.value, Context.Value)); });
+        var members = l.members.map(function (member) { return (emitIdentifier(member.name) + ": " + emitExpression(member.value, Context.Value)); });
         var body;
         if (members.length == 0) {
             body = '}';

@@ -25,3 +25,5 @@ var b = {
   a: a,
   b: a
 };
+var _arguments = [];
+var c = { _arguments: _arguments };

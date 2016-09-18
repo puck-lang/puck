@@ -430,7 +430,7 @@ export function Emitter() {
   }
 
   function emitObjectLiteral(l: ObjectLiteral) {
-    let members: any[] = l.members.map(member => `${member.name.name}: ${
+    let members: any[] = l.members.map(member => `${emitIdentifier(member.name)}: ${
       emitExpression(member.value, Context.Value)}`)
     let body
 
