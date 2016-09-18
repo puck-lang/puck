@@ -1,11 +1,11 @@
 let a = |a, b| a + b
-let b = || a()
+let b = || a(1, 2)
 let c = |a, b| {
   if a then b()
   a
 }
 let d = || {
-  a()
+  a(1, 2)
   b()
 }
 let e = {

@@ -8,7 +8,7 @@ var a = function a(_a, b) {
   return _a + b;
 };
 var b = function b() {
-  return a();
+  return a(1, 2);
 };
 var c = function c(a, b) {
   if (a) {
@@ -17,7 +17,7 @@ var c = function c(a, b) {
   return a;
 };
 var d = function d() {
-  a();
+  a(1, 2);
   return b();
 };
 var e = { empty: function empty() {} };

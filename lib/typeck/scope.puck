@@ -226,13 +226,15 @@ fn createScope(context, file, parent = undefined) {
   }
 }
 
-fn defineFunction(scope: Scope, f: FunctionDeclaration, reportError) {
+fn defineFunction(scope: Scope, f: FunctionDeclaration, reportError = undefined) {
+  if reportError
+    then f.ty = createFunctionType(scope, f, reportError)
   if f.name then
     scope.define({
       identifier: f.name
       token: f
       mutable: false
-      ty: createFunctionType(scope, f, reportError)
+      ty: f.ty
     })
 }
 
@@ -269,13 +271,12 @@ fn definedHostedTopLevel(scope, expressions: List<Expression>) {
 
 export fn TopScopeVisitor(context, file) {
   let mut scope = createScope(context, file)
-  let reportError = context.reportError.bind(context, file)
 
   Object.assign({}, visit.Visitor, {
 
     visitBlock: |self, b: Block| {}
     visitFunctionDeclaration: |self, f: FunctionDeclaration| {
-      defineFunction(scope, f, reportError)
+      defineFunction(scope, f)
     }
     visitIdentifier: |self, i: Identifier| {}
     visitModule: |self, m: Module| {
@@ -412,13 +413,17 @@ export fn ScopeVisitor(context, file) {
     visitVariableDeclaration: |self, d: VariableDeclaration| {
       d.scope = scope
       if d.typeBound then self.visitTypeBound(d.typeBound)
-      scope.define({
+      let binding = scope.define({
         identifier: d.identifier,
         mutable: d.mutable,
         token: d,
         ty: getType(scope, d.typeBound)
       }, true)
-      if d.initializer then self.visitExpression(d.initializer)
+      if d.initializer {
+        self.visitExpression(d.initializer)
+        if not binding.ty and d.initializer.ty
+          then binding.ty = d.initializer.ty
+      }
     }
 
     visitExportDirective: |self, e: ExportDirective| {
