@@ -69,3 +69,5 @@ a();
 b(1);
 c();
 c(2);
+var q = function q(a) {};
+q(1);

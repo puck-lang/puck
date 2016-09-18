@@ -24,6 +24,36 @@ var _ast = require('./../compiler/ast.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function getType(scope, t) {
+  var name = arguments.length <= 2 || arguments[2] === undefined ? _js._undefined : arguments[2];
+
+  if (!t) {
+    return _js._undefined;
+  };
+  if (t.name) {
+    var binding = scope.getTypeBinding(name);
+    return binding && binding.ty;
+  } else {
+    var _arguments = t.parameters.map(function (p) {
+      return getType(scope, p);
+    });
+    var returnType = getType(scope, t.returnType);
+    return {
+      name: name || getFunctionTypeName(_arguments, returnType),
+      _arguments: _arguments,
+      argumentRange: {
+        min: 0,
+        max: _arguments.length
+      },
+      returnType: returnType
+    };
+  };
+};
+function getFunctionTypeName(_arguments, returnType) {
+  return "(" + _arguments.map(function (a) {
+    return a && a.name || "??";
+  }).join(", ") + ") => " + (returnType && returnType.name || "??");
+};
 function getMinMax(parameters, isOptional, reportError, name) {
   var firstOptional = parameters.length;
   var hasOptional = false;
@@ -68,7 +98,11 @@ function checkMinMax(_arguments, minMax, reportError, argumentName, subjectName,
     return reportError(token, "Too " + error + " " + argumentName + " given to " + subjectName + ", " + required + " required, " + argumentCount + " given");
   };
 };
-function createFunctionType(f, reportError) {
+function createFunctionType(scope, f, reportError) {
+  var _arguments = f.parameterList.map(function (p) {
+    return getType(scope, p.typeBound, p.identifier.name);
+  });
+  var returnType = getType(scope, f.returnType);
   var __PUCK__value__4 = void 0;
   if (f.parameterList) {
     __PUCK__value__4 = getMinMax(f.parameterList, function (p) {
@@ -81,8 +115,10 @@ function createFunctionType(f, reportError) {
     };
   };
   return {
-    kind: "function",
-    parameters: __PUCK__value__4
+    name: f.name || getFunctionTypeName(_arguments, returnType),
+    _arguments: _arguments,
+    argumentRange: __PUCK__value__4,
+    returnType: returnType
   };
 };
 function checkFunctionType(binding, c, reportError) {
@@ -90,10 +126,10 @@ function checkFunctionType(binding, c, reportError) {
     return _js._undefined;
   };
   var name = binding.identifier.name;
-  if (binding.ty.kind != "function") {
+  if (!binding.ty._arguments) {
     reportError(c, "" + name + " is not callable");
   };
-  return checkMinMax(c.argumentList, binding.ty.parameters, reportError, "arguments", name, c);
+  return checkMinMax(c.argumentList, binding.ty.argumentRange, reportError, "arguments", name, c);
 };
 function createScope(context, file) {
   var parent = arguments.length <= 2 || arguments[2] === undefined ? _js._undefined : arguments[2];
@@ -162,7 +198,7 @@ function defineFunction(scope, f, reportError) {
       identifier: f.name,
       token: f,
       mutable: false,
-      ty: createFunctionType(f, reportError)
+      ty: createFunctionType(scope, f, reportError)
     });
   };
 };
@@ -381,7 +417,8 @@ function ScopeVisitor(context, file) {
       scope.define({
         identifier: d.identifier,
         mutable: d.mutable,
-        token: d
+        token: d,
+        ty: getType(scope, d.typeBound)
       }, true);
       if (d.initializer) {
         return self.visitExpression(d.initializer);

@@ -44,16 +44,38 @@ import '../ast/ast.puck' as {
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 
+type MinMax = {
+  min: Num
+  max: Num
+}
+
+type TypeInstance = {
+  name: String
+  binding: TypeBinding
+  // parameters: List<TypeBinding|TypeInstance>
+  // parameters: List<TypeInstance>
+}
+
+type FunctionTypeInstance = {
+  name: String
+  // typeParameters: List<TypeInstance>
+  arguments: List<TypeInstance>
+  argumentRange: MinMax
+  returnType: TypeInstance
+}
+
 type Binding = {
   identifier: Identifier
   token: Token
   mutable: Bool
+  ty: TypeInstance //?
   redefined: Bool
   previous: Binding //?
 }
 
 type TypeBinding = {
   name: String
+  ty: TypeInstance //?
   // parameters: {min: Num, max: Num}
 }
 
@@ -70,10 +92,29 @@ type ScopeAware = {
   scope: Scope
 }
 
-type MinMax = {
-  min: Num
-  max: Num
+fn getType(scope: Scope, t: TypeBound, name: String = undefined) {
+  if not t then return undefined
+  if t.name {
+    let binding = scope.getTypeBinding(name)
+
+    binding and binding.ty
+  }
+  else {
+    let arguments = t.parameters.map(|p| getType(scope, p))
+    let returnType = getType(scope, t.returnType)
+
+    {
+      name: name or getFunctionTypeName(arguments, returnType)
+      arguments
+      argumentRange: {min: 0, max: arguments.length}
+      returnType
+    }
+  }
 }
+
+fn getFunctionTypeName(arguments: List<TypeInstance>, returnType: TypeInstance)
+  then '(' + arguments.map(|a| (a and a.name) or '??').join(', ') + ') => ' +
+        (returnType and returnType.name or '??')
 
 fn getMinMax<T>(parameters: List<T>, isOptional: (T) => Bool, reportError, name: String): MinMax {
   let mut firstOptional = parameters.length
@@ -117,21 +158,28 @@ fn checkMinMax<T>(arguments: List<T>, minMax: MinMax, reportError, argumentName:
   }
 }
 
-fn createFunctionType(f: FunctionDeclaration, reportError) then {
-  kind: 'function'
-  parameters: if f.parameterList
-    then getMinMax(f.parameterList, |p| p.initializer, reportError, 'parameter')
-    else {{min: 0, max: 0}}
+fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
+  let arguments = f.parameterList.map(|p| getType(scope, p.typeBound, p.identifier.name))
+  let returnType = getType(scope, f.returnType)
+
+  {
+    name: f.name or getFunctionTypeName(arguments, returnType)
+    arguments
+    argumentRange: if f.parameterList
+      then getMinMax(f.parameterList, |p| p.initializer, reportError, 'parameter')
+      else {{min: 0, max: 0}}
+    returnType
+  }
 }
 
 fn checkFunctionType(binding: Binding, c: CallExpression, reportError) {
   if not binding.ty then return undefined
   let name = binding.identifier.name
 
-  if binding.ty.kind != 'function'
+  if not binding.ty.arguments
     then reportError(c, '$name is not callable')
 
-  checkMinMax(c.argumentList, binding.ty.parameters, reportError, 'arguments', name, c)
+  checkMinMax(c.argumentList, binding.ty.argumentRange, reportError, 'arguments', name, c)
 }
 
 fn createScope(context, file, parent = undefined) {
@@ -178,17 +226,17 @@ fn createScope(context, file, parent = undefined) {
   }
 }
 
-fn defineFunction(scope, f: FunctionDeclaration, reportError) {
+fn defineFunction(scope: Scope, f: FunctionDeclaration, reportError) {
   if f.name then
     scope.define({
       identifier: f.name
       token: f
       mutable: false
-      ty: createFunctionType(f, reportError)
+      ty: createFunctionType(scope, f, reportError)
     })
 }
 
-fn definedHosted(scope, expressions: List<Expression>, reportError) {
+fn definedHosted(scope: Scope, expressions: List<Expression>, reportError) {
   expressions.forEach(|e| {
     if e.kind == SyntaxKind.Function {
       defineFunction(scope, e, reportError)
@@ -364,7 +412,12 @@ export fn ScopeVisitor(context, file) {
     visitVariableDeclaration: |self, d: VariableDeclaration| {
       d.scope = scope
       if d.typeBound then self.visitTypeBound(d.typeBound)
-      scope.define({identifier: d.identifier, mutable: d.mutable, token: d}, true)
+      scope.define({
+        identifier: d.identifier,
+        mutable: d.mutable,
+        token: d,
+        ty: getType(scope, d.typeBound)
+      }, true)
       if d.initializer then self.visitExpression(d.initializer)
     }
 

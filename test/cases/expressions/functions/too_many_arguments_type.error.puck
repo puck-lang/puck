@@ -1,0 +1,2 @@
+let mut a: (Num) => Bool
+a(1, 2)
