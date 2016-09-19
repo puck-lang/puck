@@ -1,0 +1,23 @@
+///// Num is not assignable to type String
+fn a(a: String, b: Num) {}
+a(1, 2)
+
+///// func has already been declared in the scope
+fn func() {}
+fn func(a, b) {}
+
+///// Too few arguments given to a, 3 required, 2 given
+fn a(a, b, c) {}
+a(1, 2)
+
+///// Too many arguments given to a, 2 required, 3 given
+fn a(a, b) {}
+a(1, 2, 3)
+
+///// Too many arguments given to a, 1 required, 2 given
+let mut a: (Num) => Bool
+a(1, 2)
+
+///// Too many arguments given to a, 1 required, 2 given
+let a = fn (a) {}
+a(1, 2)

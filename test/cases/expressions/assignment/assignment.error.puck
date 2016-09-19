@@ -1,0 +1,11 @@
+///// Can't assign to immutable variable a
+let a = 5
+// Assignment to immutable variable
+a = 10
+
+///// Num is not assignable to type String
+let mut a = ''
+a = 5
+
+///// Num is not assignable to type String
+let a: String = 42

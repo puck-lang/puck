@@ -1,0 +1,2 @@
+///// Use of undefined variable b
+let a = b + c

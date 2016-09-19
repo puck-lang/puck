@@ -4,9 +4,17 @@
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var _fs = require('fs');
+
+var fs = _interopRequireWildcard(_fs);
+
+var _compiler = require('./../lib/compiler.js');
+
 var _helpers = require('./../lib/helpers.js');
 
 var _js = require('./../lib/stdlib/js.js');
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var _arguments = _js.process.argv.takeFrom(function (arg) {
   return arg.indexOf("puck") > 0;
@@ -37,8 +45,28 @@ if (command == "build") {
         return failPattern.test(f);
       });
       (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
-      failCases.forEach(function (f) {
-        return (0, _helpers.cmd)("! (.tmp/old/bin/puckc --out-dir .tmp/cases " + f + " 2> /dev/null && " + "echo \"error case did not error for " + f + "\")");
+      failCases.forEach(function (file) {
+        return fs.readFileSync(file, { encoding: "utf-8" }).split("/////").forEach(function (test, i) {
+          var firstNewline = test.indexOf("\n");
+          var error = test.substr(0, firstNewline);
+          var code = test.substr(firstNewline);
+          if (!error && !code) {
+            return false;
+          };
+          if (!error || !code || error.substr(0, 1) != " ") {
+            (0, _core.print)("Test " + file + "::" + i + " is invalid, missing error or code");
+            _js.process.exit(1);
+          };
+          var result = (0, _compiler.buildString)(code, file);
+          if (!result.error) {
+            (0, _core.print)("error case did not error for " + file + "::" + i + "");
+            _js.process.exit(1);
+          };
+          if (result.error.message.indexOf(error.trim()) == -1) {
+            (0, _core.print)("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + result.error.message);
+            return _js.process.exit(1);
+          };
+        });
       });
       (0, _helpers.cmd)("diff -Nr test/baselines .tmp/cases");
       (0, _core.print)("done");

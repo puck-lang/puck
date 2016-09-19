@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.parseString = parseString;
 exports.compile = compile;
+exports.buildString = buildString;
 exports.build = build;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -54,6 +55,13 @@ function parseString(context, file) {
 function compile(context, file) {
   return (0, _emitter.Emitter)(context, file).emitModule(file.ast);
 };
+function babelTransform(file) {
+  return babel.transform(file.js, {
+    filename: file.absolutePath,
+    presets: "latest",
+    babelrc: false
+  }).code;
+};
 function dumpFiles(files, prop) {
   return files.forEach(function (file) {
     (0, _core.print)();
@@ -70,24 +78,20 @@ function dumpFiles(files, prop) {
     }).join("\n"));
   });
 };
-function build(files) {
-  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+function createContext() {
+  var ignoreErrors = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
 
-  var dump = options.dump;
-  files = files.map(function (f) {
-    var fileName = path.basename(f.file);
-    var absolutePath = path.resolve(path.normalize(f.file));
-    var outFile = path.normalize(f.outFile);
-    var outDir = path.dirname(outFile);
-    return {
-      absolutePath: absolutePath,
-      outFile: outFile,
-      outDir: outDir
-    };
-  });
-  var context = {
+  return {
     files: {},
     deferred: {},
+    runChecker: function runChecker() {
+      var self = this;
+      return _js._Object.keys(self.files).map(function (path) {
+        return self.files[path];
+      }).forEach(function (file) {
+        return (0, _scope.ScopeVisitor)(self, file).visitModule(file.ast);
+      });
+    },
     defer: function defer(file, func) {
       var self = this;
       return self.deferred[file.absolutePath] = func;
@@ -115,8 +119,10 @@ function build(files) {
       };
       if (!self.files[file.absolutePath]) {
         self.files[file.absolutePath] = file;
-        file.puck = fs.readFileSync(file.absolutePath, { encoding: "utf-8" });
-        file.ast = parseString(context, file);
+        if (!file.puck) {
+          file.puck = fs.readFileSync(file.absolutePath, { encoding: "utf-8" });
+        };
+        file.ast = parseString(self, file);
         if (self.deferred[file.absolutePath]) {
           self.deferred[file.absolutePath]();
         };
@@ -124,13 +130,43 @@ function build(files) {
       return self.files[file.absolutePath];
     },
     reportError: function reportError(file, token, message) {
-      if (!options.ignoreErrors) {
-        _js.console.error("" + message + "\n  in " + file.absolutePath);
-        throw Error();
-        return _js.process.exit(1);
+      var self = this;
+      if (!ignoreErrors) {
+        throw Error("" + message + "\n  in " + file.absolutePath);
       };
     }
   };
+};
+function buildString(code, filePath) {
+  return (0, _js.asResult)(function () {
+    var context = createContext();
+    var file = context.importFile({
+      fileName: path.basename(filePath),
+      absolutePath: path.resolve(path.normalize(filePath)),
+      puck: code
+    });
+    context.runChecker();
+    file.js = compile(context, file);
+    file.babel = babelTransform(file);
+    return file;
+  });
+};
+function build(files) {
+  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+  var dump = options.dump;
+  var context = createContext(options.ignoreErrors);
+  files = files.map(function (f) {
+    var fileName = path.basename(f.file);
+    var absolutePath = path.resolve(path.normalize(f.file));
+    var outFile = path.normalize(f.outFile);
+    var outDir = path.dirname(outFile);
+    return {
+      absolutePath: absolutePath,
+      outFile: outFile,
+      outDir: outDir
+    };
+  });
   files = files.map(function (f) {
     return context.importFile(f);
   });
@@ -138,11 +174,7 @@ function build(files) {
     dumpFiles(files, "ast");
     return _js._undefined;
   };
-  _js._Object.keys(context.files).map(function (path) {
-    return context.files[path];
-  }).forEach(function (file) {
-    return (0, _scope.ScopeVisitor)(context, file).visitModule(file.ast);
-  });
+  context.runChecker();
   if (dump == "typed-ast") {
     dumpFiles(files, "ast");
     return _js._undefined;
@@ -155,11 +187,7 @@ function build(files) {
     return _js._undefined;
   };
   files.forEach(function (file) {
-    return file.babel = babel.transform(file.js, {
-      filename: file.absolutePath,
-      presets: "latest",
-      babelrc: false
-    }).code;
+    return file.babel = babelTransform(file);
   });
   return files.forEach(function (f) {
     var outDir = f.outDir;

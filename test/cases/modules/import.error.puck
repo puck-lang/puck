@@ -1,0 +1,19 @@
+///// Can't assign to immutable variable a
+import 'node:module' as a
+a = 5
+
+///// Can't assign to immutable variable a
+import 'node:module' as {a}
+a = 5
+
+///// export.puck has no export named c
+import 'export.puck' as {c}
+
+///// missing.puck not found
+import 'missing.puck' as a
+
+///// Invalid puck module missing
+import 'puck:missing' as a
+
+///// Invalid import domain unknown
+import 'unknown:module' as a

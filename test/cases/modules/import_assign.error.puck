@@ -1,3 +1,0 @@
-import 'node:module' as a
-
-a = 5

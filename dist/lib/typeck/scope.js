@@ -31,7 +31,7 @@ function getType(scope, t) {
     return _js._undefined;
   };
   if (t.name) {
-    var binding = scope.getTypeBinding(name);
+    var binding = scope.getTypeBinding(t.name.name);
     return binding && binding.ty;
   } else {
     var _arguments = t.parameters.map(function (p) {
@@ -39,10 +39,11 @@ function getType(scope, t) {
     });
     var returnType = getType(scope, t.returnType);
     return {
-      name: name || getFunctionTypeName(_arguments, returnType),
+      kind: "Function",
+      name: getFunctionTypeName(_arguments, returnType),
       _arguments: _arguments,
       argumentRange: {
-        min: 0,
+        min: _arguments.length,
         max: _arguments.length
       },
       returnType: returnType
@@ -70,6 +71,26 @@ function getMinMax(parameters, isOptional, reportError, name) {
   return {
     min: firstOptional,
     max: parameters.length
+  };
+};
+function isAssignable(to, subject) {
+  if (!subject || !to) {
+    return true;
+  };
+  var sameKind = subject.kind == to.kind;
+  if (!sameKind) {
+    return false;
+  };
+  if (sameKind && to.kind == "Function") {
+    if (to.argumentRange.min < subject.argumentRange.min || to.argumentRange.max > subject.argumentRange.max) {
+      return false;
+    };
+    return to._arguments.every(function (toArg, i) {
+      var subjectArg = subject._arguments[i];
+      return isAssignable(toArg, subjectArg);
+    });
+  } else {
+    return true;
   };
 };
 function checkMinMax(_arguments, minMax, reportError, argumentName, subjectName, token) {
@@ -115,21 +136,12 @@ function createFunctionType(scope, f, reportError) {
     };
   };
   return {
+    kind: "Function",
     name: f.name || getFunctionTypeName(_arguments, returnType),
     _arguments: _arguments,
     argumentRange: __PUCK__value__4,
     returnType: returnType
   };
-};
-function checkFunctionType(binding, c, reportError) {
-  if (!binding.ty) {
-    return _js._undefined;
-  };
-  var name = binding.identifier.name;
-  if (!binding.ty._arguments) {
-    reportError(c, "" + name + " is not callable");
-  };
-  return checkMinMax(c.argumentList, binding.ty.argumentRange, reportError, "arguments", name, c);
 };
 function createScope(context, file) {
   var parent = arguments.length <= 2 || arguments[2] === undefined ? _js._undefined : arguments[2];
@@ -168,15 +180,21 @@ function createScope(context, file) {
         reportError(t, "Type " + name + " is already defined");
       };
       var __PUCK__value__5 = void 0;
-      if (t.parameters) {
+      if (t.parameters && t.parameters.length) {
         __PUCK__value__5 = getMinMax(t.parameters, function (p) {
           return p.defaultValue;
         }, reportError, "type parameter");
       };
-      return typeBindings[name] = {
+      var parameterRange = __PUCK__value__5;
+      var binding = {
+        kind: name,
         name: name,
-        parameters: __PUCK__value__5
+        parameterRange: parameterRange
       };
+      if (!parameterRange) {
+        binding.ty = binding;
+      };
+      return typeBindings[name] = binding;
     },
     inspect: function inspect(depth, opts) {
       var scope = {};
@@ -192,13 +210,18 @@ function createScope(context, file) {
     }
   };
 };
-function defineFunction(scope, f, reportError) {
+function defineFunction(scope, f) {
+  var reportError = arguments.length <= 2 || arguments[2] === undefined ? _js._undefined : arguments[2];
+
+  if (reportError) {
+    f.ty = createFunctionType(scope, f, reportError);
+  };
   if (f.name) {
     return scope.define({
       identifier: f.name,
       token: f,
       mutable: false,
-      ty: createFunctionType(scope, f, reportError)
+      ty: f.ty
     });
   };
 };
@@ -214,26 +237,31 @@ function definedHosted(scope, expressions, reportError) {
     };
   });
 };
-function definedHostedTopLevel(scope, expressions) {
+function definedHostedTopLevel(visitor, scope, expressions) {
   return expressions.forEach(function (e) {
-    if (e.kind == _ast.SyntaxKind.TraitDeclaration || e.kind == _ast.SyntaxKind.TypeDeclaration) {
-      scope.defineType(e);
-      e.hoisted = true;
-    };
-    if (e.kind == _ast.SyntaxKind.ExportDirective && (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration)) {
-      scope.defineType(e.expression);
-      return e.expression.hoisted = true;
+    if (e.kind == _ast.SyntaxKind.ImportDirective) {
+      visitor.visitImportDirective(e);
+      return e.hoisted = true;
+    } else {
+      if (e.kind == _ast.SyntaxKind.TraitDeclaration || e.kind == _ast.SyntaxKind.TypeDeclaration) {
+        scope.defineType(e);
+        return e.hoisted = true;
+      } else {
+        if (e.kind == _ast.SyntaxKind.ExportDirective && (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration)) {
+          scope.defineType(e.expression);
+          return e.expression.hoisted = true;
+        };
+      };
     };
   });
 };
 function TopScopeVisitor(context, file) {
   var scope = createScope(context, file);
-  var reportError = context.reportError.bind(context, file);
   return _js._Object.assign({}, visit.Visitor, {
     visitBlock: function visitBlock(b) {},
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      return defineFunction(scope, f, reportError);
+      return defineFunction(scope, f);
     },
     visitIdentifier: function visitIdentifier(i) {},
     visitModule: function visitModule(m) {
@@ -309,6 +337,25 @@ function ScopeVisitor(context, file) {
   var importDirective = void 0;
   var scope = createScope(context, file);
   var reportError = context.reportError.bind(context, file);
+  function reportNotAssignableError(t, to, subject) {
+    return reportError(t, subject.name + " is not assignable to type " + to.name);
+  };
+  function checkFunctionType(binding, c) {
+    if (!binding.ty) {
+      return _js._undefined;
+    };
+    var name = binding.identifier.name;
+    if (!binding.ty._arguments) {
+      reportError(c, "" + name + " is not callable");
+    };
+    checkMinMax(c.argumentList, binding.ty.argumentRange, reportError, "arguments", name, c);
+    return c.argumentList.forEach(function (a, i) {
+      var parameterType = binding.ty._arguments[i];
+      if (!isAssignable(parameterType, a.ty)) {
+        return reportNotAssignableError(a, parameterType, a.ty);
+      };
+    });
+  };
   return _js._Object.assign({}, visit.Visitor, {
     visitBlock: function visitBlock(b) {
       var self = this;
@@ -338,7 +385,7 @@ function ScopeVisitor(context, file) {
     visitModule: function visitModule(m) {
       var self = this;
       m.scope = scope;
-      definedHostedTopLevel(scope, m.lines);
+      definedHostedTopLevel(self, scope, m.lines);
       definedHosted(scope, m.lines, reportError);
       return visit.walkModule(self, m);
     },
@@ -387,8 +434,8 @@ function ScopeVisitor(context, file) {
       if (!binding) {
         reportError(t, "Use of undeclared type " + t.name.name);
       };
-      if (binding.parameters) {
-        checkMinMax(t.parameters, binding.parameters, reportError, "type parameters", t.name.name, t);
+      if (binding.parameterRange) {
+        checkMinMax(t.parameters, binding.parameterRange, reportError, "type parameters", t.name.name, t);
       } else {
         if (t.parameters.length > 0) {
           reportError(t, "Type " + t.name.name + " is not generic");
@@ -414,14 +461,21 @@ function ScopeVisitor(context, file) {
       if (d.typeBound) {
         self.visitTypeBound(d.typeBound);
       };
-      scope.define({
+      var binding = scope.define({
         identifier: d.identifier,
         mutable: d.mutable,
         token: d,
         ty: getType(scope, d.typeBound)
       }, true);
       if (d.initializer) {
-        return self.visitExpression(d.initializer);
+        self.visitExpression(d.initializer);
+        if (!binding.ty) {
+          return binding.ty = d.initializer.ty;
+        } else {
+          if (!isAssignable(binding.ty, d.initializer.ty)) {
+            return reportNotAssignableError(d, binding.ty, d.initializer.ty);
+          };
+        };
       };
     },
     visitExportDirective: function visitExportDirective(e) {
@@ -431,6 +485,9 @@ function ScopeVisitor(context, file) {
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
+      if (i.hoisted) {
+        return _js._undefined;
+      };
       i.scope = scope;
       if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
         return scope.define({
@@ -448,13 +505,16 @@ function ScopeVisitor(context, file) {
     visitAssignmentExpression: function visitAssignmentExpression(e) {
       var self = this;
       e.scope = scope;
+      visit.walkAssignmentExpression(self, e);
       if (e.lhs.kind == _ast.SyntaxKind.Identifier) {
         var binding = e.scope.getBinding(e.lhs.name);
-        if (binding && !binding.mutable) {
+        if (!binding.mutable) {
           reportError(e, "Can't assign to immutable variable " + e.lhs.name);
         };
+        if (!isAssignable(binding.ty, e.rhs.ty)) {
+          return reportNotAssignableError(e, binding.ty, e.rhs.ty);
+        };
       };
-      return visit.walkAssignmentExpression(self, e);
     },
     visitBinaryExpression: function visitBinaryExpression(e) {
       var self = this;
@@ -467,7 +527,7 @@ function ScopeVisitor(context, file) {
       visit.walkCallExpression(self, e);
       if (e.func.kind == _ast.SyntaxKind.Identifier) {
         var binding = scope.getBinding(e.func.name);
-        return checkFunctionType(binding, e, reportError);
+        return checkFunctionType(binding, e);
       };
     },
     visitForExpression: function visitForExpression(e) {
@@ -531,11 +591,19 @@ function ScopeVisitor(context, file) {
     visitBooleanLiteral: function visitBooleanLiteral(l) {
       var self = this;
       l.scope = scope;
+      l.ty = {
+        kind: "Bool",
+        name: "Bool"
+      };
       return visit.walkBooleanLiteral(self, l);
     },
     visitNumberLiteral: function visitNumberLiteral(l) {
       var self = this;
       l.scope = scope;
+      l.ty = {
+        kind: "Num",
+        name: "Num"
+      };
       return visit.walkNumberLiteral(self, l);
     },
     visitObjectLiteral: function visitObjectLiteral(l) {
@@ -548,6 +616,10 @@ function ScopeVisitor(context, file) {
     visitStringLiteral: function visitStringLiteral(l) {
       var self = this;
       l.scope = scope;
+      l.ty = {
+        kind: "String",
+        name: "String"
+      };
       return visit.walkStringLiteral(self, l);
     }
   });
