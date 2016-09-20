@@ -60,7 +60,7 @@ type TypeInstance = {
 type FunctionTypeInstance = {
   name: String
   // typeParameters: List<TypeInstance>
-  arguments: List<TypeInstance>
+  arguments: List<Binding>
   argumentRange: MinMax
   returnType: TypeInstance
 }
@@ -101,7 +101,7 @@ fn getType(scope: Scope, t: TypeBound, name: String = undefined) {
     binding and binding.ty
   }
   else {
-    let arguments = t.parameters.map(|p| getType(scope, p))
+    let arguments = t.parameters.map(|p| {{ty: getType(scope, p)}})
     let returnType = getType(scope, t.returnType)
 
     {
@@ -182,7 +182,11 @@ fn checkMinMax<T>(arguments: List<T>, minMax: MinMax, reportError, argumentName:
 }
 
 fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
-  let arguments = f.parameterList.map(|p| getType(scope, p.typeBound, p.identifier.name))
+  let arguments = f.parameterList.map(|p| {{
+    identifier: p.identifier
+    mutable: p.mutable
+    ty: getType(scope, p.typeBound, p.identifier.name)
+  }})
   let returnType = getType(scope, f.returnType)
 
   {
@@ -231,7 +235,7 @@ fn createScope(context, file, parent = undefined) {
         parameterRange
       }
 
-      // Not generic types doesn't need instances so the binfing can be used directly
+      // Not generic types doesn't need instances so the binding can be used directly
       if not parameterRange
         then binding.ty = binding
 
@@ -376,11 +380,31 @@ export fn ScopeVisitor(context, file) {
 
     checkMinMax(c.argumentList, binding.ty.argumentRange, reportError, 'arguments', name, c)
 
-    c.argumentList.forEach(|a, i| {
-      let parameterType = binding.ty.arguments[i]
+    c.argumentList.forEach(|argument, i| {
+      let parameter = binding.ty.arguments[i]
 
-      if not isAssignable(parameterType, a.ty)
-        then reportNotAssignableError(a, parameterType, a.ty)
+      if not isAssignable(parameter.ty, argument.ty)
+        then reportNotAssignableError(argument, parameter.ty, argument.ty)
+
+      if parameter.mutable and argument.kind == SyntaxKind.Identifier {
+        let argumentName = argument.name
+        let argumentBinding = scope.getBinding(argumentName)
+
+        if not argumentBinding.mutable {
+          let functionName =
+            if c.func.kind == SyntaxKind.Identifier
+              then c.func.name
+              else 'function'
+          let parameterName =
+            if parameter.identifier
+              then parameter.identifier.name
+              else i
+          reportError(argument
+            'Parameter $parameterName of $functionName requires a mutable binding ' +
+            'but $argumentName is declared as immutable.'
+          )
+        }
+      }
     })
   }
 

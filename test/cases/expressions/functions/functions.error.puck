@@ -21,3 +21,8 @@ a(1, 2)
 ///// Too many arguments given to a, 1 required, 2 given
 let a = fn (a) {}
 a(1, 2)
+
+///// Parameter b of a requires a mutable binding but c is declared as immutable.
+fn a(mut b) {}
+let c = true
+a(c)

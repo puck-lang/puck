@@ -4,15 +4,13 @@
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var _js = require('puck-lang/dist/lib/stdlib/js');
+
 var _fs = require('fs');
 
 var fs = _interopRequireWildcard(_fs);
 
-var _compiler = require('./../lib/compiler.js');
-
 var _helpers = require('./../lib/helpers.js');
-
-var _js = require('./../lib/stdlib/js.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -39,12 +37,13 @@ if (command == "build") {
   if (command == "test") {
     (function () {
       buildTestCompiler();
-      var failPattern = RegExp("\\.error\\.puck$", "i");
+      var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
       var caseFiles = (0, _helpers.walkSync)("test/cases");
       var failCases = caseFiles.filter(function (f) {
         return failPattern.test(f);
       });
       (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
+      var buildString = (0, _js.require)("puck-lang/.tmp/old/lib/compiler").buildString;
       failCases.forEach(function (file) {
         return fs.readFileSync(file, { encoding: "utf-8" }).split("/////").forEach(function (test, i) {
           var firstNewline = test.indexOf("\n");
@@ -57,7 +56,7 @@ if (command == "build") {
             (0, _core.print)("Test " + file + "::" + i + " is invalid, missing error or code");
             _js.process.exit(1);
           };
-          var result = (0, _compiler.buildString)(code, file);
+          var result = buildString(code, file);
           if (!result.error) {
             (0, _core.print)("error case did not error for " + file + "::" + i + "");
             _js.process.exit(1);

@@ -1,7 +1,6 @@
+import 'puck:js' as {RegExp, console, process, require}
 import 'node:fs' as fs
-import '../lib/compiler.puck' as {buildString}
 import '../lib/helpers.puck' as {cmd, walkSync}
-import '../lib/stdlib/js.puck' as {RegExp, console, process}
 
 let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puck') > 0}).slice(1)
 let command = arguments[0]
@@ -37,6 +36,7 @@ else if command == 'test' {
   let failCases = caseFiles.filter(|f| failPattern.test(f))
 
   cmd('.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck')
+  let buildString = require('puck-lang/.tmp/old/lib/compiler').buildString
   failCases.forEach(|file| {
     fs.readFileSync(file, {encoding: 'utf-8'})
       .split('/////')

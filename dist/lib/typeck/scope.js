@@ -35,7 +35,7 @@ function getType(scope, t) {
     return binding && binding.ty;
   } else {
     var _arguments = t.parameters.map(function (p) {
-      return getType(scope, p);
+      return { ty: getType(scope, p) };
     });
     var returnType = getType(scope, t.returnType);
     return {
@@ -121,7 +121,11 @@ function checkMinMax(_arguments, minMax, reportError, argumentName, subjectName,
 };
 function createFunctionType(scope, f, reportError) {
   var _arguments = f.parameterList.map(function (p) {
-    return getType(scope, p.typeBound, p.identifier.name);
+    return {
+      identifier: p.identifier,
+      mutable: p.mutable,
+      ty: getType(scope, p.typeBound, p.identifier.name)
+    };
   });
   var returnType = getType(scope, f.returnType);
   var __PUCK__value__4 = void 0;
@@ -349,10 +353,31 @@ function ScopeVisitor(context, file) {
       reportError(c, "" + name + " is not callable");
     };
     checkMinMax(c.argumentList, binding.ty.argumentRange, reportError, "arguments", name, c);
-    return c.argumentList.forEach(function (a, i) {
-      var parameterType = binding.ty._arguments[i];
-      if (!isAssignable(parameterType, a.ty)) {
-        return reportNotAssignableError(a, parameterType, a.ty);
+    return c.argumentList.forEach(function (argument, i) {
+      var parameter = binding.ty._arguments[i];
+      if (!isAssignable(parameter.ty, argument.ty)) {
+        reportNotAssignableError(argument, parameter.ty, argument.ty);
+      };
+      if (parameter.mutable && argument.kind == _ast.SyntaxKind.Identifier) {
+        var argumentName = argument.name;
+        var argumentBinding = scope.getBinding(argumentName);
+        if (!argumentBinding.mutable) {
+          var __PUCK__value__6 = void 0;
+          if (c.func.kind == _ast.SyntaxKind.Identifier) {
+            __PUCK__value__6 = c.func.name;
+          } else {
+            __PUCK__value__6 = "function";
+          };
+          var functionName = __PUCK__value__6;
+          var __PUCK__value__7 = void 0;
+          if (parameter.identifier) {
+            __PUCK__value__7 = parameter.identifier.name;
+          } else {
+            __PUCK__value__7 = i;
+          };
+          var parameterName = __PUCK__value__7;
+          return reportError(argument, "Parameter " + parameterName + " of " + functionName + " requires a mutable binding " + "but " + argumentName + " is declared as immutable.");
+        };
       };
     });
   };
