@@ -5,10 +5,10 @@ import 'node:path' as path
 import 'ast/ast.puck' as {Token}
 import 'compiler/ast.ts' as {SyntaxKind}
 
-Array.prototype.takeFrom = fn (self, predicate) {
-  let index = self.findIndex(predicate)
-  self.slice(index)
-}
+// Array.prototype.takeFrom = fn (self, predicate) {
+//   let index = self.findIndex(predicate)
+//   self.slice(index)
+// }
 
 export fn cmd(cmd) {
   let result = asResult(fn () {

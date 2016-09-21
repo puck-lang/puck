@@ -14,9 +14,10 @@ var _helpers = require('./../lib/helpers.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var _arguments = _js.process.argv.takeFrom(function (arg) {
-  return arg.indexOf("puck") > 0;
-}).slice(1);
+var index = _js.process.argv.findIndex(function (arg) {
+  return arg.indexOf("puck") >= 0;
+});
+var _arguments = _js.process.argv.slice(index + 1);
 var command = _arguments[0];
 function buildAll() {
   var outFolder = arguments.length <= 0 || arguments[0] === undefined ? "dist" : arguments[0];

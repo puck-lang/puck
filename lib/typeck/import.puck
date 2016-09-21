@@ -17,7 +17,7 @@ export fn ImportVisitor(context, file: File) {
   let reportError = context.reportError.bind(context, file)
   let mut moduleScope
 
-  fn importModule(i: ImportDirective, importedFile: File) {
+  fn importModule(mut i: ImportDirective, importedFile: File) {
     let module = context.importFile(importedFile).ast
     if not module then return context.defer(importedFile, || importModule(i, importedFile))
 
@@ -56,7 +56,7 @@ export fn ImportVisitor(context, file: File) {
       })
     }
 
-    visitImportDirective: |self, i: ImportDirective| {
+    visitImportDirective: |self, mut i: ImportDirective| {
       if i.domain == 'puck' {
         if puckModules.indexOf(i.path) == -1
           then reportError(i, 'Invalid puck module ' + i.path)

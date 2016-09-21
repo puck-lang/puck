@@ -2,7 +2,8 @@ import 'puck:js' as {RegExp, console, process, require}
 import 'node:fs' as fs
 import '../lib/helpers.puck' as {cmd, walkSync}
 
-let arguments = process.argv.takeFrom(fn (arg) {arg.indexOf('puck') > 0}).slice(1)
+let index = process.argv.findIndex(|arg| arg.indexOf('puck') >= 0)
+let arguments = process.argv.slice(index + 1)
 let command = arguments[0]
 
 fn buildAll(outFolder = 'dist', compiler = 'dist') {

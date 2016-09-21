@@ -30,11 +30,6 @@ var _ast = require('./compiler/ast.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-_js.Array.prototype.takeFrom = function (predicate) {
-  var self = this;
-  var index = self.findIndex(predicate);
-  return self.slice(index);
-};
 function cmd(cmd) {
   var result = (0, _js.asResult)(function () {
     return (0, _child_process.execSync)(cmd, {

@@ -54,7 +54,7 @@ fn createContext(ignoreErrors = false) {
         .map(|path| self.files[path])
         .forEach(|file| ScopeVisitor(self, file).visitModule(file.ast))
     }
-    defer: fn (self, file, func) then self.deferred[file.absolutePath] = func
+    defer: fn (mut self, file, func) then self.deferred[file.absolutePath] = func
     resolvePath: fn (file, relativeTo): File {
       let filePath =
         if file.substring(0, 1) == '/'
@@ -65,7 +65,7 @@ fn createContext(ignoreErrors = false) {
 
       {absolutePath, fileName}
     }
-    importFile: fn (self, mut file: File) {
+    importFile: fn (mut self, mut file: File) {
       if self.files[file.absolutePath] and file.outDir and file.outFile {
         self.files[file.absolutePath].outDir = file.outDir
         self.files[file.absolutePath].outFile = file.outFile
@@ -94,7 +94,7 @@ fn createContext(ignoreErrors = false) {
 export fn buildString(code: String, filePath: String) {
   asResult(|| {
     let context = createContext()
-    let file = context.importFile({
+    let mut file = context.importFile({
       fileName: path.basename(filePath)
       absolutePath: path.resolve(path.normalize(filePath))
       puck: code
@@ -135,7 +135,7 @@ export fn build(files: List<File>, options = {}) {
     return undefined
   }
 
-  files.forEach(|file| {
+  files.forEach(|mut file| {
     file.js = compile(context, file)
   })
 
@@ -144,7 +144,7 @@ export fn build(files: List<File>, options = {}) {
     return undefined
   }
 
-  files.forEach(|file| {
+  files.forEach(|mut file| {
     file.babel = babelTransform(file)
   })
 

@@ -381,6 +381,19 @@ function ScopeVisitor(context, file) {
       };
     });
   };
+  function getBinding(token) {
+    if (token.kind == _ast.SyntaxKind.Identifier) {
+      return token.scope.getBinding(token.name);
+    } else {
+      if (token.kind == _ast.SyntaxKind.MemberAccess) {
+        return getBinding(token.object);
+      } else {
+        if (token.kind == _ast.SyntaxKind.IndexAccess) {
+          return getBinding(token.object);
+        };
+      };
+    };
+  };
   return _js._Object.assign({}, visit.Visitor, {
     visitBlock: function visitBlock(b) {
       var self = this;
@@ -531,10 +544,10 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = scope;
       visit.walkAssignmentExpression(self, e);
-      if (e.lhs.kind == _ast.SyntaxKind.Identifier) {
-        var binding = e.scope.getBinding(e.lhs.name);
+      var binding = getBinding(e.lhs);
+      if (binding) {
         if (!binding.mutable) {
-          reportError(e, "Can't assign to immutable variable " + e.lhs.name);
+          reportError(e, "Can't assign to immutable variable " + binding.identifier.name + (0, _util.inspect)(e));
         };
         if (!isAssignable(binding.ty, e.rhs.ty)) {
           return reportNotAssignableError(e, binding.ty, e.rhs.ty);

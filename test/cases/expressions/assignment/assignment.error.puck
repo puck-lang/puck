@@ -3,6 +3,14 @@ let a = 5
 // Assignment to immutable variable
 a = 10
 
+///// Can't assign to immutable variable b
+let b = {}
+b.d = 5
+
+///// Can't assign to immutable variable c
+let c = {}
+c['e'] = 5
+
 ///// Num is not assignable to type String
 let mut a = ''
 a = 5
