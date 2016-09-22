@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.print = print;
+exports.objectFromList = objectFromList;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
@@ -21,4 +22,11 @@ function print(message, a, b, c) {
     args[3] = c;
   };
   return _js.console.log.apply(_js.console, args);
+};
+function objectFromList(list) {
+  var object = {};
+  list.forEach(function (item) {
+    return object[item[0]] = item[1];
+  });
+  return object;
 }

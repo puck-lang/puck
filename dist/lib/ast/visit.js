@@ -344,7 +344,7 @@ function walkTypeBound(visitor, t) {
 };
 function walkFunctionTypeBound(visitor, t) {
   t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor));
-  t.parameters.forEach(visitor.visitTypeBound.bind(visitor));
+  t._arguments.forEach(visitor.visitTypeBound.bind(visitor));
   return visitor.visitTypeBound(t.returnType);
 };
 function walkNamedTypeBound(visitor, t) {

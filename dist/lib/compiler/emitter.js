@@ -1,7 +1,7 @@
 "use strict";
 var ast_1 = require('./ast');
 var helpers_1 = require('../helpers');
-var jsKeywords = ['arguments', 'module', 'new', 'null', 'Object', 'typeof', 'undefined'];
+var jsKeywords = ['arguments', 'class', 'module', 'new', 'null', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
     _a[ast_1.SyntaxKind.OrKeyword] = '||',
@@ -191,13 +191,18 @@ function Emitter() {
     function emitVariableDeclaration(vd) {
         var binding = vd.scope.getBinding(vd.identifier.name);
         var willBeRedefined = binding.redefined;
-        while (binding && binding.identifier !== vd.identifier) {
+        while (binding && binding.token !== vd) {
             binding = binding.previous;
         }
         var initializer = vd.initializer
             ? " = " + emitExpression(vd.initializer, Context.Value)
             : '';
         if (binding && binding.previous) {
+            return "" + emitIdentifier(vd.identifier) + initializer;
+        }
+        if (context) {
+            var valueVariable_1 = newValueVariable();
+            hoist("let " + emitIdentifier(vd.identifier) + ";");
             return "" + emitIdentifier(vd.identifier) + initializer;
         }
         var kw = (vd.mutable || willBeRedefined) ? 'let' : 'const';

@@ -21,3 +21,9 @@ export fn print(message, a, b, c) {
 
   console.log.apply(console, args)
 }
+
+export fn objectFromList<T>(list: List<List<T>>) {
+  let mut object = {}
+  list.forEach(|item| object[item[0]] = item[1])
+  object
+}

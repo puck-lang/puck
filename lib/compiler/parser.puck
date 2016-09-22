@@ -291,14 +291,14 @@ export fn parse(input) { // : TokenStream
         then delimited('<', '>', ',', parseTypeParameter)
       else []
 
-    let parameters = delimited('(', ')', ',', parseTypeBound)
+    let arguments = delimited('(', ')', ',', parseTypeBound)
     consumeToken(SyntaxKind.EqualsGreaterThanToken)
     let returnType = parseTypeBound()
 
     {
       kind: SyntaxKind.FunctionTypeBound
       typeParameters
-      parameters
+      arguments
       returnType
     }
   }

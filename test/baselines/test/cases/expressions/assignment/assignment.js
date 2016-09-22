@@ -17,4 +17,6 @@ var b = 5;
 b = 6;
 function c(a) {
   return a = a * 2;
-}
+};
+var d = { e: 42 };
+d.e = 5;

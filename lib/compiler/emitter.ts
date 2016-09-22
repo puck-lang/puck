@@ -39,7 +39,7 @@ import {
 } from './ast'
 import {isTypeScopeDeclaration} from '../helpers'
 
-const jsKeywords = ['arguments', 'module', 'new', 'null', 'Object', 'typeof', 'undefined']
+const jsKeywords = ['arguments', 'class', 'module', 'new', 'null', 'Object', 'typeof', 'undefined']
 const tokenToJs = Object['assign'](tokenToText, {
   [SyntaxKind.AndKeyword]: '&&',
   [SyntaxKind.OrKeyword]: '||',
@@ -249,7 +249,7 @@ export function Emitter() {
   function emitVariableDeclaration(vd: VariableDeclaration & {scope: any}) {
     let binding = vd.scope.getBinding(vd.identifier.name)
     let willBeRedefined = binding.redefined
-    while (binding && binding.identifier !== vd.identifier) {
+    while (binding && binding.token !== vd) {
       binding = binding.previous
     }
 
@@ -258,6 +258,13 @@ export function Emitter() {
       : ''
 
     if (binding && binding.previous) {
+      return `${emitIdentifier(vd.identifier)}${initializer}`
+    }
+
+    if (context) {
+      let valueVariable = newValueVariable()
+      hoist(`let ${emitIdentifier(vd.identifier)};`)
+
       return `${emitIdentifier(vd.identifier)}${initializer}`
     }
 

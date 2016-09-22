@@ -41,3 +41,5 @@ c(2)
 
 let q = fn (a) {}
 q(1)
+
+let bool: Bool = m(1, 2)

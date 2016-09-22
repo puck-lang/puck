@@ -67,7 +67,7 @@ export type NamedTypeBound = {
 
 export type FunctionTypeBound = {
   typeParameters: List<TypeParameter>
-  parameters: List<TypeBound>
+  arguments: List<TypeBound>
   returnType: TypeBound
 }
 
@@ -165,7 +165,7 @@ export type IndexAccess = {
 
 export type MemberAccess = {
   object: Expression
-  // member: Identifier|MemberAccess
+  member: Identifier
 }
 
 export type BreakStatement = {

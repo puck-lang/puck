@@ -23,3 +23,10 @@ let b = 6
 fn c(a) {
   let a = a * 2
 }
+
+type D = {
+  e: Num
+}
+
+let mut d: D = {e: 42}
+d.e = 5

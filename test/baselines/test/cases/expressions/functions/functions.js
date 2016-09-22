@@ -71,3 +71,4 @@ c();
 c(2);
 var q = function q(a) {};
 q(1);
+var bool = m(1, 2);

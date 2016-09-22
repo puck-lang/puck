@@ -263,13 +263,13 @@ function parse(input) {
       __PUCK__value__3 = [];
     };
     var typeParameters = __PUCK__value__3;
-    var parameters = delimited("(", ")", ",", parseTypeBound);
+    var _arguments = delimited("(", ")", ",", parseTypeBound);
     consumeToken(_ast.SyntaxKind.EqualsGreaterThanToken);
     var returnType = parseTypeBound();
     return {
       kind: _ast.SyntaxKind.FunctionTypeBound,
       typeParameters: typeParameters,
-      parameters: parameters,
+      _arguments: _arguments,
       returnType: returnType
     };
   };

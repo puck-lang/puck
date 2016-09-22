@@ -182,7 +182,7 @@ export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
 }
 export fn walkFunctionTypeBound(visitor: Visitor, t: FunctionTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
-  t.parameters.forEach(visitor.visitTypeBound.bind(visitor))
+  t.arguments.forEach(visitor.visitTypeBound.bind(visitor))
   visitor.visitTypeBound(t.returnType)
 }
 export fn walkNamedTypeBound(visitor: Visitor, t: NamedTypeBound) {
