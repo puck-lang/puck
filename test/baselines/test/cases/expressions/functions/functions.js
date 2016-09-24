@@ -72,3 +72,7 @@ c(2);
 var q = function q(a) {};
 q(1);
 var bool = m(1, 2);
+var obj = { key: function key() {
+    var self = this;
+    return self;
+  } };

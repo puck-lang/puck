@@ -4,6 +4,7 @@ import 'ast.puck' as {
   Block
   FunctionDeclaration
   Identifier
+  ImplDeclaration
   Module
   ObjectDestructure
   TraitDeclaration
@@ -75,6 +76,7 @@ export let Visitor = {
   visitBlock: |self, b: Block| walkBlock(self, b)
   visitFunctionDeclaration: |self, f: FunctionDeclaration| walkFunction(self, f)
   visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
+  visitImplDeclaration: |self, i: ImplDeclaration| walkImplDeclaration(self, i)
   visitModule: |self, m: Module| walkModule(self, m)
   visitObjectDestructure: |self, o: ObjectDestructure| walkObjectDestructure(self, o)
   visitTraitDeclaration: |self, t: TraitDeclaration| walkTraitDeclaration(self, t)
@@ -115,6 +117,7 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   if e.kind == SyntaxKind.Block then visitor.visitBlock(e)
   else if e.kind == SyntaxKind.Function then visitor.visitFunctionDeclaration(e)
   else if e.kind == SyntaxKind.Identifier then visitor.visitIdentifier(e)
+  else if e.kind == SyntaxKind.ImplDeclaration then visitor.visitImplDeclaration(e)
   else if e.kind == SyntaxKind.ObjectDestructure then visitor.visitObjectDestructure(e)
   else if e.kind == SyntaxKind.TraitDeclaration then visitor.visitTraitDeclaration(e)
   else if e.kind == SyntaxKind.FunctionTypeBound then visitor.visitFunctionTypeBound(e)
@@ -160,6 +163,13 @@ export fn walkFunction(visitor: Visitor, f: FunctionDeclaration) {
   if f.body then visitor.visitBlock(f.body)
 }
 export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
+export fn walkImplDeclaration(visitor: Visitor, i: ImplDeclaration) {
+  if i.typeParameters
+    then i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
+  visitor.visitTypeBound(i.tra)
+  visitor.visitTypeBound(i.ty)
+  i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
+}
 export fn walkModule(visitor: Visitor, m: Module) {
   m.lines.forEach(visitor.visitExpression.bind(visitor))
 }
@@ -170,6 +180,8 @@ export fn walkObjectDestructure(visitor: Visitor, o: ObjectDestructure) {
   })
 }
 export fn walkTraitDeclaration(visitor: Visitor, t: TraitDeclaration) {
+  if t.typeParameters
+    then t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   t.members.forEach(|t| visitor.visitFunctionDeclaration(t))
 }
 export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
@@ -186,11 +198,11 @@ export fn walkFunctionTypeBound(visitor: Visitor, t: FunctionTypeBound) {
   visitor.visitTypeBound(t.returnType)
 }
 export fn walkNamedTypeBound(visitor: Visitor, t: NamedTypeBound) {
-  t.parameters.forEach(visitor.visitTypeBound.bind(visitor))
+  t.typeParameters.forEach(visitor.visitTypeBound.bind(visitor))
 }
 export fn walkTypeDeclaration(visitor: Visitor, t: TypeDeclaration) {
   // visitor.visitIdentifier(t.name)
-  t.parameters.forEach(|t| visitor.visitTypeParameter(t))
+  t.typeParameters.forEach(|t| visitor.visitTypeParameter(t))
   t.properties.forEach(|t| visitor.visitTypeProperty(t))
 }
 export fn walkTypeParameter(visitor: Visitor, t: TypeParameter) {

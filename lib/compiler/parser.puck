@@ -6,6 +6,7 @@ import '../ast/ast.puck' as {
 
   Block
   FunctionDeclaration
+  ImplDeclaration
   ObjectDestructure
   ObjectDestructureMember
   TraitDeclaration
@@ -271,6 +272,10 @@ export fn parse(input) { // : TokenStream
   fn parseTraitDeclaration(): TraitDeclaration {
     let keyword = consumeToken(SyntaxKind.TraitKeyword)
     let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let typeParameters =
+      if isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeParameter)
+
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', || parseFunctionDeclaration(true), false)
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
@@ -279,6 +284,34 @@ export fn parse(input) { // : TokenStream
       kind: SyntaxKind.TraitDeclaration
       keyword
       name
+      typeParameters
+      openBrace
+      members
+      closeBrace
+    }
+  }
+
+  fn parseImplDeclaration(): ImplDeclaration {
+    let implKeyword = consumeToken(SyntaxKind.ImplKeyword)
+    let typeParameters =
+      if isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeParameter)
+
+    let tra = parseTypeBound()
+    let forKeyword = consumeToken(SyntaxKind.ForKeyword)
+    let ty = parseTypeBound()
+
+    let openBrace = expect(SyntaxKind.OpenBraceToken)
+    let members = delimited('{', '}', ';', parseFunctionDeclaration, false)
+    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
+
+    {
+      kind: SyntaxKind.ImplDeclaration
+      implKeyword
+      typeParameters
+      tra
+      forKeyword
+      ty
       openBrace
       members
       closeBrace
@@ -305,7 +338,7 @@ export fn parse(input) { // : TokenStream
 
   fn parseNamedTypeBound(): NamedTypeBound {
     let name = consumeToken(SyntaxKind.Identifier, 'identifier')
-    let parameters =
+    let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeBound)
       else []
@@ -313,7 +346,7 @@ export fn parse(input) { // : TokenStream
     {
       kind: SyntaxKind.NamedTypeBound
       name
-      parameters
+      typeParameters
     }
   }
 
@@ -350,7 +383,7 @@ export fn parse(input) { // : TokenStream
   fn parseTypeDeclaration(): TypeDeclaration {
     let keyword = consumeToken(SyntaxKind.TypeKeyword)
     let name = consumeToken(SyntaxKind.Identifier, 'identifier')
-    let parameters =
+    let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
       else []
@@ -363,7 +396,7 @@ export fn parse(input) { // : TokenStream
     {
       kind: SyntaxKind.TypeDeclaration
       name
-      parameters
+      typeParameters
       openBrace
       properties
       closeBrace
@@ -654,6 +687,7 @@ export fn parse(input) { // : TokenStream
 
   fn parseTopLevelExpression() {
     if isToken(SyntaxKind.ExportKeyword) then parseExport()
+    else if isToken(SyntaxKind.ImplKeyword) then parseImplDeclaration()
     else if isToken(SyntaxKind.ImportKeyword) then parseImport()
     else if isToken(SyntaxKind.TraitKeyword) then parseTraitDeclaration()
     else if isToken(SyntaxKind.TypeKeyword) then parseTypeDeclaration()

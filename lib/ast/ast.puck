@@ -28,6 +28,19 @@ export type Identifier = {
   name: String
 }
 
+export type ImplDeclaration = {
+  implKeyword: Token
+  typeParameters: List<TypeParameter>
+
+  tra: TypeBound
+  forKeyword: Token
+  ty: TypeBound
+
+  openBrace: Token
+  members: List<FunctionDeclaration>
+  closeBrace: Token
+}
+
 export type Module = {
   fileName: String
   path: String
@@ -53,6 +66,7 @@ export type SimpleIdentifier = {
 export type TraitDeclaration = {
   keyword: Token
   name: Identifier
+  typeParameters: List<TypeParameter>
   openBrace: Token
   members: List<FunctionDeclaration>
   closeBrace: Token
@@ -74,7 +88,7 @@ export type FunctionTypeBound = {
 export type TypeDeclaration = {
   keyword: Token
   name: Identifier
-  parameters: List<TypeParameter>
+  typeParameters: List<TypeParameter>
   openBrace: Token
   properties: List<TypeProperty>
   closeBrace: Token

@@ -39,7 +39,7 @@ import {
 } from './ast'
 import {isTypeScopeDeclaration} from '../helpers'
 
-const jsKeywords = ['arguments', 'class', 'module', 'new', 'null', 'Object', 'typeof', 'undefined']
+const jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'Object', 'typeof', 'undefined']
 const tokenToJs = Object['assign'](tokenToText, {
   [SyntaxKind.AndKeyword]: '&&',
   [SyntaxKind.OrKeyword]: '||',
@@ -116,9 +116,11 @@ export function Emitter() {
   function emitModule(module: Module) {
     let preamble = `#!/usr/bin/env node\n'use strict';\n`
     let lines = emitLines(module.lines.filter(e => !(
+      e.kind === SyntaxKind.ImplDeclaration ||
       e.kind === SyntaxKind.TraitDeclaration ||
       e.kind === SyntaxKind.TypeDeclaration ||
       (isExport(e) && (
+        e.expression.kind === SyntaxKind.ImplDeclaration ||
         e.expression.kind === SyntaxKind.TraitDeclaration ||
         e.expression.kind === SyntaxKind.TypeDeclaration
       ))
@@ -282,7 +284,7 @@ export function Emitter() {
       : `{${i.specifier.members
           .filter(({property, local}) => {
             if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
-              ['TokenStream', 'InputStream', 'TopScopeVisitor', 'ScopeVisitor', 'ImportVisitor']
+              ['TokenStream', 'InputStream', 'TypeVisitor', 'TopScopeVisitor', 'ScopeVisitor', 'ImportVisitor']
                 .indexOf(local.name) == -1) {
               return false
             }

@@ -84,6 +84,14 @@ function createContext() {
   return {
     files: {},
     deferred: {},
+    runTypeVisitor: function runTypeVisitor() {
+      var self = this;
+      return _js._Object.keys(self.files).map(function (path) {
+        return self.files[path];
+      }).forEach(function (file) {
+        return (0, _scope.TypeVisitor)(self, file).visitModule(file.ast);
+      });
+    },
     runChecker: function runChecker() {
       var self = this;
       return _js._Object.keys(self.files).map(function (path) {
@@ -145,6 +153,7 @@ function buildString(code, filePath) {
       absolutePath: path.resolve(path.normalize(filePath)),
       puck: code
     });
+    context.runTypeVisitor();
     context.runChecker();
     file.js = compile(context, file);
     file.babel = babelTransform(file);
@@ -174,8 +183,13 @@ function build(files) {
     dumpFiles(files, "ast");
     return _js._undefined;
   };
-  context.runChecker();
+  context.runTypeVisitor();
   if (dump == "typed-ast") {
+    dumpFiles(files, "ast");
+    return _js._undefined;
+  };
+  context.runChecker();
+  if (dump == "checked-ast") {
     dumpFiles(files, "ast");
     return _js._undefined;
   };

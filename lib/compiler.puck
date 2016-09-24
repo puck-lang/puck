@@ -9,7 +9,7 @@ import 'compiler/parser.puck' as {parse}
 import 'compiler/token_stream.puck' as {TokenStream}
 import 'helpers.puck' as {cmd}
 import 'typeck/import.puck' as {ImportVisitor}
-import 'typeck/scope.puck' as {ScopeVisitor, TopScopeVisitor}
+import 'typeck/scope.puck' as {ScopeVisitor, TopScopeVisitor, TypeVisitor}
 import 'entities.puck' as {File}
 
 export fn parseString(context, file: File) {
@@ -49,6 +49,11 @@ fn createContext(ignoreErrors = false) {
   {
     files: {}
     deferred: {}
+    runTypeVisitor: fn (self) {
+      Object.keys(self.files)
+        .map(|path| self.files[path])
+        .forEach(|file| TypeVisitor(self, file).visitModule(file.ast))
+    }
     runChecker: fn (self) {
       Object.keys(self.files)
         .map(|path| self.files[path])
@@ -100,6 +105,7 @@ export fn buildString(code: String, filePath: String) {
       puck: code
     })
 
+    context.runTypeVisitor()
     context.runChecker()
     file.js = compile(context, file)
     file.babel = babelTransform(file)
@@ -128,9 +134,16 @@ export fn build(files: List<File>, options = {}) {
     return undefined
   }
 
-  context.runChecker()
+  context.runTypeVisitor()
 
   if dump == 'typed-ast' {
+    dumpFiles(files, 'ast')
+    return undefined
+  }
+
+  context.runChecker()
+
+  if dump == 'checked-ast' {
     dumpFiles(files, 'ast')
     return undefined
   }

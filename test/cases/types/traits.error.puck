@@ -1,0 +1,49 @@
+///// EmptyType is not a trait
+import 'traits.puck' as {EmptyType}
+impl EmptyType for EmptyType {}
+
+///// Functions is not a type
+import 'traits.puck' as {Functions}
+impl Functions for Functions {}
+
+///// Empty has already been implemented for FunctionsType
+import 'traits.puck' as {Empty, FunctionsType}
+impl Empty for FunctionsType {}
+impl Empty for FunctionsType {}
+
+///// Generic<String> has already been implemented for FunctionsType
+import 'traits.puck' as {Generic, FunctionsType}
+impl Generic<String> for FunctionsType {
+  fn generic(a) then a
+}
+impl Generic<String> for FunctionsType {
+  fn generic(a) then a
+}
+
+///// Generic<T> has already been implemented for FunctionsType
+import 'traits.puck' as {Generic, FunctionsType}
+impl<T> Generic<T> for FunctionsType {
+  fn generic(a) then a
+}
+impl<T> Generic<T> for FunctionsType {
+  fn generic(a) then a
+}
+
+///// Generic<Num> has already been implemented for GenericType<Num>
+import 'traits.puck' as {Generic, GenericType}
+impl Generic<Num> for GenericType<Num> {
+  fn generic(a) then a
+}
+impl Generic<Num> for GenericType<Num> {
+  fn generic(a) then a
+}
+
+///// Function Functions::noBody is not implemented for EmptyType
+import 'traits.puck' as {EmptyType, Functions}
+impl Functions for EmptyType {}
+
+///// Function anotherFunction is not defined by Empty
+import 'traits.puck' as {Empty, FunctionsType}
+impl Empty for FunctionsType {
+  fn anotherFunction() {}
+}

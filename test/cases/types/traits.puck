@@ -1,9 +1,37 @@
-trait Empty {}
-trait Functions {
-  fn NoBody(): Num
+export trait Empty {}
+export trait Functions {
+  fn noBody(): Num
 
-  fn WithBody(a: String) {
+  fn withBody(a: String) {
     let b = a
     b
   }
+}
+export trait Generic<T> {
+  fn generic(a: T): T
+}
+
+export type EmptyType = {}
+export type FunctionsType = {
+  name: String
+}
+export type GenericType<T> = {}
+
+impl Empty for EmptyType {}
+
+impl Functions for EmptyType {
+  fn noBody() then 5
+}
+
+impl Functions for FunctionsType {
+  fn noBody() then 5
+  fn withBody(self, a: String) then self.name
+}
+
+impl<T> Generic<T> for GenericType<T> {
+  fn generic(a: T) then a
+}
+
+impl Generic<String> for GenericType<String> {
+  fn generic(a: String) then a + a
 }

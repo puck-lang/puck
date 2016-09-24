@@ -6,6 +6,7 @@ import '../ast/ast.puck' as {
   Block
   FunctionDeclaration
   Identifier
+  ImplDeclaration
   Module
   ObjectDestructure
   TypeBound
@@ -53,18 +54,32 @@ type MinMax = {
 type Type = {
   kind: String
   name: String
+}
+
+type Struct = {
+  implementations: List<Implementation>
   // properties: Object<Type>
+}
+
+type Trait = {
+  // functions: Object<FunctionType>
+}
+
+type Implementation = {
+  ty: Struct
+  tra: Trait
 }
 
 /// Represents a generic type like List<T>
 type TypeClass = { // + Type
   parameterRange: MinMax
+  instances: List<TypeInstance>
 }
 
 /// Represents an instance of a generic type like List<String> or List<Num>
 type TypeInstance = { // + Type
   class: TypeClass
-  parameters: List<Type>
+  typeParameters: List<Type>
 }
 
 /// Represents a function type (Num, Num) => Bool
@@ -72,6 +87,7 @@ type FunctionType = { // + Type
   arguments: List<Binding>
   argumentRange: MinMax
   returnType: Type
+  isAbstract: Bool
 }
 
 type GenericFunction = {}  // FunctionType + TypeClass
@@ -104,24 +120,51 @@ type ScopeAware = {
   scope: Scope
 }
 
+fn isStruct(ty) {
+  ty.implementations
+}
+
+fn isTrait(ty) {
+  ty.isTrait
+}
+
 fn isTypeClass(ty: Type) {
   ty.parameterRange
 }
 
-fn createTypeInstance(class: TypeClass, parameters: List<Type>) then {
-  kind: class.name + '<' + parameters.map(|p| p.name).join(', ') + '>'
-  name: class.name + '<' + parameters.map(|p| p.name).join(', ') + '>'
-  class
-  parameters
+fn isSameType(a, b) {
+  a.kind == b.kind
 }
 
-fn getType(scope: Scope, t, name: String = undefined) { // t: TypeBound
+fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
+  if let instance = class.instances.find(|i|
+      i.typeParameters.length == typeParameters.length
+  and i.typeParameters.every(|p, i| isSameType(p, typeParameters[i])))
+    then instance
+    else {
+      let instance = {
+        isTrait: class.isTrait
+        functions: class.functions
+        implementations: class.implementations and []
+        kind: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
+        name: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
+        class
+        typeParameters
+      }
+      class.instances.push(instance)
+      instance
+    }
+}
+
+fn getType(scope: Scope, t) { // t: TypeBound
   if not t then return undefined
   if t.name {
     let binding = scope.getTypeBinding(t.name.name)
 
-    if isTypeClass(binding.ty)
-      then createTypeInstance(binding.ty, t.parameters)
+    if not binding
+      then binding
+    else if isTypeClass(binding.ty)
+      then createTypeInstance(binding.ty, t.typeParameters.map(|p| p.ty))
     else binding.ty
   }
   else {
@@ -209,7 +252,7 @@ fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
   let arguments = f.parameterList.map(|p| {{
     identifier: p.identifier
     mutable: p.mutable
-    ty: getType(scope, p.typeBound, p.identifier.name)
+    ty: p.ty
   }})
   let returnType = getType(scope, f.returnType)
 
@@ -221,6 +264,7 @@ fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
       then getMinMax(f.parameterList, |p| p.initializer, reportError, 'parameter')
       else {{min: 0, max: 0}}
     returnType
+    isAbstract: not f.body
   }
 }
 
@@ -250,14 +294,31 @@ fn createScope(context, file, parent = undefined) {
       if typeBindings[name]
         then reportError(t, 'Type $name is already defined')
 
-      let parameterRange = if t.parameters and t.parameters.length
-        then getMinMax(t.parameters, |p| p.defaultValue, reportError, 'type parameter')
+      let parameterRange = if t.typeParameters and t.typeParameters.length
+        then getMinMax(t.typeParameters, |p| p.defaultValue, reportError, 'type parameter')
 
-      let ty = {
-        kind: name
-        name
-        parameterRange
-      }
+      let ty =
+        if t.ty
+          then t.ty
+          else {
+            let mut ty = {
+              kind: name
+              name
+              parameterRange
+            }
+
+            if t.kind == SyntaxKind.TraitDeclaration {
+              ty.isTrait = true
+            }
+            else if t.kind == SyntaxKind.TypeDeclaration {
+              ty.implementations = []
+            }
+            if isTypeClass(ty) {
+              ty.instances = []
+            }
+
+            ty
+          }
 
       let binding = {
         name
@@ -325,6 +386,10 @@ fn definedHostedTopLevel(visitor, scope: Scope, expressions: List<Expression>) {
   })
 }
 
+/// Visits and declares top level bindings
+///
+/// The result is used by the import visitor for import and exports but is then
+/// throwed away becouse too little information is known about the imported bindings
 export fn TopScopeVisitor(context, file) {
   let mut scope = createScope(context, file)
 
@@ -335,6 +400,7 @@ export fn TopScopeVisitor(context, file) {
       defineFunction(scope, f)
     }
     visitIdentifier: |self, i: Identifier| {}
+    visitImplDeclaration: |self, i: ImplDeclaration| {}
     visitModule: |self, mut m: Module| {
       m.scope = scope
       visit.walkModule(self, m)
@@ -387,9 +453,162 @@ export fn TopScopeVisitor(context, file) {
   })
 }
 
-export fn ScopeVisitor(context, file) {
+fn visitFunctionDeclarationFrame(visitor, reportError, mut f: FunctionDeclaration) {
+  if f.typeParameters
+    then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
+  f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
+  if f.returnType then visitor.visitTypeBound(f.returnType)
+
+  f.ty = createFunctionType(f.scope, f, reportError)
+  defineFunction(f.scope.parent, f)
+}
+
+fn visitFunctionTypeBound(visitor, reportError, mut t: FunctionTypeBound) {
+  visit.walkFunctionTypeBound(visitor, t)
+
+  t.ty = getType(t.scope, t)
+}
+
+fn visitNamedTypeBound(visitor, reportError, mut t: NamedTypeBound) {
+  let binding = t.scope.getTypeBinding(t.name.name)
+  if not binding then reportError(t, 'Use of undeclared type ' + t.name.name)
+
+  if isTypeClass(binding.ty)
+    then checkMinMax(t.typeParameters, binding.ty.parameterRange, reportError, 'type parameters', binding.name, t)
+  else if t.typeParameters.length > 0
+    then reportError(t, 'Type ' + binding.name + ' is not generic')
+
+  visit.walkNamedTypeBound(visitor, t)
+
+  t.ty = getType(t.scope, t)
+}
+
+/// Visits and declares Traits, Types and toplevel function frames[1]
+///
+/// Traits and types are declared in this separate step so that we are sure
+/// that complete type information is known during the checking step.
+///
+/// 1. function declaration withoud the body
+export fn TypeVisitor(context, file) {
   let mut importDirective: ImportDirective
   let mut scope = createScope(context, file)
+  let reportError = context.reportError.bind(context, file)
+
+  Object.assign({}, visit.Visitor, {
+
+    visitBlock: |self, b: Block| {}
+    visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
+      f.hoisting = true
+      f.hoisted = true
+
+      scope = createScope(context, file, scope)
+      f.scope = scope
+
+      visitFunctionDeclarationFrame(self, reportError, f)
+
+      scope = scope.parent
+    }
+    visitIdentifier: |self, i: Identifier| {}
+    visitImplDeclaration: |self, mut i: ImplDeclaration| {}
+    visitModule: |self, mut m: Module| {
+      m.scope = scope
+      definedHostedTopLevel(self, scope, m.lines)
+      visit.walkModule(self, m)
+    }
+    visitObjectDestructure: |self, mut i: ObjectDestructure| {
+      i.scope = scope
+      i.members.forEach(|m| {
+        if importDirective.module {
+          let e = importDirective.module.exports[m.local.name]
+          if e.expression.kind == SyntaxKind.TraitDeclaration
+          or e.expression.kind == SyntaxKind.TypeDeclaration
+            then scope.defineType(e.expression)
+            else scope.define({name: m.local.name, mutable: false, token: m})
+        }
+        else scope.define({name: m.local.name, mutable: false, token: m})
+      })
+    }
+    visitTraitDeclaration: |self, mut t: TraitDeclaration| {
+      scope = createScope(context, file, scope)
+      t.scope = scope
+      visit.walkTraitDeclaration(self, t)
+      t.ty.functions = objectFromList(t.members.map(|m| [m.name.name, m.ty]))
+      scope = scope.parent
+    }
+    visitFunctionTypeBound: |self, mut t: FunctionTypeBound| {
+      scope = createScope(context, file, scope)
+      t.scope = scope
+
+      visitFunctionTypeBound(self, reportError, t)
+
+      scope = scope.parent
+    }
+    visitNamedTypeBound: |self, mut t: NamedTypeBound| {
+      t.scope = scope
+
+      visitNamedTypeBound(self, reportError, t)
+    }
+    visitTypeDeclaration: |self, mut t: TypeDeclaration| {
+      scope = createScope(context, file, scope)
+      t.scope = scope
+      visit.walkTypeDeclaration(self, t)
+
+      t.ty.properties = objectFromList(t.properties.map(|p| [p.name.name, p.typeBound.ty]))
+
+      scope = scope.parent
+    }
+    visitTypeParameter: |self, mut t: TypeParameter| {
+      t.scope = scope
+      scope.defineType(t)
+      visit.walkTypeParameter(self, t)
+    }
+    visitVariableDeclaration: |self, mut d: VariableDeclaration| {
+      d.scope = scope
+      if d.typeBound then self.visitTypeBound(d.typeBound)
+      d.ty = getType(d.scope, d.typeBound)
+    }
+
+    visitExportDirective: |self, mut e: ExportDirective| {
+      e.scope = scope
+      visit.walkExportDirective(self, e)
+    }
+    visitImportDirective: |self, mut i: ImportDirective| {
+      if i.hoisted then return undefined
+
+      i.scope = scope
+      if i.specifier.kind == SyntaxKind.Identifier
+        then scope.define({name: i.specifier.name, mutable: false, token: i})
+      else if i.specifier.kind == SyntaxKind.ObjectDestructure {
+        importDirective = i
+        visit.walkImportDirective(self, i)
+      }
+    }
+
+    visitAssignmentExpression: |self, e: AssignmentExpression| {}
+    visitBinaryExpression: |self, e: BinaryExpression| {}
+    visitCallExpression: |self, e: CallExpression| {}
+    visitForExpression: |self, e: ForExpression| {}
+    visitIfExpression: |self, e: IfExpression| {}
+    visitLoopExpression: |self, e: LoopExpression| {}
+    visitUnaryExpression: |self, e: UnaryExpression| {}
+    visitWhileExpression: |self, e: WhileExpression| {}
+    visitIndexAccess: |self, a: IndexAccess| {}
+    visitMemberAccess: |self, a: MemberAccess| {}
+
+    visitBreak: |self, b: Token| {}
+    visitReturn: |self, r: ReturnStatement| {}
+
+    visitListLiteral: |self, l: ListLiteral| {}
+    visitBooleanLiteral: |self, l: BooleanLiteral| {}
+    visitNumberLiteral: |self, l: NumberLiteral| {}
+    visitObjectLiteral: |self, l: ObjectLiteral| {}
+    visitStringLiteral: |self, l: StringLiteral| {}
+  })
+}
+
+export fn ScopeVisitor(context, file) {
+  let mut scope: Scope
+  let mut importDirective: ImportDirective
   let reportError = context.reportError.bind(context, file)
 
   fn reportNotAssignableError(t, to: TypeInstance, subject: TypeInstance) { // t: Token
@@ -452,16 +671,13 @@ export fn ScopeVisitor(context, file) {
       if not f.hoisting or not f.hoisted {
         scope = createScope(context, file, scope)
         f.scope = scope
-        if f.typeParameters
-          then f.typeParameters.forEach(self.visitTypeParameter.bind(self))
-        f.ty = createFunctionType(scope, f, reportError)
-        defineFunction(scope.parent, f)
+
+        visitFunctionDeclarationFrame(self, reportError, f)
       }
       if not f.hoisting or f.hoisted {
         scope = f.scope
 
         f.parameterList.forEach(self.visitVariableDeclaration.bind(self))
-        if f.returnType then self.visitTypeBound(f.returnType)
         if f.body then self.visitBlock(f.body)
       }
       scope = scope.parent
@@ -470,82 +686,106 @@ export fn ScopeVisitor(context, file) {
       i.scope = scope
       let binding = i.scope.getBinding(i.name)
       if not binding
-        then reportError(i, 'Use of undefined variable ' + i.name + inspect(i))
+        then reportError(i, 'Use of undefined variable ' + i.name)
         else i.ty = binding.ty
       visit.walkIdentifier(self, i)
     }
+    visitImplDeclaration: |self, mut i: ImplDeclaration| {
+      scope = createScope(context, file, scope)
+      i.scope = scope
+      visit.walkImplDeclaration(self, i)
+
+      if not isTrait(i.tra.ty)
+        then reportError(i.tra, i.tra.ty.name + ' is not a trait')
+      if not isStruct(i.ty.ty)
+        then reportError(i.ty, i.ty.ty.name + ' is not a type')
+      if i.ty.ty.implementations.some(|imp| isSameType(imp.tra.ty, i.tra.ty))
+        then reportError(i, i.tra.ty.name + ' has already been implemented for ' + i.ty.ty.name)
+
+      let functions = i.members.reduce(|mut functions, member| {
+        functions[member.ty.name] = member.ty
+        functions
+      }, {})
+      let traitFunctions = i.tra.ty.functions
+
+      Object.keys(traitFunctions).forEach(|name| {
+        if traitFunctions[name].isAbstract and not functions[name]
+          then reportError(i, 'Function ' + i.tra.ty.name + '::' + name + ' is not implemented for ' + i.ty.ty.name)
+      }, {})
+
+      i.members.forEach(|function| {
+        if not traitFunctions[function.ty.name]
+          then reportError(i, 'Function ' + function.ty.name + ' is not defined by ' + i.tra.ty.name)
+      })
+
+      i.ty.ty.implementations.push({
+        ty: i.ty
+        tra: i.tra
+      })
+
+      scope = scope.parent
+    }
     visitModule: |self, mut m: Module| {
-      m.scope = scope
-      definedHostedTopLevel(self, scope, m.lines)
-      definedHosted(self, scope, m.lines)
+      scope = m.scope
       visit.walkModule(self, m)
     }
     visitObjectDestructure: |self, mut i: ObjectDestructure| {
-      i.scope = scope
       i.members.forEach(|m| {
         if importDirective.module {
           let e = importDirective.module.exports[m.local.name]
-          if e.expression.kind == SyntaxKind.TypeDeclaration
-            then scope.defineType(e.expression)
-            else scope.define({name: m.local.name, mutable: false, token: m})
+          if e.expression.kind == SyntaxKind.TraitDeclaration
+          or e.expression.kind == SyntaxKind.TypeDeclaration
+            {
+              // Get the from the imported module again as it may have been missing during the
+              // TypeVisitor pass depending on file order
+              let mut binding = scope.getTypeBinding(m.local.name)
+              binding.ty = e.expression.ty
+            }
         }
-        else scope.define({name: m.local.name, mutable: false, token: m})
       })
     }
     visitTraitDeclaration: |self, mut t: TraitDeclaration| {
-      scope = createScope(context, file, scope)
-      t.scope = scope
+      scope = t.scope
       visit.walkTraitDeclaration(self, t)
       scope = scope.parent
     }
     visitFunctionTypeBound: |self, mut t: FunctionTypeBound| {
-      scope = createScope(context, file, scope)
-      t.scope = scope
-
-      visit.walkFunctionTypeBound(self, t)
-
-      t.ty = getType(scope, t)
-
-      scope = scope.parent
+      if not t.scope {
+        scope = createScope(context, file, scope)
+        t.scope = scope
+        visitFunctionTypeBound(self, reportError, t)
+        scope = scope.parent
+      }
     }
     visitNamedTypeBound: |self, mut t: NamedTypeBound| {
-      t.scope = scope
-
-      let binding = t.scope.getTypeBinding(t.name.name)
-      if not binding then reportError(t, 'Use of undeclared type ' + t.name.name)
-
-      if isTypeClass(binding.ty)
-        then checkMinMax(t.parameters, binding.ty.parameterRange, reportError, 'type parameters', binding.name, t)
-      else if t.parameters.length > 0
-        then reportError(t, 'Type ' + binding.name + ' is not generic')
-
-      visit.walkNamedTypeBound(self, t)
-
-      t.ty = getType(scope, t, t.name.name)
+      if not t.scope {
+        t.scope = scope
+        visitNamedTypeBound(self, reportError, t)
+      }
     }
-    visitTypeDeclaration: |self, mut t: TypeDeclaration| {
-      scope = createScope(context, file, scope)
-      visit.walkTypeDeclaration(self, t)
-
-      t.ty.properties = objectFromList(t.properties.map(|p| [p.name.name, p.typeBound.ty]))
-
-      scope = scope.parent
-    }
+    visitTypeDeclaration: |self, mut t: TypeDeclaration| {}
     visitTypeParameter: |self, mut t: TypeParameter| {
-      t.scope = scope
-      scope.defineType(t)
-      visit.walkTypeParameter(self, t)
+      if not t.scope {
+        t.scope = scope
+        scope.defineType(t)
+        visit.walkTypeParameter(self, t)
+      }
     }
     visitVariableDeclaration: |self, mut d: VariableDeclaration| {
-      d.scope = scope
-      if d.typeBound then self.visitTypeBound(d.typeBound)
+      if d.binding then return undefined
+      if not d.scope {
+        d.scope = scope
+        if d.typeBound then self.visitTypeBound(d.typeBound)
+        d.ty = getType(d.scope, d.typeBound)
+      }
 
-      let mut binding = scope.define({
+      let mut binding = d.scope.define({
         name: d.identifier.name,
         mutable: d.mutable,
         token: d,
-        ty: getType(scope, d.typeBound)
+        ty: d.ty
       }, true)
+      d.binding = binding
 
       if d.initializer {
         self.visitExpression(d.initializer)
@@ -557,16 +797,10 @@ export fn ScopeVisitor(context, file) {
     }
 
     visitExportDirective: |self, mut e: ExportDirective| {
-      e.scope = scope
       visit.walkExportDirective(self, e)
     }
     visitImportDirective: |self, mut i: ImportDirective| {
-      if i.hoisted then return undefined
-
-      i.scope = scope
-      if i.specifier.kind == SyntaxKind.Identifier
-        then scope.define({name: i.specifier.name, mutable: false, token: i})
-      else if i.specifier.kind == SyntaxKind.ObjectDestructure {
+      if i.specifier.kind == SyntaxKind.ObjectDestructure {
         importDirective = i
         visit.walkImportDirective(self, i)
       }

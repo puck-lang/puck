@@ -1,7 +1,7 @@
 "use strict";
 var ast_1 = require('./ast');
 var helpers_1 = require('../helpers');
-var jsKeywords = ['arguments', 'class', 'module', 'new', 'null', 'Object', 'typeof', 'undefined'];
+var jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
     _a[ast_1.SyntaxKind.OrKeyword] = '||',
@@ -72,9 +72,11 @@ function Emitter() {
     }
     function emitModule(module) {
         var preamble = "#!/usr/bin/env node\n'use strict';\n";
-        var lines = emitLines(module.lines.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.TraitDeclaration ||
+        var lines = emitLines(module.lines.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.ImplDeclaration ||
+            e.kind === ast_1.SyntaxKind.TraitDeclaration ||
             e.kind === ast_1.SyntaxKind.TypeDeclaration ||
-            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
+            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.ImplDeclaration ||
+                e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
                 e.expression.kind === ast_1.SyntaxKind.TypeDeclaration))); }));
         return preamble + lines.join(';\n');
     }
@@ -218,7 +220,7 @@ function Emitter() {
                 .filter(function (_a) {
                 var property = _a.property, local = _a.local;
                 if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
-                    ['TokenStream', 'InputStream', 'TopScopeVisitor', 'ScopeVisitor', 'ImportVisitor']
+                    ['TokenStream', 'InputStream', 'TypeVisitor', 'TopScopeVisitor', 'ScopeVisitor', 'ImportVisitor']
                         .indexOf(local.name) == -1) {
                     return false;
                 }
