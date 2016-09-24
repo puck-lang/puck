@@ -1,0 +1,77 @@
+import 'puck:js' as {Object, undefined}
+import 'node:util' as {inspect}
+import '../../ast/ast.puck' as {TypeDeclaration}
+import '../../compiler/ast.ts' as {SyntaxKind}
+import '../../entities.puck' as {Binding, isTypeClass}
+import 'range.puck' as {getRange}
+
+export fn createScope(context, file, parent = undefined) {
+  let reportError = context.reportError.bind(context, file)
+  let mut bindings = {}
+  let mut typeBindings = {}
+
+  {
+    parent
+    getLocalBinding: |name| bindings[name]
+    getBinding: |name| bindings[name] or (parent and parent.getBinding(name))
+    getTypeBinding: |name| typeBindings[name] or (parent and parent.getTypeBinding(name))
+    define: |mut binding: Binding, allowRedeclare = false| {
+      let name = binding.name
+      binding.redefined = bindings[name] != undefined
+      if binding.redefined {
+        if not allowRedeclare
+          then reportError(binding.token, '$name has already been declared in the scope')
+        bindings[name].redefined = true
+        binding.previous = bindings[name]
+      }
+      bindings[name] = binding
+    }
+    defineType: |t: TypeDeclaration| {
+      let name = t.name.name
+      if typeBindings[name]
+        then reportError(t, 'Type $name is already defined')
+
+      let parameterRange = if t.typeParameters and t.typeParameters.length
+        then getRange(t.typeParameters, |p| p.defaultValue, reportError, 'type parameter')
+
+      let ty =
+        if t.ty
+          then t.ty
+          else {
+            let mut ty = {
+              kind: name
+              name
+              parameterRange
+            }
+
+            if t.kind == SyntaxKind.TraitDeclaration {
+              ty.isTrait = true
+            }
+            else if t.kind == SyntaxKind.TypeDeclaration {
+              ty.implementations = []
+            }
+            if isTypeClass(ty) {
+              ty.instances = []
+            }
+
+            ty
+          }
+
+      let binding = {
+        name
+        ty
+      }
+
+      typeBindings[name] = binding
+    }
+    inspect: |depth, opts| {
+      let mut scope = {}
+      if parent then scope['[parent]'] = parent.inspect()
+      Object.assign(scope, bindings)
+
+      if not depth and not opts
+        then scope
+        else inspect(scope, Object.assign({}, opts, {depth}))
+    }
+  }
+}

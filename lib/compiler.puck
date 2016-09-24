@@ -8,13 +8,15 @@ import 'compiler/input_stream.puck' as {InputStream}
 import 'compiler/parser.puck' as {parse}
 import 'compiler/token_stream.puck' as {TokenStream}
 import 'helpers.puck' as {cmd}
-import 'typeck/import.puck' as {ImportVisitor}
-import 'typeck/scope.puck' as {ScopeVisitor, TopScopeVisitor, TypeVisitor}
+import 'typeck/import_visitor.puck' as {ImportVisitor}
+import 'typeck/scope_visitor.puck' as {ScopeVisitor}
+import 'typeck/top_level_visitor.puck' as {TopLevelVisitor}
+import 'typeck/type_visitor.puck' as {TypeVisitor}
 import 'entities.puck' as {File}
 
 export fn parseString(context, file: File) {
   let mut ast = parse(TokenStream(InputStream(file)), file)
-  TopScopeVisitor(context, file).visitModule(ast)
+  TopLevelVisitor(context, file).visitModule(ast)
   ImportVisitor(context, file).visitModule(ast)
   ast
 }

@@ -250,7 +250,7 @@ export interface CommentNode extends Token {
 }
 
 export interface BlockNode extends Token {
-  block: Array<Expression>
+  expressions: Array<Expression>
 }
 
 export interface FunctionNode extends Token {
@@ -268,7 +268,7 @@ export interface Module extends Token {
   fileName: string
   path: string
   exports: {[name: string]: ExportDirective}
-  lines: Array<Expression>
+  expressions: Array<Expression>
 }
 
 export interface ObjectDestructure extends Token {

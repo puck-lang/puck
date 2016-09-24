@@ -25,7 +25,9 @@ export fn cmd(cmd) {
     let stderr = result.error.stderr.toString()
     if stdout then console.log(stdout.trim())
     if stderr then console.error(stderr.trim())
+    console.log(result.error)
     throw result.error
+    // process.exit(1)
   }
   else if result.result.toString() then console.log(result.result.toString().trim())
 }

@@ -1,0 +1,114 @@
+import 'puck:js' as {Object}
+import '../ast/ast.puck' as {
+  Expression
+
+  Block
+  FunctionDeclaration
+  Identifier
+  ImplDeclaration
+  Module
+  ObjectDestructure
+  TypeBound
+  TraitDeclaration
+  TypeDeclaration
+  VariableDeclaration
+
+  ExportDirective
+  ImportDirective
+
+  AssignmentExpression
+  BinaryExpression
+  CallExpression
+  ForExpression
+  IfExpression
+  LoopExpression
+  UnaryExpression
+  WhileExpression
+
+  IndexAccess
+  MemberAccess
+
+  Token
+  ReturnStatement
+
+  ListLiteral
+  BooleanLiteral
+  NumberLiteral
+  ObjectLiteral
+  StringLiteral
+}
+import '../ast/visit.puck' as visit
+import '../compiler/ast.ts' as {SyntaxKind}
+import 'src/scope.puck' as {createScope}
+
+/// Visits and declares top level bindings
+///
+/// The result is used by the import visitor for import and exports but is then
+/// throwed away becouse too little information is known about the imported bindings
+export fn TopLevelVisitor(context, file) {
+  let mut scope = createScope(context, file)
+
+  Object.assign({}, visit.Visitor, {
+
+    visitBlock: |self, b: Block| {}
+    visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
+      if f.name then
+        scope.define({
+          name: f.name.name
+          token: f
+          mutable: false
+        })
+    }
+    visitIdentifier: |self, i: Identifier| {}
+    visitImplDeclaration: |self, i: ImplDeclaration| {}
+    visitModule: |self, mut m: Module| {
+      m.scope = scope
+      visit.walkModule(self, m)
+    }
+    visitObjectDestructure: |self, i: ObjectDestructure| {
+      // Allow redeclaration in this pass as we don't yet know if the type or variable scope
+      // should be used for the imported identifiers.
+      i.members.forEach(|m| scope.define({name: m.local.name, mutable: false, token: m}, true))
+    }
+    visitTraitDeclaration: |self, t: TraitDeclaration| {
+      scope.defineType(t)
+    }
+    visitTypeBound: |self, t: TypeBound| {}
+    visitTypeDeclaration: |self, t: TypeDeclaration| {
+      scope.defineType(t)
+    }
+    visitVariableDeclaration: |self, d: VariableDeclaration| {
+      scope.define({name: d.identifier.name, mutable: d.mutable, token: d}, true)
+    }
+
+    visitExportDirective: |self, e: ExportDirective| {
+      visit.walkExportDirective(self, e)
+    }
+    visitImportDirective: |self, i: ImportDirective| {
+      if i.specifier.kind == SyntaxKind.Identifier
+        then scope.define({name: i.specifier.name, mutable: false, token: i})
+      else if i.specifier.kind == SyntaxKind.ObjectDestructure
+        then visit.walkImportDirective(self, i)
+    }
+
+    visitAssignmentExpression: |self, e: AssignmentExpression| {}
+    visitBinaryExpression: |self, e: BinaryExpression| {}
+    visitCallExpression: |self, e: CallExpression| {}
+    visitForExpression: |self, e: ForExpression| {}
+    visitIfExpression: |self, e: IfExpression| {}
+    visitLoopExpression: |self, e: LoopExpression| {}
+    visitUnaryExpression: |self, e: UnaryExpression| {}
+    visitWhileExpression: |self, e: WhileExpression| {}
+    visitIndexAccess: |self, a: IndexAccess| {}
+    visitMemberAccess: |self, a: MemberAccess| {}
+
+    visitBreak: |self, b: Token| {}
+    visitReturn: |self, r: ReturnStatement| {}
+
+    visitListLiteral: |self, l: ListLiteral| {}
+    visitBooleanLiteral: |self, l: BooleanLiteral| {}
+    visitNumberLiteral: |self, l: NumberLiteral| {}
+    visitObjectLiteral: |self, l: ObjectLiteral| {}
+    visitStringLiteral: |self, l: StringLiteral| {}
+  })
+}

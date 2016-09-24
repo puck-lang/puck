@@ -50,6 +50,7 @@ function cmd(cmd) {
     if (stderr) {
       _js.console.error(stderr.trim());
     };
+    _js.console.log(result.error);
     throw result.error;
   } else {
     if (result.result.toString()) {

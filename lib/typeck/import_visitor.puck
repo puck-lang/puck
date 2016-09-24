@@ -49,7 +49,7 @@ export fn ImportVisitor(context, file: File) {
 
     visitModule: |self, m: Module| {
       moduleScope = m.scope
-      m.lines.forEach(|e| {
+      m.expressions.forEach(|e| {
         if e.kind == SyntaxKind.ImportDirective {
           self.visitImportDirective(e)
         }

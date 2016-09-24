@@ -153,7 +153,7 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
 }
 
 export fn walkBlock(visitor: Visitor, b: Block) {
-  b.block.forEach(visitor.visitExpression.bind(visitor))
+  b.expressions.forEach(visitor.visitExpression.bind(visitor))
 }
 export fn walkFunction(visitor: Visitor, f: FunctionDeclaration) {
   if f.typeParameters
@@ -171,7 +171,7 @@ export fn walkImplDeclaration(visitor: Visitor, i: ImplDeclaration) {
   i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
 }
 export fn walkModule(visitor: Visitor, m: Module) {
-  m.lines.forEach(visitor.visitExpression.bind(visitor))
+  m.expressions.forEach(visitor.visitExpression.bind(visitor))
 }
 export fn walkObjectDestructure(visitor: Visitor, o: ObjectDestructure) {
   o.members.forEach(|m| {

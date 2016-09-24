@@ -1,0 +1,44 @@
+import '../../ast/ast.puck' as {FunctionDeclaration}
+import '../../entities.puck' as {Scope, TypeInstance}
+import 'range.puck' as {Range, getRange}
+import 'types.puck' as {getType}
+
+export fn getFunctionTypeName(arguments: List<TypeInstance>, returnType: TypeInstance)
+  then '(' + arguments.map(|a| (a and a.name) or '??').join(', ') + ') => ' +
+        (returnType and returnType.name or '??')
+
+export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
+  let arguments = f.parameterList.map(|p| {{
+    identifier: p.identifier
+    mutable: p.mutable
+    ty: p.ty
+  }})
+  let returnType = getType(scope, f.returnType)
+
+  {
+    kind: 'Function'
+    name: if f.name then f.name.name else getFunctionTypeName(arguments, returnType)
+    arguments
+    argumentRange: if f.parameterList
+      then getRange(f.parameterList, |p| p.initializer, reportError, 'parameter')
+      else {{start: 0, end: 0}}
+    returnType
+    isAbstract: not f.body
+  }
+}
+
+export fn visitFunctionDeclarationFrame(visitor, reportError, mut f: FunctionDeclaration) {
+  if f.typeParameters
+    then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
+  f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
+  if f.returnType then visitor.visitTypeBound(f.returnType)
+
+  f.ty = createFunctionType(f.scope, f, reportError)
+  if f.name then
+    f.scope.parent.define({
+      name: f.name.name
+      token: f
+      mutable: false
+      ty: f.ty
+    })
+}

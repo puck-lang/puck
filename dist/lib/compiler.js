@@ -38,9 +38,13 @@ var _token_stream = require('./compiler/token_stream.js');
 
 var _helpers = require('./helpers.js');
 
-var _import = require('./typeck/import.js');
+var _import_visitor = require('./typeck/import_visitor.js');
 
-var _scope = require('./typeck/scope.js');
+var _scope_visitor = require('./typeck/scope_visitor.js');
+
+var _top_level_visitor = require('./typeck/top_level_visitor.js');
+
+var _type_visitor = require('./typeck/type_visitor.js');
 
 require('./entities.js');
 
@@ -48,8 +52,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function parseString(context, file) {
   var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(file)), file);
-  (0, _scope.TopScopeVisitor)(context, file).visitModule(ast);
-  (0, _import.ImportVisitor)(context, file).visitModule(ast);
+  (0, _top_level_visitor.TopLevelVisitor)(context, file).visitModule(ast);
+  (0, _import_visitor.ImportVisitor)(context, file).visitModule(ast);
   return ast;
 };
 function compile(context, file) {
@@ -89,7 +93,7 @@ function createContext() {
       return _js._Object.keys(self.files).map(function (path) {
         return self.files[path];
       }).forEach(function (file) {
-        return (0, _scope.TypeVisitor)(self, file).visitModule(file.ast);
+        return (0, _type_visitor.TypeVisitor)(self, file).visitModule(file.ast);
       });
     },
     runChecker: function runChecker() {
@@ -97,7 +101,7 @@ function createContext() {
       return _js._Object.keys(self.files).map(function (path) {
         return self.files[path];
       }).forEach(function (file) {
-        return (0, _scope.ScopeVisitor)(self, file).visitModule(file.ast);
+        return (0, _scope_visitor.ScopeVisitor)(self, file).visitModule(file.ast);
       });
     },
     defer: function defer(file, func) {

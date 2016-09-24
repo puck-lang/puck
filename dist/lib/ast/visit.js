@@ -311,7 +311,7 @@ function walkExpression(visitor, e) {
   };
 };
 function walkBlock(visitor, b) {
-  return b.block.forEach(visitor.visitExpression.bind(visitor));
+  return b.expressions.forEach(visitor.visitExpression.bind(visitor));
 };
 function walkFunction(visitor, f) {
   if (f.typeParameters) {
@@ -335,7 +335,7 @@ function walkImplDeclaration(visitor, i) {
   return i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor));
 };
 function walkModule(visitor, m) {
-  return m.lines.forEach(visitor.visitExpression.bind(visitor));
+  return m.expressions.forEach(visitor.visitExpression.bind(visitor));
 };
 function walkObjectDestructure(visitor, o) {
   return o.members.forEach(function (m) {

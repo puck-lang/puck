@@ -1,0 +1,185 @@
+import 'puck:js' as {Object, undefined}
+import '../ast/ast.puck' as {
+  Block
+  FunctionDeclaration
+  Identifier
+  ImplDeclaration
+  Module
+  ObjectDestructure
+  TypeBound
+  FunctionTypeBound
+  NamedTypeBound
+  TraitDeclaration
+  TypeDeclaration
+  TypeParameter
+  VariableDeclaration
+
+  ExportDirective
+  ImportDirective
+
+  AssignmentExpression
+  BinaryExpression
+  CallExpression
+  ForExpression
+  IfExpression
+  LoopExpression
+  UnaryExpression
+  WhileExpression
+
+  IndexAccess
+  MemberAccess
+
+  Token
+  ReturnStatement
+
+  ListLiteral
+  BooleanLiteral
+  NumberLiteral
+  ObjectLiteral
+  StringLiteral
+}
+import '../ast/visit.puck' as visit
+import '../compiler/ast.ts' as {SyntaxKind}
+import 'src/functions.puck' as {visitFunctionDeclarationFrame}
+import 'src/scope.puck' as {createScope}
+import 'src/types.puck' as {getType, visitFunctionTypeBound, visitNamedTypeBound}
+
+/// Visits and declares Traits, Types and toplevel function frames[1]
+///
+/// Traits and types are declared in this separate step so that we are sure
+/// that complete type information is known during the checking step.
+///
+/// 1. function declaration withoud the body
+export fn TypeVisitor(context, file) {
+  let mut importDirective: ImportDirective
+  let mut scope = createScope(context, file)
+  let reportError = context.reportError.bind(context, file)
+
+  Object.assign({}, visit.Visitor, {
+
+    visitBlock: |self, b: Block| {}
+    visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
+      f.hoisting = true
+      f.hoisted = true
+
+      scope = createScope(context, file, scope)
+      f.scope = scope
+
+      visitFunctionDeclarationFrame(self, reportError, f)
+
+      scope = scope.parent
+    }
+    visitIdentifier: |self, i: Identifier| {}
+    visitImplDeclaration: |self, mut i: ImplDeclaration| {}
+    visitModule: |self, mut m: Module| {
+      m.scope = scope
+      m.expressions.forEach(|mut e| {
+        if e.kind == SyntaxKind.ImportDirective {
+          self.visitImportDirective(e)
+          e.hoisted = true
+        }
+        else if e.kind == SyntaxKind.TraitDeclaration
+             or e.kind == SyntaxKind.TypeDeclaration {
+          e.ty = scope.defineType(e).ty
+          e.hoisted = true
+        }
+        else if e.kind == SyntaxKind.ExportDirective and (
+          e.expression.kind == SyntaxKind.TraitDeclaration or
+          e.expression.kind == SyntaxKind.TypeDeclaration
+        ) {
+          e.expression.ty = scope.defineType(e.expression).ty
+          e.expression.hoisted = true
+        }
+      })
+      visit.walkModule(self, m)
+    }
+    visitObjectDestructure: |self, mut i: ObjectDestructure| {
+      i.scope = scope
+      i.members.forEach(|m| {
+        if importDirective.module {
+          let e = importDirective.module.exports[m.local.name]
+          if e.expression.kind == SyntaxKind.TraitDeclaration
+          or e.expression.kind == SyntaxKind.TypeDeclaration
+            then scope.defineType(e.expression)
+            else scope.define({name: m.local.name, mutable: false, token: m})
+        }
+        else scope.define({name: m.local.name, mutable: false, token: m})
+      })
+    }
+    visitTraitDeclaration: |self, mut t: TraitDeclaration| {
+      scope = createScope(context, file, scope)
+      t.scope = scope
+      visit.walkTraitDeclaration(self, t)
+      t.ty.functions = objectFromList(t.members.map(|m| [m.name.name, m.ty]))
+      scope = scope.parent
+    }
+    visitFunctionTypeBound: |self, mut t: FunctionTypeBound| {
+      scope = createScope(context, file, scope)
+      t.scope = scope
+
+      visitFunctionTypeBound(self, reportError, t)
+
+      scope = scope.parent
+    }
+    visitNamedTypeBound: |self, mut t: NamedTypeBound| {
+      t.scope = scope
+
+      visitNamedTypeBound(self, reportError, t)
+    }
+    visitTypeDeclaration: |self, mut t: TypeDeclaration| {
+      scope = createScope(context, file, scope)
+      t.scope = scope
+      visit.walkTypeDeclaration(self, t)
+
+      t.ty.properties = objectFromList(t.properties.map(|p| [p.name.name, p.typeBound.ty]))
+
+      scope = scope.parent
+    }
+    visitTypeParameter: |self, mut t: TypeParameter| {
+      t.scope = scope
+      scope.defineType(t)
+      visit.walkTypeParameter(self, t)
+    }
+    visitVariableDeclaration: |self, mut d: VariableDeclaration| {
+      d.scope = scope
+      if d.typeBound then self.visitTypeBound(d.typeBound)
+      d.ty = getType(d.scope, d.typeBound)
+    }
+
+    visitExportDirective: |self, mut e: ExportDirective| {
+      e.scope = scope
+      visit.walkExportDirective(self, e)
+    }
+    visitImportDirective: |self, mut i: ImportDirective| {
+      if i.hoisted then return undefined
+
+      i.scope = scope
+      if i.specifier.kind == SyntaxKind.Identifier
+        then scope.define({name: i.specifier.name, mutable: false, token: i})
+      else if i.specifier.kind == SyntaxKind.ObjectDestructure {
+        importDirective = i
+        visit.walkImportDirective(self, i)
+      }
+    }
+
+    visitAssignmentExpression: |self, e: AssignmentExpression| {}
+    visitBinaryExpression: |self, e: BinaryExpression| {}
+    visitCallExpression: |self, e: CallExpression| {}
+    visitForExpression: |self, e: ForExpression| {}
+    visitIfExpression: |self, e: IfExpression| {}
+    visitLoopExpression: |self, e: LoopExpression| {}
+    visitUnaryExpression: |self, e: UnaryExpression| {}
+    visitWhileExpression: |self, e: WhileExpression| {}
+    visitIndexAccess: |self, a: IndexAccess| {}
+    visitMemberAccess: |self, a: MemberAccess| {}
+
+    visitBreak: |self, b: Token| {}
+    visitReturn: |self, r: ReturnStatement| {}
+
+    visitListLiteral: |self, l: ListLiteral| {}
+    visitBooleanLiteral: |self, l: BooleanLiteral| {}
+    visitNumberLiteral: |self, l: NumberLiteral| {}
+    visitObjectLiteral: |self, l: ObjectLiteral| {}
+    visitStringLiteral: |self, l: StringLiteral| {}
+  })
+}

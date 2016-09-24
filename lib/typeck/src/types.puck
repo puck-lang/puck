@@ -1,0 +1,96 @@
+import 'puck:js' as {undefined}
+import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound}
+import '../../ast/visit.puck' as visit
+import '../../entities.puck' as {isTypeClass, Scope, Type, TypeClass}
+import 'functions.puck' as {getFunctionTypeName}
+import 'range.puck' as {checkRange}
+
+export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
+  if let instance = class.instances.find(|i|
+      i.typeParameters.length == typeParameters.length
+  and i.typeParameters.every(|p, i| isSameType(p, typeParameters[i])))
+    then instance
+    else {
+      let instance = {
+        isTrait: class.isTrait
+        functions: class.functions
+        implementations: class.implementations and []
+        kind: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
+        name: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
+        class
+        typeParameters
+      }
+      class.instances.push(instance)
+      instance
+    }
+}
+
+export fn getType(scope: Scope, t) { // t: TypeBound
+  if not t then return undefined
+  if t.name {
+    let binding = scope.getTypeBinding(t.name.name)
+
+    if not binding
+      then binding
+    else if isTypeClass(binding.ty)
+      then createTypeInstance(binding.ty, t.typeParameters.map(|p| p.ty))
+    else binding.ty
+  }
+  else {
+    let arguments = t.arguments.map(|p| {{ty: getType(scope, p)}})
+    let returnType = getType(scope, t.returnType)
+
+    {
+      kind: 'Function'
+      name: getFunctionTypeName(arguments, returnType)
+      arguments
+      argumentRange: {start: arguments.length, end: arguments.length}
+      returnType
+    }
+  }
+}
+
+export fn isAssignable(to: Type, subject: Type) {
+  if not subject or not to then return true
+
+  let sameKind = subject.kind == to.kind
+
+  if not sameKind then return false
+
+  if sameKind and to.kind == 'Function' {
+    if to.argumentRange.min < subject.argumentRange.min
+    or to.argumentRange.max > subject.argumentRange.max
+      then return false
+
+    to.arguments.every(fn (toArg, i) {
+      let subjectArg = subject.arguments[i]
+
+      isAssignable(toArg, subjectArg)
+    })
+  }
+  else true
+}
+
+export fn isSameType(a, b) {
+  a.kind == b.kind
+}
+
+export fn visitFunctionTypeBound(visitor, reportError, mut t: FunctionTypeBound) {
+  visit.walkFunctionTypeBound(visitor, t)
+
+  t.ty = getType(t.scope, t)
+}
+
+export fn visitNamedTypeBound(visitor, reportError, mut t: NamedTypeBound) {
+  let binding = t.scope.getTypeBinding(t.name.name)
+  if not binding then reportError(t, 'Use of undeclared type ' + t.name.name)
+
+  if isTypeClass(binding.ty)
+    then checkRange(t.typeParameters, binding.ty.parameterRange, reportError, 'type parameters', binding.name, t)
+  else if t.typeParameters.length > 0
+    then reportError(t, 'Type ' + binding.name + ' is not generic')
+
+  visit.walkNamedTypeBound(visitor, t)
+
+  t.ty = getType(t.scope, t)
+}

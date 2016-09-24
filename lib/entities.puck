@@ -1,4 +1,9 @@
-import 'ast/ast.puck' as {Module}
+import 'ast/ast.puck' as {
+  Token
+  Identifier
+  Module
+}
+import 'typeck/src/range.puck' as {Range}
 
 export type File = {
   fileName: String
@@ -10,4 +15,86 @@ export type File = {
   puck: String
   ast: Module
   js: String
+}
+
+export type Type = {
+  kind: String
+  name: String
+}
+
+/// A data type (the ones declared with the `type` keywords), like String or Num
+export type Struct = {
+  implementations: List<Implementation>
+  // properties: Object<Type>
+}
+
+export type Trait = {
+  // functions: Object<FunctionType>
+}
+
+export type Implementation = {
+  ty: Struct
+  tra: Trait
+}
+
+/// Represents a generic type like List<T>
+export type TypeClass = { // + Type
+  parameterRange: Range
+  instances: List<TypeInstance>
+}
+
+/// Represents an instance of a generic type like List<String> or List<Num>
+export type TypeInstance = { // + Type
+  class: TypeClass
+  typeParameters: List<Type>
+}
+
+/// Represents a function type (Num, Num) => Bool
+export type FunctionType = { // + Type
+  arguments: List<Binding>
+  argumentRange: Range
+  returnType: Type
+  isAbstract: Bool
+}
+
+export type GenericFunction = {}  // FunctionType + TypeClass
+export type GenericFunctionInstace = {}  // FunctionType + TypeInstance
+
+export type Binding = {
+  identifier: Identifier
+  token: Token
+  mutable: Bool
+  ty: Type //?
+  redefined: Bool
+  previous: Binding //?
+}
+
+export type TypeBinding = {
+  name: String
+  ty: Type //?
+}
+
+export type Scope = {
+  getLocalBinding: (String) => Binding
+  // getBinding: (String, allowRedeclare = true) => Binding
+  getBinding: (String) => Binding
+  getTypeBinding: (String) => Binding
+  define: (String, Binding) => Binding
+  defineType: (String, Binding) => Binding
+}
+
+export type ScopeAware = {
+  scope: Scope
+}
+
+export fn isStruct(ty) {
+  ty.implementations
+}
+
+export fn isTrait(ty) {
+  ty.isTrait
+}
+
+export fn isTypeClass(ty: Type) {
+  ty.parameterRange
 }

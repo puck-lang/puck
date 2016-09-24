@@ -95,27 +95,27 @@ export function Emitter() {
     }
   }
 
-  function emitLines(block: Expression[]) {
+  function emitExpressions(block: Expression[]) {
     let wasInContext = context
     context = null
-    let lines: any[] = []
+    let expressions: any[] = []
     let outerHoist = hoist
     hoist = code => {
-      lines.push(code)
+      expressions.push(code)
     }
     for (let i = 0; i < block.length; i++) {
       if (wasInContext && i == block.length - 1) {
         context = wasInContext
       }
-      lines.push(emitExpressionKeepContext(block[i]))
+      expressions.push(emitExpressionKeepContext(block[i]))
     }
     hoist = outerHoist
-    return lines
+    return expressions
   }
 
   function emitModule(module: Module) {
     let preamble = `#!/usr/bin/env node\n'use strict';\n`
-    let lines = emitLines(module.lines.filter(e => !(
+    let expressions = emitExpressions(module.expressions.filter(e => !(
       e.kind === SyntaxKind.ImplDeclaration ||
       e.kind === SyntaxKind.TraitDeclaration ||
       e.kind === SyntaxKind.TypeDeclaration ||
@@ -125,20 +125,20 @@ export function Emitter() {
         e.expression.kind === SyntaxKind.TypeDeclaration
       ))
     )))
-    return preamble + lines.join(';\n')
+    return preamble + expressions.join(';\n')
   }
 
   function emitBlock(block: BlockNode) {
     level++
-    let lines = emitLines(block.block)
+    let expressions = emitExpressions(block.expressions)
     let body
     let end = '}'
-    if (lines.length !== 0) {
-      let last = lines.length - 1
-      if (lines[last] !== 'break') {
-        lines[last] = `${lines[last]};\n`
+    if (expressions.length !== 0) {
+      let last = expressions.length - 1
+      if (expressions[last] !== 'break') {
+        expressions[last] = `${expressions[last]};\n`
       }
-      body = `\n${indent(lines).join(`;\n`)}`
+      body = `\n${indent(expressions).join(`;\n`)}`
       end = indent(end, level - 1)
     }
     level--
@@ -217,14 +217,14 @@ export function Emitter() {
     let body = fn.body
     if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
       parameterList = fn.parameterList.slice(1)
-      if (fn.body.block.length > 0) {
+      if (fn.body.expressions.length > 0) {
         body = Object['assign']({}, body, {
-          block: [Object['assign'](fn.parameterList[0], {
+          expressions: [Object['assign'](fn.parameterList[0], {
             initializer: {
               kind: SyntaxKind.Identifier,
               name: 'this',
             } as Identifier
-          }), ...body.block]
+          }), ...body.expressions]
         })
       }
     }
@@ -284,7 +284,7 @@ export function Emitter() {
       : `{${i.specifier.members
           .filter(({property, local}) => {
             if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
-              ['TokenStream', 'InputStream', 'TypeVisitor', 'TopScopeVisitor', 'ScopeVisitor', 'ImportVisitor']
+              ['TokenStream', 'InputStream', 'TypeVisitor', 'TopLevelVisitor', 'ScopeVisitor', 'ImportVisitor']
                 .indexOf(local.name) == -1) {
               return false
             }

@@ -11,7 +11,7 @@ export type CommentNode = {
 }
 
 export type Block = {
-  block: List<Expression>
+  expressions: List<Expression>
 }
 
 export type FunctionDeclaration = {
@@ -45,7 +45,7 @@ export type Module = {
   fileName: String
   path: String
   // exports: {[name: String]: ExportDirective}
-  lines: List<Expression>
+  expressions: List<Expression>
 }
 
 export type ObjectDestructure = {

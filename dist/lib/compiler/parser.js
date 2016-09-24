@@ -428,7 +428,7 @@ function parse(input) {
         skipKeyword(_ast.SyntaxKind.ThenKeyword);
         __PUCK__value__13 = {
           kind: _ast.SyntaxKind.Block,
-          block: [parseExpression()]
+          expressions: [parseExpression()]
         };
       } else {
         var __PUCK__value__14 = void 0;
@@ -457,7 +457,7 @@ function parse(input) {
     } else {
       __PUCK__value__15 = {
         kind: _ast.SyntaxKind.Block,
-        block: [parseExpression()]
+        expressions: [parseExpression()]
       };
     };
     var body = __PUCK__value__15;
@@ -477,7 +477,7 @@ function parse(input) {
       skipKeyword(_ast.SyntaxKind.ThenKeyword);
       __PUCK__value__16 = {
         kind: _ast.SyntaxKind.Block,
-        block: [parseExpression()]
+        expressions: [parseExpression()]
       };
     };
     var _then = __PUCK__value__16;
@@ -494,7 +494,7 @@ function parse(input) {
       } else {
         __PUCK__value__17 = {
           kind: _ast.SyntaxKind.Block,
-          block: [parseExpression()]
+          expressions: [parseExpression()]
         };
       };
       ret._else = __PUCK__value__17;
@@ -519,7 +519,7 @@ function parse(input) {
       skipKeyword(_ast.SyntaxKind.ThenKeyword);
       __PUCK__value__18 = {
         kind: _ast.SyntaxKind.Block,
-        block: [parseExpression()]
+        expressions: [parseExpression()]
       };
     };
     var body = __PUCK__value__18;
@@ -737,11 +737,11 @@ function parse(input) {
   };
   function parseModule() {
     var exports = {};
-    var lines = [];
+    var expressions = [];
     while (!input.eof()) {
       var expression = parseTopLevelExpression();
       if (expression) {
-        lines.push(expression);
+        expressions.push(expression);
         if (expression.kind == _ast.SyntaxKind.ExportDirective) {
           exports[expression.identifier.name] = expression;
         };
@@ -755,14 +755,14 @@ function parse(input) {
       fileName: input.file.fileName,
       path: input.file.absolutePath,
       exports: exports,
-      lines: lines
+      expressions: expressions
     };
   };
   function parseBlock() {
-    var block = delimited("{", "}", ";", parseExpression);
+    var expressions = delimited("{", "}", ";", parseExpression);
     return {
       kind: _ast.SyntaxKind.Block,
-      block: block
+      expressions: expressions
     };
   };
   function parseExpression() {

@@ -1,0 +1,46 @@
+export type Range = {
+  start: Num
+  end: Num
+}
+
+export fn getRange<T>(parameters: List<T>, isOptional: (T) => Bool, reportError, name: String): Range {
+  let mut firstOptional = parameters.length
+  let mut hasOptional = false
+
+  parameters.forEach(|parameter, i|
+    if isOptional(parameter) and not hasOptional {
+      hasOptional = true
+      firstOptional = i
+    }
+    else if not isOptional(parameter) and hasOptional then reportError(parameter
+      "An optional $name can't be followed by a required $name"
+    )
+  )
+
+  {
+    start: firstOptional
+    end: parameters.length
+  }
+}
+
+export fn checkRange<T>(arguments: List<T>, range: Range, reportError, argumentName: String, subjectName: String, token) { // token: Token
+  let argumentCount = arguments.length
+  let max = range.end
+  let min = range.start
+  let error =
+    if argumentCount < min
+      then 'few'
+    else if argumentCount > max
+      then 'many'
+
+  if error {
+    let required =
+      if min == max
+        then min
+        else '$min to $max'
+
+    reportError(token
+      'Too $error $argumentName given to $subjectName, $required required, $argumentCount given'
+    )
+  }
+}

@@ -53,44 +53,44 @@ function Emitter() {
             return indentation + lines;
         }
     }
-    function emitLines(block) {
+    function emitExpressions(block) {
         var wasInContext = context;
         context = null;
-        var lines = [];
+        var expressions = [];
         var outerHoist = hoist;
         hoist = function (code) {
-            lines.push(code);
+            expressions.push(code);
         };
         for (var i = 0; i < block.length; i++) {
             if (wasInContext && i == block.length - 1) {
                 context = wasInContext;
             }
-            lines.push(emitExpressionKeepContext(block[i]));
+            expressions.push(emitExpressionKeepContext(block[i]));
         }
         hoist = outerHoist;
-        return lines;
+        return expressions;
     }
     function emitModule(module) {
         var preamble = "#!/usr/bin/env node\n'use strict';\n";
-        var lines = emitLines(module.lines.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.ImplDeclaration ||
+        var expressions = emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.ImplDeclaration ||
             e.kind === ast_1.SyntaxKind.TraitDeclaration ||
             e.kind === ast_1.SyntaxKind.TypeDeclaration ||
             (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.ImplDeclaration ||
                 e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
                 e.expression.kind === ast_1.SyntaxKind.TypeDeclaration))); }));
-        return preamble + lines.join(';\n');
+        return preamble + expressions.join(';\n');
     }
     function emitBlock(block) {
         level++;
-        var lines = emitLines(block.block);
+        var expressions = emitExpressions(block.expressions);
         var body;
         var end = '}';
-        if (lines.length !== 0) {
-            var last = lines.length - 1;
-            if (lines[last] !== 'break') {
-                lines[last] = lines[last] + ";\n";
+        if (expressions.length !== 0) {
+            var last = expressions.length - 1;
+            if (expressions[last] !== 'break') {
+                expressions[last] = expressions[last] + ";\n";
             }
-            body = "\n" + indent(lines).join(";\n");
+            body = "\n" + indent(expressions).join(";\n");
             end = indent(end, level - 1);
         }
         level--;
@@ -163,14 +163,14 @@ function Emitter() {
         var body = fn.body;
         if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
             parameterList = fn.parameterList.slice(1);
-            if (fn.body.block.length > 0) {
+            if (fn.body.expressions.length > 0) {
                 body = Object['assign']({}, body, {
-                    block: [Object['assign'](fn.parameterList[0], {
+                    expressions: [Object['assign'](fn.parameterList[0], {
                         initializer: {
                             kind: ast_1.SyntaxKind.Identifier,
                             name: 'this',
                         }
-                    })].concat(body.block)
+                    })].concat(body.expressions)
                 });
             }
         }
@@ -220,7 +220,7 @@ function Emitter() {
                 .filter(function (_a) {
                 var property = _a.property, local = _a.local;
                 if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
-                    ['TokenStream', 'InputStream', 'TypeVisitor', 'TopScopeVisitor', 'ScopeVisitor', 'ImportVisitor']
+                    ['TokenStream', 'InputStream', 'TypeVisitor', 'TopLevelVisitor', 'ScopeVisitor', 'ImportVisitor']
                         .indexOf(local.name) == -1) {
                     return false;
                 }

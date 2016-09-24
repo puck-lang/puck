@@ -452,7 +452,7 @@ export fn parse(input) { // : TokenStream
         skipKeyword(SyntaxKind.ThenKeyword)
         {
           kind: SyntaxKind.Block,
-          block: [parseExpression()],
+          expressions: [parseExpression()],
         }
       }
       else if not optionalBody
@@ -476,7 +476,7 @@ export fn parse(input) { // : TokenStream
         then parseBlock()
         else {{
           kind: SyntaxKind.Block,
-          block: [parseExpression()],
+          expressions: [parseExpression()],
         }}
 
     {
@@ -498,7 +498,7 @@ export fn parse(input) { // : TokenStream
           skipKeyword(SyntaxKind.ThenKeyword)
           {
             kind: SyntaxKind.Block,
-            block: [parseExpression()],
+            expressions: [parseExpression()],
           }
         }
 
@@ -515,7 +515,7 @@ export fn parse(input) { // : TokenStream
           then parseBlock()
           else ({
             kind: SyntaxKind.Block,
-            block: [parseExpression()],
+            expressions: [parseExpression()],
           })
     }
 
@@ -543,7 +543,7 @@ export fn parse(input) { // : TokenStream
           skipKeyword(SyntaxKind.ThenKeyword)
           {
             kind: SyntaxKind.Block,
-            block: [parseExpression()],
+            expressions: [parseExpression()],
           }
         }
 
@@ -696,11 +696,11 @@ export fn parse(input) { // : TokenStream
 
   fn parseModule() {
     let mut exports = {}
-    let mut lines = []
+    let mut expressions = []
     while not input.eof() {
       let expression = parseTopLevelExpression()
       if expression {
-        lines.push(expression)
+        expressions.push(expression)
         if expression.kind == SyntaxKind.ExportDirective
           then exports[expression.identifier.name] = expression
       }
@@ -711,13 +711,13 @@ export fn parse(input) { // : TokenStream
       fileName: input.file.fileName
       path: input.file.absolutePath
       exports
-      lines
+      expressions
     }
   }
 
   fn parseBlock(): Block {
-    let block = delimited('{', '}', ';', parseExpression)
-    { kind: SyntaxKind.Block, block }
+    let expressions = delimited('{', '}', ';', parseExpression)
+    { kind: SyntaxKind.Block, expressions }
   }
 
   fn parseExpression(precedence = 0): Expression {
