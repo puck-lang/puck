@@ -17,16 +17,17 @@ Everything is an expression and the last value of a block will be the value of a
 you can assign the result of an if expression or any use return if you need an early return of the function.
 
 ```puck
-fn subject(name) {
-  if name then name else 'World'
-}
+import 'puck:js' as {process}
 
 fn greet(name) {
   let mut phrase = 'Hello, '
-  phrase += subject(name)
+  phrase += 
+    if name 
+      then name 
+      else 'World'
   phrase += '!'
 
-  console.log(phrase)
+  print(phrase)
 }
 
 greet(process.argv[2])
