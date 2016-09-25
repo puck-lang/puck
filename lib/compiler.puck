@@ -8,6 +8,7 @@ import 'compiler/input_stream.puck' as {InputStream}
 import 'compiler/parser.puck' as {parse}
 import 'compiler/token_stream.puck' as {TokenStream}
 import 'helpers.puck' as {cmd}
+import 'typeck/impl_visitor.puck' as {ImplVisitor}
 import 'typeck/import_visitor.puck' as {ImportVisitor}
 import 'typeck/scope_visitor.puck' as {ScopeVisitor}
 import 'typeck/top_level_visitor.puck' as {TopLevelVisitor}
@@ -55,6 +56,11 @@ fn createContext(ignoreErrors = false) {
       Object.keys(self.files)
         .map(|path| self.files[path])
         .forEach(|file| TypeVisitor(self, file).visitModule(file.ast))
+    }
+    runImplVisitor: fn (self) {
+      Object.keys(self.files)
+        .map(|path| self.files[path])
+        .forEach(|file| ImplVisitor(self, file).visitModule(file.ast))
     }
     runChecker: fn (self) {
       Object.keys(self.files)
@@ -108,6 +114,7 @@ export fn buildString(code: String, filePath: String) {
     })
 
     context.runTypeVisitor()
+    context.runImplVisitor()
     context.runChecker()
     file.js = compile(context, file)
     file.babel = babelTransform(file)
@@ -139,6 +146,13 @@ export fn build(files: List<File>, options = {}) {
   context.runTypeVisitor()
 
   if dump == 'typed-ast' {
+    dumpFiles(files, 'ast')
+    return undefined
+  }
+
+  context.runImplVisitor()
+
+  if dump == 'impl-ast' {
     dumpFiles(files, 'ast')
     return undefined
   }

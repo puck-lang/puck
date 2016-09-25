@@ -1,0 +1,156 @@
+import 'node:util' as {inspect}
+import 'puck:js' as {Object, undefined}
+import '../ast/ast.puck' as {
+  Expression
+
+  Block
+  FunctionDeclaration
+  Identifier
+  ImplDeclaration
+  Module
+  ObjectDestructure
+  TypeBound
+  FunctionTypeBound
+  NamedTypeBound
+  TraitDeclaration
+  TypeDeclaration
+  TypeParameter
+  VariableDeclaration
+
+  ExportDirective
+  ImportDirective
+
+  AssignmentExpression
+  BinaryExpression
+  CallExpression
+  ForExpression
+  IfExpression
+  LoopExpression
+  UnaryExpression
+  WhileExpression
+
+  IndexAccess
+  MemberAccess
+
+  Token
+  ReturnStatement
+
+  ListLiteral
+  BooleanLiteral
+  NumberLiteral
+  ObjectLiteral
+  StringLiteral
+}
+import '../ast/visit.puck' as visit
+import '../compiler/ast.ts' as {SyntaxKind}
+import 'src/functions.puck' as {checkFunctionAssignability}
+import 'src/range.puck' as {Range, checkRange}
+import 'src/scope.puck' as {createScope}
+import 'src/structure_visitor.puck' as {structureVisitor}
+import 'src/types.puck' as {
+  getType
+  isAssignable
+  isSameType
+}
+import '../entities.puck' as {isStruct, isTrait, Binding, FunctionType, TypeInstance}
+
+export fn ImplVisitor(context, file) {
+  let mut importDirective: ImportDirective
+  let reportError = context.reportError.bind(context, file)
+
+  Object.assign({}, visit.emptyVisitor, structureVisitor, {
+    reportError
+
+    visitImplDeclaration: |mut self, mut i: ImplDeclaration| {
+      self.scope = createScope(context, file, self.scope)
+      i.scope = self.scope
+      visit.walkImplDeclaration(self, i)
+
+      if not isTrait(i.tra.ty)
+        then reportError(i.tra, i.tra.ty.name + ' is not a trait')
+      if not isStruct(i.ty.ty)
+        then reportError(i.ty, i.ty.ty.name + ' is not a type')
+      if i.ty.ty.implementations.some(|imp| isSameType(imp.tra, i.tra.ty))
+        then reportError(i, i.tra.ty.name + ' has already been implemented for ' + i.ty.ty.name)
+
+      let functions = i.members.reduce(|mut functions, member| {
+        functions[member.ty.name] = member.ty
+        functions
+      }, {})
+
+      let traitName = i.tra.ty.name
+      let traitFunctions = i.tra.ty.functions
+
+      Object.keys(traitFunctions).forEach(|name| {
+        if traitFunctions[name].isAbstract and not functions[name]
+          then reportError(i, 'Function ' + traitName + '::' + name + ' is not implemented for ' + i.ty.ty.name)
+      }, {})
+
+      i.members.forEach(|function| {
+        let traitFunction = traitFunctions[function.ty.name]
+        if not traitFunction
+          then reportError(i, 'Function ' + function.ty.name + ' is not defined by ' + i.tra.ty.name)
+
+        if function.ty.selfBinding and not traitFunction.selfBinding
+          then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' is static')
+
+        if not function.ty.selfBinding and traitFunction.selfBinding
+          then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' requires a self parameter')
+
+        if function.ty.selfBinding and traitFunction.selfBinding
+          then if function.ty.selfBinding.mutable and not traitFunction.selfBinding.mutable
+            then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' requires an immutable self parameter')
+
+        if let error = checkFunctionAssignability(traitFunction, function.ty)
+          then reportError(function, error)
+      })
+
+      i.ty.ty.implementations.push({
+        ty: i.ty.ty
+        tra: i.tra.ty
+      })
+
+      self.scope = self.scope.parent
+    }
+    visitModule: |mut self, mut m: Module| {
+      self.scope = m.scope
+      m.expressions
+        .filter(|e|
+          e.kind == SyntaxKind.ImportDirective or
+          e.kind == SyntaxKind.ImplDeclaration
+        )
+        .forEach(self.visitExpression.bind(self))
+    }
+    visitObjectDestructure: |self, mut i: ObjectDestructure| {
+      i.members.forEach(|m| {
+        if importDirective.module {
+          let e = importDirective.module.exports[m.local.name]
+          if e.expression.kind == SyntaxKind.TraitDeclaration
+            {
+              // Get the from the imported module again as it may have been missing during the
+              // TypeVisitor pass depending on file order
+              let mut binding = self.scope.getTypeBinding(m.local.name)
+              binding.ty = e.expression.ty
+              let mut binding = self.scope.getBinding(m.local.name)
+              binding.ty = e.expression.ty
+            }
+          if e.expression.kind == SyntaxKind.TypeDeclaration
+            {
+              // Get the from the imported module again as it may have been missing during the
+              // TypeVisitor pass depending on file order
+              let mut binding = self.scope.getTypeBinding(m.local.name)
+              binding.ty = e.expression.ty
+            }
+        }
+      })
+    }
+
+    visitImportDirective: |self, mut i: ImportDirective| {
+      if i.specifier.kind == SyntaxKind.ObjectDestructure {
+        importDirective = i
+        visit.walkImportDirective(self, i)
+      }
+    }
+  })
+}
+

@@ -2,10 +2,15 @@ export trait Empty {}
 export trait Functions {
   fn noBody(): Num
 
-  fn withBody(a: String) {
+  fn withBody(self, a: String) {
     let b = a
     b
   }
+}
+export trait SelfAware {
+  fn static(): Num then 5
+  fn withImmutableSelf(self, a: String) then a
+  fn withMutableSelf(mut self) then self
 }
 export trait Generic<T> {
   fn generic(a: T): T
@@ -35,3 +40,17 @@ impl<T> Generic<T> for GenericType<T> {
 impl Generic<String> for GenericType<String> {
   fn generic(a: String) then a + a
 }
+
+impl SelfAware for FunctionsType {}
+
+Functions.noBody()
+let func: FunctionsType = {name: 'func'}
+func.withBody('body')
+
+let mut mutFunc = func
+mutFunc.withMutableSelf()
+
+let genericNum: GenericType<Num> = {}
+genericNum.generic(5)
+let genericString: GenericType<String> = {}
+genericString.generic('hello')

@@ -62,7 +62,7 @@ function Emitter() {
             expressions.push(code);
         };
         for (var i = 0; i < block.length; i++) {
-            if (wasInContext && i == block.length - 1) {
+            if (i == block.length - 1) {
                 context = wasInContext;
             }
             expressions.push(emitExpressionKeepContext(block[i]));
@@ -113,8 +113,8 @@ function Emitter() {
             case ast_1.SyntaxKind.BreakKeyword: return emitBreak(expression);
             case ast_1.SyntaxKind.ReturnStatement: return emitReturn(expression);
             case ast_1.SyntaxKind.ThrowKeyword: return emitThrow(expression);
-            case ast_1.SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
             case ast_1.SyntaxKind.BooleanLiteral: return emitBooleanLiteral(expression);
+            case ast_1.SyntaxKind.ListLiteral: return emitListLiteral(expression);
             case ast_1.SyntaxKind.NumberLiteral: return emitNumberLiteral(expression);
             case ast_1.SyntaxKind.ObjectLiteral: return emitObjectLiteral(expression);
             case ast_1.SyntaxKind.StringLiteral: return emitStringLiteral(expression);
@@ -220,7 +220,7 @@ function Emitter() {
                 .filter(function (_a) {
                 var property = _a.property, local = _a.local;
                 if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
-                    ['TokenStream', 'InputStream', 'TypeVisitor', 'TopLevelVisitor', 'ScopeVisitor', 'ImportVisitor']
+                    ['TokenStream', 'InputStream', 'TypeVisitor', 'TopLevelVisitor', 'ScopeVisitor', 'ImportVisitor', 'ImplVisitor']
                         .indexOf(local.name) == -1) {
                     return false;
                 }
@@ -334,7 +334,10 @@ function Emitter() {
         context = null;
         return "throw " + emitExpression(e.expression, Context.Value);
     }
-    function emitArrayLiteral(l) {
+    function emitBooleanLiteral(l) {
+        return "" + l.value;
+    }
+    function emitListLiteral(l) {
         var members = l.members.map(function (e) { return emitExpression(e, Context.Value); });
         var body;
         if (members.length == 0) {
@@ -349,9 +352,6 @@ function Emitter() {
             level--;
         }
         return "[" + body;
-    }
-    function emitBooleanLiteral(l) {
-        return "" + l.value;
     }
     function emitNumberLiteral(l) {
         return "" + l.value;

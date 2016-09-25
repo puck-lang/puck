@@ -43,63 +43,23 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import 'src/functions.puck' as {visitFunctionDeclarationFrame}
 import 'src/range.puck' as {Range, checkRange}
 import 'src/scope.puck' as {createScope}
-import 'src/types.puck' as {
-  getType
-  isAssignable
-  isSameType
-  visitFunctionTypeBound
-  visitNamedTypeBound
+import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
+import 'src/types.puck' as {getType, isAssignable, isSameType}
+import '../entities.puck' as {
+  isStruct
+  isTrait
+  isTypeInstance
+  Binding
+  FunctionType
+  Scope
+  TypeInstance
 }
-import '../entities.puck' as {isStruct, isTrait, Binding, Scope, TypeInstance}
 
 export fn ScopeVisitor(context, file) {
-  let mut scope: Scope
   let mut importDirective: ImportDirective
   let reportError = context.reportError.bind(context, file)
-
-  fn reportNotAssignableError(t, to: TypeInstance, subject: TypeInstance) { // t: Token
-    reportError(t, subject.name + ' is not assignable to type ' + to.name)
-  }
-
-  fn checkFunctionType(binding: Binding, c: CallExpression) {
-    if not binding.ty then return undefined
-    let name = binding.ty.name
-
-    if not binding.ty.arguments
-      then reportError(c, '$name is not callable')
-
-    checkRange(c.argumentList, binding.ty.argumentRange, reportError, 'arguments', binding.name, c)
-
-    c.argumentList.forEach(|argument, i| {
-      let parameter = binding.ty.arguments[i]
-
-      if not isAssignable(parameter.ty, argument.ty)
-        then reportNotAssignableError(argument, parameter.ty, argument.ty)
-
-      if parameter.mutable and argument.kind == SyntaxKind.Identifier {
-        let argumentName = argument.name
-        let argumentBinding = scope.getBinding(argumentName)
-
-        if not argumentBinding.mutable {
-          let functionName =
-            if c.func.kind == SyntaxKind.Identifier
-              then c.func.name
-              else 'function'
-          let parameterName =
-            if parameter.identifier
-              then parameter.identifier.name
-              else i
-          reportError(argument
-            'Parameter $parameterName of $functionName requires a mutable binding ' +
-            'but $argumentName is declared as immutable.'
-          )
-        }
-      }
-    })
-  }
 
   fn getBinding(token: Token)
     then if token.kind == SyntaxKind.Identifier
@@ -109,266 +69,296 @@ export fn ScopeVisitor(context, file) {
     else if token.kind == SyntaxKind.IndexAccess
       then getBinding(token.object)
 
-  Object.assign({}, visit.Visitor, {
+  fn checkFunctionCall(function: FunctionType, c: CallExpression) {
+    if not function then return undefined
+    let name = c.func.name or function.name
+
+    if not function.arguments
+      then reportError(c, '$name is not callable')
+
+    if function.selfBinding and function.selfBinding.mutable {
+      let binding = getBinding(c.func)
+      if binding and not binding.mutable
+        then reportError(c, '$name can only be called on a mutable binding')
+    }
+
+    if let error = checkRange(c.argumentList, function.argumentRange, 'arguments', name)
+      then reportError(c, error)
+
+    c.argumentList.forEach(|argument, i| {
+      let parameter = function.arguments[i]
+
+      if not isAssignable(parameter.ty, argument.ty)
+        then reportError(argument, notAssignableError(parameter.ty, argument.ty))
+
+      if parameter.mutable and argument.kind == SyntaxKind.Identifier {
+        let argumentName = argument.name
+        let argumentBinding = argument.scope.getBinding(argumentName)
+
+        if not argumentBinding.mutable {
+          let parameterName =
+            if parameter.identifier
+              then parameter.identifier.name
+              else i
+          reportError(argument
+            'Parameter $parameterName of $name requires a mutable binding ' +
+            'but $argumentName is declared as immutable.'
+          )
+        }
+      }
+    })
+  }
+
+  fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token) {
+    checkRange(subject.arguments, to.argumentRange, reportError, 'arguments', subject.name, token)
+
+    subject.arguments.forEach(|subjectArgument, i| {
+      let toArgument = to.arguments[i]
+
+      if not isAssignable(toArgument.ty, subjectArgument.ty)
+        then reportError(
+          token
+          'Types of parameter #$i does not match. ' + subjectArgument.ty.name +
+          ' is not assignable to ' + toArgument.ty.name
+        )
+
+      if subjectArgument.mutable and not toArgument.mutable
+        then reportError(
+          token
+          'Parameter #$i is required to be immutable'
+        )
+    })
+
+    if not isAssignable(to.returnType, subject.returnType)
+      then reportError(
+        token
+        'Return type ' + subject.returnType.name + ' is not assignable to ' + to.returnType.name
+      )
+  }
+
+  fn defineHoisted(expressions, visitor) {
+    expressions.forEach(|mut e| {
+      if e.kind == SyntaxKind.Function {
+        e.hoisting = true
+        visitor.visitFunctionDeclaration(e)
+        e.hoisted = true
+      }
+      if e.kind == SyntaxKind.ExportDirective and
+          e.expression.kind == SyntaxKind.Function {
+        e.expression.hoisting = true
+        visitor.visitFunctionDeclaration(e.expression)
+        e.expression.hoisted = true
+      }
+    })
+  }
+
+  Object.assign({}, visit.walkingVisitor, structureVisitor, {
+    reportError
 
     visitBlock: |self, mut b: Block| {
-      b.scope = scope
+      b.scope = self.scope
 
-      b.expressions.forEach(|mut e| {
-        if e.kind == SyntaxKind.Function {
-          e.hoisting = true
-          self.visitFunctionDeclaration(e)
-          e.hoisted = true
-        }
-        if e.kind == SyntaxKind.ExportDirective and
-            e.expression.kind == SyntaxKind.Function {
-          e.expression.hoisting = true
-          self.visitFunctionDeclaration(e.expression)
-          e.expression.hoisted = true
-        }
-      })
+      defineHoisted(b.expressions, self)
 
       visit.walkBlock(self, b)
     }
-    visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
-      if not f.hoisting or not f.hoisted {
-        scope = createScope(context, file, scope)
-        f.scope = scope
+    visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
+      structureVisitor.visitFunctionDeclaration.call(self, f)
 
-        visitFunctionDeclarationFrame(self, reportError, f)
-      }
       if not f.hoisting or f.hoisted {
-        scope = f.scope
+        self.scope = f.scope
 
         f.parameterList.forEach(self.visitVariableDeclaration.bind(self))
         if f.body then self.visitBlock(f.body)
+
+        self.scope = self.scope.parent
       }
-      scope = scope.parent
     }
     visitIdentifier: |self, mut i: Identifier| {
-      i.scope = scope
+      i.scope = self.scope
       let binding = i.scope.getBinding(i.name)
       if not binding
         then reportError(i, 'Use of undefined variable ' + i.name)
         else i.ty = binding.ty
       visit.walkIdentifier(self, i)
     }
-    visitImplDeclaration: |self, mut i: ImplDeclaration| {
-      scope = createScope(context, file, scope)
-      i.scope = scope
-      visit.walkImplDeclaration(self, i)
+    visitImplDeclaration: |self, mut i: ImplDeclaration| {}
+    visitModule: |mut self, mut m: Module| {
+      self.scope = m.scope
 
-      if not isTrait(i.tra.ty)
-        then reportError(i.tra, i.tra.ty.name + ' is not a trait')
-      if not isStruct(i.ty.ty)
-        then reportError(i.ty, i.ty.ty.name + ' is not a type')
-      if i.ty.ty.implementations.some(|imp| isSameType(imp.tra.ty, i.tra.ty))
-        then reportError(i, i.tra.ty.name + ' has already been implemented for ' + i.ty.ty.name)
+      defineHoisted(m.expressions, self)
 
-      let functions = i.members.reduce(|mut functions, member| {
-        functions[member.ty.name] = member.ty
-        functions
-      }, {})
-      let traitFunctions = i.tra.ty.functions
-
-      Object.keys(traitFunctions).forEach(|name| {
-        if traitFunctions[name].isAbstract and not functions[name]
-          then reportError(i, 'Function ' + i.tra.ty.name + '::' + name + ' is not implemented for ' + i.ty.ty.name)
-      }, {})
-
-      i.members.forEach(|function| {
-        if not traitFunctions[function.ty.name]
-          then reportError(i, 'Function ' + function.ty.name + ' is not defined by ' + i.tra.ty.name)
-      })
-
-      i.ty.ty.implementations.push({
-        ty: i.ty
-        tra: i.tra
-      })
-
-      scope = scope.parent
-    }
-    visitModule: |self, mut m: Module| {
-      scope = m.scope
       visit.walkModule(self, m)
     }
-    visitObjectDestructure: |self, mut i: ObjectDestructure| {
-      i.members.forEach(|m| {
-        if importDirective.module {
-          let e = importDirective.module.exports[m.local.name]
-          if e.expression.kind == SyntaxKind.TraitDeclaration
-          or e.expression.kind == SyntaxKind.TypeDeclaration
-            {
-              // Get the from the imported module again as it may have been missing during the
-              // TypeVisitor pass depending on file order
-              let mut binding = scope.getTypeBinding(m.local.name)
-              binding.ty = e.expression.ty
-            }
-        }
-      })
-    }
-    visitTraitDeclaration: |self, mut t: TraitDeclaration| {
-      scope = t.scope
+    visitObjectDestructure: |self, mut i: ObjectDestructure| {}
+    visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
+      self.scope = t.scope
       visit.walkTraitDeclaration(self, t)
-      scope = scope.parent
-    }
-    visitFunctionTypeBound: |self, mut t: FunctionTypeBound| {
-      if not t.scope {
-        scope = createScope(context, file, scope)
-        t.scope = scope
-        visitFunctionTypeBound(self, reportError, t)
-        scope = scope.parent
-      }
-    }
-    visitNamedTypeBound: |self, mut t: NamedTypeBound| {
-      if not t.scope {
-        t.scope = scope
-        visitNamedTypeBound(self, reportError, t)
-      }
+      self.scope = self.scope.parent
     }
     visitTypeDeclaration: |self, mut t: TypeDeclaration| {}
-    visitTypeParameter: |self, mut t: TypeParameter| {
-      if not t.scope {
-        t.scope = scope
-        scope.defineType(t)
-        visit.walkTypeParameter(self, t)
-      }
-    }
-    visitVariableDeclaration: |self, mut d: VariableDeclaration| {
-      if d.binding then return undefined
-      if not d.scope {
-        d.scope = scope
-        if d.typeBound then self.visitTypeBound(d.typeBound)
-        d.ty = getType(d.scope, d.typeBound)
-      }
-
-      let mut binding = d.scope.define({
-        name: d.identifier.name,
-        mutable: d.mutable,
-        token: d,
-        ty: d.ty
-      }, true)
-      d.binding = binding
-
-      if d.initializer {
-        self.visitExpression(d.initializer)
-        if not binding.ty
-          then binding.ty = d.initializer.ty
-        else if not isAssignable(binding.ty, d.initializer.ty)
-          then reportNotAssignableError(d, binding.ty, d.initializer.ty)
-      }
+    visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer| {
+      structureVisitor.visitVariableDeclaration.call(
+        self
+        d
+        visitInitializer or self.visitExpression.bind(self)
+      )
     }
 
     visitExportDirective: |self, mut e: ExportDirective| {
       visit.walkExportDirective(self, e)
     }
-    visitImportDirective: |self, mut i: ImportDirective| {
-      if i.specifier.kind == SyntaxKind.ObjectDestructure {
-        importDirective = i
-        visit.walkImportDirective(self, i)
-      }
-    }
+    visitImportDirective: |self, mut i: ImportDirective| {}
 
     visitAssignmentExpression: |self, mut e: AssignmentExpression| {
-      e.scope = scope
+      e.scope = self.scope
       visit.walkAssignmentExpression(self, e)
       if let binding = getBinding(e.lhs) {
         if not binding.mutable
           then reportError(e, "Can't assign to immutable variable " + binding.name)
 
         if not isAssignable(e.lhs.ty, e.rhs.ty)
-          then reportNotAssignableError(e, e.lhs.ty, e.rhs.ty)
+          then reportError(e, notAssignableError(e.lhs.ty, e.rhs.ty))
       }
     }
     visitBinaryExpression: |self, mut e: BinaryExpression| {
-      e.scope = scope
+      e.scope = self.scope
       visit.walkBinaryExpression(self, e)
     }
     visitCallExpression: |self, mut e: CallExpression| {
-      e.scope = scope
+      e.scope = self.scope
       visit.walkCallExpression(self, e)
 
-      if e.func.ty {
-        checkFunctionType(e.func, e)
-        e.ty = e.func.ty.returnType
+      let mut functionType = e.func.ty
+
+      if e.func.kind == SyntaxKind.MemberAccess and e.func.object.ty {
+        let name = e.func.member.name
+        let objectType = e.func.object.ty
+        let isDirectTraitCall = isTrait(objectType)
+
+        if isDirectTraitCall {
+          functionType = objectType.functions[name]
+
+          if not functionType
+            then reportError(e, objectType.name + ' has no function named $name')
+
+          if functionType.selfBinding
+            then throw 'direct trait calls for functions with self bindings are not implemented'
+        }
+        else {
+          let traits = objectType.implementations
+            .map(|i| i.tra)
+            .filter(|i| i.functions[name])
+
+          let traits =
+            if traits.length > 1
+              then traits
+                .filter(|t| e.scope.getTypeBinding(t.name))
+            else traits
+
+          let traits =
+            if traits.length > 1
+              then traits
+                .map(|t| t.functions[name].argumentRange)
+                .filter(|range| range.start >= e.argumentList.length and range.end >= e.argumentList.length)
+            else traits
+
+          if traits.length > 1 then reportError(e, 'Ambiguous trait call')
+
+          if traits.length == 1 {
+            let traitName =
+              if isTypeInstance(traits[0])
+                then traits[0].class.name
+                else traits[0].name
+            if not e.scope.getTypeBinding(traitName)
+              then reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
+
+            functionType = traits[0].functions[name]
+          }
+        }
+      }
+
+      if functionType {
+        checkFunctionCall(functionType, e)
+        e.ty = functionType.returnType
       }
     }
-    visitForExpression: |self, mut e: ForExpression| {
-      scope = createScope(context, file, scope)
-      e.scope = scope
+    visitForExpression: |mut self, mut e: ForExpression| {
+      self.scope = createScope(context, file, self.scope)
+      e.scope = self.scope
       visit.walkForExpression(self, e)
-      scope = scope.parent
+      self.scope = self.scope.parent
     }
-    visitIfExpression: |self, mut e: IfExpression| {
-      scope = createScope(context, file, scope)
-      e.scope = scope
+    visitIfExpression: |mut self, mut e: IfExpression| {
+      self.scope = createScope(context, file, self.scope)
+      e.scope = self.scope
       visit.walkIfExpression(self, e)
-      scope = scope.parent
+      self.scope = self.scope.parent
     }
-    visitLoopExpression: |self, mut e: LoopExpression| {
-      scope = createScope(context, file, scope)
-      e.scope = scope
+    visitLoopExpression: |mut self, mut e: LoopExpression| {
+      self.scope = createScope(context, file, self.scope)
+      e.scope = self.scope
       visit.walkLoopExpression(self, e)
-      scope = scope.parent
+      self.scope = self.scope.parent
     }
     visitUnaryExpression: |self, mut e: UnaryExpression| {
-      e.scope = scope
+      e.scope = self.scope
       visit.walkUnaryExpression(self, e)
 
       e.ty =
         if e.operator.kind == SyntaxKind.NotKeyword
-          then {kind: 'Bool', name: 'Bool'}
+          then e.scope.getTypeBinding('Bool').ty
         else if e.operator.kind == SyntaxKind.MinusToken
              or e.operator.kind == SyntaxKind.PlusToken
-          then {kind: 'Num', name: 'Num'}
+          then e.scope.getTypeBinding('Num').ty
     }
-    visitWhileExpression: |self, mut e: WhileExpression| {
-      scope = createScope(context, file, scope)
-      e.scope = scope
+    visitWhileExpression: |mut self, mut e: WhileExpression| {
+      self.scope = createScope(context, file, self.scope)
+      e.scope = self.scope
       visit.walkWhileExpression(self, e)
-      scope = scope.parent
+      self.scope = self.scope.parent
     }
     visitIndexAccess: |self, mut a: IndexAccess| {
-      a.scope = scope
+      a.scope = self.scope
       visit.walkIndexAccess(self, a)
     }
     visitMemberAccess: |self, mut a: MemberAccess| {
-      a.scope = scope
+      a.scope = self.scope
       visit.walkExpression(self, a.object)
     }
 
     visitBreak: |self, mut b: Token| {
-      b.scope = scope
+      b.scope = self.scope
       visit.walkBreak(self, b)
     }
     visitReturn: |self, mut r: ReturnStatement| {
-      r.scope = scope
+      r.scope = self.scope
       visit.walkReturn(self, r)
     }
 
     visitListLiteral: |self, mut l: ListLiteral| {
-      l.scope = scope
+      l.scope = self.scope
       visit.walkListLiteral(self, l)
     }
     visitBooleanLiteral: |self, mut l: BooleanLiteral| {
-      l.scope = scope
-      l.ty = {kind: 'Bool', name: 'Bool'}
+      l.scope = self.scope
+      l.ty = self.scope.getTypeBinding('Bool').ty
       visit.walkBooleanLiteral(self, l)
     }
     visitNumberLiteral: |self, mut l: NumberLiteral| {
-      l.scope = scope
-      l.ty = {kind: 'Num', name: 'Num'}
+      l.scope = self.scope
+      l.ty = self.scope.getTypeBinding('Num').ty
       visit.walkNumberLiteral(self, l)
     }
     visitObjectLiteral: |self, mut l: ObjectLiteral| {
-      l.scope = scope
+      l.scope = self.scope
       l.members.forEach(|m| {
         self.visitExpression(m.value)
       })
     }
     visitStringLiteral: |self, mut l: StringLiteral| {
-      l.scope = scope
-      l.ty = {kind: 'String', name: 'String'}
+      l.scope = self.scope
+      l.ty = self.scope.getTypeBinding('String').ty
       visit.walkStringLiteral(self, l)
     }
   })

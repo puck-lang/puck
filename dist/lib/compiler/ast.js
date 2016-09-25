@@ -86,8 +86,8 @@
     SyntaxKind[SyntaxKind["MemberAccess"] = 83] = "MemberAccess";
     SyntaxKind[SyntaxKind["BreakStatement"] = 84] = "BreakStatement";
     SyntaxKind[SyntaxKind["ReturnStatement"] = 85] = "ReturnStatement";
-    SyntaxKind[SyntaxKind["ArrayLiteral"] = 86] = "ArrayLiteral";
-    SyntaxKind[SyntaxKind["BooleanLiteral"] = 87] = "BooleanLiteral";
+    SyntaxKind[SyntaxKind["BooleanLiteral"] = 86] = "BooleanLiteral";
+    SyntaxKind[SyntaxKind["ListLiteral"] = 87] = "ListLiteral";
     SyntaxKind[SyntaxKind["NumberLiteral"] = 88] = "NumberLiteral";
     SyntaxKind[SyntaxKind["ObjectLiteral"] = 89] = "ObjectLiteral";
     SyntaxKind[SyntaxKind["StringLiteral"] = 90] = "StringLiteral";

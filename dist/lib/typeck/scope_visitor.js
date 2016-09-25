@@ -77,6 +77,21 @@ function ScopeVisitor(context, file) {
       };
     });
   };
+  function checkFunctionAssignability(to, subject, token) {
+    (0, _range.checkRange)(subject._arguments, to.argumentRange, reportError, "arguments", subject.name, token);
+    subject._arguments.forEach(function (subjectArgument, i) {
+      var toArgument = to._arguments[i];
+      if (!(0, _types.isAssignable)(toArgument.ty, subjectArgument.ty)) {
+        reportError(token, "Types of parameter #" + i + " does not match. " + subjectArgument.ty.name + " is not assignable to " + toArgument.ty.name);
+      };
+      if (subjectArgument.mutable && !toArgument.mutable) {
+        return reportError(token, "Parameter #" + i + " is required to be immutable");
+      };
+    });
+    if (!(0, _types.isAssignable)(to.returnType, subject.returnType)) {
+      return reportError(token, "Return type " + subject.returnType.name + " is not assignable to " + to.returnType.name);
+    };
+  };
   function getBinding(token) {
     if (token.kind == _ast.SyntaxKind.Identifier) {
       return token.scope.getBinding(token.name);
@@ -155,16 +170,30 @@ function ScopeVisitor(context, file) {
         functions[member.ty.name] = member.ty;
         return functions;
       }, {});
+      var traitName = i.tra.ty.name;
       var traitFunctions = i.tra.ty.functions;
       _js._Object.keys(traitFunctions).forEach(function (name) {
         if (traitFunctions[name].isAbstract && !functions[name]) {
-          return reportError(i, "Function " + i.tra.ty.name + "::" + name + " is not implemented for " + i.ty.ty.name);
+          return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + i.ty.ty.name);
         };
       }, {});
       i.members.forEach(function (_function) {
-        if (!traitFunctions[_function.ty.name]) {
-          return reportError(i, "Function " + _function.ty.name + " is not defined by " + i.tra.ty.name);
+        var traitFunction = traitFunctions[_function.ty.name];
+        if (!traitFunction) {
+          reportError(i, "Function " + _function.ty.name + " is not defined by " + i.tra.ty.name);
         };
+        if (_function.ty.selfBinding && !traitFunction.selfBinding) {
+          reportError(_function, "Function " + traitName + "::" + traitFunction.name + " is static");
+        };
+        if (!_function.ty.selfBinding && traitFunction.selfBinding) {
+          reportError(_function, "Function " + traitName + "::" + traitFunction.name + " requires a self parameter");
+        };
+        if (_function.ty.selfBinding && traitFunction.selfBinding) {
+          if (_function.ty.selfBinding.mutable && !traitFunction.selfBinding.mutable) {
+            reportError(_function, "Function " + traitName + "::" + traitFunction.name + " requires an immutable self parameter");
+          };
+        };
+        return checkFunctionAssignability(traitFunction, _function.ty, _function);
       });
       i.ty.ty.implementations.push({
         ty: i.ty,

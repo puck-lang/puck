@@ -59,7 +59,7 @@ if (command == "build") {
           };
           var result = buildString(code, file);
           if (!result.error) {
-            (0, _core.print)("error case did not error for " + file + "::" + i + "");
+            (0, _core.print)("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
             _js.process.exit(1);
           };
           if (result.error.message.indexOf(error.trim()) == -1) {

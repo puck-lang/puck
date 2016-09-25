@@ -50,11 +50,13 @@ function cmd(cmd) {
     if (stderr) {
       _js.console.error(stderr.trim());
     };
-    _js.console.log(result.error);
-    throw result.error;
+    if (result.error.stack) {
+      _js.console.error(result.error.stack);
+    };
+    return _js.process.exit(1);
   } else {
     if (result.result.toString()) {
-      _js.console.log(result.result.toString().trim());
+      return _js.console.log(result.result.toString().trim());
     };
   };
 };

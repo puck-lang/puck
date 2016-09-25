@@ -57,7 +57,7 @@ else if command == 'test' {
         let result = buildString(code, file)
 
         if not result.error {
-          print('error case did not error for $file::$i')
+          print('error case did not error for $file::$i\nexpected error:$error')
           process.exit(1)
         }
 

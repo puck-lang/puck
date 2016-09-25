@@ -23,7 +23,7 @@ export fn getRange<T>(parameters: List<T>, isOptional: (T) => Bool, reportError,
   }
 }
 
-export fn checkRange<T>(arguments: List<T>, range: Range, reportError, argumentName: String, subjectName: String, token) { // token: Token
+export fn checkRange<T>(arguments: List<T>, range: Range, argumentName: String, subjectName: String) {
   let argumentCount = arguments.length
   let max = range.end
   let min = range.start
@@ -39,8 +39,6 @@ export fn checkRange<T>(arguments: List<T>, range: Range, reportError, argumentN
         then min
         else '$min to $max'
 
-    reportError(token
-      'Too $error $argumentName given to $subjectName, $required required, $argumentCount given'
-    )
+    'Too $error $argumentName given to $subjectName, $required required, $argumentCount given'
   }
 }

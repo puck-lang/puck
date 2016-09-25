@@ -1,0 +1,145 @@
+import 'puck:js' as {undefined}
+import '../../ast/ast.puck' as {
+  FunctionDeclaration
+  TypeParameter
+  VariableDeclaration
+
+  FunctionTypeBound
+  NamedTypeBound
+
+  BooleanLiteral
+  ListLiteral
+  NumberLiteral
+  ObjectLiteral
+  StringLiteral
+}
+import '../../ast/visit.puck' as visit
+import '../../compiler/ast.ts' as {SyntaxKind}
+import '../../entities.puck' as {TypeInstance, isTypeClass}
+import 'functions.puck' as {createFunctionType}
+import 'range.puck' as {checkRange}
+import 'types.puck' as {getType, isAssignable}
+
+export fn notAssignableError(to: TypeInstance, subject: TypeInstance)
+  then subject.name + ' is not assignable to type ' + to.name
+
+export let structureVisitor = {
+  visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
+    if not f.scope {
+      self.scope = self.scope.createChild()
+      f.scope = self.scope
+
+      if f.typeParameters
+        then f.typeParameters.forEach(self.visitTypeParameter.bind(self))
+      f.parameterList.forEach(self.visitFunctionParameter.bind(self))
+      if f.returnType then self.visitTypeBound(f.returnType)
+
+      f.ty = createFunctionType(f.scope, f, self.reportError)
+      if f.name then
+        f.scope.parent.define({
+          name: f.name.name
+          token: f
+          mutable: false
+          ty: f.ty
+        })
+
+      self.scope = f.scope.parent
+    }
+  }
+  visitFunctionParameter: |self, mut v: VariableDeclaration| {
+    self.visitVariableDeclaration(v, self.visitLiteral.bind(self))
+  }
+  visitFunctionTypeBound: |mut self, mut t: FunctionTypeBound| {
+    if not t.scope {
+      self.scope = self.scope.createChild()
+      t.scope = self.scope
+
+      visit.walkFunctionTypeBound(self, t)
+      t.ty = getType(t.scope, t)
+
+      self.scope = self.scope.parent
+    }
+  }
+  visitNamedTypeBound: |self, mut t: NamedTypeBound| {
+    if not t.scope {
+      t.scope = self.scope
+
+      let binding = t.scope.getTypeBinding(t.name.name)
+      if not binding
+        then self.reportError(t, 'Use of undeclared type ' + t.name.name)
+      else if isTypeClass(binding.ty) {
+        if let error = checkRange(t.typeParameters, binding.ty.parameterRange, 'type parameters', binding.name)
+        then self.reportError(t, error)
+      }
+      else if t.typeParameters.length > 0
+        then self.reportError(t, 'Type ' + binding.name + ' is not generic')
+
+      visit.walkNamedTypeBound(self, t)
+
+      t.ty = getType(t.scope, t)
+    }
+  }
+  visitTypeParameter: |self, mut t: TypeParameter| {
+    if not t.scope {
+      t.scope = self.scope
+      self.scope.defineType(t)
+      visit.walkTypeParameter(self, t)
+    }
+  }
+  visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer| {
+    if d.scope then return undefined
+    d.scope = self.scope
+    if d.typeBound then self.visitTypeBound(d.typeBound)
+    d.ty = getType(d.scope, d.typeBound)
+
+    d.binding = d.scope.define({
+      name: d.identifier.name,
+      mutable: d.mutable,
+      token: d,
+      ty: d.ty
+    }, true)
+
+    if d.initializer {
+      visitInitializer(d.initializer)
+      if not d.binding.ty
+        then d.binding.ty = d.initializer.ty
+      else if not isAssignable(d.binding.ty, d.initializer.ty)
+        then self.reportError(d, notAssignableError(d.binding.ty, d.initializer.ty))
+    }
+  }
+
+  visitLiteral: |self, mut l| {
+    l.scope = self.scope
+    if l.kind == SyntaxKind.BooleanLiteral
+      then self.visitStrictBooleanLiteral(l)
+    else if l.kind == SyntaxKind.ListLiteral
+      then self.visitStrictListLiteral(l)
+    else if l.kind == SyntaxKind.NumberLiteral
+      then self.visitStrictNumberLiteral(l)
+    else if l.kind == SyntaxKind.ObjectLiteral
+      then self.visitStrictObjectLiteral(l)
+    else if l.kind == SyntaxKind.StringLiteral
+      then self.visitStrictStringLiteral(l)
+    else self.reportError(l, 'not a literal' + inspect(l))
+  }
+  visitStrictBooleanLiteral: |self, mut l: BooleanLiteral| {
+    l.ty = self.scope.getTypeBinding('Bool').ty
+  }
+  visitStrictListLiteral: |self, mut l: ListLiteral| {
+    l.members.forEach(self.visitLiteral.bind(self))
+  }
+  visitStrictNumberLiteral: |self, mut l: NumberLiteral| {
+    l.ty = self.scope.getTypeBinding('Num').ty
+  }
+  visitStrictObjectLiteral: |self, mut l: ObjectLiteral| {
+    l.members.forEach(|m| {
+      self.visitLiteral(m.value)
+    })
+  }
+  visitStrictStringLiteral: |self, mut l: StringLiteral| {
+    l.ty = self.scope.getTypeBinding('String').ty
+     if l.parts.some(|p| p.kind == SyntaxKind.Identifier)
+      then self.reportError(l, 'not a literal')
+  }
+}
+import 'node:util' as {inspect}

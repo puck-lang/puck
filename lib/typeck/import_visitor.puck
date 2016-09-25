@@ -45,7 +45,7 @@ export fn ImportVisitor(context, file: File) {
     }
   }
 
-  Object.assign({}, visit.Visitor, {
+  Object.assign({}, visit.emptyVisitor, {
 
     visitModule: |self, m: Module| {
       moduleScope = m.scope

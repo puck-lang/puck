@@ -532,7 +532,7 @@ function parse(input) {
   function parseListLiteral() {
     var members = delimited("[", "]", ",", parseExpression);
     return {
-      kind: _ast.SyntaxKind.ArrayLiteral,
+      kind: _ast.SyntaxKind.ListLiteral,
       members: members
     };
   };

@@ -11,6 +11,12 @@ import 'traits.puck' as {Empty, FunctionsType}
 impl Empty for FunctionsType {}
 impl Empty for FunctionsType {}
 
+///// Functions has already been implemented for FunctionsType
+import 'traits.puck' as {Functions, FunctionsType}
+impl Functions for FunctionsType {
+  fn noBody() then 1
+}
+
 ///// Generic<String> has already been implemented for FunctionsType
 import 'traits.puck' as {Generic, FunctionsType}
 impl Generic<String> for FunctionsType {
@@ -47,3 +53,80 @@ import 'traits.puck' as {Empty, FunctionsType}
 impl Empty for FunctionsType {
   fn anotherFunction() {}
 }
+
+///// Function SelfAware::static is static
+import 'traits.puck' as {SelfAware, EmptyType}
+impl SelfAware for EmptyType {
+  fn static(self) then 5
+}
+
+///// Too many arguments given to static, 0 required, 1 given
+import 'traits.puck' as {SelfAware, EmptyType}
+impl SelfAware for EmptyType {
+  fn static(a: Num) then a
+}
+
+///// Return type String is not assignable to Num
+import 'traits.puck' as {SelfAware, EmptyType}
+impl SelfAware for EmptyType {
+  fn static(): String then ''
+}
+
+///// Function SelfAware::withImmutableSelf requires a self parameter
+import 'traits.puck' as {SelfAware, EmptyType}
+impl SelfAware for EmptyType {
+  fn withImmutableSelf() then 'a'
+}
+
+///// Function SelfAware::withImmutableSelf requires a self parameter
+import 'traits.puck' as {SelfAware, EmptyType}
+impl SelfAware for EmptyType {
+  fn withImmutableSelf(a: String) then a
+}
+
+///// Function SelfAware::withImmutableSelf requires an immutable self parameter
+import 'traits.puck' as {SelfAware, EmptyType}
+impl SelfAware for EmptyType {
+  fn withImmutableSelf(mut self, a: String) then a
+}
+
+///// Types of parameter #0 does not match. Num is not assignable to String
+import 'traits.puck' as {SelfAware, EmptyType}
+impl SelfAware for EmptyType {
+  fn withImmutableSelf(self, a: Num) then a
+}
+
+///// Parameter #0 is required to be immutable
+import 'traits.puck' as {SelfAware, EmptyType}
+impl SelfAware for EmptyType {
+  fn withImmutableSelf(self, mut a: String) then a
+}
+
+///// A has already been declared in the scope
+trait A {}
+let A = true
+
+///// Functions has no function named missing
+import 'traits.puck' as {Functions}
+Functions.missing()
+
+///// withMutableSelf can only be called on a mutable binding
+import 'traits.puck' as {SelfAware, FunctionsType}
+let a: FunctionsType = {name: 'a'}
+a.withMutableSelf()
+
+///// Num is not assignable to type String
+import 'traits.puck' as {Functions, FunctionsType}
+let a: FunctionsType = {name: 'a'}
+a.withBody(5)
+
+///// The function withBody is defined in trait Functions but it is not in scope
+import 'traits.puck' as {FunctionsType}
+let a: FunctionsType = {name: 'a'}
+a.withBody('body')
+
+// Todo: Make sure this errors
+//// Bool is not assignable to type Num
+// import 'traits.puck' as {Generic, GenericType}
+// let genericNum: GenericType<Num> = {}
+// genericNum.generic(true)

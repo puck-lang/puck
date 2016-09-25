@@ -69,7 +69,8 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn consumeToken(token: SyntaxKind = undefined, name = undefined) {
+  // fn consumeToken(token: SyntaxKind = undefined, name = undefined) {
+  fn consumeToken(token, name = false) {
     if token then expect(token, name)
     return input.next()
   }
@@ -556,7 +557,7 @@ export fn parse(input) { // : TokenStream
 
   fn parseListLiteral(): ListLiteral {
     let members = delimited('[', ']', ',', parseExpression)
-    { kind: SyntaxKind.ArrayLiteral, members }
+    { kind: SyntaxKind.ListLiteral, members }
   }
 
   fn parseObjectLiteralMember(): ObjectLiteralMember {
@@ -672,7 +673,7 @@ export fn parse(input) { // : TokenStream
       if isToken(SyntaxKind.OpenBraceToken)
         then parseObjectDestructure()
       else if isToken(SyntaxKind.AsteriskToken)
-        then consumeToken()
+        then consumeToken(false)
       else consumeToken(SyntaxKind.Identifier, 'identifier')
 
     {

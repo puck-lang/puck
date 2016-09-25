@@ -6,7 +6,7 @@ import {
   precedence,
   textToToken,
   tokenToText,
-  ArrayLiteral,
+  ListLiteral,
   AssignmentExpression,
   BinaryExpression,
   BlockNode,
@@ -104,7 +104,7 @@ export function Emitter() {
       expressions.push(code)
     }
     for (let i = 0; i < block.length; i++) {
-      if (wasInContext && i == block.length - 1) {
+      if (i == block.length - 1) {
         context = wasInContext
       }
       expressions.push(emitExpressionKeepContext(block[i]))
@@ -167,8 +167,8 @@ export function Emitter() {
       case SyntaxKind.ReturnStatement: return emitReturn(expression);
       case SyntaxKind.ThrowKeyword: return emitThrow(expression);
 
-      case SyntaxKind.ArrayLiteral: return emitArrayLiteral(expression);
       case SyntaxKind.BooleanLiteral: return emitBooleanLiteral(expression);
+      case SyntaxKind.ListLiteral: return emitListLiteral(expression);
       case SyntaxKind.NumberLiteral: return emitNumberLiteral(expression);
       case SyntaxKind.ObjectLiteral: return emitObjectLiteral(expression);
       case SyntaxKind.StringLiteral: return emitStringLiteral(expression);
@@ -284,7 +284,7 @@ export function Emitter() {
       : `{${i.specifier.members
           .filter(({property, local}) => {
             if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
-              ['TokenStream', 'InputStream', 'TypeVisitor', 'TopLevelVisitor', 'ScopeVisitor', 'ImportVisitor']
+              ['TokenStream', 'InputStream', 'TypeVisitor', 'TopLevelVisitor', 'ScopeVisitor', 'ImportVisitor', 'ImplVisitor']
                 .indexOf(local.name) == -1) {
               return false
             }
@@ -413,7 +413,11 @@ export function Emitter() {
     return `throw ${emitExpression(e.expression, Context.Value)}`
   }
 
-  function emitArrayLiteral(l: ArrayLiteral) {
+  function emitBooleanLiteral(l: BooleanLiteral) {
+    return `${l.value}`
+  }
+
+  function emitListLiteral(l: ListLiteral) {
     let members: any[] = l.members.map(e => emitExpression(e, Context.Value))
     let body
 
@@ -428,10 +432,6 @@ export function Emitter() {
     }
 
     return `[${body}`
-  }
-
-  function emitBooleanLiteral(l: BooleanLiteral) {
-    return `${l.value}`
   }
 
   function emitNumberLiteral(l: NumberLiteral) {

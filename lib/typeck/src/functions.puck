@@ -1,7 +1,7 @@
 import '../../ast/ast.puck' as {FunctionDeclaration}
-import '../../entities.puck' as {Scope, TypeInstance}
-import 'range.puck' as {Range, getRange}
-import 'types.puck' as {getType}
+import '../../entities.puck' as {FunctionType, Scope, TypeInstance}
+import 'range.puck' as {Range, checkRange, getRange}
+import 'types.puck' as {getType, isAssignable}
 
 export fn getFunctionTypeName(arguments: List<TypeInstance>, returnType: TypeInstance)
   then '(' + arguments.map(|a| (a and a.name) or '??').join(', ') + ') => ' +
@@ -12,33 +12,51 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
     identifier: p.identifier
     mutable: p.mutable
     ty: p.ty
+    token: p
   }})
   let returnType = getType(scope, f.returnType)
+  let selfBinding =
+    if arguments.length > 0 and arguments[0].identifier.name == 'self'
+      then arguments[0]
+  let arguments =
+    if selfBinding
+      then arguments.slice(1)
+      else arguments
 
   {
     kind: 'Function'
     name: if f.name then f.name.name else getFunctionTypeName(arguments, returnType)
+    selfBinding
     arguments
     argumentRange: if f.parameterList
-      then getRange(f.parameterList, |p| p.initializer, reportError, 'parameter')
+      then getRange(arguments, |p| p.token.initializer, reportError, 'parameter')
       else {{start: 0, end: 0}}
     returnType
     isAbstract: not f.body
   }
 }
 
-export fn visitFunctionDeclarationFrame(visitor, reportError, mut f: FunctionDeclaration) {
-  if f.typeParameters
-    then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
-  f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
-  if f.returnType then visitor.visitTypeBound(f.returnType)
+export fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token) {
+  if let error = checkRange(subject.arguments, to.argumentRange, 'arguments', subject.name)
+    then return error
 
-  f.ty = createFunctionType(f.scope, f, reportError)
-  if f.name then
-    f.scope.parent.define({
-      name: f.name.name
-      token: f
-      mutable: false
-      ty: f.ty
-    })
+  let mut errors = []
+  subject.arguments.forEach(|subjectArgument, i| {
+    let toArgument = to.arguments[i]
+
+    if not isAssignable(toArgument.ty, subjectArgument.ty)
+      then return errors.push(
+        'Types of parameter #$i does not match. ' + subjectArgument.ty.name +
+        ' is not assignable to ' + toArgument.ty.name
+      )
+
+    if subjectArgument.mutable and not toArgument.mutable
+      then return errors.push('Parameter #$i is required to be immutable')
+  })
+  if errors.length > 0
+    then return errors[0]
+
+  if not isAssignable(to.returnType, subject.returnType)
+    then return
+      'Return type ' + subject.returnType.name + ' is not assignable to ' + to.returnType.name
 }

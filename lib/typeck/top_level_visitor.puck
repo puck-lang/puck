@@ -48,7 +48,7 @@ import 'src/scope.puck' as {createScope}
 export fn TopLevelVisitor(context, file) {
   let mut scope = createScope(context, file)
 
-  Object.assign({}, visit.Visitor, {
+  Object.assign({}, visit.emptyVisitor, {
 
     visitBlock: |self, b: Block| {}
     visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
@@ -59,8 +59,6 @@ export fn TopLevelVisitor(context, file) {
           mutable: false
         })
     }
-    visitIdentifier: |self, i: Identifier| {}
-    visitImplDeclaration: |self, i: ImplDeclaration| {}
     visitModule: |self, mut m: Module| {
       m.scope = scope
       visit.walkModule(self, m)
@@ -73,7 +71,6 @@ export fn TopLevelVisitor(context, file) {
     visitTraitDeclaration: |self, t: TraitDeclaration| {
       scope.defineType(t)
     }
-    visitTypeBound: |self, t: TypeBound| {}
     visitTypeDeclaration: |self, t: TypeDeclaration| {
       scope.defineType(t)
     }
@@ -90,25 +87,5 @@ export fn TopLevelVisitor(context, file) {
       else if i.specifier.kind == SyntaxKind.ObjectDestructure
         then visit.walkImportDirective(self, i)
     }
-
-    visitAssignmentExpression: |self, e: AssignmentExpression| {}
-    visitBinaryExpression: |self, e: BinaryExpression| {}
-    visitCallExpression: |self, e: CallExpression| {}
-    visitForExpression: |self, e: ForExpression| {}
-    visitIfExpression: |self, e: IfExpression| {}
-    visitLoopExpression: |self, e: LoopExpression| {}
-    visitUnaryExpression: |self, e: UnaryExpression| {}
-    visitWhileExpression: |self, e: WhileExpression| {}
-    visitIndexAccess: |self, a: IndexAccess| {}
-    visitMemberAccess: |self, a: MemberAccess| {}
-
-    visitBreak: |self, b: Token| {}
-    visitReturn: |self, r: ReturnStatement| {}
-
-    visitListLiteral: |self, l: ListLiteral| {}
-    visitBooleanLiteral: |self, l: BooleanLiteral| {}
-    visitNumberLiteral: |self, l: NumberLiteral| {}
-    visitObjectLiteral: |self, l: ObjectLiteral| {}
-    visitStringLiteral: |self, l: StringLiteral| {}
   })
 }

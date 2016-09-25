@@ -94,8 +94,8 @@ export enum SyntaxKind {
   BreakStatement,
   ReturnStatement,
 
-  ArrayLiteral,
   BooleanLiteral,
+  ListLiteral,
   NumberLiteral,
   ObjectLiteral,
   StringLiteral,
@@ -393,12 +393,12 @@ export interface ReturnStatement extends Token {
   expression: Expression
 }
 
-export interface ArrayLiteral extends Expression {
-  members: Array<Expression>
-}
-
 export interface BooleanLiteral extends Expression {
   value: boolean
+}
+
+export interface ListLiteral extends Expression {
+  members: Array<Expression>
 }
 
 export interface NumberLiteral extends Expression {

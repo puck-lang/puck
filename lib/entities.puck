@@ -51,6 +51,7 @@ export type TypeInstance = { // + Type
 
 /// Represents a function type (Num, Num) => Bool
 export type FunctionType = { // + Type
+  selfBinding: Binding //?
   arguments: List<Binding>
   argumentRange: Range
   returnType: Type
@@ -61,7 +62,7 @@ export type GenericFunction = {}  // FunctionType + TypeClass
 export type GenericFunctionInstace = {}  // FunctionType + TypeInstance
 
 export type Binding = {
-  identifier: Identifier
+  name: String
   token: Token
   mutable: Bool
   ty: Type //?
@@ -92,9 +93,17 @@ export fn isStruct(ty) {
 }
 
 export fn isTrait(ty) {
-  ty.isTrait
+  ty.functions
 }
 
 export fn isTypeClass(ty: Type) {
   ty.parameterRange
+}
+
+export fn isTypeInstance(ty: Type) {
+  ty.class
+}
+
+export fn isTypeParameter(ty: Type) {
+  ty.isTypeParameter
 }

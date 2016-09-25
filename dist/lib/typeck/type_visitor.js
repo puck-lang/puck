@@ -52,13 +52,33 @@ function TypeVisitor(context, file) {
           self.visitImportDirective(e);
           return e.hoisted = true;
         } else {
-          if (e.kind == _ast.SyntaxKind.TraitDeclaration || e.kind == _ast.SyntaxKind.TypeDeclaration) {
+          if (e.kind == _ast.SyntaxKind.TraitDeclaration) {
             e.ty = scope.defineType(e).ty;
+            scope.define({
+              name: e.name.name,
+              mutable: false,
+              token: e
+            });
             return e.hoisted = true;
           } else {
-            if (e.kind == _ast.SyntaxKind.ExportDirective && (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration)) {
-              e.expression.ty = scope.defineType(e.expression).ty;
-              return e.expression.hoisted = true;
+            if (e.kind == _ast.SyntaxKind.TypeDeclaration) {
+              e.ty = scope.defineType(e).ty;
+              return e.hoisted = true;
+            } else {
+              if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.TraitDeclaration) {
+                e.expression.ty = scope.defineType(e.expression).ty;
+                scope.define({
+                  name: e.expression.name.name,
+                  mutable: false,
+                  token: e.expression
+                });
+                return e.expression.hoisted = true;
+              } else {
+                if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
+                  e.expression.ty = scope.defineType(e.expression).ty;
+                  return e.expression.hoisted = true;
+                };
+              };
             };
           };
         };

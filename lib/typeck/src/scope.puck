@@ -5,22 +5,26 @@ import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {Binding, isTypeClass}
 import 'range.puck' as {getRange}
 
-export fn createScope(context, file, parent = undefined) {
+export fn createScope(context, file, parent = false) {
   let reportError = context.reportError.bind(context, file)
   let mut bindings = {}
   let mut typeBindings = {}
 
   {
     parent
+    createChild: |self| createScope(context, file, self)
+
     getLocalBinding: |name| bindings[name]
     getBinding: |name| bindings[name] or (parent and parent.getBinding(name))
     getTypeBinding: |name| typeBindings[name] or (parent and parent.getTypeBinding(name))
-    define: |mut binding: Binding, allowRedeclare = false| {
+
+    define: |self, mut binding: Binding, allowRedeclare = false| {
       let name = binding.name
+      binding.allowRedeclare = allowRedeclare
       binding.redefined = bindings[name] != undefined
       if binding.redefined {
-        if not allowRedeclare
-          then reportError(binding.token, '$name has already been declared in the scope')
+        if not allowRedeclare or not bindings[name].allowRedeclare
+          then reportError(binding.token, '$name has already been declared in the scope' + inspect(self))
         bindings[name].redefined = true
         binding.previous = bindings[name]
       }
@@ -45,10 +49,13 @@ export fn createScope(context, file, parent = undefined) {
             }
 
             if t.kind == SyntaxKind.TraitDeclaration {
-              ty.isTrait = true
+              ty.functions = {}
             }
             else if t.kind == SyntaxKind.TypeDeclaration {
               ty.implementations = []
+            }
+            else if t.kind == SyntaxKind.TypeParameter {
+              ty.isTypeParameter = true
             }
             if isTypeClass(ty) {
               ty.instances = []

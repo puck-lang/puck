@@ -70,7 +70,7 @@ export type Visitor = {}
 /// explicitly, you need to override each method.  (And you also need
 /// to monitor future changes to `Visitor` in case a new method with a
 /// new default implementation gets introduced.)
-export let Visitor = {
+export let walkingVisitor = {
   visitExpression: |self, e: Expression| walkExpression(self, e)
 
   visitBlock: |self, b: Block| walkBlock(self, b)
@@ -111,6 +111,49 @@ export let Visitor = {
   visitNumberLiteral: |self, l: NumberLiteral| walkNumberLiteral(self, l)
   visitObjectLiteral: |self, l: ObjectLiteral| walkObjectLiteral(self, l)
   visitStringLiteral: |self, l: StringLiteral| walkStringLiteral(self, l)
+}
+
+export let emptyVisitor = {
+  visitExpression: |self, e: Expression| walkExpression(self, e)
+
+  visitBlock: || {}
+  visitFunctionDeclaration: || {}
+  visitIdentifier: || {}
+  visitImplDeclaration: || {}
+  visitModule: || {}
+  visitObjectDestructure: || {}
+  visitTraitDeclaration: || {}
+  visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
+  visitFunctionTypeBound: || {}
+  visitNamedTypeBound: || {}
+  visitTypeDeclaration: || {}
+  visitTypeParameter: || {}
+  visitTypeProperty: || {}
+  visitVariableDeclaration: || {}
+
+  visitExportDirective: || {}
+  visitImportDirective: || {}
+
+  visitAssignmentExpression: || {}
+  visitBinaryExpression: || {}
+  visitCallExpression: || {}
+  visitForExpression: || {}
+  visitIfExpression: || {}
+  visitLoopExpression: || {}
+  visitUnaryExpression: || {}
+  visitWhileExpression: || {}
+
+  visitIndexAccess: || {}
+  visitMemberAccess: || {}
+
+  visitBreak: || {}
+  visitReturn: || {}
+
+  visitListLiteral: || {}
+  visitBooleanLiteral: || {}
+  visitNumberLiteral: || {}
+  visitObjectLiteral: || {}
+  visitStringLiteral: || {}
 }
 
 export fn walkExpression(visitor: Visitor, e: Expression) {
@@ -276,10 +319,10 @@ export fn walkReturn(visitor: Visitor, r: ReturnStatement) {
   visitor.visitExpression(r.expression)
 }
 
+export fn walkBooleanLiteral(visitor: Visitor, l: BooleanLiteral) {}
 export fn walkListLiteral(visitor: Visitor, l: ListLiteral) {
   l.members.forEach(visitor.visitExpression.bind(visitor))
 }
-export fn walkBooleanLiteral(visitor: Visitor, l: BooleanLiteral) {}
 export fn walkNumberLiteral(visitor: Visitor, l: NumberLiteral) {}
 export fn walkObjectLiteral(visitor: Visitor, l: ObjectLiteral) {
   l.members.forEach(|m| {

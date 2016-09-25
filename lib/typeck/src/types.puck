@@ -1,9 +1,8 @@
 import 'puck:js' as {undefined}
 import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound}
 import '../../ast/visit.puck' as visit
-import '../../entities.puck' as {isTypeClass, Scope, Type, TypeClass}
+import '../../entities.puck' as {isTypeClass, isTypeParameter, Scope, Type, TypeClass}
 import 'functions.puck' as {getFunctionTypeName}
-import 'range.puck' as {checkRange}
 
 export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
   if let instance = class.instances.find(|i|
@@ -52,12 +51,14 @@ export fn getType(scope: Scope, t) { // t: TypeBound
 
 export fn isAssignable(to: Type, subject: Type) {
   if not subject or not to then return true
+  if isTypeParameter(to) then return true
 
   let sameKind = subject.kind == to.kind
 
   if not sameKind then return false
 
   if sameKind and to.kind == 'Function' {
+    // todo: start, end
     if to.argumentRange.min < subject.argumentRange.min
     or to.argumentRange.max > subject.argumentRange.max
       then return false
@@ -73,24 +74,4 @@ export fn isAssignable(to: Type, subject: Type) {
 
 export fn isSameType(a, b) {
   a.kind == b.kind
-}
-
-export fn visitFunctionTypeBound(visitor, reportError, mut t: FunctionTypeBound) {
-  visit.walkFunctionTypeBound(visitor, t)
-
-  t.ty = getType(t.scope, t)
-}
-
-export fn visitNamedTypeBound(visitor, reportError, mut t: NamedTypeBound) {
-  let binding = t.scope.getTypeBinding(t.name.name)
-  if not binding then reportError(t, 'Use of undeclared type ' + t.name.name)
-
-  if isTypeClass(binding.ty)
-    then checkRange(t.typeParameters, binding.ty.parameterRange, reportError, 'type parameters', binding.name, t)
-  else if t.typeParameters.length > 0
-    then reportError(t, 'Type ' + binding.name + ' is not generic')
-
-  visit.walkNamedTypeBound(visitor, t)
-
-  t.ty = getType(t.scope, t)
 }
