@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Visitor = undefined;
+exports.emptyVisitor = exports.walkingVisitor = undefined;
 exports.walkExpression = walkExpression;
 exports.walkBlock = walkBlock;
 exports.walkFunction = walkFunction;
@@ -35,8 +35,8 @@ exports.walkIndexAccess = walkIndexAccess;
 exports.walkMemberAccess = walkMemberAccess;
 exports.walkBreak = walkBreak;
 exports.walkReturn = walkReturn;
-exports.walkListLiteral = walkListLiteral;
 exports.walkBooleanLiteral = walkBooleanLiteral;
+exports.walkListLiteral = walkListLiteral;
 exports.walkNumberLiteral = walkNumberLiteral;
 exports.walkObjectLiteral = walkObjectLiteral;
 exports.walkStringLiteral = walkStringLiteral;
@@ -47,7 +47,7 @@ require('./ast.js');
 
 var _ast = require('./../compiler/ast.js');
 
-var Visitor = exports.Visitor = {
+var walkingVisitor = exports.walkingVisitor = {
   visitExpression: function visitExpression(e) {
     var self = this;
     return walkExpression(self, e);
@@ -184,6 +184,48 @@ var Visitor = exports.Visitor = {
     var self = this;
     return walkStringLiteral(self, l);
   }
+};
+var emptyVisitor = exports.emptyVisitor = {
+  visitExpression: function visitExpression(e) {
+    var self = this;
+    return walkExpression(self, e);
+  },
+  visitBlock: function visitBlock() {},
+  visitFunctionDeclaration: function visitFunctionDeclaration() {},
+  visitIdentifier: function visitIdentifier() {},
+  visitImplDeclaration: function visitImplDeclaration() {},
+  visitModule: function visitModule() {},
+  visitObjectDestructure: function visitObjectDestructure() {},
+  visitTraitDeclaration: function visitTraitDeclaration() {},
+  visitTypeBound: function visitTypeBound(t) {
+    var self = this;
+    return walkTypeBound(self, t);
+  },
+  visitFunctionTypeBound: function visitFunctionTypeBound() {},
+  visitNamedTypeBound: function visitNamedTypeBound() {},
+  visitTypeDeclaration: function visitTypeDeclaration() {},
+  visitTypeParameter: function visitTypeParameter() {},
+  visitTypeProperty: function visitTypeProperty() {},
+  visitVariableDeclaration: function visitVariableDeclaration() {},
+  visitExportDirective: function visitExportDirective() {},
+  visitImportDirective: function visitImportDirective() {},
+  visitAssignmentExpression: function visitAssignmentExpression() {},
+  visitBinaryExpression: function visitBinaryExpression() {},
+  visitCallExpression: function visitCallExpression() {},
+  visitForExpression: function visitForExpression() {},
+  visitIfExpression: function visitIfExpression() {},
+  visitLoopExpression: function visitLoopExpression() {},
+  visitUnaryExpression: function visitUnaryExpression() {},
+  visitWhileExpression: function visitWhileExpression() {},
+  visitIndexAccess: function visitIndexAccess() {},
+  visitMemberAccess: function visitMemberAccess() {},
+  visitBreak: function visitBreak() {},
+  visitReturn: function visitReturn() {},
+  visitListLiteral: function visitListLiteral() {},
+  visitBooleanLiteral: function visitBooleanLiteral() {},
+  visitNumberLiteral: function visitNumberLiteral() {},
+  visitObjectLiteral: function visitObjectLiteral() {},
+  visitStringLiteral: function visitStringLiteral() {}
 };
 function walkExpression(visitor, e) {
   if (e.kind == _ast.SyntaxKind.Block) {
@@ -449,10 +491,10 @@ function walkBreak(visitor, b) {};
 function walkReturn(visitor, r) {
   return visitor.visitExpression(r.expression);
 };
+function walkBooleanLiteral(visitor, l) {};
 function walkListLiteral(visitor, l) {
   return l.members.forEach(visitor.visitExpression.bind(visitor));
 };
-function walkBooleanLiteral(visitor, l) {};
 function walkNumberLiteral(visitor, l) {};
 function walkObjectLiteral(visitor, l) {
   return l.members.forEach(function (m) {

@@ -54,6 +54,7 @@ import '../entities.puck' as {
   Binding
   FunctionType
   Scope
+  Struct
   TypeInstance
 }
 
@@ -246,34 +247,45 @@ export fn ScopeVisitor(context, file) {
             then throw 'direct trait calls for functions with self bindings are not implemented'
         }
         else {
-          let traits = objectType.implementations
-            .map(|i| i.tra)
-            .filter(|i| i.functions[name])
+          fn getImplementations(ty: Struct) {
+            let implementations = ty.implementations
+              .filter(|i| i.tra.functions[name])
 
-          let traits =
-            if traits.length > 1
-              then traits
-                .filter(|t| e.scope.getTypeBinding(t.name))
-            else traits
+            let implementations =
+              if implementations.length > 1
+                then implementations
+                  .filter(|i| e.scope.getTypeBinding(i.tra.name))
+              else implementations
 
-          let traits =
-            if traits.length > 1
-              then traits
-                .map(|t| t.functions[name].argumentRange)
-                .filter(|range| range.start >= e.argumentList.length and range.end >= e.argumentList.length)
-            else traits
+            let implementations =
+              if implementations.length > 1
+                then implementations
+                  .map(|i| i.tra.functions[name].argumentRange)
+                  .filter(|range| range.start >= e.argumentList.length and range.end >= e.argumentList.length)
+              else implementations
 
-          if traits.length > 1 then reportError(e, 'Ambiguous trait call')
+            if implementations.length > 1 then reportError(e, 'Ambiguous trait call')
 
-          if traits.length == 1 {
+            if implementations.length == 0 and isTypeInstance(ty)
+              then getImplementations(ty.class)
+              else implementations
+          }
+
+          let implementations = getImplementations(objectType)
+
+          if implementations.length == 1 {
+            let implementation = implementations[0]
             let traitName =
-              if isTypeInstance(traits[0])
-                then traits[0].class.name
-                else traits[0].name
+              if isTypeInstance(implementation.tra)
+                then implementation.tra.class.name
+                else implementation.tra.name
             if not e.scope.getTypeBinding(traitName)
               then reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
 
-            functionType = traits[0].functions[name]
+            e.traitName = traitName
+            e.implementationType = implementation.ty
+
+            functionType = implementation.tra.functions[name]
           }
         }
       }

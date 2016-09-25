@@ -253,7 +253,7 @@ export interface BlockNode extends Token {
   expressions: Array<Expression>
 }
 
-export interface FunctionNode extends Token {
+export interface FunctionDeclaration extends Token {
   name?: Identifier
   parameterList: Array<VariableDeclaration>
   returnType?: TypeBound
@@ -264,11 +264,17 @@ export interface Identifier extends SimpleIdentifier, Expression {
   name: string
 }
 
+export interface ImplDeclaration extends Token {
+  tra: TypeBound
+  ty: TypeBound
+  members: Array<FunctionDeclaration>
+}
+
 export interface Module extends Token {
   fileName: string
   path: string
   exports: {[name: string]: ExportDirective}
-  expressions: Array<Expression>
+  expressions: Array<Token>
 }
 
 export interface ObjectDestructure extends Token {
@@ -286,9 +292,15 @@ export interface SimpleIdentifier extends Token {
   name: string
 }
 
+export interface TraitDeclaration extends Token {
+  name: SimpleIdentifier
+  members: Array<FunctionDeclaration>
+}
+
 export interface TypeBound extends Token {
   name: SimpleIdentifier
-  parameters: Array<TypeBound>
+  typeParameters: Array<TypeBound>
+  ty: any
 }
 
 export interface TypeDeclaration extends Token {
@@ -319,7 +331,7 @@ export interface VariableDeclaration extends Token {
 
 export interface ExportDirective extends Token {
   keyword: Token
-  expression: VariableDeclaration|FunctionNode|TypeDeclaration
+  expression: VariableDeclaration|FunctionDeclaration|TraitDeclaration|TypeDeclaration
   identifier: Identifier
 }
 
@@ -381,7 +393,7 @@ export interface IndexAccess extends Expression {
 
 export interface MemberAccess extends Expression {
   object: Expression
-  member: Identifier|MemberAccess
+  member: Identifier
 }
 
 export interface BreakStatement extends Token {

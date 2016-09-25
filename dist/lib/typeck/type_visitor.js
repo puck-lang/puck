@@ -19,9 +19,9 @@ var visit = _interopRequireWildcard(_visit);
 
 var _ast = require('./../compiler/ast.js');
 
-var _functions = require('./src/functions.js');
-
 var _scope = require('./src/scope.js');
+
+var _structure_visitor = require('./src/structure_visitor.js');
 
 var _types = require('./src/types.js');
 
@@ -29,79 +29,48 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function TypeVisitor(context, file) {
   var importDirective = void 0;
-  var scope = (0, _scope.createScope)(context, file);
   var reportError = context.reportError.bind(context, file);
-  return _js._Object.assign({}, visit.Visitor, {
-    visitBlock: function visitBlock(b) {},
-    visitFunctionDeclaration: function visitFunctionDeclaration(f) {
-      var self = this;
-      f.hoisting = true;
-      f.hoisted = true;
-      scope = (0, _scope.createScope)(context, file, scope);
-      f.scope = scope;
-      (0, _functions.visitFunctionDeclarationFrame)(self, reportError, f);
-      return scope = scope.parent;
-    },
-    visitIdentifier: function visitIdentifier(i) {},
-    visitImplDeclaration: function visitImplDeclaration(i) {},
+  return _js._Object.assign({}, visit.emptyVisitor, _structure_visitor.structureVisitor, {
+    scope: (0, _scope.createScope)(context, file),
+    reportError: reportError,
     visitModule: function visitModule(m) {
       var self = this;
-      m.scope = scope;
-      m.expressions.forEach(function (e) {
-        if (e.kind == _ast.SyntaxKind.ImportDirective) {
-          self.visitImportDirective(e);
-          return e.hoisted = true;
-        } else {
-          if (e.kind == _ast.SyntaxKind.TraitDeclaration) {
-            e.ty = scope.defineType(e).ty;
-            scope.define({
-              name: e.name.name,
-              mutable: false,
-              token: e
-            });
-            return e.hoisted = true;
-          } else {
-            if (e.kind == _ast.SyntaxKind.TypeDeclaration) {
-              e.ty = scope.defineType(e).ty;
-              return e.hoisted = true;
-            } else {
-              if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.TraitDeclaration) {
-                e.expression.ty = scope.defineType(e.expression).ty;
-                scope.define({
-                  name: e.expression.name.name,
-                  mutable: false,
-                  token: e.expression
-                });
-                return e.expression.hoisted = true;
-              } else {
-                if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
-                  e.expression.ty = scope.defineType(e.expression).ty;
-                  return e.expression.hoisted = true;
-                };
-              };
-            };
-          };
-        };
+      m.scope = self.scope;
+      var expressions = m.expressions.filter(function (e) {
+        return e.kind == _ast.SyntaxKind.ImportDirective || e.kind == _ast.SyntaxKind.TraitDeclaration || e.kind == _ast.SyntaxKind.TypeDeclaration || e.kind == _ast.SyntaxKind.ExportDirective && (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration);
       });
-      return visit.walkModule(self, m);
+      expressions.forEach(function (e) {
+        self.visitExpression(e);
+        return e.hoisted = true;
+      });
+      return expressions.forEach(self.visitExpression.bind(self));
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
-      i.scope = scope;
+      i.scope = self.scope;
       return i.members.forEach(function (m) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
-          if (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
-            return scope.defineType(e.expression);
-          } else {
-            return scope.define({
+          if (e.expression.kind == _ast.SyntaxKind.TraitDeclaration) {
+            self.scope.defineType(e.expression);
+            return self.scope.define({
               name: m.local.name,
               mutable: false,
               token: m
             });
+          } else {
+            if (e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
+              return self.scope.defineType(e.expression);
+            } else {
+              return self.scope.define({
+                name: m.local.name,
+                mutable: false,
+                token: m
+              });
+            };
           };
         } else {
-          return scope.define({
+          return self.scope.define({
             name: m.local.name,
             mutable: false,
             token: m
@@ -111,53 +80,42 @@ function TypeVisitor(context, file) {
     },
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
-      scope = (0, _scope.createScope)(context, file, scope);
-      t.scope = scope;
-      visit.walkTraitDeclaration(self, t);
-      t.ty.functions = (0, _core.objectFromList)(t.members.map(function (m) {
-        return [m.name.name, m.ty];
-      }));
-      return scope = scope.parent;
-    },
-    visitFunctionTypeBound: function visitFunctionTypeBound(t) {
-      var self = this;
-      scope = (0, _scope.createScope)(context, file, scope);
-      t.scope = scope;
-      (0, _types.visitFunctionTypeBound)(self, reportError, t);
-      return scope = scope.parent;
-    },
-    visitNamedTypeBound: function visitNamedTypeBound(t) {
-      var self = this;
-      t.scope = scope;
-      return (0, _types.visitNamedTypeBound)(self, reportError, t);
+      if (!t.ty) {
+        t.ty = self.scope.defineType(t).ty;
+        return t.binding = self.scope.define({
+          name: t.name.name,
+          mutable: false,
+          token: t,
+          ty: t.ty
+        });
+      } else {
+        self.scope = (0, _scope.createScope)(context, file, self.scope);
+        t.scope = self.scope;
+        visit.walkTraitDeclaration(self, t);
+        t.ty.functions = (0, _core.objectFromList)(t.members.map(function (m) {
+          return [m.name.name, m.ty];
+        }));
+        return self.scope = self.scope.parent;
+      };
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
-      scope = (0, _scope.createScope)(context, file, scope);
-      t.scope = scope;
-      visit.walkTypeDeclaration(self, t);
-      t.ty.properties = (0, _core.objectFromList)(t.properties.map(function (p) {
-        return [p.name.name, p.typeBound.ty];
-      }));
-      return scope = scope.parent;
-    },
-    visitTypeParameter: function visitTypeParameter(t) {
-      var self = this;
-      t.scope = scope;
-      scope.defineType(t);
-      return visit.walkTypeParameter(self, t);
-    },
-    visitVariableDeclaration: function visitVariableDeclaration(d) {
-      var self = this;
-      d.scope = scope;
-      if (d.typeBound) {
-        self.visitTypeBound(d.typeBound);
+      if (!t.ty) {
+        return t.ty = self.scope.defineType(t).ty;
+      } else {
+        self.scope = (0, _scope.createScope)(context, file, self.scope);
+        t.scope = self.scope;
+        visit.walkTypeDeclaration(self, t);
+        t.ty.properties = (0, _core.objectFromList)(t.properties.map(function (p) {
+          return [p.name.name, p.typeBound.ty];
+        }));
+        return self.scope = self.scope.parent;
       };
-      return d.ty = (0, _types.getType)(d.scope, d.typeBound);
     },
+    visitTypeProperty: visit.walkingVisitor.visitTypeProperty,
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
-      e.scope = scope;
+      e.scope = self.scope;
       return visit.walkExportDirective(self, e);
     },
     visitImportDirective: function visitImportDirective(i) {
@@ -165,9 +123,9 @@ function TypeVisitor(context, file) {
       if (i.hoisted) {
         return _js._undefined;
       };
-      i.scope = scope;
+      i.scope = self.scope;
       if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
-        return scope.define({
+        return self.scope.define({
           name: i.specifier.name,
           mutable: false,
           token: i
@@ -178,23 +136,6 @@ function TypeVisitor(context, file) {
           return visit.walkImportDirective(self, i);
         };
       };
-    },
-    visitAssignmentExpression: function visitAssignmentExpression(e) {},
-    visitBinaryExpression: function visitBinaryExpression(e) {},
-    visitCallExpression: function visitCallExpression(e) {},
-    visitForExpression: function visitForExpression(e) {},
-    visitIfExpression: function visitIfExpression(e) {},
-    visitLoopExpression: function visitLoopExpression(e) {},
-    visitUnaryExpression: function visitUnaryExpression(e) {},
-    visitWhileExpression: function visitWhileExpression(e) {},
-    visitIndexAccess: function visitIndexAccess(a) {},
-    visitMemberAccess: function visitMemberAccess(a) {},
-    visitBreak: function visitBreak(b) {},
-    visitReturn: function visitReturn(r) {},
-    visitListLiteral: function visitListLiteral(l) {},
-    visitBooleanLiteral: function visitBooleanLiteral(l) {},
-    visitNumberLiteral: function visitNumberLiteral(l) {},
-    visitObjectLiteral: function visitObjectLiteral(l) {},
-    visitStringLiteral: function visitStringLiteral(l) {}
+    }
   });
 }

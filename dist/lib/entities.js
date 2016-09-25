@@ -8,6 +8,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.isStruct = isStruct;
 exports.isTrait = isTrait;
 exports.isTypeClass = isTypeClass;
+exports.isTypeInstance = isTypeInstance;
 exports.isTypeParameter = isTypeParameter;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -20,10 +21,13 @@ function isStruct(ty) {
   return ty.implementations;
 };
 function isTrait(ty) {
-  return ty.isTrait;
+  return ty.functions;
 };
 function isTypeClass(ty) {
   return ty.parameterRange;
+};
+function isTypeInstance(ty) {
+  return ty._class;
 };
 function isTypeParameter(ty) {
   return ty.isTypeParameter;

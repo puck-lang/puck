@@ -25,7 +25,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function TopLevelVisitor(context, file) {
   var scope = (0, _scope.createScope)(context, file);
-  return _js._Object.assign({}, visit.Visitor, {
+  return _js._Object.assign({}, visit.emptyVisitor, {
     visitBlock: function visitBlock(b) {},
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
@@ -37,8 +37,6 @@ function TopLevelVisitor(context, file) {
         });
       };
     },
-    visitIdentifier: function visitIdentifier(i) {},
-    visitImplDeclaration: function visitImplDeclaration(i) {},
     visitModule: function visitModule(m) {
       var self = this;
       m.scope = scope;
@@ -58,7 +56,6 @@ function TopLevelVisitor(context, file) {
       var self = this;
       return scope.defineType(t);
     },
-    visitTypeBound: function visitTypeBound(t) {},
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
       return scope.defineType(t);
@@ -88,23 +85,6 @@ function TopLevelVisitor(context, file) {
           return visit.walkImportDirective(self, i);
         };
       };
-    },
-    visitAssignmentExpression: function visitAssignmentExpression(e) {},
-    visitBinaryExpression: function visitBinaryExpression(e) {},
-    visitCallExpression: function visitCallExpression(e) {},
-    visitForExpression: function visitForExpression(e) {},
-    visitIfExpression: function visitIfExpression(e) {},
-    visitLoopExpression: function visitLoopExpression(e) {},
-    visitUnaryExpression: function visitUnaryExpression(e) {},
-    visitWhileExpression: function visitWhileExpression(e) {},
-    visitIndexAccess: function visitIndexAccess(a) {},
-    visitMemberAccess: function visitMemberAccess(a) {},
-    visitBreak: function visitBreak(b) {},
-    visitReturn: function visitReturn(r) {},
-    visitListLiteral: function visitListLiteral(l) {},
-    visitBooleanLiteral: function visitBooleanLiteral(l) {},
-    visitNumberLiteral: function visitNumberLiteral(l) {},
-    visitObjectLiteral: function visitObjectLiteral(l) {},
-    visitStringLiteral: function visitStringLiteral(l) {}
+    }
   });
 }

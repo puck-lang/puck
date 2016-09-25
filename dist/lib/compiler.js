@@ -38,6 +38,8 @@ var _token_stream = require('./compiler/token_stream.js');
 
 var _helpers = require('./helpers.js');
 
+var _impl_visitor = require('./typeck/impl_visitor.js');
+
 var _import_visitor = require('./typeck/import_visitor.js');
 
 var _scope_visitor = require('./typeck/scope_visitor.js');
@@ -94,6 +96,14 @@ function createContext() {
         return self.files[path];
       }).forEach(function (file) {
         return (0, _type_visitor.TypeVisitor)(self, file).visitModule(file.ast);
+      });
+    },
+    runImplVisitor: function runImplVisitor() {
+      var self = this;
+      return _js._Object.keys(self.files).map(function (path) {
+        return self.files[path];
+      }).forEach(function (file) {
+        return (0, _impl_visitor.ImplVisitor)(self, file).visitModule(file.ast);
       });
     },
     runChecker: function runChecker() {
@@ -158,6 +168,7 @@ function buildString(code, filePath) {
       puck: code
     });
     context.runTypeVisitor();
+    context.runImplVisitor();
     context.runChecker();
     file.js = compile(context, file);
     file.babel = babelTransform(file);
@@ -189,6 +200,11 @@ function build(files) {
   };
   context.runTypeVisitor();
   if (dump == "typed-ast") {
+    dumpFiles(files, "ast");
+    return _js._undefined;
+  };
+  context.runImplVisitor();
+  if (dump == "impl-ast") {
     dumpFiles(files, "ast");
     return _js._undefined;
   };

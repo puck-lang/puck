@@ -1,7 +1,7 @@
 "use strict";
 var ast_1 = require('./ast');
 var helpers_1 = require('../helpers');
-var jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'Object', 'typeof', 'undefined'];
+var jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
     _a[ast_1.SyntaxKind.OrKeyword] = '||',
@@ -53,6 +53,12 @@ function Emitter() {
             return indentation + lines;
         }
     }
+    function getTypeProp(type) {
+        if (type.typeParameters && type.typeParameters.some(function (p) { return p.isTypeParameter; })) {
+            type = type._class;
+        }
+        return "'$" + type.name + "'";
+    }
     function emitExpressions(block) {
         var wasInContext = context;
         context = null;
@@ -72,12 +78,22 @@ function Emitter() {
     }
     function emitModule(module) {
         var preamble = "#!/usr/bin/env node\n'use strict';\n";
-        var expressions = emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.ImplDeclaration ||
+        var expressions = module.expressions
+            .filter(function (e) { return e.kind === ast_1.SyntaxKind.TraitDeclaration ||
+            (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TraitDeclaration); })
+            .map(function (e) {
+            return ast_1.isExport(e)
+                ? emitExportDirective(e)
+                : emitTraitDeclaration(e);
+        });
+        expressions = expressions.concat(module.expressions
+            .filter(function (e) { return e.kind === ast_1.SyntaxKind.ImplDeclaration; })
+            .map(function (e) { return emitImplDeclaration(e); }));
+        expressions = expressions.concat(emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.ImplDeclaration ||
             e.kind === ast_1.SyntaxKind.TraitDeclaration ||
             e.kind === ast_1.SyntaxKind.TypeDeclaration ||
-            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.ImplDeclaration ||
-                e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
-                e.expression.kind === ast_1.SyntaxKind.TypeDeclaration))); }));
+            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
+                e.expression.kind === ast_1.SyntaxKind.TypeDeclaration))); })));
         return preamble + expressions.join(';\n');
     }
     function emitBlock(block) {
@@ -190,6 +206,22 @@ function Emitter() {
         }
         return identifier.name;
     }
+    function emitImplDeclaration(i) {
+        var functions = Object['assign']({}, i.tra.ty.functions);
+        i.members.forEach(function (m) { return functions[m.name.name] = emitFunctionDeclaration(m); });
+        return emitIdentifier(i.tra.name) + "[" + getTypeProp(i.ty.ty) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
+            return (emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
+                ? functions[f]
+                : emitIdentifier(i.tra.name) + "." + emitIdentifier({ name: f })));
+        }))
+            .join(',\n') + "\n}";
+    }
+    function emitTraitDeclaration(t) {
+        return "var " + emitIdentifier(t.name) + " = {\n" + indent(t.members
+            .filter(function (m) { return m.body; })
+            .map(function (m) { return (emitIdentifier(m.name) + ": " + emitFunctionDeclaration(m)); }))
+            .join(',\n') + "\n}";
+    }
     function emitVariableDeclaration(vd) {
         var binding = vd.scope.getBinding(vd.identifier.name);
         var willBeRedefined = binding.redefined;
@@ -211,7 +243,9 @@ function Emitter() {
         return kw + " " + emitIdentifier(vd.identifier) + initializer;
     }
     function emitExportDirective(e) {
-        return "export " + emitExpression(e.expression);
+        return "export " + (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration
+            ? emitTraitDeclaration(e.expression)
+            : emitExpression(e.expression));
     }
     function emitImportDirective(i) {
         var specifier = ast_1.isIdentifier(i.specifier)
@@ -270,8 +304,17 @@ function Emitter() {
             return (emitExpression(e.lhs) + " " + tokenToJs[e.operator.kind] + " " + emitExpression(e.rhs));
         });
     }
-    function emitCallExpression(fn) {
-        return emitExpression(fn.func) + "(" + fn.argumentList.map(function (arg) { return emitExpression(arg, Context.Value); }).join(', ') + ")";
+    function emitCallExpression(fn_) {
+        var fn = fn_;
+        var functionName;
+        if (fn.traitName) {
+            functionName = fn.traitName + "[" + getTypeProp(fn.implementationType) + "]." + emitIdentifier(fn.func.member) + ".call";
+            fn.argumentList.unshift(fn.func.object);
+        }
+        else {
+            functionName = emitExpression(fn.func);
+        }
+        return functionName + "(" + fn.argumentList.map(function (arg) { return emitExpression(arg, Context.Value); }).join(', ') + ")";
     }
     function emitIfExpression(e) {
         var condition = emitExpression(e.condition, Context.Value);

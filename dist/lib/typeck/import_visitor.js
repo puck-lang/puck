@@ -70,7 +70,7 @@ function ImportVisitor(context, file) {
       };
     };
   };
-  return _js._Object.assign({}, visit.Visitor, {
+  return _js._Object.assign({}, visit.emptyVisitor, {
     visitModule: function visitModule(m) {
       var self = this;
       moduleScope = m.scope;

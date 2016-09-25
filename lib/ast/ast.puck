@@ -76,7 +76,7 @@ export type TypeBound = {}
 
 export type NamedTypeBound = {
   name: SimpleIdentifier
-  parameters: List<TypeBound>
+  typeParameters: List<TypeBound>
 }
 
 export type FunctionTypeBound = {

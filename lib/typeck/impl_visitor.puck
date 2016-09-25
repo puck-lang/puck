@@ -52,7 +52,14 @@ import 'src/types.puck' as {
   isAssignable
   isSameType
 }
-import '../entities.puck' as {isStruct, isTrait, Binding, FunctionType, TypeInstance}
+import '../entities.puck' as {
+  Binding
+  FunctionType
+  TypeInstance
+  isStruct
+  isTrait
+  isTypeInstance
+}
 
 export fn ImplVisitor(context, file) {
   let mut importDirective: ImportDirective
@@ -70,8 +77,14 @@ export fn ImplVisitor(context, file) {
         then reportError(i.tra, i.tra.ty.name + ' is not a trait')
       if not isStruct(i.ty.ty)
         then reportError(i.ty, i.ty.ty.name + ' is not a type')
-      if i.ty.ty.implementations.some(|imp| isSameType(imp.tra, i.tra.ty))
-        then reportError(i, i.tra.ty.name + ' has already been implemented for ' + i.ty.ty.name)
+
+      let struct =
+        if isTypeInstance(i.ty.ty) and i.ty.ty.typeParameters.some(|p| p.isTypeParameter)
+          then i.ty.ty.class
+          else i.ty.ty
+
+      if struct.implementations.some(|imp| isSameType(imp.tra, i.tra.ty))
+        then reportError(i, i.tra.ty.name + ' has already been implemented for ' + struct.name)
 
       let functions = i.members.reduce(|mut functions, member| {
         functions[member.ty.name] = member.ty
@@ -105,8 +118,8 @@ export fn ImplVisitor(context, file) {
           then reportError(function, error)
       })
 
-      i.ty.ty.implementations.push({
-        ty: i.ty.ty
+      struct.implementations.push({
+        ty: struct
         tra: i.tra.ty
       })
 

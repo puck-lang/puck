@@ -21,11 +21,11 @@ var visit = _interopRequireWildcard(_visit);
 
 var _ast = require('./../compiler/ast.js');
 
-var _functions = require('./src/functions.js');
-
 var _range = require('./src/range.js');
 
 var _scope = require('./src/scope.js');
+
+var _structure_visitor = require('./src/structure_visitor.js');
 
 var _types = require('./src/types.js');
 
@@ -34,37 +34,48 @@ var _entities = require('./../entities.js');
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function ScopeVisitor(context, file) {
-  var scope = void 0;
   var importDirective = void 0;
   var reportError = context.reportError.bind(context, file);
-  function reportNotAssignableError(t, to, subject) {
-    return reportError(t, subject.name + " is not assignable to type " + to.name);
+  function getBinding(token) {
+    if (token.kind == _ast.SyntaxKind.Identifier) {
+      return token.scope.getBinding(token.name);
+    } else {
+      if (token.kind == _ast.SyntaxKind.MemberAccess) {
+        return getBinding(token.object);
+      } else {
+        if (token.kind == _ast.SyntaxKind.IndexAccess) {
+          return getBinding(token.object);
+        };
+      };
+    };
   };
-  function checkFunctionType(binding, c) {
-    if (!binding.ty) {
+  function checkFunctionCall(_function, c) {
+    if (!_function) {
       return _js._undefined;
     };
-    var name = binding.ty.name;
-    if (!binding.ty._arguments) {
+    var name = c.func.name || _function.name;
+    if (!_function._arguments) {
       reportError(c, "" + name + " is not callable");
     };
-    (0, _range.checkRange)(c.argumentList, binding.ty.argumentRange, reportError, "arguments", binding.name, c);
+    if (_function.selfBinding && _function.selfBinding.mutable) {
+      var binding = getBinding(c.func);
+      if (binding && !binding.mutable) {
+        reportError(c, "" + name + " can only be called on a mutable binding");
+      };
+    };
+    var error = void 0;;
+    if (error = (0, _range.checkRange)(c.argumentList, _function.argumentRange, "arguments", name)) {
+      reportError(c, error);
+    };
     return c.argumentList.forEach(function (argument, i) {
-      var parameter = binding.ty._arguments[i];
+      var parameter = _function._arguments[i];
       if (!(0, _types.isAssignable)(parameter.ty, argument.ty)) {
-        reportNotAssignableError(argument, parameter.ty, argument.ty);
+        reportError(argument, (0, _structure_visitor.notAssignableError)(parameter.ty, argument.ty));
       };
       if (parameter.mutable && argument.kind == _ast.SyntaxKind.Identifier) {
         var argumentName = argument.name;
-        var argumentBinding = scope.getBinding(argumentName);
+        var argumentBinding = argument.scope.getBinding(argumentName);
         if (!argumentBinding.mutable) {
-          var __PUCK__value__1 = void 0;
-          if (c.func.kind == _ast.SyntaxKind.Identifier) {
-            __PUCK__value__1 = c.func.name;
-          } else {
-            __PUCK__value__1 = "function";
-          };
-          var functionName = __PUCK__value__1;
           var __PUCK__value__2 = void 0;
           if (parameter.identifier) {
             __PUCK__value__2 = parameter.identifier.name;
@@ -72,7 +83,7 @@ function ScopeVisitor(context, file) {
             __PUCK__value__2 = i;
           };
           var parameterName = __PUCK__value__2;
-          return reportError(argument, "Parameter " + parameterName + " of " + functionName + " requires a mutable binding " + "but " + argumentName + " is declared as immutable.");
+          return reportError(argument, "Parameter " + parameterName + " of " + name + " requires a mutable binding " + "but " + argumentName + " is declared as immutable.");
         };
       };
     });
@@ -92,56 +103,43 @@ function ScopeVisitor(context, file) {
       return reportError(token, "Return type " + subject.returnType.name + " is not assignable to " + to.returnType.name);
     };
   };
-  function getBinding(token) {
-    if (token.kind == _ast.SyntaxKind.Identifier) {
-      return token.scope.getBinding(token.name);
-    } else {
-      if (token.kind == _ast.SyntaxKind.MemberAccess) {
-        return getBinding(token.object);
-      } else {
-        if (token.kind == _ast.SyntaxKind.IndexAccess) {
-          return getBinding(token.object);
-        };
+  function defineHoisted(expressions, visitor) {
+    return expressions.forEach(function (e) {
+      if (e.kind == _ast.SyntaxKind.Function) {
+        e.hoisting = true;
+        visitor.visitFunctionDeclaration(e);
+        e.hoisted = true;
       };
-    };
+      if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
+        e.expression.hoisting = true;
+        visitor.visitFunctionDeclaration(e.expression);
+        return e.expression.hoisted = true;
+      };
+    });
   };
-  return _js._Object.assign({}, visit.Visitor, {
+  return _js._Object.assign({}, visit.walkingVisitor, _structure_visitor.structureVisitor, {
+    reportError: reportError,
     visitBlock: function visitBlock(b) {
       var self = this;
-      b.scope = scope;
-      b.expressions.forEach(function (e) {
-        if (e.kind == _ast.SyntaxKind.Function) {
-          e.hoisting = true;
-          self.visitFunctionDeclaration(e);
-          e.hoisted = true;
-        };
-        if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
-          e.expression.hoisting = true;
-          self.visitFunctionDeclaration(e.expression);
-          return e.expression.hoisted = true;
-        };
-      });
+      b.scope = self.scope;
+      defineHoisted(b.expressions, self);
       return visit.walkBlock(self, b);
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      if (!f.hoisting || !f.hoisted) {
-        scope = (0, _scope.createScope)(context, file, scope);
-        f.scope = scope;
-        (0, _functions.visitFunctionDeclarationFrame)(self, reportError, f);
-      };
+      _structure_visitor.structureVisitor.visitFunctionDeclaration.call(self, f);
       if (!f.hoisting || f.hoisted) {
-        scope = f.scope;
+        self.scope = f.scope;
         f.parameterList.forEach(self.visitVariableDeclaration.bind(self));
         if (f.body) {
           self.visitBlock(f.body);
         };
+        return self.scope = self.scope.parent;
       };
-      return scope = scope.parent;
     },
     visitIdentifier: function visitIdentifier(i) {
       var self = this;
-      i.scope = scope;
+      i.scope = self.scope;
       var binding = i.scope.getBinding(i.name);
       if (!binding) {
         reportError(i, "Use of undefined variable " + i.name);
@@ -150,149 +148,33 @@ function ScopeVisitor(context, file) {
       };
       return visit.walkIdentifier(self, i);
     },
-    visitImplDeclaration: function visitImplDeclaration(i) {
-      var self = this;
-      scope = (0, _scope.createScope)(context, file, scope);
-      i.scope = scope;
-      visit.walkImplDeclaration(self, i);
-      if (!(0, _entities.isTrait)(i.tra.ty)) {
-        reportError(i.tra, i.tra.ty.name + " is not a trait");
-      };
-      if (!(0, _entities.isStruct)(i.ty.ty)) {
-        reportError(i.ty, i.ty.ty.name + " is not a type");
-      };
-      if (i.ty.ty.implementations.some(function (imp) {
-        return (0, _types.isSameType)(imp.tra.ty, i.tra.ty);
-      })) {
-        reportError(i, i.tra.ty.name + " has already been implemented for " + i.ty.ty.name);
-      };
-      var functions = i.members.reduce(function (functions, member) {
-        functions[member.ty.name] = member.ty;
-        return functions;
-      }, {});
-      var traitName = i.tra.ty.name;
-      var traitFunctions = i.tra.ty.functions;
-      _js._Object.keys(traitFunctions).forEach(function (name) {
-        if (traitFunctions[name].isAbstract && !functions[name]) {
-          return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + i.ty.ty.name);
-        };
-      }, {});
-      i.members.forEach(function (_function) {
-        var traitFunction = traitFunctions[_function.ty.name];
-        if (!traitFunction) {
-          reportError(i, "Function " + _function.ty.name + " is not defined by " + i.tra.ty.name);
-        };
-        if (_function.ty.selfBinding && !traitFunction.selfBinding) {
-          reportError(_function, "Function " + traitName + "::" + traitFunction.name + " is static");
-        };
-        if (!_function.ty.selfBinding && traitFunction.selfBinding) {
-          reportError(_function, "Function " + traitName + "::" + traitFunction.name + " requires a self parameter");
-        };
-        if (_function.ty.selfBinding && traitFunction.selfBinding) {
-          if (_function.ty.selfBinding.mutable && !traitFunction.selfBinding.mutable) {
-            reportError(_function, "Function " + traitName + "::" + traitFunction.name + " requires an immutable self parameter");
-          };
-        };
-        return checkFunctionAssignability(traitFunction, _function.ty, _function);
-      });
-      i.ty.ty.implementations.push({
-        ty: i.ty,
-        tra: i.tra
-      });
-      return scope = scope.parent;
-    },
+    visitImplDeclaration: function visitImplDeclaration(i) {},
     visitModule: function visitModule(m) {
       var self = this;
-      scope = m.scope;
+      self.scope = m.scope;
+      defineHoisted(m.expressions, self);
       return visit.walkModule(self, m);
     },
-    visitObjectDestructure: function visitObjectDestructure(i) {
-      var self = this;
-      return i.members.forEach(function (m) {
-        if (importDirective._module) {
-          var e = importDirective._module.exports[m.local.name];
-          if (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
-            var binding = scope.getTypeBinding(m.local.name);
-            return binding.ty = e.expression.ty;
-          };
-        };
-      });
-    },
+    visitObjectDestructure: function visitObjectDestructure(i) {},
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
-      scope = t.scope;
+      self.scope = t.scope;
       visit.walkTraitDeclaration(self, t);
-      return scope = scope.parent;
-    },
-    visitFunctionTypeBound: function visitFunctionTypeBound(t) {
-      var self = this;
-      if (!t.scope) {
-        scope = (0, _scope.createScope)(context, file, scope);
-        t.scope = scope;
-        (0, _types.visitFunctionTypeBound)(self, reportError, t);
-        return scope = scope.parent;
-      };
-    },
-    visitNamedTypeBound: function visitNamedTypeBound(t) {
-      var self = this;
-      if (!t.scope) {
-        t.scope = scope;
-        return (0, _types.visitNamedTypeBound)(self, reportError, t);
-      };
+      return self.scope = self.scope.parent;
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {},
-    visitTypeParameter: function visitTypeParameter(t) {
+    visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer) {
       var self = this;
-      if (!t.scope) {
-        t.scope = scope;
-        scope.defineType(t);
-        return visit.walkTypeParameter(self, t);
-      };
-    },
-    visitVariableDeclaration: function visitVariableDeclaration(d) {
-      var self = this;
-      if (d.binding) {
-        return _js._undefined;
-      };
-      if (!d.scope) {
-        d.scope = scope;
-        if (d.typeBound) {
-          self.visitTypeBound(d.typeBound);
-        };
-        d.ty = (0, _types.getType)(d.scope, d.typeBound);
-      };
-      var binding = d.scope.define({
-        name: d.identifier.name,
-        mutable: d.mutable,
-        token: d,
-        ty: d.ty
-      }, true);
-      d.binding = binding;
-      if (d.initializer) {
-        self.visitExpression(d.initializer);
-        if (!binding.ty) {
-          return binding.ty = d.initializer.ty;
-        } else {
-          if (!(0, _types.isAssignable)(binding.ty, d.initializer.ty)) {
-            return reportNotAssignableError(d, binding.ty, d.initializer.ty);
-          };
-        };
-      };
+      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, visitInitializer || self.visitExpression.bind(self));
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
       return visit.walkExportDirective(self, e);
     },
-    visitImportDirective: function visitImportDirective(i) {
-      var self = this;
-      if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
-        importDirective = i;
-        return visit.walkImportDirective(self, i);
-      };
-    },
+    visitImportDirective: function visitImportDirective(i) {},
     visitAssignmentExpression: function visitAssignmentExpression(e) {
       var self = this;
-      e.scope = scope;
+      e.scope = self.scope;
       visit.walkAssignmentExpression(self, e);
       var binding = void 0;;
       if (binding = getBinding(e.lhs)) {
@@ -300,131 +182,188 @@ function ScopeVisitor(context, file) {
           reportError(e, "Can't assign to immutable variable " + binding.name);
         };
         if (!(0, _types.isAssignable)(e.lhs.ty, e.rhs.ty)) {
-          return reportNotAssignableError(e, e.lhs.ty, e.rhs.ty);
+          return reportError(e, (0, _structure_visitor.notAssignableError)(e.lhs.ty, e.rhs.ty));
         };
       };
     },
     visitBinaryExpression: function visitBinaryExpression(e) {
       var self = this;
-      e.scope = scope;
+      e.scope = self.scope;
       return visit.walkBinaryExpression(self, e);
     },
     visitCallExpression: function visitCallExpression(e) {
       var self = this;
-      e.scope = scope;
+      e.scope = self.scope;
       visit.walkCallExpression(self, e);
-      if (e.func.ty) {
-        checkFunctionType(e.func, e);
-        return e.ty = e.func.ty.returnType;
+      var functionType = e.func.ty;
+      if (e.func.kind == _ast.SyntaxKind.MemberAccess && e.func.object.ty) {
+        (function () {
+          var name = e.func.member.name;
+          var objectType = e.func.object.ty;
+          var isDirectTraitCall = (0, _entities.isTrait)(objectType);
+          if (isDirectTraitCall) {
+            functionType = objectType.functions[name];
+            if (!functionType) {
+              reportError(e, objectType.name + " has no function named " + name + "");
+            };
+            if (functionType.selfBinding) {
+              throw "direct trait calls for functions with self bindings are not implemented";
+            };
+          } else {
+            (function () {
+              var getImplementations = function getImplementations(ty) {
+                var implementations = ty.implementations.filter(function (i) {
+                  return i.tra.functions[name];
+                });
+                var __PUCK__value__4 = void 0;
+                if (implementations.length > 1) {
+                  __PUCK__value__4 = implementations.filter(function (i) {
+                    return e.scope.getTypeBinding(i.tra.name);
+                  });
+                } else {
+                  __PUCK__value__4 = implementations;
+                };
+                implementations = __PUCK__value__4;
+                var __PUCK__value__5 = void 0;
+                if (implementations.length > 1) {
+                  __PUCK__value__5 = implementations.map(function (i) {
+                    return i.tra.functions[name].argumentRange;
+                  }).filter(function (range) {
+                    return range.start >= e.argumentList.length && range.end >= e.argumentList.length;
+                  });
+                } else {
+                  __PUCK__value__5 = implementations;
+                };
+                implementations = __PUCK__value__5;
+                if (implementations.length > 1) {
+                  reportError(e, "Ambiguous trait call");
+                };
+                if (implementations.length == 0 && (0, _entities.isTypeInstance)(ty)) {
+                  return getImplementations(ty._class);
+                } else {
+                  return implementations;
+                };
+              };
+
+              ;
+              var implementations = getImplementations(objectType);
+              if (implementations.length == 1) {
+                var implementation = implementations[0];
+                var __PUCK__value__6 = void 0;
+                if ((0, _entities.isTypeInstance)(implementation.tra)) {
+                  __PUCK__value__6 = implementation.tra._class.name;
+                } else {
+                  __PUCK__value__6 = implementation.tra.name;
+                };
+                var traitName = __PUCK__value__6;
+                if (!e.scope.getTypeBinding(traitName)) {
+                  reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
+                };
+                e.traitName = traitName;
+                e.implementationType = implementation.ty;
+                functionType = implementation.tra.functions[name];
+              };
+            })();
+          };
+        })();
+      };
+      if (functionType) {
+        checkFunctionCall(functionType, e);
+        return e.ty = functionType.returnType;
       };
     },
     visitForExpression: function visitForExpression(e) {
       var self = this;
-      scope = (0, _scope.createScope)(context, file, scope);
-      e.scope = scope;
+      self.scope = (0, _scope.createScope)(context, file, self.scope);
+      e.scope = self.scope;
       visit.walkForExpression(self, e);
-      return scope = scope.parent;
+      return self.scope = self.scope.parent;
     },
     visitIfExpression: function visitIfExpression(e) {
       var self = this;
-      scope = (0, _scope.createScope)(context, file, scope);
-      e.scope = scope;
+      self.scope = (0, _scope.createScope)(context, file, self.scope);
+      e.scope = self.scope;
       visit.walkIfExpression(self, e);
-      return scope = scope.parent;
+      return self.scope = self.scope.parent;
     },
     visitLoopExpression: function visitLoopExpression(e) {
       var self = this;
-      scope = (0, _scope.createScope)(context, file, scope);
-      e.scope = scope;
+      self.scope = (0, _scope.createScope)(context, file, self.scope);
+      e.scope = self.scope;
       visit.walkLoopExpression(self, e);
-      return scope = scope.parent;
+      return self.scope = self.scope.parent;
     },
     visitUnaryExpression: function visitUnaryExpression(e) {
       var self = this;
-      e.scope = scope;
+      e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
-      var __PUCK__value__4 = void 0;
+      var __PUCK__value__7 = void 0;
       if (e.operator.kind == _ast.SyntaxKind.NotKeyword) {
-        __PUCK__value__4 = {
-          kind: "Bool",
-          name: "Bool"
-        };
+        __PUCK__value__7 = e.scope.getTypeBinding("Bool").ty;
       } else {
-        var __PUCK__value__5 = void 0;
+        var __PUCK__value__8 = void 0;
         if (e.operator.kind == _ast.SyntaxKind.MinusToken || e.operator.kind == _ast.SyntaxKind.PlusToken) {
-          __PUCK__value__5 = {
-            kind: "Num",
-            name: "Num"
-          };
+          __PUCK__value__8 = e.scope.getTypeBinding("Num").ty;
         };
-        __PUCK__value__4 = __PUCK__value__5;
+        __PUCK__value__7 = __PUCK__value__8;
       };
-      return e.ty = __PUCK__value__4;
+      return e.ty = __PUCK__value__7;
     },
     visitWhileExpression: function visitWhileExpression(e) {
       var self = this;
-      scope = (0, _scope.createScope)(context, file, scope);
-      e.scope = scope;
+      self.scope = (0, _scope.createScope)(context, file, self.scope);
+      e.scope = self.scope;
       visit.walkWhileExpression(self, e);
-      return scope = scope.parent;
+      return self.scope = self.scope.parent;
     },
     visitIndexAccess: function visitIndexAccess(a) {
       var self = this;
-      a.scope = scope;
+      a.scope = self.scope;
       return visit.walkIndexAccess(self, a);
     },
     visitMemberAccess: function visitMemberAccess(a) {
       var self = this;
-      a.scope = scope;
+      a.scope = self.scope;
       return visit.walkExpression(self, a.object);
     },
     visitBreak: function visitBreak(b) {
       var self = this;
-      b.scope = scope;
+      b.scope = self.scope;
       return visit.walkBreak(self, b);
     },
     visitReturn: function visitReturn(r) {
       var self = this;
-      r.scope = scope;
+      r.scope = self.scope;
       return visit.walkReturn(self, r);
     },
     visitListLiteral: function visitListLiteral(l) {
       var self = this;
-      l.scope = scope;
+      l.scope = self.scope;
       return visit.walkListLiteral(self, l);
     },
     visitBooleanLiteral: function visitBooleanLiteral(l) {
       var self = this;
-      l.scope = scope;
-      l.ty = {
-        kind: "Bool",
-        name: "Bool"
-      };
+      l.scope = self.scope;
+      l.ty = self.scope.getTypeBinding("Bool").ty;
       return visit.walkBooleanLiteral(self, l);
     },
     visitNumberLiteral: function visitNumberLiteral(l) {
       var self = this;
-      l.scope = scope;
-      l.ty = {
-        kind: "Num",
-        name: "Num"
-      };
+      l.scope = self.scope;
+      l.ty = self.scope.getTypeBinding("Num").ty;
       return visit.walkNumberLiteral(self, l);
     },
     visitObjectLiteral: function visitObjectLiteral(l) {
       var self = this;
-      l.scope = scope;
+      l.scope = self.scope;
       return l.members.forEach(function (m) {
         return self.visitExpression(m.value);
       });
     },
     visitStringLiteral: function visitStringLiteral(l) {
       var self = this;
-      l.scope = scope;
-      l.ty = {
-        kind: "String",
-        name: "String"
-      };
+      l.scope = self.scope;
+      l.ty = self.scope.getTypeBinding("String").ty;
       return visit.walkStringLiteral(self, l);
     }
   });

@@ -51,9 +51,8 @@ function parse(input) {
       return input.croak("Expected " + name + "" + expectedText + ", but " + but + "");
     };
   };
-  function consumeToken() {
-    var token = arguments.length <= 0 || arguments[0] === undefined ? _js._undefined : arguments[0];
-    var name = arguments.length <= 1 || arguments[1] === undefined ? _js._undefined : arguments[1];
+  function consumeToken(token) {
+    var name = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
     if (token) {
       expect(token, name);
@@ -696,7 +695,7 @@ function parse(input) {
     } else {
       var __PUCK__value__23 = void 0;
       if (isToken(_ast.SyntaxKind.AsteriskToken)) {
-        __PUCK__value__23 = consumeToken();
+        __PUCK__value__23 = consumeToken(false);
       } else {
         __PUCK__value__23 = consumeToken(_ast.SyntaxKind.Identifier, "identifier");
       };

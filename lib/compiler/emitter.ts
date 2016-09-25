@@ -16,9 +16,10 @@ import {
   ExportDirective,
   Expression,
   ForExpression,
-  FunctionNode,
+  FunctionDeclaration,
   Identifier,
   IfExpression,
+  ImplDeclaration,
   ImportDirective,
   IndexAccess,
   LoopExpression,
@@ -32,6 +33,7 @@ import {
   StringLiteralPart,
   SyntaxKind,
   Token,
+  TraitDeclaration,
   TypeBound,
   UnaryExpression,
   VariableDeclaration,
@@ -39,7 +41,7 @@ import {
 } from './ast'
 import {isTypeScopeDeclaration} from '../helpers'
 
-const jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'Object', 'typeof', 'undefined']
+const jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
 const tokenToJs = Object['assign'](tokenToText, {
   [SyntaxKind.AndKeyword]: '&&',
   [SyntaxKind.OrKeyword]: '||',
@@ -95,6 +97,14 @@ export function Emitter() {
     }
   }
 
+  function getTypeProp(type) {
+    if (type.typeParameters && type.typeParameters.some(p => p.isTypeParameter)) {
+      type = type._class
+    }
+
+    return `'$${type.name}'`
+  }
+
   function emitExpressions(block: Expression[]) {
     let wasInContext = context
     context = null
@@ -115,16 +125,32 @@ export function Emitter() {
 
   function emitModule(module: Module) {
     let preamble = `#!/usr/bin/env node\n'use strict';\n`
-    let expressions = emitExpressions(module.expressions.filter(e => !(
-      e.kind === SyntaxKind.ImplDeclaration ||
-      e.kind === SyntaxKind.TraitDeclaration ||
-      e.kind === SyntaxKind.TypeDeclaration ||
-      (isExport(e) && (
-        e.expression.kind === SyntaxKind.ImplDeclaration ||
-        e.expression.kind === SyntaxKind.TraitDeclaration ||
-        e.expression.kind === SyntaxKind.TypeDeclaration
+    let expressions =
+      module.expressions
+        .filter(e => e.kind === SyntaxKind.TraitDeclaration ||
+          (isExport(e) && e.expression.kind === SyntaxKind.TraitDeclaration)
+        )
+        .map(e =>
+          isExport(e)
+            ? emitExportDirective(e)
+            : emitTraitDeclaration(e as TraitDeclaration)
+        )
+    expressions = expressions.concat(
+      module.expressions
+        .filter(e => e.kind === SyntaxKind.ImplDeclaration)
+        .map(e => emitImplDeclaration(e as ImplDeclaration))
+    )
+    expressions = expressions.concat(emitExpressions(
+      module.expressions.filter(e => !(
+        e.kind === SyntaxKind.ImplDeclaration ||
+        e.kind === SyntaxKind.TraitDeclaration ||
+        e.kind === SyntaxKind.TypeDeclaration ||
+        (isExport(e) && (
+          e.expression.kind === SyntaxKind.TraitDeclaration ||
+          e.expression.kind === SyntaxKind.TypeDeclaration
+        ))
       ))
-    )))
+    ))
     return preamble + expressions.join(';\n')
   }
 
@@ -211,7 +237,7 @@ export function Emitter() {
     return withContext(context, () => emitExpressionKeepContext(expression))
   }
 
-  function emitFunctionDeclaration(fn: FunctionNode) {
+  function emitFunctionDeclaration(fn: FunctionDeclaration) {
     let name = fn.name ? emitIdentifier(fn.name) : ''
     let parameterList = fn.parameterList
     let body = fn.body
@@ -241,11 +267,38 @@ export function Emitter() {
     return `${emitIdentifier(vd.identifier)}${initializer}`
   }
 
-  function emitIdentifier(identifier: SimpleIdentifier) {
+  function emitIdentifier(identifier: {name: string}) {
     if (jsKeywords.indexOf(identifier.name) != -1) {
       return `_${identifier.name}`
     }
     return identifier.name
+  }
+
+  function emitImplDeclaration(i: ImplDeclaration) {
+    let functions = Object['assign']({}, i.tra.ty.functions)
+    i.members.forEach(m => functions[m.name.name] = emitFunctionDeclaration(m))
+    return `${emitIdentifier(i.tra.name)}[${getTypeProp(i.ty.ty)}] = {\n${
+      indent(
+        Object.keys(functions).map(f =>
+          `${emitIdentifier({name: f})}: ${
+            typeof functions[f] === 'string'
+              ? functions[f]
+              : `${emitIdentifier(i.tra.name)}.${emitIdentifier({name: f})}`
+          }`)
+      )
+      .join(',\n')
+    }\n}`
+  }
+
+  function emitTraitDeclaration(t: TraitDeclaration) {
+    return `var ${emitIdentifier(t.name)} = {\n${
+      indent(
+        t.members
+          .filter(m => m.body)
+          .map(m => `${emitIdentifier(m.name)}: ${emitFunctionDeclaration(m)}`)
+      )
+      .join(',\n')
+    }\n}`
   }
 
   function emitVariableDeclaration(vd: VariableDeclaration & {scope: any}) {
@@ -275,7 +328,11 @@ export function Emitter() {
   }
 
   function emitExportDirective(e: ExportDirective) {
-    return `export ${emitExpression(e.expression)}`
+    return `export ${
+      e.expression.kind === SyntaxKind.TraitDeclaration
+        ? emitTraitDeclaration(e.expression as TraitDeclaration)
+        : emitExpression(e.expression)
+    }`
   }
 
   function emitImportDirective(i: ImportDirective) {
@@ -335,8 +392,19 @@ export function Emitter() {
     )
   }
 
-  function emitCallExpression(fn: CallExpression) {
-    return `${emitExpression(fn.func)}(${fn.argumentList.map(
+  function emitCallExpression(fn_: CallExpression) {
+    let fn = fn_ as CallExpression & {traitName: any, implementationType: any}
+    let functionName
+
+    if (fn.traitName) {
+      functionName = `${fn.traitName}[${getTypeProp(fn.implementationType)}].${emitIdentifier((fn.func as MemberAccess).member)}.call`
+      fn.argumentList.unshift((fn.func as MemberAccess).object)
+    }
+    else {
+      functionName = emitExpression(fn.func)
+    }
+
+    return `${functionName}(${fn.argumentList.map(
       arg => emitExpression(arg, Context.Value)
     ).join(', ')})`
   }
