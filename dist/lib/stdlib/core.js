@@ -5,11 +5,20 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.Iterable = undefined;
 exports.print = print;
 exports.objectFromList = objectFromList;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+var Iterable = exports.Iterable = {};
+Iterable['$List'] = {
+  skip: function skip(count) {
+    var self = this;
+    return self.slice(count);
+  },
+  skipWhile: function skipWhile(test) {}
+};
 function print(message, a, b, c) {
   var args = [message];
   if (a != _js._undefined) {

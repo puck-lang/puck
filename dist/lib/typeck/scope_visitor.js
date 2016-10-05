@@ -148,7 +148,10 @@ function ScopeVisitor(context, file) {
       };
       return visit.walkIdentifier(self, i);
     },
-    visitImplDeclaration: function visitImplDeclaration(i) {},
+    visitImplDeclaration: function visitImplDeclaration(i) {
+      var self = this;
+      return i.members.forEach(self.visitFunctionDeclaration.bind(self));
+    },
     visitModule: function visitModule(m) {
       var self = this;
       self.scope = m.scope;

@@ -3,8 +3,8 @@ import '../lib/helpers.puck' as {cmd, flag}
 import '../lib/compiler.puck' as {build}
 import '../lib/stdlib/js.puck' as {Array, RegExp, console, process}
 
-let index = process.argv.findIndex(|arg| arg.indexOf('puckc') >= 0)
-let arguments = process.argv.slice(index + 1)
+let argv: List<String> = process.argv
+let arguments = argv.skipWhile(|arg| arg.indexOf('puckc') == -1).skip(1)
 
 let outDir = flag(arguments, '--out-dir', 'dist')
 let outFile = flag(arguments, '--out-file')

@@ -6,6 +6,28 @@ export type Num = {}
 export type String = {}
 
 export type List<E> = {}
+export trait Iterable {
+  /// Returns an Iterable that provides all but the first count elements.
+  // fn skip(self, count: Num): Iterable<E>
+  fn skip(self, count: Num): List<String>
+
+  /// Returns an Iterable that skips leading elements while test is satisfied.
+  // fn skipWhile(self, test: (E) => Bool): Iterable<E>
+  fn skipWhile(self, test: (String) => Bool): List<String>
+}
+
+impl<E> Iterable for List<E> {
+  fn skip(self, count) {
+    self.slice(count)
+  }
+
+  fn skipWhile(self, test) {
+    let index = self.findIndex(|e| not test(e))
+    if index == -1
+      then []
+      else self.slice(index)
+  }
+}
 
 export fn print(message, a, b, c) {
   let mut args = [message]
