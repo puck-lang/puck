@@ -20,8 +20,10 @@ fn buildTestCompiler() {
     cp dist/lib/stdlib/js/js.js .tmp/old/lib/stdlib/js/ && \
     cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ && \
     cp dist/lib/stdlib/js/js.js .tmp/new/lib/stdlib/js/ && \
-    ln -s ../.. .tmp/old/node_modules/puck-lang && \
-    ln -s ../.. .tmp/new/node_modules/puck-lang\
+    mkdir .tmp/{old,new}/node_modules/puck-lang && \
+    ln -s ../lib .tmp/lib && \
+    ln -s ../../../old .tmp/old/node_modules/puck-lang/dist && \
+    ln -s ../../../new .tmp/new/node_modules/puck-lang/dist\
   ')
 }
 
@@ -79,7 +81,7 @@ else if command == 'update-baselines' {
 else if command == 'self-test' {
   buildTestCompiler()
   buildAll('.tmp/new', '.tmp/old')
-  cmd('diff -Nr .tmp/old .tmp/new')
+  cmd('diff --exclude=node_modules -Nr .tmp/old .tmp/new')
   print('done')
 }
 else {
