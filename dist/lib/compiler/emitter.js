@@ -1,6 +1,5 @@
 "use strict";
 var ast_1 = require('./ast');
-var helpers_1 = require('../helpers');
 var jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
@@ -253,15 +252,10 @@ function Emitter() {
             : "{" + i.specifier.members
                 .filter(function (_a) {
                 var property = _a.property, local = _a.local;
-                if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
-                    ['TokenStream', 'InputStream', 'TypeVisitor', 'TopLevelVisitor', 'ScopeVisitor', 'ImportVisitor', 'ImplVisitor']
-                        .indexOf(local.name) == -1) {
-                    return false;
-                }
-                if (!i['module'])
+                if (!i['_module'])
                     return true;
-                var e = i['module'].exports[local.name];
-                return helpers_1.isTypeScopeDeclaration(e.expression);
+                var e = i['_module'].exports[local.name];
+                return e.expression.kind != ast_1.SyntaxKind.TypeDeclaration;
             })
                 .map(function (_a) {
                 var property = _a.property, local = _a.local;

@@ -340,16 +340,10 @@ export function Emitter() {
       ? `* as ${emitIdentifier(i.specifier)}`
       : `{${i.specifier.members
           .filter(({property, local}) => {
-            if (/\.puck$/.test(i.path) && /^[A-Z]/.test(local.name) &&
-              ['TokenStream', 'InputStream', 'TypeVisitor', 'TopLevelVisitor', 'ScopeVisitor', 'ImportVisitor', 'ImplVisitor']
-                .indexOf(local.name) == -1) {
-              return false
-            }
+            if (!i['_module']) return true
+            const e = i['_module'].exports[local.name]
 
-            if (!i['module']) return true
-            const e = i['module'].exports[local.name]
-
-            return isTypeScopeDeclaration(e.expression)
+            return e.expression.kind != SyntaxKind.TypeDeclaration
           })
           .map(({property, local}) => property.name === local.name
             ? emitIdentifier(property)
