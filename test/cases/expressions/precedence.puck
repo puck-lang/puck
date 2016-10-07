@@ -8,3 +8,4 @@ let a = true and (false or true)
 let a = (true or false) and true
 let a = not true and false
 let a = not (true and false)
+let a = 2 * 2 ** 3

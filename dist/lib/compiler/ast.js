@@ -194,9 +194,9 @@ exports.precedence = (_a = {},
     _a[SyntaxKind.PlusToken] = 10,
     _a[SyntaxKind.MinusToken] = 10,
     _a[SyntaxKind.AsteriskToken] = 20,
-    _a[SyntaxKind.AsteriskAsteriskToken] = 20,
     _a[SyntaxKind.SlashToken] = 20,
     _a[SyntaxKind.PercentToken] = 20,
+    _a[SyntaxKind.AsteriskAsteriskToken] = 25,
     _a
 );
 exports.tokenToText = Object['assign'](reverse(exports.textToToken), (_b = {},

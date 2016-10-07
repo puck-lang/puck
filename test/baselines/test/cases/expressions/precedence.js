@@ -14,3 +14,4 @@ a = true && (false || true);
 a = (true || false) && true;
 a = !true && false;
 a = !(true && false);
+a = 2 * Math.pow(2, 3);

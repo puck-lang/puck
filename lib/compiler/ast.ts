@@ -208,9 +208,9 @@ export const precedence = {
   [SyntaxKind.PlusToken]: 10,
   [SyntaxKind.MinusToken]: 10,
   [SyntaxKind.AsteriskToken]: 20,
-  [SyntaxKind.AsteriskAsteriskToken]: 20,
   [SyntaxKind.SlashToken]: 20,
   [SyntaxKind.PercentToken]: 20,
+  [SyntaxKind.AsteriskAsteriskToken]: 25,
 }
 
 export const tokenToText = Object['assign'](reverse(textToToken), {
