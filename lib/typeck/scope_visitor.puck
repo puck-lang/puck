@@ -267,7 +267,7 @@ export fn ScopeVisitor(context, file) {
               if implementations.length > 1
                 then implementations
                   .map(|i| i.tra.functions[name].argumentRange)
-                  .filter(|range: Range<Num>| range.contains(e.argumentList.length))
+                  .filter(|range: Range| range.contains(e.argumentList.length))
               else implementations
 
             if implementations.length > 1 then reportError(e, 'Ambiguous trait call')

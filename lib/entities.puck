@@ -56,7 +56,7 @@ export type TypeParameter = { // + Type
 export type FunctionType = { // + Type
   selfBinding: Binding //?
   arguments: List<Binding>
-  argumentRange: Range<Num>
+  argumentRange: Range
   returnType: Type
   isAbstract: Bool
 }
