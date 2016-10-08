@@ -256,7 +256,11 @@ export fn ScopeVisitor(context, file) {
             let implementations =
               if implementations.length > 1
                 then implementations
-                  .filter(|i| e.scope.getTypeBinding(i.tra.name))
+                  .filter(|i| e.scope.getTypeBinding(
+                    if isTypeInstance(i.tra)
+                      then i.tra.class.name
+                      else i.tra.name
+                  ))
               else implementations
 
             let implementations =

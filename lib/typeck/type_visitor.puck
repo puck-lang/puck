@@ -105,7 +105,7 @@ export fn TypeVisitor(context, file) {
         self.scope = createScope(context, file, self.scope)
         t.scope = self.scope
         visit.walkTraitDeclaration(self, t)
-        t.ty.functions = objectFromList(t.members.map(|m| [m.name.name, m.ty]))
+        Object.assign(t.ty.functions, objectFromList(t.members.map(|m| [m.name.name, m.ty])))
         self.scope = self.scope.parent
       }
     }

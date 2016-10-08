@@ -15,6 +15,9 @@ export trait SelfAware {
 export trait Generic<T> {
   fn generic(a: T): T
 }
+export trait GenericSelf<T> {
+  fn genericSelf(self, a: GenericSelf<T>): T
+}
 
 export type EmptyType = {}
 export type FunctionsType = {
@@ -35,6 +38,10 @@ impl Functions for FunctionsType {
 
 impl<T> Generic<T> for GenericType<T> {
   fn generic(a: T) then a
+}
+
+impl<T> GenericSelf<T> for GenericType<String> {
+  fn genericSelf(self, a: GenericSelf<T>) then a
 }
 
 impl Generic<String> for GenericType<String> {

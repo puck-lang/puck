@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Generic = exports.SelfAware = exports.Functions = exports.Empty = undefined;
+exports.GenericSelf = exports.Generic = exports.SelfAware = exports.Functions = exports.Empty = undefined;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -31,6 +31,7 @@ var SelfAware = exports.SelfAware = {
   }
 };
 var Generic = exports.Generic = {};
+var GenericSelf = exports.GenericSelf = {};
 Empty['$EmptyType'] = {};
 Functions['$EmptyType'] = {
   noBody: function noBody() {
@@ -49,6 +50,12 @@ Functions['$FunctionsType'] = {
 };
 Generic['$GenericType'] = {
   generic: function generic(a) {
+    return a;
+  }
+};
+GenericSelf['$GenericType<String>'] = {
+  genericSelf: function genericSelf(a) {
+    var self = this;
     return a;
   }
 };

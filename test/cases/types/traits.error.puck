@@ -125,6 +125,20 @@ import 'traits.puck' as {FunctionsType}
 let a: FunctionsType = {name: 'a'}
 a.withBody('body')
 
+///// Ambiguous trait call
+import 'traits.puck' as {Generic, GenericType}
+
+export trait GenericSelf<T> {
+  fn generic(self, a: GenericSelf<T>): T
+}
+
+impl<T> GenericSelf<T> for GenericType<T> {
+  fn generic(self, a: GenericSelf<T>) then a
+}
+
+let genericNum: GenericType<Num> = {}
+genericNum.generic(5)
+
 // Todo: Make sure this errors
 //// Bool is not assignable to type Num
 // import 'traits.puck' as {Generic, GenericType}
