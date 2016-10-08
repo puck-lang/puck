@@ -221,23 +221,29 @@ function ScopeVisitor(context, file) {
                 var __PUCK__value__4 = void 0;
                 if (implementations.length > 1) {
                   __PUCK__value__4 = implementations.filter(function (i) {
-                    return e.scope.getTypeBinding(i.tra.name);
+                    var __PUCK__value__5 = void 0;
+                    if ((0, _entities.isTypeInstance)(i.tra)) {
+                      __PUCK__value__5 = i.tra._class.name;
+                    } else {
+                      __PUCK__value__5 = i.tra.name;
+                    };
+                    return e.scope.getTypeBinding(__PUCK__value__5);
                   });
                 } else {
                   __PUCK__value__4 = implementations;
                 };
                 implementations = __PUCK__value__4;
-                var __PUCK__value__5 = void 0;
+                var __PUCK__value__6 = void 0;
                 if (implementations.length > 1) {
-                  __PUCK__value__5 = implementations.map(function (i) {
+                  __PUCK__value__6 = implementations.map(function (i) {
                     return i.tra.functions[name].argumentRange;
                   }).filter(function (range) {
                     return range.start >= e.argumentList.length && range.end >= e.argumentList.length;
                   });
                 } else {
-                  __PUCK__value__5 = implementations;
+                  __PUCK__value__6 = implementations;
                 };
-                implementations = __PUCK__value__5;
+                implementations = __PUCK__value__6;
                 if (implementations.length > 1) {
                   reportError(e, "Ambiguous trait call");
                 };
@@ -252,13 +258,13 @@ function ScopeVisitor(context, file) {
               var implementations = getImplementations(objectType);
               if (implementations.length == 1) {
                 var implementation = implementations[0];
-                var __PUCK__value__6 = void 0;
+                var __PUCK__value__7 = void 0;
                 if ((0, _entities.isTypeInstance)(implementation.tra)) {
-                  __PUCK__value__6 = implementation.tra._class.name;
+                  __PUCK__value__7 = implementation.tra._class.name;
                 } else {
-                  __PUCK__value__6 = implementation.tra.name;
+                  __PUCK__value__7 = implementation.tra.name;
                 };
-                var traitName = __PUCK__value__6;
+                var traitName = __PUCK__value__7;
                 if (!e.scope.getTypeBinding(traitName)) {
                   reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
                 };
@@ -300,17 +306,17 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
-      var __PUCK__value__7 = void 0;
+      var __PUCK__value__8 = void 0;
       if (e.operator.kind == _ast.SyntaxKind.NotKeyword) {
-        __PUCK__value__7 = e.scope.getTypeBinding("Bool").ty;
+        __PUCK__value__8 = e.scope.getTypeBinding("Bool").ty;
       } else {
-        var __PUCK__value__8 = void 0;
+        var __PUCK__value__9 = void 0;
         if (e.operator.kind == _ast.SyntaxKind.MinusToken || e.operator.kind == _ast.SyntaxKind.PlusToken) {
-          __PUCK__value__8 = e.scope.getTypeBinding("Num").ty;
+          __PUCK__value__9 = e.scope.getTypeBinding("Num").ty;
         };
-        __PUCK__value__7 = __PUCK__value__8;
+        __PUCK__value__8 = __PUCK__value__9;
       };
-      return e.ty = __PUCK__value__7;
+      return e.ty = __PUCK__value__8;
     },
     visitWhileExpression: function visitWhileExpression(e) {
       var self = this;

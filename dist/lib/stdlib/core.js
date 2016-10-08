@@ -17,7 +17,17 @@ Iterable['$List'] = {
     var self = this;
     return self.slice(count);
   },
-  skipWhile: function skipWhile(test) {}
+  skipWhile: function skipWhile(test) {
+    var self = this;
+    var index = self.findIndex(function (e) {
+      return !test(e);
+    });
+    if (index == -1) {
+      return [];
+    } else {
+      return self.slice(index);
+    };
+  }
 };
 function print(message, a, b, c) {
   var args = [message];

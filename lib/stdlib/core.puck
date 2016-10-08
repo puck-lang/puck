@@ -6,17 +6,17 @@ export type Num = {}
 export type String = {}
 
 export type List<E> = {}
-export trait Iterable {
+export trait Iterable<E> {
   /// Returns an Iterable that provides all but the first count elements.
   // fn skip(self, count: Num): Iterable<E>
-  fn skip(self, count: Num): List<String>
+  fn skip(self, count: Num): List<E>
 
   /// Returns an Iterable that skips leading elements while test is satisfied.
   // fn skipWhile(self, test: (E) => Bool): Iterable<E>
-  fn skipWhile(self, test: (String) => Bool): List<String>
+  fn skipWhile(self, test: (E) => Bool): List<E>
 }
 
-impl<E> Iterable for List<E> {
+impl<E> Iterable<E> for List<E> {
   fn skip(self, count) {
     self.slice(count)
   }
