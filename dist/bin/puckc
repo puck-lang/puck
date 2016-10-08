@@ -13,8 +13,8 @@ var _compiler = require('./../lib/compiler.js');
 var _js = require('./../lib/stdlib/js.js');
 
 var argv = _js.process.argv;
-var _arguments = _core.Iterable['$List'].skip.call(_core.Iterable['$List'].skipWhile.call(argv, function (arg) {
-  return arg.indexOf("puckc") == -1;
+var _arguments = _core.Iterable['$List'].skip.call(_core.Iterable['$List'].skipUntil.call(argv, function (arg) {
+  return _core.StringTrait['$String'].contains.call(arg, "puckc");
 }), 1);
 var outDir = (0, _helpers.flag)(_arguments, "--out-dir", "dist");
 var outFile = (0, _helpers.flag)(_arguments, "--out-file");

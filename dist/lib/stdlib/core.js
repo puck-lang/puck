@@ -5,23 +5,30 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Iterable = undefined;
+exports.Iterable = exports.StringTrait = undefined;
 exports.print = print;
 exports.objectFromList = objectFromList;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+var StringTrait = exports.StringTrait = {
+  contains: function contains(subStr) {
+    var self = this;
+    return self.indexOf(subStr) >= 0;
+  }
+};
 var Iterable = exports.Iterable = {};
+StringTrait['$String'] = {
+  contains: StringTrait.contains
+};
 Iterable['$List'] = {
   skip: function skip(count) {
     var self = this;
     return self.slice(count);
   },
-  skipWhile: function skipWhile(test) {
+  skipUntil: function skipUntil(test) {
     var self = this;
-    var index = self.findIndex(function (e) {
-      return !test(e);
-    });
+    var index = self.findIndex(test);
     if (index == -1) {
       return [];
     } else {

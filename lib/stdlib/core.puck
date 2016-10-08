@@ -4,16 +4,22 @@ import 'puck:js' as {undefined, console}
 export type Bool = {}
 export type Num = {}
 export type String = {}
+export trait StringTrait {
+  fn contains(self, subStr: String) {
+    self.indexOf(subStr) >= 0
+  }
+}
+impl StringTrait for String {}
 
 export type List<E> = {}
 export trait Iterable<E> {
-  /// Returns an Iterable that provides all but the first count elements.
+  /// Returns an [Iterable] that provides all but the first [count] elements.
   // fn skip(self, count: Num): Iterable<E>
   fn skip(self, count: Num): List<E>
 
-  /// Returns an Iterable that skips leading elements while test is satisfied.
-  // fn skipWhile(self, test: (E) => Bool): Iterable<E>
-  fn skipWhile(self, test: (E) => Bool): List<E>
+  /// Returns an [Iterable] that skips leading elements until [test] is satisfied.
+  // fn skipUntil(self, test: (E) => Bool): Iterable<E>
+  fn skipUntil(self, test: (E) => Bool): List<E>
 }
 
 impl<E> Iterable<E> for List<E> {
@@ -21,8 +27,8 @@ impl<E> Iterable<E> for List<E> {
     self.slice(count)
   }
 
-  fn skipWhile(self, test) {
-    let index = self.findIndex(|e| not test(e))
+  fn skipUntil(self, test) {
+    let index = self.findIndex(test)
     if index == -1
       then []
       else self.slice(index)
