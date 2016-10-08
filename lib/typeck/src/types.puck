@@ -1,10 +1,10 @@
-import 'puck:js' as {undefined}
+import 'puck:js' as {Object, null, undefined}
 import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound}
 import '../../ast/visit.puck' as visit
-import '../../entities.puck' as {isTypeClass, isTypeParameter, Scope, Type, TypeClass}
+import '../../entities.puck' as {isTypeClass, isTypeInstance, isTypeParameter, FunctionType, Scope, Type, TypeClass}
 import 'functions.puck' as {getFunctionTypeName}
 
-export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
+export fn createTypeInstance(class, typeParameters: List<Type>) { // class: TypeClass
   if let instance = class.instances.find(|i|
       i.typeParameters.length == typeParameters.length
   and i.typeParameters.every(|p, i| isSameType(p, typeParameters[i])))
@@ -13,8 +13,9 @@ export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
       let instance = {
         isTrait: class.isTrait
         functions: class.functions
+        properties: class.properties and Object.create(null)
         implementations: class.implementations and []
-        kind: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
+        kind: class.name
         name: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
         class
         typeParameters
@@ -49,7 +50,7 @@ export fn getType(scope: Scope, t) { // t: TypeBound
   }
 }
 
-export fn isAssignable(to: Type, subject: Type) {
+export fn isAssignable(to, subject) { // to: Type, subject: Type
   if not subject or not to then return true
   if isTypeParameter(to) then return true
 
@@ -57,19 +58,20 @@ export fn isAssignable(to: Type, subject: Type) {
 
   if not sameKind then return false
 
-  if sameKind and to.kind == 'Function' {
-    // todo: start, end
-    if to.argumentRange.min < subject.argumentRange.min
-    or to.argumentRange.max > subject.argumentRange.max
-      then return false
-
-    to.arguments.every(fn (toArg, i) {
-      let subjectArg = subject.arguments[i]
-
-      isAssignable(toArg, subjectArg)
-    })
-  }
+  if sameKind and to.kind == 'Function'
+    then isFunctionAssignable(to, subject)
   else true
+}
+
+fn isFunctionAssignable(to: FunctionType, subject: FunctionType) {
+  if not to.argumentRange.isSubsetOf(subject.argumentRange)
+    then return false
+
+  to.arguments.every(fn (toArg, i) {
+    let subjectArg = subject.arguments[i]
+
+    isAssignable(toArg, subjectArg)
+  })
 }
 
 export fn isSameType(a, b) {

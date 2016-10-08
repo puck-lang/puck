@@ -190,25 +190,32 @@ export fn parse(input) { // : TokenStream
   fn maybeMemberAccess(token: Expression): Expression {
     if isToken(SyntaxKind.DotToken) {
       input.next()
-      expect(SyntaxKind.Identifier, 'identifier')
-      return {
-        kind: SyntaxKind.MemberAccess,
-        object: token,
-        member: maybeMemberAccess(input.next())
-      }
+      maybeAccess({
+        kind: SyntaxKind.MemberAccess
+        object: token
+        member: consumeToken(SyntaxKind.Identifier, 'identifier')
+      })
     }
+    else token
+  }
+
+  fn maybeIndexAccess(token: Expression): Expression {
     if isToken(SyntaxKind.OpenBracketToken) {
       input.next()
       let mut index = parseExpression()
       consumeToken(SyntaxKind.CloseBracketToken)
 
-      return maybeMemberAccess({
-        kind: SyntaxKind.IndexAccess,
-        object: token,
-        index,
+      maybeAccess({
+        kind: SyntaxKind.IndexAccess
+        object: token
+        index
       })
     }
-    token
+    else token
+  }
+
+  fn maybeAccess(token: Expression): Expression {
+    maybeIndexAccess(maybeMemberAccess(token))
   }
 
   // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T): Array<T> {
@@ -616,14 +623,14 @@ export fn parse(input) { // : TokenStream
       else if isToken(SyntaxKind.TrueKeyword)
            or isToken(SyntaxKind.FalseKeyword)
         then
-          maybeMemberAccess({
+          maybeAccess({
             kind: SyntaxKind.BooleanLiteral,
             value: input.next().kind == SyntaxKind.TrueKeyword,
           })
       else if isToken(SyntaxKind.NumberLiteral)
            or isToken(SyntaxKind.StringLiteral)
            or isToken(SyntaxKind.Identifier)
-        then maybeMemberAccess(input.next())
+        then maybeAccess(input.next())
       else unexpected()
     })())
   }
@@ -722,7 +729,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseExpression(precedence = 0): Expression {
-    maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), precedence)))
+    maybeCall(maybeAccess(maybeBinary(parseAtom(), precedence)))
   }
 
   parseModule()

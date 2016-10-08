@@ -41,6 +41,10 @@ RangeTrait['$Range<Num>'] = {
   contains: function contains(item) {
     var self = this;
     return self.start <= item && item < self.end;
+  },
+  isSubsetOf: function isSubsetOf(other) {
+    var self = this;
+    return self.start >= other.start && other.end >= self.end;
   }
 };
 function print(message, a, b, c) {
@@ -57,7 +61,7 @@ function print(message, a, b, c) {
   return _js.console.log.apply(_js.console, args);
 };
 function objectFromList(list) {
-  var object = {};
+  var object = _js._Object.create(_js._null);
   list.forEach(function (item) {
     return object[item[0]] = item[1];
   });

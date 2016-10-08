@@ -62,7 +62,7 @@ export fn ScopeVisitor(context, file) {
   let mut importDirective: ImportDirective
   let reportError = context.reportError.bind(context, file)
 
-  fn getBinding(token: Token)
+  fn getBinding(token: Expression)
     then if token.kind == SyntaxKind.Identifier
       then token.scope.getBinding(token.name)
     else if token.kind == SyntaxKind.MemberAccess
@@ -343,6 +343,9 @@ export fn ScopeVisitor(context, file) {
     visitMemberAccess: |self, mut a: MemberAccess| {
       a.scope = self.scope
       visit.walkExpression(self, a.object)
+      if a.object.ty and isStruct(a.object.ty) {
+        a.ty = a.object.ty.properties[a.member.name]
+      }
     }
 
     visitBreak: |self, mut b: Token| {

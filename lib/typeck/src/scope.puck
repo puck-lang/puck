@@ -1,9 +1,10 @@
-import 'puck:js' as {Object, undefined}
+import 'puck:js' as {Object, null, undefined}
 import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {TypeDeclaration}
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {Binding, isTypeClass}
 import 'range.puck' as {getRange}
+import 'types.puck' as {getType}
 
 export fn createScope(context, file, parent = false) {
   let reportError = context.reportError.bind(context, file)
@@ -30,7 +31,7 @@ export fn createScope(context, file, parent = false) {
       }
       bindings[name] = binding
     }
-    defineType: |t: TypeDeclaration| {
+    defineType: |self, t: TypeDeclaration| {
       let name = t.name.name
       if typeBindings[name]
         then reportError(t, 'Type $name is already defined')
@@ -53,9 +54,13 @@ export fn createScope(context, file, parent = false) {
             }
             else if t.kind == SyntaxKind.TypeDeclaration {
               ty.implementations = []
+              ty.properties = Object.create(null)
             }
             else if t.kind == SyntaxKind.TypeParameter {
               ty.isTypeParameter = true
+              if t.defaultValue {
+                ty.defaultValue = getType(self, t.defaultValue)
+              }
             }
             if isTypeClass(ty) {
               ty.instances = []

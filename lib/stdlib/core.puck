@@ -1,5 +1,5 @@
 //#![no_core]
-import 'puck:js' as {undefined, console}
+import 'puck:js' as {Object, console, null, undefined}
 
 export type Bool = {}
 export type Num = {}
@@ -45,10 +45,14 @@ export type Range<Idx=Num> = {
 }
 export trait RangeTrait<Idx> {
   fn contains(self, item: Idx): Bool
+  fn isSubsetOf(self, other: Range<Idx>): Bool
 }
 impl RangeTrait<Num> for Range<Num> {
   fn contains(self, item) {
     self.start <= item and item < self.end
+  }
+  fn isSubsetOf(self, other) {
+    self.start >= other.start and other.end >= self.end
   }
 }
 
@@ -68,7 +72,7 @@ export fn print(message, a, b, c) {
 }
 
 export fn objectFromList<T>(list: List<List<T>>) {
-  let mut object = {}
+  let mut object = Object.create(null)
   list.forEach(|item| object[item[0]] = item[1])
   object
 }

@@ -38,10 +38,9 @@ function createTypeInstance(_class, typeParameters) {
     instance = {
       isTrait: _class.isTrait,
       functions: _class.functions,
+      properties: _class.properties && _js._Object.create(_js._null),
       implementations: _class.implementations && [],
-      kind: _class.name + "<" + typeParameters.map(function (p) {
-        return p.name;
-      }).join(", ") + ">",
+      kind: _class.name,
       name: _class.name + "<" + typeParameters.map(function (p) {
         return p.name;
       }).join(", ") + ">",
@@ -98,16 +97,19 @@ function isAssignable(to, subject) {
     return false;
   };
   if (sameKind && to.kind == "Function") {
-    if (to.argumentRange.min < subject.argumentRange.min || to.argumentRange.max > subject.argumentRange.max) {
-      return false;
-    };
-    return to._arguments.every(function (toArg, i) {
-      var subjectArg = subject._arguments[i];
-      return isAssignable(toArg, subjectArg);
-    });
+    return isFunctionAssignable(to, subject);
   } else {
     return true;
   };
+};
+function isFunctionAssignable(to, subject) {
+  if (!_core.RangeTrait['$Range<Num>'].isSubsetOf.call(to.argumentRange, subject.argumentRange)) {
+    return false;
+  };
+  return to._arguments.every(function (toArg, i) {
+    var subjectArg = subject._arguments[i];
+    return isAssignable(toArg, subjectArg);
+  });
 };
 function isSameType(a, b) {
   return a.kind == b.kind;

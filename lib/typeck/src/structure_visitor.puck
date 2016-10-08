@@ -82,8 +82,8 @@ export let structureVisitor = {
   visitTypeParameter: |self, mut t: TypeParameter| {
     if not t.scope {
       t.scope = self.scope
-      self.scope.defineType(t)
       visit.walkTypeParameter(self, t)
+      self.scope.defineType(t)
     }
   }
   visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer| {

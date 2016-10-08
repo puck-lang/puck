@@ -147,24 +147,31 @@ function parse(input) {
   function maybeMemberAccess(token) {
     if (isToken(_ast.SyntaxKind.DotToken)) {
       input.next();
-      expect(_ast.SyntaxKind.Identifier, "identifier");
-      return {
+      return maybeAccess({
         kind: _ast.SyntaxKind.MemberAccess,
         object: token,
-        member: maybeMemberAccess(input.next())
-      };
+        member: consumeToken(_ast.SyntaxKind.Identifier, "identifier")
+      });
+    } else {
+      return token;
     };
+  };
+  function maybeIndexAccess(token) {
     if (isToken(_ast.SyntaxKind.OpenBracketToken)) {
       input.next();
       var index = parseExpression();
       consumeToken(_ast.SyntaxKind.CloseBracketToken);
-      return maybeMemberAccess({
+      return maybeAccess({
         kind: _ast.SyntaxKind.IndexAccess,
         object: token,
         index: index
       });
+    } else {
+      return token;
     };
-    return token;
+  };
+  function maybeAccess(token) {
+    return maybeIndexAccess(maybeMemberAccess(token));
   };
   function delimited(start, stop, separator, parser) {
     var consumeStop = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
@@ -608,13 +615,13 @@ function parse(input) {
                               };
                             } else {
                               if (isToken(_ast.SyntaxKind.TrueKeyword) || isToken(_ast.SyntaxKind.FalseKeyword)) {
-                                return maybeMemberAccess({
+                                return maybeAccess({
                                   kind: _ast.SyntaxKind.BooleanLiteral,
                                   value: input.next().kind == _ast.SyntaxKind.TrueKeyword
                                 });
                               } else {
                                 if (isToken(_ast.SyntaxKind.NumberLiteral) || isToken(_ast.SyntaxKind.StringLiteral) || isToken(_ast.SyntaxKind.Identifier)) {
-                                  return maybeMemberAccess(input.next());
+                                  return maybeAccess(input.next());
                                 } else {
                                   return unexpected();
                                 };
@@ -767,7 +774,7 @@ function parse(input) {
   function parseExpression() {
     var precedence = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
-    return maybeCall(maybeMemberAccess(maybeBinary(parseAtom(), precedence)));
+    return maybeCall(maybeAccess(maybeBinary(parseAtom(), precedence)));
   };
   return parseModule();
 }

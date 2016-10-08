@@ -21,6 +21,8 @@ var _entities = require('./../../entities.js');
 
 var _range = require('./range.js');
 
+var _types = require('./types.js');
+
 function createScope(context, file) {
   var parent = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
@@ -59,6 +61,7 @@ function createScope(context, file) {
       return bindings[name] = binding;
     },
     defineType: function defineType(t) {
+      var self = this;
       var name = t.name.name;
       if (typeBindings[name]) {
         reportError(t, "Type " + name + " is already defined");
@@ -84,9 +87,13 @@ function createScope(context, file) {
         } else {
           if (t.kind == _ast.SyntaxKind.TypeDeclaration) {
             _ty.implementations = [];
+            _ty.properties = _js._Object.create(_js._null);
           } else {
             if (t.kind == _ast.SyntaxKind.TypeParameter) {
               _ty.isTypeParameter = true;
+              if (t.defaultValue) {
+                _ty.defaultValue = (0, _types.getType)(self, t.defaultValue);
+              };
             };
           };
         };

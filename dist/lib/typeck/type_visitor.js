@@ -106,9 +106,9 @@ function TypeVisitor(context, file) {
         self.scope = (0, _scope.createScope)(context, file, self.scope);
         t.scope = self.scope;
         visit.walkTypeDeclaration(self, t);
-        t.ty.properties = (0, _core.objectFromList)(t.properties.map(function (p) {
+        _js._Object.assign(t.ty.properties, (0, _core.objectFromList)(t.properties.map(function (p) {
           return [p.name.name, p.typeBound.ty];
-        }));
+        })));
         return self.scope = self.scope.parent;
       };
     },

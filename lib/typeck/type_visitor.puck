@@ -118,7 +118,7 @@ export fn TypeVisitor(context, file) {
         t.scope = self.scope
         visit.walkTypeDeclaration(self, t)
 
-        t.ty.properties = objectFromList(t.properties.map(|p| [p.name.name, p.typeBound.ty]))
+        Object.assign(t.ty.properties, objectFromList(t.properties.map(|p| [p.name.name, p.typeBound.ty])))
 
         self.scope = self.scope.parent
       }

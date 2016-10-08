@@ -101,8 +101,8 @@ var structureVisitor = exports.structureVisitor = {
     var self = this;
     if (!t.scope) {
       t.scope = self.scope;
-      self.scope.defineType(t);
-      return visit.walkTypeParameter(self, t);
+      visit.walkTypeParameter(self, t);
+      return self.scope.defineType(t);
     };
   },
   visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer) {

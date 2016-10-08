@@ -1,0 +1,5 @@
+///// Num is not assignable to type String
+fn a(b: String) {}
+type A = {b: Num}
+let c: A = {b: 5}
+a(c.b)

@@ -333,7 +333,10 @@ function ScopeVisitor(context, file) {
     visitMemberAccess: function visitMemberAccess(a) {
       var self = this;
       a.scope = self.scope;
-      return visit.walkExpression(self, a.object);
+      visit.walkExpression(self, a.object);
+      if (a.object.ty && (0, _entities.isStruct)(a.object.ty)) {
+        return a.ty = a.object.ty.properties[a.member.name];
+      };
     },
     visitBreak: function visitBreak(b) {
       var self = this;
