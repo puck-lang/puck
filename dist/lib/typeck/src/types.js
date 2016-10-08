@@ -80,7 +80,7 @@ function getType(scope, t) {
       _arguments: _arguments,
       argumentRange: {
         start: _arguments.length,
-        end: _arguments.length
+        end: _arguments.length + 1
       },
       returnType: returnType
     };

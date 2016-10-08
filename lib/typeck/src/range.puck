@@ -1,8 +1,3 @@
-export type Range = {
-  start: Num
-  end: Num
-}
-
 export fn getRange<T>(parameters: List<T>, isOptional: (T) => Bool, reportError, name: String): Range {
   let mut firstOptional = parameters.length
   let mut hasOptional = false
@@ -19,13 +14,13 @@ export fn getRange<T>(parameters: List<T>, isOptional: (T) => Bool, reportError,
 
   {
     start: firstOptional
-    end: parameters.length
+    end: parameters.length + 1
   }
 }
 
 export fn checkRange<T>(arguments: List<T>, range: Range, argumentName: String, subjectName: String) {
   let argumentCount = arguments.length
-  let max = range.end
+  let max = range.end - 1
   let min = range.start
   let error =
     if argumentCount < min

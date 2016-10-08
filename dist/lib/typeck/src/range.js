@@ -25,12 +25,12 @@ function getRange(parameters, isOptional, reportError, name) {
   });
   return {
     start: firstOptional,
-    end: parameters.length
+    end: parameters.length + 1
   };
 };
 function checkRange(_arguments, range, argumentName, subjectName) {
   var argumentCount = _arguments.length;
-  var max = range.end;
+  var max = range.end - 1;
   var min = range.start;
   var __PUCK__value__1 = void 0;
   if (argumentCount < min) {

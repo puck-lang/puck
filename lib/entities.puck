@@ -3,7 +3,6 @@ import 'ast/ast.puck' as {
   Identifier
   Module
 }
-import 'typeck/src/range.puck' as {Range}
 
 export type File = {
   fileName: String

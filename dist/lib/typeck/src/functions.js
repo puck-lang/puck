@@ -60,7 +60,7 @@ function createFunctionType(scope, f, reportError) {
   } else {
     __PUCK__value__4 = {
       start: 0,
-      end: 0
+      end: 1
     };
   };
   return {

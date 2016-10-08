@@ -43,7 +43,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import 'src/range.puck' as {Range, checkRange}
+import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
 import 'src/types.puck' as {getType, isAssignable, isSameType}
@@ -267,7 +267,7 @@ export fn ScopeVisitor(context, file) {
               if implementations.length > 1
                 then implementations
                   .map(|i| i.tra.functions[name].argumentRange)
-                  .filter(|range| range.start >= e.argumentList.length and range.end >= e.argumentList.length)
+                  .filter(|range: Range<Num>| range.contains(e.argumentList.length))
               else implementations
 
             if implementations.length > 1 then reportError(e, 'Ambiguous trait call')

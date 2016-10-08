@@ -43,7 +43,7 @@ export fn getType(scope: Scope, t) { // t: TypeBound
       kind: 'Function'
       name: getFunctionTypeName(arguments, returnType)
       arguments
-      argumentRange: {start: arguments.length, end: arguments.length}
+      argumentRange: {start: arguments.length, end: arguments.length + 1}
       returnType
     }
   }

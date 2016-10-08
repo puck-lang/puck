@@ -15,8 +15,6 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 require('./ast/ast.js');
 
-require('./typeck/src/range.js');
-
 function isStruct(ty) {
   return ty.implementations;
 };

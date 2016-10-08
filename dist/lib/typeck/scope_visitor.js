@@ -238,7 +238,7 @@ function ScopeVisitor(context, file) {
                   __PUCK__value__6 = implementations.map(function (i) {
                     return i.tra.functions[name].argumentRange;
                   }).filter(function (range) {
-                    return range.start >= e.argumentList.length && range.end >= e.argumentList.length;
+                    return _core.RangeTrait['$Range<Num>'].contains.call(range, e.argumentList.length);
                   });
                 } else {
                   __PUCK__value__6 = implementations;

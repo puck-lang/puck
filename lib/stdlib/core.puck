@@ -35,6 +35,23 @@ impl<E> Iterable<E> for List<E> {
   }
 }
 
+/// A (half-open) range which is bounded at both ends: { x | start <= x < end }.
+/// Use start..end (two dots) for its shorthand.
+export type Range<Idx=Num> = {
+  /// The lower bound of the range (inclusive).
+  start: Idx
+  /// The upper bound of the range (exclusive).
+  end: Idx
+}
+export trait RangeTrait<Idx> {
+  fn contains(self, item: Idx): Bool
+}
+impl RangeTrait<Num> for Range<Num> {
+  fn contains(self, item) {
+    self.start <= item and item < self.end
+  }
+}
+
 export fn print(message, a, b, c) {
   let mut args = [message]
   if a != undefined {

@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Iterable = exports.StringTrait = undefined;
+exports.RangeTrait = exports.Iterable = exports.StringTrait = undefined;
 exports.print = print;
 exports.objectFromList = objectFromList;
 
@@ -18,6 +18,7 @@ var StringTrait = exports.StringTrait = {
   }
 };
 var Iterable = exports.Iterable = {};
+var RangeTrait = exports.RangeTrait = {};
 StringTrait['$String'] = {
   contains: StringTrait.contains
 };
@@ -34,6 +35,12 @@ Iterable['$List'] = {
     } else {
       return self.slice(index);
     };
+  }
+};
+RangeTrait['$Range<Num>'] = {
+  contains: function contains(item) {
+    var self = this;
+    return self.start <= item && item < self.end;
   }
 };
 function print(message, a, b, c) {

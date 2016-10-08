@@ -44,7 +44,7 @@ import '../ast/ast.puck' as {
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/functions.puck' as {checkFunctionAssignability}
-import 'src/range.puck' as {Range, checkRange}
+import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {
