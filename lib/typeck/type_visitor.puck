@@ -117,6 +117,7 @@ export fn TypeVisitor(context, file) {
         self.scope = createScope(context, file, self.scope)
         t.scope = self.scope
         visit.walkTypeDeclaration(self, t)
+        t.typeParameters.forEach(|p| t.ty.typeParameters.push(p.ty))
 
         Object.assign(t.ty.properties, objectFromList(t.properties.map(|p| [p.name.name, p.typeBound.ty])))
 

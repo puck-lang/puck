@@ -27,6 +27,15 @@ var _functions = require('./functions.js');
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function createTypeInstance(_class, typeParameters) {
+  var __PUCK__value__1 = void 0;
+  if (typeParameters.length < _class.parameterRange.end - 1) {
+    __PUCK__value__1 = typeParameters.concat(_class.typeParameters.slice(typeParameters.length).map(function (p) {
+      return p.defaultValue;
+    }));
+  } else {
+    __PUCK__value__1 = typeParameters;
+  };
+  typeParameters = __PUCK__value__1;
   var instance = void 0;;
   if (instance = _class.instances.find(function (i) {
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
@@ -99,7 +108,13 @@ function isAssignable(to, subject) {
   if (sameKind && to.kind == "Function") {
     return isFunctionAssignable(to, subject);
   } else {
-    return true;
+    if ((0, _entities.isTypeInstance)(to) && (0, _entities.isTypeInstance)(subject)) {
+      return subject.typeParameters.every(function (p, i) {
+        return isAssignable(to.typeParameters[i], p);
+      });
+    } else {
+      return true;
+    };
   };
 };
 function isFunctionAssignable(to, subject) {

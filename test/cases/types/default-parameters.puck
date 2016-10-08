@@ -1,0 +1,10 @@
+type Default<A=Num> = {
+  value: A
+}
+trait DefaultTrait {
+  fn method(self) {}
+}
+impl DefaultTrait for Default<Num> {}
+
+let a: Default = {value: 5}
+a.method()

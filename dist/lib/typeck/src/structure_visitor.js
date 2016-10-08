@@ -102,7 +102,8 @@ var structureVisitor = exports.structureVisitor = {
     if (!t.scope) {
       t.scope = self.scope;
       visit.walkTypeParameter(self, t);
-      return self.scope.defineType(t);
+      var binding = self.scope.defineType(t);
+      return t.ty = binding.ty;
     };
   },
   visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer) {

@@ -53,7 +53,7 @@ function Emitter() {
         }
     }
     function getTypeProp(type) {
-        if (type.typeParameters && type.typeParameters.some(function (p) { return p.isTypeParameter; })) {
+        if (type._class && type.typeParameters.some(function (p) { return p.isTypeParameter; })) {
             type = type._class;
         }
         return "'$" + type.name + "'";

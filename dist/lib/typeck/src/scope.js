@@ -87,6 +87,7 @@ function createScope(context, file) {
         } else {
           if (t.kind == _ast.SyntaxKind.TypeDeclaration) {
             _ty.implementations = [];
+            _ty.typeParameters = [];
             _ty.properties = _js._Object.create(_js._null);
           } else {
             if (t.kind == _ast.SyntaxKind.TypeParameter) {

@@ -54,6 +54,7 @@ export fn createScope(context, file, parent = false) {
             }
             else if t.kind == SyntaxKind.TypeDeclaration {
               ty.implementations = []
+              ty.typeParameters = []
               ty.properties = Object.create(null)
             }
             else if t.kind == SyntaxKind.TypeParameter {

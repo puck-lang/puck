@@ -98,7 +98,7 @@ export function Emitter() {
   }
 
   function getTypeProp(type) {
-    if (type.typeParameters && type.typeParameters.some(p => p.isTypeParameter)) {
+    if (type._class && type.typeParameters.some(p => p.isTypeParameter)) {
       type = type._class
     }
 

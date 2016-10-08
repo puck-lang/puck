@@ -39,6 +39,7 @@ export type Implementation = {
 /// Represents a generic type like List<T>
 export type TypeClass = { // + Type
   parameterRange: Range
+  typeParameters: List<TypeParameter>
   instances: List<TypeInstance>
 }
 
@@ -46,6 +47,9 @@ export type TypeClass = { // + Type
 export type TypeInstance = { // + Type
   class: TypeClass
   typeParameters: List<Type>
+}
+export type TypeParameter = { // + Type
+  defaultValue: Type
 }
 
 /// Represents a function type (Num, Num) => Bool

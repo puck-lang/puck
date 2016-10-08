@@ -5,6 +5,15 @@ import '../../entities.puck' as {isTypeClass, isTypeInstance, isTypeParameter, F
 import 'functions.puck' as {getFunctionTypeName}
 
 export fn createTypeInstance(class, typeParameters: List<Type>) { // class: TypeClass
+  let typeParameters =
+    if typeParameters.length < class.parameterRange.end - 1 {
+      typeParameters.concat(
+        class.typeParameters
+          .slice(typeParameters.length)
+          .map(|p| p.defaultValue)
+      )
+    }
+    else typeParameters
   if let instance = class.instances.find(|i|
       i.typeParameters.length == typeParameters.length
   and i.typeParameters.every(|p, i| isSameType(p, typeParameters[i])))
@@ -60,6 +69,8 @@ export fn isAssignable(to, subject) { // to: Type, subject: Type
 
   if sameKind and to.kind == 'Function'
     then isFunctionAssignable(to, subject)
+  else if isTypeInstance(to) and isTypeInstance(subject)
+    then subject.typeParameters.every(|p, i| isAssignable(to.typeParameters[i], p))
   else true
 }
 
