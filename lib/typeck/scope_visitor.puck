@@ -169,7 +169,7 @@ export fn ScopeVisitor(context, file) {
       if not f.hoisting or f.hoisted {
         self.scope = f.scope
 
-        f.parameterList.forEach(self.visitVariableDeclaration.bind(self))
+        f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
         if f.body then self.visitBlock(f.body)
 
         self.scope = self.scope.parent
@@ -200,11 +200,19 @@ export fn ScopeVisitor(context, file) {
       self.scope = self.scope.parent
     }
     visitTypeDeclaration: |self, mut t: TypeDeclaration| {}
-    visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer| {
+    visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, ty| {
       structureVisitor.visitVariableDeclaration.call(
         self
         d
-        visitInitializer or self.visitExpression.bind(self)
+        if visitInitializer
+          then visitInitializer
+          else |e| {
+            let parentAssignedTo = self.assignedTo
+            self.assignedTo = d
+            self.visitExpression(e)
+            self.assignedTo = parentAssignedTo
+          }
+        ty
       )
     }
 
@@ -228,9 +236,9 @@ export fn ScopeVisitor(context, file) {
       e.scope = self.scope
       visit.walkBinaryExpression(self, e)
     }
-    visitCallExpression: |self, mut e: CallExpression| {
+    visitCallExpression: |mut self, mut e: CallExpression| {
       e.scope = self.scope
-      visit.walkCallExpression(self, e)
+      self.visitExpression(e.func)
 
       let mut functionType = e.func.ty
 
@@ -295,6 +303,12 @@ export fn ScopeVisitor(context, file) {
           }
         }
       }
+      let parentAssignedTo = self.assignedTo
+      e.argumentList.forEach(|a, i| {
+        self.assignedTo = if functionType then functionType.arguments[i]
+        self.visitExpression(a)
+      })
+      self.assignedTo = parentAssignedTo
 
       if functionType {
         checkFunctionCall(functionType, e)

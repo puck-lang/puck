@@ -21,7 +21,7 @@ var _types = require('./types.js');
 
 function getFunctionTypeName(_arguments, returnType) {
   return "(" + _arguments.map(function (a) {
-    return a && a.name || "??";
+    return a.ty && a.ty.name || "??";
   }).join(", ") + ") => " + (returnType && returnType.name || "??");
 };
 function createFunctionType(scope, f, reportError) {

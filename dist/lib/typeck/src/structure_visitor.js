@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.structureVisitor = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 exports.notAssignableError = notAssignableError;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -39,30 +42,48 @@ var structureVisitor = exports.structureVisitor = {
   visitFunctionDeclaration: function visitFunctionDeclaration(f) {
     var self = this;
     if (!f.scope) {
-      self.scope = self.scope.createChild();
-      f.scope = self.scope;
-      if (f.typeParameters) {
-        f.typeParameters.forEach(self.visitTypeParameter.bind(self));
-      };
-      f.parameterList.forEach(self.visitFunctionParameter.bind(self));
-      if (f.returnType) {
-        self.visitTypeBound(f.returnType);
-      };
-      f.ty = (0, _functions.createFunctionType)(f.scope, f, self.reportError);
-      if (f.name) {
-        f.scope.parent.define({
-          name: f.name.name,
-          token: f,
-          mutable: false,
-          ty: f.ty
+      var _ret = function () {
+        self.scope = self.scope.createChild();
+        f.scope = self.scope;
+        var __PUCK__value__1 = void 0;
+        if (self.assignedTo) {
+          __PUCK__value__1 = self.assignedTo.ty;
+        };
+        var assignedTo = __PUCK__value__1;
+        if (f.typeParameters) {
+          f.typeParameters.forEach(self.visitTypeParameter.bind(self));
+        };
+        f.parameterList.forEach(function (p, i) {
+          var __PUCK__value__2 = void 0;
+          if (assignedTo) {
+            __PUCK__value__2 = assignedTo._arguments[i].ty;
+          };
+          var ty = __PUCK__value__2;
+          return self.visitFunctionParameter(p, ty);
         });
-      };
-      return self.scope = f.scope.parent;
+        if (f.returnType) {
+          self.visitTypeBound(f.returnType);
+        };
+        f.ty = (0, _functions.createFunctionType)(f.scope, f, self.reportError);
+        if (f.name) {
+          f.scope.parent.define({
+            name: f.name.name,
+            token: f,
+            mutable: false,
+            ty: f.ty
+          });
+        };
+        return {
+          v: self.scope = f.scope.parent
+        };
+      }();
+
+      if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
     };
   },
-  visitFunctionParameter: function visitFunctionParameter(v) {
+  visitFunctionParameter: function visitFunctionParameter(v, ty) {
     var self = this;
-    return self.visitVariableDeclaration(v, self.visitLiteral.bind(self));
+    return self.visitVariableDeclaration(v, self.visitLiteral.bind(self), ty);
   },
   visitFunctionTypeBound: function visitFunctionTypeBound(t) {
     var self = this;
@@ -106,7 +127,7 @@ var structureVisitor = exports.structureVisitor = {
       return t.ty = binding.ty;
     };
   },
-  visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer) {
+  visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer, ty) {
     var self = this;
     if (d.scope) {
       return _js._undefined;
@@ -115,7 +136,7 @@ var structureVisitor = exports.structureVisitor = {
     if (d.typeBound) {
       self.visitTypeBound(d.typeBound);
     };
-    d.ty = (0, _types.getType)(d.scope, d.typeBound);
+    d.ty = (0, _types.getType)(d.scope, d.typeBound) || ty;
     d.binding = d.scope.define({
       name: d.identifier.name,
       mutable: d.mutable,

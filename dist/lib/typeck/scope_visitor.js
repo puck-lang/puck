@@ -130,7 +130,9 @@ function ScopeVisitor(context, file) {
       _structure_visitor.structureVisitor.visitFunctionDeclaration.call(self, f);
       if (!f.hoisting || f.hoisted) {
         self.scope = f.scope;
-        f.parameterList.forEach(self.visitVariableDeclaration.bind(self));
+        f.parameterList.forEach(function (p) {
+          return self.visitVariableDeclaration(p);
+        });
         if (f.body) {
           self.visitBlock(f.body);
         };
@@ -166,9 +168,20 @@ function ScopeVisitor(context, file) {
       return self.scope = self.scope.parent;
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {},
-    visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer) {
+    visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer, ty) {
       var self = this;
-      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, visitInitializer || self.visitExpression.bind(self));
+      var __PUCK__value__3 = void 0;
+      if (visitInitializer) {
+        __PUCK__value__3 = visitInitializer;
+      } else {
+        __PUCK__value__3 = function __PUCK__value__3(e) {
+          var parentAssignedTo = self.assignedTo;
+          self.assignedTo = d;
+          self.visitExpression(e);
+          return self.assignedTo = parentAssignedTo;
+        };
+      };
+      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, __PUCK__value__3, ty);
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -197,7 +210,7 @@ function ScopeVisitor(context, file) {
     visitCallExpression: function visitCallExpression(e) {
       var self = this;
       e.scope = self.scope;
-      visit.walkCallExpression(self, e);
+      self.visitExpression(e.func);
       var functionType = e.func.ty;
       if (e.func.kind == _ast.SyntaxKind.MemberAccess && e.func.object.ty) {
         (function () {
@@ -218,32 +231,32 @@ function ScopeVisitor(context, file) {
                 var implementations = ty.implementations.filter(function (i) {
                   return i.tra.functions[name];
                 });
-                var __PUCK__value__4 = void 0;
+                var __PUCK__value__5 = void 0;
                 if (implementations.length > 1) {
-                  __PUCK__value__4 = implementations.filter(function (i) {
-                    var __PUCK__value__5 = void 0;
+                  __PUCK__value__5 = implementations.filter(function (i) {
+                    var __PUCK__value__6 = void 0;
                     if ((0, _entities.isTypeInstance)(i.tra)) {
-                      __PUCK__value__5 = i.tra._class.name;
+                      __PUCK__value__6 = i.tra._class.name;
                     } else {
-                      __PUCK__value__5 = i.tra.name;
+                      __PUCK__value__6 = i.tra.name;
                     };
-                    return e.scope.getTypeBinding(__PUCK__value__5);
+                    return e.scope.getTypeBinding(__PUCK__value__6);
                   });
                 } else {
-                  __PUCK__value__4 = implementations;
+                  __PUCK__value__5 = implementations;
                 };
-                implementations = __PUCK__value__4;
-                var __PUCK__value__6 = void 0;
+                implementations = __PUCK__value__5;
+                var __PUCK__value__7 = void 0;
                 if (implementations.length > 1) {
-                  __PUCK__value__6 = implementations.map(function (i) {
+                  __PUCK__value__7 = implementations.map(function (i) {
                     return i.tra.functions[name].argumentRange;
                   }).filter(function (range) {
                     return _core.RangeTrait['$Range<Num>'].contains.call(range, e.argumentList.length);
                   });
                 } else {
-                  __PUCK__value__6 = implementations;
+                  __PUCK__value__7 = implementations;
                 };
-                implementations = __PUCK__value__6;
+                implementations = __PUCK__value__7;
                 if (implementations.length > 1) {
                   reportError(e, "Ambiguous trait call");
                 };
@@ -258,13 +271,13 @@ function ScopeVisitor(context, file) {
               var implementations = getImplementations(objectType);
               if (implementations.length == 1) {
                 var implementation = implementations[0];
-                var __PUCK__value__7 = void 0;
+                var __PUCK__value__8 = void 0;
                 if ((0, _entities.isTypeInstance)(implementation.tra)) {
-                  __PUCK__value__7 = implementation.tra._class.name;
+                  __PUCK__value__8 = implementation.tra._class.name;
                 } else {
-                  __PUCK__value__7 = implementation.tra.name;
+                  __PUCK__value__8 = implementation.tra.name;
                 };
-                var traitName = __PUCK__value__7;
+                var traitName = __PUCK__value__8;
                 if (!e.scope.getTypeBinding(traitName)) {
                   reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
                 };
@@ -276,6 +289,16 @@ function ScopeVisitor(context, file) {
           };
         })();
       };
+      var parentAssignedTo = self.assignedTo;
+      e.argumentList.forEach(function (a, i) {
+        var __PUCK__value__9 = void 0;
+        if (functionType) {
+          __PUCK__value__9 = functionType._arguments[i];
+        };
+        self.assignedTo = __PUCK__value__9;
+        return self.visitExpression(a);
+      });
+      self.assignedTo = parentAssignedTo;
       if (functionType) {
         checkFunctionCall(functionType, e);
         return e.ty = functionType.returnType;
@@ -306,17 +329,17 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
-      var __PUCK__value__8 = void 0;
+      var __PUCK__value__10 = void 0;
       if (e.operator.kind == _ast.SyntaxKind.NotKeyword) {
-        __PUCK__value__8 = e.scope.getTypeBinding("Bool").ty;
+        __PUCK__value__10 = e.scope.getTypeBinding("Bool").ty;
       } else {
-        var __PUCK__value__9 = void 0;
+        var __PUCK__value__11 = void 0;
         if (e.operator.kind == _ast.SyntaxKind.MinusToken || e.operator.kind == _ast.SyntaxKind.PlusToken) {
-          __PUCK__value__9 = e.scope.getTypeBinding("Num").ty;
+          __PUCK__value__11 = e.scope.getTypeBinding("Num").ty;
         };
-        __PUCK__value__8 = __PUCK__value__9;
+        __PUCK__value__10 = __PUCK__value__11;
       };
-      return e.ty = __PUCK__value__8;
+      return e.ty = __PUCK__value__10;
     },
     visitWhileExpression: function visitWhileExpression(e) {
       var self = this;

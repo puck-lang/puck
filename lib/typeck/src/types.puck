@@ -14,6 +14,7 @@ export fn createTypeInstance(class, typeParameters: List<Type>) { // class: Type
       )
     }
     else typeParameters
+
   if let instance = class.instances.find(|i|
       i.typeParameters.length == typeParameters.length
   and i.typeParameters.every(|p, i| isSameType(p, typeParameters[i])))

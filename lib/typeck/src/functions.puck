@@ -4,7 +4,7 @@ import 'range.puck' as {checkRange, getRange}
 import 'types.puck' as {getType, isAssignable}
 
 export fn getFunctionTypeName(arguments: List<TypeInstance>, returnType: TypeInstance)
-  then '(' + arguments.map(|a| (a and a.name) or '??').join(', ') + ') => ' +
+  then '(' + arguments.map(|a| (a.ty and a.ty.name) or '??').join(', ') + ') => ' +
         (returnType and returnType.name or '??')
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {

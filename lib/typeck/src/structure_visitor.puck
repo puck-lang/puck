@@ -29,9 +29,16 @@ export let structureVisitor = {
       self.scope = self.scope.createChild()
       f.scope = self.scope
 
+      let assignedTo =
+        if self.assignedTo then self.assignedTo.ty
+
       if f.typeParameters
         then f.typeParameters.forEach(self.visitTypeParameter.bind(self))
-      f.parameterList.forEach(self.visitFunctionParameter.bind(self))
+      f.parameterList.forEach(|p, i| {
+        let ty =
+          if assignedTo then assignedTo.arguments[i].ty
+        self.visitFunctionParameter(p, ty)
+      })
       if f.returnType then self.visitTypeBound(f.returnType)
 
       f.ty = createFunctionType(f.scope, f, self.reportError)
@@ -46,8 +53,8 @@ export let structureVisitor = {
       self.scope = f.scope.parent
     }
   }
-  visitFunctionParameter: |self, mut v: VariableDeclaration| {
-    self.visitVariableDeclaration(v, self.visitLiteral.bind(self))
+  visitFunctionParameter: |self, mut v: VariableDeclaration, ty| {
+    self.visitVariableDeclaration(v, self.visitLiteral.bind(self), ty)
   }
   visitFunctionTypeBound: |mut self, mut t: FunctionTypeBound| {
     if not t.scope {
@@ -87,11 +94,11 @@ export let structureVisitor = {
       t.ty = binding.ty
     }
   }
-  visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer| {
+  visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, ty| {
     if d.scope then return undefined
     d.scope = self.scope
     if d.typeBound then self.visitTypeBound(d.typeBound)
-    d.ty = getType(d.scope, d.typeBound)
+    d.ty = getType(d.scope, d.typeBound) or ty
 
     d.binding = d.scope.define({
       name: d.identifier.name,

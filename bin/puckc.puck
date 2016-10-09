@@ -23,9 +23,9 @@ if arguments.length == 0 {
 ')
   process.exit(1)
 } else {
-  let files = arguments.map(fn (file) then {
+  let files = arguments.map(|file| {{
     file
     outFile: outFile or join(outDir, file.replace(RegExp('\\.puck$'), extension))
-  })
+  }})
   build(files, {dump, ignoreErrors})
 }
