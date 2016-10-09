@@ -139,8 +139,7 @@ impl<T> GenericSelf<T> for GenericType<T> {
 let genericNum: GenericType<Num> = {}
 genericNum.generic(5)
 
-// Todo: Make sure this errors
-//// Bool is not assignable to type Num
-// import 'traits.puck' as {Generic, GenericType}
-// let genericNum: GenericType<Num> = {}
-// genericNum.generic(true)
+///// Bool is not assignable to type Num
+import 'traits.puck' as {Generic, GenericType}
+let genericNum: GenericType<Num> = {}
+genericNum.generic(true)
