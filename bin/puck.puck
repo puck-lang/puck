@@ -3,7 +3,7 @@ import 'node:fs' as fs
 import '../lib/helpers.puck' as {cmd, walkSync}
 
 let argv: List<String> = process.argv
-let arguments = argv.skipUntil(|arg: String| arg.contains('puck')).skip(1)
+let arguments = argv.skipUntil(|arg| arg.contains('puck')).skip(1)
 let command = arguments[0]
 
 fn buildAll(outFolder = 'dist', compiler = 'dist') {

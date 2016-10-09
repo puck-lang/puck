@@ -46,7 +46,7 @@ import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
-import 'src/types.puck' as {getType, isAssignable, isSameType}
+import 'src/types.puck' as {getType, isAssignable, isSameType, resolveTypeParameters}
 import '../entities.puck' as {
   isStruct
   isTrait
@@ -247,7 +247,7 @@ export fn ScopeVisitor(context, file) {
         let objectType = e.func.object.ty
         let isDirectTraitCall = isTrait(objectType)
 
-        if isDirectTraitCall {
+        if isTrait(objectType) {
           functionType = objectType.functions[name]
 
           if not functionType
@@ -256,7 +256,7 @@ export fn ScopeVisitor(context, file) {
           if functionType.selfBinding
             then throw 'direct trait calls for functions with self bindings are not implemented'
         }
-        else {
+        else if isStruct(objectType) {
           fn getImplementations(ty: Struct) {
             let implementations = ty.implementations
               .filter(|i| i.tra.functions[name])
@@ -300,6 +300,10 @@ export fn ScopeVisitor(context, file) {
             e.implementationType = implementation.ty
 
             functionType = implementation.tra.functions[name]
+
+            if objectType.parameterMap {
+              functionType = resolveTypeParameters(objectType.parameterMap)(functionType)
+            }
           }
         }
       }

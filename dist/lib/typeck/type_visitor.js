@@ -33,9 +33,12 @@ function TypeVisitor(context, file) {
   return _js._Object.assign({}, visit.emptyVisitor, _structure_visitor.structureVisitor, {
     scope: (0, _scope.createScope)(context, file),
     reportError: reportError,
+    imports: {},
+    postHoist: [],
     visitModule: function visitModule(m) {
       var self = this;
-      m.scope = self.scope;
+      self.scope = m.scope;
+      self.scope.clearBindings();
       var expressions = m.expressions.filter(function (e) {
         return e.kind == _ast.SyntaxKind.ImportDirective || e.kind == _ast.SyntaxKind.TraitDeclaration || e.kind == _ast.SyntaxKind.TypeDeclaration || e.kind == _ast.SyntaxKind.ExportDirective && (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration);
       });
@@ -43,7 +46,19 @@ function TypeVisitor(context, file) {
         self.visitExpression(e);
         return e.hoisted = true;
       });
+      self.postHoist.forEach(self.visitExpression.bind(self));
       return expressions.forEach(self.visitExpression.bind(self));
+    },
+    visitNamedTypeBound: function visitNamedTypeBound(t) {
+      var self = this;
+      var binding = self.scope.getTypeBinding(t.name.name);
+      if (!binding.token.scope) {
+        if (!self.imports[t.name.name]) {
+          reportError(t, "Scope not set for binding " + t.name.name + " but not found in imports either");
+        };
+        context.runTypeVisitorOnFile(self.imports[t.name.name]);
+      };
+      return _structure_visitor.structureVisitor.visitNamedTypeBound.call(self, t);
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
@@ -52,7 +67,8 @@ function TypeVisitor(context, file) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
           if (e.expression.kind == _ast.SyntaxKind.TraitDeclaration) {
-            self.scope.defineType(e.expression);
+            var typeBinding = importDirective._module.scope.getTypeBinding(m.property.name);
+            self.scope.setTypeBinding(typeBinding);
             return self.scope.define({
               name: m.local.name,
               mutable: false,
@@ -60,7 +76,9 @@ function TypeVisitor(context, file) {
             });
           } else {
             if (e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
-              return self.scope.defineType(e.expression);
+              var _typeBinding = importDirective._module.scope.getTypeBinding(m.property.name);
+              self.scope.setTypeBinding(_typeBinding);
+              return self.imports[m.local.name] = importDirective.file;
             } else {
               return self.scope.define({
                 name: m.local.name,
@@ -81,38 +99,67 @@ function TypeVisitor(context, file) {
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
       if (!t.ty) {
-        t.ty = self.scope.defineType(t).ty;
-        return t.binding = self.scope.define({
+        t.ty = self.scope.defineType(t, true).ty;
+        t.binding = self.scope.define({
           name: t.name.name,
           mutable: false,
           token: t,
           ty: t.ty
         });
+        return self.postHoist.push(t);
       } else {
-        self.scope = (0, _scope.createScope)(context, file, self.scope);
-        t.scope = self.scope;
-        visit.walkTraitDeclaration(self, t);
-        _js._Object.assign(t.ty.functions, (0, _core.objectFromList)(t.members.map(function (m) {
-          return [m.name.name, m.ty];
-        })));
-        return self.scope = self.scope.parent;
+        if (!t.scope) {
+          self.scope = (0, _scope.createScope)(context, file, self.scope);
+          t.scope = self.scope;
+          if (t.typeParameters) {
+            t.typeParameters.forEach(function (p) {
+              self.visitTypeParameter(p);
+              return t.ty.typeParameters.push(p.ty);
+            });
+          };
+          return self.scope = self.scope.parent;
+        } else {
+          self.scope = t.scope;
+          t.members.forEach(function (t) {
+            return self.visitFunctionDeclaration(t);
+          });
+          _js._Object.assign(t.ty.functions, _core.ObjectMapTrait.fromList(t.members.map(function (m) {
+            return [m.name.name, m.ty];
+          })));
+          if (t.ty.instances) {
+            t.ty.instances.forEach(function (instance) {
+              return instance.functions = t.ty.functions;
+            });
+          };
+          return self.scope = self.scope.parent;
+        };
       };
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
       if (!t.ty) {
-        return t.ty = self.scope.defineType(t).ty;
+        t.ty = self.scope.defineType(t, true).ty;
+        t.scope = (0, _scope.createScope)(context, file, self.scope);
+        return self.postHoist.push(t);
       } else {
-        self.scope = (0, _scope.createScope)(context, file, self.scope);
-        t.scope = self.scope;
-        visit.walkTypeDeclaration(self, t);
-        t.typeParameters.forEach(function (p) {
-          return t.ty.typeParameters.push(p.ty);
-        });
-        _js._Object.assign(t.ty.properties, (0, _core.objectFromList)(t.properties.map(function (p) {
-          return [p.name.name, p.typeBound.ty];
-        })));
-        return self.scope = self.scope.parent;
+        if (!t.typeParametersAssigned) {
+          self.scope = t.scope;
+          t.typeParameters.forEach(function (p) {
+            self.visitTypeParameter(p);
+            return t.ty.typeParameters.push(p.ty);
+          });
+          t.typeParametersAssigned = true;
+          return self.scope = self.scope.parent;
+        } else {
+          self.scope = t.scope;
+          t.properties.forEach(function (t) {
+            return self.visitTypeProperty(t);
+          });
+          _js._Object.assign(t.ty.properties, _core.ObjectMapTrait.fromList(t.properties.map(function (p) {
+            return [p.name.name, p.typeBound.ty];
+          })));
+          return self.scope = self.scope.parent;
+        };
       };
     },
     visitTypeProperty: visit.walkingVisitor.visitTypeProperty,

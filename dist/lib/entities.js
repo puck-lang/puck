@@ -5,6 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.isFunctionType = isFunctionType;
 exports.isStruct = isStruct;
 exports.isTrait = isTrait;
 exports.isTypeClass = isTypeClass;
@@ -15,6 +16,9 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 require('./ast/ast.js');
 
+function isFunctionType(ty) {
+  return ty._arguments;
+};
 function isStruct(ty) {
   return ty.implementations;
 };

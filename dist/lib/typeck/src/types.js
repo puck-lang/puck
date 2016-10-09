@@ -5,7 +5,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.resolveTypeParameters = undefined;
 exports.createTypeInstance = createTypeInstance;
+exports.createTypeInstanceTypeCast = createTypeInstanceTypeCast;
 exports.getType = getType;
 exports.isAssignable = isAssignable;
 exports.isSameType = isSameType;
@@ -26,39 +28,92 @@ var _functions = require('./functions.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+var resolveTypeParameters = exports.resolveTypeParameters = function resolveTypeParameters(parameterMap) {
+  return function resolveTypeParametersInner(ty) {
+    if ((0, _entities.isFunctionType)(ty)) {
+      return resolveTypeParametersFn(parameterMap, ty);
+    } else {
+      if ((0, _entities.isStruct)(ty)) {
+        return resolveTypeParametersStruct(parameterMap, ty);
+      } else {
+        if ((0, _entities.isTypeParameter)(ty)) {
+          return parameterMap[ty.name] || ty;
+        };
+      };
+    };
+  };
+};
+function resolveTypeParametersFn(parameterMap, func) {
+  var __PUCK__value__2 = void 0;
+  if (func.returnType) {
+    __PUCK__value__2 = resolveTypeParameters(parameterMap)(func.returnType);
+  };
+  return _js._Object.assign({}, func, {
+    _arguments: func._arguments.map(function (binding) {
+      var __PUCK__value__1 = void 0;
+      if (binding.ty) {
+        __PUCK__value__1 = resolveTypeParameters(parameterMap)(binding.ty);
+      };
+      return _js._Object.assign({}, binding, { ty: __PUCK__value__1 });
+    }),
+    returnType: __PUCK__value__2
+  });
+};
+function resolveTypeParametersStruct(parameterMap, struct) {
+  return _js._Object.assign({}, struct, { properties: _core.ObjectMapTrait['$ObjectMap'].map.call(struct.properties, resolveTypeParameters(parameterMap)) });
+};
+function mapObject(object, mapper) {
+  return _core.ObjectMapTrait['$ObjectMap'].map.call(object, mapper);
+};
 function createTypeInstance(_class, typeParameters) {
-  var __PUCK__value__1 = void 0;
+  var __PUCK__value__3 = void 0;
   if (typeParameters.length < _class.parameterRange.end - 1) {
-    __PUCK__value__1 = typeParameters.concat(_class.typeParameters.slice(typeParameters.length).map(function (p) {
+    __PUCK__value__3 = typeParameters.concat(_class.typeParameters.slice(typeParameters.length).map(function (p) {
       return p.defaultValue;
     }));
   } else {
-    __PUCK__value__1 = typeParameters;
+    __PUCK__value__3 = typeParameters;
   };
-  typeParameters = __PUCK__value__1;
-  var instance = void 0;;
-  if (instance = _class.instances.find(function (i) {
+  typeParameters = __PUCK__value__3;
+  var cachedInstance = _class.instances.find(function (i) {
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
       return isSameType(p, typeParameters[i]);
     });
-  })) {
-    return instance;
-  } else {
-    instance = {
-      isTrait: _class.isTrait,
-      functions: _class.functions,
-      properties: _class.properties && _js._Object.create(_js._null),
-      implementations: _class.implementations && [],
-      kind: _class.name,
-      name: _class.name + "<" + typeParameters.map(function (p) {
-        return p.name;
-      }).join(", ") + ">",
-      _class: _class,
-      typeParameters: typeParameters
-    };
-    _class.instances.push(instance);
-    return instance;
+  });
+  if (cachedInstance) {
+    return cachedInstance;
   };
+  var parameterMap = _core.ObjectMapTrait.fromList(_core.ListTrait.zip(typeParameters, _class.typeParameters).map(function (p) {
+    var typeArgument = p[0];
+    var typeParameter = p[1];
+    return [typeParameter.name, typeArgument];
+  }));
+  var __PUCK__value__4 = void 0;
+  if (_class.functions) {
+    __PUCK__value__4 = mapObject(_class.functions, resolveTypeParameters(parameterMap));
+  };
+  var __PUCK__value__5 = void 0;
+  if (_class.properties) {
+    __PUCK__value__5 = mapObject(_class.properties, resolveTypeParameters(parameterMap));
+  };
+  var instance = {
+    isTrait: _class.isTrait,
+    functions: __PUCK__value__4,
+    properties: __PUCK__value__5,
+    implementations: _class.implementations && [],
+    kind: _class.name,
+    name: _class.name + "<" + typeParameters.map(function (p) {
+      return p.name;
+    }).join(", ") + ">",
+    _class: _class,
+    typeParameters: typeParameters,
+    parameterMap: parameterMap
+  };
+  _class.instances.push(instance);
+  return instance;
+};
+function createTypeInstanceTypeCast(_class, typeParameters) {
+  return createTypeInstance(_class, typeParameters);
 };
 function getType(scope, t) {
   if (!t) {
@@ -70,7 +125,7 @@ function getType(scope, t) {
       return binding;
     } else {
       if ((0, _entities.isTypeClass)(binding.ty)) {
-        return createTypeInstance(binding.ty, t.typeParameters.map(function (p) {
+        return createTypeInstanceTypeCast(binding.ty, t.typeParameters.map(function (p) {
           return p.ty;
         }));
       } else {

@@ -217,7 +217,7 @@ function ScopeVisitor(context, file) {
           var name = e.func.member.name;
           var objectType = e.func.object.ty;
           var isDirectTraitCall = (0, _entities.isTrait)(objectType);
-          if (isDirectTraitCall) {
+          if ((0, _entities.isTrait)(objectType)) {
             functionType = objectType.functions[name];
             if (!functionType) {
               reportError(e, objectType.name + " has no function named " + name + "");
@@ -226,66 +226,71 @@ function ScopeVisitor(context, file) {
               throw "direct trait calls for functions with self bindings are not implemented";
             };
           } else {
-            (function () {
-              var getImplementations = function getImplementations(ty) {
-                var implementations = ty.implementations.filter(function (i) {
-                  return i.tra.functions[name];
-                });
-                var __PUCK__value__5 = void 0;
-                if (implementations.length > 1) {
-                  __PUCK__value__5 = implementations.filter(function (i) {
-                    var __PUCK__value__6 = void 0;
-                    if ((0, _entities.isTypeInstance)(i.tra)) {
-                      __PUCK__value__6 = i.tra._class.name;
-                    } else {
-                      __PUCK__value__6 = i.tra.name;
-                    };
-                    return e.scope.getTypeBinding(__PUCK__value__6);
+            if ((0, _entities.isStruct)(objectType)) {
+              (function () {
+                var getImplementations = function getImplementations(ty) {
+                  var implementations = ty.implementations.filter(function (i) {
+                    return i.tra.functions[name];
                   });
-                } else {
-                  __PUCK__value__5 = implementations;
+                  var __PUCK__value__5 = void 0;
+                  if (implementations.length > 1) {
+                    __PUCK__value__5 = implementations.filter(function (i) {
+                      var __PUCK__value__6 = void 0;
+                      if ((0, _entities.isTypeInstance)(i.tra)) {
+                        __PUCK__value__6 = i.tra._class.name;
+                      } else {
+                        __PUCK__value__6 = i.tra.name;
+                      };
+                      return e.scope.getTypeBinding(__PUCK__value__6);
+                    });
+                  } else {
+                    __PUCK__value__5 = implementations;
+                  };
+                  implementations = __PUCK__value__5;
+                  var __PUCK__value__7 = void 0;
+                  if (implementations.length > 1) {
+                    __PUCK__value__7 = implementations.map(function (i) {
+                      return i.tra.functions[name].argumentRange;
+                    }).filter(function (range) {
+                      return _core.RangeTrait['$Range<Num>'].contains.call(range, e.argumentList.length);
+                    });
+                  } else {
+                    __PUCK__value__7 = implementations;
+                  };
+                  implementations = __PUCK__value__7;
+                  if (implementations.length > 1) {
+                    reportError(e, "Ambiguous trait call");
+                  };
+                  if (implementations.length == 0 && (0, _entities.isTypeInstance)(ty)) {
+                    return getImplementations(ty._class);
+                  } else {
+                    return implementations;
+                  };
                 };
-                implementations = __PUCK__value__5;
-                var __PUCK__value__7 = void 0;
-                if (implementations.length > 1) {
-                  __PUCK__value__7 = implementations.map(function (i) {
-                    return i.tra.functions[name].argumentRange;
-                  }).filter(function (range) {
-                    return _core.RangeTrait['$Range<Num>'].contains.call(range, e.argumentList.length);
-                  });
-                } else {
-                  __PUCK__value__7 = implementations;
-                };
-                implementations = __PUCK__value__7;
-                if (implementations.length > 1) {
-                  reportError(e, "Ambiguous trait call");
-                };
-                if (implementations.length == 0 && (0, _entities.isTypeInstance)(ty)) {
-                  return getImplementations(ty._class);
-                } else {
-                  return implementations;
-                };
-              };
 
-              ;
-              var implementations = getImplementations(objectType);
-              if (implementations.length == 1) {
-                var implementation = implementations[0];
-                var __PUCK__value__8 = void 0;
-                if ((0, _entities.isTypeInstance)(implementation.tra)) {
-                  __PUCK__value__8 = implementation.tra._class.name;
-                } else {
-                  __PUCK__value__8 = implementation.tra.name;
+                ;
+                var implementations = getImplementations(objectType);
+                if (implementations.length == 1) {
+                  var implementation = implementations[0];
+                  var __PUCK__value__8 = void 0;
+                  if ((0, _entities.isTypeInstance)(implementation.tra)) {
+                    __PUCK__value__8 = implementation.tra._class.name;
+                  } else {
+                    __PUCK__value__8 = implementation.tra.name;
+                  };
+                  var traitName = __PUCK__value__8;
+                  if (!e.scope.getTypeBinding(traitName)) {
+                    reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
+                  };
+                  e.traitName = traitName;
+                  e.implementationType = implementation.ty;
+                  functionType = implementation.tra.functions[name];
+                  if (objectType.parameterMap) {
+                    functionType = (0, _types.resolveTypeParameters)(objectType.parameterMap)(functionType);
+                  };
                 };
-                var traitName = __PUCK__value__8;
-                if (!e.scope.getTypeBinding(traitName)) {
-                  reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
-                };
-                e.traitName = traitName;
-                e.implementationType = implementation.ty;
-                functionType = implementation.tra.functions[name];
-              };
-            })();
+              })();
+            };
           };
         })();
       };

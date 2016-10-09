@@ -1,10 +1,52 @@
 import 'puck:js' as {Object, null, undefined}
 import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound}
 import '../../ast/visit.puck' as visit
-import '../../entities.puck' as {isTypeClass, isTypeInstance, isTypeParameter, FunctionType, Scope, Type, TypeClass}
+import '../../entities.puck' as {
+  FunctionType
+  Scope
+  Struct
+  Type
+  TypeClass
+  isFunctionType
+  isStruct
+  isTypeClass
+  isTypeInstance
+  isTypeParameter
+}
 import 'functions.puck' as {getFunctionTypeName}
 
-export fn createTypeInstance(class, typeParameters: List<Type>) { // class: TypeClass
+export let resolveTypeParameters = |parameterMap| fn resolveTypeParametersInner(ty) {
+  if isFunctionType(ty)
+    then resolveTypeParametersFn(parameterMap, ty)
+  else if isStruct(ty)
+    then resolveTypeParametersStruct(parameterMap, ty)
+  else if isTypeParameter(ty) {
+    parameterMap[ty.name] or ty
+  }
+}
+
+fn resolveTypeParametersFn(parameterMap, func: FunctionType) {
+  Object.assign({}, func, {
+    arguments: func.arguments.map(|binding| Object.assign({}, binding, {
+      ty: if binding.ty
+        then resolveTypeParameters(parameterMap)(binding.ty)
+    }))
+    returnType: if func.returnType
+      then resolveTypeParameters(parameterMap)(func.returnType)
+  })
+}
+
+fn resolveTypeParametersStruct(parameterMap, struct: Struct) {
+  Object.assign({}, struct, {
+    properties: struct.properties.map(resolveTypeParameters(parameterMap))
+  })
+}
+
+fn mapObject<T>(object: ObjectMap<T>, mapper) {
+  object.map(mapper)
+}
+
+export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
   let typeParameters =
     if typeParameters.length < class.parameterRange.end - 1 {
       typeParameters.concat(
@@ -15,24 +57,42 @@ export fn createTypeInstance(class, typeParameters: List<Type>) { // class: Type
     }
     else typeParameters
 
-  if let instance = class.instances.find(|i|
-      i.typeParameters.length == typeParameters.length
-  and i.typeParameters.every(|p, i| isSameType(p, typeParameters[i])))
-    then instance
-    else {
-      let instance = {
-        isTrait: class.isTrait
-        functions: class.functions
-        properties: class.properties and Object.create(null)
-        implementations: class.implementations and []
-        kind: class.name
-        name: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
-        class
-        typeParameters
-      }
-      class.instances.push(instance)
-      instance
-    }
+  let cachedInstance = class.instances.find(|i|
+    i.typeParameters.length == typeParameters.length and
+    i.typeParameters.every(|p, i| isSameType(p, typeParameters[i])))
+
+  if cachedInstance
+    then return cachedInstance
+
+  let parameterMap = ObjectMapTrait.fromList(
+    ListTrait.zip(typeParameters, class.typeParameters)
+      .map(|p| {
+        let typeArgument = p[0]
+        let typeParameter = p[1];
+
+        [typeParameter.name, typeArgument]
+      }))
+
+  let instance = {
+    isTrait: class.isTrait
+    functions: if class.functions
+      then mapObject(class.functions, resolveTypeParameters(parameterMap))
+    properties: if class.properties
+      then mapObject(class.properties, resolveTypeParameters(parameterMap))
+    implementations: class.implementations and []
+    kind: class.name
+    name: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
+    class
+    typeParameters
+    parameterMap
+  }
+  class.instances.push(instance)
+
+  instance
+}
+
+export fn createTypeInstanceTypeCast(class, typeParameters: List<Type>) {
+  createTypeInstance(class, typeParameters)
 }
 
 export fn getType(scope: Scope, t) { // t: TypeBound
@@ -43,7 +103,7 @@ export fn getType(scope: Scope, t) { // t: TypeBound
     if not binding
       then binding
     else if isTypeClass(binding.ty)
-      then createTypeInstance(binding.ty, t.typeParameters.map(|p| p.ty))
+      then createTypeInstanceTypeCast(binding.ty, t.typeParameters.map(|p| p.ty))
     else binding.ty
   }
   else {

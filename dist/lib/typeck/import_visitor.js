@@ -39,12 +39,14 @@ function ImportVisitor(context, file) {
   var reportError = context.reportError.bind(context, file);
   var moduleScope = void 0;
   function importModule(i, importedFile) {
-    var _module = context.importFile(importedFile).ast;
+    var contextFile = context.importFile(importedFile);
+    var _module = contextFile.ast;
     if (!_module) {
       return context.defer(importedFile, function () {
         return importModule(i, importedFile);
       });
     };
+    i.file = contextFile;
     i._module = _module;
     if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
       return i.specifier.members.forEach(function (m) {

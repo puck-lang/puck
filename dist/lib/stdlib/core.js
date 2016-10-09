@@ -5,9 +5,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.RangeTrait = exports.Iterable = exports.StringTrait = undefined;
+exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.StringTrait = undefined;
 exports.print = print;
-exports.objectFromList = objectFromList;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
@@ -17,10 +16,43 @@ var StringTrait = exports.StringTrait = {
     return self.indexOf(subStr) >= 0;
   }
 };
+var ListTrait = exports.ListTrait = {
+  zip: function zip(a, b) {
+    if (a.length != b.length) {
+      throw (0, _js.Error)("List a and b are not of the same length");
+    };
+    return a.map(function (a, i) {
+      return [a, b[i]];
+    });
+  }
+};
 var Iterable = exports.Iterable = {};
 var RangeTrait = exports.RangeTrait = {};
+var ObjectMapTrait = exports.ObjectMapTrait = {
+  _new: function _new() {
+    return _js._Object.create(_js._null);
+  },
+  fromList: function fromList(list) {
+    var object = _js._Object.create(_js._null);
+    list.forEach(function (item) {
+      return object[item[0]] = item[1];
+    });
+    return object;
+  },
+  map: function map(mapper) {
+    var self = this;
+    var _new = ObjectMapTrait._new();
+    _js._Object.keys(self).forEach(function (key) {
+      return _new[key] = mapper(self[key]);
+    });
+    return _new;
+  }
+};
 StringTrait['$String'] = {
   contains: StringTrait.contains
+};
+ListTrait['$List'] = {
+  zip: ListTrait.zip
 };
 Iterable['$List'] = {
   skip: function skip(count) {
@@ -47,6 +79,11 @@ RangeTrait['$Range<Num>'] = {
     return self.start >= other.start && other.end >= self.end;
   }
 };
+ObjectMapTrait['$ObjectMap'] = {
+  _new: ObjectMapTrait._new,
+  fromList: ObjectMapTrait.fromList,
+  map: ObjectMapTrait.map
+};
 function print(message, a, b, c) {
   var args = [message];
   if (a != _js._undefined) {
@@ -59,11 +96,4 @@ function print(message, a, b, c) {
     args[3] = c;
   };
   return _js.console.log.apply(_js.console, args);
-};
-function objectFromList(list) {
-  var object = _js._Object.create(_js._null);
-  list.forEach(function (item) {
-    return object[item[0]] = item[1];
-  });
-  return object;
 }

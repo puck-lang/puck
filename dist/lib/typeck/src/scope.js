@@ -35,6 +35,12 @@ function createScope(context, file) {
       var self = this;
       return createScope(context, file, self);
     },
+    clearBindings: function clearBindings() {
+      return bindings = {};
+    },
+    setTypeBinding: function setTypeBinding(binding) {
+      return typeBindings[binding.name] = binding;
+    },
     getLocalBinding: function getLocalBinding(name) {
       return bindings[name];
     },
@@ -61,9 +67,11 @@ function createScope(context, file) {
       return bindings[name] = binding;
     },
     defineType: function defineType(t) {
+      var allowRedeclare = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
       var self = this;
       var name = t.name.name;
-      if (typeBindings[name]) {
+      if (!allowRedeclare && typeBindings[name]) {
         reportError(t, "Type " + name + " is already defined");
       };
       var __PUCK__value__1 = void 0;
@@ -87,7 +95,6 @@ function createScope(context, file) {
         } else {
           if (t.kind == _ast.SyntaxKind.TypeDeclaration) {
             _ty.implementations = [];
-            _ty.typeParameters = [];
             _ty.properties = _js._Object.create(_js._null);
           } else {
             if (t.kind == _ast.SyntaxKind.TypeParameter) {
@@ -100,15 +107,21 @@ function createScope(context, file) {
         };
         if ((0, _entities.isTypeClass)(_ty)) {
           _ty.instances = [];
+          _ty.typeParameters = [];
         };
         __PUCK__value__2 = _ty;
       };
       var ty = __PUCK__value__2;
-      var binding = {
-        name: name,
-        ty: ty
+      if (allowRedeclare && typeBindings[name]) {
+        _js._Object.assign(typeBindings[name].ty, ty);
+        return typeBindings[name];
+      } else {
+        return typeBindings[name] = {
+          name: name,
+          token: t,
+          ty: ty
+        };
       };
-      return typeBindings[name] = binding;
     },
     inspect: function inspect(depth, opts) {
       var scope = {};

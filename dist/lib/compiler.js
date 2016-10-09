@@ -95,7 +95,10 @@ function createContext() {
       return _js._Object.keys(self.files).map(function (path) {
         return self.files[path];
       }).forEach(function (file) {
-        return (0, _type_visitor.TypeVisitor)(self, file).visitModule(file.ast);
+        if (!file.typeVisitorStarted) {
+          file.typeVisitorStarted = true;
+          return (0, _type_visitor.TypeVisitor)(self, file).visitModule(file.ast);
+        };
       });
     },
     runImplVisitor: function runImplVisitor() {
@@ -113,6 +116,14 @@ function createContext() {
       }).forEach(function (file) {
         return (0, _scope_visitor.ScopeVisitor)(self, file).visitModule(file.ast);
       });
+    },
+    runTypeVisitorOnFile: function runTypeVisitorOnFile(file) {
+      var self = this;
+      if (file.typeVisitorStarted) {
+        throw "Circular import??";
+      };
+      file.typeVisitorStarted = true;
+      return (0, _type_visitor.TypeVisitor)(self, file).visitModule(file.ast);
     },
     defer: function defer(file, func) {
       var self = this;

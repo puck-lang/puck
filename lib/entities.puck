@@ -24,11 +24,11 @@ export type Type = {
 /// A data type (the ones declared with the `type` keywords), like String or Num
 export type Struct = {
   implementations: List<Implementation>
-  // properties: Object<Type>
+  properties: ObjectMap<Type>
 }
 
 export type Trait = {
-  // functions: Object<FunctionType>
+  functions: ObjectMap<FunctionType>
 }
 
 export type Implementation = {
@@ -89,6 +89,10 @@ export type Scope = {
 
 export type ScopeAware = {
   scope: Scope
+}
+
+export fn isFunctionType(ty) {
+  ty.arguments
 }
 
 export fn isStruct(ty) {

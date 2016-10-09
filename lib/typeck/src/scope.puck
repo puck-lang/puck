@@ -1,4 +1,4 @@
-import 'puck:js' as {Object, null, undefined}
+import 'puck:js' as {Error, Object, null, undefined}
 import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {TypeDeclaration}
 import '../../compiler/ast.ts' as {SyntaxKind}
@@ -14,6 +14,8 @@ export fn createScope(context, file, parent = false) {
   {
     parent
     createChild: |self| createScope(context, file, self)
+    clearBindings: || bindings = {}
+    setTypeBinding: |binding| typeBindings[binding.name] = binding
 
     getLocalBinding: |name| bindings[name]
     getBinding: |name| bindings[name] or (parent and parent.getBinding(name))
@@ -31,9 +33,9 @@ export fn createScope(context, file, parent = false) {
       }
       bindings[name] = binding
     }
-    defineType: |self, t: TypeDeclaration| {
+    defineType: |self, t: TypeDeclaration, allowRedeclare = false| {
       let name = t.name.name
-      if typeBindings[name]
+      if not allowRedeclare and typeBindings[name]
         then reportError(t, 'Type $name is already defined')
 
       let parameterRange = if t.typeParameters and t.typeParameters.length
@@ -54,7 +56,6 @@ export fn createScope(context, file, parent = false) {
             }
             else if t.kind == SyntaxKind.TypeDeclaration {
               ty.implementations = []
-              ty.typeParameters = []
               ty.properties = Object.create(null)
             }
             else if t.kind == SyntaxKind.TypeParameter {
@@ -65,17 +66,21 @@ export fn createScope(context, file, parent = false) {
             }
             if isTypeClass(ty) {
               ty.instances = []
+              ty.typeParameters = []
             }
 
             ty
           }
 
-      let binding = {
+      if allowRedeclare and typeBindings[name] {
+        Object.assign(typeBindings[name].ty, ty)
+        typeBindings[name]
+      }
+      else typeBindings[name] = {
         name
+        token: t
         ty
       }
-
-      typeBindings[name] = binding
     }
     inspect: |depth, opts| {
       let mut scope = {}

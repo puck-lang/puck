@@ -55,7 +55,12 @@ fn createContext(ignoreErrors = false) {
     runTypeVisitor: fn (self) {
       Object.keys(self.files)
         .map(|path| self.files[path])
-        .forEach(|file| TypeVisitor(self, file).visitModule(file.ast))
+        .forEach(|mut file| {
+          if not file.typeVisitorStarted {
+            file.typeVisitorStarted = true
+            TypeVisitor(self, file).visitModule(file.ast)
+          }
+        })
     }
     runImplVisitor: fn (self) {
       Object.keys(self.files)
@@ -66,6 +71,13 @@ fn createContext(ignoreErrors = false) {
       Object.keys(self.files)
         .map(|path| self.files[path])
         .forEach(|file| ScopeVisitor(self, file).visitModule(file.ast))
+    }
+    runTypeVisitorOnFile: fn (self, mut file) {
+      if file.typeVisitorStarted {
+        throw 'Circular import??'
+      }
+      file.typeVisitorStarted = true
+      TypeVisitor(self, file).visitModule(file.ast)
     }
     defer: fn (mut self, file, func) then self.deferred[file.absolutePath] = func
     resolvePath: fn (file, relativeTo): File {

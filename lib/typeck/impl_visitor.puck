@@ -73,30 +73,33 @@ export fn ImplVisitor(context, file) {
       i.scope = self.scope
       visit.walkImplDeclaration(self, i)
 
-      if not isTrait(i.tra.ty)
-        then reportError(i.tra, i.tra.ty.name + ' is not a trait')
-      if not isStruct(i.ty.ty)
-        then reportError(i.ty, i.ty.ty.name + ' is not a type')
+      let _trait = i.tra.ty
+      let struct = i.ty.ty
+
+      if not isTrait(_trait)
+        then reportError(i.tra, _trait.name + ' is not a trait')
+      if not isStruct(struct)
+        then reportError(i.ty, struct.name + ' is not a type')
 
       let struct =
-        if isTypeInstance(i.ty.ty) and i.ty.ty.typeParameters.some(|p| p.isTypeParameter)
-          then i.ty.ty.class
-          else i.ty.ty
+        if isTypeInstance(struct) and struct.typeParameters.some(|p| p.isTypeParameter)
+          then struct.class
+          else struct
 
-      if struct.implementations.some(|imp| isSameType(imp.tra, i.tra.ty))
-        then reportError(i, i.tra.ty.name + ' has already been implemented for ' + struct.name)
+      if struct.implementations.some(|imp| isSameType(imp.tra, _trait))
+        then reportError(i, _trait.name + ' has already been implemented for ' + struct.name)
 
       let functions = i.members.reduce(|mut functions, member| {
         functions[member.ty.name] = member.ty
         functions
       }, {})
 
-      let traitName = i.tra.ty.name
-      let traitFunctions = i.tra.ty.functions
+      let traitName = _trait.name
+      let traitFunctions = _trait.functions
 
       Object.keys(traitFunctions).forEach(|name| {
         if traitFunctions[name].isAbstract and not functions[name]
-          then reportError(i, 'Function ' + traitName + '::' + name + ' is not implemented for ' + i.ty.ty.name)
+          then reportError(i, 'Function ' + traitName + '::' + name + ' is not implemented for ' + struct.name)
       }, {})
 
       i.members.forEach(|function| {
@@ -120,7 +123,7 @@ export fn ImplVisitor(context, file) {
 
       struct.implementations.push({
         ty: struct
-        tra: i.tra.ty
+        tra: _trait
       })
 
       self.scope = self.scope.parent

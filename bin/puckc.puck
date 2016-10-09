@@ -4,7 +4,7 @@ import '../lib/compiler.puck' as {build}
 import '../lib/stdlib/js.puck' as {Array, RegExp, console, process}
 
 let argv: List<String> = process.argv
-let arguments = argv.skipUntil(|arg: String| arg.contains('puckc')).skip(1)
+let arguments = argv.skipUntil(|arg| arg.contains('puckc')).skip(1)
 
 let outDir = flag(arguments, '--out-dir', 'dist')
 let outFile = flag(arguments, '--out-file')

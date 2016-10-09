@@ -1,0 +1,2 @@
+let argv: List<String> = []
+let arguments = argv.skipUntil(|arg| arg.contains('puck')).skip(1)

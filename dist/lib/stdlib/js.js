@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.asResult = exports._typeof = exports._new = exports.require = exports.process = exports._module = exports.console = exports.String = exports.RegExp = exports._Object = exports.Number = exports.Date = exports.Boolean = exports.Array = exports._self = exports.window = exports.global = exports._undefined = exports._null = undefined;
+exports.wrapAsResult = exports.asResult = exports._typeof = exports._new = exports.require = exports.process = exports._module = exports.console = exports.String = exports.RegExp = exports._Object = exports.Number = exports.Error = exports.Date = exports.Boolean = exports.Array = exports._self = exports.window = exports.global = exports._undefined = exports._null = undefined;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -23,6 +23,7 @@ var _self = exports._self = js._self;
 var Array = exports.Array = js._Array;
 var Boolean = exports.Boolean = js._Boolean;
 var Date = exports.Date = js._Date;
+var Error = exports.Error = js._Error;
 var Number = exports.Number = js._Number;
 var _Object = exports._Object = js._Object;
 var RegExp = exports.RegExp = js._RegExp;
@@ -35,3 +36,4 @@ exports.require = _require;
 var _new = exports._new = js._new;
 var _typeof = exports._typeof = js._typeof;
 var asResult = exports.asResult = js.asResult;
+var wrapAsResult = exports.wrapAsResult = js.wrapAsResult;

@@ -17,6 +17,7 @@ export let _self = js._self
 export let Array = js._Array
 export let Boolean = js._Boolean
 export let Date = js._Date
+export let Error = js._Error
 export let Number = js._Number
 export let Object = js._Object
 export let RegExp = js._RegExp
@@ -38,4 +39,5 @@ export let require = js._require
 export let new = js._new
 export let typeof = js._typeof
 
-export let asResult = js.asResult
+export let asResult: <R>(() => R) => R = js.asResult
+export let wrapAsResult = js.wrapAsResult

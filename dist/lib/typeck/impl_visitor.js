@@ -45,35 +45,37 @@ function ImplVisitor(context, file) {
       self.scope = (0, _scope.createScope)(context, file, self.scope);
       i.scope = self.scope;
       visit.walkImplDeclaration(self, i);
-      if (!(0, _entities.isTrait)(i.tra.ty)) {
-        reportError(i.tra, i.tra.ty.name + " is not a trait");
+      var _trait = i.tra.ty;
+      var struct = i.ty.ty;
+      if (!(0, _entities.isTrait)(_trait)) {
+        reportError(i.tra, _trait.name + " is not a trait");
       };
-      if (!(0, _entities.isStruct)(i.ty.ty)) {
-        reportError(i.ty, i.ty.ty.name + " is not a type");
+      if (!(0, _entities.isStruct)(struct)) {
+        reportError(i.ty, struct.name + " is not a type");
       };
       var __PUCK__value__1 = void 0;
-      if ((0, _entities.isTypeInstance)(i.ty.ty) && i.ty.ty.typeParameters.some(function (p) {
+      if ((0, _entities.isTypeInstance)(struct) && struct.typeParameters.some(function (p) {
         return p.isTypeParameter;
       })) {
-        __PUCK__value__1 = i.ty.ty._class;
+        __PUCK__value__1 = struct._class;
       } else {
-        __PUCK__value__1 = i.ty.ty;
+        __PUCK__value__1 = struct;
       };
-      var struct = __PUCK__value__1;
+      struct = __PUCK__value__1;
       if (struct.implementations.some(function (imp) {
-        return (0, _types.isSameType)(imp.tra, i.tra.ty);
+        return (0, _types.isSameType)(imp.tra, _trait);
       })) {
-        reportError(i, i.tra.ty.name + " has already been implemented for " + struct.name);
+        reportError(i, _trait.name + " has already been implemented for " + struct.name);
       };
       var functions = i.members.reduce(function (functions, member) {
         functions[member.ty.name] = member.ty;
         return functions;
       }, {});
-      var traitName = i.tra.ty.name;
-      var traitFunctions = i.tra.ty.functions;
+      var traitName = _trait.name;
+      var traitFunctions = _trait.functions;
       _js._Object.keys(traitFunctions).forEach(function (name) {
         if (traitFunctions[name].isAbstract && !functions[name]) {
-          return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + i.ty.ty.name);
+          return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + struct.name);
         };
       }, {});
       i.members.forEach(function (_function) {
@@ -99,7 +101,7 @@ function ImplVisitor(context, file) {
       });
       struct.implementations.push({
         ty: struct,
-        tra: i.tra.ty
+        tra: _trait
       });
       return self.scope = self.scope.parent;
     },
