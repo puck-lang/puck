@@ -1,3 +1,4 @@
+import 'puck:js' as {Array, typeof}
 import 'ast/ast.puck' as {
   Token
   Identifier
@@ -22,9 +23,8 @@ export type Type = {
 }
 
 /// A data type (the ones declared with the `type` keywords), like String or Num
-export type Struct = {
+export type Struct = { // + Type
   implementations: List<Implementation>
-  properties: ObjectMap<Type>
 }
 
 export type Trait = {
@@ -61,6 +61,14 @@ export type FunctionType = { // + Type
   isAbstract: Bool
 }
 
+export type ObjectType = { // + Struct
+  properties: ObjectMap<Type>
+}
+
+export type TupleType = { // + Struct
+  properties: List<Type>
+}
+
 export type GenericFunction = {}  // FunctionType + TypeClass
 export type GenericFunctionInstace = {}  // FunctionType + TypeInstance
 
@@ -93,6 +101,14 @@ export type ScopeAware = {
 
 export fn isFunctionType(ty) {
   ty.arguments
+}
+
+export fn isObjectType(ty) {
+  typeof(ty.properties) == 'object'
+}
+
+export fn isTupleType(ty) {
+  Array.isArray(ty.properties)
 }
 
 export fn isStruct(ty) {

@@ -71,6 +71,7 @@ export enum SyntaxKind {
   TypeBound,
   NamedTypeBound,
   FunctionTypeBound,
+  TupleTypeBound,
   TypeDeclaration,
   TypeParameter,
   TypeProperty,
@@ -99,6 +100,7 @@ export enum SyntaxKind {
   NumberLiteral,
   ObjectLiteral,
   StringLiteral,
+  TupleLiteral,
 
   ObjectLiteralMember,
   StringLiteralPart,
@@ -432,4 +434,8 @@ export interface StringLiteralPart extends Expression {
 
 export interface StringLiteral extends Expression {
   parts: Array<StringLiteralPart|Identifier>
+}
+
+export interface TupleLiteral extends Expression {
+  expressions: Array<Expression>
 }

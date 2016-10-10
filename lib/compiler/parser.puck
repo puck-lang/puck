@@ -13,6 +13,7 @@ import '../ast/ast.puck' as {
   TypeBound
   FunctionTypeBound
   NamedTypeBound
+  TupleTypeBound
   TypeDeclaration
   TypeParameter
   TypeProperty
@@ -131,21 +132,21 @@ export fn parse(input) { // : TokenStream
     else null
   }
 
-  fn maybeBinary(left: Expression, myprecedence): Expression {
+  fn maybeBinary(left: Expression, myPrecedence): Expression {
     let mut operator = maybeParseOperator()
     if (operator) {
-      let mut hisprecedence = precedence[operator.kind]
+      let mut hisPrecedence = precedence[operator.kind]
 
-      if hisprecedence == undefined {
+      if hisPrecedence == undefined {
         let name = tokenToText[operator.kind]
         let json = global.JSON.stringify(operator)
         throw 'No precedence for $name: $json'
       }
 
-      if (hisprecedence > myprecedence) {
+      if (hisPrecedence > myPrecedence) {
         input.next()
         let mut e
-        let mut innerExpression = maybeBinary(parseAtom(), hisprecedence)
+        let mut innerExpression = maybeBinary(parseAtom(), hisPrecedence)
         if isAssignment(operator) {
           if isIdentifier(left) or isMember(left) or isIndex(left) {
             let a: AssignmentExpression = {
@@ -169,7 +170,7 @@ export fn parse(input) { // : TokenStream
           }
           e = b
         }
-        return maybeBinary(e, myprecedence)
+        return maybeBinary(e, myPrecedence)
       }
     }
     left
@@ -326,13 +327,13 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseFunctionTypeBound(): FunctionTypeBound {
+  fn parseFunctionTypeBound(tuple): FunctionTypeBound {
     let typeParameters =
-      if isToken(SyntaxKind.LessThanToken)
+      if not tuple and isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
       else []
 
-    let arguments = delimited('(', ')', ',', parseTypeBound)
+    let arguments = tuple or parseTupleTypeBound()
     consumeToken(SyntaxKind.EqualsGreaterThanToken)
     let returnType = parseTypeBound()
 
@@ -358,10 +359,28 @@ export fn parse(input) { // : TokenStream
     }
   }
 
+  fn parseTupleTypeBound(): TupleTypeBound {
+    let openParen = input.peek()
+    let properties = delimited('(', ')', ',', parseTypeBound, false)
+    let closeParen = consumeToken(SyntaxKind.CloseParenToken)
+    {
+      kind: SyntaxKind.TupleTypeBound
+      openParen
+      properties
+      closeParen
+    }
+  }
+
   fn parseTypeBound(): TypeBound {
-    if isToken(SyntaxKind.OpenParenToken) or isToken(SyntaxKind.LessThanToken)
-      then parseFunctionTypeBound()
-      else parseNamedTypeBound()
+    if isToken(SyntaxKind.LessThanToken)
+      then parseFunctionTypeBound(undefined)
+    else if isToken(SyntaxKind.OpenParenToken) {
+      let tuple = parseTupleTypeBound()
+      if isToken(SyntaxKind.EqualsGreaterThanToken)
+        then parseFunctionTypeBound(tuple)
+        else tuple
+    }
+    else parseNamedTypeBound()
   }
 
   fn parseTypeParameter(): TypeParameter {
@@ -588,14 +607,24 @@ export fn parse(input) { // : TokenStream
     { kind: SyntaxKind.ObjectLiteral, members }
   }
 
-  fn parseAtom() {
+  fn parseTupleOrExpression(forceTuple) {
+    let openParen = input.peek()
+    let expressions = delimited('(', ')', ',', || parseExpression(0, true), false)
+    let closeParen = consumeToken(SyntaxKind.CloseParenToken)
+
+    if not forceTuple and expressions.length == 1
+      then expressions[0]
+      else {{
+        kind: SyntaxKind.TupleLiteral,
+        openParen
+        expressions
+        closeParen
+      }}
+  }
+
+  fn parseAtom(forceTuple = false) {
     maybeCall((fn innerParseAtom() {
-      if isToken(SyntaxKind.OpenParenToken) {
-        input.next()
-        let exp = parseExpression()
-        consumeToken(SyntaxKind.CloseParenToken)
-        exp
-      }
+      if isToken(SyntaxKind.OpenParenToken) then parseTupleOrExpression(forceTuple)
       else if isToken(SyntaxKind.OpenBracketToken) then parseListLiteral()
       else if isToken(SyntaxKind.OpenBraceToken) then parseObjectLiteral()
       else if isToken(SyntaxKind.BarToken) then parseLambda()
@@ -728,8 +757,8 @@ export fn parse(input) { // : TokenStream
     { kind: SyntaxKind.Block, expressions }
   }
 
-  fn parseExpression(precedence = 0): Expression {
-    maybeCall(maybeAccess(maybeBinary(parseAtom(), precedence)))
+  fn parseExpression(precedence = 0, forceTuple = false): Expression {
+    maybeCall(maybeAccess(maybeBinary(parseAtom(forceTuple), precedence)))
   }
 
   parseModule()

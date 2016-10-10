@@ -2,6 +2,7 @@ type Foo = {
   bar: Generic<String>
   nested: Generic<String, Generic<Num>>
   number: Num
+  tuple: (Num, Bool)
 }
 
 type Generic<A, B=A> = {

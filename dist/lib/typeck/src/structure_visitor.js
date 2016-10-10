@@ -118,6 +118,14 @@ var structureVisitor = exports.structureVisitor = {
       return t.ty = (0, _types.getType)(t.scope, t);
     };
   },
+  visitTupleTypeBound: function visitTupleTypeBound(t) {
+    var self = this;
+    if (!t.scope) {
+      t.scope = self.scope;
+      visit.walkTupleTypeBound(self, t);
+      return t.ty = (0, _types.getType)(t.scope, t);
+    };
+  },
   visitTypeParameter: function visitTypeParameter(t) {
     var self = this;
     if (!t.scope) {
@@ -205,5 +213,9 @@ var structureVisitor = exports.structureVisitor = {
     })) {
       return self.reportError(l, "not a literal");
     };
+  },
+  visitStrictTupleLiteral: function visitStrictTupleLiteral(l) {
+    var self = this;
+    return l.expressions.forEach(self.visitLiteral.bind(self));
   }
 };

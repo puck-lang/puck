@@ -6,12 +6,14 @@ import '../../ast/ast.puck' as {
 
   FunctionTypeBound
   NamedTypeBound
+  TupleTypeBound
 
   BooleanLiteral
   ListLiteral
   NumberLiteral
   ObjectLiteral
   StringLiteral
+  TupleLiteral
 }
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
@@ -86,6 +88,15 @@ export let structureVisitor = {
       t.ty = getType(t.scope, t)
     }
   }
+  visitTupleTypeBound: |self, mut t: TupleTypeBound| {
+    if not t.scope {
+      t.scope = self.scope
+
+      visit.walkTupleTypeBound(self, t)
+
+      t.ty = getType(t.scope, t)
+    }
+  }
   visitTypeParameter: |self, mut t: TypeParameter| {
     if not t.scope {
       t.scope = self.scope
@@ -148,6 +159,9 @@ export let structureVisitor = {
     l.ty = self.scope.getTypeBinding('String').ty
      if l.parts.some(|p| p.kind == SyntaxKind.Identifier)
       then self.reportError(l, 'not a literal')
+  }
+  visitStrictTupleLiteral: |self, mut l: TupleLiteral| {
+    l.expressions.forEach(self.visitLiteral.bind(self))
   }
 }
 import 'node:util' as {inspect}

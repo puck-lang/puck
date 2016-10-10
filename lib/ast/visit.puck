@@ -11,6 +11,7 @@ import 'ast.puck' as {
   TypeBound
   FunctionTypeBound
   NamedTypeBound
+  TupleTypeBound
   TypeDeclaration
   TypeParameter
   TypeProperty
@@ -39,6 +40,7 @@ import 'ast.puck' as {
   NumberLiteral
   ObjectLiteral
   StringLiteral
+  TupleLiteral
 }
 import '../compiler/ast.ts' as {SyntaxKind}
 
@@ -83,6 +85,7 @@ export let walkingVisitor = {
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitFunctionTypeBound: |self, t: FunctionTypeBound| walkFunctionTypeBound(self, t)
   visitNamedTypeBound: |self, t: NamedTypeBound| walkNamedTypeBound(self, t)
+  visitTupleTypeBound: |self, t: TupleTypeBound| walkTupleTypeBound(self, t)
   visitTypeDeclaration: |self, t: TypeDeclaration| walkTypeDeclaration(self, t)
   visitTypeParameter: |self, t: TypeParameter| walkTypeParameter(self, t)
   visitTypeProperty: |self, t: TypeProperty| walkTypeProperty(self, t)
@@ -111,6 +114,7 @@ export let walkingVisitor = {
   visitNumberLiteral: |self, l: NumberLiteral| walkNumberLiteral(self, l)
   visitObjectLiteral: |self, l: ObjectLiteral| walkObjectLiteral(self, l)
   visitStringLiteral: |self, l: StringLiteral| walkStringLiteral(self, l)
+  visitTupleLiteral: |self, l: TupleLiteral| walkTupleLiteral(self, l)
 }
 
 export let emptyVisitor = {
@@ -126,6 +130,7 @@ export let emptyVisitor = {
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitFunctionTypeBound: || {}
   visitNamedTypeBound: || {}
+  visitTupleTypeBound: || {}
   visitTypeDeclaration: || {}
   visitTypeParameter: || {}
   visitTypeProperty: || {}
@@ -154,6 +159,7 @@ export let emptyVisitor = {
   visitNumberLiteral: || {}
   visitObjectLiteral: || {}
   visitStringLiteral: || {}
+  visitTupleLiteral: || {}
 }
 
 export fn walkExpression(visitor: Visitor, e: Expression) {
@@ -165,6 +171,7 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.TraitDeclaration then visitor.visitTraitDeclaration(e)
   else if e.kind == SyntaxKind.FunctionTypeBound then visitor.visitFunctionTypeBound(e)
   else if e.kind == SyntaxKind.NamedTypeBound then visitor.visitNamedTypeBound(e)
+  else if e.kind == SyntaxKind.TupleTypeBound then visitor.visitTupleTypeBound(e)
   else if e.kind == SyntaxKind.TypeDeclaration then visitor.visitTypeDeclaration(e)
   else if e.kind == SyntaxKind.TypeParameter then visitor.visitTypeParameter(e)
   else if e.kind == SyntaxKind.TypeProperty then visitor.visitTypeProperty(e)
@@ -193,6 +200,7 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.NumberLiteral then visitor.visitNumberLiteral(e)
   else if e.kind == SyntaxKind.ObjectLiteral then visitor.visitObjectLiteral(e)
   else if e.kind == SyntaxKind.StringLiteral then visitor.visitStringLiteral(e)
+  else if e.kind == SyntaxKind.TupleLiteral then visitor.visitTupleLiteral(e)
 }
 
 export fn walkBlock(visitor: Visitor, b: Block) {
@@ -232,16 +240,22 @@ export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
     then visitor.visitFunctionTypeBound(t)
   else if t.kind == SyntaxKind.NamedTypeBound
     then visitor.visitNamedTypeBound(t)
+  else if t.kind == SyntaxKind.TupleTypeBound
+    then visitor.visitTupleTypeBound(t)
   else
     throw Error('Unkown typebound ' + SyntaxKind[t.kind])
 }
 export fn walkFunctionTypeBound(visitor: Visitor, t: FunctionTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
-  t.arguments.forEach(visitor.visitTypeBound.bind(visitor))
+  visitor.visitTypeBound(t.arguments)
   visitor.visitTypeBound(t.returnType)
 }
 export fn walkNamedTypeBound(visitor: Visitor, t: NamedTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeBound.bind(visitor))
+}
+export fn walkTupleTypeBound(visitor: Visitor, t: TupleTypeBound) {
+  if not t.properties then print('T', t)
+  t.properties.forEach(visitor.visitTypeBound.bind(visitor))
 }
 export fn walkTypeDeclaration(visitor: Visitor, t: TypeDeclaration) {
   // visitor.visitIdentifier(t.name)
@@ -334,4 +348,7 @@ export fn walkStringLiteral(visitor: Visitor, l: StringLiteral) {
   l.parts
     .filter(|p| p.kind == SyntaxKind.Identifier)
     .forEach(visitor.visitIdentifier.bind(visitor))
+}
+export fn walkTupleLiteral(visitor: Visitor, l: TupleLiteral) {
+  l.expressions.forEach(visitor.visitExpression.bind(visitor))
 }

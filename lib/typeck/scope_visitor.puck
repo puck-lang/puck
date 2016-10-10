@@ -40,9 +40,11 @@ import '../ast/ast.puck' as {
   NumberLiteral
   ObjectLiteral
   StringLiteral
+  TupleLiteral
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
+import 'src/functions.puck' as {getTupleTypeName}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
@@ -399,6 +401,16 @@ export fn ScopeVisitor(context, file) {
       l.scope = self.scope
       l.ty = self.scope.getTypeBinding('String').ty
       visit.walkStringLiteral(self, l)
+    }
+    visitTupleLiteral: |self, mut l: TupleLiteral| {
+      l.scope = self.scope
+      visit.walkTupleLiteral(self, l)
+      let properties = l.expressions.map(|e| e.ty)
+      l.ty = {
+        kind: 'Tuple'
+        name: getTupleTypeName(properties)
+        properties
+      }
     }
   })
 }

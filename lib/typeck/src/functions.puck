@@ -4,8 +4,10 @@ import 'range.puck' as {checkRange, getRange}
 import 'types.puck' as {getType, isAssignable}
 
 export fn getFunctionTypeName(arguments: List<TypeInstance>, returnType: TypeInstance)
-  then '(' + arguments.map(|a| (a.ty and a.ty.name) or '??').join(', ') + ') => ' +
-        (returnType and returnType.name or '??')
+  then getTupleTypeName(arguments) + ' => ' + (returnType and returnType.name or '??')
+
+export fn getTupleTypeName(properties: List<TypeInstance>)
+  then '(' + properties.map(|a| (a and a.name) or '??').join(', ') + ')'
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
   let arguments = f.parameterList.map(|p| {{

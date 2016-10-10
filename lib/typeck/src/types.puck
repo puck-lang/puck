@@ -1,25 +1,32 @@
 import 'puck:js' as {Object, null, undefined}
 import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound}
 import '../../ast/visit.puck' as visit
+import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
   FunctionType
   Scope
+  ObjectType
   Struct
+  TupleType
   Type
   TypeClass
   isFunctionType
+  isObjectType
   isStruct
+  isTupleType
   isTypeClass
   isTypeInstance
   isTypeParameter
 }
-import 'functions.puck' as {getFunctionTypeName}
+import 'functions.puck' as {getFunctionTypeName, getTupleTypeName}
 
 export let resolveTypeParameters = |parameterMap| fn resolveTypeParametersInner(ty) {
   if isFunctionType(ty)
     then resolveTypeParametersFn(parameterMap, ty)
-  else if isStruct(ty)
-    then resolveTypeParametersStruct(parameterMap, ty)
+  else if isObjectType(ty)
+    then resolveTypeParametersObject(parameterMap, ty)
+  else if isTupleType(ty)
+    then resolveTypeParametersTuple(parameterMap, ty)
   else if isTypeParameter(ty) {
     parameterMap[ty.name] or ty
   }
@@ -36,7 +43,13 @@ fn resolveTypeParametersFn(parameterMap, func: FunctionType) {
   })
 }
 
-fn resolveTypeParametersStruct(parameterMap, struct: Struct) {
+fn resolveTypeParametersObject(parameterMap, struct: ObjectType) {
+  Object.assign({}, struct, {
+    properties: struct.properties.map(resolveTypeParameters(parameterMap))
+  })
+}
+
+fn resolveTypeParametersTuple(parameterMap, struct: TupleType) {
   Object.assign({}, struct, {
     properties: struct.properties.map(resolveTypeParameters(parameterMap))
   })
@@ -106,8 +119,17 @@ export fn getType(scope: Scope, t) { // t: TypeBound
       then createTypeInstanceTypeCast(binding.ty, t.typeParameters.map(|p| p.ty))
     else binding.ty
   }
+  else if t.kind == SyntaxKind.TupleTypeBound {
+    let properties = t.properties.map(|p| getType(scope, p))
+
+    {
+      kind: 'Tuple'
+      name: getTupleTypeName(properties)
+      properties
+    }
+  }
   else {
-    let arguments = t.arguments.map(|p| {{ty: getType(scope, p)}})
+    let arguments = t.arguments.properties.map(|p| {{ty: getType(scope, p)}})
     let returnType = getType(scope, t.returnType)
 
     {
@@ -128,10 +150,15 @@ export fn isAssignable(to, subject) { // to: Type, subject: Type
 
   if not sameKind then return false
 
+  if isTypeInstance(to) and isTypeInstance(subject)
+    then if not subject.typeParameters.every(|p, i| isAssignable(to.typeParameters[i], p))
+      then return false
+
   if sameKind and to.kind == 'Function'
     then isFunctionAssignable(to, subject)
-  else if isTypeInstance(to) and isTypeInstance(subject)
-    then subject.typeParameters.every(|p, i| isAssignable(to.typeParameters[i], p))
+  else if sameKind and to.kind == 'Tuple'
+    then subject.properties.length == to.properties.length
+     and subject.properties.every(|p, i| isAssignable(to.properties[i], p))
   else true
 }
 

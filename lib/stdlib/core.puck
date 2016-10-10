@@ -13,11 +13,11 @@ impl StringTrait for String {}
 
 export type List<E> = {}
 export trait ListTrait<E> {
-  fn zip<A, B>(a: List<A>, b: List<B>) {
+  fn zip<A, B>(a: List<A>, b: List<B>): List<(A, B)> {
     if a.length != b.length
       then throw Error('List a and b are not of the same length')
 
-    a.map(|a, i| [a, b[i]])
+    a.map(|a, i| (a, b[i]))
   }
 }
 impl<E> ListTrait<E> for List<E> {}
@@ -86,7 +86,7 @@ export trait ObjectMapTrait<T> {
     Object.create(null)
   }
 
-  fn fromList<T>(list: List<List<T>>): ObjectMap<T> {
+  fn fromList<T>(list: List<(String, T)>): ObjectMap<T> {
     let mut object = Object.create(null)
     list.forEach(|item| object[item[0]] = item[1])
     object

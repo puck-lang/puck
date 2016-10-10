@@ -133,6 +133,7 @@ function Emitter() {
             case ast_1.SyntaxKind.NumberLiteral: return emitNumberLiteral(expression);
             case ast_1.SyntaxKind.ObjectLiteral: return emitObjectLiteral(expression);
             case ast_1.SyntaxKind.StringLiteral: return emitStringLiteral(expression);
+            case ast_1.SyntaxKind.TupleLiteral: return emitTupleLiteral(expression);
         }
     }
     var currentValueVariableContext;
@@ -420,6 +421,22 @@ function Emitter() {
             ? emitStringLiteralPart(p)
             : emitIdentifier(p); })
             .join(' + ');
+    }
+    function emitTupleLiteral(l) {
+        var members = l.expressions.map(function (e) { return emitExpression(e, Context.Value); });
+        var body;
+        if (members.length == 0) {
+            body = ']';
+        }
+        else if (l.expressions.length == 1) {
+            body = members[0] + "]";
+        }
+        else {
+            level++;
+            body = "\n" + indent(members).join(",\n") + ",\n" + indent(']', level - 1);
+            level--;
+        }
+        return "[" + body;
     }
     return { emitModule: emitModule };
 }

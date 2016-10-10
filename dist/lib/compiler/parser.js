@@ -92,19 +92,19 @@ function parse(input) {
       return _js._null;
     };
   };
-  function maybeBinary(left, myprecedence) {
+  function maybeBinary(left, myPrecedence) {
     var operator = maybeParseOperator();
     if (operator) {
-      var hisprecedence = _ast.precedence[operator.kind];
-      if (hisprecedence == _js._undefined) {
+      var hisPrecedence = _ast.precedence[operator.kind];
+      if (hisPrecedence == _js._undefined) {
         var name = _ast.tokenToText[operator.kind];
         var json = _js.global.JSON.stringify(operator);
         throw "No precedence for " + name + ": " + json + "";
       };
-      if (hisprecedence > myprecedence) {
+      if (hisPrecedence > myPrecedence) {
         input.next();
         var e = void 0;
-        var innerExpression = maybeBinary(parseAtom(), hisprecedence);
+        var innerExpression = maybeBinary(parseAtom(), hisPrecedence);
         if (isAssignment(operator)) {
           if ((0, _ast.isIdentifier)(left) || (0, _ast.isMember)(left) || (0, _ast.isIndex)(left)) {
             var a = {
@@ -126,7 +126,7 @@ function parse(input) {
           };
           e = b;
         };
-        return maybeBinary(e, myprecedence);
+        return maybeBinary(e, myPrecedence);
       };
     };
     return left;
@@ -292,15 +292,15 @@ function parse(input) {
       closeBrace: closeBrace
     };
   };
-  function parseFunctionTypeBound() {
+  function parseFunctionTypeBound(tuple) {
     var __PUCK__value__5 = void 0;
-    if (isToken(_ast.SyntaxKind.LessThanToken)) {
+    if (!tuple && isToken(_ast.SyntaxKind.LessThanToken)) {
       __PUCK__value__5 = delimited("<", ">", ",", parseTypeParameter);
     } else {
       __PUCK__value__5 = [];
     };
     var typeParameters = __PUCK__value__5;
-    var _arguments = delimited("(", ")", ",", parseTypeBound);
+    var _arguments = tuple || parseTupleTypeBound();
     consumeToken(_ast.SyntaxKind.EqualsGreaterThanToken);
     var returnType = parseTypeBound();
     return {
@@ -325,11 +325,31 @@ function parse(input) {
       typeParameters: typeParameters
     };
   };
+  function parseTupleTypeBound() {
+    var openParen = input.peek();
+    var properties = delimited("(", ")", ",", parseTypeBound, false);
+    var closeParen = consumeToken(_ast.SyntaxKind.CloseParenToken);
+    return {
+      kind: _ast.SyntaxKind.TupleTypeBound,
+      openParen: openParen,
+      properties: properties,
+      closeParen: closeParen
+    };
+  };
   function parseTypeBound() {
-    if (isToken(_ast.SyntaxKind.OpenParenToken) || isToken(_ast.SyntaxKind.LessThanToken)) {
-      return parseFunctionTypeBound();
+    if (isToken(_ast.SyntaxKind.LessThanToken)) {
+      return parseFunctionTypeBound(_js._undefined);
     } else {
-      return parseNamedTypeBound();
+      if (isToken(_ast.SyntaxKind.OpenParenToken)) {
+        var tuple = parseTupleTypeBound();
+        if (isToken(_ast.SyntaxKind.EqualsGreaterThanToken)) {
+          return parseFunctionTypeBound(tuple);
+        } else {
+          return tuple;
+        };
+      } else {
+        return parseNamedTypeBound();
+      };
     };
   };
   function parseTypeParameter() {
@@ -565,13 +585,29 @@ function parse(input) {
       members: members
     };
   };
+  function parseTupleOrExpression(forceTuple) {
+    var openParen = input.peek();
+    var expressions = delimited("(", ")", ",", function () {
+      return parseExpression(0, true);
+    }, false);
+    var closeParen = consumeToken(_ast.SyntaxKind.CloseParenToken);
+    if (!forceTuple && expressions.length == 1) {
+      return expressions[0];
+    } else {
+      return {
+        kind: _ast.SyntaxKind.TupleLiteral,
+        openParen: openParen,
+        expressions: expressions,
+        closeParen: closeParen
+      };
+    };
+  };
   function parseAtom() {
+    var forceTuple = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
     return maybeCall(function innerParseAtom() {
       if (isToken(_ast.SyntaxKind.OpenParenToken)) {
-        input.next();
-        var exp = parseExpression();
-        consumeToken(_ast.SyntaxKind.CloseParenToken);
-        return exp;
+        return parseTupleOrExpression(forceTuple);
       } else {
         if (isToken(_ast.SyntaxKind.OpenBracketToken)) {
           return parseListLiteral();
@@ -773,8 +809,9 @@ function parse(input) {
   };
   function parseExpression() {
     var precedence = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+    var forceTuple = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
-    return maybeCall(maybeAccess(maybeBinary(parseAtom(), precedence)));
+    return maybeCall(maybeAccess(maybeBinary(parseAtom(forceTuple), precedence)));
   };
   return parseModule();
 }

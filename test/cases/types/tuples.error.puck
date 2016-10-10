@@ -1,0 +1,14 @@
+///// Num is not assignable to type (Num, String)
+let a: (Num, String) = (1)
+
+///// (Num) is not assignable to type (Num, String)
+let a: (Num, String) = ((1))
+
+///// (Num, Num) is not assignable to type (Num, String)
+let a: (Num, String) = (1, 2)
+
+///// (String, String) is not assignable to type (Num, String)
+let a: (Num, String) = ('1', '2')
+
+///// (Num, String, Num) is not assignable to type (Num, String)
+let a: (Num, String) = (1, '2', 3)

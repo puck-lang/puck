@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getFunctionTypeName = getFunctionTypeName;
+exports.getTupleTypeName = getTupleTypeName;
 exports.createFunctionType = createFunctionType;
 exports.checkFunctionAssignability = checkFunctionAssignability;
 
@@ -20,9 +21,12 @@ var _range = require('./range.js');
 var _types = require('./types.js');
 
 function getFunctionTypeName(_arguments, returnType) {
-  return "(" + _arguments.map(function (a) {
-    return a.ty && a.ty.name || "??";
-  }).join(", ") + ") => " + (returnType && returnType.name || "??");
+  return getTupleTypeName(_arguments) + " => " + (returnType && returnType.name || "??");
+};
+function getTupleTypeName(properties) {
+  return "(" + properties.map(function (a) {
+    return a && a.name || "??";
+  }).join(", ") + ")";
 };
 function createFunctionType(scope, f, reportError) {
   var _arguments = f.parameterList.map(function (p) {

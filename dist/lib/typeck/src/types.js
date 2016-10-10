@@ -22,6 +22,8 @@ var _visit = require('./../../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
 
+var _ast = require('./../../compiler/ast.js');
+
 var _entities = require('./../../entities.js');
 
 var _functions = require('./functions.js');
@@ -33,11 +35,15 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
     if ((0, _entities.isFunctionType)(ty)) {
       return resolveTypeParametersFn(parameterMap, ty);
     } else {
-      if ((0, _entities.isStruct)(ty)) {
-        return resolveTypeParametersStruct(parameterMap, ty);
+      if ((0, _entities.isObjectType)(ty)) {
+        return resolveTypeParametersObject(parameterMap, ty);
       } else {
-        if ((0, _entities.isTypeParameter)(ty)) {
-          return parameterMap[ty.name] || ty;
+        if ((0, _entities.isTupleType)(ty)) {
+          return resolveTypeParametersTuple(parameterMap, ty);
+        } else {
+          if ((0, _entities.isTypeParameter)(ty)) {
+            return parameterMap[ty.name] || ty;
+          };
         };
       };
     };
@@ -59,8 +65,11 @@ function resolveTypeParametersFn(parameterMap, func) {
     returnType: __PUCK__value__2
   });
 };
-function resolveTypeParametersStruct(parameterMap, struct) {
+function resolveTypeParametersObject(parameterMap, struct) {
   return _js._Object.assign({}, struct, { properties: _core.ObjectMapTrait['$ObjectMap'].map.call(struct.properties, resolveTypeParameters(parameterMap)) });
+};
+function resolveTypeParametersTuple(parameterMap, struct) {
+  return _js._Object.assign({}, struct, { properties: struct.properties.map(resolveTypeParameters(parameterMap)) });
 };
 function mapObject(object, mapper) {
   return _core.ObjectMapTrait['$ObjectMap'].map.call(object, mapper);
@@ -133,19 +142,30 @@ function getType(scope, t) {
       };
     };
   } else {
-    var _arguments = t._arguments.map(function (p) {
-      return { ty: getType(scope, p) };
-    });
-    var returnType = getType(scope, t.returnType);
-    return {
-      kind: "Function",
-      name: (0, _functions.getFunctionTypeName)(_arguments, returnType),
-      _arguments: _arguments,
-      argumentRange: {
-        start: _arguments.length,
-        end: _arguments.length + 1
-      },
-      returnType: returnType
+    if (t.kind == _ast.SyntaxKind.TupleTypeBound) {
+      var properties = t.properties.map(function (p) {
+        return getType(scope, p);
+      });
+      return {
+        kind: "Tuple",
+        name: (0, _functions.getTupleTypeName)(properties),
+        properties: properties
+      };
+    } else {
+      var _arguments = t._arguments.properties.map(function (p) {
+        return { ty: getType(scope, p) };
+      });
+      var returnType = getType(scope, t.returnType);
+      return {
+        kind: "Function",
+        name: (0, _functions.getFunctionTypeName)(_arguments, returnType),
+        _arguments: _arguments,
+        argumentRange: {
+          start: _arguments.length,
+          end: _arguments.length + 1
+        },
+        returnType: returnType
+      };
     };
   };
 };
@@ -160,12 +180,19 @@ function isAssignable(to, subject) {
   if (!sameKind) {
     return false;
   };
+  if ((0, _entities.isTypeInstance)(to) && (0, _entities.isTypeInstance)(subject)) {
+    if (!subject.typeParameters.every(function (p, i) {
+      return isAssignable(to.typeParameters[i], p);
+    })) {
+      return false;
+    };
+  };
   if (sameKind && to.kind == "Function") {
     return isFunctionAssignable(to, subject);
   } else {
-    if ((0, _entities.isTypeInstance)(to) && (0, _entities.isTypeInstance)(subject)) {
-      return subject.typeParameters.every(function (p, i) {
-        return isAssignable(to.typeParameters[i], p);
+    if (sameKind && to.kind == "Tuple") {
+      return subject.properties.length == to.properties.length && subject.properties.every(function (p, i) {
+        return isAssignable(to.properties[i], p);
       });
     } else {
       return true;

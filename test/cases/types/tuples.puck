@@ -1,0 +1,2 @@
+let a: (Num, String) = (42, 'Zin')
+let b: (Num) = ((42))

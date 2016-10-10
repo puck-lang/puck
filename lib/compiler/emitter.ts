@@ -34,6 +34,7 @@ import {
   SyntaxKind,
   Token,
   TraitDeclaration,
+  TupleLiteral,
   TypeBound,
   UnaryExpression,
   VariableDeclaration,
@@ -198,6 +199,7 @@ export function Emitter() {
       case SyntaxKind.NumberLiteral: return emitNumberLiteral(expression);
       case SyntaxKind.ObjectLiteral: return emitObjectLiteral(expression);
       case SyntaxKind.StringLiteral: return emitStringLiteral(expression);
+      case SyntaxKind.TupleLiteral: return emitTupleLiteral(expression);
     }
   }
 
@@ -530,6 +532,23 @@ export function Emitter() {
         : emitIdentifier(p as Identifier)
       )
       .join(' + ')
+  }
+
+  function emitTupleLiteral(l: TupleLiteral) {
+    let members: any[] = l.expressions.map(e => emitExpression(e, Context.Value))
+    let body
+
+    if (members.length == 0) {
+      body = ']'
+    } else if (l.expressions.length == 1) {
+      body = `${members[0]}]`
+    } else {
+      level++
+      body = `\n${indent(members).join(`,\n`)},\n${indent(']', level - 1)}`
+      level--
+    }
+
+    return `[${body}`
   }
 
   return {emitModule}

@@ -21,6 +21,8 @@ var visit = _interopRequireWildcard(_visit);
 
 var _ast = require('./../compiler/ast.js');
 
+var _functions = require('./src/functions.js');
+
 var _range = require('./src/range.js');
 
 var _scope = require('./src/scope.js');
@@ -405,6 +407,19 @@ function ScopeVisitor(context, file) {
       l.scope = self.scope;
       l.ty = self.scope.getTypeBinding("String").ty;
       return visit.walkStringLiteral(self, l);
+    },
+    visitTupleLiteral: function visitTupleLiteral(l) {
+      var self = this;
+      l.scope = self.scope;
+      visit.walkTupleLiteral(self, l);
+      var properties = l.expressions.map(function (e) {
+        return e.ty;
+      });
+      return l.ty = {
+        kind: "Tuple",
+        name: (0, _functions.getTupleTypeName)(properties),
+        properties: properties
+      };
     }
   });
 }

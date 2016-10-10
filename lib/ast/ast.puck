@@ -44,7 +44,7 @@ export type ImplDeclaration = {
 export type Module = {
   fileName: String
   path: String
-  // exports: {[name: String]: ExportDirective}
+  exports: ObjectMap<ExportDirective>
   expressions: List<Expression>
 }
 
@@ -74,15 +74,21 @@ export type TraitDeclaration = {
 
 export type TypeBound = {}
 
+export type FunctionTypeBound = {
+  typeParameters: List<TypeParameter>
+  arguments: TupleTypeBound
+  returnType: TypeBound
+}
+
 export type NamedTypeBound = {
   name: SimpleIdentifier
   typeParameters: List<TypeBound>
 }
 
-export type FunctionTypeBound = {
-  typeParameters: List<TypeParameter>
-  arguments: List<TypeBound>
-  returnType: TypeBound
+export type TupleTypeBound = {
+  openParen: Token
+  properties: List<TypeBound>
+  closeParen: Token
 }
 
 export type TypeDeclaration = {
@@ -218,4 +224,10 @@ export type StringLiteralPart = {
 
 export type StringLiteral = {
   // parts: List<StringLiteralPart|Identifier>
+}
+
+export type TupleLiteral = {
+  openParen: Token
+  expressions: List<Expression>
+  closeParen: Token
 }
