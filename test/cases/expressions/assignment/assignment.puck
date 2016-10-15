@@ -30,3 +30,6 @@ type D = {
 
 let mut d: D = {e: 42}
 d.e = 5
+
+let mut e
+let f = e = 5

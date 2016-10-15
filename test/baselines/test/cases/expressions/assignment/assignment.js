@@ -20,3 +20,5 @@ function c(a) {
 };
 var d = { e: 42 };
 d.e = 5;
+var e = void 0;
+var f = e = 5;

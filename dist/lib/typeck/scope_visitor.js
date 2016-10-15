@@ -200,9 +200,10 @@ function ScopeVisitor(context, file) {
           reportError(e, "Can't assign to immutable variable " + binding.name);
         };
         if (!(0, _types.isAssignable)(e.lhs.ty, e.rhs.ty)) {
-          return reportError(e, (0, _structure_visitor.notAssignableError)(e.lhs.ty, e.rhs.ty));
+          reportError(e, (0, _structure_visitor.notAssignableError)(e.lhs.ty, e.rhs.ty));
         };
       };
+      return e.ty = e.lhs.ty || e.rhs.ty;
     },
     visitBinaryExpression: function visitBinaryExpression(e) {
       var self = this;

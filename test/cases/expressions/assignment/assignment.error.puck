@@ -17,3 +17,7 @@ a = 5
 
 ///// Num is not assignable to type String
 let a: String = 42
+
+///// Num is not assignable to type String
+let mut e
+let f: String = e = 5

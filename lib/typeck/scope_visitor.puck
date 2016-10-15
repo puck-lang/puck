@@ -233,6 +233,8 @@ export fn ScopeVisitor(context, file) {
         if not isAssignable(e.lhs.ty, e.rhs.ty)
           then reportError(e, notAssignableError(e.lhs.ty, e.rhs.ty))
       }
+
+      e.ty = e.lhs.ty or e.rhs.ty
     }
     visitBinaryExpression: |self, mut e: BinaryExpression| {
       e.scope = self.scope
