@@ -1,20 +1,20 @@
-export type SyntaxKind = {}
+export type SyntaxKind {}
 
-export type Token = {
+export type Token {
   kind: SyntaxKind
 }
 
-export type Expression = {}
+export type Expression {}
 
-export type CommentNode = {
+export type CommentNode {
   text: String
 }
 
-export type Block = {
+export type Block {
   expressions: List<Expression>
 }
 
-export type FunctionDeclaration = {
+export type FunctionDeclaration {
   // name?: Identifier
   name: Identifier
   typeParameters: List<TypeParameter>
@@ -24,11 +24,11 @@ export type FunctionDeclaration = {
   body: Block
 }
 
-export type Identifier = {
+export type Identifier {
   name: String
 }
 
-export type ImplDeclaration = {
+export type ImplDeclaration {
   implKeyword: Token
   typeParameters: List<TypeParameter>
 
@@ -41,29 +41,29 @@ export type ImplDeclaration = {
   closeBrace: Token
 }
 
-export type Module = {
+export type Module {
   fileName: String
   path: String
   exports: ObjectMap<ExportDirective>
   expressions: List<Expression>
 }
 
-export type ObjectDestructure = {
+export type ObjectDestructure {
   openBrace: Token
   members: List<ObjectDestructureMember>
   closeBrace: Token
 }
 
-export type ObjectDestructureMember = {
+export type ObjectDestructureMember {
   property: SimpleIdentifier
   local: SimpleIdentifier
 }
 
-export type SimpleIdentifier = {
+export type SimpleIdentifier {
   name: String
 }
 
-export type TraitDeclaration = {
+export type TraitDeclaration {
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
@@ -72,45 +72,49 @@ export type TraitDeclaration = {
   closeBrace: Token
 }
 
-export type TypeBound = {}
+export type TypeBound {}
 
-export type FunctionTypeBound = {
+export type FunctionTypeBound {
   typeParameters: List<TypeParameter>
   arguments: TupleTypeBound
   returnType: TypeBound
 }
 
-export type NamedTypeBound = {
+export type NamedTypeBound {
   name: SimpleIdentifier
   typeParameters: List<TypeBound>
 }
 
-export type TupleTypeBound = {
-  openParen: Token
-  properties: List<TypeBound>
-  closeParen: Token
-}
-
-export type TypeDeclaration = {
-  keyword: Token
-  name: Identifier
-  typeParameters: List<TypeParameter>
+export type ObjectTypeBound {
   openBrace: Token
   properties: List<TypeProperty>
   closeBrace: Token
 }
 
-export type TypeParameter = {
+export type TupleTypeBound {
+  openParen: Token
+  properties: List<TypeBound>
+  closeParen: Token
+}
+
+export type TypeDeclaration {
+  keyword: Token
+  name: Identifier
+  typeParameters: List<TypeParameter>
+  //bound: ObjectTypeBound | TupleTypeBound
+}
+
+export type TypeParameter {
   name: Identifier
   defaultValue: TypeBound
 }
 
-export type TypeProperty = {
+export type TypeProperty {
   name: Identifier
   typeBound: TypeBound
 }
 
-export type VariableDeclaration = {
+export type VariableDeclaration {
   identifier: SimpleIdentifier
   mutable: Bool
   // typeBound?: TypeBound
@@ -119,13 +123,13 @@ export type VariableDeclaration = {
   initializer: Expression
 }
 
-export type ExportDirective = {
+export type ExportDirective {
   keyword: Token
   // expression: FunctionDeclaration|TraitDeclaration|TypeDeclaration|VariableDeclaration
   identifier: Identifier
 }
 
-export type ImportDirective = {
+export type ImportDirective {
   importKeyword: Token
   // domain?: String
   domain: String
@@ -134,99 +138,99 @@ export type ImportDirective = {
   // specifier: Identifier|ObjectDestructure
 }
 
-export type AssignmentExpression = {
+export type AssignmentExpression {
   // lhs: Identifier|MemberAccess|IndexAccess
   token: Token
   rhs: Expression
 }
 
-export type BinaryExpression = {
+export type BinaryExpression {
   lhs: Expression
   operator: Token
   rhs: Expression
 }
 
-export type CallExpression = {
+export type CallExpression {
   func: Expression
   openParen: Token
   argumentList: List<Expression>
   closeParen: Token
 }
 
-export type ForExpression = {
+export type ForExpression {
   body: Expression,
 }
 
-export type IfExpression = {
+export type IfExpression {
   condition: Expression,
   _then: Block,
   // _else?: Block,
   _else: Block,
 }
 
-export type LoopExpression = {
+export type LoopExpression {
   body: Block,
 }
 
-export type UnaryExpression = {
+export type UnaryExpression {
   operator: Token
   rhs: Expression
 }
 
-export type WhileExpression = {
+export type WhileExpression {
   condition: Expression,
   body: Block,
 }
 
-export type IndexAccess = {
+export type IndexAccess {
   object: Expression
   index: Expression
 }
 
-export type MemberAccess = {
+export type MemberAccess {
   object: Expression
   member: Identifier
 }
 
-export type BreakStatement = {
+export type BreakStatement {
   keyword: Token
 }
 
-export type ReturnStatement = {
+export type ReturnStatement {
   keyword: Token
   expression: Expression
 }
 
-export type ListLiteral = {
+export type ListLiteral {
   members: List<Expression>
 }
 
-export type BooleanLiteral = {
+export type BooleanLiteral {
   value: Bool
 }
 
-export type NumberLiteral = {
+export type NumberLiteral {
   value: Num
 }
 
-export type ObjectLiteral = {
+export type ObjectLiteral {
   members: List<ObjectLiteralMember>
 }
 
-export type ObjectLiteralMember = {
+export type ObjectLiteralMember {
   name: SimpleIdentifier
   value: Expression
 }
 
-export type StringLiteralPart = {
+export type StringLiteralPart {
   value: String
 }
 
-export type StringLiteral = {
+export type StringLiteral {
   // parts: List<StringLiteralPart|Identifier>
 }
 
-export type TupleLiteral = {
+export type TupleLiteral {
   openParen: Token
   expressions: List<Expression>
   closeParen: Token

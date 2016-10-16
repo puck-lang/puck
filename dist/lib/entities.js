@@ -24,7 +24,7 @@ function isFunctionType(ty) {
   return ty._arguments;
 };
 function isObjectType(ty) {
-  return (0, _js._typeof)(ty.properties) == "object";
+  return (0, _js._typeof)(ty.properties) == "object" && !isTupleType(ty);
 };
 function isTupleType(ty) {
   return _js.Array.isArray(ty.properties);

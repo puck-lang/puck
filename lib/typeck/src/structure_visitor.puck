@@ -6,6 +6,7 @@ import '../../ast/ast.puck' as {
 
   FunctionTypeBound
   NamedTypeBound
+  ObjectTypeBound
   TupleTypeBound
 
   BooleanLiteral
@@ -84,6 +85,15 @@ export let structureVisitor = {
         then self.reportError(t, 'Type ' + binding.name + ' is not generic')
 
       visit.walkNamedTypeBound(self, t)
+
+      t.ty = getType(t.scope, t)
+    }
+  }
+  visitObjectTypeBound: |self, mut t: ObjectTypeBound| {
+    if not t.scope {
+      t.scope = self.scope
+
+      visit.walkObjectTypeBound(self, t)
 
       t.ty = getType(t.scope, t)
     }

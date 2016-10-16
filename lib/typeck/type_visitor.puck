@@ -40,6 +40,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
+import '../entities.puck' as {isObjectType, isTupleType}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {getType}
@@ -161,10 +162,14 @@ export fn TypeVisitor(context, file) {
       }
       else {
         self.scope = t.scope
-        t.properties.forEach(|t| self.visitTypeProperty(t))
+        if t.bound then self.visitTypeBound(t.bound)
 
-        Object.assign(t.ty.properties, ObjectMapTrait.fromList(
-          t.properties.map(|p| [p.name.name, p.typeBound.ty])))
+        if isObjectType(t.ty)
+          then Object.assign(t.ty.properties, ObjectMapTrait.fromList(
+            t.bound.properties.map(|p| [p.name.name, p.typeBound.ty])))
+        else if isTupleType(t.ty) {
+          t.ty.properties = t.bound.properties.map(|p| p.ty)
+        }
 
         self.scope = self.scope.parent
       }

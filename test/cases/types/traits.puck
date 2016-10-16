@@ -19,11 +19,11 @@ export trait GenericSelf<T> {
   fn genericSelf(self, a: GenericSelf<T>): T
 }
 
-export type EmptyType = {}
-export type FunctionsType = {
+export type EmptyType {}
+export type FunctionsType {
   name: String
 }
-export type GenericType<T> = {}
+export type GenericType<T> {}
 
 impl Empty for EmptyType {}
 

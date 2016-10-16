@@ -95,7 +95,15 @@ function createScope(context, file) {
         } else {
           if (t.kind == _ast.SyntaxKind.TypeDeclaration) {
             _ty.implementations = [];
-            _ty.properties = _js._Object.create(_js._null);
+            if (t.bound) {
+              if (t.bound.kind == _ast.SyntaxKind.ObjectTypeBound) {
+                _ty.properties = _js._Object.create(_js._null);
+              } else {
+                if (t.bound.kind == _ast.SyntaxKind.TupleTypeBound) {
+                  _ty.properties = [];
+                };
+              };
+            };
           } else {
             if (t.kind == _ast.SyntaxKind.TypeParameter) {
               _ty.isTypeParameter = true;

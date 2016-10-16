@@ -1,22 +1,25 @@
-type Foo = {
+type Foo {
   bar: Generic<String>
   nested: Generic<String, Generic<Num>>
   number: Num
   tuple: (Num, Bool)
 }
 
-type Generic<A, B=A> = {
+type Generic<A, B=A> {
   a: A
   b: B
 }
 
-export type A<B=Generic<Foo>> = {
+export type A<B=Generic<Foo>> {
   c: B
 }
 
-type Functions = {
+type Functions {
   noParam: () => Num
   params: (String, Generic<Num, String>) => Generic<String>
   typeParams: <A, B>(A, Generic<B>) => B
   sameTypeParams: <A, B>(A, Generic<B>) => B
 }
+
+type NamedTuple(Num, Bool, Functions)
+type NamedGenericTuple<A, B=A>(A, B, Generic<A>)

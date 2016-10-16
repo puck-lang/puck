@@ -24,7 +24,7 @@ fn c(a) {
   let a = a * 2
 }
 
-type D = {
+type D {
   e: Num
 }
 

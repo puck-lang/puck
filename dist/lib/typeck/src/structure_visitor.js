@@ -118,6 +118,14 @@ var structureVisitor = exports.structureVisitor = {
       return t.ty = (0, _types.getType)(t.scope, t);
     };
   },
+  visitObjectTypeBound: function visitObjectTypeBound(t) {
+    var self = this;
+    if (!t.scope) {
+      t.scope = self.scope;
+      visit.walkObjectTypeBound(self, t);
+      return t.ty = (0, _types.getType)(t.scope, t);
+    };
+  },
   visitTupleTypeBound: function visitTupleTypeBound(t) {
     var self = this;
     if (!t.scope) {

@@ -142,29 +142,40 @@ function getType(scope, t) {
       };
     };
   } else {
-    if (t.kind == _ast.SyntaxKind.TupleTypeBound) {
-      var properties = t.properties.map(function (p) {
+    if (t.kind == _ast.SyntaxKind.ObjectTypeBound) {
+      var properties = mapObject(t.properties, function (p) {
         return getType(scope, p);
       });
       return {
-        kind: "Tuple",
-        name: (0, _functions.getTupleTypeName)(properties),
+        kind: "Object",
+        name: "Object",
         properties: properties
       };
     } else {
-      var _arguments = t._arguments.properties.map(function (p) {
-        return { ty: getType(scope, p) };
-      });
-      var returnType = getType(scope, t.returnType);
-      return {
-        kind: "Function",
-        name: (0, _functions.getFunctionTypeName)(_arguments, returnType),
-        _arguments: _arguments,
-        argumentRange: {
-          start: _arguments.length,
-          end: _arguments.length + 1
-        },
-        returnType: returnType
+      if (t.kind == _ast.SyntaxKind.TupleTypeBound) {
+        var _properties = t.properties.map(function (p) {
+          return getType(scope, p);
+        });
+        return {
+          kind: "Tuple",
+          name: (0, _functions.getTupleTypeName)(_properties),
+          properties: _properties
+        };
+      } else {
+        var _arguments = t._arguments.properties.map(function (p) {
+          return { ty: getType(scope, p) };
+        });
+        var returnType = getType(scope, t.returnType);
+        return {
+          kind: "Function",
+          name: (0, _functions.getFunctionTypeName)(_arguments, returnType),
+          _arguments: _arguments,
+          argumentRange: {
+            start: _arguments.length,
+            end: _arguments.length + 1
+          },
+          returnType: returnType
+        };
       };
     };
   };

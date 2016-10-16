@@ -13,6 +13,7 @@ import '../ast/ast.puck' as {
   TypeBound
   FunctionTypeBound
   NamedTypeBound
+  ObjectTypeBound
   TupleTypeBound
   TypeDeclaration
   TypeParameter
@@ -359,7 +360,22 @@ export fn parse(input) { // : TokenStream
     }
   }
 
+  fn parseObjectTypeBound(): ObjectTypeBound {
+    expect(SyntaxKind.OpenBraceToken)
+    let openBrace = input.peek()
+    let properties = delimited('{', '}', ',', parseTypeProperty, false)
+    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
+
+    {
+      kind: SyntaxKind.ObjectTypeBound
+      openBrace
+      properties
+      closeBrace
+    }
+  }
+
   fn parseTupleTypeBound(): TupleTypeBound {
+    expect(SyntaxKind.OpenParenToken)
     let openParen = input.peek()
     let properties = delimited('(', ')', ',', parseTypeBound, false)
     let closeParen = consumeToken(SyntaxKind.CloseParenToken)
@@ -380,6 +396,8 @@ export fn parse(input) { // : TokenStream
         then parseFunctionTypeBound(tuple)
         else tuple
     }
+    else if isToken(SyntaxKind.OpenBraceToken)
+      then parseObjectTypeBound()
     else parseNamedTypeBound()
   }
 
@@ -414,19 +432,18 @@ export fn parse(input) { // : TokenStream
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
       else []
-    consumeToken(SyntaxKind.EqualsToken)
-    expect(SyntaxKind.OpenBraceToken)
-    let openBrace = input.peek()
-    let properties = delimited('{', '}', ',', parseTypeProperty, false)
-    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
+
+    let bound =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then parseObjectTypeBound()
+      else if isToken(SyntaxKind.OpenParenToken)
+        then parseTupleTypeBound()
 
     {
       kind: SyntaxKind.TypeDeclaration
       name
       typeParameters
-      openBrace
-      properties
-      closeBrace
+      bound
     }
   }
 

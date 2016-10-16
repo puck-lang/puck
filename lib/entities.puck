@@ -5,7 +5,7 @@ import 'ast/ast.puck' as {
   Module
 }
 
-export type File = {
+export type File {
   fileName: String
   projectPath: String
   absolutePath: String
@@ -17,43 +17,43 @@ export type File = {
   js: String
 }
 
-export type Type = {
+export type Type {
   kind: String
   name: String
 }
 
 /// A data type (the ones declared with the `type` keywords), like String or Num
-export type Struct = { // + Type
+export type Struct { // + Type
   implementations: List<Implementation>
 }
 
-export type Trait = {
+export type Trait {
   functions: ObjectMap<FunctionType>
 }
 
-export type Implementation = {
+export type Implementation {
   ty: Struct
   tra: Trait
 }
 
 /// Represents a generic type like List<T>
-export type TypeClass = { // + Type
+export type TypeClass { // + Type
   parameterRange: Range
   typeParameters: List<TypeParameter>
   instances: List<TypeInstance>
 }
 
 /// Represents an instance of a generic type like List<String> or List<Num>
-export type TypeInstance = { // + Type
+export type TypeInstance { // + Type
   class: TypeClass
   typeParameters: List<Type>
 }
-export type TypeParameter = { // + Type
+export type TypeParameter { // + Type
   defaultValue: Type
 }
 
 /// Represents a function type (Num, Num) => Bool
-export type FunctionType = { // + Type
+export type FunctionType { // + Type
   selfBinding: Binding //?
   arguments: List<Binding>
   argumentRange: Range
@@ -61,18 +61,18 @@ export type FunctionType = { // + Type
   isAbstract: Bool
 }
 
-export type ObjectType = { // + Struct
+export type ObjectType { // + Struct
   properties: ObjectMap<Type>
 }
 
-export type TupleType = { // + Struct
+export type TupleType { // + Struct
   properties: List<Type>
 }
 
-export type GenericFunction = {}  // FunctionType + TypeClass
-export type GenericFunctionInstace = {}  // FunctionType + TypeInstance
+export type GenericFunction {}  // FunctionType + TypeClass
+export type GenericFunctionInstace {}  // FunctionType + TypeInstance
 
-export type Binding = {
+export type Binding {
   name: String
   token: Token
   mutable: Bool
@@ -81,12 +81,12 @@ export type Binding = {
   previous: Binding //?
 }
 
-export type TypeBinding = {
+export type TypeBinding {
   name: String
   ty: Type //?
 }
 
-export type Scope = {
+export type Scope {
   getLocalBinding: (String) => Binding
   // getBinding: (String, allowRedeclare = true) => Binding
   getBinding: (String) => Binding
@@ -95,7 +95,7 @@ export type Scope = {
   defineType: (String, Binding) => Binding
 }
 
-export type ScopeAware = {
+export type ScopeAware {
   scope: Scope
 }
 
@@ -104,7 +104,7 @@ export fn isFunctionType(ty) {
 }
 
 export fn isObjectType(ty) {
-  typeof(ty.properties) == 'object'
+  typeof(ty.properties) == 'object' and not isTupleType(ty)
 }
 
 export fn isTupleType(ty) {

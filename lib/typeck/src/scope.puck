@@ -56,7 +56,12 @@ export fn createScope(context, file, parent = false) {
             }
             else if t.kind == SyntaxKind.TypeDeclaration {
               ty.implementations = []
-              ty.properties = Object.create(null)
+              if t.bound {
+                if t.bound.kind == SyntaxKind.ObjectTypeBound
+                  then ty.properties = Object.create(null)
+                else if t.bound.kind == SyntaxKind.TupleTypeBound
+                  then ty.properties = []
+              }
             }
             else if t.kind == SyntaxKind.TypeParameter {
               ty.isTypeParameter = true

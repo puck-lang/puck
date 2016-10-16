@@ -19,6 +19,8 @@ var visit = _interopRequireWildcard(_visit);
 
 var _ast = require('./../compiler/ast.js');
 
+var _entities = require('./../entities.js');
+
 var _scope = require('./src/scope.js');
 
 var _structure_visitor = require('./src/structure_visitor.js');
@@ -152,12 +154,20 @@ function TypeVisitor(context, file) {
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
-          t.properties.forEach(function (t) {
-            return self.visitTypeProperty(t);
-          });
-          _js._Object.assign(t.ty.properties, _core.ObjectMapTrait.fromList(t.properties.map(function (p) {
-            return [p.name.name, p.typeBound.ty];
-          })));
+          if (t.bound) {
+            self.visitTypeBound(t.bound);
+          };
+          if ((0, _entities.isObjectType)(t.ty)) {
+            _js._Object.assign(t.ty.properties, _core.ObjectMapTrait.fromList(t.bound.properties.map(function (p) {
+              return [p.name.name, p.typeBound.ty];
+            })));
+          } else {
+            if ((0, _entities.isTupleType)(t.ty)) {
+              t.ty.properties = t.bound.properties.map(function (p) {
+                return p.ty;
+              });
+            };
+          };
           return self.scope = self.scope.parent;
         };
       };

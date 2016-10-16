@@ -119,6 +119,15 @@ export fn getType(scope: Scope, t) { // t: TypeBound
       then createTypeInstanceTypeCast(binding.ty, t.typeParameters.map(|p| p.ty))
     else binding.ty
   }
+  else if t.kind == SyntaxKind.ObjectTypeBound {
+    let properties = mapObject(t.properties, |p| getType(scope, p))
+
+    {
+      kind: 'Object'
+      name: 'Object'
+      properties
+    }
+  }
   else if t.kind == SyntaxKind.TupleTypeBound {
     let properties = t.properties.map(|p| getType(scope, p))
 

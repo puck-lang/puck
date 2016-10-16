@@ -121,7 +121,7 @@ to puck, please see [for loops](for_loops.md).
 ## Types
 ```puck
 // Object types describes the members of a data structure
-type Point = {
+type Point {
   x: Num
   y: Num
 }

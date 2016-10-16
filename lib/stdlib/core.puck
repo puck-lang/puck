@@ -1,9 +1,9 @@
 //#![no_core]
 import 'puck:js' as {Error, Object, console, null, undefined}
 
-export type Bool = {}
-export type Num = {}
-export type String = {}
+export type Bool {}
+export type Num {}
+export type String {}
 export trait StringTrait {
   fn contains(self, subStr: String) {
     self.indexOf(subStr) >= 0
@@ -11,7 +11,7 @@ export trait StringTrait {
 }
 impl StringTrait for String {}
 
-export type List<E> = {}
+export type List<E> {}
 export trait ListTrait<E> {
   fn zip<A, B>(a: List<A>, b: List<B>): List<(A, B)> {
     if a.length != b.length
@@ -46,7 +46,7 @@ impl<E> Iterable<E> for List<E> {
 
 /// A (half-open) range which is bounded at both ends: { x | start <= x < end }.
 /// Use start..end (two dots) for its shorthand.
-export type Range<Idx=Num> = {
+export type Range<Idx=Num> {
   /// The lower bound of the range (inclusive).
   start: Idx
   /// The upper bound of the range (exclusive).
@@ -80,7 +80,7 @@ export fn print(message, a, b, c) {
   console.log.apply(console, args)
 }
 
-export type ObjectMap<T> = {}
+export type ObjectMap<T> {}
 export trait ObjectMapTrait<T> {
   fn new<T>(): ObjectMap<T> {
     Object.create(null)

@@ -1,4 +1,4 @@
-type Default<A=Num> = {
+type Default<A=Num> {
   value: A
 }
 trait DefaultTrait {

@@ -71,6 +71,7 @@ export enum SyntaxKind {
   TypeBound,
   NamedTypeBound,
   FunctionTypeBound,
+  ObjectTypeBound,
   TupleTypeBound,
   TypeDeclaration,
   TypeParameter,
