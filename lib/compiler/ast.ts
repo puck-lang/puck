@@ -3,6 +3,7 @@ export enum SyntaxKind {
   AsKeyword,
   BreakKeyword,
   ElseKeyword,
+  EnumKeyword,
   ExportKeyword,
   FalseKeyword,
   FnKeyword,
@@ -61,6 +62,7 @@ export enum SyntaxKind {
 
   Comment,
   Block,
+  EnumDeclaration,
   Function,
   Identifier,
   ImplDeclaration,
@@ -103,6 +105,7 @@ export enum SyntaxKind {
   StringLiteral,
   TupleLiteral,
 
+  EnumMember,
   ObjectLiteralMember,
   StringLiteralPart,
 }
@@ -115,7 +118,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   // 'debugger': SyntaxKind.DebuggerKeyword,
   // 'delete': SyntaxKind.DeleteKeyword,
   'else': SyntaxKind.ElseKeyword,
-  // 'enum': SyntaxKind.EnumKeyword,
+  'enum': SyntaxKind.EnumKeyword,
   'export': SyntaxKind.ExportKeyword,
   'false': SyntaxKind.FalseKeyword,
   'for': SyntaxKind.ForKeyword,

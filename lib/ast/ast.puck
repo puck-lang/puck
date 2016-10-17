@@ -14,6 +14,18 @@ export type Block {
   expressions: List<Expression>
 }
 
+export type EnumDeclaration {
+  keyword: Token
+  name: Identifier
+  typeParameters: List<TypeParameter>
+  members: List<TypeDeclaration>
+}
+
+export type EnumMember {
+  name: Identifier
+  //bound: Maybe<ObjectTypeBound | TupleTypeBound>
+}
+
 export type FunctionDeclaration {
   // name?: Identifier
   name: Identifier
@@ -101,7 +113,7 @@ export type TypeDeclaration {
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
-  //bound: ObjectTypeBound | TupleTypeBound
+  //bound: Maybe<ObjectTypeBound | TupleTypeBound>
 }
 
 export type TypeParameter {

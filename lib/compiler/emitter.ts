@@ -143,10 +143,12 @@ export function Emitter() {
     )
     expressions = expressions.concat(emitExpressions(
       module.expressions.filter(e => !(
+        e.kind === SyntaxKind.EnumDeclaration ||
         e.kind === SyntaxKind.ImplDeclaration ||
         e.kind === SyntaxKind.TraitDeclaration ||
         e.kind === SyntaxKind.TypeDeclaration ||
         (isExport(e) && (
+          e.expression.kind === SyntaxKind.EnumDeclaration ||
           e.expression.kind === SyntaxKind.TraitDeclaration ||
           e.expression.kind === SyntaxKind.TypeDeclaration
         ))

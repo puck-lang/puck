@@ -23,3 +23,19 @@ type Functions {
 
 type NamedTuple(Num, Bool, Functions)
 type NamedGenericTuple<A, B=A>(A, B, Generic<A>)
+
+enum Enum
+  = A(Enum, NamedTuple)
+  | B {
+      this: Enum
+      functions: Functions
+    }
+  | C
+
+enum GenericEnum<X, Y>
+  = A(GenericEnum<X, Functions>, Y)
+  | B {
+      x: X
+      y: Y
+    }
+  | C

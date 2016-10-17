@@ -88,10 +88,12 @@ function Emitter() {
         expressions = expressions.concat(module.expressions
             .filter(function (e) { return e.kind === ast_1.SyntaxKind.ImplDeclaration; })
             .map(function (e) { return emitImplDeclaration(e); }));
-        expressions = expressions.concat(emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.ImplDeclaration ||
+        expressions = expressions.concat(emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.EnumDeclaration ||
+            e.kind === ast_1.SyntaxKind.ImplDeclaration ||
             e.kind === ast_1.SyntaxKind.TraitDeclaration ||
             e.kind === ast_1.SyntaxKind.TypeDeclaration ||
-            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
+            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.EnumDeclaration ||
+                e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
                 e.expression.kind === ast_1.SyntaxKind.TypeDeclaration))); })));
         return preamble + expressions.join(';\n');
     }
