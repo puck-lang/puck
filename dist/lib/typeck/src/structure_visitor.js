@@ -15,13 +15,13 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-require('./../../ast/ast.js');
+var _ast = require('./../../ast/ast.js');
 
 var _visit = require('./../../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
 
-var _ast = require('./../../compiler/ast.js');
+var _ast2 = require('./../../compiler/ast.js');
 
 var _entities = require('./../../entities.js');
 
@@ -173,19 +173,19 @@ var structureVisitor = exports.structureVisitor = {
   visitLiteral: function visitLiteral(l) {
     var self = this;
     l.scope = self.scope;
-    if (l.kind == _ast.SyntaxKind.BooleanLiteral) {
+    if (l.kind == _ast2.SyntaxKind.BooleanLiteral) {
       return self.visitStrictBooleanLiteral(l);
     } else {
-      if (l.kind == _ast.SyntaxKind.ListLiteral) {
+      if (l.kind == _ast2.SyntaxKind.ListLiteral) {
         return self.visitStrictListLiteral(l);
       } else {
-        if (l.kind == _ast.SyntaxKind.NumberLiteral) {
+        if (l.kind == _ast2.SyntaxKind.NumberLiteral) {
           return self.visitStrictNumberLiteral(l);
         } else {
-          if (l.kind == _ast.SyntaxKind.ObjectLiteral) {
+          if (l.kind == _ast2.SyntaxKind.ObjectLiteral) {
             return self.visitStrictObjectLiteral(l);
           } else {
-            if (l.kind == _ast.SyntaxKind.StringLiteral) {
+            if (l.kind == _ast2.SyntaxKind.StringLiteral) {
               return self.visitStrictStringLiteral(l);
             } else {
               return self.reportError(l, "not a literal" + (0, _util.inspect)(l));
@@ -217,7 +217,7 @@ var structureVisitor = exports.structureVisitor = {
     var self = this;
     l.ty = self.scope.getTypeBinding("String").ty;
     if (l.parts.some(function (p) {
-      return p.kind == _ast.SyntaxKind.Identifier;
+      return p.kind == _ast2.SyntaxKind.Identifier;
     })) {
       return self.reportError(l, "not a literal");
     };

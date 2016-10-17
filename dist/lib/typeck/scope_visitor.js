@@ -13,13 +13,13 @@ var _util = require('util');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-require('./../ast/ast.js');
+var _ast = require('./../ast/ast.js');
 
 var _visit = require('./../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
 
-var _ast = require('./../compiler/ast.js');
+var _ast2 = require('./../compiler/ast.js');
 
 var _functions = require('./src/functions.js');
 
@@ -39,13 +39,13 @@ function ScopeVisitor(context, file) {
   var importDirective = void 0;
   var reportError = context.reportError.bind(context, file);
   function getBinding(token) {
-    if (token.kind == _ast.SyntaxKind.Identifier) {
+    if (token.kind == _ast2.SyntaxKind.Identifier) {
       return token.scope.getBinding(token.name);
     } else {
-      if (token.kind == _ast.SyntaxKind.MemberAccess) {
+      if (token.kind == _ast2.SyntaxKind.MemberAccess) {
         return getBinding(token.object);
       } else {
-        if (token.kind == _ast.SyntaxKind.IndexAccess) {
+        if (token.kind == _ast2.SyntaxKind.IndexAccess) {
           return getBinding(token.object);
         };
       };
@@ -74,7 +74,7 @@ function ScopeVisitor(context, file) {
       if (!(0, _types.isAssignable)(parameter.ty, argument.ty)) {
         reportError(argument, (0, _structure_visitor.notAssignableError)(parameter.ty, argument.ty));
       };
-      if (parameter.mutable && argument.kind == _ast.SyntaxKind.Identifier) {
+      if (parameter.mutable && argument.kind == _ast2.SyntaxKind.Identifier) {
         var argumentName = argument.name;
         var argumentBinding = argument.scope.getBinding(argumentName);
         if (!argumentBinding.mutable) {
@@ -107,12 +107,12 @@ function ScopeVisitor(context, file) {
   };
   function defineHoisted(expressions, visitor) {
     return expressions.forEach(function (e) {
-      if (e.kind == _ast.SyntaxKind.Function) {
+      if (e.kind == _ast2.SyntaxKind.Function) {
         e.hoisting = true;
         visitor.visitFunctionDeclaration(e);
         e.hoisted = true;
       };
-      if (e.kind == _ast.SyntaxKind.ExportDirective && e.expression.kind == _ast.SyntaxKind.Function) {
+      if (e.kind == _ast2.SyntaxKind.ExportDirective && e.expression.kind == _ast2.SyntaxKind.Function) {
         e.expression.hoisting = true;
         visitor.visitFunctionDeclaration(e.expression);
         return e.expression.hoisted = true;
@@ -215,7 +215,7 @@ function ScopeVisitor(context, file) {
       e.scope = self.scope;
       self.visitExpression(e.func);
       var functionType = e.func.ty;
-      if (e.func.kind == _ast.SyntaxKind.MemberAccess && e.func.object.ty) {
+      if (e.func.kind == _ast2.SyntaxKind.MemberAccess && e.func.object.ty) {
         (function () {
           var name = e.func.member.name;
           var objectType = e.func.object.ty;
@@ -338,11 +338,11 @@ function ScopeVisitor(context, file) {
       e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
       var __PUCK__value__10 = void 0;
-      if (e.operator.kind == _ast.SyntaxKind.NotKeyword) {
+      if (e.operator.kind == _ast2.SyntaxKind.NotKeyword) {
         __PUCK__value__10 = e.scope.getTypeBinding("Bool").ty;
       } else {
         var __PUCK__value__11 = void 0;
-        if (e.operator.kind == _ast.SyntaxKind.MinusToken || e.operator.kind == _ast.SyntaxKind.PlusToken) {
+        if (e.operator.kind == _ast2.SyntaxKind.MinusToken || e.operator.kind == _ast2.SyntaxKind.PlusToken) {
           __PUCK__value__11 = e.scope.getTypeBinding("Num").ty;
         };
         __PUCK__value__10 = __PUCK__value__11;

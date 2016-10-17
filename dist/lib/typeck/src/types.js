@@ -16,13 +16,13 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-require('./../../ast/ast.js');
+var _ast = require('./../../ast/ast.js');
 
 var _visit = require('./../../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
 
-var _ast = require('./../../compiler/ast.js');
+var _ast2 = require('./../../compiler/ast.js');
 
 var _entities = require('./../../entities.js');
 
@@ -142,7 +142,7 @@ function getType(scope, t) {
       };
     };
   } else {
-    if (t.kind == _ast.SyntaxKind.ObjectTypeBound) {
+    if (t.kind == _ast2.SyntaxKind.ObjectTypeBound) {
       var properties = mapObject(t.properties, function (p) {
         return getType(scope, p);
       });
@@ -152,7 +152,7 @@ function getType(scope, t) {
         properties: properties
       };
     } else {
-      if (t.kind == _ast.SyntaxKind.TupleTypeBound) {
+      if (t.kind == _ast2.SyntaxKind.TupleTypeBound) {
         var _properties = t.properties.map(function (p) {
           return getType(scope, p);
         });

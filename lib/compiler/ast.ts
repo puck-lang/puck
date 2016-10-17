@@ -259,6 +259,13 @@ export interface BlockNode extends Token {
   expressions: Array<Expression>
 }
 
+export interface EnumDeclaration extends Token {
+  keyword: Token
+  name: Identifier
+  typeParameters: Array<TypeParameter>
+  members: Array<TypeDeclaration>
+}
+
 export interface FunctionDeclaration extends Token {
   name?: Identifier
   parameterList: Array<VariableDeclaration>
@@ -312,10 +319,8 @@ export interface TypeBound extends Token {
 export interface TypeDeclaration extends Token {
   keyword: Token
   name: Identifier
-  parameters: Array<TypeParameter>
-  openBrace: Token
-  properties: Array<TypeProperty>
-  closeBrace: Token
+  typeParameters: Array<TypeParameter>
+  bound: TypeBound
 }
 
 export interface TypeParameter extends Token {

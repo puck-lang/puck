@@ -88,13 +88,9 @@ function Emitter() {
         expressions = expressions.concat(module.expressions
             .filter(function (e) { return e.kind === ast_1.SyntaxKind.ImplDeclaration; })
             .map(function (e) { return emitImplDeclaration(e); }));
-        expressions = expressions.concat(emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.EnumDeclaration ||
-            e.kind === ast_1.SyntaxKind.ImplDeclaration ||
+        expressions = expressions.concat(emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.ImplDeclaration ||
             e.kind === ast_1.SyntaxKind.TraitDeclaration ||
-            e.kind === ast_1.SyntaxKind.TypeDeclaration ||
-            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.EnumDeclaration ||
-                e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
-                e.expression.kind === ast_1.SyntaxKind.TypeDeclaration))); })));
+            (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TraitDeclaration)); })));
         return preamble + expressions.join(';\n');
     }
     function emitBlock(block) {
@@ -162,6 +158,8 @@ function Emitter() {
                 }
             }
             switch (expression.kind) {
+                case ast_1.SyntaxKind.EnumDeclaration: return emitEnumDeclaration(expression);
+                case ast_1.SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
                 case ast_1.SyntaxKind.IfExpression: return emitIfExpression(expression);
                 default: throw ast_1.SyntaxKind[expression.kind] + " is not supported";
             }
@@ -174,6 +172,27 @@ function Emitter() {
     function emitExpression(expression, context) {
         if (context === void 0) { context = null; }
         return withContext(context, function () { return emitExpressionKeepContext(expression); });
+    }
+    function emitEnumDeclaration(e) {
+        return "var " + emitIdentifier(e.name) + " = {\n" + indent(e.members.map(emitEnumMember).join('\n')) + "\n}";
+    }
+    function emitEnumMember(t) {
+        var value;
+        if (t.bound) {
+            if (t.bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
+                value = 'null'; // TODO
+            }
+            else if (t.bound.kind === ast_1.SyntaxKind.TupleTypeBound) {
+                value = "(...members) => ({kind: '" + emitIdentifier(t.name) + "', value: members})";
+            }
+            else {
+                throw "Unsupproted type bound " + ast_1.SyntaxKind[t.bound.kind] + ", " + t.bound.kind;
+            }
+        }
+        else {
+            value = "{kind: '" + emitIdentifier(t.name) + "', value: Symbol('" + emitIdentifier(t.name) + "')}";
+        }
+        return emitIdentifier(t.name) + ": " + value + ",";
     }
     function emitFunctionDeclaration(fn) {
         var name = fn.name ? emitIdentifier(fn.name) : '';
@@ -224,6 +243,24 @@ function Emitter() {
             .map(function (m) { return (emitIdentifier(m.name) + ": " + emitFunctionDeclaration(m)); }))
             .join(',\n') + "\n}";
     }
+    function emitTypeDeclaration(t) {
+        var value;
+        if (t.bound) {
+            if (t.bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
+                value = 'null'; // TODO
+            }
+            else if (t.bound.kind === ast_1.SyntaxKind.TupleTypeBound) {
+                value = '(...members) => members';
+            }
+            else {
+                throw "Unsupproted type bound " + ast_1.SyntaxKind[t.bound.kind] + ", " + t.bound.kind;
+            }
+        }
+        else {
+            value = "Symbol('" + emitIdentifier(t.name) + "')";
+        }
+        return "var " + emitIdentifier(t.name) + " = " + value;
+    }
     function emitVariableDeclaration(vd) {
         var binding = vd.scope.getBinding(vd.identifier.name);
         var willBeRedefined = binding.redefined;
@@ -253,13 +290,6 @@ function Emitter() {
         var specifier = ast_1.isIdentifier(i.specifier)
             ? "* as " + emitIdentifier(i.specifier)
             : "{" + i.specifier.members
-                .filter(function (_a) {
-                var property = _a.property, local = _a.local;
-                if (!i['_module'])
-                    return true;
-                var e = i['_module'].exports[local.name];
-                return e.expression.kind != ast_1.SyntaxKind.TypeDeclaration;
-            })
                 .map(function (_a) {
                 var property = _a.property, local = _a.local;
                 return property.name === local.name

@@ -13,9 +13,9 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _util = require('util');
 
-require('./../../ast/ast.js');
+var _ast = require('./../../ast/ast.js');
 
-var _ast = require('./../../compiler/ast.js');
+var _ast2 = require('./../../compiler/ast.js');
 
 var _entities = require('./../../entities.js');
 
@@ -90,22 +90,22 @@ function createScope(context, file) {
           name: name,
           parameterRange: parameterRange
         };
-        if (t.kind == _ast.SyntaxKind.TraitDeclaration) {
+        if (t.kind == _ast2.SyntaxKind.TraitDeclaration) {
           _ty.functions = {};
         } else {
-          if (t.kind == _ast.SyntaxKind.TypeDeclaration) {
+          if (t.kind == _ast2.SyntaxKind.TypeDeclaration) {
             _ty.implementations = [];
             if (t.bound) {
-              if (t.bound.kind == _ast.SyntaxKind.ObjectTypeBound) {
+              if (t.bound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
                 _ty.properties = _js._Object.create(_js._null);
               } else {
-                if (t.bound.kind == _ast.SyntaxKind.TupleTypeBound) {
+                if (t.bound.kind == _ast2.SyntaxKind.TupleTypeBound) {
                   _ty.properties = [];
                 };
               };
             };
           } else {
-            if (t.kind == _ast.SyntaxKind.TypeParameter) {
+            if (t.kind == _ast2.SyntaxKind.TypeParameter) {
               _ty.isTypeParameter = true;
               if (t.defaultValue) {
                 _ty.defaultValue = (0, _types.getType)(self, t.defaultValue);

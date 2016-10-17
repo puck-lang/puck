@@ -24,9 +24,9 @@ var _path = require('path');
 
 var path = _interopRequireWildcard(_path);
 
-require('./ast/ast.js');
+var _ast = require('./ast/ast.js');
 
-var _ast = require('./compiler/ast.js');
+var _ast2 = require('./compiler/ast.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -85,5 +85,5 @@ function flag(_arguments, name, defaultValue) {
   };
 };
 function isTypeScopeDeclaration(t) {
-  return t.kind == _ast.SyntaxKind.TraitDeclaration || t.kind == _ast.SyntaxKind.TypeDeclaration;
+  return t.kind == _ast2.SyntaxKind.TraitDeclaration || t.kind == _ast2.SyntaxKind.TypeDeclaration;
 }

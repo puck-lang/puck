@@ -11,13 +11,13 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-require('./../ast/ast.js');
+var _ast = require('./../ast/ast.js');
 
 var _visit = require('./../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
 
-var _ast = require('./../compiler/ast.js');
+var _ast2 = require('./../compiler/ast.js');
 
 var _entities = require('./../entities.js');
 
@@ -42,7 +42,7 @@ function TypeVisitor(context, file) {
       self.scope = m.scope;
       self.scope.clearBindings();
       var expressions = m.expressions.filter(function (e) {
-        return e.kind == _ast.SyntaxKind.ImportDirective || e.kind == _ast.SyntaxKind.TraitDeclaration || e.kind == _ast.SyntaxKind.TypeDeclaration || e.kind == _ast.SyntaxKind.ExportDirective && (e.expression.kind == _ast.SyntaxKind.TraitDeclaration || e.expression.kind == _ast.SyntaxKind.TypeDeclaration);
+        return e.kind == _ast2.SyntaxKind.ImportDirective || e.kind == _ast2.SyntaxKind.TraitDeclaration || e.kind == _ast2.SyntaxKind.TypeDeclaration || e.kind == _ast2.SyntaxKind.ExportDirective && (e.expression.kind == _ast2.SyntaxKind.TraitDeclaration || e.expression.kind == _ast2.SyntaxKind.TypeDeclaration);
       });
       expressions.forEach(function (e) {
         self.visitExpression(e);
@@ -68,7 +68,7 @@ function TypeVisitor(context, file) {
       return i.members.forEach(function (m) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
-          if (e.expression.kind == _ast.SyntaxKind.TraitDeclaration) {
+          if (e.expression.kind == _ast2.SyntaxKind.TraitDeclaration) {
             var typeBinding = importDirective._module.scope.getTypeBinding(m.property.name);
             self.scope.setTypeBinding(typeBinding);
             return self.scope.define({
@@ -77,7 +77,7 @@ function TypeVisitor(context, file) {
               token: m
             });
           } else {
-            if (e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
+            if (e.expression.kind == _ast2.SyntaxKind.TypeDeclaration) {
               var _typeBinding = importDirective._module.scope.getTypeBinding(m.property.name);
               self.scope.setTypeBinding(_typeBinding);
               return self.imports[m.local.name] = importDirective.file;
@@ -184,14 +184,14 @@ function TypeVisitor(context, file) {
         return _js._undefined;
       };
       i.scope = self.scope;
-      if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
+      if (i.specifier.kind == _ast2.SyntaxKind.Identifier) {
         return self.scope.define({
           name: i.specifier.name,
           mutable: false,
           token: i
         });
       } else {
-        if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
+        if (i.specifier.kind == _ast2.SyntaxKind.ObjectDestructure) {
           importDirective = i;
           return visit.walkImportDirective(self, i);
         };

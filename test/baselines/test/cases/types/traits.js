@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.GenericSelf = exports.Generic = exports.SelfAware = exports.Functions = exports.Empty = undefined;
+exports.GenericType = exports.FunctionsType = exports.EmptyType = exports.GenericSelf = exports.Generic = exports.SelfAware = exports.Functions = exports.Empty = undefined;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -69,7 +69,9 @@ SelfAware['$FunctionsType'] = {
   withImmutableSelf: SelfAware.withImmutableSelf,
   withMutableSelf: SelfAware.withMutableSelf
 };
-
+var EmptyType = exports.EmptyType = null;
+var FunctionsType = exports.FunctionsType = null;
+var GenericType = exports.GenericType = null;
 Functions.noBody();
 var func = { name: "func" };
 Functions['$FunctionsType'].withBody.call(func, "body");

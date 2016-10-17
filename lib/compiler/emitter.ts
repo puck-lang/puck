@@ -13,6 +13,7 @@ import {
   BooleanLiteral,
   CallExpression,
   CommentNode,
+  EnumDeclaration,
   ExportDirective,
   Expression,
   ForExpression,
@@ -36,6 +37,7 @@ import {
   TraitDeclaration,
   TupleLiteral,
   TypeBound,
+  TypeDeclaration,
   UnaryExpression,
   VariableDeclaration,
   WhileExpression,
@@ -143,15 +145,9 @@ export function Emitter() {
     )
     expressions = expressions.concat(emitExpressions(
       module.expressions.filter(e => !(
-        e.kind === SyntaxKind.EnumDeclaration ||
         e.kind === SyntaxKind.ImplDeclaration ||
         e.kind === SyntaxKind.TraitDeclaration ||
-        e.kind === SyntaxKind.TypeDeclaration ||
-        (isExport(e) && (
-          e.expression.kind === SyntaxKind.EnumDeclaration ||
-          e.expression.kind === SyntaxKind.TraitDeclaration ||
-          e.expression.kind === SyntaxKind.TypeDeclaration
-        ))
+        (isExport(e) && e.expression.kind === SyntaxKind.TraitDeclaration)
       ))
     ))
     return preamble + expressions.join(';\n')
@@ -228,6 +224,8 @@ export function Emitter() {
         }
       }
       switch (expression.kind) {
+        case SyntaxKind.EnumDeclaration: return emitEnumDeclaration(expression);
+        case SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
         case SyntaxKind.IfExpression: return emitIfExpression(expression);
         default: throw `${SyntaxKind[expression.kind]} is not supported`
       }
@@ -239,6 +237,31 @@ export function Emitter() {
 
   function emitExpression(expression, context = null) {
     return withContext(context, () => emitExpressionKeepContext(expression))
+  }
+
+  function emitEnumDeclaration(e: EnumDeclaration) {
+    return `var ${emitIdentifier(e.name)} = {\n${
+      indent(e.members.map(emitEnumMember).join('\n'))
+    }\n}`
+  }
+
+  function emitEnumMember(t: TypeDeclaration) {
+    let value
+    if (t.bound) {
+      if (t.bound.kind === SyntaxKind.ObjectTypeBound) {
+        value = 'null' // TODO
+      }
+      else if (t.bound.kind === SyntaxKind.TupleTypeBound) {
+        value = `(...members) => ({kind: '${emitIdentifier(t.name)}', value: members})`
+      }
+      else {
+        throw `Unsupproted type bound ${SyntaxKind[t.bound.kind]}, ${t.bound.kind}`
+      }
+    } else {
+      value = `{kind: '${emitIdentifier(t.name)}', value: Symbol('${emitIdentifier(t.name)}')}`
+    }
+
+    return `${emitIdentifier(t.name)}: ${value},`
   }
 
   function emitFunctionDeclaration(fn: FunctionDeclaration) {
@@ -305,6 +328,25 @@ export function Emitter() {
     }\n}`
   }
 
+  function emitTypeDeclaration(t: TypeDeclaration) {
+    let value
+    if (t.bound) {
+      if (t.bound.kind === SyntaxKind.ObjectTypeBound) {
+        value = 'null' // TODO
+      }
+      else if (t.bound.kind === SyntaxKind.TupleTypeBound) {
+        value = '(...members) => members'
+      }
+      else {
+        throw `Unsupproted type bound ${SyntaxKind[t.bound.kind]}, ${t.bound.kind}`
+      }
+    } else {
+      value = `Symbol('${emitIdentifier(t.name)}')`
+    }
+
+    return `var ${emitIdentifier(t.name)} = ${value}`
+  }
+
   function emitVariableDeclaration(vd: VariableDeclaration & {scope: any}) {
     let binding = vd.scope.getBinding(vd.identifier.name)
     let willBeRedefined = binding.redefined
@@ -343,12 +385,6 @@ export function Emitter() {
     let specifier = isIdentifier(i.specifier)
       ? `* as ${emitIdentifier(i.specifier)}`
       : `{${i.specifier.members
-          .filter(({property, local}) => {
-            if (!i['_module']) return true
-            const e = i['_module'].exports[local.name]
-
-            return e.expression.kind != SyntaxKind.TypeDeclaration
-          })
           .map(({property, local}) => property.name === local.name
             ? emitIdentifier(property)
             : `${emitIdentifier(property)} as ${emitIdentifier(local)}`

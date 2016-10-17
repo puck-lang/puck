@@ -12,9 +12,9 @@ exports.checkFunctionAssignability = checkFunctionAssignability;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-require('./../../ast/ast.js');
+var _ast = require('./../../ast/ast.js');
 
-require('./../../entities.js');
+var _entities = require('./../../entities.js');
 
 var _range = require('./range.js');
 

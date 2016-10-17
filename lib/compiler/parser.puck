@@ -1,6 +1,5 @@
 import 'puck:js' as {console, global, null, typeof, undefined}
 import '../ast/ast.puck' as {
-  SyntaxKind
   Token
   Expression
 
@@ -45,7 +44,7 @@ import 'ast.ts' as {
 
 export fn parse(input) { // : TokenStream
 
-  fn isToken(kind: SyntaxKind, peekDistance = 0) {
+  fn isToken(kind, peekDistance = 0) { // kind: SyntaxKind
     let token = input.peek(false, peekDistance)
     token and token.kind == kind
   }
@@ -56,7 +55,7 @@ export fn parse(input) { // : TokenStream
     else SyntaxKind[token.kind]
   }
 
-  fn expect(expect: SyntaxKind, name = 'token') {
+  fn expect(expect, name = 'token') { // kind: SyntaxKind
     if not isToken(expect) {
       let token = input.peek()
       let expectedText = ': "' + tokenName({kind: expect}) + '"'
@@ -79,7 +78,7 @@ export fn parse(input) { // : TokenStream
     return input.next()
   }
 
-  fn skipKeyword(kw: SyntaxKind) {
+  fn skipKeyword(kw) { // kind: SyntaxKind
     expect(kw, 'keyword')
     input.next()
   }
@@ -91,7 +90,7 @@ export fn parse(input) { // : TokenStream
     input.croak('Unexpected token: $name')
   }
 
-  fn consumeSeparator(kind: SyntaxKind) {
+  fn consumeSeparator(kind) { // kind: SyntaxKind
     if not input.eof() {
       let mut token = input.peek(true)
 

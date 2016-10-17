@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.StringTrait = undefined;
+exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.StringTrait = undefined;
 exports.print = print;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
@@ -84,6 +84,11 @@ ObjectMapTrait['$ObjectMap'] = {
   fromList: ObjectMapTrait.fromList,
   map: ObjectMapTrait.map
 };
+var Bool = exports.Bool = null;
+var Num = exports.Num = null;
+var String = exports.String = null;
+var List = exports.List = null;
+var Range = exports.Range = null;
 function print(message, a, b, c) {
   var args = [message];
   if (a != _js._undefined) {
@@ -96,4 +101,5 @@ function print(message, a, b, c) {
     args[3] = c;
   };
   return _js.console.log.apply(_js.console, args);
-}
+};
+var ObjectMap = exports.ObjectMap = null;
