@@ -300,7 +300,7 @@ function ScopeVisitor(context, file) {
       var parentAssignedTo = self.assignedTo;
       e.argumentList.forEach(function (a, i) {
         var __PUCK__value__9 = void 0;
-        if (functionType) {
+        if (functionType && functionType._arguments) {
           __PUCK__value__9 = functionType._arguments[i];
         };
         self.assignedTo = __PUCK__value__9;
@@ -365,8 +365,43 @@ function ScopeVisitor(context, file) {
       var self = this;
       a.scope = self.scope;
       visit.walkExpression(self, a.object);
-      if (a.object.ty && (0, _entities.isStruct)(a.object.ty)) {
-        return a.ty = a.object.ty.properties[a.member.name];
+      if (a.object.ty) {
+        if ((0, _entities.isEnumType)(a.object.ty)) {
+          var member = a.object.ty.members[a.member.name];
+          if (!member) {
+            return reportError(a.member, a.object.ty.name + " has no member named " + a.member.name);
+          } else {
+            if ((0, _entities.isTupleType)(member)) {
+              return a.ty = {
+                kind: "Function",
+                name: a.member.name,
+                parameterRange: a.object.ty.parameterRange,
+                typeParameters: a.object.ty.typeParameters,
+                instances: [],
+                _arguments: member.properties.map(function (p, i) {
+                  return {
+                    name: i.toString(),
+                    mutable: false,
+                    ty: p,
+                    redefined: false
+                  };
+                }),
+                argumentRange: {
+                  start: member.properties.length,
+                  end: member.properties.length + 1
+                },
+                returnType: a.object.ty,
+                isAbstract: false
+              };
+            } else {
+              return a.ty = a.object.ty;
+            };
+          };
+        } else {
+          if ((0, _entities.isStruct)(a.object.ty)) {
+            return a.ty = a.object.ty.properties[a.member.name];
+          };
+        };
       };
     },
     visitBreak: function visitBreak(b) {

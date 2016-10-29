@@ -50,9 +50,11 @@ import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
 import 'src/types.puck' as {getType, isAssignable, isSameType, resolveTypeParameters}
 import '../entities.puck' as {
+  isEnumType
   isStruct
   isTrait
   isTypeInstance
+  isTupleType
   Binding
   FunctionType
   Scope
@@ -313,7 +315,7 @@ export fn ScopeVisitor(context, file) {
       }
       let parentAssignedTo = self.assignedTo
       e.argumentList.forEach(|a, i| {
-        self.assignedTo = if functionType then functionType.arguments[i]
+        self.assignedTo = if functionType and functionType.arguments then functionType.arguments[i]
         self.visitExpression(a)
       })
       self.assignedTo = parentAssignedTo
@@ -365,8 +367,38 @@ export fn ScopeVisitor(context, file) {
     visitMemberAccess: |self, mut a: MemberAccess| {
       a.scope = self.scope
       visit.walkExpression(self, a.object)
-      if a.object.ty and isStruct(a.object.ty) {
-        a.ty = a.object.ty.properties[a.member.name]
+      if a.object.ty {
+        if isEnumType(a.object.ty) {
+          let member = a.object.ty.members[a.member.name]
+          if not member {
+            reportError(a.member, a.object.ty.name + ' has no member named ' + a.member.name)
+          }
+          else if isTupleType(member) {
+            a.ty = {
+              kind: 'Function'
+              name: a.member.name
+              parameterRange: a.object.ty.parameterRange
+              typeParameters: a.object.ty.typeParameters
+              instances: []
+              arguments: member.properties.map(|p, i| {{
+                name: i.toString()
+                // token: Token
+                mutable: false
+                ty: p
+                redefined: false
+              }})
+              argumentRange: {start: member.properties.length, end: member.properties.length + 1}
+              returnType: a.object.ty
+              isAbstract: false
+            }
+          }
+          else {
+            a.ty = a.object.ty
+          }
+        }
+        else if isStruct(a.object.ty) {
+          a.ty = a.object.ty.properties[a.member.name]
+        }
       }
     }
 

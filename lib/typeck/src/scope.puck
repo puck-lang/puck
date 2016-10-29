@@ -51,7 +51,10 @@ export fn createScope(context, file, parent = false) {
               parameterRange
             }
 
-            if t.kind == SyntaxKind.TraitDeclaration {
+            if t.kind == SyntaxKind.EnumDeclaration {
+              ty.members = {}
+            }
+            else if t.kind == SyntaxKind.TraitDeclaration {
               ty.functions = {}
             }
             else if t.kind == SyntaxKind.TypeDeclaration {

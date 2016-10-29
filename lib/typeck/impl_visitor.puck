@@ -98,6 +98,7 @@ export fn ImplVisitor(context, file) {
       let traitFunctions = _trait.functions
 
       Object.keys(traitFunctions).forEach(|name| {
+        if not traitFunctions[name] then print('traitFunctions[name]', name, traitFunctions)
         if traitFunctions[name].isAbstract and not functions[name]
           then reportError(i, 'Function ' + traitName + '::' + name + ' is not implemented for ' + struct.name)
       }, {})

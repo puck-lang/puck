@@ -74,6 +74,9 @@ function ImplVisitor(context, file) {
       var traitName = _trait.name;
       var traitFunctions = _trait.functions;
       _js._Object.keys(traitFunctions).forEach(function (name) {
+        if (!traitFunctions[name]) {
+          (0, _core.print)("traitFunctions[name]", name, traitFunctions);
+        };
         if (traitFunctions[name].isAbstract && !functions[name]) {
           return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + struct.name);
         };

@@ -1,6 +1,7 @@
 import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
   Block
+  EnumDeclaration
   FunctionDeclaration
   Identifier
   ImplDeclaration
@@ -61,14 +62,58 @@ export fn TypeVisitor(context, file) {
     imports: {}
     postHoist: []
 
+    visitEnumDeclaration: |mut self, mut t: EnumDeclaration| {
+      if not t.ty {
+        t.ty = self.scope.defineType(t, true).ty
+        self.scope.define({name: t.name.name, mutable: false, token: t, ty: t.ty})
+        t.scope = createScope(context, file, self.scope)
+        self.postHoist.push(t)
+      }
+      else if not t.typeParametersAssigned {
+        self.scope = t.scope
+        t.typeParameters.forEach(|p| {
+          self.visitTypeParameter(p)
+          t.ty.typeParameters.push(p.ty)
+        })
+        t.typeParametersAssigned = true
+        self.scope = self.scope.parent
+      }
+      else {
+        self.scope = t.scope
+        t.members.forEach(|m| self.visitEnumMember(m))
+
+        let memberMap = ObjectMapTrait.fromList(
+          t.members.map(|p| (p.name.name, if p.bound then p.bound.ty else {{
+            kind: p.name.name
+            name: p.name.name
+            implementations: []
+            isUnit: true
+          }}))
+        )
+
+        if t.members.size() != memberMap.size() {
+          let mut members = ObjectMapTrait.new()
+          t.members.forEach(|p| {
+            if members[p.name.name] then reportError(p, 'Duplicate member ' + p.name.name)
+            members[p.name.name] = p
+          })
+        }
+
+        Object.assign(t.ty.members, memberMap)
+
+        self.scope = self.scope.parent
+      }
+    }
     visitModule: |mut self, mut m: Module| {
       self.scope = m.scope
       self.scope.clearBindings()
       let expressions = m.expressions.filter(|e|
+        e.kind == SyntaxKind.EnumDeclaration or
         e.kind == SyntaxKind.ImportDirective or
         e.kind == SyntaxKind.TraitDeclaration or
         e.kind == SyntaxKind.TypeDeclaration or
         (e.kind == SyntaxKind.ExportDirective and (
+          e.expression.kind == SyntaxKind.EnumDeclaration or
           e.expression.kind == SyntaxKind.TraitDeclaration or
           e.expression.kind == SyntaxKind.TypeDeclaration
         ))
@@ -82,6 +127,8 @@ export fn TypeVisitor(context, file) {
     }
     visitNamedTypeBound: |self, mut t: NamedTypeBound| {
       let binding = self.scope.getTypeBinding(t.name.name)
+      if not binding
+        then self.reportError(t, 'Use of undeclared type ' + t.name.name)
       if not binding.token.scope {
         if not self.imports[t.name.name] then reportError(t
           'Scope not set for binding ' + t.name.name + ' but not found in imports either')
@@ -95,10 +142,11 @@ export fn TypeVisitor(context, file) {
       i.members.forEach(|m| {
         if importDirective.module {
           let e = importDirective.module.exports[m.local.name]
-          if e.expression.kind == SyntaxKind.TraitDeclaration {
+          if e.expression.kind == SyntaxKind.EnumDeclaration
+          or e.expression.kind == SyntaxKind.TraitDeclaration {
             let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
             self.scope.setTypeBinding(typeBinding)
-            self.scope.define({name: m.local.name, mutable: false, token: m})
+            self.scope.define({name: m.local.name, mutable: false, token: m, ty: typeBinding.ty})
           }
           else if e.expression.kind == SyntaxKind.TypeDeclaration {
             let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)

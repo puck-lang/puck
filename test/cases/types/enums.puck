@@ -1,0 +1,5 @@
+let five: Maybe<Num> = Just(5)
+let nothing: Maybe<Num> = Nothing
+
+let maybeFive: Maybe<Num> = Maybe.Just(5)
+let maybeNothing: Maybe<Num> = Maybe.Nothing

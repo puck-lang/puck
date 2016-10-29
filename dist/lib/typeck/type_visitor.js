@@ -37,12 +37,68 @@ function TypeVisitor(context, file) {
     reportError: reportError,
     imports: {},
     postHoist: [],
+    visitEnumDeclaration: function visitEnumDeclaration(t) {
+      var self = this;
+      if (!t.ty) {
+        t.ty = self.scope.defineType(t, true).ty;
+        self.scope.define({
+          name: t.name.name,
+          mutable: false,
+          token: t,
+          ty: t.ty
+        });
+        t.scope = (0, _scope.createScope)(context, file, self.scope);
+        return self.postHoist.push(t);
+      } else {
+        if (!t.typeParametersAssigned) {
+          self.scope = t.scope;
+          t.typeParameters.forEach(function (p) {
+            self.visitTypeParameter(p);
+            return t.ty.typeParameters.push(p.ty);
+          });
+          t.typeParametersAssigned = true;
+          return self.scope = self.scope.parent;
+        } else {
+          self.scope = t.scope;
+          t.members.forEach(function (m) {
+            return self.visitEnumMember(m);
+          });
+          var memberMap = _core.ObjectMapTrait.fromList(t.members.map(function (p) {
+            var __PUCK__value__1 = void 0;
+            if (p.bound) {
+              __PUCK__value__1 = p.bound.ty;
+            } else {
+              __PUCK__value__1 = {
+                kind: p.name.name,
+                name: p.name.name,
+                implementations: [],
+                isUnit: true
+              };
+            };
+            return [p.name.name, __PUCK__value__1];
+          }));
+          if (_core.Iterable['$List'].size.call(t.members) != _core.ObjectMapTrait['$ObjectMap'].size.call(memberMap)) {
+            (function () {
+              var members = _core.ObjectMapTrait._new();
+              t.members.forEach(function (p) {
+                if (members[p.name.name]) {
+                  reportError(p, "Duplicate member " + p.name.name);
+                };
+                return members[p.name.name] = p;
+              });
+            })();
+          };
+          _js._Object.assign(t.ty.members, memberMap);
+          return self.scope = self.scope.parent;
+        };
+      };
+    },
     visitModule: function visitModule(m) {
       var self = this;
       self.scope = m.scope;
       self.scope.clearBindings();
       var expressions = m.expressions.filter(function (e) {
-        return e.kind == _ast2.SyntaxKind.ImportDirective || e.kind == _ast2.SyntaxKind.TraitDeclaration || e.kind == _ast2.SyntaxKind.TypeDeclaration || e.kind == _ast2.SyntaxKind.ExportDirective && (e.expression.kind == _ast2.SyntaxKind.TraitDeclaration || e.expression.kind == _ast2.SyntaxKind.TypeDeclaration);
+        return e.kind == _ast2.SyntaxKind.EnumDeclaration || e.kind == _ast2.SyntaxKind.ImportDirective || e.kind == _ast2.SyntaxKind.TraitDeclaration || e.kind == _ast2.SyntaxKind.TypeDeclaration || e.kind == _ast2.SyntaxKind.ExportDirective && (e.expression.kind == _ast2.SyntaxKind.EnumDeclaration || e.expression.kind == _ast2.SyntaxKind.TraitDeclaration || e.expression.kind == _ast2.SyntaxKind.TypeDeclaration);
       });
       expressions.forEach(function (e) {
         self.visitExpression(e);
@@ -54,6 +110,9 @@ function TypeVisitor(context, file) {
     visitNamedTypeBound: function visitNamedTypeBound(t) {
       var self = this;
       var binding = self.scope.getTypeBinding(t.name.name);
+      if (!binding) {
+        self.reportError(t, "Use of undeclared type " + t.name.name);
+      };
       if (!binding.token.scope) {
         if (!self.imports[t.name.name]) {
           reportError(t, "Scope not set for binding " + t.name.name + " but not found in imports either");
@@ -68,13 +127,14 @@ function TypeVisitor(context, file) {
       return i.members.forEach(function (m) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
-          if (e.expression.kind == _ast2.SyntaxKind.TraitDeclaration) {
+          if (e.expression.kind == _ast2.SyntaxKind.EnumDeclaration || e.expression.kind == _ast2.SyntaxKind.TraitDeclaration) {
             var typeBinding = importDirective._module.scope.getTypeBinding(m.property.name);
             self.scope.setTypeBinding(typeBinding);
             return self.scope.define({
               name: m.local.name,
               mutable: false,
-              token: m
+              token: m,
+              ty: typeBinding.ty
             });
           } else {
             if (e.expression.kind == _ast2.SyntaxKind.TypeDeclaration) {

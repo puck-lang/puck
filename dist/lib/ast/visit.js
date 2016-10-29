@@ -8,6 +8,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.emptyVisitor = exports.walkingVisitor = exports.Visitor = undefined;
 exports.walkExpression = walkExpression;
 exports.walkBlock = walkBlock;
+exports.walkEnumDeclaration = walkEnumDeclaration;
+exports.walkEnumMember = walkEnumMember;
 exports.walkFunction = walkFunction;
 exports.walkIdentifier = walkIdentifier;
 exports.walkImplDeclaration = walkImplDeclaration;
@@ -59,6 +61,14 @@ var walkingVisitor = exports.walkingVisitor = {
   visitBlock: function visitBlock(b) {
     var self = this;
     return walkBlock(self, b);
+  },
+  visitEnumDeclaration: function visitEnumDeclaration(e) {
+    var self = this;
+    return walkEnumDeclaration(self, e);
+  },
+  visitEnumMember: function visitEnumMember(e) {
+    var self = this;
+    return walkEnumMember(self, e);
   },
   visitFunctionDeclaration: function visitFunctionDeclaration(f) {
     var self = this;
@@ -207,6 +217,8 @@ var emptyVisitor = exports.emptyVisitor = {
     return walkExpression(self, e);
   },
   visitBlock: function visitBlock() {},
+  visitEnumDeclaration: function visitEnumDeclaration() {},
+  visitEnumMember: function visitEnumMember() {},
   visitFunctionDeclaration: function visitFunctionDeclaration() {},
   visitIdentifier: function visitIdentifier() {},
   visitImplDeclaration: function visitImplDeclaration() {},
@@ -250,104 +262,108 @@ function walkExpression(visitor, e) {
   if (e.kind == _ast2.SyntaxKind.Block) {
     return visitor.visitBlock(e);
   } else {
-    if (e.kind == _ast2.SyntaxKind.Function) {
-      return visitor.visitFunctionDeclaration(e);
+    if (e.kind == _ast2.SyntaxKind.EnumDeclaration) {
+      return visitor.visitEnumDeclaration(e);
     } else {
-      if (e.kind == _ast2.SyntaxKind.Identifier) {
-        return visitor.visitIdentifier(e);
+      if (e.kind == _ast2.SyntaxKind.Function) {
+        return visitor.visitFunctionDeclaration(e);
       } else {
-        if (e.kind == _ast2.SyntaxKind.ImplDeclaration) {
-          return visitor.visitImplDeclaration(e);
+        if (e.kind == _ast2.SyntaxKind.Identifier) {
+          return visitor.visitIdentifier(e);
         } else {
-          if (e.kind == _ast2.SyntaxKind.ObjectDestructure) {
-            return visitor.visitObjectDestructure(e);
+          if (e.kind == _ast2.SyntaxKind.ImplDeclaration) {
+            return visitor.visitImplDeclaration(e);
           } else {
-            if (e.kind == _ast2.SyntaxKind.TraitDeclaration) {
-              return visitor.visitTraitDeclaration(e);
+            if (e.kind == _ast2.SyntaxKind.ObjectDestructure) {
+              return visitor.visitObjectDestructure(e);
             } else {
-              if (e.kind == _ast2.SyntaxKind.FunctionTypeBound) {
-                return visitor.visitFunctionTypeBound(e);
+              if (e.kind == _ast2.SyntaxKind.TraitDeclaration) {
+                return visitor.visitTraitDeclaration(e);
               } else {
-                if (e.kind == _ast2.SyntaxKind.NamedTypeBound) {
-                  return visitor.visitNamedTypeBound(e);
+                if (e.kind == _ast2.SyntaxKind.FunctionTypeBound) {
+                  return visitor.visitFunctionTypeBound(e);
                 } else {
-                  if (e.kind == _ast2.SyntaxKind.ObjectTypeBound) {
-                    return visitor.visitObjectTypeBound(e);
+                  if (e.kind == _ast2.SyntaxKind.NamedTypeBound) {
+                    return visitor.visitNamedTypeBound(e);
                   } else {
-                    if (e.kind == _ast2.SyntaxKind.TupleTypeBound) {
-                      return visitor.visitTupleTypeBound(e);
+                    if (e.kind == _ast2.SyntaxKind.ObjectTypeBound) {
+                      return visitor.visitObjectTypeBound(e);
                     } else {
-                      if (e.kind == _ast2.SyntaxKind.TypeDeclaration) {
-                        return visitor.visitTypeDeclaration(e);
+                      if (e.kind == _ast2.SyntaxKind.TupleTypeBound) {
+                        return visitor.visitTupleTypeBound(e);
                       } else {
-                        if (e.kind == _ast2.SyntaxKind.TypeParameter) {
-                          return visitor.visitTypeParameter(e);
+                        if (e.kind == _ast2.SyntaxKind.TypeDeclaration) {
+                          return visitor.visitTypeDeclaration(e);
                         } else {
-                          if (e.kind == _ast2.SyntaxKind.TypeProperty) {
-                            return visitor.visitTypeProperty(e);
+                          if (e.kind == _ast2.SyntaxKind.TypeParameter) {
+                            return visitor.visitTypeParameter(e);
                           } else {
-                            if (e.kind == _ast2.SyntaxKind.VariableDeclaration) {
-                              return visitor.visitVariableDeclaration(e);
+                            if (e.kind == _ast2.SyntaxKind.TypeProperty) {
+                              return visitor.visitTypeProperty(e);
                             } else {
-                              if (e.kind == _ast2.SyntaxKind.ExportDirective) {
-                                return visitor.visitExportDirective(e);
+                              if (e.kind == _ast2.SyntaxKind.VariableDeclaration) {
+                                return visitor.visitVariableDeclaration(e);
                               } else {
-                                if (e.kind == _ast2.SyntaxKind.ImportDirective) {
-                                  return visitor.visitImportDirective(e);
+                                if (e.kind == _ast2.SyntaxKind.ExportDirective) {
+                                  return visitor.visitExportDirective(e);
                                 } else {
-                                  if (e.kind == _ast2.SyntaxKind.AssignmentExpression) {
-                                    return visitor.visitAssignmentExpression(e);
+                                  if (e.kind == _ast2.SyntaxKind.ImportDirective) {
+                                    return visitor.visitImportDirective(e);
                                   } else {
-                                    if (e.kind == _ast2.SyntaxKind.BinaryExpression) {
-                                      return visitor.visitBinaryExpression(e);
+                                    if (e.kind == _ast2.SyntaxKind.AssignmentExpression) {
+                                      return visitor.visitAssignmentExpression(e);
                                     } else {
-                                      if (e.kind == _ast2.SyntaxKind.CallExpression) {
-                                        return visitor.visitCallExpression(e);
+                                      if (e.kind == _ast2.SyntaxKind.BinaryExpression) {
+                                        return visitor.visitBinaryExpression(e);
                                       } else {
-                                        if (e.kind == _ast2.SyntaxKind.ForExpression) {
-                                          return visitor.visitForExpression(e);
+                                        if (e.kind == _ast2.SyntaxKind.CallExpression) {
+                                          return visitor.visitCallExpression(e);
                                         } else {
-                                          if (e.kind == _ast2.SyntaxKind.IfExpression) {
-                                            return visitor.visitIfExpression(e);
+                                          if (e.kind == _ast2.SyntaxKind.ForExpression) {
+                                            return visitor.visitForExpression(e);
                                           } else {
-                                            if (e.kind == _ast2.SyntaxKind.LoopExpression) {
-                                              return visitor.visitLoopExpression(e);
+                                            if (e.kind == _ast2.SyntaxKind.IfExpression) {
+                                              return visitor.visitIfExpression(e);
                                             } else {
-                                              if (e.kind == _ast2.SyntaxKind.UnaryExpression) {
-                                                return visitor.visitUnaryExpression(e);
+                                              if (e.kind == _ast2.SyntaxKind.LoopExpression) {
+                                                return visitor.visitLoopExpression(e);
                                               } else {
-                                                if (e.kind == _ast2.SyntaxKind.WhileExpression) {
-                                                  return visitor.visitWhileExpression(e);
+                                                if (e.kind == _ast2.SyntaxKind.UnaryExpression) {
+                                                  return visitor.visitUnaryExpression(e);
                                                 } else {
-                                                  if (e.kind == _ast2.SyntaxKind.IndexAccess) {
-                                                    return visitor.visitIndexAccess(e);
+                                                  if (e.kind == _ast2.SyntaxKind.WhileExpression) {
+                                                    return visitor.visitWhileExpression(e);
                                                   } else {
-                                                    if (e.kind == _ast2.SyntaxKind.MemberAccess) {
-                                                      return visitor.visitMemberAccess(e);
+                                                    if (e.kind == _ast2.SyntaxKind.IndexAccess) {
+                                                      return visitor.visitIndexAccess(e);
                                                     } else {
-                                                      if (e.kind == _ast2.SyntaxKind.BreakKeyword) {
-                                                        return visitor.visitBreak(e);
+                                                      if (e.kind == _ast2.SyntaxKind.MemberAccess) {
+                                                        return visitor.visitMemberAccess(e);
                                                       } else {
-                                                        if (e.kind == _ast2.SyntaxKind.ReturnStatement) {
-                                                          return visitor.visitReturn(e);
+                                                        if (e.kind == _ast2.SyntaxKind.BreakKeyword) {
+                                                          return visitor.visitBreak(e);
                                                         } else {
-                                                          if (e.kind == _ast2.SyntaxKind.ListLiteral) {
-                                                            return visitor.visitListLiteral(e);
+                                                          if (e.kind == _ast2.SyntaxKind.ReturnStatement) {
+                                                            return visitor.visitReturn(e);
                                                           } else {
-                                                            if (e.kind == _ast2.SyntaxKind.BooleanLiteral) {
-                                                              return visitor.visitBooleanLiteral(e);
+                                                            if (e.kind == _ast2.SyntaxKind.ListLiteral) {
+                                                              return visitor.visitListLiteral(e);
                                                             } else {
-                                                              if (e.kind == _ast2.SyntaxKind.NumberLiteral) {
-                                                                return visitor.visitNumberLiteral(e);
+                                                              if (e.kind == _ast2.SyntaxKind.BooleanLiteral) {
+                                                                return visitor.visitBooleanLiteral(e);
                                                               } else {
-                                                                if (e.kind == _ast2.SyntaxKind.ObjectLiteral) {
-                                                                  return visitor.visitObjectLiteral(e);
+                                                                if (e.kind == _ast2.SyntaxKind.NumberLiteral) {
+                                                                  return visitor.visitNumberLiteral(e);
                                                                 } else {
-                                                                  if (e.kind == _ast2.SyntaxKind.StringLiteral) {
-                                                                    return visitor.visitStringLiteral(e);
+                                                                  if (e.kind == _ast2.SyntaxKind.ObjectLiteral) {
+                                                                    return visitor.visitObjectLiteral(e);
                                                                   } else {
-                                                                    if (e.kind == _ast2.SyntaxKind.TupleLiteral) {
-                                                                      return visitor.visitTupleLiteral(e);
+                                                                    if (e.kind == _ast2.SyntaxKind.StringLiteral) {
+                                                                      return visitor.visitStringLiteral(e);
+                                                                    } else {
+                                                                      if (e.kind == _ast2.SyntaxKind.TupleLiteral) {
+                                                                        return visitor.visitTupleLiteral(e);
+                                                                      };
                                                                     };
                                                                   };
                                                                 };
@@ -385,6 +401,19 @@ function walkExpression(visitor, e) {
 };
 function walkBlock(visitor, b) {
   return b.expressions.forEach(visitor.visitExpression.bind(visitor));
+};
+function walkEnumDeclaration(visitor, e) {
+  e.typeParameters.forEach(function (t) {
+    return visitor.visitTypeParameter(t);
+  });
+  return e.members.forEach(function (t) {
+    return visitor.visitEnumMember(t);
+  });
+};
+function walkEnumMember(visitor, e) {
+  if (e.bound) {
+    return visitor.visitTypeBound(e.bound);
+  };
 };
 function walkFunction(visitor, f) {
   if (f.typeParameters) {
@@ -463,8 +492,8 @@ function walkTypeDeclaration(visitor, t) {
   t.typeParameters.forEach(function (t) {
     return visitor.visitTypeParameter(t);
   });
-  if (t.bond) {
-    return visitor.visitTypeBound(t.bond);
+  if (t.bound) {
+    return visitor.visitTypeBound(t.bound);
   };
 };
 function walkTypeParameter(visitor, t) {

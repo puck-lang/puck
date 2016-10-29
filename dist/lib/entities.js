@@ -5,7 +5,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ScopeAware = exports.Scope = exports.TypeBinding = exports.Binding = exports.GenericFunctionInstace = exports.GenericFunction = exports.TupleType = exports.ObjectType = exports.FunctionType = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Trait = exports.Struct = exports.Type = exports.File = undefined;
+exports.ScopeAware = exports.Scope = exports.TypeBinding = exports.Binding = exports.GenericFunctionInstace = exports.GenericFunction = exports.UnitType = exports.TupleType = exports.ObjectType = exports.FunctionType = exports.EnumType = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Trait = exports.Struct = exports.Type = exports.File = undefined;
+exports.isEnumType = isEnumType;
 exports.isFunctionType = isFunctionType;
 exports.isObjectType = isObjectType;
 exports.isTupleType = isTupleType;
@@ -29,15 +30,20 @@ var Implementation = exports.Implementation = null;
 var TypeClass = exports.TypeClass = null;
 var TypeInstance = exports.TypeInstance = null;
 var TypeParameter = exports.TypeParameter = null;
+var EnumType = exports.EnumType = null;
 var FunctionType = exports.FunctionType = null;
 var ObjectType = exports.ObjectType = null;
 var TupleType = exports.TupleType = null;
+var UnitType = exports.UnitType = null;
 var GenericFunction = exports.GenericFunction = null;
 var GenericFunctionInstace = exports.GenericFunctionInstace = null;
 var Binding = exports.Binding = null;
 var TypeBinding = exports.TypeBinding = null;
 var Scope = exports.Scope = null;
 var ScopeAware = exports.ScopeAware = null;
+function isEnumType(ty) {
+  return ty.members;
+};
 function isFunctionType(ty) {
   return ty._arguments;
 };

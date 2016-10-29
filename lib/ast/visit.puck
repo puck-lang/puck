@@ -2,6 +2,7 @@ import 'ast.puck' as {
   Expression
 
   Block
+  EnumDeclaration
   FunctionDeclaration
   Identifier
   ImplDeclaration
@@ -42,6 +43,8 @@ import 'ast.puck' as {
   ObjectLiteral
   StringLiteral
   TupleLiteral
+
+  EnumMember
 }
 import '../compiler/ast.ts' as {SyntaxKind}
 
@@ -77,6 +80,8 @@ export let walkingVisitor = {
   visitExpression: |self, e: Expression| walkExpression(self, e)
 
   visitBlock: |self, b: Block| walkBlock(self, b)
+  visitEnumDeclaration: |self, e: EnumDeclaration| walkEnumDeclaration(self, e)
+  visitEnumMember: |self, e: EnumMember| walkEnumMember(self, e)
   visitFunctionDeclaration: |self, f: FunctionDeclaration| walkFunction(self, f)
   visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
   visitImplDeclaration: |self, i: ImplDeclaration| walkImplDeclaration(self, i)
@@ -123,6 +128,8 @@ export let emptyVisitor = {
   visitExpression: |self, e: Expression| walkExpression(self, e)
 
   visitBlock: || {}
+  visitEnumDeclaration: || {}
+  visitEnumMember: || {}
   visitFunctionDeclaration: || {}
   visitIdentifier: || {}
   visitImplDeclaration: || {}
@@ -167,6 +174,7 @@ export let emptyVisitor = {
 
 export fn walkExpression(visitor: Visitor, e: Expression) {
   if e.kind == SyntaxKind.Block then visitor.visitBlock(e)
+  else if e.kind == SyntaxKind.EnumDeclaration then visitor.visitEnumDeclaration(e)
   else if e.kind == SyntaxKind.Function then visitor.visitFunctionDeclaration(e)
   else if e.kind == SyntaxKind.Identifier then visitor.visitIdentifier(e)
   else if e.kind == SyntaxKind.ImplDeclaration then visitor.visitImplDeclaration(e)
@@ -209,6 +217,15 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
 
 export fn walkBlock(visitor: Visitor, b: Block) {
   b.expressions.forEach(visitor.visitExpression.bind(visitor))
+}
+export fn walkEnumDeclaration(visitor: Visitor, e: EnumDeclaration) {
+  // visitor.visitIdentifier(e.name)
+  e.typeParameters.forEach(|t| visitor.visitTypeParameter(t))
+  e.members.forEach(|t| visitor.visitEnumMember(t))
+}
+export fn walkEnumMember(visitor: Visitor, e: EnumMember) {
+  // visitor.visitIdentifier(e.name)
+  if e.bound then visitor.visitTypeBound(e.bound)
 }
 export fn walkFunction(visitor: Visitor, f: FunctionDeclaration) {
   if f.typeParameters
@@ -268,7 +285,7 @@ export fn walkTupleTypeBound(visitor: Visitor, t: TupleTypeBound) {
 export fn walkTypeDeclaration(visitor: Visitor, t: TypeDeclaration) {
   // visitor.visitIdentifier(t.name)
   t.typeParameters.forEach(|t| visitor.visitTypeParameter(t))
-  if t.bond then visitor.visitTypeBound(t.bond)
+  if t.bound then visitor.visitTypeBound(t.bound)
 }
 export fn walkTypeParameter(visitor: Visitor, t: TypeParameter) {
   // visitor.visitIdentifier(t.name)

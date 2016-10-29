@@ -83,13 +83,15 @@ export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
         let typeArgument = p[0]
         let typeParameter = p[1];
 
-        [typeParameter.name, typeArgument]
+        (typeParameter.name, typeArgument)
       }))
 
   let instance = {
     isTrait: class.isTrait
     functions: if class.functions
       then mapObject(class.functions, resolveTypeParameters(parameterMap))
+    members: if class.members
+      then mapObject(class.members, resolveTypeParameters(parameterMap))
     properties: if class.properties
       then mapObject(class.properties, resolveTypeParameters(parameterMap))
     implementations: class.implementations and []

@@ -27,6 +27,10 @@ function TopLevelVisitor(context, file) {
   var scope = (0, _scope.createScope)(context, file);
   return _js._Object.assign({}, visit.emptyVisitor, {
     visitBlock: function visitBlock(b) {},
+    visitEnumDeclaration: function visitEnumDeclaration(t) {
+      var self = this;
+      return scope.defineType(t);
+    },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
       if (f.name) {

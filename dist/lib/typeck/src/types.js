@@ -102,13 +102,18 @@ function createTypeInstance(_class, typeParameters) {
     __PUCK__value__4 = mapObject(_class.functions, resolveTypeParameters(parameterMap));
   };
   var __PUCK__value__5 = void 0;
+  if (_class.members) {
+    __PUCK__value__5 = mapObject(_class.members, resolveTypeParameters(parameterMap));
+  };
+  var __PUCK__value__6 = void 0;
   if (_class.properties) {
-    __PUCK__value__5 = mapObject(_class.properties, resolveTypeParameters(parameterMap));
+    __PUCK__value__6 = mapObject(_class.properties, resolveTypeParameters(parameterMap));
   };
   var instance = {
     isTrait: _class.isTrait,
     functions: __PUCK__value__4,
-    properties: __PUCK__value__5,
+    members: __PUCK__value__5,
+    properties: __PUCK__value__6,
     implementations: _class.implementations && [],
     kind: _class.name,
     name: _class.name + "<" + typeParameters.map(function (p) {

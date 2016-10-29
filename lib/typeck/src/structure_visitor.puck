@@ -27,6 +27,7 @@ export fn notAssignableError(to: TypeInstance, subject: TypeInstance)
   then subject.name + ' is not assignable to type ' + to.name
 
 export let structureVisitor = {
+  visitEnumMember: visit.walkingVisitor.visitEnumMember
   visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
     if not f.scope {
       self.scope = self.scope.createChild()

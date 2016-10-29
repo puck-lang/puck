@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.StringTrait = undefined;
+exports.ObjectMap = exports.Range = exports.List = exports.Nothing = exports.Just = exports.Maybe = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.StringTrait = undefined;
 exports.print = print;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
@@ -26,7 +26,12 @@ var ListTrait = exports.ListTrait = {
     });
   }
 };
-var Iterable = exports.Iterable = {};
+var Iterable = exports.Iterable = {
+  size: function size() {
+    var self = this;
+    return self.length;
+  }
+};
 var RangeTrait = exports.RangeTrait = {};
 var ObjectMapTrait = exports.ObjectMapTrait = {
   _new: function _new() {
@@ -46,6 +51,10 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
       return _new[key] = mapper(self[key]);
     });
     return _new;
+  },
+  size: function size() {
+    var self = this;
+    return _js._Object.keys(self).length;
   }
 };
 StringTrait['$String'] = {
@@ -55,6 +64,7 @@ ListTrait['$List'] = {
   zip: ListTrait.zip
 };
 Iterable['$List'] = {
+  size: Iterable.size,
   skip: function skip(count) {
     var self = this;
     return self.slice(count);
@@ -82,11 +92,42 @@ RangeTrait['$Range<Num>'] = {
 ObjectMapTrait['$ObjectMap'] = {
   _new: ObjectMapTrait._new,
   fromList: ObjectMapTrait.fromList,
-  map: ObjectMapTrait.map
+  map: ObjectMapTrait.map,
+  size: ObjectMapTrait.size
 };
 var Bool = exports.Bool = null;
 var Num = exports.Num = null;
 var String = exports.String = null;
+var Result = exports.Result = {
+  Ok: function Ok() {
+    for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
+      members[_key] = arguments[_key];
+    }
+
+    return { kind: 'Ok', value: members };
+  },
+  Err: function Err() {
+    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      members[_key2] = arguments[_key2];
+    }
+
+    return { kind: 'Err', value: members };
+  }
+};
+var Ok = exports.Ok = Result.Ok;
+var Err = exports.Err = Result.Err;
+var Maybe = exports.Maybe = {
+  Just: function Just() {
+    for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      members[_key3] = arguments[_key3];
+    }
+
+    return { kind: 'Just', value: members };
+  },
+  Nothing: { kind: 'Nothing', value: Symbol('Nothing') }
+};
+var Just = exports.Just = Maybe.Just;
+var Nothing = exports.Nothing = Maybe.Nothing;
 var List = exports.List = null;
 var Range = exports.Range = null;
 function print(message, a, b, c) {

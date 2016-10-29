@@ -52,6 +52,10 @@ export type TypeParameter { // + Type
   defaultValue: Type
 }
 
+export type EnumType { // + Struct
+  members: ObjectMap<Type>
+}
+
 /// Represents a function type (Num, Num) => Bool
 export type FunctionType { // + Type
   selfBinding: Binding //?
@@ -67,6 +71,10 @@ export type ObjectType { // + Struct
 
 export type TupleType { // + Struct
   properties: List<Type>
+}
+
+export type UnitType { // + Struct
+  isUnit: Bool
 }
 
 export type GenericFunction {}  // FunctionType + TypeClass
@@ -97,6 +105,10 @@ export type Scope {
 
 export type ScopeAware {
   scope: Scope
+}
+
+export fn isEnumType(ty) {
+  ty.members
 }
 
 export fn isFunctionType(ty) {

@@ -39,6 +39,7 @@ function notAssignableError(to, subject) {
   return subject.name + " is not assignable to type " + to.name;
 };
 var structureVisitor = exports.structureVisitor = {
+  visitEnumMember: visit.walkingVisitor.visitEnumMember,
   visitFunctionDeclaration: function visitFunctionDeclaration(f) {
     var self = this;
     if (!f.scope) {

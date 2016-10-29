@@ -90,25 +90,29 @@ function createScope(context, file) {
           name: name,
           parameterRange: parameterRange
         };
-        if (t.kind == _ast2.SyntaxKind.TraitDeclaration) {
-          _ty.functions = {};
+        if (t.kind == _ast2.SyntaxKind.EnumDeclaration) {
+          _ty.members = {};
         } else {
-          if (t.kind == _ast2.SyntaxKind.TypeDeclaration) {
-            _ty.implementations = [];
-            if (t.bound) {
-              if (t.bound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
-                _ty.properties = _js._Object.create(_js._null);
-              } else {
-                if (t.bound.kind == _ast2.SyntaxKind.TupleTypeBound) {
-                  _ty.properties = [];
+          if (t.kind == _ast2.SyntaxKind.TraitDeclaration) {
+            _ty.functions = {};
+          } else {
+            if (t.kind == _ast2.SyntaxKind.TypeDeclaration) {
+              _ty.implementations = [];
+              if (t.bound) {
+                if (t.bound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
+                  _ty.properties = _js._Object.create(_js._null);
+                } else {
+                  if (t.bound.kind == _ast2.SyntaxKind.TupleTypeBound) {
+                    _ty.properties = [];
+                  };
                 };
               };
-            };
-          } else {
-            if (t.kind == _ast2.SyntaxKind.TypeParameter) {
-              _ty.isTypeParameter = true;
-              if (t.defaultValue) {
-                _ty.defaultValue = (0, _types.getType)(self, t.defaultValue);
+            } else {
+              if (t.kind == _ast2.SyntaxKind.TypeParameter) {
+                _ty.isTypeParameter = true;
+                if (t.defaultValue) {
+                  _ty.defaultValue = (0, _types.getType)(self, t.defaultValue);
+                };
               };
             };
           };

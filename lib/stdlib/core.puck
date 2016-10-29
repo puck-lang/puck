@@ -11,6 +11,13 @@ export trait StringTrait {
 }
 impl StringTrait for String {}
 
+export enum Result<T, E> = Ok(T) | Err(E)
+export let Ok = Result.Ok
+export let Err = Result.Err
+export enum Maybe<T> = Just(T) | Nothing
+export let Just = Maybe.Just
+export let Nothing = Maybe.Nothing
+
 export type List<E> {}
 export trait ListTrait<E> {
   fn zip<A, B>(a: List<A>, b: List<B>): List<(A, B)> {
@@ -22,6 +29,10 @@ export trait ListTrait<E> {
 }
 impl<E> ListTrait<E> for List<E> {}
 export trait Iterable<E> {
+  fn size(self): Num {
+    self.length
+  }
+
   /// Returns an [Iterable] that provides all but the first [count] elements.
   // fn skip(self, count: Num): Iterable<E>
   fn skip(self, count: Num): List<E>
@@ -98,6 +109,10 @@ export trait ObjectMapTrait<T> {
       new[key] = mapper(self[key])
     })
     new
+  }
+
+  fn size(self): Num {
+    Object.keys(self).length
   }
 }
 impl<T> ObjectMapTrait<T> for ObjectMap<T> {}
