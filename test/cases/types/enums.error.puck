@@ -7,6 +7,18 @@ enum Enum = A {b: B}
 ///// Duplicate member A
 enum Enum = A | B | A
 
+///// String is not assignable to type Num
+enum Enum = A(Num)
+let five = Enum.A('five')
+
+//// String is not assignable to type Num
+// TODO: Make this error
+// enum Enum = A {b: Num}
+// let five = Enum.A({b: 'five'})
+
+///// Maybe.Nothing is not callable
+let five = Maybe.Nothing('five')
+
 //// Maybe<String> is not assignable to type Maybe<Num>
 // TODO: Make this error
 let five: Maybe<Num> = Maybe.Just('five')

@@ -642,10 +642,14 @@ function parse(input) {
     };
   };
   function parseObjectLiteral() {
-    var members = delimited("{", "}", ",", parseObjectLiteralMember);
+    var openBrace = input.peek();
+    var members = delimited("{", "}", ",", parseObjectLiteralMember, false);
+    var closeBrace = consumeToken(_ast2.SyntaxKind.CloseBraceToken);
     return {
       kind: _ast2.SyntaxKind.ObjectLiteral,
-      members: members
+      openBrace: openBrace,
+      members: members,
+      closeBrace: closeBrace
     };
   };
   function parseTupleOrExpression(forceTuple) {

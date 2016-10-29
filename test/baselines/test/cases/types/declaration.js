@@ -35,7 +35,9 @@ var Enum = {
 
     return { kind: 'A', value: members };
   },
-  B: null,
+  B: function B(object) {
+    return { kind: 'B', value: object };
+  },
   C: { kind: 'C', value: Symbol('C') }
 };
 var GenericEnum = {
@@ -46,6 +48,8 @@ var GenericEnum = {
 
     return { kind: 'A', value: members };
   },
-  B: null,
+  B: function B(object) {
+    return { kind: 'B', value: object };
+  },
   C: { kind: 'C', value: Symbol('C') }
 };

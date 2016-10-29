@@ -371,30 +371,58 @@ function ScopeVisitor(context, file) {
           if (!member) {
             return reportError(a.member, a.object.ty.name + " has no member named " + a.member.name);
           } else {
-            if ((0, _entities.isTupleType)(member)) {
+            if ((0, _entities.isObjectType)(member)) {
               return a.ty = {
                 kind: "Function",
                 name: a.member.name,
                 parameterRange: a.object.ty.parameterRange,
                 typeParameters: a.object.ty.typeParameters,
                 instances: [],
-                _arguments: member.properties.map(function (p, i) {
-                  return {
-                    name: i.toString(),
-                    mutable: false,
-                    ty: p,
-                    redefined: false
-                  };
-                }),
+                _arguments: [{
+                  name: a.member.name,
+                  mutable: false,
+                  ty: member,
+                  redefined: false
+                }],
                 argumentRange: {
-                  start: member.properties.length,
-                  end: member.properties.length + 1
+                  start: 1,
+                  end: 2
                 },
                 returnType: a.object.ty,
                 isAbstract: false
               };
             } else {
-              return a.ty = a.object.ty;
+              if ((0, _entities.isTupleType)(member)) {
+                return a.ty = {
+                  kind: "Function",
+                  name: a.member.name,
+                  parameterRange: a.object.ty.parameterRange,
+                  typeParameters: a.object.ty.typeParameters,
+                  instances: [],
+                  _arguments: member.properties.map(function (p, i) {
+                    return {
+                      name: i.toString(),
+                      mutable: false,
+                      ty: p,
+                      redefined: false
+                    };
+                  }),
+                  argumentRange: {
+                    start: member.properties.length,
+                    end: member.properties.length + 1
+                  },
+                  returnType: a.object.ty,
+                  isAbstract: false
+                };
+              } else {
+                return a.ty = {
+                  kind: a.object.ty.kind,
+                  name: a.object.ty.name + "." + member.name,
+                  parameterRange: a.object.ty.parameterRange,
+                  typeParameters: a.object.ty.typeParameters,
+                  instances: []
+                };
+              };
             };
           };
         } else {

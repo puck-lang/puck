@@ -249,7 +249,7 @@ export function Emitter() {
     let value
     if (t.bound) {
       if (t.bound.kind === SyntaxKind.ObjectTypeBound) {
-        value = 'null' // TODO
+        value = `(object) => ({kind: '${emitIdentifier(t.name)}', value: object})`
       }
       else if (t.bound.kind === SyntaxKind.TupleTypeBound) {
         value = `(...members) => ({kind: '${emitIdentifier(t.name)}', value: members})`

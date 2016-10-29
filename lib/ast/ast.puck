@@ -226,7 +226,9 @@ export type NumberLiteral {
 }
 
 export type ObjectLiteral {
+  openBrace: Token
   members: List<ObjectLiteralMember>
+  closeBrace: Token
 }
 
 export type ObjectLiteralMember {

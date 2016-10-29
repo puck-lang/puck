@@ -51,6 +51,7 @@ import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
 import 'src/types.puck' as {getType, isAssignable, isSameType, resolveTypeParameters}
 import '../entities.puck' as {
   isEnumType
+  isObjectType
   isStruct
   isTrait
   isTypeInstance
@@ -373,6 +374,25 @@ export fn ScopeVisitor(context, file) {
           if not member {
             reportError(a.member, a.object.ty.name + ' has no member named ' + a.member.name)
           }
+          else if isObjectType(member) {
+            a.ty = {
+              kind: 'Function'
+              name: a.member.name
+              parameterRange: a.object.ty.parameterRange
+              typeParameters: a.object.ty.typeParameters
+              instances: []
+              arguments: [{
+                name: a.member.name
+                // token: Token
+                mutable: false
+                ty: member
+                redefined: false
+              }]
+              argumentRange: {start: 1, end: 2}
+              returnType: a.object.ty
+              isAbstract: false
+            }
+          }
           else if isTupleType(member) {
             a.ty = {
               kind: 'Function'
@@ -393,7 +413,13 @@ export fn ScopeVisitor(context, file) {
             }
           }
           else {
-            a.ty = a.object.ty
+            a.ty = {
+              kind: a.object.ty.kind
+              name: a.object.ty.name + '.' + member.name
+              parameterRange: a.object.ty.parameterRange
+              typeParameters: a.object.ty.typeParameters
+              instances: []
+            }
           }
         }
         else if isStruct(a.object.ty) {

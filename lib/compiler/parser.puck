@@ -661,8 +661,15 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseObjectLiteral(): ObjectLiteral {
-    let members = delimited('{', '}', ',', parseObjectLiteralMember)
-    { kind: SyntaxKind.ObjectLiteral, members }
+    let openBrace = input.peek()
+    let members = delimited('{', '}', ',', parseObjectLiteralMember, false)
+    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
+    {
+      kind: SyntaxKind.ObjectLiteral,
+      openBrace
+      members
+      closeBrace
+    }
   }
 
   fn parseTupleOrExpression(forceTuple) {
