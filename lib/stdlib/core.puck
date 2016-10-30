@@ -12,11 +12,11 @@ export trait StringTrait {
 impl StringTrait for String {}
 
 export enum Result<T, E> = Ok(T) | Err(E)
-export let Ok = Result.Ok
-export let Err = Result.Err
+export let Ok = Result::Ok
+export let Err = Result::Err
 export enum Maybe<T> = Just(T) | Nothing
-export let Just = Maybe.Just
-export let Nothing = Maybe.Nothing
+export let Just = Maybe::Just
+export let Nothing = Maybe::Nothing
 export trait MaybeTrait<T> {
 
   fn isJust(self): Bool then self.kind == 'Just'

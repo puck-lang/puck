@@ -19,15 +19,14 @@ let five = Enum::A('five')
 ///// Maybe.Nothing is not callable
 let five = Maybe::Nothing('five')
 
-//// Maybe<String> is not assignable to type Maybe<Num>
-// TODO: Make this error
+///// Maybe<String> is not assignable to type Maybe<Num>
 let five: Maybe<Num> = Maybe::Just('five')
 
 //// Maybe<String> is not assignable to type Maybe<Num>
 // TODO: Make this error
 let five: Maybe<Num> = Just('five')
 
-///// Result is not assignable to type Maybe<Num>
+///// Result<Num, E> is not assignable to type Maybe<Num>
 let five: Maybe<Num> = Result::Ok(5)
 
 //// Result is not assignable to type Maybe<Num>

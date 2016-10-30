@@ -29,6 +29,16 @@ function getTupleTypeName(properties) {
   }).join(", ") + ")";
 };
 function createFunctionType(scope, f, reportError) {
+  var parameterRange = void 0;
+  var instances = void 0;
+  var typeParameters = void 0;
+  if (f.typeParameters && f.typeParameters.length) {
+    parameterRange = (0, _range.getRange)(f.typeParameters, function (p) {
+      return _core.MaybeTrait['$Maybe'].isJust.call(p.defaultValue);
+    }, reportError, "type parameter");
+    instances = [];
+    typeParameters = f.typeParameters;
+  };
   var _arguments = f.parameterList.map(function (p) {
     return {
       identifier: p.identifier,
@@ -73,6 +83,7 @@ function createFunctionType(scope, f, reportError) {
     }, function (ident) {
       return ident.name;
     }),
+    parameterRange: parameterRange,
     selfBinding: selfBinding,
     _arguments: _arguments,
     argumentRange: __PUCK__value__4,

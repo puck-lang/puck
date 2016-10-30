@@ -32,58 +32,86 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var resolveTypeParameters = exports.resolveTypeParameters = function resolveTypeParameters(parameterMap) {
   return function resolveTypeParametersInner(ty) {
-    if ((0, _entities.isFunctionType)(ty)) {
-      return resolveTypeParametersFn(parameterMap, ty);
+    var __PUCK__value__1 = void 0;
+    if ((0, _entities.isEnumType)(ty)) {
+      __PUCK__value__1 = resolveTypeParametersEnum(parameterMap, ty);
     } else {
-      if ((0, _entities.isObjectType)(ty)) {
-        return resolveTypeParametersObject(parameterMap, ty);
+      var __PUCK__value__2 = void 0;
+      if ((0, _entities.isFunctionType)(ty)) {
+        __PUCK__value__2 = resolveTypeParametersFn(parameterMap, ty);
       } else {
-        if ((0, _entities.isTupleType)(ty)) {
-          return resolveTypeParametersTuple(parameterMap, ty);
+        var __PUCK__value__3 = void 0;
+        if ((0, _entities.isObjectType)(ty)) {
+          __PUCK__value__3 = resolveTypeParametersObject(parameterMap, ty);
         } else {
-          if ((0, _entities.isTypeParameter)(ty)) {
-            return parameterMap[ty.name] || ty;
+          var __PUCK__value__4 = void 0;
+          if ((0, _entities.isTupleType)(ty)) {
+            __PUCK__value__4 = resolveTypeParametersTuple(parameterMap, ty);
+          } else {
+            var __PUCK__value__5 = void 0;
+            if ((0, _entities.isTypeParameter)(ty)) {
+              __PUCK__value__5 = parameterMap[ty.name] || ty;
+            };
+            __PUCK__value__4 = __PUCK__value__5;
           };
+          __PUCK__value__3 = __PUCK__value__4;
         };
+        __PUCK__value__2 = __PUCK__value__3;
       };
+      __PUCK__value__1 = __PUCK__value__2;
     };
+    var resolved = __PUCK__value__1;
+    return resolved || ty;
+  };
+};
+function resolveTypeParametersEnum(parameterMap, e) {
+  if ((0, _entities.isTypeClass)(e)) {
+    return createTypeInstanceTypeCast(e, e.typeParameters.map(function (p) {
+      return parameterMap[p.name] || p;
+    }));
+  } else {
+    return e;
   };
 };
 function resolveTypeParametersFn(parameterMap, func) {
-  var __PUCK__value__2 = void 0;
+  var __PUCK__value__7 = void 0;
   if (func.returnType) {
-    __PUCK__value__2 = resolveTypeParameters(parameterMap)(func.returnType);
+    __PUCK__value__7 = resolveTypeParameters(parameterMap)(func.returnType);
   };
   return _js._Object.assign({}, func, {
     _arguments: func._arguments.map(function (binding) {
-      var __PUCK__value__1 = void 0;
+      var __PUCK__value__6 = void 0;
       if (binding.ty) {
-        __PUCK__value__1 = resolveTypeParameters(parameterMap)(binding.ty);
+        __PUCK__value__6 = resolveTypeParameters(parameterMap)(binding.ty);
       };
-      return _js._Object.assign({}, binding, { ty: __PUCK__value__1 });
+      return _js._Object.assign({}, binding, { ty: __PUCK__value__6 });
     }),
-    returnType: __PUCK__value__2
+    returnType: __PUCK__value__7
   });
 };
 function resolveTypeParametersObject(parameterMap, struct) {
   return _js._Object.assign({}, struct, { properties: _core.ObjectMapTrait['$ObjectMap'].map.call(struct.properties, resolveTypeParameters(parameterMap)) });
 };
 function resolveTypeParametersTuple(parameterMap, struct) {
-  return _js._Object.assign({}, struct, { properties: struct.properties.map(resolveTypeParameters(parameterMap)) });
+  var properties = struct.properties.map(resolveTypeParameters(parameterMap));
+  return _js._Object.assign({}, struct, {
+    name: (0, _functions.getTupleTypeName)(properties),
+    properties: properties
+  });
 };
 function mapObject(object, mapper) {
   return _core.ObjectMapTrait['$ObjectMap'].map.call(object, mapper);
 };
 function createTypeInstance(_class, typeParameters) {
-  var __PUCK__value__3 = void 0;
+  var __PUCK__value__8 = void 0;
   if (typeParameters.length < _class.parameterRange.end - 1) {
-    __PUCK__value__3 = typeParameters.concat(_class.typeParameters.slice(typeParameters.length).map(function (p) {
+    __PUCK__value__8 = typeParameters.concat(_class.typeParameters.slice(typeParameters.length).map(function (p) {
       return p.defaultValue;
     }));
   } else {
-    __PUCK__value__3 = typeParameters;
+    __PUCK__value__8 = typeParameters;
   };
-  typeParameters = __PUCK__value__3;
+  typeParameters = __PUCK__value__8;
   var cachedInstance = _class.instances.find(function (i) {
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
       return isSameType(p, typeParameters[i]);
@@ -97,23 +125,23 @@ function createTypeInstance(_class, typeParameters) {
     var typeParameter = p[1];
     return [typeParameter.name, typeArgument];
   }));
-  var __PUCK__value__4 = void 0;
+  var __PUCK__value__9 = void 0;
   if (_class.functions) {
-    __PUCK__value__4 = mapObject(_class.functions, resolveTypeParameters(parameterMap));
+    __PUCK__value__9 = mapObject(_class.functions, resolveTypeParameters(parameterMap));
   };
-  var __PUCK__value__5 = void 0;
+  var __PUCK__value__10 = void 0;
   if (_class.members) {
-    __PUCK__value__5 = mapObject(_class.members, resolveTypeParameters(parameterMap));
+    __PUCK__value__10 = mapObject(_class.members, resolveTypeParameters(parameterMap));
   };
-  var __PUCK__value__6 = void 0;
+  var __PUCK__value__11 = void 0;
   if (_class.properties) {
-    __PUCK__value__6 = mapObject(_class.properties, resolveTypeParameters(parameterMap));
+    __PUCK__value__11 = mapObject(_class.properties, resolveTypeParameters(parameterMap));
   };
   var instance = {
     isTrait: _class.isTrait,
-    functions: __PUCK__value__4,
-    members: __PUCK__value__5,
-    properties: __PUCK__value__6,
+    functions: __PUCK__value__9,
+    members: __PUCK__value__10,
+    properties: __PUCK__value__11,
     implementations: _class.implementations && [],
     kind: _class.name,
     name: _class.name + "<" + typeParameters.map(function (p) {

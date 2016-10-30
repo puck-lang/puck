@@ -49,13 +49,15 @@ import 'src/functions.puck' as {getTupleTypeName}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
-import 'src/types.puck' as {getType, isAssignable, isSameType, resolveTypeParameters}
+import 'src/types.puck' as {createTypeInstance, getType, isAssignable, isSameType, resolveTypeParameters}
 import '../entities.puck' as {
   isEnumType
   isObjectType
   isStruct
   isTrait
+  isTypeClass
   isTypeInstance
+  isTypeParameter
   isTupleType
   Binding
   FunctionType
@@ -92,6 +94,36 @@ export fn ScopeVisitor(context, file) {
     if let error = checkRange(c.argumentList, function.argumentRange, 'arguments', name)
       then reportError(c, error)
 
+    let function =
+      if isTypeClass(function) {
+        let mut parameterMap = ObjectMapTrait.new()
+
+        function.arguments.forEach(|parameter, i| {
+          let argument =
+            if i < c.argumentList.length
+              then c.argumentList[i]
+              else parameter
+
+          if parameter.ty and argument.ty and
+             isTypeParameter(parameter.ty) and not isTypeParameter(argument.ty) {
+            if parameterMap[parameter.ty.name] {
+              let existingMapping = parameterMap[parameter.ty.name]
+              if not isAssignable(existingMapping, argument.ty) {
+                if isAssignable(argument.ty, existingMapping) {
+                  parameterMap[parameter.ty.name] = argument.ty
+                }
+                else reportError(argument, notAssignableError(existingMapping, argument.ty))
+              }
+            }
+            else {
+              parameterMap[parameter.ty.name] = argument.ty
+            }
+          }
+        })
+        resolveTypeParameters(parameterMap)(function)
+      }
+      else function
+
     c.argumentList.forEach(|argument, i| {
       let parameter = function.arguments[i]
 
@@ -114,6 +146,8 @@ export fn ScopeVisitor(context, file) {
         }
       }
     })
+
+    return function
   }
 
   fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token) {
@@ -323,7 +357,7 @@ export fn ScopeVisitor(context, file) {
       self.assignedTo = parentAssignedTo
 
       if functionType {
-        checkFunctionCall(functionType, e)
+        functionType = checkFunctionCall(functionType, e)
         e.ty = functionType.returnType
       }
     }

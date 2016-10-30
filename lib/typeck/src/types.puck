@@ -3,6 +3,7 @@ import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound}
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
+  EnumType
   FunctionType
   Scope
   ObjectType
@@ -10,6 +11,7 @@ import '../../entities.puck' as {
   TupleType
   Type
   TypeClass
+  isEnumType
   isFunctionType
   isObjectType
   isStruct
@@ -21,7 +23,9 @@ import '../../entities.puck' as {
 import 'functions.puck' as {getFunctionTypeName, getTupleTypeName}
 
 export let resolveTypeParameters = |parameterMap| fn resolveTypeParametersInner(ty) {
-  if isFunctionType(ty)
+  let resolved = if isEnumType(ty)
+    then resolveTypeParametersEnum(parameterMap, ty)
+  else if isFunctionType(ty)
     then resolveTypeParametersFn(parameterMap, ty)
   else if isObjectType(ty)
     then resolveTypeParametersObject(parameterMap, ty)
@@ -30,6 +34,14 @@ export let resolveTypeParameters = |parameterMap| fn resolveTypeParametersInner(
   else if isTypeParameter(ty) {
     parameterMap[ty.name] or ty
   }
+
+  resolved or ty
+}
+
+fn resolveTypeParametersEnum(parameterMap, e: EnumType) {
+  if (isTypeClass(e))
+    then createTypeInstanceTypeCast(e, e.typeParameters.map(|p| parameterMap[p.name] or p))
+    else e
 }
 
 fn resolveTypeParametersFn(parameterMap, func: FunctionType) {
@@ -50,8 +62,10 @@ fn resolveTypeParametersObject(parameterMap, struct: ObjectType) {
 }
 
 fn resolveTypeParametersTuple(parameterMap, struct: TupleType) {
+  let properties = struct.properties.map(resolveTypeParameters(parameterMap))
   Object.assign({}, struct, {
-    properties: struct.properties.map(resolveTypeParameters(parameterMap))
+    name: getTupleTypeName(properties)
+    properties
   })
 }
 

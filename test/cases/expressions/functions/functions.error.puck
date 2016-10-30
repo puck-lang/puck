@@ -30,3 +30,7 @@ a(c)
 ///// Bool is not assignable to type Num
 fn isEqual(a, b): Bool then a == b
 let max: Num = isEqual(1, 2)
+
+///// String is not assignable to type Num
+fn ident<T>(a: T): T then a
+let five: Num = ident('five')

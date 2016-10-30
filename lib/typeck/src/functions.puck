@@ -1,4 +1,4 @@
-import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration}
+import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration, TypeParameter}
 import '../../entities.puck' as {FunctionType, Scope, TypeInstance}
 import 'range.puck' as {checkRange, getRange}
 import 'types.puck' as {getType, isAssignable}
@@ -10,6 +10,16 @@ export fn getTupleTypeName(properties: List<TypeInstance>)
   then '(' + properties.map(|a| (a and a.name) or '??').join(', ') + ')'
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
+  let mut parameterRange
+  let mut instances
+  let mut typeParameters
+
+  if f.typeParameters and f.typeParameters.length {
+    parameterRange = getRange(f.typeParameters, |p: TypeParameter| p.defaultValue.isJust(), reportError, 'type parameter')
+    instances = []
+    typeParameters = f.typeParameters
+  }
+
   let arguments = f.parameterList.map(|p| {{
     identifier: p.identifier
     mutable: p.mutable
@@ -28,6 +38,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
   {
     kind: 'Function'
     name: f.name.mapOrElse(|| getFunctionTypeName(arguments, returnType), |ident| ident.name)
+    parameterRange
     selfBinding
     arguments
     argumentRange: if f.parameterList
