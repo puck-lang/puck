@@ -64,18 +64,16 @@ function TypeVisitor(context, file) {
             return self.visitEnumMember(m);
           });
           var memberMap = _core.ObjectMapTrait.fromList(t.members.map(function (p) {
-            var __PUCK__value__1 = void 0;
-            if (p.bound) {
-              __PUCK__value__1 = p.bound.ty;
-            } else {
-              __PUCK__value__1 = {
+            return [p.name.name, _core.MaybeTrait['$Maybe'].mapOrElse.call(p.bound, function () {
+              return {
                 kind: p.name.name,
                 name: p.name.name,
                 implementations: [],
                 isUnit: true
               };
-            };
-            return [p.name.name, __PUCK__value__1];
+            }, function (bound) {
+              return bound.ty;
+            })];
           }));
           if (_core.Iterable['$List'].size.call(t.members) != _core.ObjectMapTrait['$ObjectMap'].size.call(memberMap)) {
             (function () {
@@ -186,7 +184,7 @@ function TypeVisitor(context, file) {
             return self.visitFunctionDeclaration(t);
           });
           _js._Object.assign(t.ty.functions, _core.ObjectMapTrait.fromList(t.members.map(function (m) {
-            return [m.name.name, m.ty];
+            return [m.name.value[0].name, m.ty];
           })));
           if (t.ty.instances) {
             t.ty.instances.forEach(function (instance) {
@@ -214,16 +212,16 @@ function TypeVisitor(context, file) {
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
-          if (t.bound) {
-            self.visitTypeBound(t.bound);
+          if (_core.MaybeTrait['$Maybe'].isJust.call(t.bound)) {
+            self.visitTypeBound(t.bound.value[0]);
           };
           if ((0, _entities.isObjectType)(t.ty)) {
-            _js._Object.assign(t.ty.properties, _core.ObjectMapTrait.fromList(t.bound.properties.map(function (p) {
+            _js._Object.assign(t.ty.properties, _core.ObjectMapTrait.fromList(t.bound.value[0].properties.map(function (p) {
               return [p.name.name, p.typeBound.ty];
             })));
           } else {
             if ((0, _entities.isTupleType)(t.ty)) {
-              t.ty.properties = t.bound.properties.map(function (p) {
+              t.ty.properties = t.bound.value[0].properties.map(function (p) {
                 return p.ty;
               });
             };

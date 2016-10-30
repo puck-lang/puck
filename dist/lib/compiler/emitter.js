@@ -1,6 +1,6 @@
 "use strict";
 var ast_1 = require('./ast');
-var jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined'];
+var jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
     _a[ast_1.SyntaxKind.OrKeyword] = '||',
@@ -123,6 +123,7 @@ function Emitter() {
             case ast_1.SyntaxKind.WhileExpression: return emitWhileExpression(expression);
             case ast_1.SyntaxKind.IndexAccess: return emitIndexAccess(expression);
             case ast_1.SyntaxKind.MemberAccess: return emitMemberAccess(expression);
+            case ast_1.SyntaxKind.TypePath: return emitTypePath(expression);
             case ast_1.SyntaxKind.BreakKeyword: return emitBreak(expression);
             case ast_1.SyntaxKind.ReturnStatement: return emitReturn(expression);
             case ast_1.SyntaxKind.ThrowKeyword: return emitThrow(expression);
@@ -161,7 +162,7 @@ function Emitter() {
                 case ast_1.SyntaxKind.EnumDeclaration: return emitEnumDeclaration(expression);
                 case ast_1.SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
                 case ast_1.SyntaxKind.IfExpression: return emitIfExpression(expression);
-                default: throw ast_1.SyntaxKind[expression.kind] + " is not supported";
+                default: throw Error(ast_1.SyntaxKind[expression.kind] + " is not supported");
             }
         }
         finally {
@@ -178,11 +179,12 @@ function Emitter() {
     }
     function emitEnumMember(t) {
         var value;
-        if (t.bound) {
-            if (t.bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
+        if (t.bound.kind == 'Just') {
+            var bound = t.bound.value[0];
+            if (bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
                 value = "(object) => ({kind: '" + emitIdentifier(t.name) + "', value: object})";
             }
-            else if (t.bound.kind === ast_1.SyntaxKind.TupleTypeBound) {
+            else if (bound.kind === ast_1.SyntaxKind.TupleTypeBound) {
                 value = "(...members) => ({kind: '" + emitIdentifier(t.name) + "', value: members})";
             }
             else {
@@ -195,7 +197,7 @@ function Emitter() {
         return emitIdentifier(t.name) + ": " + value + ",";
     }
     function emitFunctionDeclaration(fn) {
-        var name = fn.name ? emitIdentifier(fn.name) : '';
+        var name = fn.name.kind == 'Just' ? emitIdentifier(fn.name.value[0]) : '';
         var parameterList = fn.parameterList;
         var body = fn.body;
         if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
@@ -204,8 +206,11 @@ function Emitter() {
                 body = Object['assign']({}, body, {
                     expressions: [Object['assign'](fn.parameterList[0], {
                         initializer: {
-                            kind: ast_1.SyntaxKind.Identifier,
-                            name: 'this',
+                            kind: 'Just',
+                            value: [{
+                                    kind: ast_1.SyntaxKind.Identifier,
+                                    name: 'this',
+                                }]
                         }
                     })].concat(body.expressions)
                 });
@@ -216,8 +221,8 @@ function Emitter() {
         return code;
     }
     function emitFunctionParameter(vd) {
-        var initializer = vd.initializer
-            ? " = " + emitExpression(vd.initializer, Context.Value)
+        var initializer = vd.initializer.kind == 'Just'
+            ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
         return "" + emitIdentifier(vd.identifier) + initializer;
     }
@@ -229,7 +234,7 @@ function Emitter() {
     }
     function emitImplDeclaration(i) {
         var functions = Object['assign']({}, i.tra.ty.functions);
-        i.members.forEach(function (m) { return functions[m.name.name] = emitFunctionDeclaration(m); });
+        i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m); });
         return emitIdentifier(i.tra.name) + "[" + getTypeProp(i.ty.ty) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
             return (emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
@@ -240,16 +245,17 @@ function Emitter() {
     function emitTraitDeclaration(t) {
         return "var " + emitIdentifier(t.name) + " = {\n" + indent(t.members
             .filter(function (m) { return m.body; })
-            .map(function (m) { return (emitIdentifier(m.name) + ": " + emitFunctionDeclaration(m)); }))
+            .map(function (m) { return (emitIdentifier(m.name.value[0]) + ": " + emitFunctionDeclaration(m)); }))
             .join(',\n') + "\n}";
     }
     function emitTypeDeclaration(t) {
         var value;
-        if (t.bound) {
-            if (t.bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
-                value = 'null'; // TODO
+        if (t.bound.kind == 'Just') {
+            var bound = t.bound.value[0];
+            if (bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
+                value = "(object) => object";
             }
-            else if (t.bound.kind === ast_1.SyntaxKind.TupleTypeBound) {
+            else if (bound.kind === ast_1.SyntaxKind.TupleTypeBound) {
                 value = '(...members) => members';
             }
             else {
@@ -267,8 +273,8 @@ function Emitter() {
         while (binding && binding.token !== vd) {
             binding = binding.previous;
         }
-        var initializer = vd.initializer
-            ? " = " + emitExpression(vd.initializer, Context.Value)
+        var initializer = vd.initializer.kind == 'Just'
+            ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
         if (binding && binding.previous) {
             return "" + emitIdentifier(vd.identifier) + initializer;
@@ -298,13 +304,7 @@ function Emitter() {
             })
                 .join(', ') + "}";
         var path;
-        if (i.domain == 'node') {
-            path = i.path;
-        }
-        else if (i.domain == 'puck') {
-            path = "puck-lang/dist/lib/stdlib/" + i.path;
-        }
-        else if (!i.domain) {
+        if (i.domain.kind == 'Nothing') {
             if (i.path.charAt(0) == '/') {
                 path = i.path;
             }
@@ -312,6 +312,12 @@ function Emitter() {
                 path = "./" + i.path;
             }
             path = path.replace(/\.(puck|ts)$/, '.js');
+        }
+        else if (i.domain.value[0] == 'node') {
+            path = i.path;
+        }
+        else if (i.domain.value[0] == 'puck') {
+            path = "puck-lang/dist/lib/stdlib/" + i.path;
         }
         else {
             throw "Unsupported import-domain \"" + i.domain + "\"";
@@ -351,8 +357,8 @@ function Emitter() {
             valueVariable = newValueVariable();
         }
         var then = emitBlock(e._then);
-        var el = e._else
-            ? ("\n" + indent('else') + " " + emitBlock(e._else))
+        var el = e._else.kind == 'Just'
+            ? ("\n" + indent('else') + " " + emitBlock(e._else.value[0]))
             : '';
         var code = "if (" + condition + ") " + then + el;
         if (produceValue) {
@@ -388,6 +394,10 @@ function Emitter() {
         var object = e.object.kind == ast_1.SyntaxKind.NumberLiteral
             ? "(" + emitExpression(e.object) + ")"
             : emitExpression(e.object);
+        return object + "." + emitExpression(e.member, Context.Value);
+    }
+    function emitTypePath(e) {
+        var object = emitExpression(e.object);
         return object + "." + emitExpression(e.member, Context.Value);
     }
     function emitBreak(_) {

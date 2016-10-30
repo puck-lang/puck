@@ -22,25 +22,63 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _ast = require('./ast/ast.js');
 
-var File = exports.File = null;
-var Type = exports.Type = null;
-var Struct = exports.Struct = null;
-var Trait = exports.Trait = null;
-var Implementation = exports.Implementation = null;
-var TypeClass = exports.TypeClass = null;
-var TypeInstance = exports.TypeInstance = null;
-var TypeParameter = exports.TypeParameter = null;
-var EnumType = exports.EnumType = null;
-var FunctionType = exports.FunctionType = null;
-var ObjectType = exports.ObjectType = null;
-var TupleType = exports.TupleType = null;
-var UnitType = exports.UnitType = null;
-var GenericFunction = exports.GenericFunction = null;
-var GenericFunctionInstace = exports.GenericFunctionInstace = null;
-var Binding = exports.Binding = null;
-var TypeBinding = exports.TypeBinding = null;
-var Scope = exports.Scope = null;
-var ScopeAware = exports.ScopeAware = null;
+var File = exports.File = function File(object) {
+  return object;
+};
+var Type = exports.Type = function Type(object) {
+  return object;
+};
+var Struct = exports.Struct = function Struct(object) {
+  return object;
+};
+var Trait = exports.Trait = function Trait(object) {
+  return object;
+};
+var Implementation = exports.Implementation = function Implementation(object) {
+  return object;
+};
+var TypeClass = exports.TypeClass = function TypeClass(object) {
+  return object;
+};
+var TypeInstance = exports.TypeInstance = function TypeInstance(object) {
+  return object;
+};
+var TypeParameter = exports.TypeParameter = function TypeParameter(object) {
+  return object;
+};
+var EnumType = exports.EnumType = function EnumType(object) {
+  return object;
+};
+var FunctionType = exports.FunctionType = function FunctionType(object) {
+  return object;
+};
+var ObjectType = exports.ObjectType = function ObjectType(object) {
+  return object;
+};
+var TupleType = exports.TupleType = function TupleType(object) {
+  return object;
+};
+var UnitType = exports.UnitType = function UnitType(object) {
+  return object;
+};
+var GenericFunction = exports.GenericFunction = function GenericFunction(object) {
+  return object;
+};
+var GenericFunctionInstace = exports.GenericFunctionInstace = function GenericFunctionInstace(object) {
+  return object;
+};
+var Binding = exports.Binding = function Binding(object) {
+  return object;
+};
+var TypeBinding = exports.TypeBinding = function TypeBinding(object) {
+  return object;
+};
+var Scope = exports.Scope = function Scope(object) {
+  return object;
+};
+var ScopeAware = exports.ScopeAware = function ScopeAware(object) {
+  return object;
+};
 function isEnumType(ty) {
   return ty.members;
 };

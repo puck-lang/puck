@@ -18,7 +18,9 @@ b = 6;
 function c(a) {
   return a = a * 2;
 };
-var D = null;
+var D = function D(object) {
+  return object;
+};
 var d = { e: 42 };
 d.e = 5;
 var e = void 0;

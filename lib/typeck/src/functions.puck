@@ -1,4 +1,4 @@
-import '../../ast/ast.puck' as {FunctionDeclaration}
+import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration}
 import '../../entities.puck' as {FunctionType, Scope, TypeInstance}
 import 'range.puck' as {checkRange, getRange}
 import 'types.puck' as {getType, isAssignable}
@@ -16,7 +16,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
     ty: p.ty
     token: p
   }})
-  let returnType = getType(scope, f.returnType)
+  let returnType = if f.returnType.isJust() then getType(scope, f.returnType.value[0])
   let selfBinding =
     if arguments.length > 0 and arguments[0].identifier.name == 'self'
       then arguments[0]
@@ -27,11 +27,19 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
 
   {
     kind: 'Function'
-    name: if f.name then f.name.name else getFunctionTypeName(arguments, returnType)
+    name: f.name.mapOrElse(|| getFunctionTypeName(arguments, returnType), |ident| ident.name)
     selfBinding
     arguments
     argumentRange: if f.parameterList
-      then getRange(arguments, |p| p.token.initializer, reportError, 'parameter')
+      then getRange(
+        arguments
+        |p| {
+          let vd: VariableDeclaration = p.token
+          vd.initializer.isJust()
+        }
+        reportError
+        'parameter'
+      )
       else {{start: 0, end: 1}}
     returnType
     isAbstract: not f.body

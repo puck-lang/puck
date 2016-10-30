@@ -2,7 +2,7 @@ type Default<A=Num> {
   value: A
 }
 trait DefaultTrait {
-  fn method(self) {}
+  fn method(self): () {}
 }
 impl DefaultTrait for Default<Num> {}
 

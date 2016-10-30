@@ -366,68 +366,74 @@ function ScopeVisitor(context, file) {
       a.scope = self.scope;
       visit.walkExpression(self, a.object);
       if (a.object.ty) {
-        if ((0, _entities.isEnumType)(a.object.ty)) {
-          var member = a.object.ty.members[a.member.name];
-          if (!member) {
-            return reportError(a.member, a.object.ty.name + " has no member named " + a.member.name);
+        if ((0, _entities.isEnumType)(a.object.ty)) {} else {
+          if ((0, _entities.isStruct)(a.object.ty)) {
+            a.ty = a.object.ty.properties[a.member.name];
+          };
+        };
+      };
+    },
+    visitTypePath: function visitTypePath(a) {
+      var self = this;
+      a.scope = self.scope;
+      visit.walkExpression(self, a.object);
+      if (a.object.ty && (0, _entities.isEnumType)(a.object.ty)) {
+        var member = a.object.ty.members[a.member.name];
+        if (!member) {
+          return reportError(a.member, a.object.ty.name + " has no member named " + a.member.name);
+        } else {
+          if ((0, _entities.isObjectType)(member)) {
+            return a.ty = {
+              kind: "Function",
+              name: a.member.name,
+              parameterRange: a.object.ty.parameterRange,
+              typeParameters: a.object.ty.typeParameters,
+              instances: [],
+              _arguments: [{
+                name: a.member.name,
+                mutable: false,
+                ty: member,
+                redefined: false
+              }],
+              argumentRange: {
+                start: 1,
+                end: 2
+              },
+              returnType: a.object.ty,
+              isAbstract: false
+            };
           } else {
-            if ((0, _entities.isObjectType)(member)) {
+            if ((0, _entities.isTupleType)(member)) {
               return a.ty = {
                 kind: "Function",
                 name: a.member.name,
                 parameterRange: a.object.ty.parameterRange,
                 typeParameters: a.object.ty.typeParameters,
                 instances: [],
-                _arguments: [{
-                  name: a.member.name,
-                  mutable: false,
-                  ty: member,
-                  redefined: false
-                }],
+                _arguments: member.properties.map(function (p, i) {
+                  return {
+                    name: i.toString(),
+                    mutable: false,
+                    ty: p,
+                    redefined: false
+                  };
+                }),
                 argumentRange: {
-                  start: 1,
-                  end: 2
+                  start: member.properties.length,
+                  end: member.properties.length + 1
                 },
                 returnType: a.object.ty,
                 isAbstract: false
               };
             } else {
-              if ((0, _entities.isTupleType)(member)) {
-                return a.ty = {
-                  kind: "Function",
-                  name: a.member.name,
-                  parameterRange: a.object.ty.parameterRange,
-                  typeParameters: a.object.ty.typeParameters,
-                  instances: [],
-                  _arguments: member.properties.map(function (p, i) {
-                    return {
-                      name: i.toString(),
-                      mutable: false,
-                      ty: p,
-                      redefined: false
-                    };
-                  }),
-                  argumentRange: {
-                    start: member.properties.length,
-                    end: member.properties.length + 1
-                  },
-                  returnType: a.object.ty,
-                  isAbstract: false
-                };
-              } else {
-                return a.ty = {
-                  kind: a.object.ty.kind,
-                  name: a.object.ty.name + "." + member.name,
-                  parameterRange: a.object.ty.parameterRange,
-                  typeParameters: a.object.ty.typeParameters,
-                  instances: []
-                };
+              return a.ty = {
+                kind: a.object.ty.kind,
+                name: a.object.ty.name + "." + member.name,
+                parameterRange: a.object.ty.parameterRange,
+                typeParameters: a.object.ty.typeParameters,
+                instances: []
               };
             };
-          };
-        } else {
-          if ((0, _entities.isStruct)(a.object.ty)) {
-            return a.ty = a.object.ty.properties[a.member.name];
           };
         };
       };

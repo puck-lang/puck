@@ -43,12 +43,12 @@ export let structureVisitor = {
           if assignedTo then assignedTo.arguments[i].ty
         self.visitFunctionParameter(p, ty)
       })
-      if f.returnType then self.visitTypeBound(f.returnType)
+      if f.returnType.isJust() then self.visitTypeBound(f.returnType.value[0])
 
       f.ty = createFunctionType(f.scope, f, self.reportError)
-      if f.name then
+      if f.name.isJust() then
         f.scope.parent.define({
-          name: f.name.name
+          name: f.name.value[0].name
           token: f
           mutable: false
           ty: f.ty
@@ -119,8 +119,10 @@ export let structureVisitor = {
   visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, ty| {
     if d.scope then return undefined
     d.scope = self.scope
-    if d.typeBound then self.visitTypeBound(d.typeBound)
-    d.ty = getType(d.scope, d.typeBound) or ty
+    d.ty = d.typeBound.mapOr(ty, |bound| {
+      self.visitTypeBound(bound)
+      getType(d.scope, bound) or ty
+    })
 
     d.binding = d.scope.define({
       name: d.identifier.name,
@@ -129,12 +131,13 @@ export let structureVisitor = {
       ty: d.ty
     }, true)
 
-    if d.initializer {
-      visitInitializer(d.initializer)
+    if d.initializer.isJust() {
+      let initializer = d.initializer.value[0]
+      visitInitializer(initializer)
       if not d.binding.ty
-        then d.binding.ty = d.initializer.ty
-      else if not isAssignable(d.binding.ty, d.initializer.ty)
-        then self.reportError(d, notAssignableError(d.binding.ty, d.initializer.ty))
+        then d.binding.ty = initializer.ty
+      else if not isAssignable(d.binding.ty, initializer.ty)
+        then self.reportError(d, notAssignableError(d.binding.ty, initializer.ty))
     }
   }
 

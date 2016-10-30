@@ -31,6 +31,7 @@ import '../ast/ast.puck' as {
 
   IndexAccess
   MemberAccess
+  TypePath
 
   Token
   ReturnStatement
@@ -370,60 +371,68 @@ export fn ScopeVisitor(context, file) {
       visit.walkExpression(self, a.object)
       if a.object.ty {
         if isEnumType(a.object.ty) {
-          let member = a.object.ty.members[a.member.name]
-          if not member {
-            reportError(a.member, a.object.ty.name + ' has no member named ' + a.member.name)
-          }
-          else if isObjectType(member) {
-            a.ty = {
-              kind: 'Function'
-              name: a.member.name
-              parameterRange: a.object.ty.parameterRange
-              typeParameters: a.object.ty.typeParameters
-              instances: []
-              arguments: [{
-                name: a.member.name
-                // token: Token
-                mutable: false
-                ty: member
-                redefined: false
-              }]
-              argumentRange: {start: 1, end: 2}
-              returnType: a.object.ty
-              isAbstract: false
-            }
-          }
-          else if isTupleType(member) {
-            a.ty = {
-              kind: 'Function'
-              name: a.member.name
-              parameterRange: a.object.ty.parameterRange
-              typeParameters: a.object.ty.typeParameters
-              instances: []
-              arguments: member.properties.map(|p, i| {{
-                name: i.toString()
-                // token: Token
-                mutable: false
-                ty: p
-                redefined: false
-              }})
-              argumentRange: {start: member.properties.length, end: member.properties.length + 1}
-              returnType: a.object.ty
-              isAbstract: false
-            }
-          }
-          else {
-            a.ty = {
-              kind: a.object.ty.kind
-              name: a.object.ty.name + '.' + member.name
-              parameterRange: a.object.ty.parameterRange
-              typeParameters: a.object.ty.typeParameters
-              instances: []
-            }
-          }
+          // TODO: Enable this check when possible
+          // reportError(a, 'can not read a property on an enum type')
         }
         else if isStruct(a.object.ty) {
           a.ty = a.object.ty.properties[a.member.name]
+        }
+      }
+    }
+    visitTypePath: |self, mut a: TypePath| {
+      a.scope = self.scope
+      visit.walkExpression(self, a.object)
+      if a.object.ty and isEnumType(a.object.ty) {
+        let member = a.object.ty.members[a.member.name]
+        if not member {
+          reportError(a.member, a.object.ty.name + ' has no member named ' + a.member.name)
+        }
+        else if isObjectType(member) {
+          a.ty = {
+            kind: 'Function'
+            name: a.member.name
+            parameterRange: a.object.ty.parameterRange
+            typeParameters: a.object.ty.typeParameters
+            instances: []
+            arguments: [{
+              name: a.member.name
+              // token: Token
+              mutable: false
+              ty: member
+              redefined: false
+            }]
+            argumentRange: {start: 1, end: 2}
+            returnType: a.object.ty
+            isAbstract: false
+          }
+        }
+        else if isTupleType(member) {
+          a.ty = {
+            kind: 'Function'
+            name: a.member.name
+            parameterRange: a.object.ty.parameterRange
+            typeParameters: a.object.ty.typeParameters
+            instances: []
+            arguments: member.properties.map(|p, i| {{
+              name: i.toString()
+              // token: Token
+              mutable: false
+              ty: p
+              redefined: false
+            }})
+            argumentRange: {start: member.properties.length, end: member.properties.length + 1}
+            returnType: a.object.ty
+            isAbstract: false
+          }
+        }
+        else {
+          a.ty = {
+            kind: a.object.ty.kind
+            name: a.object.ty.name + '.' + member.name
+            parameterRange: a.object.ty.parameterRange
+            typeParameters: a.object.ty.typeParameters
+            instances: []
+          }
         }
       }
     }

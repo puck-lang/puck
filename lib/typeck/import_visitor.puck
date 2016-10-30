@@ -59,7 +59,18 @@ export fn ImportVisitor(context, file: File) {
     }
 
     visitImportDirective: |self, mut i: ImportDirective| {
-      if i.domain == 'puck' {
+      if i.domain.isNothing() {
+        let importedFile = context.resolvePath(i.path, file)
+        let path = importedFile.absolutePath
+        let result = asResult(|| statSync(path))
+        if result.error
+          then reportError(i, 'Imported file $path not found')
+        else if not result.result.isFile()
+          then reportError(i, 'Imported file $path is not a file')
+
+        if puckFile.test(path) then importModule(i, importedFile)
+      }
+      else if i.domain.value[0] == 'puck' {
         if puckModules.indexOf(i.path) == -1
           then reportError(i, 'Invalid puck module ' + i.path)
         let importedFile = context.resolvePath(
@@ -71,19 +82,8 @@ export fn ImportVisitor(context, file: File) {
         )
         importModule(i, importedFile)
       }
-      else if not i.domain {
-        let importedFile = context.resolvePath(i.path, file)
-        let path = importedFile.absolutePath
-        let result = asResult(|| statSync(path))
-        if result.error
-          then reportError(i, 'Imported file $path not found')
-        else if not result.result.isFile()
-          then reportError(i, 'Imported file $path is not a file')
-
-        if puckFile.test(path) then importModule(i, importedFile)
-      }
-      else if domains.indexOf(i.domain)
-        then reportError(i, 'Invalid import domain ' + i.domain)
+      else if domains.indexOf(i.domain.value[0]) == -1
+        then reportError(i, 'Invalid import domain ' + i.domain.value[0])
     }
   })
 }

@@ -84,38 +84,38 @@ function ImportVisitor(context, file) {
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
-      if (i.domain == "puck") {
-        if (puckModules.indexOf(i.path) == -1) {
-          reportError(i, "Invalid puck module " + i.path);
-        };
-        var importedFile = context.resolvePath(path.join(path.dirname(_js.require.resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
-        return importModule(i, importedFile);
-      } else {
-        if (!i.domain) {
-          var _ret = function () {
-            var importedFile = context.resolvePath(i.path, file);
-            var path = importedFile.absolutePath;
-            var result = (0, _js.asResult)(function () {
-              return (0, _fs.statSync)(path);
-            });
-            if (result.error) {
-              reportError(i, "Imported file " + path + " not found");
-            } else {
-              if (!result.result.isFile()) {
-                reportError(i, "Imported file " + path + " is not a file");
-              };
+      if (_core.MaybeTrait['$Maybe'].isNothing.call(i.domain)) {
+        var _ret = function () {
+          var importedFile = context.resolvePath(i.path, file);
+          var path = importedFile.absolutePath;
+          var result = (0, _js.asResult)(function () {
+            return (0, _fs.statSync)(path);
+          });
+          if (result.error) {
+            reportError(i, "Imported file " + path + " not found");
+          } else {
+            if (!result.result.isFile()) {
+              reportError(i, "Imported file " + path + " is not a file");
             };
-            if (puckFile.test(path)) {
-              return {
-                v: importModule(i, importedFile)
-              };
+          };
+          if (puckFile.test(path)) {
+            return {
+              v: importModule(i, importedFile)
             };
-          }();
+          };
+        }();
 
-          if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+      } else {
+        if (i.domain.value[0] == "puck") {
+          if (puckModules.indexOf(i.path) == -1) {
+            reportError(i, "Invalid puck module " + i.path);
+          };
+          var _importedFile = context.resolvePath(path.join(path.dirname(_js.require.resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
+          return importModule(i, _importedFile);
         } else {
-          if (domains.indexOf(i.domain)) {
-            return reportError(i, "Invalid import domain " + i.domain);
+          if (domains.indexOf(i.domain.value[0]) == -1) {
+            return reportError(i, "Invalid import domain " + i.domain.value[0]);
           };
         };
       };

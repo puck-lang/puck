@@ -69,9 +69,15 @@ SelfAware['$FunctionsType'] = {
   withImmutableSelf: SelfAware.withImmutableSelf,
   withMutableSelf: SelfAware.withMutableSelf
 };
-var EmptyType = exports.EmptyType = null;
-var FunctionsType = exports.FunctionsType = null;
-var GenericType = exports.GenericType = null;
+var EmptyType = exports.EmptyType = function EmptyType(object) {
+  return object;
+};
+var FunctionsType = exports.FunctionsType = function FunctionsType(object) {
+  return object;
+};
+var GenericType = exports.GenericType = function GenericType(object) {
+  return object;
+};
 Functions.noBody();
 var func = { name: "func" };
 Functions['$FunctionsType'].withBody.call(func, "body");

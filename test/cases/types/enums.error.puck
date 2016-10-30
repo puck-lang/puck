@@ -9,7 +9,7 @@ enum Enum = A | B | A
 
 ///// String is not assignable to type Num
 enum Enum = A(Num)
-let five = Enum.A('five')
+let five = Enum::A('five')
 
 //// String is not assignable to type Num
 // TODO: Make this error
@@ -17,22 +17,22 @@ let five = Enum.A('five')
 // let five = Enum.A({b: 'five'})
 
 ///// Maybe.Nothing is not callable
-let five = Maybe.Nothing('five')
+let five = Maybe::Nothing('five')
 
 //// Maybe<String> is not assignable to type Maybe<Num>
 // TODO: Make this error
-let five: Maybe<Num> = Maybe.Just('five')
+let five: Maybe<Num> = Maybe::Just('five')
 
 //// Maybe<String> is not assignable to type Maybe<Num>
 // TODO: Make this error
 let five: Maybe<Num> = Just('five')
 
 ///// Result is not assignable to type Maybe<Num>
-let five: Maybe<Num> = Result.Ok(5)
+let five: Maybe<Num> = Result::Ok(5)
 
 //// Result is not assignable to type Maybe<Num>
 // TODO: Make this error
 let five: Maybe<Num> = Ok(5)
 
 ///// Maybe has no member named Some
-let five: Maybe<Num> = Maybe.Some(5)
+let five: Maybe<Num> = Maybe::Some(5)

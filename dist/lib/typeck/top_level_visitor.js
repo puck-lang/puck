@@ -33,9 +33,9 @@ function TopLevelVisitor(context, file) {
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      if (f.name) {
+      if (_core.MaybeTrait['$Maybe'].isJust.call(f.name)) {
         return scope.define({
-          name: f.name.name,
+          name: f.name.value[0].name,
           token: f,
           mutable: false
         });

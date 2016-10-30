@@ -2,6 +2,7 @@ import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
   Block
   EnumDeclaration
+  EnumMember
   FunctionDeclaration
   Identifier
   ImplDeclaration
@@ -83,12 +84,18 @@ export fn TypeVisitor(context, file) {
         t.members.forEach(|m| self.visitEnumMember(m))
 
         let memberMap = ObjectMapTrait.fromList(
-          t.members.map(|p| (p.name.name, if p.bound then p.bound.ty else {{
-            kind: p.name.name
-            name: p.name.name
-            implementations: []
-            isUnit: true
-          }}))
+          t.members.map(|p: EnumMember| (
+            p.name.name
+            p.bound.mapOrElse(
+              || {{
+                kind: p.name.name
+                name: p.name.name
+                implementations: []
+                isUnit: true
+              }}
+              |bound| bound.ty
+            )
+          ))
         )
 
         if t.members.size() != memberMap.size() {
@@ -184,7 +191,7 @@ export fn TypeVisitor(context, file) {
         t.members.forEach(|t| self.visitFunctionDeclaration(t))
 
         Object.assign(t.ty.functions, ObjectMapTrait.fromList(
-          t.members.map(|m| [m.name.name, m.ty])))
+          t.members.map(|m| [m.name.value[0].name, m.ty])))
         if t.ty.instances
           then t.ty.instances.forEach(|mut instance| {
             instance.functions = t.ty.functions
@@ -210,13 +217,13 @@ export fn TypeVisitor(context, file) {
       }
       else {
         self.scope = t.scope
-        if t.bound then self.visitTypeBound(t.bound)
+        if t.bound.isJust() then self.visitTypeBound(t.bound.value[0])
 
         if isObjectType(t.ty)
           then Object.assign(t.ty.properties, ObjectMapTrait.fromList(
-            t.bound.properties.map(|p| [p.name.name, p.typeBound.ty])))
+            t.bound.value[0].properties.map(|p| [p.name.name, p.typeBound.ty])))
         else if isTupleType(t.ty) {
-          t.ty.properties = t.bound.properties.map(|p| p.ty)
+          t.ty.properties = t.bound.value[0].properties.map(|p| p.ty)
         }
 
         self.scope = self.scope.parent

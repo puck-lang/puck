@@ -9,10 +9,18 @@ exports.A = undefined;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-var Foo = null;
-var Generic = null;
-var A = exports.A = null;
-var Functions = null;
+var Foo = function Foo(object) {
+  return object;
+};
+var Generic = function Generic(object) {
+  return object;
+};
+var A = exports.A = function A(object) {
+  return object;
+};
+var Functions = function Functions(object) {
+  return object;
+};
 var NamedTuple = function NamedTuple() {
   for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
     members[_key] = arguments[_key];

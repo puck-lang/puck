@@ -62,13 +62,13 @@ var structureVisitor = exports.structureVisitor = {
           var ty = __PUCK__value__2;
           return self.visitFunctionParameter(p, ty);
         });
-        if (f.returnType) {
-          self.visitTypeBound(f.returnType);
+        if (_core.MaybeTrait['$Maybe'].isJust.call(f.returnType)) {
+          self.visitTypeBound(f.returnType.value[0]);
         };
         f.ty = (0, _functions.createFunctionType)(f.scope, f, self.reportError);
-        if (f.name) {
+        if (_core.MaybeTrait['$Maybe'].isJust.call(f.name)) {
           f.scope.parent.define({
-            name: f.name.name,
+            name: f.name.value[0].name,
             token: f,
             mutable: false,
             ty: f.ty
@@ -150,23 +150,24 @@ var structureVisitor = exports.structureVisitor = {
       return _js._undefined;
     };
     d.scope = self.scope;
-    if (d.typeBound) {
-      self.visitTypeBound(d.typeBound);
-    };
-    d.ty = (0, _types.getType)(d.scope, d.typeBound) || ty;
+    d.ty = _core.MaybeTrait['$Maybe'].mapOr.call(d.typeBound, ty, function (bound) {
+      self.visitTypeBound(bound);
+      return (0, _types.getType)(d.scope, bound) || ty;
+    });
     d.binding = d.scope.define({
       name: d.identifier.name,
       mutable: d.mutable,
       token: d,
       ty: d.ty
     }, true);
-    if (d.initializer) {
-      visitInitializer(d.initializer);
+    if (_core.MaybeTrait['$Maybe'].isJust.call(d.initializer)) {
+      var initializer = d.initializer.value[0];
+      visitInitializer(initializer);
       if (!d.binding.ty) {
-        return d.binding.ty = d.initializer.ty;
+        return d.binding.ty = initializer.ty;
       } else {
-        if (!(0, _types.isAssignable)(d.binding.ty, d.initializer.ty)) {
-          return self.reportError(d, notAssignableError(d.binding.ty, d.initializer.ty));
+        if (!(0, _types.isAssignable)(d.binding.ty, initializer.ty)) {
+          return self.reportError(d, notAssignableError(d.binding.ty, initializer.ty));
         };
       };
     };
