@@ -5,7 +5,6 @@ language-puck/
 node_modules/
 old/
 src/
-test/cases/**/*.ts
 vscode/
 
 !dist/bin/puck
