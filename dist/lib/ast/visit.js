@@ -570,8 +570,22 @@ function walkPattern(visitor, p) {
   if (p.kind == "Identifier") {
     return visitor.visitIdentifierPattern(p.value[0]);
   } else {
-    if (p.kind == "Tuple") {
-      return visitor.visitTuplePattern(p.value[0]);
+    if (p.kind == "Record") {
+      return visitor.visitRecordPattern(p.value[0]);
+    } else {
+      if (p.kind == "RecordType") {
+        visitor.visitNamedTypeBound(p.value[0]);
+        return visitor.visitRecordPattern(p.value[1]);
+      } else {
+        if (p.kind == "Tuple") {
+          return visitor.visitTuplePattern(p.value[0]);
+        } else {
+          if (p.kind == "TupleType") {
+            visitor.visitNamedTypeBound(p.value[0]);
+            return visitor.visitTuplePattern(p.value[1]);
+          };
+        };
+      };
     };
   };
 };

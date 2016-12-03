@@ -377,11 +377,25 @@ export interface RecordPatternArm {
   kind: 'Record'
   value: [RecordPattern]
 }
+export interface RecordTypePatternArm {
+  kind: 'RecordType'
+  value: [Identifier, RecordPattern]
+}
 export interface TuplePatternArm {
   kind: 'Tuple'
   value: [TuplePattern]
 }
-export type Pattern = IdentifierPatternArm | RecordPatternArm | TuplePatternArm
+export interface TupleTypePatternArm {
+  kind: 'TupleType'
+  value: [Identifier, TuplePattern]
+}
+export type Pattern
+  = IdentifierPatternArm
+  | RecordPatternArm
+  | RecordTypePatternArm
+  | TuplePatternArm
+  | TupleTypePatternArm
+
 export interface RecordPattern extends Token {
   properties: Array<{property: Identifier, local: Pattern}>
 }

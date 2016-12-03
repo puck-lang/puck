@@ -46,6 +46,18 @@ export trait MaybeTrait<T> {
 
     self.value[0]
   }
+
+  fn unwrapOr(self: Maybe<T>, default: T): T {
+    if (self.isJust())
+      then self.value[0]
+      else default
+  }
+
+  fn unwrapOrElse(self: Maybe<T>, default: () => T): T {
+    if (self.isJust())
+      then self.value[0]
+      else default()
+  }
 }
 impl<T> MaybeTrait<T> for Maybe<T> {}
 

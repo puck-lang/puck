@@ -364,8 +364,17 @@ function Emitter() {
                 return (emitIdentifier(property) + ": " + emitPattern(local));
             }).join(', ') + "}";
         }
+        else if (p.kind === 'RecordType') {
+            return "{" + p.value[1].properties.map(function (_a) {
+                var property = _a.property, local = _a.local;
+                return (emitIdentifier(property) + ": " + emitPattern(local));
+            }).join(', ') + "}";
+        }
         else if (p.kind === 'Tuple') {
             return "[" + p.value[0].properties.map(emitPattern).join(', ') + "]";
+        }
+        else if (p.kind === 'TupleType') {
+            return "[" + p.value[1].properties.map(emitPattern).join(', ') + "]";
         }
     }
     function emitAssignmentExpression(e) {

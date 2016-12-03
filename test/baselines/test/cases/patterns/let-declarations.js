@@ -46,4 +46,22 @@ var _a$b$b = _slicedToArray(_a$b.b, 2);
 var n = _a$b$b[0].n;
 var o = _a$b$b[1];
 
+var Tuple = function Tuple() {
+  for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
+    members[_key] = arguments[_key];
+  }
+
+  return members;
+};
+var Record = function Record(object) {
+  return object;
+};
+var p = 1;
+var q = 2;
+var _a$b2 = {
+  a: 1,
+  b: 2
+};
+var r = _a$b2.a;
+
 a = 2;

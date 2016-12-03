@@ -55,6 +55,22 @@ var MaybeTrait = exports.MaybeTrait = {
       throw (0, _js.Error)("Can not unwap empty maybe");
     };
     return self.value[0];
+  },
+  unwrapOr: function unwrapOr(_default) {
+    var self = this;
+    if (MaybeTrait['$Maybe'].isJust.call(self)) {
+      return self.value[0];
+    } else {
+      return _default;
+    };
+  },
+  unwrapOrElse: function unwrapOrElse(_default) {
+    var self = this;
+    if (MaybeTrait['$Maybe'].isJust.call(self)) {
+      return self.value[0];
+    } else {
+      return _default();
+    };
   }
 };
 var ListTrait = exports.ListTrait = {
@@ -107,7 +123,9 @@ MaybeTrait['$Maybe'] = {
   map: MaybeTrait.map,
   mapOr: MaybeTrait.mapOr,
   mapOrElse: MaybeTrait.mapOrElse,
-  unwrap: MaybeTrait.unwrap
+  unwrap: MaybeTrait.unwrap,
+  unwrapOr: MaybeTrait.unwrapOr,
+  unwrapOrElse: MaybeTrait.unwrapOrElse
 };
 ListTrait['$List'] = {
   zip: ListTrait.zip

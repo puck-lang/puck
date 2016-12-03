@@ -154,7 +154,7 @@ var structureVisitor = exports.structureVisitor = {
       self.visitTypeBound(bound);
       return (0, _types.getType)(d.scope, bound) || ty;
     });
-    var patternTy = declareVariable(d.scope, d.pattern, d.mutable, d.ty);
+    var patternTy = declareVariable(d.scope, self, d.pattern, d.mutable, d.ty);
     if (patternTy) {
       if (!d.ty) {
         d.ty = patternTy;
@@ -234,7 +234,7 @@ var structureVisitor = exports.structureVisitor = {
     return l.expressions.forEach(self.visitLiteral.bind(self));
   }
 };
-function declareVariable(scope, p, mutable, ty) {
+function declareVariable(scope, visitor, p, mutable, ty) {
   if (p.kind == "Identifier") {
     p.binding = scope.define({
       name: p.value[0].name,
@@ -247,17 +247,33 @@ function declareVariable(scope, p, mutable, ty) {
     if (p.kind == "Record") {
       var properties = void 0;;
       return properties = p.value[0].properties.map(function (p) {
-        return declareVariable(scope, p.local, mutable, ty);
+        return declareVariable(scope, visitor, p.local, mutable, ty);
       });
     } else {
-      if (p.kind == "Tuple") {
-        var _properties = p.value[0].properties.map(function (p) {
-          return declareVariable(scope, p, mutable, ty);
+      if (p.kind == "RecordType") {
+        visitor.visitNamedTypeBound(p.value[0]);
+        var _properties = p.value[1].properties.map(function (p) {
+          return declareVariable(scope, visitor, p.local, mutable, ty);
         });
-        return {
-          kind: "Tuple",
-          name: (0, _functions.getTupleTypeName)(_properties),
-          properties: _properties
+        return p.value[0].ty;
+      } else {
+        if (p.kind == "Tuple") {
+          var _properties2 = p.value[0].properties.map(function (p) {
+            return declareVariable(scope, visitor, p, mutable, ty);
+          });
+          return {
+            kind: "Tuple",
+            name: (0, _functions.getTupleTypeName)(_properties2),
+            properties: _properties2
+          };
+        } else {
+          if (p.kind == "TupleType") {
+            visitor.visitNamedTypeBound(p.value[0]);
+            var _properties3 = p.value[1].properties.map(function (p) {
+              return declareVariable(scope, visitor, p, mutable, ty);
+            });
+            return p.value[0].ty;
+          };
         };
       };
     };

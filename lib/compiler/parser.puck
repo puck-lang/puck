@@ -2,6 +2,7 @@ import 'puck:js' as {Object, console, global, null, typeof, undefined}
 import '../ast/ast.puck' as {
   Token
   Expression
+  Identifier
 
   Block
   EnumDeclaration
@@ -377,7 +378,14 @@ export fn parse(input) { // : TokenStream
       then Pattern.Tuple(parseTuplePattern())
     else if isToken(SyntaxKind.OpenBraceToken)
       then Pattern.Record(parseRecordPattern())
-    else Pattern.Identifier(consumeToken(SyntaxKind.Identifier, 'identifier'))
+    else {
+      let identifier = consumeToken(SyntaxKind.Identifier, 'identifier')
+      if isToken(SyntaxKind.OpenParenToken)
+        then Pattern.TupleType(parseNamedTypeBound(Just(identifier)), parseTuplePattern())
+      else if isToken(SyntaxKind.OpenBraceToken)
+        then Pattern.RecordType(parseNamedTypeBound(Just(identifier)), parseRecordPattern())
+      else Pattern.Identifier(identifier)
+    }
   }
 
   fn parseTraitDeclaration(): TraitDeclaration {
@@ -465,8 +473,8 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseNamedTypeBound(): NamedTypeBound {
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+  fn parseNamedTypeBound(identifier: Maybe<Identifier>): NamedTypeBound {
+    let name = identifier.unwrapOrElse(|| consumeToken(SyntaxKind.Identifier, 'identifier'))
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeBound)
@@ -517,7 +525,7 @@ export fn parse(input) { // : TokenStream
     }
     else if isToken(SyntaxKind.OpenBraceToken)
       then parseObjectTypeBound()
-    else parseNamedTypeBound()
+    else parseNamedTypeBound(Nothing)
   }
 
   fn parseTypeParameter(): TypeParameter {

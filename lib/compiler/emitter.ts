@@ -456,8 +456,16 @@ export function Emitter() {
         `${emitIdentifier(property)}: ${emitPattern(local)}`
       ).join(', ')}}`
     }
+    else if (p.kind === 'RecordType') {
+      return `{${p.value[1].properties.map(({property, local}) =>
+        `${emitIdentifier(property)}: ${emitPattern(local)}`
+      ).join(', ')}}`
+    }
     else if (p.kind === 'Tuple') {
       return `[${p.value[0].properties.map(emitPattern).join(', ')}]`
+    }
+    else if (p.kind === 'TupleType') {
+      return `[${p.value[1].properties.map(emitPattern).join(', ')}]`
     }
   }
 

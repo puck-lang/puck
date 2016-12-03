@@ -338,8 +338,19 @@ export fn walkPattern(visitor: Visitor, p: Pattern) {
   if p.kind == 'Identifier' {
     visitor.visitIdentifierPattern(p.value[0])
   }
+  else if p.kind == 'Record' {
+    visitor.visitRecordPattern(p.value[0])
+  }
+  else if p.kind == 'RecordType' {
+    visitor.visitNamedTypeBound(p.value[0])
+    visitor.visitRecordPattern(p.value[1])
+  }
   else if p.kind == 'Tuple' {
     visitor.visitTuplePattern(p.value[0])
+  }
+  else if p.kind == 'TupleType' {
+    visitor.visitNamedTypeBound(p.value[0])
+    visitor.visitTuplePattern(p.value[1])
   }
 }
 export fn walkIdentifierPattern(visitor: Visitor, p: Identifier) {

@@ -128,7 +128,7 @@ export let structureVisitor = {
       getType(d.scope, bound) or ty
     })
 
-    let patternTy = declareVariable(d.scope, d.pattern, d.mutable, d.ty)
+    let patternTy = declareVariable(d.scope, self, d.pattern, d.mutable, d.ty)
 
     if patternTy {
       if not d.ty {
@@ -188,7 +188,7 @@ export let structureVisitor = {
   }
 }
 
-fn declareVariable(scope: Scope, mut p: Pattern, mutable: Bool, ty): TypeInstance {
+fn declareVariable(scope: Scope, visitor, mut p: Pattern, mutable: Bool, ty): TypeInstance {
   if p.kind == 'Identifier' {
     p.binding = scope.define({
       name: p.value[0].name
@@ -199,19 +199,29 @@ fn declareVariable(scope: Scope, mut p: Pattern, mutable: Bool, ty): TypeInstanc
     false
   }
   else if p.kind == 'Record' {
-    let properties = p.value[0].properties.map(|mut p| declareVariable(scope, p.local, mutable, ty))
+    let properties = p.value[0].properties.map(|mut p| declareVariable(scope, visitor, p.local, mutable, ty))
     // {
     //   kind: 'Record'
     //   name: getRecordTypeName(properties)
     //   properties
     // }
   }
+  else if p.kind == 'RecordType' {
+    visitor.visitNamedTypeBound(p.value[0])
+    let properties = p.value[1].properties.map(|mut p| declareVariable(scope, visitor, p.local, mutable, ty))
+    p.value[0].ty
+  }
   else if p.kind == 'Tuple' {
-    let properties = p.value[0].properties.map(|mut p| declareVariable(scope, p, mutable, ty))
+    let properties = p.value[0].properties.map(|mut p| declareVariable(scope, visitor, p, mutable, ty))
     {
       kind: 'Tuple'
       name: getTupleTypeName(properties)
       properties
     }
+  }
+  else if p.kind == 'TupleType' {
+    visitor.visitNamedTypeBound(p.value[0])
+    let properties = p.value[1].properties.map(|mut p| declareVariable(scope, visitor, p, mutable, ty))
+    p.value[0].ty
   }
 }

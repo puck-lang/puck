@@ -353,7 +353,16 @@ function parse(input) {
         if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
           return _ast.Pattern.Record(parseRecordPattern());
         } else {
-          return _ast.Pattern.Identifier(consumeToken(_ast2.SyntaxKind.Identifier, "identifier"));
+          var identifier = consumeToken(_ast2.SyntaxKind.Identifier, "identifier");
+          if (isToken(_ast2.SyntaxKind.OpenParenToken)) {
+            return _ast.Pattern.TupleType(parseNamedTypeBound((0, _core.Just)(identifier)), parseTuplePattern());
+          } else {
+            if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
+              return _ast.Pattern.RecordType(parseNamedTypeBound((0, _core.Just)(identifier)), parseRecordPattern());
+            } else {
+              return _ast.Pattern.Identifier(identifier);
+            };
+          };
         };
       };
     };
@@ -444,8 +453,10 @@ function parse(input) {
       returnType: returnType
     };
   };
-  function parseNamedTypeBound() {
-    var name = consumeToken(_ast2.SyntaxKind.Identifier, "identifier");
+  function parseNamedTypeBound(identifier) {
+    var name = _core.MaybeTrait['$Maybe'].unwrapOrElse.call(identifier, function () {
+      return consumeToken(_ast2.SyntaxKind.Identifier, "identifier");
+    });
     var __PUCK__value__10 = void 0;
     if (isToken(_ast2.SyntaxKind.LessThanToken)) {
       __PUCK__value__10 = delimited("<", ">", ",", parseTypeBound);
@@ -498,7 +509,7 @@ function parse(input) {
         if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
           return parseObjectTypeBound();
         } else {
-          return parseNamedTypeBound();
+          return parseNamedTypeBound(_core.Nothing);
         };
       };
     };

@@ -6,6 +6,12 @@ let ((f, g), _, h) = ((2, 3), 4, 5)
 let {i, a: j} = {i: 1, a: 2, b: 3}
 let {a: {a: k, b: (l, m)}, b: ({n}, o)} = {a: {a: 1, b: (2, 3)}, b: ({n: 4}, 5)}
 
+type Tuple(Num, Num)
+type Record {a: Num, b: Num}
+
+let Tuple(p, q) = (1, 2)
+let Record {a: r} = {a: 1, b: 2}
+
 let a = 2
 // TODO: Allow this
 // let (b, c) = (4, 5)

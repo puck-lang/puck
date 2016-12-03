@@ -25,3 +25,24 @@ let (a, b, c): (Num, Num, Num) = (1, 2)
 // TODO: Make this error
 //// 123
 let {a} = {b: 2}
+
+///// (Num, Bool) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a, b) = (1, true)
+
+///// (Num, Num, Num) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a, b) = (1, 2, 3)
+
+///// (Num) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a) = ((1))
+
+///// (Num, Num, Num) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a, b, c) = (1, 2, 3)
+
+// TODO: Make this error
+//// (Num, Num, Num) is not assignable to type Tuple
+// type Tuple(Num, Num)
+// let Tuple(a, b, c) = (1, 2)
