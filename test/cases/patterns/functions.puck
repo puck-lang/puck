@@ -1,0 +1,4 @@
+fn a(_: String) {5}
+fn b(_: String, num: Num) {num}
+a('hello')
+b('hello', 5)

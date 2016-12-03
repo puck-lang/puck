@@ -9,17 +9,16 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 var a = 1;
 var b = 2;
 var c = 3;
-var _ref = [2, 3];
-var _ref2 = [2, 3, 4, 5];
-var d = _ref2[1];
-var e = _ref2[3];
-var _ref3 = [[2, 3], 4, 5];
-
-var _ref3$ = _slicedToArray(_ref3[0], 2);
-
-var f = _ref3$[0];
-var g = _ref3$[1];
-var h = _ref3[2];
+var __PUCK__value__1 = 2;
+var __PUCK__value__2 = 3;
+var __PUCK__value__3 = 2;
+var d = 3;
+var __PUCK__value__4 = 4;
+var e = 5;
+var f = 2;
+var g = 3;
+var __PUCK__value__5 = 4;
+var h = 5;
 var _i$a$b = {
   i: 1,
   a: 2,

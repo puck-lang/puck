@@ -138,16 +138,30 @@ var Pattern = exports.Pattern = {
 
     return { kind: 'Identifier', value: members };
   },
-  Tuple: function Tuple() {
+  Record: function Record() {
     for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       members[_key2] = arguments[_key2];
     }
 
-    return { kind: 'Tuple', value: members };
+    return { kind: 'Record', value: members };
   },
-  TupleType: function TupleType() {
+  Tuple: function Tuple() {
     for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       members[_key3] = arguments[_key3];
+    }
+
+    return { kind: 'Tuple', value: members };
+  },
+  RecordType: function RecordType() {
+    for (var _len4 = arguments.length, members = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      members[_key4] = arguments[_key4];
+    }
+
+    return { kind: 'RecordType', value: members };
+  },
+  TupleType: function TupleType() {
+    for (var _len5 = arguments.length, members = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      members[_key5] = arguments[_key5];
     }
 
     return { kind: 'TupleType', value: members };

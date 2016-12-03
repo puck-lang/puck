@@ -352,6 +352,9 @@ function Emitter() {
         return "import " + specifier + " from '" + path + "'";
     }
     function emitPattern(p) {
+        if (p.kind === 'CatchAll') {
+            return newValueVariable();
+        }
         if (p.kind === 'Identifier') {
             return emitIdentifier(p.value[0]);
         }

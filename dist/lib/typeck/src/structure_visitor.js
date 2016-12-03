@@ -244,14 +244,21 @@ function declareVariable(scope, p, mutable, ty) {
     }, true);
     return false;
   } else {
-    if (p.kind == "Tuple") {
-      var properties = p.value[0].properties.map(function (p) {
-        return declareVariable(scope, p, mutable, ty);
+    if (p.kind == "Record") {
+      var properties = void 0;;
+      return properties = p.value[0].properties.map(function (p) {
+        return declareVariable(scope, p.local, mutable, ty);
       });
-      return {
-        kind: "Tuple",
-        name: (0, _functions.getTupleTypeName)(properties),
-        properties: properties
+    } else {
+      if (p.kind == "Tuple") {
+        var _properties = p.value[0].properties.map(function (p) {
+          return declareVariable(scope, p, mutable, ty);
+        });
+        return {
+          kind: "Tuple",
+          name: (0, _functions.getTupleTypeName)(_properties),
+          properties: _properties
+        };
       };
     };
   };
