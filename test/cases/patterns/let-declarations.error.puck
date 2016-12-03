@@ -21,3 +21,7 @@ let (a): (Num) = (1, 2)
 
 ///// (Num, Num) is not assignable to type (Num, Num, Num)
 let (a, b, c): (Num, Num, Num) = (1, 2)
+
+// TODO: Make this error
+//// 123
+let {a} = {b: 2}

@@ -20,5 +20,31 @@ var _ref3$ = _slicedToArray(_ref3[0], 2);
 var f = _ref3$[0];
 var g = _ref3$[1];
 var h = _ref3[2];
+var _i$a$b = {
+  i: 1,
+  a: 2,
+  b: 3
+};
+var i = _i$a$b.i;
+var j = _i$a$b.a;
+var _a$b = {
+  a: {
+    a: 1,
+    b: [2, 3]
+  },
+  b: [{ n: 4 }, 5]
+};
+var _a$b$a = _a$b.a;
+var k = _a$b$a.a;
+
+var _a$b$a$b = _slicedToArray(_a$b$a.b, 2);
+
+var l = _a$b$a$b[0];
+var m = _a$b$a$b[1];
+
+var _a$b$b = _slicedToArray(_a$b.b, 2);
+
+var n = _a$b$b[0].n;
+var o = _a$b$b[1];
 
 a = 2;

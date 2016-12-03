@@ -198,6 +198,14 @@ fn declareVariable(scope: Scope, mut p: Pattern, mutable: Bool, ty): TypeInstanc
     }, true)
     false
   }
+  else if p.kind == 'Record' {
+    let properties = p.value[0].properties.map(|mut p| declareVariable(scope, p.local, mutable, ty))
+    // {
+    //   kind: 'Record'
+    //   name: getRecordTypeName(properties)
+    //   properties
+    // }
+  }
   else if p.kind == 'Tuple' {
     let properties = p.value[0].properties.map(|mut p| declareVariable(scope, p, mutable, ty))
     {

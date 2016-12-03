@@ -3,6 +3,8 @@ let (b, c) = (2, 3)
 let (_, _) = (2, 3)
 let (_, d, _, e) = (2, 3, 4, 5)
 let ((f, g), _, h) = ((2, 3), 4, 5)
+let {i, a: j} = {i: 1, a: 2, b: 3}
+let {a: {a: k, b: (l, m)}, b: ({n}, o)} = {a: {a: 1, b: (2, 3)}, b: ({n: 4}, 5)}
 
 let a = 2
 // TODO: Allow this

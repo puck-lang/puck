@@ -228,9 +228,9 @@ export enum Pattern
   // | Boolen(BooleanLiteral)
   // | Number(NumberLiteral)
   // | String(StringLiteralPart)
-  // | Record(RecordPattern)
+  | Record(RecordPattern)
   | Tuple(TuplePattern)
-  // | RecordType(SimpleIdentifier, RecordPattern)
+  | RecordType(SimpleIdentifier, RecordPattern)
   | TupleType(SimpleIdentifier, TuplePattern)
 
 export type BreakStatement {

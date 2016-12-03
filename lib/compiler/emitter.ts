@@ -448,6 +448,11 @@ export function Emitter() {
     if (p.kind === 'Identifier') {
       return emitIdentifier(p.value[0])
     }
+    else if (p.kind === 'Record') {
+      return `{${p.value[0].properties.map(({property, local}) =>
+        `${emitIdentifier(property)}: ${emitPattern(local)}`
+      ).join(', ')}}`
+    }
     else if (p.kind === 'Tuple') {
       return `[${p.value[0].properties.map(emitPattern).join(', ')}]`
     }

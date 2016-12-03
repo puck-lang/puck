@@ -22,6 +22,8 @@ import '../ast/ast.puck' as {
   VariableDeclaration
 
   Pattern
+  RecordPattern
+  RecordPatternMember
   TuplePattern
 
   AssignmentExpression
@@ -342,6 +344,24 @@ export fn parse(input) { // : TokenStream
     }
   }
 
+  fn parseRecordPatternMember(): RecordPatternMember {
+    let property = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let local =
+      if maybeConsumeToken(SyntaxKind.ColonToken).isJust()
+        then parsePattern()
+        else Pattern.Identifier(property)
+
+    {property, local}
+  }
+
+  fn parseRecordPattern(): RecordPattern {
+    let openBrace = expect(SyntaxKind.OpenBraceToken)
+    let properties = delimited('{', '}', ',', parseRecordPatternMember, false)
+    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
+
+    {openBrace, properties, closeBrace}
+  }
+
   fn parseTuplePattern(): TuplePattern {
     let openParen = expect(SyntaxKind.OpenParenToken)
     let properties = delimited('(', ')', ',', parsePattern, false)
@@ -355,6 +375,8 @@ export fn parse(input) { // : TokenStream
       then Pattern.CatchAll
     else if isToken(SyntaxKind.OpenParenToken)
       then Pattern.Tuple(parseTuplePattern())
+    else if isToken(SyntaxKind.OpenBraceToken)
+      then Pattern.Record(parseRecordPattern())
     else Pattern.Identifier(consumeToken(SyntaxKind.Identifier, 'identifier'))
   }
 
@@ -555,8 +577,8 @@ export fn parse(input) { // : TokenStream
       kind: SyntaxKind.VariableDeclaration
       pattern
       mutable
-      typeBound: maybeConsumeToken(SyntaxKind.ColonToken).map(|a| parseTypeBound())
-      initializer: maybeConsumeToken(SyntaxKind.EqualsToken).map(|a| parseExpression())
+      typeBound: maybeConsumeToken(SyntaxKind.ColonToken).map(|_| parseTypeBound())
+      initializer: maybeConsumeToken(SyntaxKind.EqualsToken).map(|_| parseExpression())
     }
   }
 

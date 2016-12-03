@@ -373,11 +373,18 @@ export interface IdentifierPatternArm {
   kind: 'Identifier'
   value: [Identifier]
 }
+export interface RecordPatternArm {
+  kind: 'Record'
+  value: [RecordPattern]
+}
 export interface TuplePatternArm {
   kind: 'Tuple'
   value: [TuplePattern]
 }
-export type Pattern = IdentifierPatternArm | TuplePatternArm
+export type Pattern = IdentifierPatternArm | RecordPatternArm | TuplePatternArm
+export interface RecordPattern extends Token {
+  properties: Array<{property: Identifier, local: Pattern}>
+}
 export interface TuplePattern extends Token {
   properties: Array<Pattern>
 }

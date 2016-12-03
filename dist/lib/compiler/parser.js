@@ -538,10 +538,10 @@ function parse(input) {
       kind: _ast2.SyntaxKind.VariableDeclaration,
       pattern: pattern,
       mutable: mutable,
-      typeBound: _core.MaybeTrait['$Maybe'].map.call(maybeConsumeToken(_ast2.SyntaxKind.ColonToken), function (a) {
+      typeBound: _core.MaybeTrait['$Maybe'].map.call(maybeConsumeToken(_ast2.SyntaxKind.ColonToken), function (undefined) {
         return parseTypeBound();
       }),
-      initializer: _core.MaybeTrait['$Maybe'].map.call(maybeConsumeToken(_ast2.SyntaxKind.EqualsToken), function (a) {
+      initializer: _core.MaybeTrait['$Maybe'].map.call(maybeConsumeToken(_ast2.SyntaxKind.EqualsToken), function (undefined) {
         return parseExpression();
       })
     };

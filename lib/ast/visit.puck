@@ -23,6 +23,7 @@ import 'ast.puck' as {
   ImportDirective
 
   Pattern
+  RecordPattern
   TuplePattern
 
   AssignmentExpression
@@ -107,6 +108,7 @@ export let walkingVisitor = {
 
   visitPattern: |self, p: Pattern| walkPattern(self, p)
   visitIdentifierPattern: |self, p: Identifier| walkIdentifierPattern(self, p)
+  visitRecordPattern: |self, p: RecordPattern| walkRecordPattern(self, p)
   visitTuplePattern: |self, p: TuplePattern| walkTuplePattern(self, p)
 
   visitAssignmentExpression: |self, e: AssignmentExpression| walkAssignmentExpression(self, e)
@@ -160,6 +162,7 @@ export let emptyVisitor = {
 
   visitPattern: || {}
   visitIdentifierPattern: || {}
+  visitRecordPattern: || {}
   visitTuplePattern: || {}
 
   visitAssignmentExpression: || {}
@@ -207,8 +210,6 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.ImportDirective then visitor.visitImportDirective(e)
 
   else if e.kind == SyntaxKind.Pattern then visitor.visitPattern(e)
-  else if e.kind == SyntaxKind.IdentifierPattern then visitor.visitIdentifierPattern(e)
-  else if e.kind == SyntaxKind.TuplePattern then visitor.visitTuplePattern(e)
 
   else if e.kind == SyntaxKind.AssignmentExpression then visitor.visitAssignmentExpression(e)
   else if e.kind == SyntaxKind.BinaryExpression then visitor.visitBinaryExpression(e)
@@ -343,6 +344,12 @@ export fn walkPattern(visitor: Visitor, p: Pattern) {
 }
 export fn walkIdentifierPattern(visitor: Visitor, p: Identifier) {
   visitor.visitIdentifier(p)
+}
+export fn walkRecordPattern(visitor: Visitor, p: RecordPattern) {
+  p.properties.forEach(|p| {
+    visitor.visitIdentifier(p.property)
+    visitor.visitPattern(p.local)
+  })
 }
 export fn walkTuplePattern(visitor: Visitor, p: TuplePattern) {
   p.properties.forEach(|p| visitor.visitPattern(p))
