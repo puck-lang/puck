@@ -99,7 +99,7 @@ export type Scope {
   // getBinding: (String, allowRedeclare = true) => Binding
   getBinding: (String) => Binding
   getTypeBinding: (String) => Binding
-  define: (String, Binding) => Binding
+  define: (Binding, Bool) => Binding
   defineType: (String, Binding) => Binding
 }
 

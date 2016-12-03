@@ -25,6 +25,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function TopLevelVisitor(context, file) {
   var scope = (0, _scope.createScope)(context, file);
+  var variableDeclaration = _core.Nothing;
   return _js._Object.assign({}, visit.emptyVisitor, {
     visitBlock: function visitBlock(b) {},
     visitEnumDeclaration: function visitEnumDeclaration(t) {
@@ -66,11 +67,9 @@ function TopLevelVisitor(context, file) {
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
-      return scope.define({
-        name: d.identifier.name,
-        mutable: d.mutable,
-        token: d
-      }, true);
+      variableDeclaration = (0, _core.Just)(d);
+      visit.walkVariableDeclaration(self, d);
+      return variableDeclaration = _core.Nothing;
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -89,6 +88,17 @@ function TopLevelVisitor(context, file) {
           return visit.walkImportDirective(self, i);
         };
       };
+    },
+    visitPattern: visit.walkingVisitor.visitPattern,
+    visitIdentifierPattern: function visitIdentifierPattern(p) {
+      var self = this;
+      return _core.MaybeTrait['$Maybe'].map.call(variableDeclaration, function (d) {
+        return scope.define({
+          name: p.name,
+          mutable: d.mutable,
+          token: d
+        }, true);
+      });
     }
   });
 }

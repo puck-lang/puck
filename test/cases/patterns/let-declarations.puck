@@ -1,0 +1,10 @@
+let a = 1
+let (b, c) = (2, 3)
+let (_, _) = (2, 3)
+let (_, d, _, e) = (2, 3, 4, 5)
+let ((f, g), _, h) = ((2, 3), 4, 5)
+
+let a = 2
+// TODO: Allow this
+// let (b, c) = (4, 5)
+// let (i, a) = ('new', 'shadow')

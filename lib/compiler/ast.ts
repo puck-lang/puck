@@ -57,6 +57,7 @@ export enum SyntaxKind {
   SemicolonToken,
   SlashEqualsToken,
   SlashToken,
+  UnderscoreToken,
 
   NewlineToken,
   EndOfFileToken,
@@ -161,6 +162,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   '.': SyntaxKind.DotToken,
   // '...': SyntaxKind.DotDotDotToken,
   ';': SyntaxKind.SemicolonToken,
+  '_': SyntaxKind.UnderscoreToken,
   '<': SyntaxKind.LessThanToken,
   '>': SyntaxKind.GreaterThanToken,
   '<=': SyntaxKind.LessThanEqualsToken,
@@ -194,7 +196,8 @@ function reverse(object) {
 }
 
 export const operators = [
-  ',', ';', ':', '::', '.', '{', '}', '[', ']', '(', ')', '|',
+  ',', ';', ':', '::', '.', '_', '|',
+  '{', '}', '[', ']', '(', ')',
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',
@@ -346,7 +349,7 @@ export interface TypeProperty extends Token {
 }
 
 export interface VariableDeclaration extends Token {
-  identifier: SimpleIdentifier
+  pattern: Pattern
   mutable: boolean
   typeBound: Maybe<TypeBound>
   initializer: Maybe<Expression>
@@ -364,6 +367,19 @@ export interface ImportDirective extends Token {
   path: string
   asKeyword: Token
   specifier: Identifier|ObjectDestructure
+}
+
+export interface IdentifierPatternArm {
+  kind: 'Identifier'
+  value: [Identifier]
+}
+export interface TuplePatternArm {
+  kind: 'Tuple'
+  value: [TuplePattern]
+}
+export type Pattern = IdentifierPatternArm | TuplePatternArm
+export interface TuplePattern extends Token {
+  properties: Array<Pattern>
 }
 
 export interface AssignmentExpression extends Expression {

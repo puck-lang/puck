@@ -22,6 +22,12 @@ export trait MaybeTrait<T> {
   fn isJust(self): Bool then self.kind == 'Just'
   fn isNothing(self: Maybe<T>): Bool {not self.isJust()}
 
+  fn map<U>(self: Maybe<T>, f: (T) => U): Maybe<U> {
+    if (self.isJust())
+      then Just(f(self.unwrap()))
+      else self
+  }
+
   fn mapOr<U>(self: Maybe<T>, default: U, f: (T) => U): U {
     if (self.isJust())
       then f(self.unwrap())

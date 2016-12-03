@@ -25,6 +25,14 @@ var MaybeTrait = exports.MaybeTrait = {
     var self = this;
     return !MaybeTrait['$Maybe'].isJust.call(self);
   },
+  map: function map(f) {
+    var self = this;
+    if (MaybeTrait['$Maybe'].isJust.call(self)) {
+      return Just(f(MaybeTrait['$Maybe'].unwrap.call(self)));
+    } else {
+      return self;
+    };
+  },
   mapOr: function mapOr(_default, f) {
     var self = this;
     if (MaybeTrait['$Maybe'].isJust.call(self)) {
@@ -96,6 +104,7 @@ StringTrait['$String'] = {
 MaybeTrait['$Maybe'] = {
   isJust: MaybeTrait.isJust,
   isNothing: MaybeTrait.isNothing,
+  map: MaybeTrait.map,
   mapOr: MaybeTrait.mapOr,
   mapOrElse: MaybeTrait.mapOrElse,
   unwrap: MaybeTrait.unwrap

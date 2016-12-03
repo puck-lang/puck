@@ -1,8 +1,12 @@
 import 'puck:js' as {undefined}
+import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {
   FunctionDeclaration
+  Identifier
   TypeParameter
   VariableDeclaration
+
+  Pattern
 
   FunctionTypeBound
   NamedTypeBound
@@ -18,8 +22,8 @@ import '../../ast/ast.puck' as {
 }
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
-import '../../entities.puck' as {TypeInstance, isTypeClass}
-import 'functions.puck' as {createFunctionType}
+import '../../entities.puck' as {Scope, TypeInstance, isTypeClass}
+import 'functions.puck' as {createFunctionType, getTupleTypeName}
 import 'range.puck' as {checkRange}
 import 'types.puck' as {getType, isAssignable}
 
@@ -124,20 +128,25 @@ export let structureVisitor = {
       getType(d.scope, bound) or ty
     })
 
-    d.binding = d.scope.define({
-      name: d.identifier.name,
-      mutable: d.mutable,
-      token: d,
-      ty: d.ty
-    }, true)
+    let patternTy = declareVariable(d.scope, d.pattern, d.mutable, d.ty)
+
+    if patternTy {
+      if not d.ty {
+        d.ty = patternTy
+      }
+      else if not isAssignable(patternTy, d.ty)
+        then self.reportError(d, notAssignableError(patternTy, d.ty))
+    }
 
     if d.initializer.isJust() {
       let initializer = d.initializer.value[0]
       visitInitializer(initializer)
-      if not d.binding.ty
-        then d.binding.ty = initializer.ty
-      else if not isAssignable(d.binding.ty, initializer.ty)
-        then self.reportError(d, notAssignableError(d.binding.ty, initializer.ty))
+      if not d.ty and d.pattern.binding {
+        d.pattern.binding.ty = initializer.ty
+        d.ty = initializer.ty
+      }
+      else if not isAssignable(d.ty, initializer.ty)
+        then self.reportError(d, notAssignableError(d.ty, initializer.ty))
     }
   }
 
@@ -178,4 +187,23 @@ export let structureVisitor = {
     l.expressions.forEach(self.visitLiteral.bind(self))
   }
 }
-import 'node:util' as {inspect}
+
+fn declareVariable(scope: Scope, mut p: Pattern, mutable: Bool, ty): TypeInstance {
+  if p.kind == 'Identifier' {
+    p.binding = scope.define({
+      name: p.value[0].name
+      mutable
+      token: p
+      ty
+    }, true)
+    false
+  }
+  else if p.kind == 'Tuple' {
+    let properties = p.value[0].properties.map(|mut p| declareVariable(scope, p, mutable, ty))
+    {
+      kind: 'Tuple'
+      name: getTupleTypeName(properties)
+      properties
+    }
+  }
+}

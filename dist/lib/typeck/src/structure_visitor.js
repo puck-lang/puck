@@ -15,6 +15,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+var _util = require('util');
+
 var _ast = require('./../../ast/ast.js');
 
 var _visit = require('./../../ast/visit.js');
@@ -30,8 +32,6 @@ var _functions = require('./functions.js');
 var _range = require('./range.js');
 
 var _types = require('./types.js');
-
-var _util = require('util');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -154,20 +154,25 @@ var structureVisitor = exports.structureVisitor = {
       self.visitTypeBound(bound);
       return (0, _types.getType)(d.scope, bound) || ty;
     });
-    d.binding = d.scope.define({
-      name: d.identifier.name,
-      mutable: d.mutable,
-      token: d,
-      ty: d.ty
-    }, true);
+    var patternTy = declareVariable(d.scope, d.pattern, d.mutable, d.ty);
+    if (patternTy) {
+      if (!d.ty) {
+        d.ty = patternTy;
+      } else {
+        if (!(0, _types.isAssignable)(patternTy, d.ty)) {
+          self.reportError(d, notAssignableError(patternTy, d.ty));
+        };
+      };
+    };
     if (_core.MaybeTrait['$Maybe'].isJust.call(d.initializer)) {
       var initializer = d.initializer.value[0];
       visitInitializer(initializer);
-      if (!d.binding.ty) {
-        return d.binding.ty = initializer.ty;
+      if (!d.ty && d.pattern.binding) {
+        d.pattern.binding.ty = initializer.ty;
+        return d.ty = initializer.ty;
       } else {
-        if (!(0, _types.isAssignable)(d.binding.ty, initializer.ty)) {
-          return self.reportError(d, notAssignableError(d.binding.ty, initializer.ty));
+        if (!(0, _types.isAssignable)(d.ty, initializer.ty)) {
+          return self.reportError(d, notAssignableError(d.ty, initializer.ty));
         };
       };
     };
@@ -229,3 +234,25 @@ var structureVisitor = exports.structureVisitor = {
     return l.expressions.forEach(self.visitLiteral.bind(self));
   }
 };
+function declareVariable(scope, p, mutable, ty) {
+  if (p.kind == "Identifier") {
+    p.binding = scope.define({
+      name: p.value[0].name,
+      mutable: mutable,
+      token: p,
+      ty: ty
+    }, true);
+    return false;
+  } else {
+    if (p.kind == "Tuple") {
+      var properties = p.value[0].properties.map(function (p) {
+        return declareVariable(scope, p, mutable, ty);
+      });
+      return {
+        kind: "Tuple",
+        name: (0, _functions.getTupleTypeName)(properties),
+        properties: properties
+      };
+    };
+  };
+}

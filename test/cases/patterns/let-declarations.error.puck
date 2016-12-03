@@ -1,0 +1,23 @@
+///// Duplicate declaration "a"
+let (a, a) = (1, 2)
+
+///// (Num, Num) is not assignable to type (??)
+let (a) = (1, 2)
+
+///// (Num, Num) is not assignable to type (??, ??, ??)
+let (a, b, c) = (1, 2)
+
+///// (Num, Num) is not assignable to type (Num, Bool)
+let (a, b): (Num, Bool) = (1, 2)
+
+///// (Bool, Bool) is not assignable to type (??)
+let (a): (Bool, Bool) = (1, 2)
+
+///// (Bool, Bool) is not assignable to type (??, ??, ??)
+let (a, b, c): (Bool, Bool) = (1, 2)
+
+///// (Num, Num) is not assignable to type (Num)
+let (a): (Num) = (1, 2)
+
+///// (Num, Num) is not assignable to type (Num, Num, Num)
+let (a, b, c): (Num, Num, Num) = (1, 2)

@@ -21,6 +21,9 @@ import '../ast/ast.puck' as {
   TypeProperty
   VariableDeclaration
 
+  Pattern
+  TuplePattern
+
   AssignmentExpression
   BinaryExpression
   CallExpression
@@ -73,12 +76,12 @@ export fn parse(input) { // : TokenStream
   }
 
   // fn consumeToken(token: SyntaxKind = undefined, name = undefined) {
-  fn consumeToken(token, name = false) {
+  fn consumeToken(token, name = 'token') {
     if token then expect(token, name)
     return input.next()
   }
 
-  fn maybeConsumeToken<T>(token, name = false): Maybe<T> {
+  fn maybeConsumeToken<T>(token, name = 'token'): Maybe<T> {
     if isToken(token)
       then Just(consumeToken(token, name))
       else Nothing
@@ -339,6 +342,22 @@ export fn parse(input) { // : TokenStream
     }
   }
 
+  fn parseTuplePattern(): TuplePattern {
+    let openParen = expect(SyntaxKind.OpenParenToken)
+    let properties = delimited('(', ')', ',', parsePattern, false)
+    let closeParen = consumeToken(SyntaxKind.CloseParenToken)
+
+    {openParen, properties, closeParen}
+  }
+
+  fn parsePattern(): Pattern {
+    if maybeConsumeToken(SyntaxKind.UnderscoreToken).isJust()
+      then Pattern.CatchAll
+    else if isToken(SyntaxKind.OpenParenToken)
+      then Pattern.Tuple(parseTuplePattern())
+    else Pattern.Identifier(consumeToken(SyntaxKind.Identifier, 'identifier'))
+  }
+
   fn parseTraitDeclaration(): TraitDeclaration {
     let keyword = consumeToken(SyntaxKind.TraitKeyword)
     let name = consumeToken(SyntaxKind.Identifier, 'identifier')
@@ -530,24 +549,14 @@ export fn parse(input) { // : TokenStream
 
   fn parseVariableDeclaration(): VariableDeclaration {
     let mutable = maybeConsumeToken(SyntaxKind.MutKeyword).isJust()
-    let identifier = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let pattern = parsePattern()
 
     {
       kind: SyntaxKind.VariableDeclaration
-      identifier
+      pattern
       mutable
-      typeBound:
-        if isToken(SyntaxKind.ColonToken) {
-          input.next()
-          Just(parseTypeBound())
-        }
-        else Nothing
-      initializer:
-        if isToken(SyntaxKind.EqualsToken) {
-          input.next()
-          Just(parseExpression())
-        }
-        else Nothing
+      typeBound: maybeConsumeToken(SyntaxKind.ColonToken).map(|a| parseTypeBound())
+      initializer: maybeConsumeToken(SyntaxKind.EqualsToken).map(|a| parseExpression())
     }
   }
 
@@ -791,7 +800,10 @@ export fn parse(input) { // : TokenStream
     else if isToken(SyntaxKind.LetKeyword) {
       input.next()
       expression = parseVariableDeclaration()
-      identifier = expression.identifier
+      if expression.pattern.kind != 'Identifier' {
+        input.croak('Can not export a let declaration without a identifier pattern')
+      }
+      identifier = expression.pattern.value[0]
     }
     else if isToken(SyntaxKind.TraitKeyword) {
       expression = parseTraitDeclaration()

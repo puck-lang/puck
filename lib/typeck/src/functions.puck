@@ -21,15 +21,15 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
   }
 
   let arguments = f.parameterList.map(|p| {{
-    identifier: p.identifier
+    pattern: p.pattern
     mutable: p.mutable
     ty: p.ty
     token: p
   }})
   let returnType = if f.returnType.isJust() then getType(scope, f.returnType.value[0])
   let selfBinding =
-    if arguments.length > 0 and arguments[0].identifier.name == 'self'
-      then arguments[0]
+    if arguments.length > 0 and arguments[0].pattern.kind == 'Identifier' and arguments[0].pattern.value[0].name == 'self'
+      then arguments[0].pattern.binding
   let arguments =
     if selfBinding
       then arguments.slice(1)

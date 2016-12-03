@@ -197,10 +197,20 @@ function Emitter() {
         return emitIdentifier(t.name) + ": " + value + ",";
     }
     function emitFunctionDeclaration(fn) {
+        fn.parameterList = fn.parameterList.map(function (p) {
+            if (p['identifier']) {
+                p.pattern = {
+                    kind: 'Identifier',
+                    value: [p['identifier']],
+                };
+            }
+            return p;
+        });
         var name = fn.name.kind == 'Just' ? emitIdentifier(fn.name.value[0]) : '';
         var parameterList = fn.parameterList;
         var body = fn.body;
-        if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
+        var firstParameter = parameterList.length > 0 && parameterList[0];
+        if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value[0].name == 'self') {
             parameterList = fn.parameterList.slice(1);
             if (fn.body.expressions.length > 0) {
                 body = Object['assign']({}, body, {
@@ -224,7 +234,7 @@ function Emitter() {
         var initializer = vd.initializer.kind == 'Just'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
-        return "" + emitIdentifier(vd.identifier) + initializer;
+        return "" + emitPattern(vd.pattern) + initializer;
     }
     function emitIdentifier(identifier) {
         if (jsKeywords.indexOf(identifier.name) != -1) {
@@ -268,24 +278,41 @@ function Emitter() {
         return "var " + emitIdentifier(t.name) + " = " + value;
     }
     function emitVariableDeclaration(vd) {
-        var binding = vd.scope.getBinding(vd.identifier.name);
-        var willBeRedefined = binding.redefined;
-        while (binding && binding.token !== vd) {
-            binding = binding.previous;
+        if (vd['identifier']) {
+            vd.pattern = {
+                kind: 'Identifier',
+                value: [vd['identifier']],
+            };
+        }
+        var willBeRedefined = true;
+        var binding;
+        if (vd.pattern.kind === 'Identifier') {
+            binding = vd.scope.getBinding(vd.pattern.value[0].name);
+            willBeRedefined = binding.redefined;
+            if (vd['identifier']) {
+                while (binding && (binding.token !== vd)) {
+                    binding = binding.previous;
+                }
+            }
+            else {
+                while (binding && (binding.token !== vd.pattern)) {
+                    binding = binding.previous;
+                }
+            }
         }
         var initializer = vd.initializer.kind == 'Just'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
         if (binding && binding.previous) {
-            return "" + emitIdentifier(vd.identifier) + initializer;
+            return "" + emitPattern(vd.pattern) + initializer;
         }
         if (context) {
             var valueVariable_1 = newValueVariable();
-            hoist("let " + emitIdentifier(vd.identifier) + ";");
-            return "" + emitIdentifier(vd.identifier) + initializer;
+            hoist("let " + emitPattern(vd.pattern) + ";");
+            return "" + emitPattern(vd.pattern) + initializer;
         }
         var kw = (vd.mutable || willBeRedefined) ? 'let' : 'const';
-        return kw + " " + emitIdentifier(vd.identifier) + initializer;
+        return kw + " " + emitPattern(vd.pattern) + initializer;
     }
     function emitExportDirective(e) {
         return "export " + (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration
@@ -323,6 +350,14 @@ function Emitter() {
             throw "Unsupported import-domain \"" + i.domain + "\"";
         }
         return "import " + specifier + " from '" + path + "'";
+    }
+    function emitPattern(p) {
+        if (p.kind === 'Identifier') {
+            return emitIdentifier(p.value[0]);
+        }
+        else if (p.kind === 'Tuple') {
+            return "[" + p.value[0].properties.map(emitPattern).join(', ') + "]";
+        }
     }
     function emitAssignmentExpression(e) {
         var left = ast_1.isIdentifier(e.lhs)

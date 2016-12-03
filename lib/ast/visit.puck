@@ -22,6 +22,9 @@ import 'ast.puck' as {
   ExportDirective
   ImportDirective
 
+  Pattern
+  TuplePattern
+
   AssignmentExpression
   BinaryExpression
   CallExpression
@@ -102,6 +105,10 @@ export let walkingVisitor = {
   visitExportDirective: |self, e: ExportDirective| walkExportDirective(self, e)
   visitImportDirective: |self, i: ImportDirective| walkImportDirective(self, i)
 
+  visitPattern: |self, p: Pattern| walkPattern(self, p)
+  visitIdentifierPattern: |self, p: Identifier| walkIdentifierPattern(self, p)
+  visitTuplePattern: |self, p: TuplePattern| walkTuplePattern(self, p)
+
   visitAssignmentExpression: |self, e: AssignmentExpression| walkAssignmentExpression(self, e)
   visitBinaryExpression: |self, e: BinaryExpression| walkBinaryExpression(self, e)
   visitCallExpression: |self, e: CallExpression| walkCallExpression(self, e)
@@ -151,6 +158,10 @@ export let emptyVisitor = {
   visitExportDirective: || {}
   visitImportDirective: || {}
 
+  visitPattern: || {}
+  visitIdentifierPattern: || {}
+  visitTuplePattern: || {}
+
   visitAssignmentExpression: || {}
   visitBinaryExpression: || {}
   visitCallExpression: || {}
@@ -194,6 +205,10 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
 
   else if e.kind == SyntaxKind.ExportDirective then visitor.visitExportDirective(e)
   else if e.kind == SyntaxKind.ImportDirective then visitor.visitImportDirective(e)
+
+  else if e.kind == SyntaxKind.Pattern then visitor.visitPattern(e)
+  else if e.kind == SyntaxKind.IdentifierPattern then visitor.visitIdentifierPattern(e)
+  else if e.kind == SyntaxKind.TuplePattern then visitor.visitTuplePattern(e)
 
   else if e.kind == SyntaxKind.AssignmentExpression then visitor.visitAssignmentExpression(e)
   else if e.kind == SyntaxKind.BinaryExpression then visitor.visitBinaryExpression(e)
@@ -303,7 +318,7 @@ export fn walkTypeProperty(visitor: Visitor, t: TypeProperty) {
   visitor.visitTypeBound(t.typeBound)
 }
 export fn walkVariableDeclaration(visitor: Visitor, d: VariableDeclaration) {
-  visitor.visitIdentifier(d.identifier)
+  visitor.visitPattern(d.pattern)
   if d.typeBound.isJust() then visitor.visitTypeBound(d.typeBound.value[0])
   if d.initializer.isJust() then visitor.visitExpression(d.initializer.value[0])
 }
@@ -316,6 +331,21 @@ export fn walkImportDirective(visitor: Visitor, i: ImportDirective) {
     then visitor.visitIdentifier(i.specifier)
   else if i.specifier.kind == SyntaxKind.ObjectDestructure
     then visitor.visitObjectDestructure(i.specifier)
+}
+
+export fn walkPattern(visitor: Visitor, p: Pattern) {
+  if p.kind == 'Identifier' {
+    visitor.visitIdentifierPattern(p.value[0])
+  }
+  else if p.kind == 'Tuple' {
+    visitor.visitTuplePattern(p.value[0])
+  }
+}
+export fn walkIdentifierPattern(visitor: Visitor, p: Identifier) {
+  visitor.visitIdentifier(p)
+}
+export fn walkTuplePattern(visitor: Visitor, p: TuplePattern) {
+  p.properties.forEach(|p| visitor.visitPattern(p))
 }
 
 export fn walkAssignmentExpression(visitor: Visitor, e: AssignmentExpression) {

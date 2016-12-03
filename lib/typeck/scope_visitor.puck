@@ -136,8 +136,8 @@ export fn ScopeVisitor(context, file) {
 
         if not argumentBinding.mutable {
           let parameterName =
-            if parameter.identifier
-              then parameter.identifier.name
+            if parameter.pattern.kind == 'Identifier'
+              then parameter.pattern.value[0].name
               else i
           reportError(argument
             'Parameter $parameterName of $name requires a mutable binding ' +

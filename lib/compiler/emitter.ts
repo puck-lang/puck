@@ -1,12 +1,4 @@
 import {
-  isBlock,
-  isExport,
-  isIdentifier,
-  isMember,
-  precedence,
-  textToToken,
-  tokenToText,
-  ListLiteral,
   AssignmentExpression,
   BinaryExpression,
   BlockNode,
@@ -23,25 +15,34 @@ import {
   ImplDeclaration,
   ImportDirective,
   IndexAccess,
+  isBlock,
+  isExport,
+  isIdentifier,
+  isMember,
+  ListLiteral,
   LoopExpression,
   MemberAccess,
   Module,
   NumberLiteral,
   ObjectLiteral,
+  Pattern,
+  precedence,
   ReturnStatement,
   SimpleIdentifier,
   StringLiteral,
   StringLiteralPart,
   SyntaxKind,
+  textToToken,
   Token,
+  tokenToText,
   TraitDeclaration,
   TupleLiteral,
   TypeBound,
   TypeDeclaration,
   UnaryExpression,
   VariableDeclaration,
-  WhileExpression,
-} from './ast'
+  WhileExpression
+} from './ast';
 import {isTypeScopeDeclaration} from '../helpers'
 
 const jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
@@ -267,10 +268,20 @@ export function Emitter() {
   }
 
   function emitFunctionDeclaration(fn: FunctionDeclaration) {
+    fn.parameterList = fn.parameterList.map(p => {
+      if (p['identifier']) {
+        p.pattern = {
+          kind: 'Identifier',
+          value: [p['identifier']],
+        }
+      }
+      return p
+    })
     let name = fn.name.kind == 'Just' ? emitIdentifier(fn.name.value[0]) : ''
     let parameterList = fn.parameterList
     let body = fn.body
-    if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
+    const firstParameter = parameterList.length > 0 && parameterList[0]
+    if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value[0].name == 'self') {
       parameterList = fn.parameterList.slice(1)
       if (fn.body.expressions.length > 0) {
         body = Object['assign']({}, body, {
@@ -296,7 +307,7 @@ export function Emitter() {
     let initializer = vd.initializer.kind == 'Just'
       ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
-    return `${emitIdentifier(vd.identifier)}${initializer}`
+    return `${emitPattern(vd.pattern)}${initializer}`
   }
 
   function emitIdentifier(identifier: {name: string}) {
@@ -354,10 +365,26 @@ export function Emitter() {
   }
 
   function emitVariableDeclaration(vd: VariableDeclaration & {scope: any}) {
-    let binding = vd.scope.getBinding(vd.identifier.name)
-    let willBeRedefined = binding.redefined
-    while (binding && binding.token !== vd) {
-      binding = binding.previous
+    if (vd['identifier']) {
+      vd.pattern = {
+        kind: 'Identifier',
+        value: [vd['identifier']],
+      }
+    }
+    let willBeRedefined = true
+    let binding
+    if (vd.pattern.kind === 'Identifier') {
+      binding = vd.scope.getBinding(vd.pattern.value[0].name)
+      willBeRedefined = binding.redefined
+      if (vd['identifier']) {
+        while (binding && (binding.token !== vd)) {
+          binding = binding.previous
+        }
+      } else {
+        while (binding && (binding.token !== vd.pattern)) {
+          binding = binding.previous
+        }
+      }
     }
 
     let initializer = vd.initializer.kind == 'Just'
@@ -365,18 +392,18 @@ export function Emitter() {
       : ''
 
     if (binding && binding.previous) {
-      return `${emitIdentifier(vd.identifier)}${initializer}`
+      return `${emitPattern(vd.pattern)}${initializer}`
     }
 
     if (context) {
       let valueVariable = newValueVariable()
-      hoist(`let ${emitIdentifier(vd.identifier)};`)
+      hoist(`let ${emitPattern(vd.pattern)};`)
 
-      return `${emitIdentifier(vd.identifier)}${initializer}`
+      return `${emitPattern(vd.pattern)}${initializer}`
     }
 
     let kw = (vd.mutable || willBeRedefined) ? 'let' : 'const'
-    return `${kw} ${emitIdentifier(vd.identifier)}${initializer}`
+    return `${kw} ${emitPattern(vd.pattern)}${initializer}`
   }
 
   function emitExportDirective(e: ExportDirective) {
@@ -415,6 +442,15 @@ export function Emitter() {
     }
 
     return `import ${specifier} from '${path}'`
+  }
+
+  function emitPattern(p: Pattern) {
+    if (p.kind === 'Identifier') {
+      return emitIdentifier(p.value[0])
+    }
+    else if (p.kind === 'Tuple') {
+      return `[${p.value[0].properties.map(emitPattern).join(', ')}]`
+    }
   }
 
   function emitAssignmentExpression(e: AssignmentExpression) {

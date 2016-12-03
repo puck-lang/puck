@@ -41,7 +41,7 @@ function createFunctionType(scope, f, reportError) {
   };
   var _arguments = f.parameterList.map(function (p) {
     return {
-      identifier: p.identifier,
+      pattern: p.pattern,
       mutable: p.mutable,
       ty: p.ty,
       token: p
@@ -53,8 +53,8 @@ function createFunctionType(scope, f, reportError) {
   };
   var returnType = __PUCK__value__1;
   var __PUCK__value__2 = void 0;
-  if (_arguments.length > 0 && _arguments[0].identifier.name == "self") {
-    __PUCK__value__2 = _arguments[0];
+  if (_arguments.length > 0 && _arguments[0].pattern.kind == "Identifier" && _arguments[0].pattern.value[0].name == "self") {
+    __PUCK__value__2 = _arguments[0].pattern.binding;
   };
   var selfBinding = __PUCK__value__2;
   var __PUCK__value__3 = void 0;

@@ -127,7 +127,7 @@ export type TypeProperty {
 }
 
 export type VariableDeclaration {
-  identifier: SimpleIdentifier
+  pattern: Pattern
   mutable: Bool
   typeBound: Maybe<TypeBound>
   initializer: Maybe<Expression>
@@ -204,6 +204,34 @@ export type TypePath {
   object: Expression
   member: Identifier
 }
+
+export type RecordPattern {
+  openBrace: Token
+  properties: List<RecordPatternMember>
+  closeBrace: Token
+}
+
+export type RecordPatternMember {
+  property: SimpleIdentifier
+  pattern: Pattern
+}
+
+export type TuplePattern {
+  openParen: Token
+  properties: List<Pattern>
+  closeParen: Token
+}
+
+export enum Pattern
+  = CatchAll
+  | Identifier(Identifier)
+  // | Boolen(BooleanLiteral)
+  // | Number(NumberLiteral)
+  // | String(StringLiteralPart)
+  // | Record(RecordPattern)
+  | Tuple(TuplePattern)
+  // | RecordType(SimpleIdentifier, RecordPattern)
+  | TupleType(SimpleIdentifier, TuplePattern)
 
 export type BreakStatement {
   keyword: Token

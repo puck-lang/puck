@@ -112,8 +112,8 @@ function ScopeVisitor(context, file) {
         var argumentBinding = argument.scope.getBinding(argumentName);
         if (!argumentBinding.mutable) {
           var __PUCK__value__4 = void 0;
-          if (parameter.identifier) {
-            __PUCK__value__4 = parameter.identifier.name;
+          if (parameter.pattern.kind == "Identifier") {
+            __PUCK__value__4 = parameter.pattern.value[0].name;
           } else {
             __PUCK__value__4 = i;
           };
