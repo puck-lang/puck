@@ -1,4 +1,4 @@
-import '../../ast/ast.puck' as {FunctionDeclaration}
+import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration, TypeParameter}
 import '../../entities.puck' as {FunctionType, Scope, TypeInstance}
 import 'range.puck' as {checkRange, getRange}
 import 'types.puck' as {getType, isAssignable}
@@ -10,13 +10,23 @@ export fn getTupleTypeName(properties: List<TypeInstance>)
   then '(' + properties.map(|a| (a and a.name) or '??').join(', ') + ')'
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
+  let mut parameterRange
+  let mut instances
+  let mut typeParameters
+
+  if f.typeParameters and f.typeParameters.length {
+    parameterRange = getRange(f.typeParameters, |p: TypeParameter| p.defaultValue.isJust(), reportError, 'type parameter')
+    instances = []
+    typeParameters = f.typeParameters
+  }
+
   let arguments = f.parameterList.map(|p| {{
     identifier: p.identifier
     mutable: p.mutable
     ty: p.ty
     token: p
   }})
-  let returnType = getType(scope, f.returnType)
+  let returnType = if f.returnType.isJust() then getType(scope, f.returnType.value[0])
   let selfBinding =
     if arguments.length > 0 and arguments[0].identifier.name == 'self'
       then arguments[0]
@@ -27,11 +37,20 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
 
   {
     kind: 'Function'
-    name: if f.name then f.name.name else getFunctionTypeName(arguments, returnType)
+    name: f.name.mapOrElse(|| getFunctionTypeName(arguments, returnType), |ident| ident.name)
+    parameterRange
     selfBinding
     arguments
     argumentRange: if f.parameterList
-      then getRange(arguments, |p| p.token.initializer, reportError, 'parameter')
+      then getRange(
+        arguments
+        |p| {
+          let vd: VariableDeclaration = p.token
+          vd.initializer.isJust()
+        }
+        reportError
+        'parameter'
+      )
       else {{start: 0, end: 1}}
     returnType
     isAbstract: not f.body

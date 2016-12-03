@@ -12,9 +12,9 @@ exports.checkFunctionAssignability = checkFunctionAssignability;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-require('./../../ast/ast.js');
+var _ast = require('./../../ast/ast.js');
 
-require('./../../entities.js');
+var _entities = require('./../../entities.js');
 
 var _range = require('./range.js');
 
@@ -29,6 +29,16 @@ function getTupleTypeName(properties) {
   }).join(", ") + ")";
 };
 function createFunctionType(scope, f, reportError) {
+  var parameterRange = void 0;
+  var instances = void 0;
+  var typeParameters = void 0;
+  if (f.typeParameters && f.typeParameters.length) {
+    parameterRange = (0, _range.getRange)(f.typeParameters, function (p) {
+      return _core.MaybeTrait['$Maybe'].isJust.call(p.defaultValue);
+    }, reportError, "type parameter");
+    instances = [];
+    typeParameters = f.typeParameters;
+  };
   var _arguments = f.parameterList.map(function (p) {
     return {
       identifier: p.identifier,
@@ -37,29 +47,28 @@ function createFunctionType(scope, f, reportError) {
       token: p
     };
   });
-  var returnType = (0, _types.getType)(scope, f.returnType);
   var __PUCK__value__1 = void 0;
-  if (_arguments.length > 0 && _arguments[0].identifier.name == "self") {
-    __PUCK__value__1 = _arguments[0];
+  if (_core.MaybeTrait['$Maybe'].isJust.call(f.returnType)) {
+    __PUCK__value__1 = (0, _types.getType)(scope, f.returnType.value[0]);
   };
-  var selfBinding = __PUCK__value__1;
+  var returnType = __PUCK__value__1;
   var __PUCK__value__2 = void 0;
-  if (selfBinding) {
-    __PUCK__value__2 = _arguments.slice(1);
-  } else {
-    __PUCK__value__2 = _arguments;
+  if (_arguments.length > 0 && _arguments[0].identifier.name == "self") {
+    __PUCK__value__2 = _arguments[0];
   };
-  _arguments = __PUCK__value__2;
+  var selfBinding = __PUCK__value__2;
   var __PUCK__value__3 = void 0;
-  if (f.name) {
-    __PUCK__value__3 = f.name.name;
+  if (selfBinding) {
+    __PUCK__value__3 = _arguments.slice(1);
   } else {
-    __PUCK__value__3 = getFunctionTypeName(_arguments, returnType);
+    __PUCK__value__3 = _arguments;
   };
+  _arguments = __PUCK__value__3;
   var __PUCK__value__4 = void 0;
   if (f.parameterList) {
     __PUCK__value__4 = (0, _range.getRange)(_arguments, function (p) {
-      return p.token.initializer;
+      var vd = p.token;
+      return _core.MaybeTrait['$Maybe'].isJust.call(vd.initializer);
     }, reportError, "parameter");
   } else {
     __PUCK__value__4 = {
@@ -69,7 +78,12 @@ function createFunctionType(scope, f, reportError) {
   };
   return {
     kind: "Function",
-    name: __PUCK__value__3,
+    name: _core.MaybeTrait['$Maybe'].mapOrElse.call(f.name, function () {
+      return getFunctionTypeName(_arguments, returnType);
+    }, function (ident) {
+      return ident.name;
+    }),
+    parameterRange: parameterRange,
     selfBinding: selfBinding,
     _arguments: _arguments,
     argumentRange: __PUCK__value__4,

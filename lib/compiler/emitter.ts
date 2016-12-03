@@ -13,6 +13,7 @@ import {
   BooleanLiteral,
   CallExpression,
   CommentNode,
+  EnumDeclaration,
   ExportDirective,
   Expression,
   ForExpression,
@@ -36,13 +37,14 @@ import {
   TraitDeclaration,
   TupleLiteral,
   TypeBound,
+  TypeDeclaration,
   UnaryExpression,
   VariableDeclaration,
   WhileExpression,
 } from './ast'
 import {isTypeScopeDeclaration} from '../helpers'
 
-const jsKeywords = ['arguments', 'class', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
+const jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
 const tokenToJs = Object['assign'](tokenToText, {
   [SyntaxKind.AndKeyword]: '&&',
   [SyntaxKind.OrKeyword]: '||',
@@ -145,11 +147,7 @@ export function Emitter() {
       module.expressions.filter(e => !(
         e.kind === SyntaxKind.ImplDeclaration ||
         e.kind === SyntaxKind.TraitDeclaration ||
-        e.kind === SyntaxKind.TypeDeclaration ||
-        (isExport(e) && (
-          e.expression.kind === SyntaxKind.TraitDeclaration ||
-          e.expression.kind === SyntaxKind.TypeDeclaration
-        ))
+        (isExport(e) && e.expression.kind === SyntaxKind.TraitDeclaration)
       ))
     ))
     return preamble + expressions.join(';\n')
@@ -189,6 +187,7 @@ export function Emitter() {
 
       case SyntaxKind.IndexAccess: return emitIndexAccess(expression);
       case SyntaxKind.MemberAccess: return emitMemberAccess(expression);
+      case SyntaxKind.TypePath: return emitTypePath(expression);
 
       case SyntaxKind.BreakKeyword: return emitBreak(expression);
       case SyntaxKind.ReturnStatement: return emitReturn(expression);
@@ -226,8 +225,10 @@ export function Emitter() {
         }
       }
       switch (expression.kind) {
+        case SyntaxKind.EnumDeclaration: return emitEnumDeclaration(expression);
+        case SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
         case SyntaxKind.IfExpression: return emitIfExpression(expression);
-        default: throw `${SyntaxKind[expression.kind]} is not supported`
+        default: throw Error(`${SyntaxKind[expression.kind]} is not supported`)
       }
     } finally {
       valueVariable = currentValueVariableContext
@@ -239,8 +240,34 @@ export function Emitter() {
     return withContext(context, () => emitExpressionKeepContext(expression))
   }
 
+  function emitEnumDeclaration(e: EnumDeclaration) {
+    return `var ${emitIdentifier(e.name)} = {\n${
+      indent(e.members.map(emitEnumMember).join('\n'))
+    }\n}`
+  }
+
+  function emitEnumMember(t: TypeDeclaration) {
+    let value
+    if (t.bound.kind == 'Just') {
+      let bound = t.bound.value[0]
+      if (bound.kind === SyntaxKind.ObjectTypeBound) {
+        value = `(object) => ({kind: '${emitIdentifier(t.name)}', value: object})`
+      }
+      else if (bound.kind === SyntaxKind.TupleTypeBound) {
+        value = `(...members) => ({kind: '${emitIdentifier(t.name)}', value: members})`
+      }
+      else {
+        throw `Unsupproted type bound ${SyntaxKind[t.bound.kind]}, ${t.bound.kind}`
+      }
+    } else {
+      value = `{kind: '${emitIdentifier(t.name)}', value: Symbol('${emitIdentifier(t.name)}')}`
+    }
+
+    return `${emitIdentifier(t.name)}: ${value},`
+  }
+
   function emitFunctionDeclaration(fn: FunctionDeclaration) {
-    let name = fn.name ? emitIdentifier(fn.name) : ''
+    let name = fn.name.kind == 'Just' ? emitIdentifier(fn.name.value[0]) : ''
     let parameterList = fn.parameterList
     let body = fn.body
     if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
@@ -249,9 +276,12 @@ export function Emitter() {
         body = Object['assign']({}, body, {
           expressions: [Object['assign'](fn.parameterList[0], {
             initializer: {
-              kind: SyntaxKind.Identifier,
-              name: 'this',
-            } as Identifier
+                kind: 'Just',
+                value: [{
+                  kind: SyntaxKind.Identifier,
+                  name: 'this',
+                }] as [Identifier]
+            }
           }), ...body.expressions]
         })
       }
@@ -263,8 +293,8 @@ export function Emitter() {
   }
 
   function emitFunctionParameter(vd: VariableDeclaration) {
-    let initializer = vd.initializer
-      ? ` = ${emitExpression(vd.initializer, Context.Value)}`
+    let initializer = vd.initializer.kind == 'Just'
+      ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
     return `${emitIdentifier(vd.identifier)}${initializer}`
   }
@@ -278,7 +308,7 @@ export function Emitter() {
 
   function emitImplDeclaration(i: ImplDeclaration) {
     let functions = Object['assign']({}, i.tra.ty.functions)
-    i.members.forEach(m => functions[m.name.name] = emitFunctionDeclaration(m))
+    i.members.forEach(m => functions[m.name.value[0].name] = emitFunctionDeclaration(m))
     return `${emitIdentifier(i.tra.name)}[${getTypeProp(i.ty.ty)}] = {\n${
       indent(
         Object.keys(functions).map(f =>
@@ -297,10 +327,30 @@ export function Emitter() {
       indent(
         t.members
           .filter(m => m.body)
-          .map(m => `${emitIdentifier(m.name)}: ${emitFunctionDeclaration(m)}`)
+          .map(m => `${emitIdentifier(m.name.value[0])}: ${emitFunctionDeclaration(m)}`)
       )
       .join(',\n')
     }\n}`
+  }
+
+  function emitTypeDeclaration(t: TypeDeclaration) {
+    let value
+    if (t.bound.kind == 'Just') {
+      let bound = t.bound.value[0]
+      if (bound.kind === SyntaxKind.ObjectTypeBound) {
+        value = `(object) => object`
+      }
+      else if (bound.kind === SyntaxKind.TupleTypeBound) {
+        value = '(...members) => members'
+      }
+      else {
+        throw `Unsupproted type bound ${SyntaxKind[t.bound.kind]}, ${t.bound.kind}`
+      }
+    } else {
+      value = `Symbol('${emitIdentifier(t.name)}')`
+    }
+
+    return `var ${emitIdentifier(t.name)} = ${value}`
   }
 
   function emitVariableDeclaration(vd: VariableDeclaration & {scope: any}) {
@@ -310,8 +360,8 @@ export function Emitter() {
       binding = binding.previous
     }
 
-    let initializer = vd.initializer
-      ? ` = ${emitExpression(vd.initializer, Context.Value)}`
+    let initializer = vd.initializer.kind == 'Just'
+      ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
 
     if (binding && binding.previous) {
@@ -341,12 +391,6 @@ export function Emitter() {
     let specifier = isIdentifier(i.specifier)
       ? `* as ${emitIdentifier(i.specifier)}`
       : `{${i.specifier.members
-          .filter(({property, local}) => {
-            if (!i['_module']) return true
-            const e = i['_module'].exports[local.name]
-
-            return e.expression.kind != SyntaxKind.TypeDeclaration
-          })
           .map(({property, local}) => property.name === local.name
             ? emitIdentifier(property)
             : `${emitIdentifier(property)} as ${emitIdentifier(local)}`
@@ -355,17 +399,17 @@ export function Emitter() {
         }}`
 
     let path
-    if (i.domain == 'node') {
-      path = i.path
-    } else if (i.domain == 'puck') {
-      path = `puck-lang/dist/lib/stdlib/${i.path}`
-    } else if (!i.domain) {
+    if (i.domain.kind == 'Nothing') {
       if (i.path.charAt(0) == '/') {
         path = i.path
       } else {
         path = `./${i.path}`
       }
       path = path.replace(/\.(puck|ts)$/, '.js')
+    } else if (i.domain.value[0] == 'node') {
+      path = i.path
+    } else if (i.domain.value[0] == 'puck') {
+      path = `puck-lang/dist/lib/stdlib/${i.path}`
     } else {
       throw `Unsupported import-domain "${i.domain}"`
     }
@@ -413,8 +457,8 @@ export function Emitter() {
       valueVariable = newValueVariable()
     }
     let then = emitBlock(e._then)
-    let el = e._else
-      ? (`\n${indent('else')} ${emitBlock(e._else as any)}`)
+    let el = e._else.kind == 'Just'
+      ? (`\n${indent('else')} ${emitBlock(e._else.value[0])}`)
       : ''
 
     let code = `if (${condition}) ${then}${el}`
@@ -457,6 +501,11 @@ export function Emitter() {
     let object = e.object.kind == SyntaxKind.NumberLiteral
       ? `(${emitExpression(e.object)})`
       : emitExpression(e.object)
+    return `${object}.${emitExpression(e.member, Context.Value)}`
+  }
+
+  function emitTypePath(e: MemberAccess) {
+    let object = emitExpression(e.object)
     return `${object}.${emitExpression(e.member, Context.Value)}`
   }
 

@@ -39,5 +39,5 @@ export let require = js._require
 export let new = js._new
 export let typeof = js._typeof
 
-export let asResult: <R>(() => R) => R = js.asResult
+export let asResult: <R, E>(() => R) => Result<R, E> = js.asResult
 export let wrapAsResult = js.wrapAsResult

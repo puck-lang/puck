@@ -13,9 +13,9 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _util = require('util');
 
-require('./../../ast/ast.js');
+var _ast = require('./../../ast/ast.js');
 
-var _ast = require('./../../compiler/ast.js');
+var _ast2 = require('./../../compiler/ast.js');
 
 var _entities = require('./../../entities.js');
 
@@ -23,6 +23,9 @@ var _range = require('./range.js');
 
 var _types = require('./types.js');
 
+function any(a) {
+  return a;
+};
 function createScope(context, file) {
   var parent = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
@@ -55,6 +58,9 @@ function createScope(context, file) {
 
       var self = this;
       var name = binding.name;
+      if (!name) {
+        throw (0, _js.Error)("Missing name");
+      };
       binding.allowRedeclare = allowRedeclare;
       binding.redefined = bindings[name] != _js._undefined;
       if (binding.redefined) {
@@ -77,7 +83,7 @@ function createScope(context, file) {
       var __PUCK__value__1 = void 0;
       if (t.typeParameters && t.typeParameters.length) {
         __PUCK__value__1 = (0, _range.getRange)(t.typeParameters, function (p) {
-          return p.defaultValue;
+          return _core.MaybeTrait['$Maybe'].isJust.call(p.defaultValue);
         }, reportError, "type parameter");
       };
       var parameterRange = __PUCK__value__1;
@@ -90,25 +96,31 @@ function createScope(context, file) {
           name: name,
           parameterRange: parameterRange
         };
-        if (t.kind == _ast.SyntaxKind.TraitDeclaration) {
-          _ty.functions = {};
+        if (t.kind == _ast2.SyntaxKind.EnumDeclaration) {
+          _ty.implementations = [];
+          _ty.members = {};
         } else {
-          if (t.kind == _ast.SyntaxKind.TypeDeclaration) {
-            _ty.implementations = [];
-            if (t.bound) {
-              if (t.bound.kind == _ast.SyntaxKind.ObjectTypeBound) {
-                _ty.properties = _js._Object.create(_js._null);
-              } else {
-                if (t.bound.kind == _ast.SyntaxKind.TupleTypeBound) {
-                  _ty.properties = [];
+          if (t.kind == _ast2.SyntaxKind.TraitDeclaration) {
+            _ty.functions = {};
+          } else {
+            if (t.kind == _ast2.SyntaxKind.TypeDeclaration) {
+              _ty.implementations = [];
+              if (_core.MaybeTrait['$Maybe'].isJust.call(t.bound)) {
+                if (t.bound.value[0].kind == _ast2.SyntaxKind.ObjectTypeBound) {
+                  _ty.properties = _js._Object.create(_js._null);
+                } else {
+                  if (t.bound.value[0].kind == _ast2.SyntaxKind.TupleTypeBound) {
+                    _ty.properties = [];
+                  };
                 };
               };
-            };
-          } else {
-            if (t.kind == _ast.SyntaxKind.TypeParameter) {
-              _ty.isTypeParameter = true;
-              if (t.defaultValue) {
-                _ty.defaultValue = (0, _types.getType)(self, t.defaultValue);
+            } else {
+              if (t.kind == _ast2.SyntaxKind.TypeParameter) {
+                _ty.isTypeParameter = true;
+                var p = any(t);
+                if (_core.MaybeTrait['$Maybe'].isJust.call(p.defaultValue)) {
+                  _ty.defaultValue = (0, _types.getType)(self, t.defaultValue.value[0]);
+                };
               };
             };
           };

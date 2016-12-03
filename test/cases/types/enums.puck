@@ -1,0 +1,18 @@
+let five: Maybe<Num> = Just(5)
+let nothing: Maybe<Num> = Nothing
+
+let maybeFive: Maybe<Num> = Maybe.Just(5)
+let maybeNothing: Maybe<Num> = Maybe.Nothing
+
+enum Enum = A {b: Num}
+
+let a = Enum::A({b: 5})
+
+export trait EnumTrait {
+  fn getB(self): Num {
+    self.value.b
+  }
+}
+impl EnumTrait for Enum {}
+
+a.getB()

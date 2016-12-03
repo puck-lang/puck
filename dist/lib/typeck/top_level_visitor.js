@@ -11,13 +11,13 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-require('./../ast/ast.js');
+var _ast = require('./../ast/ast.js');
 
 var _visit = require('./../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
 
-var _ast = require('./../compiler/ast.js');
+var _ast2 = require('./../compiler/ast.js');
 
 var _scope = require('./src/scope.js');
 
@@ -27,11 +27,15 @@ function TopLevelVisitor(context, file) {
   var scope = (0, _scope.createScope)(context, file);
   return _js._Object.assign({}, visit.emptyVisitor, {
     visitBlock: function visitBlock(b) {},
+    visitEnumDeclaration: function visitEnumDeclaration(t) {
+      var self = this;
+      return scope.defineType(t);
+    },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      if (f.name) {
+      if (_core.MaybeTrait['$Maybe'].isJust.call(f.name)) {
         return scope.define({
-          name: f.name.name,
+          name: f.name.value[0].name,
           token: f,
           mutable: false
         });
@@ -74,14 +78,14 @@ function TopLevelVisitor(context, file) {
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
-      if (i.specifier.kind == _ast.SyntaxKind.Identifier) {
+      if (i.specifier.kind == _ast2.SyntaxKind.Identifier) {
         return scope.define({
           name: i.specifier.name,
           mutable: false,
           token: i
         });
       } else {
-        if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
+        if (i.specifier.kind == _ast2.SyntaxKind.ObjectDestructure) {
           return visit.walkImportDirective(self, i);
         };
       };

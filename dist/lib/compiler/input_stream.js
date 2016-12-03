@@ -11,7 +11,7 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-require('./../entities.js');
+var _entities = require('./../entities.js');
 
 function InputStream(file) {
   var __PUCK__value__1 = void 0;
@@ -44,8 +44,8 @@ function InputStream(file) {
     return peek() == "";
   };
   function croak(msg) {
-    _js.console.log("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
-    throw Error();
+    throw Error("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
+    _js.console.error("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
     return _js.process.exit(1);
   };
   return {

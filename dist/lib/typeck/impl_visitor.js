@@ -13,13 +13,13 @@ var _util = require('util');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-require('./../ast/ast.js');
+var _ast = require('./../ast/ast.js');
 
 var _visit = require('./../ast/visit.js');
 
 var visit = _interopRequireWildcard(_visit);
 
-var _ast = require('./../compiler/ast.js');
+var _ast2 = require('./../compiler/ast.js');
 
 var _functions = require('./src/functions.js');
 
@@ -109,7 +109,7 @@ function ImplVisitor(context, file) {
       var self = this;
       self.scope = m.scope;
       return m.expressions.filter(function (e) {
-        return e.kind == _ast.SyntaxKind.ImportDirective || e.kind == _ast.SyntaxKind.ImplDeclaration;
+        return e.kind == _ast2.SyntaxKind.ImportDirective || e.kind == _ast2.SyntaxKind.ImplDeclaration;
       }).forEach(self.visitExpression.bind(self));
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
@@ -117,13 +117,13 @@ function ImplVisitor(context, file) {
       return i.members.forEach(function (m) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
-          if (e.expression.kind == _ast.SyntaxKind.TraitDeclaration) {
+          if (e.expression.kind == _ast2.SyntaxKind.TraitDeclaration) {
             var binding = self.scope.getTypeBinding(m.local.name);
             binding.ty = e.expression.ty;
             binding = self.scope.getBinding(m.local.name);
             binding.ty = e.expression.ty;
           };
-          if (e.expression.kind == _ast.SyntaxKind.TypeDeclaration) {
+          if (e.expression.kind == _ast2.SyntaxKind.TypeDeclaration) {
             var _binding = self.scope.getTypeBinding(m.local.name);
             return _binding.ty = e.expression.ty;
           };
@@ -132,7 +132,7 @@ function ImplVisitor(context, file) {
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
-      if (i.specifier.kind == _ast.SyntaxKind.ObjectDestructure) {
+      if (i.specifier.kind == _ast2.SyntaxKind.ObjectDestructure) {
         importDirective = i;
         return visit.walkImportDirective(self, i);
       };

@@ -5,11 +5,43 @@ export type Bool {}
 export type Num {}
 export type String {}
 export trait StringTrait {
-  fn contains(self, subStr: String) {
+  fn contains(self, subStr: String): Bool {
     self.indexOf(subStr) >= 0
   }
 }
 impl StringTrait for String {}
+
+export enum Result<T, E> = Ok(T) | Err(E)
+export let Ok = Result::Ok
+export let Err = Result::Err
+export enum Maybe<T> = Just(T) | Nothing
+export let Just = Maybe::Just
+export let Nothing = Maybe::Nothing
+export trait MaybeTrait<T> {
+
+  fn isJust(self): Bool then self.kind == 'Just'
+  fn isNothing(self: Maybe<T>): Bool {not self.isJust()}
+
+  fn mapOr<U>(self: Maybe<T>, default: U, f: (T) => U): U {
+    if (self.isJust())
+      then f(self.unwrap())
+      else default
+  }
+
+  fn mapOrElse<U>(self: Maybe<T>, default: () => U, f: (T) => U): U {
+    if (self.isJust())
+      then f(self.unwrap())
+      else default()
+  }
+
+  fn unwrap(self: Maybe<T>): T {
+    if (self.isNothing())
+      then throw Error('Can not unwap empty maybe')
+
+    self.value[0]
+  }
+}
+impl<T> MaybeTrait<T> for Maybe<T> {}
 
 export type List<E> {}
 export trait ListTrait<E> {
@@ -22,6 +54,10 @@ export trait ListTrait<E> {
 }
 impl<E> ListTrait<E> for List<E> {}
 export trait Iterable<E> {
+  fn size(self): Num {
+    self.length
+  }
+
   /// Returns an [Iterable] that provides all but the first [count] elements.
   // fn skip(self, count: Num): Iterable<E>
   fn skip(self, count: Num): List<E>
@@ -32,11 +68,11 @@ export trait Iterable<E> {
 }
 
 impl<E> Iterable<E> for List<E> {
-  fn skip(self, count) {
+  fn skip(self, count): List<E> {
     self.slice(count)
   }
 
-  fn skipUntil(self, test) {
+  fn skipUntil(self, test): List<E>  {
     let index = self.findIndex(test)
     if index == -1
       then []
@@ -57,10 +93,10 @@ export trait RangeTrait<Idx> {
   fn isSubsetOf(self, other: Range<Idx>): Bool
 }
 impl RangeTrait<Num> for Range<Num> {
-  fn contains(self, item) {
+  fn contains(self, item): Bool {
     self.start <= item and item < self.end
   }
-  fn isSubsetOf(self, other) {
+  fn isSubsetOf(self, other): Bool {
     self.start >= other.start and other.end >= self.end
   }
 }
@@ -98,6 +134,10 @@ export trait ObjectMapTrait<T> {
       new[key] = mapper(self[key])
     })
     new
+  }
+
+  fn size(self): Num {
+    Object.keys(self).length
   }
 }
 impl<T> ObjectMapTrait<T> for ObjectMap<T> {}

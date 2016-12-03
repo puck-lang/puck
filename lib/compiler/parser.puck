@@ -1,10 +1,11 @@
-import 'puck:js' as {console, global, null, typeof, undefined}
+import 'puck:js' as {Object, console, global, null, typeof, undefined}
 import '../ast/ast.puck' as {
-  SyntaxKind
   Token
   Expression
 
   Block
+  EnumDeclaration
+  EnumMember
   FunctionDeclaration
   ImplDeclaration
   ObjectDestructure
@@ -43,7 +44,7 @@ import 'ast.ts' as {
 
 export fn parse(input) { // : TokenStream
 
-  fn isToken(kind: SyntaxKind, peekDistance = 0) {
+  fn isToken(kind, peekDistance = 0) { // kind: SyntaxKind
     let token = input.peek(false, peekDistance)
     token and token.kind == kind
   }
@@ -54,7 +55,7 @@ export fn parse(input) { // : TokenStream
     else SyntaxKind[token.kind]
   }
 
-  fn expect(expect: SyntaxKind, name = 'token') {
+  fn expect(expect, name = 'token') { // kind: SyntaxKind
     if not isToken(expect) {
       let token = input.peek()
       let expectedText = ': "' + tokenName({kind: expect}) + '"'
@@ -77,7 +78,13 @@ export fn parse(input) { // : TokenStream
     return input.next()
   }
 
-  fn skipKeyword(kw: SyntaxKind) {
+  fn maybeConsumeToken<T>(token, name = false): Maybe<T> {
+    if isToken(token)
+      then Just(consumeToken(token, name))
+      else Nothing
+  }
+
+  fn skipKeyword(kw) { // kind: SyntaxKind
     expect(kw, 'keyword')
     input.next()
   }
@@ -89,7 +96,7 @@ export fn parse(input) { // : TokenStream
     input.croak('Unexpected token: $name')
   }
 
-  fn consumeSeparator(kind: SyntaxKind) {
+  fn consumeSeparator(kind) { // kind: SyntaxKind
     if not input.eof() {
       let mut token = input.peek(true)
 
@@ -204,7 +211,7 @@ export fn parse(input) { // : TokenStream
   fn maybeIndexAccess(token: Expression): Expression {
     if isToken(SyntaxKind.OpenBracketToken) {
       input.next()
-      let mut index = parseExpression()
+      let index = parseExpression()
       consumeToken(SyntaxKind.CloseBracketToken)
 
       maybeAccess({
@@ -218,6 +225,18 @@ export fn parse(input) { // : TokenStream
 
   fn maybeAccess(token: Expression): Expression {
     maybeIndexAccess(maybeMemberAccess(token))
+  }
+
+  fn maybeTypePath(expression: Expression): Expression {
+    if isToken(SyntaxKind.ColonColonToken) {
+      input.next()
+      maybeTypePath({
+        kind: SyntaxKind.TypePath
+        object: expression
+        member: consumeToken(SyntaxKind.Identifier, 'identifier')
+      })
+    }
+    else expression
   }
 
   // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T): Array<T> {
@@ -248,6 +267,47 @@ export fn parse(input) { // : TokenStream
 
     if consumeStop then consumeToken(stop)
     parts
+  }
+
+  fn parseEnumDeclaration(): EnumDeclaration {
+    let keyword = consumeToken(SyntaxKind.EnumKeyword)
+    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let typeParameters =
+      if isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeParameter)
+      else []
+
+    consumeToken(SyntaxKind.EqualsToken)
+
+    let mut members = [parseEnumMember()]
+    while isToken(SyntaxKind.BarToken) {
+      input.next()
+      members.push(parseEnumMember())
+    }
+
+    {
+      kind: SyntaxKind.EnumDeclaration
+      name
+      typeParameters
+      members
+    }
+  }
+
+  fn parseEnumMember(): EnumMember {
+    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+
+    let bound =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then Just(parseObjectTypeBound())
+      else if isToken(SyntaxKind.OpenParenToken)
+        then Just(parseTupleTypeBound())
+      else Nothing
+
+    {
+      kind: SyntaxKind.EnumMember
+      name
+      bound
+    }
   }
 
   fn parseObjectDestructureMember(): ObjectDestructureMember {
@@ -285,9 +345,18 @@ export fn parse(input) { // : TokenStream
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
+      else []
 
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', || parseFunctionDeclaration(true), false)
+      .map(|f: FunctionDeclaration| {
+        if f.name.isNothing()
+          then input.croak('Trait functions must have a name')
+        if f.returnType.isNothing()
+          then input.croak('Trait functions must have a return type')
+
+        f
+      })
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
     {
@@ -306,6 +375,7 @@ export fn parse(input) { // : TokenStream
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
+      else []
 
     let tra = parseTypeBound()
     let forKeyword = consumeToken(SyntaxKind.ForKeyword)
@@ -313,6 +383,14 @@ export fn parse(input) { // : TokenStream
 
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', parseFunctionDeclaration, false)
+      .map(|f: FunctionDeclaration| {
+        if f.name.isNothing()
+          then input.croak('Trait functions must have a name')
+        if f.returnType.isNothing()
+          then input.croak('Trait functions must have a return type')
+
+        f
+      })
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
     {
@@ -403,10 +481,12 @@ export fn parse(input) { // : TokenStream
 
   fn parseTypeParameter(): TypeParameter {
     let name = consumeToken(SyntaxKind.Identifier, 'identifier')
-    let defaultValue = if isToken(SyntaxKind.EqualsToken) {
-      input.next()
-      parseTypeBound()
-    }
+    let defaultValue =
+      if isToken(SyntaxKind.EqualsToken) {
+        input.next()
+        Just(parseTypeBound())
+      }
+      else Nothing
     {
       kind: SyntaxKind.TypeParameter
       name
@@ -435,9 +515,10 @@ export fn parse(input) { // : TokenStream
 
     let bound =
       if isToken(SyntaxKind.OpenBraceToken)
-        then parseObjectTypeBound()
+        then Just(parseObjectTypeBound())
       else if isToken(SyntaxKind.OpenParenToken)
-        then parseTupleTypeBound()
+        then Just(parseTupleTypeBound())
+      else Nothing
 
     {
       kind: SyntaxKind.TypeDeclaration
@@ -448,48 +529,48 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseVariableDeclaration(): VariableDeclaration {
-    let mut mutable = false
-    if isToken(SyntaxKind.MutKeyword) {
-      input.next()
-      mutable = true
-    }
-    expect(SyntaxKind.Identifier, 'identifier')
+    let mutable = maybeConsumeToken(SyntaxKind.MutKeyword).isJust()
+    let identifier = consumeToken(SyntaxKind.Identifier, 'identifier')
 
-    let mut declaration: VariableDeclaration = {
-      kind: SyntaxKind.VariableDeclaration,
-      identifier: input.next(),
-      mutable,
+    {
+      kind: SyntaxKind.VariableDeclaration
+      identifier
+      mutable
+      typeBound:
+        if isToken(SyntaxKind.ColonToken) {
+          input.next()
+          Just(parseTypeBound())
+        }
+        else Nothing
+      initializer:
+        if isToken(SyntaxKind.EqualsToken) {
+          input.next()
+          Just(parseExpression())
+        }
+        else Nothing
     }
-
-    if isToken(SyntaxKind.ColonToken) {
-      input.next()
-      declaration.typeBound = parseTypeBound()
-    }
-
-    if isToken(SyntaxKind.EqualsToken) {
-      input.next()
-      declaration.initializer = parseExpression()
-    }
-
-    declaration
   }
 
   fn parseFunctionDeclaration(optionalBody = false): FunctionDeclaration {
     consumeToken(SyntaxKind.FnKeyword)
-    let mut name = if isToken(SyntaxKind.Identifier) then input.next()
+    let name = maybeConsumeToken(SyntaxKind.Identifier, 'identifier')
+      if isToken(SyntaxKind.Identifier)
+        then Just(consumeToken(SyntaxKind.Identifier, 'identifier'))
+        else Nothing
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
       else []
-    let mut parameterList = delimited('(', ')', ',', parseVariableDeclaration)
+    let parameterList = delimited('(', ')', ',', parseVariableDeclaration)
 
     let returnType =
       if isToken(SyntaxKind.ColonToken) {
         input.next()
-        parseTypeBound()
+        Just(parseTypeBound())
       }
+      else Nothing
 
-    let mut body: Block =
+    let body: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
       else if isToken(SyntaxKind.ThenKeyword) {
@@ -503,12 +584,12 @@ export fn parse(input) { // : TokenStream
         then input.croak('A function declaration must be followed by a `{` or `then`')
 
     {
-      kind: SyntaxKind.Function,
-      name,
-      typeParameters,
-      parameterList,
-      returnType,
-      body,
+      kind: SyntaxKind.Function
+      name
+      typeParameters
+      parameterList
+      returnType
+      body
     }
   }
 
@@ -524,9 +605,11 @@ export fn parse(input) { // : TokenStream
         }}
 
     {
-      kind: SyntaxKind.Function,
-      parameterList,
-      body,
+      kind: SyntaxKind.Function
+      name: Nothing
+      parameterList
+      returnType: Nothing
+      body
     }
   }
 
@@ -546,24 +629,24 @@ export fn parse(input) { // : TokenStream
           }
         }
 
-    let mut ret: IfExpression = {
-      kind: SyntaxKind.IfExpression,
-      condition,
-      _then,
+    {
+      kind: SyntaxKind.IfExpression
+      condition
+      _then
+      _else:
+        if isToken(SyntaxKind.ElseKeyword) {
+          input.next()
+          Just(
+            if isToken(SyntaxKind.OpenBraceToken)
+              then parseBlock()
+              else ({
+                kind: SyntaxKind.Block,
+                expressions: [parseExpression()],
+              })
+          )
+        }
+        else Nothing
     }
-
-    if isToken(SyntaxKind.ElseKeyword) {
-      input.next()
-      ret._else =
-        if isToken(SyntaxKind.OpenBraceToken)
-          then parseBlock()
-          else ({
-            kind: SyntaxKind.Block,
-            expressions: [parseExpression()],
-          })
-    }
-
-    ret
   }
 
   fn parseUnaryExpression(): UnaryExpression {
@@ -580,7 +663,7 @@ export fn parse(input) { // : TokenStream
     skipKeyword(SyntaxKind.WhileKeyword)
 
     let condition = parseExpression()
-    let mut body: Block =
+    let body: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {
@@ -591,10 +674,10 @@ export fn parse(input) { // : TokenStream
           }
         }
 
-    return {
-      kind: SyntaxKind.WhileExpression,
-      condition,
-      body,
+    {
+      kind: SyntaxKind.WhileExpression
+      condition
+      body
     }
   }
 
@@ -613,15 +696,22 @@ export fn parse(input) { // : TokenStream
       else name
 
     {
-      kind: SyntaxKind.ObjectLiteralMember,
-      name,
-      value,
+      kind: SyntaxKind.ObjectLiteralMember
+      name
+      value
     }
   }
 
   fn parseObjectLiteral(): ObjectLiteral {
-    let members = delimited('{', '}', ',', parseObjectLiteralMember)
-    { kind: SyntaxKind.ObjectLiteral, members }
+    let openBrace = input.peek()
+    let members = delimited('{', '}', ',', parseObjectLiteralMember, false)
+    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
+    {
+      kind: SyntaxKind.ObjectLiteral,
+      openBrace
+      members
+      closeBrace
+    }
   }
 
   fn parseTupleOrExpression(forceTuple) {
@@ -658,25 +748,26 @@ export fn parse(input) { // : TokenStream
         then parseUnaryExpression()
       else if isToken(SyntaxKind.BreakKeyword) then input.next()
       else if isToken(SyntaxKind.ReturnKeyword) then {
-        kind: SyntaxKind.ReturnStatement,
-        keyword: input.next(),
-        expression: parseExpression(),
+        kind: SyntaxKind.ReturnStatement
+        keyword: input.next()
+        expression: parseExpression()
       }
       else if isToken(SyntaxKind.ThrowKeyword) then {
-        kind: input.next().kind,
-        expression: parseExpression(),
+        kind: input.next().kind
+        expression: parseExpression()
       }
       else if isToken(SyntaxKind.TrueKeyword)
            or isToken(SyntaxKind.FalseKeyword)
         then
           maybeAccess({
-            kind: SyntaxKind.BooleanLiteral,
-            value: input.next().kind == SyntaxKind.TrueKeyword,
+            kind: SyntaxKind.BooleanLiteral
+            value: input.next().kind == SyntaxKind.TrueKeyword
           })
       else if isToken(SyntaxKind.NumberLiteral)
            or isToken(SyntaxKind.StringLiteral)
-           or isToken(SyntaxKind.Identifier)
         then maybeAccess(input.next())
+      else if isToken(SyntaxKind.Identifier)
+        then maybeTypePath(maybeAccess(input.next()))
       else unexpected()
     })())
   }
@@ -685,22 +776,30 @@ export fn parse(input) { // : TokenStream
     let keyword = consumeToken(SyntaxKind.ExportKeyword)
     let mut expression
     let mut identifier
-    if isToken(SyntaxKind.TraitKeyword) {
+    if isToken(SyntaxKind.EnumKeyword) {
+      expression = parseEnumDeclaration()
+      identifier = expression.name
+    }
+    else if isToken(SyntaxKind.FnKeyword) {
+      expression = parseFunctionDeclaration()
+      let func: FunctionDeclaration = expression
+      if func.name.isNothing() {
+        input.croak('Can not export function without a name')
+      }
+      identifier = expression.name.value[0]
+    }
+    else if isToken(SyntaxKind.LetKeyword) {
+      input.next()
+      expression = parseVariableDeclaration()
+      identifier = expression.identifier
+    }
+    else if isToken(SyntaxKind.TraitKeyword) {
       expression = parseTraitDeclaration()
       identifier = expression.name
     }
     else if isToken(SyntaxKind.TypeKeyword) {
       expression = parseTypeDeclaration()
       identifier = expression.name
-    }
-    else if isToken(SyntaxKind.FnKeyword) {
-      expression = parseFunctionDeclaration()
-      identifier = expression.name
-    }
-    else if isToken(SyntaxKind.LetKeyword) {
-      input.next()
-      expression = parseVariableDeclaration()
-      identifier = expression.identifier
     }
     else input.croak('Expected trait, type, function or variable declaration after export')
     {
@@ -718,7 +817,7 @@ export fn parse(input) { // : TokenStream
     if locator.parts.length != 1 then throw Error('More than one part in import string')
     let parts = locator.parts[0].value.split(':')
     if parts > 2 then input.croak('Illegal token ":" used in import path')
-    let domain = if parts.length == 2 then parts[0]
+    let domain = if parts.length == 2 then Just(parts[0]) else Nothing
     let path = if parts.length == 2 then parts[1] else parts[0]
 
     let asKeyword = consumeToken(SyntaxKind.AsKeyword)
@@ -740,7 +839,8 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseTopLevelExpression() {
-    if isToken(SyntaxKind.ExportKeyword) then parseExport()
+    if isToken(SyntaxKind.EnumKeyword) then parseEnumDeclaration()
+    else if isToken(SyntaxKind.ExportKeyword) then parseExport()
     else if isToken(SyntaxKind.ImplKeyword) then parseImplDeclaration()
     else if isToken(SyntaxKind.ImportKeyword) then parseImport()
     else if isToken(SyntaxKind.TraitKeyword) then parseTraitDeclaration()

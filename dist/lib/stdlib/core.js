@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.StringTrait = undefined;
+exports.ObjectMap = exports.Range = exports.List = exports.Nothing = exports.Just = exports.Maybe = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.MaybeTrait = exports.StringTrait = undefined;
 exports.print = print;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
@@ -14,6 +14,39 @@ var StringTrait = exports.StringTrait = {
   contains: function contains(subStr) {
     var self = this;
     return self.indexOf(subStr) >= 0;
+  }
+};
+var MaybeTrait = exports.MaybeTrait = {
+  isJust: function isJust() {
+    var self = this;
+    return self.kind == "Just";
+  },
+  isNothing: function isNothing() {
+    var self = this;
+    return !MaybeTrait['$Maybe'].isJust.call(self);
+  },
+  mapOr: function mapOr(_default, f) {
+    var self = this;
+    if (MaybeTrait['$Maybe'].isJust.call(self)) {
+      return f(MaybeTrait['$Maybe'].unwrap.call(self));
+    } else {
+      return _default;
+    };
+  },
+  mapOrElse: function mapOrElse(_default, f) {
+    var self = this;
+    if (MaybeTrait['$Maybe'].isJust.call(self)) {
+      return f(MaybeTrait['$Maybe'].unwrap.call(self));
+    } else {
+      return _default();
+    };
+  },
+  unwrap: function unwrap() {
+    var self = this;
+    if (MaybeTrait['$Maybe'].isNothing.call(self)) {
+      throw (0, _js.Error)("Can not unwap empty maybe");
+    };
+    return self.value[0];
   }
 };
 var ListTrait = exports.ListTrait = {
@@ -26,7 +59,12 @@ var ListTrait = exports.ListTrait = {
     });
   }
 };
-var Iterable = exports.Iterable = {};
+var Iterable = exports.Iterable = {
+  size: function size() {
+    var self = this;
+    return self.length;
+  }
+};
 var RangeTrait = exports.RangeTrait = {};
 var ObjectMapTrait = exports.ObjectMapTrait = {
   _new: function _new() {
@@ -46,15 +84,27 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
       return _new[key] = mapper(self[key]);
     });
     return _new;
+  },
+  size: function size() {
+    var self = this;
+    return _js._Object.keys(self).length;
   }
 };
 StringTrait['$String'] = {
   contains: StringTrait.contains
 };
+MaybeTrait['$Maybe'] = {
+  isJust: MaybeTrait.isJust,
+  isNothing: MaybeTrait.isNothing,
+  mapOr: MaybeTrait.mapOr,
+  mapOrElse: MaybeTrait.mapOrElse,
+  unwrap: MaybeTrait.unwrap
+};
 ListTrait['$List'] = {
   zip: ListTrait.zip
 };
 Iterable['$List'] = {
+  size: Iterable.size,
   skip: function skip(count) {
     var self = this;
     return self.slice(count);
@@ -82,7 +132,53 @@ RangeTrait['$Range<Num>'] = {
 ObjectMapTrait['$ObjectMap'] = {
   _new: ObjectMapTrait._new,
   fromList: ObjectMapTrait.fromList,
-  map: ObjectMapTrait.map
+  map: ObjectMapTrait.map,
+  size: ObjectMapTrait.size
+};
+var Bool = exports.Bool = function Bool(object) {
+  return object;
+};
+var Num = exports.Num = function Num(object) {
+  return object;
+};
+var String = exports.String = function String(object) {
+  return object;
+};
+var Result = exports.Result = {
+  Ok: function Ok() {
+    for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
+      members[_key] = arguments[_key];
+    }
+
+    return { kind: 'Ok', value: members };
+  },
+  Err: function Err() {
+    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      members[_key2] = arguments[_key2];
+    }
+
+    return { kind: 'Err', value: members };
+  }
+};
+var Ok = exports.Ok = Result.Ok;
+var Err = exports.Err = Result.Err;
+var Maybe = exports.Maybe = {
+  Just: function Just() {
+    for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      members[_key3] = arguments[_key3];
+    }
+
+    return { kind: 'Just', value: members };
+  },
+  Nothing: { kind: 'Nothing', value: Symbol('Nothing') }
+};
+var Just = exports.Just = Maybe.Just;
+var Nothing = exports.Nothing = Maybe.Nothing;
+var List = exports.List = function List(object) {
+  return object;
+};
+var Range = exports.Range = function Range(object) {
+  return object;
 };
 function print(message, a, b, c) {
   var args = [message];
@@ -96,4 +192,7 @@ function print(message, a, b, c) {
     args[3] = c;
   };
   return _js.console.log.apply(_js.console, args);
-}
+};
+var ObjectMap = exports.ObjectMap = function ObjectMap(object) {
+  return object;
+};

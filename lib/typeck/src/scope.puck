@@ -1,10 +1,12 @@
 import 'puck:js' as {Error, Object, null, undefined}
 import 'node:util' as {inspect}
-import '../../ast/ast.puck' as {TypeDeclaration}
+import '../../ast/ast.puck' as {TypeDeclaration, TypeParameter}
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {Binding, isTypeClass}
 import 'range.puck' as {getRange}
 import 'types.puck' as {getType}
+
+fn any(a) then a
 
 export fn createScope(context, file, parent = false) {
   let reportError = context.reportError.bind(context, file)
@@ -23,6 +25,7 @@ export fn createScope(context, file, parent = false) {
 
     define: |self, mut binding: Binding, allowRedeclare = false| {
       let name = binding.name
+      if not name then throw Error('Missing name')
       binding.allowRedeclare = allowRedeclare
       binding.redefined = bindings[name] != undefined
       if binding.redefined {
@@ -39,7 +42,7 @@ export fn createScope(context, file, parent = false) {
         then reportError(t, 'Type $name is already defined')
 
       let parameterRange = if t.typeParameters and t.typeParameters.length
-        then getRange(t.typeParameters, |p| p.defaultValue, reportError, 'type parameter')
+        then getRange(t.typeParameters, |p: TypeParameter| p.defaultValue.isJust(), reportError, 'type parameter')
 
       let ty =
         if t.ty
@@ -51,22 +54,27 @@ export fn createScope(context, file, parent = false) {
               parameterRange
             }
 
-            if t.kind == SyntaxKind.TraitDeclaration {
+            if t.kind == SyntaxKind.EnumDeclaration {
+              ty.implementations = []
+              ty.members = {}
+            }
+            else if t.kind == SyntaxKind.TraitDeclaration {
               ty.functions = {}
             }
             else if t.kind == SyntaxKind.TypeDeclaration {
               ty.implementations = []
-              if t.bound {
-                if t.bound.kind == SyntaxKind.ObjectTypeBound
+              if t.bound.isJust() {
+                if t.bound.value[0].kind == SyntaxKind.ObjectTypeBound
                   then ty.properties = Object.create(null)
-                else if t.bound.kind == SyntaxKind.TupleTypeBound
+                else if t.bound.value[0].kind == SyntaxKind.TupleTypeBound
                   then ty.properties = []
               }
             }
             else if t.kind == SyntaxKind.TypeParameter {
               ty.isTypeParameter = true
-              if t.defaultValue {
-                ty.defaultValue = getType(self, t.defaultValue)
+              let p: TypeParameter = any(t)
+              if p.defaultValue.isJust() {
+                ty.defaultValue = getType(self, t.defaultValue.value[0])
               }
             }
             if isTypeClass(ty) {

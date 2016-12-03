@@ -31,11 +31,13 @@ export fn InputStream(file: File) {
   }
 
   fn croak(msg) {
-    console.log(
+    throw Error(
+      '$msg
+    at ' + file.absolutePath + '  ($line:$col)\n\n')
+    console.error(
       '$msg
     at ' + file.absolutePath + '  ($line:$col)\n\n'
     )
-    throw Error()
     process.exit(1)
   }
 

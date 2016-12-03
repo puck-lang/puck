@@ -14,13 +14,24 @@ export type Block {
   expressions: List<Expression>
 }
 
-export type FunctionDeclaration {
-  // name?: Identifier
+export type EnumDeclaration {
+  keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
+  members: List<EnumMember>
+}
+
+export type EnumMember {
+  name: Identifier
+  //bound: Maybe<ObjectTypeBound | TupleTypeBound>
+  bound: Maybe<Expression>
+}
+
+export type FunctionDeclaration {
+  name: Maybe<Identifier>
+  typeParameters: List<TypeParameter>
   parameterList: List<VariableDeclaration>
-  // returnType?: TypeBound
-  returnType: TypeBound
+  returnType: Maybe<TypeBound>
   body: Block
 }
 
@@ -101,12 +112,13 @@ export type TypeDeclaration {
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
-  //bound: ObjectTypeBound | TupleTypeBound
+  //bound: Maybe<ObjectTypeBound | TupleTypeBound>
+  bound: Maybe<Expression>
 }
 
 export type TypeParameter {
   name: Identifier
-  defaultValue: TypeBound
+  defaultValue: Maybe<TypeBound>
 }
 
 export type TypeProperty {
@@ -117,10 +129,8 @@ export type TypeProperty {
 export type VariableDeclaration {
   identifier: SimpleIdentifier
   mutable: Bool
-  // typeBound?: TypeBound
-  typeBound: TypeBound
-  // initializer?: Expression
-  initializer: Expression
+  typeBound: Maybe<TypeBound>
+  initializer: Maybe<Expression>
 }
 
 export type ExportDirective {
@@ -131,8 +141,7 @@ export type ExportDirective {
 
 export type ImportDirective {
   importKeyword: Token
-  // domain?: String
-  domain: String
+  domain: Maybe<String>
   path: String
   asKeyword: Token
   // specifier: Identifier|ObjectDestructure
@@ -158,18 +167,17 @@ export type CallExpression {
 }
 
 export type ForExpression {
-  body: Expression,
+  body: Expression
 }
 
 export type IfExpression {
-  condition: Expression,
-  _then: Block,
-  // _else?: Block,
-  _else: Block,
+  condition: Expression
+  _then: Block
+  _else: Maybe<Block>
 }
 
 export type LoopExpression {
-  body: Block,
+  body: Block
 }
 
 export type UnaryExpression {
@@ -188,6 +196,11 @@ export type IndexAccess {
 }
 
 export type MemberAccess {
+  object: Expression
+  member: Identifier
+}
+
+export type TypePath {
   object: Expression
   member: Identifier
 }
@@ -214,7 +227,9 @@ export type NumberLiteral {
 }
 
 export type ObjectLiteral {
+  openBrace: Token
   members: List<ObjectLiteralMember>
+  closeBrace: Token
 }
 
 export type ObjectLiteralMember {

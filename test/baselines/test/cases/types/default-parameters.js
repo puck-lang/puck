@@ -11,5 +11,8 @@ DefaultTrait['$Default<Num>'] = {
   method: DefaultTrait.method
 };
 
+var Default = function Default(object) {
+  return object;
+};
 var a = { value: 5 };
 DefaultTrait['$Default<Num>'].method.call(a);

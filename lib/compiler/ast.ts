@@ -3,6 +3,7 @@ export enum SyntaxKind {
   AsKeyword,
   BreakKeyword,
   ElseKeyword,
+  EnumKeyword,
   ExportKeyword,
   FalseKeyword,
   FnKeyword,
@@ -36,6 +37,7 @@ export enum SyntaxKind {
   AsteriskToken,
   BarToken,
   ColonToken,
+  ColonColonToken,
   CommaToken,
   DotToken,
   EqualsEqualsToken,
@@ -61,6 +63,7 @@ export enum SyntaxKind {
 
   Comment,
   Block,
+  EnumDeclaration,
   Function,
   Identifier,
   ImplDeclaration,
@@ -92,6 +95,7 @@ export enum SyntaxKind {
 
   IndexAccess,
   MemberAccess,
+  TypePath,
 
   BreakStatement,
   ReturnStatement,
@@ -103,6 +107,7 @@ export enum SyntaxKind {
   StringLiteral,
   TupleLiteral,
 
+  EnumMember,
   ObjectLiteralMember,
   StringLiteralPart,
 }
@@ -115,7 +120,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   // 'debugger': SyntaxKind.DebuggerKeyword,
   // 'delete': SyntaxKind.DeleteKeyword,
   'else': SyntaxKind.ElseKeyword,
-  // 'enum': SyntaxKind.EnumKeyword,
+  'enum': SyntaxKind.EnumKeyword,
   'export': SyntaxKind.ExportKeyword,
   'false': SyntaxKind.FalseKeyword,
   'for': SyntaxKind.ForKeyword,
@@ -152,6 +157,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   '|': SyntaxKind.BarToken,
   ',': SyntaxKind.CommaToken,
   ':': SyntaxKind.ColonToken,
+  '::': SyntaxKind.ColonColonToken,
   '.': SyntaxKind.DotToken,
   // '...': SyntaxKind.DotDotDotToken,
   ';': SyntaxKind.SemicolonToken,
@@ -188,7 +194,7 @@ function reverse(object) {
 }
 
 export const operators = [
-  ',', ';', ':', '.', '{', '}', '[', ']', '(', ')', '|',
+  ',', ';', ':', '::', '.', '{', '}', '[', ']', '(', ')', '|',
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',
@@ -242,6 +248,15 @@ export function isIndex(token: Token): token is IndexAccess {
   return token.kind === SyntaxKind.IndexAccess
 }
 
+export type Maybe<T>
+  = {
+      kind: 'Just'
+      value: [T]
+    }
+  | {
+      kind: 'Nothing'
+    }
+
 export interface Token {
   kind: SyntaxKind
 }
@@ -256,10 +271,17 @@ export interface BlockNode extends Token {
   expressions: Array<Expression>
 }
 
+export interface EnumDeclaration extends Token {
+  keyword: Token
+  name: Identifier
+  typeParameters: Array<TypeParameter>
+  members: Array<TypeDeclaration>
+}
+
 export interface FunctionDeclaration extends Token {
-  name?: Identifier
+  name: Maybe<Identifier>
   parameterList: Array<VariableDeclaration>
-  returnType?: TypeBound
+  returnType: Maybe<TypeBound>
   body: BlockNode
 }
 
@@ -309,10 +331,8 @@ export interface TypeBound extends Token {
 export interface TypeDeclaration extends Token {
   keyword: Token
   name: Identifier
-  parameters: Array<TypeParameter>
-  openBrace: Token
-  properties: Array<TypeProperty>
-  closeBrace: Token
+  typeParameters: Array<TypeParameter>
+  bound: Maybe<TypeBound>
 }
 
 export interface TypeParameter extends Token {
@@ -328,8 +348,8 @@ export interface TypeProperty extends Token {
 export interface VariableDeclaration extends Token {
   identifier: SimpleIdentifier
   mutable: boolean
-  typeBound?: TypeBound
-  initializer?: Expression
+  typeBound: Maybe<TypeBound>
+  initializer: Maybe<Expression>
 }
 
 export interface ExportDirective extends Token {
@@ -340,7 +360,7 @@ export interface ExportDirective extends Token {
 
 export interface ImportDirective extends Token {
   importKeyword: Token
-  domain?: string
+  domain: Maybe<string>
   path: string
   asKeyword: Token
   specifier: Identifier|ObjectDestructure
@@ -370,9 +390,9 @@ export interface ForExpression extends Token {
 }
 
 export interface IfExpression extends Token {
-  condition: Expression,
-  _then: BlockNode,
-  _else?: BlockNode,
+  condition: Expression
+  _then: BlockNode
+  _else: Maybe<BlockNode>
 }
 
 export interface LoopExpression extends Token {

@@ -3,6 +3,7 @@ import '../ast/ast.puck' as {
   Expression
 
   Block
+  EnumDeclaration
   FunctionDeclaration
   Identifier
   ImplDeclaration
@@ -51,10 +52,13 @@ export fn TopLevelVisitor(context, file) {
   Object.assign({}, visit.emptyVisitor, {
 
     visitBlock: |self, b: Block| {}
+    visitEnumDeclaration: |self, t: EnumDeclaration| {
+      scope.defineType(t)
+    }
     visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
-      if f.name then
+      if f.name.isJust() then
         scope.define({
-          name: f.name.name
+          name: f.name.value[0].name
           token: f
           mutable: false
         })

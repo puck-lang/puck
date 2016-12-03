@@ -31,6 +31,7 @@ import '../ast/ast.puck' as {
 
   IndexAccess
   MemberAccess
+  TypePath
 
   Token
   ReturnStatement
@@ -48,11 +49,16 @@ import 'src/functions.puck' as {getTupleTypeName}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
-import 'src/types.puck' as {getType, isAssignable, isSameType, resolveTypeParameters}
+import 'src/types.puck' as {createTypeInstance, getType, isAssignable, isSameType, resolveTypeParameters}
 import '../entities.puck' as {
+  isEnumType
+  isObjectType
   isStruct
   isTrait
+  isTypeClass
   isTypeInstance
+  isTypeParameter
+  isTupleType
   Binding
   FunctionType
   Scope
@@ -88,6 +94,36 @@ export fn ScopeVisitor(context, file) {
     if let error = checkRange(c.argumentList, function.argumentRange, 'arguments', name)
       then reportError(c, error)
 
+    let function =
+      if isTypeClass(function) {
+        let mut parameterMap = ObjectMapTrait.new()
+
+        function.arguments.forEach(|parameter, i| {
+          let argument =
+            if i < c.argumentList.length
+              then c.argumentList[i]
+              else parameter
+
+          if parameter.ty and argument.ty and
+             isTypeParameter(parameter.ty) and not isTypeParameter(argument.ty) {
+            if parameterMap[parameter.ty.name] {
+              let existingMapping = parameterMap[parameter.ty.name]
+              if not isAssignable(existingMapping, argument.ty) {
+                if isAssignable(argument.ty, existingMapping) {
+                  parameterMap[parameter.ty.name] = argument.ty
+                }
+                else reportError(argument, notAssignableError(existingMapping, argument.ty))
+              }
+            }
+            else {
+              parameterMap[parameter.ty.name] = argument.ty
+            }
+          }
+        })
+        resolveTypeParameters(parameterMap)(function)
+      }
+      else function
+
     c.argumentList.forEach(|argument, i| {
       let parameter = function.arguments[i]
 
@@ -110,6 +146,8 @@ export fn ScopeVisitor(context, file) {
         }
       }
     })
+
+    return function
   }
 
   fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token) {
@@ -313,13 +351,13 @@ export fn ScopeVisitor(context, file) {
       }
       let parentAssignedTo = self.assignedTo
       e.argumentList.forEach(|a, i| {
-        self.assignedTo = if functionType then functionType.arguments[i]
+        self.assignedTo = if functionType and functionType.arguments then functionType.arguments[i]
         self.visitExpression(a)
       })
       self.assignedTo = parentAssignedTo
 
       if functionType {
-        checkFunctionCall(functionType, e)
+        functionType = checkFunctionCall(functionType, e)
         e.ty = functionType.returnType
       }
     }
@@ -365,8 +403,71 @@ export fn ScopeVisitor(context, file) {
     visitMemberAccess: |self, mut a: MemberAccess| {
       a.scope = self.scope
       visit.walkExpression(self, a.object)
-      if a.object.ty and isStruct(a.object.ty) {
-        a.ty = a.object.ty.properties[a.member.name]
+      if a.object.ty {
+        if isEnumType(a.object.ty) {
+          // TODO: Enable this check when possible
+          // reportError(a, 'can not read a property on an enum type')
+        }
+        else if isStruct(a.object.ty) {
+          a.ty = a.object.ty.properties[a.member.name]
+        }
+      }
+    }
+    visitTypePath: |self, mut a: TypePath| {
+      a.scope = self.scope
+      visit.walkExpression(self, a.object)
+      if a.object.ty and isEnumType(a.object.ty) {
+        let member = a.object.ty.members[a.member.name]
+        if not member {
+          reportError(a.member, a.object.ty.name + ' has no member named ' + a.member.name)
+        }
+        else if isObjectType(member) {
+          a.ty = {
+            kind: 'Function'
+            name: a.member.name
+            parameterRange: a.object.ty.parameterRange
+            typeParameters: a.object.ty.typeParameters
+            instances: []
+            arguments: [{
+              name: a.member.name
+              // token: Token
+              mutable: false
+              ty: member
+              redefined: false
+            }]
+            argumentRange: {start: 1, end: 2}
+            returnType: a.object.ty
+            isAbstract: false
+          }
+        }
+        else if isTupleType(member) {
+          a.ty = {
+            kind: 'Function'
+            name: a.member.name
+            parameterRange: a.object.ty.parameterRange
+            typeParameters: a.object.ty.typeParameters
+            instances: []
+            arguments: member.properties.map(|p, i| {{
+              name: i.toString()
+              // token: Token
+              mutable: false
+              ty: p
+              redefined: false
+            }})
+            argumentRange: {start: member.properties.length, end: member.properties.length + 1}
+            returnType: a.object.ty
+            isAbstract: false
+          }
+        }
+        else {
+          a.ty = {
+            kind: a.object.ty.kind
+            name: a.object.ty.name + '.' + member.name
+            parameterRange: a.object.ty.parameterRange
+            typeParameters: a.object.ty.typeParameters
+            instances: []
+          }
+        }
       }
     }
 
