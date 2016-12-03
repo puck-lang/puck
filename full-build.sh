@@ -2,8 +2,13 @@
 
 set -e
 
-puck test
-puck self-test
-puck build
-puck test
-puck self-test
+printf "puck test: "
+dist/bin/puck test
+printf "puck self-test: "
+dist/bin/puck self-test
+printf "puck build: "
+dist/bin/puck build
+printf "puck test: "
+dist/bin/puck test
+printf "puck self-test: "
+dist/bin/puck self-test
