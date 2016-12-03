@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ObjectMap = exports.Range = exports.List = exports.Nothing = exports.Just = exports.Maybe = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.MaybeTrait = exports.StringTrait = undefined;
+exports.ObjectMap = exports.Range = exports.List = exports.Nothing = exports.Just = exports.Maybe = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.MaybeTrait = exports.ResultTrait = exports.StringTrait = undefined;
 exports.print = print;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
@@ -14,6 +14,32 @@ var StringTrait = exports.StringTrait = {
   contains: function contains(subStr) {
     var self = this;
     return self.indexOf(subStr) >= 0;
+  }
+};
+var ResultTrait = exports.ResultTrait = {
+  isOk: function isOk() {
+    var self = this;
+    return self.kind == "Ok";
+  },
+  isErr: function isErr() {
+    var self = this;
+    return !ResultTrait['$Result'].isOk.call(self);
+  },
+  andThen: function andThen(op) {
+    var self = this;
+    if (ResultTrait['$Result'].isOk.call(self)) {
+      return op(self.value[0]);
+    } else {
+      return self;
+    };
+  },
+  map: function map(op) {
+    var self = this;
+    if (ResultTrait['$Result'].isOk.call(self)) {
+      return Ok(op(self.value[0]));
+    } else {
+      return self;
+    };
   }
 };
 var MaybeTrait = exports.MaybeTrait = {
@@ -116,6 +142,12 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
 };
 StringTrait['$String'] = {
   contains: StringTrait.contains
+};
+ResultTrait['$Result'] = {
+  isOk: ResultTrait.isOk,
+  isErr: ResultTrait.isErr,
+  andThen: ResultTrait.andThen,
+  map: ResultTrait.map
 };
 MaybeTrait['$Maybe'] = {
   isJust: MaybeTrait.isJust,

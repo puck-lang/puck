@@ -7,6 +7,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.structureVisitor = undefined;
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 exports.notAssignableError = notAssignableError;
@@ -154,15 +156,26 @@ var structureVisitor = exports.structureVisitor = {
       self.visitTypeBound(bound);
       return (0, _types.getType)(d.scope, bound) || ty;
     });
-    var patternTy = declareVariable(d.scope, self, d.pattern, d.mutable, d.ty);
-    if (patternTy) {
-      if (!d.ty) {
-        d.ty = patternTy;
-      } else {
-        if (!(0, _types.isAssignable)(patternTy, d.ty)) {
-          self.reportError(d, notAssignableError(patternTy, d.ty));
+    var result = declareVariable(d.scope, self, d.pattern, d.mutable, d.ty);
+    if (_core.ResultTrait['$Result'].isOk.call(result)) {
+      var patternTy = result.value[0];
+      if (patternTy) {
+        if (!d.ty) {
+          d.ty = patternTy;
+        } else {
+          if (!(0, _types.isAssignable)(patternTy, d.ty)) {
+            self.reportError(d, notAssignableError(patternTy, d.ty));
+          };
         };
       };
+    } else {
+      var _result$value$ = _slicedToArray(result.value[0], 3);
+
+      var pattern = _result$value$[0];
+      var to = _result$value$[1];
+      var subject = _result$value$[2];
+
+      self.reportError(d, notAssignableError(to, subject));
     };
     if (_core.MaybeTrait['$Maybe'].isJust.call(d.initializer)) {
       var initializer = d.initializer.value[0];
@@ -235,44 +248,89 @@ var structureVisitor = exports.structureVisitor = {
   }
 };
 function declareVariable(scope, visitor, p, mutable, ty) {
-  if (p.kind == "Identifier") {
-    p.binding = scope.define({
-      name: p.value[0].name,
-      mutable: mutable,
-      token: p,
-      ty: ty
-    }, true);
-    return false;
+  if (p.kind == "CatchAll") {
+    return (0, _core.Ok)(false);
   } else {
-    if (p.kind == "Record") {
-      var properties = void 0;;
-      return properties = p.value[0].properties.map(function (p) {
-        return declareVariable(scope, visitor, p.local, mutable, ty);
-      });
+    if (p.kind == "Identifier") {
+      p.binding = scope.define({
+        name: p.value[0].name,
+        mutable: mutable,
+        token: p,
+        ty: ty
+      }, true);
+      return (0, _core.Ok)(false);
     } else {
-      if (p.kind == "RecordType") {
-        visitor.visitNamedTypeBound(p.value[0]);
-        var _properties = p.value[1].properties.map(function (p) {
+      if (p.kind == "Record") {
+        var properties = p.value[0].properties.map(function (p) {
           return declareVariable(scope, visitor, p.local, mutable, ty);
-        });
-        return p.value[0].ty;
-      } else {
-        if (p.kind == "Tuple") {
-          var _properties2 = p.value[0].properties.map(function (p) {
-            return declareVariable(scope, visitor, p, mutable, ty);
-          });
-          return {
-            kind: "Tuple",
-            name: (0, _functions.getTupleTypeName)(_properties2),
-            properties: _properties2
-          };
-        } else {
-          if (p.kind == "TupleType") {
-            visitor.visitNamedTypeBound(p.value[0]);
-            var _properties3 = p.value[1].properties.map(function (p) {
-              return declareVariable(scope, visitor, p, mutable, ty);
+        }).reduce(function (acc, cur) {
+          return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
+            return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
+              return props.concat(prop);
             });
+          });
+        }, (0, _core.Ok)([]));
+        return _core.ResultTrait['$Result'].map.call(properties, function (__PUCK__value__4) {
+          return false;
+        });
+      } else {
+        if (p.kind == "RecordType") {
+          visitor.visitNamedTypeBound(p.value[0]);
+          var _properties = p.value[1].properties.map(function (p) {
+            return declareVariable(scope, visitor, p.local, mutable, ty);
+          }).reduce(function (acc, cur) {
+            return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
+              return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
+                return props.concat(prop);
+              });
+            });
+          }, (0, _core.Ok)([]));
+          return _core.ResultTrait['$Result'].map.call(_properties, function (__PUCK__value__5) {
             return p.value[0].ty;
+          });
+        } else {
+          if (p.kind == "Tuple") {
+            var _properties2 = p.value[0].properties.map(function (p) {
+              return declareVariable(scope, visitor, p, mutable, ty);
+            }).reduce(function (acc, cur) {
+              return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
+                return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
+                  return props.concat(prop);
+                });
+              });
+            }, (0, _core.Ok)([]));
+            return _core.ResultTrait['$Result'].map.call(_properties2, function (properties) {
+              return {
+                kind: "Tuple",
+                name: (0, _functions.getTupleTypeName)(properties),
+                properties: properties
+              };
+            });
+          } else {
+            if (p.kind == "TupleType") {
+              visitor.visitNamedTypeBound(p.value[0]);
+              var _properties3 = p.value[1].properties.map(function (p) {
+                return declareVariable(scope, visitor, p, mutable, ty);
+              }).reduce(function (acc, cur) {
+                return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
+                  return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
+                    return props.concat(prop);
+                  });
+                });
+              }, (0, _core.Ok)([]));
+              return _core.ResultTrait['$Result'].andThen.call(_properties3, function (properties) {
+                var ty = {
+                  kind: "Tuple",
+                  name: (0, _functions.getTupleTypeName)(properties),
+                  properties: properties
+                };
+                if ((0, _types.isAssignable)(p.value[0].ty, ty)) {
+                  return (0, _core.Ok)(p.value[0].ty);
+                } else {
+                  return (0, _core.Err)([p, p.value[0].ty, ty]);
+                };
+              });
+            };
           };
         };
       };

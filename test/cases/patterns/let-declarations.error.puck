@@ -34,15 +34,19 @@ let Tuple(a, b) = (1, true)
 type Tuple(Num, Num)
 let Tuple(a, b) = (1, 2, 3)
 
-///// (Num) is not assignable to type Tuple
+///// (??) is not assignable to type Tuple
 type Tuple(Num, Num)
 let Tuple(a) = ((1))
 
-///// (Num, Num, Num) is not assignable to type Tuple
+///// (??, ??, ??) is not assignable to type Tuple
 type Tuple(Num, Num)
 let Tuple(a, b, c) = (1, 2, 3)
 
+///// (??, ??, ??) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a, b, c) = (1, 2)
+
 // TODO: Make this error
-//// (Num, Num, Num) is not assignable to type Tuple
-// type Tuple(Num, Num)
-// let Tuple(a, b, c) = (1, 2)
+//// (??, ??, ??) is not assignable to type Tuple
+type Record {a: Num, b: Num}
+let Record {c} = {c: 5}

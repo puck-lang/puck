@@ -128,14 +128,21 @@ export let structureVisitor = {
       getType(d.scope, bound) or ty
     })
 
-    let patternTy = declareVariable(d.scope, self, d.pattern, d.mutable, d.ty)
+    let result = declareVariable(d.scope, self, d.pattern, d.mutable, d.ty)
+    if result.isOk() {
+      let patternTy = result.value[0]
 
-    if patternTy {
-      if not d.ty {
-        d.ty = patternTy
+      if patternTy {
+        if not d.ty {
+          d.ty = patternTy
+        }
+        else if not isAssignable(patternTy, d.ty)
+          then self.reportError(d, notAssignableError(patternTy, d.ty))
       }
-      else if not isAssignable(patternTy, d.ty)
-        then self.reportError(d, notAssignableError(patternTy, d.ty))
+    }
+    else {
+      let (pattern, to, subject) = result.value[0]
+      self.reportError(d, notAssignableError(to, subject))
     }
 
     if d.initializer.isJust() {
@@ -188,40 +195,65 @@ export let structureVisitor = {
   }
 }
 
-fn declareVariable(scope: Scope, visitor, mut p: Pattern, mutable: Bool, ty): TypeInstance {
-  if p.kind == 'Identifier' {
+fn declareVariable(scope: Scope, visitor, mut p: Pattern, mutable: Bool, ty):
+    Result<TypeInstance, (Pattern, TypeInstance, TypeInstance)> {
+  if p.kind == 'CatchAll' {
+    Ok(false)
+  }
+  else if p.kind == 'Identifier' {
     p.binding = scope.define({
       name: p.value[0].name
       mutable
       token: p
       ty
     }, true)
-    false
+    Ok(false)
   }
   else if p.kind == 'Record' {
-    let properties = p.value[0].properties.map(|mut p| declareVariable(scope, visitor, p.local, mutable, ty))
-    // {
-    //   kind: 'Record'
-    //   name: getRecordTypeName(properties)
-    //   properties
-    // }
+    let properties: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)> = p.value[0].properties
+      .map(|mut p| declareVariable(scope, visitor, p.local, mutable, ty))
+      .reduce(|acc: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)>, cur: Result<TypeInstance, (Pattern, TypeInstance, TypeInstance)>| {
+        acc.andThen(|props| cur.map(|prop| props.concat(prop)))
+      }, Ok([]))
+    properties.map(|_| false)
   }
   else if p.kind == 'RecordType' {
     visitor.visitNamedTypeBound(p.value[0])
-    let properties = p.value[1].properties.map(|mut p| declareVariable(scope, visitor, p.local, mutable, ty))
-    p.value[0].ty
+    let properties: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)> = p.value[1].properties
+      .map(|mut p| declareVariable(scope, visitor, p.local, mutable, ty))
+      .reduce(|acc: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)>, cur: Result<TypeInstance, (Pattern, TypeInstance, TypeInstance)>| {
+        acc.andThen(|props| cur.map(|prop| props.concat(prop)))
+      }, Ok([]))
+    properties.map(|_| p.value[0].ty)
   }
   else if p.kind == 'Tuple' {
-    let properties = p.value[0].properties.map(|mut p| declareVariable(scope, visitor, p, mutable, ty))
-    {
+    let properties: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)> = p.value[0].properties
+      .map(|mut p| declareVariable(scope, visitor, p, mutable, ty))
+      .reduce(|acc: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)>, cur: Result<TypeInstance, (Pattern, TypeInstance, TypeInstance)>| {
+        acc.andThen(|props| cur.map(|prop| props.concat(prop)))
+      }, Ok([]))
+    properties.map(|properties| {{
       kind: 'Tuple'
       name: getTupleTypeName(properties)
       properties
-    }
+    }})
   }
   else if p.kind == 'TupleType' {
     visitor.visitNamedTypeBound(p.value[0])
-    let properties = p.value[1].properties.map(|mut p| declareVariable(scope, visitor, p, mutable, ty))
-    p.value[0].ty
+    let properties: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)> = p.value[1].properties
+      .map(|mut p| declareVariable(scope, visitor, p, mutable, ty))
+      .reduce(|acc: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)>, cur: Result<TypeInstance, (Pattern, TypeInstance, TypeInstance)>| {
+        acc.andThen(|props| cur.map(|prop| props.concat(prop)))
+      }, Ok([]))
+    properties.andThen(|properties| {
+      let ty = {
+        kind: 'Tuple'
+        name: getTupleTypeName(properties)
+        properties
+      }
+      if isAssignable(p.value[0].ty, ty)
+        then Ok(p.value[0].ty)
+        else Err((p, p.value[0].ty, ty))
+    })
   }
 }
