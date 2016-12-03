@@ -3,12 +3,12 @@
 set -e
 
 printf "puck test: "
-puck test
+dist/bin/puck test
 printf "puck self-test: "
-puck self-test
+dist/bin/puck self-test
 printf "puck build: "
-puck build
+dist/bin/puck build
 printf "puck test: "
-puck test
+dist/bin/puck test
 printf "puck self-test: "
-puck self-test
+dist/bin/puck self-test
