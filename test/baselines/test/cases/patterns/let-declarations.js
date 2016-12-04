@@ -56,6 +56,15 @@ var Tuple = function Tuple() {
 var Record = function Record(object) {
   return object;
 };
+var Enum = {
+  A: function A() {
+    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      members[_key2] = arguments[_key2];
+    }
+
+    return { kind: 'A', value: members };
+  }
+};
 var p = 1;
 var q = 2;
 var _a$b2 = {
@@ -63,5 +72,9 @@ var _a$b2 = {
   b: 2
 };
 var r = _a$b2.a;
+
+var _Enum$A$value = _slicedToArray(Enum.A(1).value, 1);
+
+var s = _Enum$A$value[0];
 
 a = 2;

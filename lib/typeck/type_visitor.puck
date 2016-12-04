@@ -64,9 +64,9 @@ export fn TypeVisitor(context, file) {
     postHoist: []
 
     visitEnumDeclaration: |mut self, mut t: EnumDeclaration| {
-      if not t.ty {
-        t.ty = self.scope.defineType(t, true).ty
-        self.scope.define({name: t.name.name, mutable: false, token: t, ty: t.ty})
+      if not t.type_ {
+        t.type_ = self.scope.defineType(t, true).type_
+        self.scope.define({name: t.name.name, mutable: false, token: t, type_: t.type_})
         t.scope = createScope(context, file, self.scope)
         self.postHoist.push(t)
       }
@@ -74,7 +74,7 @@ export fn TypeVisitor(context, file) {
         self.scope = t.scope
         t.typeParameters.forEach(|p| {
           self.visitTypeParameter(p)
-          t.ty.typeParameters.push(p.ty)
+          t.type_.typeParameters.push(p.type_)
         })
         t.typeParametersAssigned = true
         self.scope = self.scope.parent
@@ -93,7 +93,7 @@ export fn TypeVisitor(context, file) {
                 implementations: []
                 isUnit: true
               }}
-              |bound| bound.ty
+              |bound| bound.type_
             )
           ))
         )
@@ -106,7 +106,7 @@ export fn TypeVisitor(context, file) {
           })
         }
 
-        Object.assign(t.ty.members, memberMap)
+        Object.assign(t.type_.members, memberMap)
 
         self.scope = self.scope.parent
       }
@@ -133,14 +133,14 @@ export fn TypeVisitor(context, file) {
       expressions.forEach(self.visitExpression.bind(self))
     }
     visitNamedTypeBound: |self, mut t: NamedTypeBound| {
-      let binding = self.scope.getTypeBinding(t.name.name)
+      let binding = self.scope.getTypePath(t.path)
       if not binding
-        then self.reportError(t, 'Use of undeclared type ' + t.name.name)
+        then self.reportError(t, 'Use of undeclared type ' + t.path.value[0].name)
       if not binding.token.scope {
-        if not self.imports[t.name.name] then reportError(t
-          'Scope not set for binding ' + t.name.name + ' but not found in imports either')
+        if not self.imports[t.path.value[0].name] then reportError(t
+          'Scope not set for binding ' + t.path.value[0].name + ' but not found in imports either')
 
-        context.runTypeVisitorOnFile(self.imports[t.name.name])
+        context.runTypeVisitorOnFile(self.imports[t.path.value[0].name])
       }
       structureVisitor.visitNamedTypeBound.call(self, t)
     }
@@ -153,7 +153,7 @@ export fn TypeVisitor(context, file) {
           or e.expression.kind == SyntaxKind.TraitDeclaration {
             let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
             self.scope.setTypeBinding(typeBinding)
-            self.scope.define({name: m.local.name, mutable: false, token: m, ty: typeBinding.ty})
+            self.scope.define({name: m.local.name, mutable: false, token: m, type_: typeBinding.type_})
           }
           else if e.expression.kind == SyntaxKind.TypeDeclaration {
             let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
@@ -166,13 +166,13 @@ export fn TypeVisitor(context, file) {
       })
     }
     visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
-      if not t.ty {
-        t.ty = self.scope.defineType(t, true).ty
+      if not t.type_ {
+        t.type_ = self.scope.defineType(t, true).type_
         t.binding = self.scope.define({
           name: t.name.name
           mutable: false
           token: t
-          ty: t.ty
+          type_: t.type_
         })
         self.postHoist.push(t)
       }
@@ -182,7 +182,7 @@ export fn TypeVisitor(context, file) {
         if t.typeParameters
           then t.typeParameters.forEach(|p| {
             self.visitTypeParameter(p)
-            t.ty.typeParameters.push(p.ty)
+            t.type_.typeParameters.push(p.type_)
           })
         self.scope = self.scope.parent
       }
@@ -190,19 +190,19 @@ export fn TypeVisitor(context, file) {
         self.scope = t.scope
         t.members.forEach(|t| self.visitFunctionDeclaration(t))
 
-        Object.assign(t.ty.functions, ObjectMapTrait.fromList(
-          t.members.map(|m| [m.name.value[0].name, m.ty])))
-        if t.ty.instances
-          then t.ty.instances.forEach(|mut instance| {
-            instance.functions = t.ty.functions
+        Object.assign(t.type_.functions, ObjectMapTrait.fromList(
+          t.members.map(|m| [m.name.value[0].name, m.type_])))
+        if t.type_.instances
+          then t.type_.instances.forEach(|mut instance| {
+            instance.functions = t.type_.functions
           })
 
         self.scope = self.scope.parent
       }
     }
     visitTypeDeclaration: |mut self, mut t: TypeDeclaration| {
-      if not t.ty {
-        t.ty = self.scope.defineType(t, true).ty
+      if not t.type_ {
+        t.type_ = self.scope.defineType(t, true).type_
         t.scope = createScope(context, file, self.scope)
         self.postHoist.push(t)
       }
@@ -210,20 +210,20 @@ export fn TypeVisitor(context, file) {
         self.scope = t.scope
         t.typeParameters.forEach(|p| {
           self.visitTypeParameter(p)
-          t.ty.typeParameters.push(p.ty)
+          t.type_.typeParameters.push(p.type_)
         })
         t.typeParametersAssigned = true
         self.scope = self.scope.parent
       }
       else {
         self.scope = t.scope
-        if t.bound.isJust() then self.visitTypeBound(t.bound.value[0])
+        if let Maybe::Just(typeBound) = t.bound then self.visitTypeBound(typeBound)
 
-        if isObjectType(t.ty)
-          then Object.assign(t.ty.properties, ObjectMapTrait.fromList(
-            t.bound.value[0].properties.map(|p| [p.name.name, p.typeBound.ty])))
-        else if isTupleType(t.ty) {
-          t.ty.properties = t.bound.value[0].properties.map(|p| p.ty)
+        if isObjectType(t.type_)
+          then Object.assign(t.type_.properties, ObjectMapTrait.fromList(
+            t.bound.value[0].properties.map(|p| [p.name.name, p.typeBound.type_])))
+        else if isTupleType(t.type_) {
+          t.type_.properties = t.bound.value[0].properties.map(|p| p.type_)
         }
 
         self.scope = self.scope.parent

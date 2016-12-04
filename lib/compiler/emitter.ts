@@ -12,6 +12,7 @@ import {
   FunctionDeclaration,
   Identifier,
   IfExpression,
+  IfLetExpression,
   ImplDeclaration,
   ImportDirective,
   IndexAccess,
@@ -37,8 +38,12 @@ import {
   tokenToText,
   TraitDeclaration,
   TupleLiteral,
+  TuplePattern,
+  TuplePatternArm,
   TypeBound,
   TypeDeclaration,
+  TypePath,
+  TypePathObjectArm,
   UnaryExpression,
   VariableDeclaration,
   WhileExpression
@@ -55,6 +60,19 @@ const tokenToJs = Object['assign'](tokenToText, {
 enum Context {
   Return = 1,
   Value = 2,
+}
+
+function isEnumPattern(pattern: Pattern) {
+  if (pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
+      const typePath = pattern.value[0]
+      if (typePath.kind === '_Object') {
+        if (typePath.value[1].kind !== 'Member')
+          throw 'Multi step type paths is not supported'
+
+        return true
+      }
+  }
+  return false
 }
 
 export function Emitter() {
@@ -183,12 +201,13 @@ export function Emitter() {
       case SyntaxKind.AssignmentExpression: return emitAssignmentExpression(expression);
       case SyntaxKind.BinaryExpression: return emitBinaryExpression(expression);
       case SyntaxKind.CallExpression: return emitCallExpression(expression);
+      case SyntaxKind.TypePathExpression: return emitTypePath(expression.typePath);
       case SyntaxKind.UnaryExpression: return emitUnaryExpression(expression);
       case SyntaxKind.WhileExpression: return emitWhileExpression(expression);
 
       case SyntaxKind.IndexAccess: return emitIndexAccess(expression);
       case SyntaxKind.MemberAccess: return emitMemberAccess(expression);
-      case SyntaxKind.TypePath: return emitTypePath(expression);
+      case SyntaxKind.TypePath: return emitOldTypePath(expression);
 
       case SyntaxKind.BreakKeyword: return emitBreak(expression);
       case SyntaxKind.ReturnStatement: return emitReturn(expression);
@@ -229,7 +248,10 @@ export function Emitter() {
         case SyntaxKind.EnumDeclaration: return emitEnumDeclaration(expression);
         case SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
         case SyntaxKind.IfExpression: return emitIfExpression(expression);
-        default: throw Error(`${SyntaxKind[expression.kind]} is not supported`)
+        case SyntaxKind.IfLetExpression: return emitIfLetExpression(expression);
+        default:
+          console.error('expression', expression)
+          throw Error(`${SyntaxKind[expression.kind]} is not supported`)
       }
     } finally {
       valueVariable = currentValueVariableContext
@@ -318,15 +340,15 @@ export function Emitter() {
   }
 
   function emitImplDeclaration(i: ImplDeclaration) {
-    let functions = Object['assign']({}, i.tra.ty.functions)
-    i.members.forEach(m => functions[m.name.value[0].name] = emitFunctionDeclaration(m))
-    return `${emitIdentifier(i.tra.name)}[${getTypeProp(i.ty.ty)}] = {\n${
+    let functions = Object['assign']({}, i.trait_.type_.functions)
+    i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m))
+    return `${i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)}[${getTypeProp(i.type_.type_)}] = {\n${
       indent(
         Object.keys(functions).map(f =>
           `${emitIdentifier({name: f})}: ${
             typeof functions[f] === 'string'
               ? functions[f]
-              : `${emitIdentifier(i.tra.name)}.${emitIdentifier({name: f})}`
+              : `${i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)}.${emitIdentifier({name: f})}`
           }`)
       )
       .join(',\n')
@@ -338,7 +360,7 @@ export function Emitter() {
       indent(
         t.members
           .filter(m => m.body)
-          .map(m => `${emitIdentifier(m.name.value[0])}: ${emitFunctionDeclaration(m)}`)
+          .map(m => `${emitIdentifier((m.name as any).value[0])}: ${emitFunctionDeclaration(m)}`)
       )
       .join(',\n')
     }\n}`
@@ -390,6 +412,10 @@ export function Emitter() {
     let initializer = vd.initializer.kind == 'Just'
       ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
+
+    if (isEnumPattern(vd.pattern)) {
+      initializer = `${initializer}.value`
+    }
 
     if (binding && binding.previous) {
       return `${emitPattern(vd.pattern)}${initializer}`
@@ -508,9 +534,9 @@ export function Emitter() {
     if (produceValue) {
       valueVariable = newValueVariable()
     }
-    let then = emitBlock(e._then)
-    let el = e._else.kind == 'Just'
-      ? (`\n${indent('else')} ${emitBlock(e._else.value[0])}`)
+    let then = emitBlock(e.then_)
+    let el = e.else_.kind == 'Just'
+      ? (`\n${indent('else')} ${emitBlock(e.else_.value[0])}`)
       : ''
 
     let code = `if (${condition}) ${then}${el}`
@@ -524,6 +550,75 @@ export function Emitter() {
         : thisValueVariable
     }
     else return code
+  }
+
+  function emitIfLetExpression(e: IfLetExpression) {
+    let outerValueVariable = valueVariable
+    valueVariable = newValueVariable()
+    hoist(`let ${valueVariable} = ${emitExpression((e.variableDeclaration.initializer as any).value[0])}`)
+
+    let isEnum = isEnumPattern(e.variableDeclaration.pattern)
+    let condition: Expression
+
+
+    if (isEnum) {
+      const typePath = e.variableDeclaration.pattern.value[0] as TypePathObjectArm
+
+      condition = {
+        kind: SyntaxKind.BinaryExpression,
+        lhs: {
+          kind: SyntaxKind.MemberAccess,
+          object: {
+            kind: SyntaxKind.Identifier,
+            name: valueVariable,
+          },
+          member: {
+            kind: SyntaxKind.Identifier,
+            name: 'kind',
+          },
+        } as MemberAccess,
+        operator: {kind: SyntaxKind.EqualsEqualsToken},
+        rhs: {
+          kind: SyntaxKind.StringLiteral,
+          parts: [{
+            kind: SyntaxKind.StringLiteralPart,
+            value: typePath.value[1].value[0].name,
+          }],
+        } as StringLiteral,
+      } as BinaryExpression
+    } else {
+      condition = {kind: SyntaxKind.BooleanLiteral, value: true} as BooleanLiteral
+    }
+
+    let then_ = {
+      kind: e.then_.kind,
+      expressions: [
+        {
+          scope: (e as any).variableDeclaration.scope,
+          kind: SyntaxKind.VariableDeclaration,
+          mutable: false,
+          pattern: e.variableDeclaration.pattern,
+          typeBound: {kind: 'Nothing'},
+          initializer: {
+            kind: 'Just',
+            value: [{
+              kind: SyntaxKind.Identifier,
+              name: valueVariable,
+            } as Identifier],
+          },
+        } as VariableDeclaration,
+        ...e.then_.expressions,
+      ]
+    }
+
+    valueVariable = outerValueVariable
+
+    return emitIfExpression({
+      kind: SyntaxKind.IfExpression,
+      condition,
+      then_,
+      else_: e.else_,
+    })
   }
 
   function emitUnaryExpression(e: BinaryExpression) {
@@ -556,7 +651,15 @@ export function Emitter() {
     return `${object}.${emitExpression(e.member, Context.Value)}`
   }
 
-  function emitTypePath(e: MemberAccess) {
+  function emitTypePath(e: TypePath) {
+    if (e.kind === 'Member') {
+      return emitIdentifier(e.value[0])
+    } else {
+      return `${emitIdentifier(e.value[0])}.${emitTypePath(e.value[1])}`
+    }
+  }
+
+  function emitOldTypePath(e: MemberAccess) {
     let object = emitExpression(e.object)
     return `${object}.${emitExpression(e.member, Context.Value)}`
   }

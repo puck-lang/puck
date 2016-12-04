@@ -15,6 +15,7 @@ import '../ast/ast.puck' as {
   TraitDeclaration
   TypeDeclaration
   TypeParameter
+  TypePath
   VariableDeclaration
 
   ExportDirective
@@ -26,12 +27,12 @@ import '../ast/ast.puck' as {
   ForExpression
   IfExpression
   LoopExpression
+  TypePathExpression
   UnaryExpression
   WhileExpression
 
   IndexAccess
   MemberAccess
-  TypePath
 
   Token
   ReturnStatement
@@ -91,7 +92,7 @@ export fn ScopeVisitor(context, file) {
         then reportError(c, '$name can only be called on a mutable binding')
     }
 
-    if let error = checkRange(c.argumentList, function.argumentRange, 'arguments', name)
+    if let Result::Err(error) = checkRange(c.argumentList, function.argumentRange, 'arguments', name)
       then reportError(c, error)
 
     let function =
@@ -104,19 +105,19 @@ export fn ScopeVisitor(context, file) {
               then c.argumentList[i]
               else parameter
 
-          if parameter.ty and argument.ty and
-             isTypeParameter(parameter.ty) and not isTypeParameter(argument.ty) {
-            if parameterMap[parameter.ty.name] {
-              let existingMapping = parameterMap[parameter.ty.name]
-              if not isAssignable(existingMapping, argument.ty) {
-                if isAssignable(argument.ty, existingMapping) {
-                  parameterMap[parameter.ty.name] = argument.ty
+          if parameter.type_ and argument.type_ and
+             isTypeParameter(parameter.type_) and not isTypeParameter(argument.type_) {
+            if parameterMap[parameter.type_.name] {
+              let existingMapping = parameterMap[parameter.type_.name]
+              if not isAssignable(existingMapping, argument.type_) {
+                if isAssignable(argument.type_, existingMapping) {
+                  parameterMap[parameter.type_.name] = argument.type_
                 }
-                else reportError(argument, notAssignableError(existingMapping, argument.ty))
+                else reportError(argument, notAssignableError(existingMapping, argument.type_))
               }
             }
             else {
-              parameterMap[parameter.ty.name] = argument.ty
+              parameterMap[parameter.type_.name] = argument.type_
             }
           }
         })
@@ -127,8 +128,8 @@ export fn ScopeVisitor(context, file) {
     c.argumentList.forEach(|argument, i| {
       let parameter = function.arguments[i]
 
-      if not isAssignable(parameter.ty, argument.ty)
-        then reportError(argument, notAssignableError(parameter.ty, argument.ty))
+      if not isAssignable(parameter.type_, argument.type_)
+        then reportError(argument, notAssignableError(parameter.type_, argument.type_))
 
       if parameter.mutable and argument.kind == SyntaxKind.Identifier {
         let argumentName = argument.name
@@ -156,11 +157,11 @@ export fn ScopeVisitor(context, file) {
     subject.arguments.forEach(|subjectArgument, i| {
       let toArgument = to.arguments[i]
 
-      if not isAssignable(toArgument.ty, subjectArgument.ty)
+      if not isAssignable(toArgument.type_, subjectArgument.type_)
         then reportError(
           token
-          'Types of parameter #$i does not match. ' + subjectArgument.ty.name +
-          ' is not assignable to ' + toArgument.ty.name
+          'Types of parameter #$i does not match. ' + subjectArgument.type_.name +
+          ' is not assignable to ' + toArgument.type_.name
         )
 
       if subjectArgument.mutable and not toArgument.mutable
@@ -220,7 +221,7 @@ export fn ScopeVisitor(context, file) {
       let binding = i.scope.getBinding(i.name)
       if not binding
         then reportError(i, 'Use of undefined variable ' + i.name)
-        else i.ty = binding.ty
+        else i.type_ = binding.type_
       visit.walkIdentifier(self, i)
     }
     visitImplDeclaration: |self, mut i: ImplDeclaration| {
@@ -240,7 +241,7 @@ export fn ScopeVisitor(context, file) {
       self.scope = self.scope.parent
     }
     visitTypeDeclaration: |self, mut t: TypeDeclaration| {}
-    visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, ty| {
+    visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, type_| {
       structureVisitor.visitVariableDeclaration.call(
         self
         d
@@ -252,7 +253,7 @@ export fn ScopeVisitor(context, file) {
             self.visitExpression(e)
             self.assignedTo = parentAssignedTo
           }
-        ty
+        type_
       )
     }
 
@@ -264,15 +265,16 @@ export fn ScopeVisitor(context, file) {
     visitAssignmentExpression: |self, mut e: AssignmentExpression| {
       e.scope = self.scope
       visit.walkAssignmentExpression(self, e)
-      if let binding = getBinding(e.lhs) {
+      let binding = getBinding(e.lhs)
+      if binding {
         if not binding.mutable
           then reportError(e, "Can't assign to immutable variable " + binding.name)
 
-        if not isAssignable(e.lhs.ty, e.rhs.ty)
-          then reportError(e, notAssignableError(e.lhs.ty, e.rhs.ty))
+        if not isAssignable(e.lhs.type_, e.rhs.type_)
+          then reportError(e, notAssignableError(e.lhs.type_, e.rhs.type_))
       }
 
-      e.ty = e.lhs.ty or e.rhs.ty
+      e.type_ = e.lhs.type_ or e.rhs.type_
     }
     visitBinaryExpression: |self, mut e: BinaryExpression| {
       e.scope = self.scope
@@ -282,11 +284,11 @@ export fn ScopeVisitor(context, file) {
       e.scope = self.scope
       self.visitExpression(e.func)
 
-      let mut functionType = e.func.ty
+      let mut functionType = e.func.type_
 
-      if e.func.kind == SyntaxKind.MemberAccess and e.func.object.ty {
+      if e.func.kind == SyntaxKind.MemberAccess and e.func.object.type_ {
         let name = e.func.member.name
-        let objectType = e.func.object.ty
+        let objectType = e.func.object.type_
         let isDirectTraitCall = isTrait(objectType)
 
         if isTrait(objectType) {
@@ -299,31 +301,31 @@ export fn ScopeVisitor(context, file) {
             then throw 'direct trait calls for functions with self bindings are not implemented'
         }
         else if isStruct(objectType) {
-          fn getImplementations(ty: Struct) {
-            let implementations = ty.implementations
-              .filter(|i| i.tra.functions[name])
+          fn getImplementations(type_: Struct) {
+            let implementations = type_.implementations
+              .filter(|i| i.trait_.functions[name])
 
             let implementations =
               if implementations.length > 1
                 then implementations
                   .filter(|i| e.scope.getTypeBinding(
-                    if isTypeInstance(i.tra)
-                      then i.tra.class.name
-                      else i.tra.name
+                    if isTypeInstance(i.trait_)
+                      then i.trait_.class.name
+                      else i.trait_.name
                   ))
               else implementations
 
             let implementations =
               if implementations.length > 1
                 then implementations
-                  .map(|i| i.tra.functions[name].argumentRange)
+                  .map(|i| i.trait_.functions[name].argumentRange)
                   .filter(|range: Range| range.contains(e.argumentList.length))
               else implementations
 
             if implementations.length > 1 then reportError(e, 'Ambiguous trait call')
 
-            if implementations.length == 0 and isTypeInstance(ty)
-              then getImplementations(ty.class)
+            if implementations.length == 0 and isTypeInstance(type_)
+              then getImplementations(type_.class)
               else implementations
           }
 
@@ -332,16 +334,16 @@ export fn ScopeVisitor(context, file) {
           if implementations.length == 1 {
             let implementation = implementations[0]
             let traitName =
-              if isTypeInstance(implementation.tra)
-                then implementation.tra.class.name
-                else implementation.tra.name
+              if isTypeInstance(implementation.trait_)
+                then implementation.trait_.class.name
+                else implementation.trait_.name
             if not e.scope.getTypeBinding(traitName)
               then reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
 
             e.traitName = traitName
-            e.implementationType = implementation.ty
+            e.implementationType = implementation.type_
 
-            functionType = implementation.tra.functions[name]
+            functionType = implementation.trait_.functions[name]
 
             if objectType.parameterMap {
               functionType = resolveTypeParameters(objectType.parameterMap)(functionType)
@@ -358,7 +360,7 @@ export fn ScopeVisitor(context, file) {
 
       if functionType {
         functionType = checkFunctionCall(functionType, e)
-        e.ty = functionType.returnType
+        e.type_ = functionType.returnType
       }
     }
     visitForExpression: |mut self, mut e: ForExpression| {
@@ -379,16 +381,84 @@ export fn ScopeVisitor(context, file) {
       visit.walkLoopExpression(self, e)
       self.scope = self.scope.parent
     }
+    visitTypePathExpression: |self, mut e: TypePathExpression| {
+      e.scope = self.scope
+      let typePath = e.typePath
+      if typePath.kind == '_Object' {
+        let binding = e.scope.getTypeBinding(typePath.value[0].name)
+        if not binding
+          then self.reportError(e, 'Use of undeclared type ' + typePath.value[0].name)
+        let type_ = binding.type_
+
+        if typePath.value[1].kind != 'Member'
+          then self.reportError(e, 'Nested type paths are not supported')
+        let memberIdentifier = typePath.value[1].value[0]
+
+        if isEnumType(type_) {
+          let member = type_.members[memberIdentifier.name]
+          if not member {
+            reportError(memberIdentifier, type_.name + ' has no member named ' + memberIdentifier.name)
+          }
+          else if isObjectType(member) {
+            e.type_ = {
+              kind: 'Function'
+              name: memberIdentifier.name
+              parameterRange: type_.parameterRange
+              typeParameters: type_.typeParameters
+              instances: []
+              arguments: [{
+                name: memberIdentifier.name
+                token: memberIdentifier
+                mutable: false
+                type_: member
+                redefined: false
+              }]
+              argumentRange: {start: 1, end: 2}
+              returnType: type_
+              isAbstract: false
+            }
+          }
+          else if isTupleType(member) {
+            e.type_ = {
+              kind: 'Function'
+              name: memberIdentifier.name
+              parameterRange: type_.parameterRange
+              typeParameters: type_.typeParameters
+              instances: []
+              arguments: member.properties.map(|p, i| {{
+                name: i.toString()
+                token: memberIdentifier
+                mutable: false
+                type_: p
+                redefined: false
+              }})
+              argumentRange: {start: member.properties.length, end: member.properties.length + 1}
+              returnType: type_
+              isAbstract: false
+            }
+          }
+          else {
+            e.type_ = {
+              kind: type_.kind
+              name: type_.name + '.' + member.name
+              parameterRange: type_.parameterRange
+              typeParameters: type_.typeParameters
+              instances: []
+            }
+          }
+        }
+      }
+    }
     visitUnaryExpression: |self, mut e: UnaryExpression| {
       e.scope = self.scope
       visit.walkUnaryExpression(self, e)
 
-      e.ty =
+      e.type_ =
         if e.operator.kind == SyntaxKind.NotKeyword
-          then e.scope.getTypeBinding('Bool').ty
+          then e.scope.getTypeBinding('Bool').type_
         else if e.operator.kind == SyntaxKind.MinusToken
              or e.operator.kind == SyntaxKind.PlusToken
-          then e.scope.getTypeBinding('Num').ty
+          then e.scope.getTypeBinding('Num').type_
     }
     visitWhileExpression: |mut self, mut e: WhileExpression| {
       self.scope = createScope(context, file, self.scope)
@@ -403,70 +473,13 @@ export fn ScopeVisitor(context, file) {
     visitMemberAccess: |self, mut a: MemberAccess| {
       a.scope = self.scope
       visit.walkExpression(self, a.object)
-      if a.object.ty {
-        if isEnumType(a.object.ty) {
+      if a.object.type_ {
+        if isEnumType(a.object.type_) {
           // TODO: Enable this check when possible
           // reportError(a, 'can not read a property on an enum type')
         }
-        else if isStruct(a.object.ty) {
-          a.ty = a.object.ty.properties[a.member.name]
-        }
-      }
-    }
-    visitTypePath: |self, mut a: TypePath| {
-      a.scope = self.scope
-      visit.walkExpression(self, a.object)
-      if a.object.ty and isEnumType(a.object.ty) {
-        let member = a.object.ty.members[a.member.name]
-        if not member {
-          reportError(a.member, a.object.ty.name + ' has no member named ' + a.member.name)
-        }
-        else if isObjectType(member) {
-          a.ty = {
-            kind: 'Function'
-            name: a.member.name
-            parameterRange: a.object.ty.parameterRange
-            typeParameters: a.object.ty.typeParameters
-            instances: []
-            arguments: [{
-              name: a.member.name
-              // token: Token
-              mutable: false
-              ty: member
-              redefined: false
-            }]
-            argumentRange: {start: 1, end: 2}
-            returnType: a.object.ty
-            isAbstract: false
-          }
-        }
-        else if isTupleType(member) {
-          a.ty = {
-            kind: 'Function'
-            name: a.member.name
-            parameterRange: a.object.ty.parameterRange
-            typeParameters: a.object.ty.typeParameters
-            instances: []
-            arguments: member.properties.map(|p, i| {{
-              name: i.toString()
-              // token: Token
-              mutable: false
-              ty: p
-              redefined: false
-            }})
-            argumentRange: {start: member.properties.length, end: member.properties.length + 1}
-            returnType: a.object.ty
-            isAbstract: false
-          }
-        }
-        else {
-          a.ty = {
-            kind: a.object.ty.kind
-            name: a.object.ty.name + '.' + member.name
-            parameterRange: a.object.ty.parameterRange
-            typeParameters: a.object.ty.typeParameters
-            instances: []
-          }
+        else if isStruct(a.object.type_) {
+          a.type_ = a.object.type_.properties[a.member.name]
         }
       }
     }
@@ -486,12 +499,12 @@ export fn ScopeVisitor(context, file) {
     }
     visitBooleanLiteral: |self, mut l: BooleanLiteral| {
       l.scope = self.scope
-      l.ty = self.scope.getTypeBinding('Bool').ty
+      l.type_ = self.scope.getTypeBinding('Bool').type_
       visit.walkBooleanLiteral(self, l)
     }
     visitNumberLiteral: |self, mut l: NumberLiteral| {
       l.scope = self.scope
-      l.ty = self.scope.getTypeBinding('Num').ty
+      l.type_ = self.scope.getTypeBinding('Num').type_
       visit.walkNumberLiteral(self, l)
     }
     visitObjectLiteral: |self, mut l: ObjectLiteral| {
@@ -502,14 +515,14 @@ export fn ScopeVisitor(context, file) {
     }
     visitStringLiteral: |self, mut l: StringLiteral| {
       l.scope = self.scope
-      l.ty = self.scope.getTypeBinding('String').ty
+      l.type_ = self.scope.getTypeBinding('String').type_
       visit.walkStringLiteral(self, l)
     }
     visitTupleLiteral: |self, mut l: TupleLiteral| {
       l.scope = self.scope
       visit.walkTupleLiteral(self, l)
-      let properties = l.expressions.map(|e| e.ty)
-      l.ty = {
+      let properties = l.expressions.map(|e| e.type_)
+      l.type_ = {
         kind: 'Tuple'
         name: getTupleTypeName(properties)
         properties

@@ -22,8 +22,8 @@ export trait ResultTrait<T, E> {
   ///
   /// This function can be used for control flow based on Result values.
   fn andThen<U>(self: Result<T, E>, op: (T) => Result<U, E>): Result<U, E> {
-    if self.isOk()
-      then op(self.value[0])
+    if let Result::Ok(value) = self
+      then op(value)
       else self
   }
 
@@ -31,8 +31,8 @@ export trait ResultTrait<T, E> {
   ///
   /// This function can be used to compose the results of two functions.
   fn map<U>(self: Result<T, E>, op: (T) => U): Result<U, E> {
-    if self.isOk()
-      then Ok(op(self.value[0]))
+    if let Result::Ok(value) = self
+      then Ok(op(value))
       else self
   }
 }
@@ -47,20 +47,20 @@ export trait MaybeTrait<T> {
   fn isNothing(self: Maybe<T>): Bool {not self.isJust()}
 
   fn map<U>(self: Maybe<T>, f: (T) => U): Maybe<U> {
-    if self.isJust()
-      then Just(f(self.unwrap()))
+    if let Maybe::Just(value) = self
+      then Just(f(value))
       else self
   }
 
   fn mapOr<U>(self: Maybe<T>, default: U, f: (T) => U): U {
-    if self.isJust()
-      then f(self.unwrap())
+    if let Maybe::Just(value) = self
+      then f(value)
       else default
   }
 
   fn mapOrElse<U>(self: Maybe<T>, default: () => U, f: (T) => U): U {
-    if self.isJust()
-      then f(self.unwrap())
+    if let Maybe::Just(value) = self
+      then f(value)
       else default()
   }
 
@@ -72,14 +72,14 @@ export trait MaybeTrait<T> {
   }
 
   fn unwrapOr(self: Maybe<T>, default: T): T {
-    if self.isJust()
-      then self.value[0]
+    if let Maybe::Just(value) = self
+      then value
       else default
   }
 
   fn unwrapOrElse(self: Maybe<T>, default: () => T): T {
-    if self.isJust()
-      then self.value[0]
+    if let Maybe::Just(value) = self
+      then value
       else default()
   }
 }

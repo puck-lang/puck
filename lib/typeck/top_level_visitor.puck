@@ -57,9 +57,9 @@ export fn TopLevelVisitor(context, file) {
       scope.defineType(t)
     }
     visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
-      if f.name.isJust() then
+      if let Maybe::Just(name) = f.name then
         scope.define({
-          name: f.name.value[0].name
+          name: name.name
           token: f
           mutable: false
         })

@@ -31,26 +31,26 @@ var _functions = require('./functions.js');
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var resolveTypeParameters = exports.resolveTypeParameters = function resolveTypeParameters(parameterMap) {
-  return function resolveTypeParametersInner(ty) {
+  return function resolveTypeParametersInner(type_) {
     var __PUCK__value__1 = void 0;
-    if ((0, _entities.isEnumType)(ty)) {
-      __PUCK__value__1 = resolveTypeParametersEnum(parameterMap, ty);
+    if ((0, _entities.isEnumType)(type_)) {
+      __PUCK__value__1 = resolveTypeParametersEnum(parameterMap, type_);
     } else {
       var __PUCK__value__2 = void 0;
-      if ((0, _entities.isFunctionType)(ty)) {
-        __PUCK__value__2 = resolveTypeParametersFn(parameterMap, ty);
+      if ((0, _entities.isFunctionType)(type_)) {
+        __PUCK__value__2 = resolveTypeParametersFn(parameterMap, type_);
       } else {
         var __PUCK__value__3 = void 0;
-        if ((0, _entities.isObjectType)(ty)) {
-          __PUCK__value__3 = resolveTypeParametersObject(parameterMap, ty);
+        if ((0, _entities.isObjectType)(type_)) {
+          __PUCK__value__3 = resolveTypeParametersObject(parameterMap, type_);
         } else {
           var __PUCK__value__4 = void 0;
-          if ((0, _entities.isTupleType)(ty)) {
-            __PUCK__value__4 = resolveTypeParametersTuple(parameterMap, ty);
+          if ((0, _entities.isTupleType)(type_)) {
+            __PUCK__value__4 = resolveTypeParametersTuple(parameterMap, type_);
           } else {
             var __PUCK__value__5 = void 0;
-            if ((0, _entities.isTypeParameter)(ty)) {
-              __PUCK__value__5 = parameterMap[ty.name] || ty;
+            if ((0, _entities.isTypeParameter)(type_)) {
+              __PUCK__value__5 = parameterMap[type_.name] || type_;
             };
             __PUCK__value__4 = __PUCK__value__5;
           };
@@ -61,7 +61,7 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
       __PUCK__value__1 = __PUCK__value__2;
     };
     var resolved = __PUCK__value__1;
-    return resolved || ty;
+    return resolved || type_;
   };
 };
 function resolveTypeParametersEnum(parameterMap, e) {
@@ -81,10 +81,10 @@ function resolveTypeParametersFn(parameterMap, func) {
   return _js._Object.assign({}, func, {
     _arguments: func._arguments.map(function (binding) {
       var __PUCK__value__6 = void 0;
-      if (binding.ty) {
-        __PUCK__value__6 = resolveTypeParameters(parameterMap)(binding.ty);
+      if (binding.type_) {
+        __PUCK__value__6 = resolveTypeParameters(parameterMap)(binding.type_);
       };
-      return _js._Object.assign({}, binding, { ty: __PUCK__value__6 });
+      return _js._Object.assign({}, binding, { type_: __PUCK__value__6 });
     }),
     returnType: __PUCK__value__7
   });
@@ -158,26 +158,28 @@ function createTypeInstanceTypeCast(_class, typeParameters) {
   return createTypeInstance(_class, typeParameters);
 };
 function getType(scope, t) {
+  var msg = arguments.length <= 2 || arguments[2] === undefined ? "" : arguments[2];
+
   if (!t) {
     return _js._undefined;
   };
-  if (t.name) {
-    var binding = scope.getTypeBinding(t.name.name);
+  if (t.path) {
+    var binding = scope.getTypePath(t.path);
     if (!binding) {
       return binding;
     } else {
-      if ((0, _entities.isTypeClass)(binding.ty)) {
-        return createTypeInstanceTypeCast(binding.ty, t.typeParameters.map(function (p) {
-          return p.ty;
+      if ((0, _entities.isTypeClass)(binding.type_)) {
+        return createTypeInstanceTypeCast(binding.type_, t.typeParameters.map(function (p) {
+          return p.type_;
         }));
       } else {
-        return binding.ty;
+        return binding.type_;
       };
     };
   } else {
     if (t.kind == _ast2.SyntaxKind.ObjectTypeBound) {
       var properties = mapObject(t.properties, function (p) {
-        return getType(scope, p);
+        return getType(scope, p.typeBound, "ObjectTypeBound");
       });
       return {
         kind: "Object",
@@ -187,7 +189,7 @@ function getType(scope, t) {
     } else {
       if (t.kind == _ast2.SyntaxKind.TupleTypeBound) {
         var _properties = t.properties.map(function (p) {
-          return getType(scope, p);
+          return getType(scope, p, "TupleTypeBound");
         });
         return {
           kind: "Tuple",
@@ -196,7 +198,7 @@ function getType(scope, t) {
         };
       } else {
         var _arguments = t._arguments.properties.map(function (p) {
-          return { ty: getType(scope, p) };
+          return { type_: getType(scope, p) };
         });
         var returnType = getType(scope, t.returnType);
         return {

@@ -19,6 +19,7 @@ import '../ast/ast.puck' as {
   TupleTypeBound
   TypeDeclaration
   TypeParameter
+  TypePath
   TypeProperty
   VariableDeclaration
 
@@ -31,6 +32,7 @@ import '../ast/ast.puck' as {
   BinaryExpression
   CallExpression
   IfExpression
+  IfLetExpression
   UnaryExpression
   WhileExpression
 
@@ -233,18 +235,6 @@ export fn parse(input) { // : TokenStream
     maybeIndexAccess(maybeMemberAccess(token))
   }
 
-  fn maybeTypePath(expression: Expression): Expression {
-    if isToken(SyntaxKind.ColonColonToken) {
-      input.next()
-      maybeTypePath({
-        kind: SyntaxKind.TypePath
-        object: expression
-        member: consumeToken(SyntaxKind.Identifier, 'identifier')
-      })
-    }
-    else expression
-  }
-
   // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T): Array<T> {
   fn delimited<T>(mut start, mut stop, mut separator, parser: () => T, consumeStop = true): List<T> {
     if typeof(start) == 'string' then start = textToToken[start]
@@ -380,10 +370,17 @@ export fn parse(input) { // : TokenStream
       then Pattern.Record(parseRecordPattern())
     else {
       let identifier = consumeToken(SyntaxKind.Identifier, 'identifier')
-      if isToken(SyntaxKind.OpenParenToken)
-        then Pattern.TupleType(parseNamedTypeBound(Just(identifier)), parseTuplePattern())
-      else if isToken(SyntaxKind.OpenBraceToken)
-        then Pattern.RecordType(parseNamedTypeBound(Just(identifier)), parseRecordPattern())
+
+      if isToken(SyntaxKind.ColonColonToken)
+      or isToken(SyntaxKind.OpenParenToken)
+      or isToken(SyntaxKind.OpenBraceToken) {
+        let typePath = parseTypePath(Just(identifier))
+
+        if isToken(SyntaxKind.OpenParenToken)
+          then Pattern.TupleType(typePath, parseTuplePattern())
+        else if isToken(SyntaxKind.OpenBraceToken)
+          then Pattern.RecordType(typePath, parseRecordPattern())
+      }
       else Pattern.Identifier(identifier)
     }
   }
@@ -426,9 +423,9 @@ export fn parse(input) { // : TokenStream
         then delimited('<', '>', ',', parseTypeParameter)
       else []
 
-    let tra = parseTypeBound()
+    let trait_ = parseTypeBound()
     let forKeyword = consumeToken(SyntaxKind.ForKeyword)
-    let ty = parseTypeBound()
+    let type_ = parseTypeBound()
 
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', parseFunctionDeclaration, false)
@@ -446,9 +443,9 @@ export fn parse(input) { // : TokenStream
       kind: SyntaxKind.ImplDeclaration
       implKeyword
       typeParameters
-      tra
+      trait_
       forKeyword
-      ty
+      type_
       openBrace
       members
       closeBrace
@@ -473,8 +470,8 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseNamedTypeBound(identifier: Maybe<Identifier>): NamedTypeBound {
-    let name = identifier.unwrapOrElse(|| consumeToken(SyntaxKind.Identifier, 'identifier'))
+  fn parseNamedTypeBound(): NamedTypeBound {
+    let path = parseTypePath(Nothing)
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeBound)
@@ -482,7 +479,7 @@ export fn parse(input) { // : TokenStream
 
     {
       kind: SyntaxKind.NamedTypeBound
-      name
+      path
       typeParameters
     }
   }
@@ -525,7 +522,7 @@ export fn parse(input) { // : TokenStream
     }
     else if isToken(SyntaxKind.OpenBraceToken)
       then parseObjectTypeBound()
-    else parseNamedTypeBound(Nothing)
+    else parseNamedTypeBound()
   }
 
   fn parseTypeParameter(): TypeParameter {
@@ -541,6 +538,14 @@ export fn parse(input) { // : TokenStream
       name
       defaultValue
     }
+  }
+
+  fn parseTypePath(identifier: Maybe<Identifier>): TypePath {
+    let i = identifier.unwrapOrElse(|| consumeToken(SyntaxKind.Identifier, 'identifier'))
+
+    if maybeConsumeToken(SyntaxKind.ColonColonToken).isJust()
+      then TypePath::Object(i, parseTypePath(Nothing))
+      else TypePath::Member(i)
   }
 
   fn parseTypeProperty(): TypeProperty {
@@ -652,12 +657,13 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseIf(): IfExpression {
-    skipKeyword(SyntaxKind.IfKeyword)
+  fn parseIfLet(ifKeyword: Token): IfLetExpression {
+    let letKeyword = skipKeyword(SyntaxKind.LetKeyword)
+    let pattern = parsePattern()
+    let equalsToken = consumeToken(SyntaxKind.EqualsToken)
+    let expression = parseExpression()
 
-    let condition = parseExpression()
-
-    let mut _then: Block =
+    let mut then_: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {
@@ -669,10 +675,20 @@ export fn parse(input) { // : TokenStream
         }
 
     {
-      kind: SyntaxKind.IfExpression
-      condition
-      _then
-      _else:
+      kind: SyntaxKind.IfLetExpression
+      letKeyword
+      variableDeclaration: {
+        kind: SyntaxKind.VariableDeclaration
+        pattern
+        mutable: false
+        typeBound: Nothing
+        initializer: Just(expression)
+      }
+      // pattern
+      // equalsToken
+      // expression
+      then_
+      else_:
         if isToken(SyntaxKind.ElseKeyword) {
           input.next()
           Just(
@@ -686,6 +702,48 @@ export fn parse(input) { // : TokenStream
         }
         else Nothing
     }
+  }
+
+  fn parseIfCondition(ifKeyword: Token): IfExpression {
+    let condition = parseExpression()
+
+    let mut then_: Block =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then parseBlock()
+        else {
+          skipKeyword(SyntaxKind.ThenKeyword)
+          {
+            kind: SyntaxKind.Block,
+            expressions: [parseExpression()],
+          }
+        }
+
+    {
+      kind: SyntaxKind.IfExpression
+      condition
+      then_
+      else_:
+        if isToken(SyntaxKind.ElseKeyword) {
+          input.next()
+          Just(
+            if isToken(SyntaxKind.OpenBraceToken)
+              then parseBlock()
+              else ({
+                kind: SyntaxKind.Block,
+                expressions: [parseExpression()],
+              })
+          )
+        }
+        else Nothing
+    }
+  }
+
+  fn parseIf(): Expression {
+    let ifKeyword = skipKeyword(SyntaxKind.IfKeyword)
+
+    if isToken(SyntaxKind.LetKeyword)
+      then parseIfLet(ifKeyword)
+      else parseIfCondition(ifKeyword)
   }
 
   fn parseUnaryExpression(): UnaryExpression {
@@ -805,8 +863,15 @@ export fn parse(input) { // : TokenStream
       else if isToken(SyntaxKind.NumberLiteral)
            or isToken(SyntaxKind.StringLiteral)
         then maybeAccess(input.next())
-      else if isToken(SyntaxKind.Identifier)
-        then maybeTypePath(maybeAccess(input.next()))
+      else if isToken(SyntaxKind.Identifier) {
+        let identifier = input.next()
+        if isToken(SyntaxKind.ColonColonToken)
+          then {
+            kind: SyntaxKind.TypePathExpression
+            typePath: parseTypePath(Just(identifier))
+          }
+          else maybeAccess(identifier)
+      }
       else unexpected()
     })())
   }
@@ -822,18 +887,18 @@ export fn parse(input) { // : TokenStream
     else if isToken(SyntaxKind.FnKeyword) {
       expression = parseFunctionDeclaration()
       let func: FunctionDeclaration = expression
-      if func.name.isNothing() {
-        input.croak('Can not export function without a name')
+      if let Maybe::Just(name) = func.name {
+        identifier = name
       }
-      identifier = expression.name.value[0]
+      else input.croak('Can not export function without a name')
     }
     else if isToken(SyntaxKind.LetKeyword) {
       input.next()
       expression = parseVariableDeclaration()
-      if expression.pattern.kind != 'Identifier' {
-        input.croak('Can not export a let declaration without a identifier pattern')
+      if let Pattern::Identifier(name) = expression.pattern {
+        identifier = name
       }
-      identifier = expression.pattern.value[0]
+      else input.croak('Can not export a let declaration without a identifier pattern')
     }
     else if isToken(SyntaxKind.TraitKeyword) {
       expression = parseTraitDeclaration()

@@ -5,6 +5,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.createScope = createScope;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -53,6 +56,23 @@ function createScope(context, file) {
     getTypeBinding: function getTypeBinding(name) {
       return typeBindings[name] || parent && parent.getTypeBinding(name);
     },
+    getTypePath: function getTypePath(typePath) {
+      var self = this;
+      if (typePath.kind == "Member") {
+        return self.getTypeBinding(typePath.value[0].name);
+      } else {
+        var type_ = self.getTypeBinding(typePath.value[0].name).type_;
+        var path = typePath.value[1];
+        while (path.kind == "Object") {
+          type_ = type_.members[path.value[0].name];
+          path = path.value[1];
+        };
+        return {
+          name: path.value[0].name,
+          type_: type_.members[path.value[0].name]
+        };
+      };
+    },
     define: function define(binding) {
       var allowRedeclare = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
@@ -88,58 +108,68 @@ function createScope(context, file) {
       };
       var parameterRange = __PUCK__value__1;
       var __PUCK__value__2 = void 0;
-      if (t.ty) {
-        __PUCK__value__2 = t.ty;
+      if (t.type_) {
+        __PUCK__value__2 = t.type_;
       } else {
-        var _ty = {
+        var _type_ = {
           kind: name,
           name: name,
           parameterRange: parameterRange
         };
         if (t.kind == _ast2.SyntaxKind.EnumDeclaration) {
-          _ty.implementations = [];
-          _ty.members = {};
+          _type_.implementations = [];
+          _type_.members = {};
         } else {
           if (t.kind == _ast2.SyntaxKind.TraitDeclaration) {
-            _ty.functions = {};
+            _type_.functions = {};
           } else {
             if (t.kind == _ast2.SyntaxKind.TypeDeclaration) {
-              _ty.implementations = [];
-              if (_core.MaybeTrait['$Maybe'].isJust.call(t.bound)) {
-                if (t.bound.value[0].kind == _ast2.SyntaxKind.ObjectTypeBound) {
-                  _ty.properties = _js._Object.create(_js._null);
+              _type_.implementations = [];
+              var __PUCK__value__3 = t.bound;
+              if (__PUCK__value__3.kind == "Just") {
+                var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
+
+                var typeBound = _PUCK__value__3$valu[0];
+
+                if (typeBound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
+                  _type_.properties = _js._Object.create(_js._null);
                 } else {
-                  if (t.bound.value[0].kind == _ast2.SyntaxKind.TupleTypeBound) {
-                    _ty.properties = [];
+                  if (typeBound.kind == _ast2.SyntaxKind.TupleTypeBound) {
+                    _type_.properties = [];
                   };
                 };
               };
             } else {
               if (t.kind == _ast2.SyntaxKind.TypeParameter) {
-                _ty.isTypeParameter = true;
+                _type_.isTypeParameter = true;
                 var p = any(t);
-                if (_core.MaybeTrait['$Maybe'].isJust.call(p.defaultValue)) {
-                  _ty.defaultValue = (0, _types.getType)(self, t.defaultValue.value[0]);
+                var __PUCK__value__4 = p.defaultValue;
+                if (__PUCK__value__4.kind == "Just") {
+                  var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
+
+                  var defaultValue = _PUCK__value__4$valu[0];
+
+                  _type_.defaultValue = (0, _types.getType)(self, defaultValue);
                 };
               };
             };
           };
         };
-        if ((0, _entities.isTypeClass)(_ty)) {
-          _ty.instances = [];
-          _ty.typeParameters = [];
+        if ((0, _entities.isTypeClass)(_type_)) {
+          _type_.instances = [];
+          _type_.typeParameters = [];
         };
-        __PUCK__value__2 = _ty;
+        __PUCK__value__2 = _type_;
       };
-      var ty = __PUCK__value__2;
+      var type_ = __PUCK__value__2;
       if (allowRedeclare && typeBindings[name]) {
-        _js._Object.assign(typeBindings[name].ty, ty);
+        _js._Object.assign(typeBindings[name].type_, type_);
         return typeBindings[name];
       } else {
         return typeBindings[name] = {
           name: name,
           token: t,
-          ty: ty
+          type_: type_
         };
       };
     },

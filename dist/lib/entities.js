@@ -79,30 +79,30 @@ var Scope = exports.Scope = function Scope(object) {
 var ScopeAware = exports.ScopeAware = function ScopeAware(object) {
   return object;
 };
-function isEnumType(ty) {
-  return ty.members;
+function isEnumType(type_) {
+  return type_.members;
 };
-function isFunctionType(ty) {
-  return ty._arguments;
+function isFunctionType(type_) {
+  return type_._arguments;
 };
-function isObjectType(ty) {
-  return (0, _js._typeof)(ty.properties) == "object" && !isTupleType(ty);
+function isObjectType(type_) {
+  return (0, _js._typeof)(type_.properties) == "object" && !isTupleType(type_);
 };
-function isTupleType(ty) {
-  return _js.Array.isArray(ty.properties);
+function isTupleType(type_) {
+  return _js.Array.isArray(type_.properties);
 };
-function isStruct(ty) {
-  return ty.implementations;
+function isStruct(type_) {
+  return type_.implementations;
 };
-function isTrait(ty) {
-  return ty.functions;
+function isTrait(type_) {
+  return type_.functions;
 };
-function isTypeClass(ty) {
-  return ty.parameterRange;
+function isTypeClass(type_) {
+  return type_.parameterRange;
 };
-function isTypeInstance(ty) {
-  return ty._class;
+function isTypeInstance(type_) {
+  return type_._class;
 };
-function isTypeParameter(ty) {
-  return ty.isTypeParameter;
+function isTypeParameter(type_) {
+  return type_.isTypeParameter;
 }

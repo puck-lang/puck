@@ -90,7 +90,9 @@ export enum SyntaxKind {
   CallExpression,
   ForExpression,
   IfExpression,
+  IfLetExpression,
   LoopExpression,
+  TypePathExpression,
   UnaryExpression,
   WhileExpression,
 
@@ -293,8 +295,8 @@ export interface Identifier extends SimpleIdentifier, Expression {
 }
 
 export interface ImplDeclaration extends Token {
-  tra: TypeBound
-  ty: TypeBound
+  trait_: TypeBound
+  type_: TypeBound
   members: Array<FunctionDeclaration>
 }
 
@@ -326,9 +328,9 @@ export interface TraitDeclaration extends Token {
 }
 
 export interface TypeBound extends Token {
-  name: SimpleIdentifier
+  path: TypePath
   typeParameters: Array<TypeBound>
-  ty: any
+  type_: any
 }
 
 export interface TypeDeclaration extends Token {
@@ -342,6 +344,20 @@ export interface TypeParameter extends Token {
   name: Identifier
   defaultValue: TypeBound
 }
+
+export interface TypePathMemberArm {
+  kind: 'Member'
+  value: [Identifier]
+}
+
+export interface TypePathObjectArm {
+  kind: '_Object'
+  value: [Identifier, TypePath]
+}
+
+export type TypePath
+  = TypePathMemberArm
+  | TypePathObjectArm
 
 export interface TypeProperty extends Token {
   name: Identifier
@@ -379,7 +395,7 @@ export interface RecordPatternArm {
 }
 export interface RecordTypePatternArm {
   kind: 'RecordType'
-  value: [Identifier, RecordPattern]
+  value: [TypePath, RecordPattern]
 }
 export interface TuplePatternArm {
   kind: 'Tuple'
@@ -387,7 +403,7 @@ export interface TuplePatternArm {
 }
 export interface TupleTypePatternArm {
   kind: 'TupleType'
-  value: [Identifier, TuplePattern]
+  value: [TypePath, TuplePattern]
 }
 export type Pattern
   = IdentifierPatternArm
@@ -428,12 +444,22 @@ export interface ForExpression extends Token {
 
 export interface IfExpression extends Token {
   condition: Expression
-  _then: BlockNode
-  _else: Maybe<BlockNode>
+  then_: BlockNode
+  else_: Maybe<BlockNode>
+}
+
+export interface IfLetExpression extends Token {
+  variableDeclaration: VariableDeclaration
+  then_: BlockNode
+  else_: Maybe<BlockNode>
 }
 
 export interface LoopExpression extends Token {
   body: BlockNode,
+}
+
+export interface TypePathExpression extends Token {
+  typePath: TypePath,
 }
 
 export interface UnaryExpression extends Expression {

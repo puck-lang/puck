@@ -23,10 +23,10 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
   let arguments = f.parameterList.map(|p| {{
     pattern: p.pattern
     mutable: p.mutable
-    ty: p.ty
+    type_: p.type_
     token: p
   }})
-  let returnType = if f.returnType.isJust() then getType(scope, f.returnType.value[0])
+  let returnType = if let Maybe::Just(returnType) = f.returnType then getType(scope, returnType)
   let selfBinding =
     if arguments.length > 0 and arguments[0].pattern.kind == 'Identifier' and arguments[0].pattern.value[0].name == 'self'
       then arguments[0].pattern.binding
@@ -57,27 +57,26 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
   }
 }
 
-export fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token) {
-  if let error = checkRange(subject.arguments, to.argumentRange, 'arguments', subject.name)
-    then return error
+export fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token): Result<(), String> {
+  if let Result::Err(error) = checkRange(subject.arguments, to.argumentRange, 'arguments', subject.name)
+    then return Err(error)
 
   let mut errors = []
   subject.arguments.forEach(|subjectArgument, i| {
     let toArgument = to.arguments[i]
 
-    if not isAssignable(toArgument.ty, subjectArgument.ty)
-      then return errors.push(
-        'Types of parameter #$i does not match. ' + subjectArgument.ty.name +
-        ' is not assignable to ' + toArgument.ty.name
+    if not isAssignable(toArgument.type_, subjectArgument.type_)
+      then errors.push(
+        'Types of parameter #$i does not match. ' + subjectArgument.type_.name +
+        ' is not assignable to ' + toArgument.type_.name
       )
-
-    if subjectArgument.mutable and not toArgument.mutable
-      then return errors.push('Parameter #$i is required to be immutable')
+    else if subjectArgument.mutable and not toArgument.mutable
+      then errors.push('Parameter #$i is required to be immutable')
   })
   if errors.length > 0
-    then return errors[0]
+    then return Err(errors[0])
 
   if not isAssignable(to.returnType, subject.returnType)
-    then return
-      'Return type ' + subject.returnType.name + ' is not assignable to ' + to.returnType.name
+    then Err('Return type ' + subject.returnType.name + ' is not assignable to ' + to.returnType.name)
+    else Ok(())
 }

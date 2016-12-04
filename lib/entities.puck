@@ -32,8 +32,8 @@ export type Trait {
 }
 
 export type Implementation {
-  ty: Struct
-  tra: Trait
+  type_: Struct
+  trait_: Trait
 }
 
 /// Represents a generic type like List<T>
@@ -84,14 +84,14 @@ export type Binding {
   name: String
   token: Token
   mutable: Bool
-  ty: Type //?
+  type_: Type //?
   redefined: Bool
   previous: Binding //?
 }
 
 export type TypeBinding {
   name: String
-  ty: Type //?
+  type_: Type //?
 }
 
 export type Scope {
@@ -107,38 +107,38 @@ export type ScopeAware {
   scope: Scope
 }
 
-export fn isEnumType(ty) {
-  ty.members
+export fn isEnumType(type_) {
+  type_.members
 }
 
-export fn isFunctionType(ty) {
-  ty.arguments
+export fn isFunctionType(type_) {
+  type_.arguments
 }
 
-export fn isObjectType(ty) {
-  typeof(ty.properties) == 'object' and not isTupleType(ty)
+export fn isObjectType(type_) {
+  typeof(type_.properties) == 'object' and not isTupleType(type_)
 }
 
-export fn isTupleType(ty) {
-  Array.isArray(ty.properties)
+export fn isTupleType(type_) {
+  Array.isArray(type_.properties)
 }
 
-export fn isStruct(ty) {
-  ty.implementations
+export fn isStruct(type_) {
+  type_.implementations
 }
 
-export fn isTrait(ty) {
-  ty.functions
+export fn isTrait(type_) {
+  type_.functions
 }
 
-export fn isTypeClass(ty: Type) {
-  ty.parameterRange
+export fn isTypeClass(type_: Type) {
+  type_.parameterRange
 }
 
-export fn isTypeInstance(ty: Type) {
-  ty.class
+export fn isTypeInstance(type_: Type) {
+  type_.class
 }
 
-export fn isTypeParameter(ty: Type) {
-  ty.isTypeParameter
+export fn isTypeParameter(type_: Type) {
+  type_.isTypeParameter
 }

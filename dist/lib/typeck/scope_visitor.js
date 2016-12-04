@@ -5,6 +5,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.ScopeVisitor = ScopeVisitor;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -65,8 +70,12 @@ function ScopeVisitor(context, file) {
         reportError(c, "" + name + " can only be called on a mutable binding");
       };
     };
-    var error = void 0;;
-    if (error = (0, _range.checkRange)(c.argumentList, _function.argumentRange, "arguments", name)) {
+    var __PUCK__value__1 = (0, _range.checkRange)(c.argumentList, _function.argumentRange, "arguments", name);
+    if (__PUCK__value__1.kind == "Err") {
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
+
+      var error = _PUCK__value__1$valu[0];
+
       reportError(c, error);
     };
     var __PUCK__value__2 = void 0;
@@ -81,18 +90,18 @@ function ScopeVisitor(context, file) {
             __PUCK__value__3 = parameter;
           };
           var argument = __PUCK__value__3;
-          if (parameter.ty && argument.ty && (0, _entities.isTypeParameter)(parameter.ty) && !(0, _entities.isTypeParameter)(argument.ty)) {
-            if (parameterMap[parameter.ty.name]) {
-              var existingMapping = parameterMap[parameter.ty.name];
-              if (!(0, _types.isAssignable)(existingMapping, argument.ty)) {
-                if ((0, _types.isAssignable)(argument.ty, existingMapping)) {
-                  return parameterMap[parameter.ty.name] = argument.ty;
+          if (parameter.type_ && argument.type_ && (0, _entities.isTypeParameter)(parameter.type_) && !(0, _entities.isTypeParameter)(argument.type_)) {
+            if (parameterMap[parameter.type_.name]) {
+              var existingMapping = parameterMap[parameter.type_.name];
+              if (!(0, _types.isAssignable)(existingMapping, argument.type_)) {
+                if ((0, _types.isAssignable)(argument.type_, existingMapping)) {
+                  return parameterMap[parameter.type_.name] = argument.type_;
                 } else {
-                  return reportError(argument, (0, _structure_visitor.notAssignableError)(existingMapping, argument.ty));
+                  return reportError(argument, (0, _structure_visitor.notAssignableError)(existingMapping, argument.type_));
                 };
               };
             } else {
-              return parameterMap[parameter.ty.name] = argument.ty;
+              return parameterMap[parameter.type_.name] = argument.type_;
             };
           };
         });
@@ -104,8 +113,8 @@ function ScopeVisitor(context, file) {
     _function = __PUCK__value__2;
     c.argumentList.forEach(function (argument, i) {
       var parameter = _function._arguments[i];
-      if (!(0, _types.isAssignable)(parameter.ty, argument.ty)) {
-        reportError(argument, (0, _structure_visitor.notAssignableError)(parameter.ty, argument.ty));
+      if (!(0, _types.isAssignable)(parameter.type_, argument.type_)) {
+        reportError(argument, (0, _structure_visitor.notAssignableError)(parameter.type_, argument.type_));
       };
       if (parameter.mutable && argument.kind == _ast2.SyntaxKind.Identifier) {
         var argumentName = argument.name;
@@ -128,8 +137,8 @@ function ScopeVisitor(context, file) {
     (0, _range.checkRange)(subject._arguments, to.argumentRange, reportError, "arguments", subject.name, token);
     subject._arguments.forEach(function (subjectArgument, i) {
       var toArgument = to._arguments[i];
-      if (!(0, _types.isAssignable)(toArgument.ty, subjectArgument.ty)) {
-        reportError(token, "Types of parameter #" + i + " does not match. " + subjectArgument.ty.name + " is not assignable to " + toArgument.ty.name);
+      if (!(0, _types.isAssignable)(toArgument.type_, subjectArgument.type_)) {
+        reportError(token, "Types of parameter #" + i + " does not match. " + subjectArgument.type_.name + " is not assignable to " + toArgument.type_.name);
       };
       if (subjectArgument.mutable && !toArgument.mutable) {
         return reportError(token, "Parameter #" + i + " is required to be immutable");
@@ -182,7 +191,7 @@ function ScopeVisitor(context, file) {
       if (!binding) {
         reportError(i, "Use of undefined variable " + i.name);
       } else {
-        i.ty = binding.ty;
+        i.type_ = binding.type_;
       };
       return visit.walkIdentifier(self, i);
     },
@@ -204,7 +213,7 @@ function ScopeVisitor(context, file) {
       return self.scope = self.scope.parent;
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {},
-    visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer, ty) {
+    visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer, type_) {
       var self = this;
       var __PUCK__value__5 = void 0;
       if (visitInitializer) {
@@ -217,7 +226,7 @@ function ScopeVisitor(context, file) {
           return self.assignedTo = parentAssignedTo;
         };
       };
-      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, __PUCK__value__5, ty);
+      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, __PUCK__value__5, type_);
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -228,16 +237,16 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       visit.walkAssignmentExpression(self, e);
-      var binding = void 0;;
-      if (binding = getBinding(e.lhs)) {
+      var binding = getBinding(e.lhs);
+      if (binding) {
         if (!binding.mutable) {
           reportError(e, "Can't assign to immutable variable " + binding.name);
         };
-        if (!(0, _types.isAssignable)(e.lhs.ty, e.rhs.ty)) {
-          reportError(e, (0, _structure_visitor.notAssignableError)(e.lhs.ty, e.rhs.ty));
+        if (!(0, _types.isAssignable)(e.lhs.type_, e.rhs.type_)) {
+          reportError(e, (0, _structure_visitor.notAssignableError)(e.lhs.type_, e.rhs.type_));
         };
       };
-      return e.ty = e.lhs.ty || e.rhs.ty;
+      return e.type_ = e.lhs.type_ || e.rhs.type_;
     },
     visitBinaryExpression: function visitBinaryExpression(e) {
       var self = this;
@@ -248,11 +257,11 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       self.visitExpression(e.func);
-      var functionType = e.func.ty;
-      if (e.func.kind == _ast2.SyntaxKind.MemberAccess && e.func.object.ty) {
+      var functionType = e.func.type_;
+      if (e.func.kind == _ast2.SyntaxKind.MemberAccess && e.func.object.type_) {
         (function () {
           var name = e.func.member.name;
-          var objectType = e.func.object.ty;
+          var objectType = e.func.object.type_;
           var isDirectTraitCall = (0, _entities.isTrait)(objectType);
           if ((0, _entities.isTrait)(objectType)) {
             functionType = objectType.functions[name];
@@ -265,41 +274,41 @@ function ScopeVisitor(context, file) {
           } else {
             if ((0, _entities.isStruct)(objectType)) {
               (function () {
-                var getImplementations = function getImplementations(ty) {
-                  var implementations = ty.implementations.filter(function (i) {
-                    return i.tra.functions[name];
+                var getImplementations = function getImplementations(type_) {
+                  var implementations = type_.implementations.filter(function (i) {
+                    return i.trait_.functions[name];
                   });
-                  var __PUCK__value__7 = void 0;
+                  var __PUCK__value__6 = void 0;
                   if (implementations.length > 1) {
-                    __PUCK__value__7 = implementations.filter(function (i) {
-                      var __PUCK__value__8 = void 0;
-                      if ((0, _entities.isTypeInstance)(i.tra)) {
-                        __PUCK__value__8 = i.tra._class.name;
+                    __PUCK__value__6 = implementations.filter(function (i) {
+                      var __PUCK__value__7 = void 0;
+                      if ((0, _entities.isTypeInstance)(i.trait_)) {
+                        __PUCK__value__7 = i.trait_._class.name;
                       } else {
-                        __PUCK__value__8 = i.tra.name;
+                        __PUCK__value__7 = i.trait_.name;
                       };
-                      return e.scope.getTypeBinding(__PUCK__value__8);
+                      return e.scope.getTypeBinding(__PUCK__value__7);
                     });
                   } else {
-                    __PUCK__value__7 = implementations;
+                    __PUCK__value__6 = implementations;
                   };
-                  implementations = __PUCK__value__7;
-                  var __PUCK__value__9 = void 0;
+                  implementations = __PUCK__value__6;
+                  var __PUCK__value__8 = void 0;
                   if (implementations.length > 1) {
-                    __PUCK__value__9 = implementations.map(function (i) {
-                      return i.tra.functions[name].argumentRange;
+                    __PUCK__value__8 = implementations.map(function (i) {
+                      return i.trait_.functions[name].argumentRange;
                     }).filter(function (range) {
                       return _core.RangeTrait['$Range<Num>'].contains.call(range, e.argumentList.length);
                     });
                   } else {
-                    __PUCK__value__9 = implementations;
+                    __PUCK__value__8 = implementations;
                   };
-                  implementations = __PUCK__value__9;
+                  implementations = __PUCK__value__8;
                   if (implementations.length > 1) {
                     reportError(e, "Ambiguous trait call");
                   };
-                  if (implementations.length == 0 && (0, _entities.isTypeInstance)(ty)) {
-                    return getImplementations(ty._class);
+                  if (implementations.length == 0 && (0, _entities.isTypeInstance)(type_)) {
+                    return getImplementations(type_._class);
                   } else {
                     return implementations;
                   };
@@ -309,19 +318,19 @@ function ScopeVisitor(context, file) {
                 var implementations = getImplementations(objectType);
                 if (implementations.length == 1) {
                   var implementation = implementations[0];
-                  var __PUCK__value__10 = void 0;
-                  if ((0, _entities.isTypeInstance)(implementation.tra)) {
-                    __PUCK__value__10 = implementation.tra._class.name;
+                  var __PUCK__value__9 = void 0;
+                  if ((0, _entities.isTypeInstance)(implementation.trait_)) {
+                    __PUCK__value__9 = implementation.trait_._class.name;
                   } else {
-                    __PUCK__value__10 = implementation.tra.name;
+                    __PUCK__value__9 = implementation.trait_.name;
                   };
-                  var traitName = __PUCK__value__10;
+                  var traitName = __PUCK__value__9;
                   if (!e.scope.getTypeBinding(traitName)) {
                     reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
                   };
                   e.traitName = traitName;
-                  e.implementationType = implementation.ty;
-                  functionType = implementation.tra.functions[name];
+                  e.implementationType = implementation.type_;
+                  functionType = implementation.trait_.functions[name];
                   if (objectType.parameterMap) {
                     functionType = (0, _types.resolveTypeParameters)(objectType.parameterMap)(functionType);
                   };
@@ -333,17 +342,17 @@ function ScopeVisitor(context, file) {
       };
       var parentAssignedTo = self.assignedTo;
       e.argumentList.forEach(function (a, i) {
-        var __PUCK__value__11 = void 0;
+        var __PUCK__value__10 = void 0;
         if (functionType && functionType._arguments) {
-          __PUCK__value__11 = functionType._arguments[i];
+          __PUCK__value__10 = functionType._arguments[i];
         };
-        self.assignedTo = __PUCK__value__11;
+        self.assignedTo = __PUCK__value__10;
         return self.visitExpression(a);
       });
       self.assignedTo = parentAssignedTo;
       if (functionType) {
         functionType = checkFunctionCall(functionType, e);
-        return e.ty = functionType.returnType;
+        return e.type_ = functionType.returnType;
       };
     },
     visitForExpression: function visitForExpression(e) {
@@ -367,21 +376,111 @@ function ScopeVisitor(context, file) {
       visit.walkLoopExpression(self, e);
       return self.scope = self.scope.parent;
     },
+    visitTypePathExpression: function visitTypePathExpression(e) {
+      var self = this;
+      e.scope = self.scope;
+      var typePath = e.typePath;
+      if (typePath.kind == "_Object") {
+        var _ret4 = function () {
+          var binding = e.scope.getTypeBinding(typePath.value[0].name);
+          if (!binding) {
+            self.reportError(e, "Use of undeclared type " + typePath.value[0].name);
+          };
+          var type_ = binding.type_;
+          if (typePath.value[1].kind != "Member") {
+            self.reportError(e, "Nested type paths are not supported");
+          };
+          var memberIdentifier = typePath.value[1].value[0];
+          if ((0, _entities.isEnumType)(type_)) {
+            var member = type_.members[memberIdentifier.name];
+            if (!member) {
+              return {
+                v: reportError(memberIdentifier, type_.name + " has no member named " + memberIdentifier.name)
+              };
+            } else {
+              if ((0, _entities.isObjectType)(member)) {
+                return {
+                  v: e.type_ = {
+                    kind: "Function",
+                    name: memberIdentifier.name,
+                    parameterRange: type_.parameterRange,
+                    typeParameters: type_.typeParameters,
+                    instances: [],
+                    _arguments: [{
+                      name: memberIdentifier.name,
+                      token: memberIdentifier,
+                      mutable: false,
+                      type_: member,
+                      redefined: false
+                    }],
+                    argumentRange: {
+                      start: 1,
+                      end: 2
+                    },
+                    returnType: type_,
+                    isAbstract: false
+                  }
+                };
+              } else {
+                if ((0, _entities.isTupleType)(member)) {
+                  return {
+                    v: e.type_ = {
+                      kind: "Function",
+                      name: memberIdentifier.name,
+                      parameterRange: type_.parameterRange,
+                      typeParameters: type_.typeParameters,
+                      instances: [],
+                      _arguments: member.properties.map(function (p, i) {
+                        return {
+                          name: i.toString(),
+                          token: memberIdentifier,
+                          mutable: false,
+                          type_: p,
+                          redefined: false
+                        };
+                      }),
+                      argumentRange: {
+                        start: member.properties.length,
+                        end: member.properties.length + 1
+                      },
+                      returnType: type_,
+                      isAbstract: false
+                    }
+                  };
+                } else {
+                  return {
+                    v: e.type_ = {
+                      kind: type_.kind,
+                      name: type_.name + "." + member.name,
+                      parameterRange: type_.parameterRange,
+                      typeParameters: type_.typeParameters,
+                      instances: []
+                    }
+                  };
+                };
+              };
+            };
+          };
+        }();
+
+        if ((typeof _ret4 === 'undefined' ? 'undefined' : _typeof(_ret4)) === "object") return _ret4.v;
+      };
+    },
     visitUnaryExpression: function visitUnaryExpression(e) {
       var self = this;
       e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
-      var __PUCK__value__12 = void 0;
+      var __PUCK__value__11 = void 0;
       if (e.operator.kind == _ast2.SyntaxKind.NotKeyword) {
-        __PUCK__value__12 = e.scope.getTypeBinding("Bool").ty;
+        __PUCK__value__11 = e.scope.getTypeBinding("Bool").type_;
       } else {
-        var __PUCK__value__13 = void 0;
+        var __PUCK__value__12 = void 0;
         if (e.operator.kind == _ast2.SyntaxKind.MinusToken || e.operator.kind == _ast2.SyntaxKind.PlusToken) {
-          __PUCK__value__13 = e.scope.getTypeBinding("Num").ty;
+          __PUCK__value__12 = e.scope.getTypeBinding("Num").type_;
         };
-        __PUCK__value__12 = __PUCK__value__13;
+        __PUCK__value__11 = __PUCK__value__12;
       };
-      return e.ty = __PUCK__value__12;
+      return e.type_ = __PUCK__value__11;
     },
     visitWhileExpression: function visitWhileExpression(e) {
       var self = this;
@@ -399,75 +498,10 @@ function ScopeVisitor(context, file) {
       var self = this;
       a.scope = self.scope;
       visit.walkExpression(self, a.object);
-      if (a.object.ty) {
-        if ((0, _entities.isEnumType)(a.object.ty)) {} else {
-          if ((0, _entities.isStruct)(a.object.ty)) {
-            a.ty = a.object.ty.properties[a.member.name];
-          };
-        };
-      };
-    },
-    visitTypePath: function visitTypePath(a) {
-      var self = this;
-      a.scope = self.scope;
-      visit.walkExpression(self, a.object);
-      if (a.object.ty && (0, _entities.isEnumType)(a.object.ty)) {
-        var member = a.object.ty.members[a.member.name];
-        if (!member) {
-          return reportError(a.member, a.object.ty.name + " has no member named " + a.member.name);
-        } else {
-          if ((0, _entities.isObjectType)(member)) {
-            return a.ty = {
-              kind: "Function",
-              name: a.member.name,
-              parameterRange: a.object.ty.parameterRange,
-              typeParameters: a.object.ty.typeParameters,
-              instances: [],
-              _arguments: [{
-                name: a.member.name,
-                mutable: false,
-                ty: member,
-                redefined: false
-              }],
-              argumentRange: {
-                start: 1,
-                end: 2
-              },
-              returnType: a.object.ty,
-              isAbstract: false
-            };
-          } else {
-            if ((0, _entities.isTupleType)(member)) {
-              return a.ty = {
-                kind: "Function",
-                name: a.member.name,
-                parameterRange: a.object.ty.parameterRange,
-                typeParameters: a.object.ty.typeParameters,
-                instances: [],
-                _arguments: member.properties.map(function (p, i) {
-                  return {
-                    name: i.toString(),
-                    mutable: false,
-                    ty: p,
-                    redefined: false
-                  };
-                }),
-                argumentRange: {
-                  start: member.properties.length,
-                  end: member.properties.length + 1
-                },
-                returnType: a.object.ty,
-                isAbstract: false
-              };
-            } else {
-              return a.ty = {
-                kind: a.object.ty.kind,
-                name: a.object.ty.name + "." + member.name,
-                parameterRange: a.object.ty.parameterRange,
-                typeParameters: a.object.ty.typeParameters,
-                instances: []
-              };
-            };
+      if (a.object.type_) {
+        if ((0, _entities.isEnumType)(a.object.type_)) {} else {
+          if ((0, _entities.isStruct)(a.object.type_)) {
+            a.type_ = a.object.type_.properties[a.member.name];
           };
         };
       };
@@ -490,13 +524,13 @@ function ScopeVisitor(context, file) {
     visitBooleanLiteral: function visitBooleanLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      l.ty = self.scope.getTypeBinding("Bool").ty;
+      l.type_ = self.scope.getTypeBinding("Bool").type_;
       return visit.walkBooleanLiteral(self, l);
     },
     visitNumberLiteral: function visitNumberLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      l.ty = self.scope.getTypeBinding("Num").ty;
+      l.type_ = self.scope.getTypeBinding("Num").type_;
       return visit.walkNumberLiteral(self, l);
     },
     visitObjectLiteral: function visitObjectLiteral(l) {
@@ -509,7 +543,7 @@ function ScopeVisitor(context, file) {
     visitStringLiteral: function visitStringLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      l.ty = self.scope.getTypeBinding("String").ty;
+      l.type_ = self.scope.getTypeBinding("String").type_;
       return visit.walkStringLiteral(self, l);
     },
     visitTupleLiteral: function visitTupleLiteral(l) {
@@ -517,9 +551,9 @@ function ScopeVisitor(context, file) {
       l.scope = self.scope;
       visit.walkTupleLiteral(self, l);
       var properties = l.expressions.map(function (e) {
-        return e.ty;
+        return e.type_;
       });
-      return l.ty = {
+      return l.type_ = {
         kind: "Tuple",
         name: (0, _functions.getTupleTypeName)(properties),
         properties: properties

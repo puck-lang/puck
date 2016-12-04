@@ -31,7 +31,9 @@ import 'ast.puck' as {
   CallExpression
   ForExpression
   IfExpression
+  IfLetExpression
   LoopExpression
+  TypePathExpression
   UnaryExpression
   WhileExpression
 
@@ -100,6 +102,7 @@ export let walkingVisitor = {
   visitTupleTypeBound: |self, t: TupleTypeBound| walkTupleTypeBound(self, t)
   visitTypeDeclaration: |self, t: TypeDeclaration| walkTypeDeclaration(self, t)
   visitTypeParameter: |self, t: TypeParameter| walkTypeParameter(self, t)
+  // visitTypePath: |self, t: TypeParameter| walkTypeParameter(self, t)
   visitTypeProperty: |self, t: TypeProperty| walkTypeProperty(self, t)
   visitVariableDeclaration: |self, d: VariableDeclaration| walkVariableDeclaration(self, d)
 
@@ -116,13 +119,14 @@ export let walkingVisitor = {
   visitCallExpression: |self, e: CallExpression| walkCallExpression(self, e)
   visitForExpression: |self, e: ForExpression| walkForExpression(self, e)
   visitIfExpression: |self, e: IfExpression| walkIfExpression(self, e)
+  visitIfLetExpression: |self, e: IfLetExpression| walkIfLetExpression(self, e)
   visitLoopExpression: |self, e: LoopExpression| walkLoopExpression(self, e)
+  // visitTypePathExpression: |self, a: TypePathExpression| walkTypePathExpression(self, a)
   visitUnaryExpression: |self, e: UnaryExpression| walkUnaryExpression(self, e)
   visitWhileExpression: |self, e: WhileExpression| walkWhileExpression(self, e)
 
   visitIndexAccess: |self, a: IndexAccess| walkIndexAccess(self, a)
   visitMemberAccess: |self, a: MemberAccess| walkMemberAccess(self, a)
-  visitTypePath: |self, a: TypePath| walkTypePath(self, a)
 
   visitBreak: |self, b: Token| walkBreak(self, b)
   visitReturn: |self, r: ReturnStatement| walkReturn(self, r)
@@ -154,6 +158,7 @@ export let emptyVisitor = {
   visitTupleTypeBound: || {}
   visitTypeDeclaration: || {}
   visitTypeParameter: || {}
+  visitTypePath: || {}
   visitTypeProperty: || {}
   visitVariableDeclaration: || {}
 
@@ -170,13 +175,14 @@ export let emptyVisitor = {
   visitCallExpression: || {}
   visitForExpression: || {}
   visitIfExpression: || {}
+  visitIfLetExpression: || {}
   visitLoopExpression: || {}
+  visitTypePathExpression: || {}
   visitUnaryExpression: || {}
   visitWhileExpression: || {}
 
   visitIndexAccess: || {}
   visitMemberAccess: || {}
-  visitTypePath: || {}
 
   visitBreak: || {}
   visitReturn: || {}
@@ -216,13 +222,14 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.CallExpression then visitor.visitCallExpression(e)
   else if e.kind == SyntaxKind.ForExpression then visitor.visitForExpression(e)
   else if e.kind == SyntaxKind.IfExpression then visitor.visitIfExpression(e)
+  else if e.kind == SyntaxKind.IfLetExpression then visitor.visitIfLetExpression(e)
   else if e.kind == SyntaxKind.LoopExpression then visitor.visitLoopExpression(e)
+  else if e.kind == SyntaxKind.TypePathExpression then visitor.visitTypePathExpression(e)
   else if e.kind == SyntaxKind.UnaryExpression then visitor.visitUnaryExpression(e)
   else if e.kind == SyntaxKind.WhileExpression then visitor.visitWhileExpression(e)
 
   else if e.kind == SyntaxKind.IndexAccess then visitor.visitIndexAccess(e)
   else if e.kind == SyntaxKind.MemberAccess then visitor.visitMemberAccess(e)
-  else if e.kind == SyntaxKind.TypePath then visitor.visitTypePath(e)
 
   else if e.kind == SyntaxKind.BreakKeyword then visitor.visitBreak(e)
   else if e.kind == SyntaxKind.ReturnStatement then visitor.visitReturn(e)
@@ -245,21 +252,21 @@ export fn walkEnumDeclaration(visitor: Visitor, e: EnumDeclaration) {
 }
 export fn walkEnumMember(visitor: Visitor, e: EnumMember) {
   // visitor.visitIdentifier(e.name)
-  if e.bound.isJust() then visitor.visitTypeBound(e.bound.value[0])
+  if let Maybe::Just(typeBound) = e.bound then visitor.visitTypeBound(typeBound)
 }
 export fn walkFunction(visitor: Visitor, f: FunctionDeclaration) {
   if f.typeParameters
     then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
-  if f.returnType.isJust() then visitor.visitTypeBound(f.returnType.value[0])
-  if f.body.isJust() then visitor.visitBlock(f.body.value[0])
+  if let Maybe::Just(returnType) = f.returnType then visitor.visitTypeBound(returnType)
+  if let Maybe::Just(body) = f.body then visitor.visitBlock(body)
 }
 export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
 export fn walkImplDeclaration(visitor: Visitor, i: ImplDeclaration) {
   if i.typeParameters
     then i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
-  visitor.visitTypeBound(i.tra)
-  visitor.visitTypeBound(i.ty)
+  visitor.visitTypeBound(i.trait_)
+  visitor.visitTypeBound(i.type_)
   i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
 }
 export fn walkModule(visitor: Visitor, m: Module) {
@@ -286,8 +293,8 @@ export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
   else if t.kind == SyntaxKind.TupleTypeBound
     then visitor.visitTupleTypeBound(t)
   else {
-    print('Unkown typebound ' + SyntaxKind[t.kind], t)
-    throw Error('Unkown typebound ' + SyntaxKind[t.kind])
+    print('Unknown typebound ' + SyntaxKind[t.kind], t)
+    throw Error('Unknown typebound ' + SyntaxKind[t.kind])
   }
 }
 export fn walkFunctionTypeBound(visitor: Visitor, t: FunctionTypeBound) {
@@ -307,12 +314,11 @@ export fn walkTupleTypeBound(visitor: Visitor, t: TupleTypeBound) {
 export fn walkTypeDeclaration(visitor: Visitor, t: TypeDeclaration) {
   // visitor.visitIdentifier(t.name)
   t.typeParameters.forEach(|t| visitor.visitTypeParameter(t))
-  if t.bound.isJust() then visitor.visitTypeBound(t.bound.value[0])
+  if let Maybe::Just(typeBound) = t.bound then visitor.visitTypeBound(typeBound)
 }
 export fn walkTypeParameter(visitor: Visitor, t: TypeParameter) {
   // visitor.visitIdentifier(t.name)
-  if t.defaultValue.isJust()
-    then visitor.visitTypeBound(t.defaultValue.value[0])
+  if let Maybe::Just(defaultValue) = t.defaultValue then visitor.visitTypeBound(defaultValue)
 }
 export fn walkTypeProperty(visitor: Visitor, t: TypeProperty) {
   // visitor.visitIdentifier(t.name)
@@ -320,8 +326,8 @@ export fn walkTypeProperty(visitor: Visitor, t: TypeProperty) {
 }
 export fn walkVariableDeclaration(visitor: Visitor, d: VariableDeclaration) {
   visitor.visitPattern(d.pattern)
-  if d.typeBound.isJust() then visitor.visitTypeBound(d.typeBound.value[0])
-  if d.initializer.isJust() then visitor.visitExpression(d.initializer.value[0])
+  if let Maybe::Just(typeBound) = d.typeBound then visitor.visitTypeBound(typeBound)
+  if let Maybe::Just(initializer) = d.initializer then visitor.visitExpression(initializer)
 }
 
 export fn walkExportDirective(visitor: Visitor, e: ExportDirective) {
@@ -342,14 +348,14 @@ export fn walkPattern(visitor: Visitor, p: Pattern) {
     visitor.visitRecordPattern(p.value[0])
   }
   else if p.kind == 'RecordType' {
-    visitor.visitNamedTypeBound(p.value[0])
+    visitor.visitTypePath(p.value[0])
     visitor.visitRecordPattern(p.value[1])
   }
   else if p.kind == 'Tuple' {
     visitor.visitTuplePattern(p.value[0])
   }
   else if p.kind == 'TupleType' {
-    visitor.visitNamedTypeBound(p.value[0])
+    visitor.visitTypePath(p.value[0])
     visitor.visitTuplePattern(p.value[1])
   }
 }
@@ -383,9 +389,13 @@ export fn walkForExpression(visitor: Visitor, e: ForExpression) {
 }
 export fn walkIfExpression(visitor: Visitor, e: IfExpression) {
   visitor.visitExpression(e.condition)
-  visitor.visitBlock(e._then)
-  if e._else.isJust() then visitor.visitBlock(e._else.value[0])
-
+  visitor.visitBlock(e.then_)
+  if let Maybe::Just(else_) = e.else_ then visitor.visitBlock(else_)
+}
+export fn walkIfLetExpression(visitor: Visitor, e: IfLetExpression) {
+  visitor.visitVariableDeclaration(e.variableDeclaration)
+  visitor.visitBlock(e.then_)
+  if let Maybe::Just(else_) = e.else_ then visitor.visitBlock(else_)
 }
 export fn walkLoopExpression(visitor: Visitor, e: LoopExpression) {
   visitor.visitBlock(e.body)
@@ -403,10 +413,6 @@ export fn walkIndexAccess(visitor: Visitor, a: IndexAccess) {
   visitor.visitExpression(a.index)
 }
 export fn walkMemberAccess(visitor: Visitor, a: MemberAccess) {
-  visitor.visitExpression(a.object)
-  visitor.visitExpression(a.member)
-}
-export fn walkTypePath(visitor: Visitor, a: TypePath) {
   visitor.visitExpression(a.object)
   visitor.visitExpression(a.member)
 }

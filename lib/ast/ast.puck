@@ -43,9 +43,9 @@ export type ImplDeclaration {
   implKeyword: Token
   typeParameters: List<TypeParameter>
 
-  tra: TypeBound
+  trait_: TypeBound
   forKeyword: Token
-  ty: TypeBound
+  type_: TypeBound
 
   openBrace: Token
   members: List<FunctionDeclaration>
@@ -92,7 +92,7 @@ export type FunctionTypeBound {
 }
 
 export type NamedTypeBound {
-  name: SimpleIdentifier
+  path: TypePath
   typeParameters: List<TypeBound>
 }
 
@@ -171,13 +171,29 @@ export type ForExpression {
 }
 
 export type IfExpression {
+  ifKeyword: Token
   condition: Expression
-  _then: Block
-  _else: Maybe<Block>
+  then_: Block
+  else_: Maybe<Block>
+}
+
+export type IfLetExpression {
+  ifKeyword: Token
+  letKeyword: Token
+  variableDeclaration: VariableDeclaration
+  // pattern: Pattern
+  // equalsToken: Token
+  // expression: Expression
+  then_: Block
+  else_: Maybe<Block>
 }
 
 export type LoopExpression {
   body: Block
+}
+
+export type TypePathExpression {
+  typePath: TypePath
 }
 
 export type UnaryExpression {
@@ -200,10 +216,9 @@ export type MemberAccess {
   member: Identifier
 }
 
-export type TypePath {
-  object: Expression
-  member: Identifier
-}
+export enum TypePath
+  = Object(Identifier, TypePath)
+  | Member(Identifier)
 
 export type RecordPattern {
   openBrace: Token
@@ -230,8 +245,8 @@ export enum Pattern
   // | String(StringLiteralPart)
   | Record(RecordPattern)
   | Tuple(TuplePattern)
-  | RecordType(SimpleIdentifier, RecordPattern)
-  | TupleType(SimpleIdentifier, TuplePattern)
+  | RecordType(TypePath, RecordPattern)
+  | TupleType(TypePath, TuplePattern)
 
 export type BreakStatement {
   keyword: Token

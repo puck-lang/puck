@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ObjectMap = exports.Range = exports.List = exports.Nothing = exports.Just = exports.Maybe = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.MaybeTrait = exports.ResultTrait = exports.StringTrait = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.print = print;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
@@ -27,16 +30,26 @@ var ResultTrait = exports.ResultTrait = {
   },
   andThen: function andThen(op) {
     var self = this;
-    if (ResultTrait['$Result'].isOk.call(self)) {
-      return op(self.value[0]);
+    var __PUCK__value__1 = self;
+    if (__PUCK__value__1.kind == "Ok") {
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
+
+      var value = _PUCK__value__1$valu[0];
+
+      return op(value);
     } else {
       return self;
     };
   },
   map: function map(op) {
     var self = this;
-    if (ResultTrait['$Result'].isOk.call(self)) {
-      return Ok(op(self.value[0]));
+    var __PUCK__value__2 = self;
+    if (__PUCK__value__2.kind == "Ok") {
+      var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
+
+      var value = _PUCK__value__2$valu[0];
+
+      return Ok(op(value));
     } else {
       return self;
     };
@@ -53,24 +66,39 @@ var MaybeTrait = exports.MaybeTrait = {
   },
   map: function map(f) {
     var self = this;
-    if (MaybeTrait['$Maybe'].isJust.call(self)) {
-      return Just(f(MaybeTrait['$Maybe'].unwrap.call(self)));
+    var __PUCK__value__3 = self;
+    if (__PUCK__value__3.kind == "Just") {
+      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
+
+      var value = _PUCK__value__3$valu[0];
+
+      return Just(f(value));
     } else {
       return self;
     };
   },
   mapOr: function mapOr(_default, f) {
     var self = this;
-    if (MaybeTrait['$Maybe'].isJust.call(self)) {
-      return f(MaybeTrait['$Maybe'].unwrap.call(self));
+    var __PUCK__value__4 = self;
+    if (__PUCK__value__4.kind == "Just") {
+      var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
+
+      var value = _PUCK__value__4$valu[0];
+
+      return f(value);
     } else {
       return _default;
     };
   },
   mapOrElse: function mapOrElse(_default, f) {
     var self = this;
-    if (MaybeTrait['$Maybe'].isJust.call(self)) {
-      return f(MaybeTrait['$Maybe'].unwrap.call(self));
+    var __PUCK__value__5 = self;
+    if (__PUCK__value__5.kind == "Just") {
+      var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
+
+      var value = _PUCK__value__5$valu[0];
+
+      return f(value);
     } else {
       return _default();
     };
@@ -84,16 +112,26 @@ var MaybeTrait = exports.MaybeTrait = {
   },
   unwrapOr: function unwrapOr(_default) {
     var self = this;
-    if (MaybeTrait['$Maybe'].isJust.call(self)) {
-      return self.value[0];
+    var __PUCK__value__6 = self;
+    if (__PUCK__value__6.kind == "Just") {
+      var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
+
+      var value = _PUCK__value__6$valu[0];
+
+      return value;
     } else {
       return _default;
     };
   },
   unwrapOrElse: function unwrapOrElse(_default) {
     var self = this;
-    if (MaybeTrait['$Maybe'].isJust.call(self)) {
-      return self.value[0];
+    var __PUCK__value__7 = self;
+    if (__PUCK__value__7.kind == "Just") {
+      var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
+
+      var value = _PUCK__value__7$valu[0];
+
+      return value;
     } else {
       return _default();
     };

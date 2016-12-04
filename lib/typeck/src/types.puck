@@ -22,20 +22,20 @@ import '../../entities.puck' as {
 }
 import 'functions.puck' as {getFunctionTypeName, getTupleTypeName}
 
-export let resolveTypeParameters = |parameterMap| fn resolveTypeParametersInner(ty) {
-  let resolved = if isEnumType(ty)
-    then resolveTypeParametersEnum(parameterMap, ty)
-  else if isFunctionType(ty)
-    then resolveTypeParametersFn(parameterMap, ty)
-  else if isObjectType(ty)
-    then resolveTypeParametersObject(parameterMap, ty)
-  else if isTupleType(ty)
-    then resolveTypeParametersTuple(parameterMap, ty)
-  else if isTypeParameter(ty) {
-    parameterMap[ty.name] or ty
+export let resolveTypeParameters = |parameterMap| fn resolveTypeParametersInner(type_) {
+  let resolved = if isEnumType(type_)
+    then resolveTypeParametersEnum(parameterMap, type_)
+  else if isFunctionType(type_)
+    then resolveTypeParametersFn(parameterMap, type_)
+  else if isObjectType(type_)
+    then resolveTypeParametersObject(parameterMap, type_)
+  else if isTupleType(type_)
+    then resolveTypeParametersTuple(parameterMap, type_)
+  else if isTypeParameter(type_) {
+    parameterMap[type_.name] or type_
   }
 
-  resolved or ty
+  resolved or type_
 }
 
 fn resolveTypeParametersEnum(parameterMap, e: EnumType) {
@@ -47,8 +47,8 @@ fn resolveTypeParametersEnum(parameterMap, e: EnumType) {
 fn resolveTypeParametersFn(parameterMap, func: FunctionType) {
   Object.assign({}, func, {
     arguments: func.arguments.map(|binding| Object.assign({}, binding, {
-      ty: if binding.ty
-        then resolveTypeParameters(parameterMap)(binding.ty)
+      type_: if binding.type_
+        then resolveTypeParameters(parameterMap)(binding.type_)
     }))
     returnType: if func.returnType
       then resolveTypeParameters(parameterMap)(func.returnType)
@@ -124,19 +124,19 @@ export fn createTypeInstanceTypeCast(class, typeParameters: List<Type>) {
   createTypeInstance(class, typeParameters)
 }
 
-export fn getType(scope: Scope, t) { // t: TypeBound
+export fn getType(scope: Scope, t, msg = '') { // t: TypeBound
   if not t then return undefined
-  if t.name {
-    let binding = scope.getTypeBinding(t.name.name)
+  if t.path {
+    let binding = scope.getTypePath(t.path)
 
     if not binding
       then binding
-    else if isTypeClass(binding.ty)
-      then createTypeInstanceTypeCast(binding.ty, t.typeParameters.map(|p| p.ty))
-    else binding.ty
+    else if isTypeClass(binding.type_)
+      then createTypeInstanceTypeCast(binding.type_, t.typeParameters.map(|p| p.type_))
+    else binding.type_
   }
   else if t.kind == SyntaxKind.ObjectTypeBound {
-    let properties = mapObject(t.properties, |p| getType(scope, p))
+    let properties = mapObject(t.properties, |p| getType(scope, p.typeBound, 'ObjectTypeBound'))
 
     {
       kind: 'Object'
@@ -145,7 +145,7 @@ export fn getType(scope: Scope, t) { // t: TypeBound
     }
   }
   else if t.kind == SyntaxKind.TupleTypeBound {
-    let properties = t.properties.map(|p| getType(scope, p))
+    let properties = t.properties.map(|p| getType(scope, p, 'TupleTypeBound'))
 
     {
       kind: 'Tuple'
@@ -154,7 +154,7 @@ export fn getType(scope: Scope, t) { // t: TypeBound
     }
   }
   else {
-    let arguments = t.arguments.properties.map(|p| {{ty: getType(scope, p)}})
+    let arguments = t.arguments.properties.map(|p| {{type_: getType(scope, p)}})
     let returnType = getType(scope, t.returnType)
 
     {

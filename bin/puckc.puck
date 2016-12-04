@@ -1,7 +1,11 @@
+import 'puck:js' as {Error}
 import 'node:path' as {join}
 import '../lib/helpers.puck' as {cmd, flag}
 import '../lib/compiler.puck' as {build}
 import '../lib/stdlib/js.puck' as {Array, RegExp, console, process}
+
+let mut E = Error
+E.stackTraceLimit = 100;
 
 let argv: List<String> = process.argv
 let arguments = argv.skipUntil(|arg| arg.contains('puckc')).skip(1)

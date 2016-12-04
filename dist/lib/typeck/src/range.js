@@ -51,6 +51,8 @@ function checkRange(_arguments, range, argumentName, subjectName) {
       __PUCK__value__3 = "" + min + " to " + max + "";
     };
     var required = __PUCK__value__3;
-    return "Too " + error + " " + argumentName + " given to " + subjectName + ", " + required + " required, " + argumentCount + " given";
+    return (0, _core.Err)("Too " + error + " " + argumentName + " given to " + subjectName + ", " + required + " required, " + argumentCount + " given");
+  } else {
+    return (0, _core.Ok)([]);
   };
 }
