@@ -26,6 +26,7 @@ import '../ast/ast.puck' as {
   CallExpression
   ForExpression
   IfExpression
+  IfLetExpression
   LoopExpression
   TypePathExpression
   UnaryExpression
@@ -241,7 +242,7 @@ export fn ScopeVisitor(context, file) {
       self.scope = self.scope.parent
     }
     visitTypeDeclaration: |self, mut t: TypeDeclaration| {}
-    visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, type_| {
+    visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, type_, allowNotExhaustive = false| {
       structureVisitor.visitVariableDeclaration.call(
         self
         d
@@ -254,6 +255,7 @@ export fn ScopeVisitor(context, file) {
             self.assignedTo = parentAssignedTo
           }
         type_
+        allowNotExhaustive
       )
     }
 
@@ -373,6 +375,14 @@ export fn ScopeVisitor(context, file) {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
       visit.walkIfExpression(self, e)
+      self.scope = self.scope.parent
+    }
+    visitIfLetExpression: |mut self, mut e: IfLetExpression| {
+      self.scope = createScope(context, file, self.scope)
+      e.scope = self.scope
+      self.visitVariableDeclaration(e.variableDeclaration, undefined, undefined, true)
+      self.visitBlock(e.then_)
+      if let Maybe::Just(else_) = e.else_ then self.visitBlock(else_)
       self.scope = self.scope.parent
     }
     visitLoopExpression: |mut self, mut e: LoopExpression| {

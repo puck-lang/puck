@@ -51,6 +51,5 @@ let Tuple(a, b, c) = (1, 2)
 type Record {a: Num, b: Num}
 let Record {c} = {c: 5}
 
-// TODO: Make this error
-//// 123
+///// non exhaustive pattern
 let Maybe::Just(value) = Maybe::Just(5)
