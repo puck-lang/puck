@@ -214,6 +214,8 @@ function ScopeVisitor(context, file) {
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {},
     visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer, type_) {
+      var allowNotExhaustive = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
       var self = this;
       var __PUCK__value__5 = void 0;
       if (visitInitializer) {
@@ -226,7 +228,7 @@ function ScopeVisitor(context, file) {
           return self.assignedTo = parentAssignedTo;
         };
       };
-      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, __PUCK__value__5, type_);
+      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, __PUCK__value__5, type_, allowNotExhaustive);
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -369,6 +371,22 @@ function ScopeVisitor(context, file) {
       visit.walkIfExpression(self, e);
       return self.scope = self.scope.parent;
     },
+    visitIfLetExpression: function visitIfLetExpression(e) {
+      var self = this;
+      self.scope = (0, _scope.createScope)(context, file, self.scope);
+      e.scope = self.scope;
+      self.visitVariableDeclaration(e.variableDeclaration, _js._undefined, _js._undefined, true);
+      self.visitBlock(e.then_);
+      var __PUCK__value__11 = e.else_;
+      if (__PUCK__value__11.kind == "Just") {
+        var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1);
+
+        var else_ = _PUCK__value__11$val[0];
+
+        self.visitBlock(else_);
+      };
+      return self.scope = self.scope.parent;
+    },
     visitLoopExpression: function visitLoopExpression(e) {
       var self = this;
       self.scope = (0, _scope.createScope)(context, file, self.scope);
@@ -470,17 +488,17 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
-      var __PUCK__value__11 = void 0;
+      var __PUCK__value__12 = void 0;
       if (e.operator.kind == _ast2.SyntaxKind.NotKeyword) {
-        __PUCK__value__11 = e.scope.getTypeBinding("Bool").type_;
+        __PUCK__value__12 = e.scope.getTypeBinding("Bool").type_;
       } else {
-        var __PUCK__value__12 = void 0;
+        var __PUCK__value__13 = void 0;
         if (e.operator.kind == _ast2.SyntaxKind.MinusToken || e.operator.kind == _ast2.SyntaxKind.PlusToken) {
-          __PUCK__value__12 = e.scope.getTypeBinding("Num").type_;
+          __PUCK__value__13 = e.scope.getTypeBinding("Num").type_;
         };
-        __PUCK__value__11 = __PUCK__value__12;
+        __PUCK__value__12 = __PUCK__value__13;
       };
-      return e.type_ = __PUCK__value__11;
+      return e.type_ = __PUCK__value__12;
     },
     visitWhileExpression: function visitWhileExpression(e) {
       var self = this;

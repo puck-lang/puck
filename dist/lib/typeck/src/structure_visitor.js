@@ -176,6 +176,8 @@ var structureVisitor = exports.structureVisitor = {
     };
   },
   visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer, type_) {
+    var allowNotExhaustive = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
     var self = this;
     if (d.scope) {
       return _js._undefined;
@@ -185,7 +187,7 @@ var structureVisitor = exports.structureVisitor = {
       self.visitTypeBound(bound);
       return (0, _types.getType)(d.scope, bound) || type_;
     });
-    var result = declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_);
+    var result = declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive);
     if (_core.ResultTrait['$Result'].isOk.call(result)) {
       var patternTy = result.value[0];
       if (patternTy) {
@@ -206,6 +208,10 @@ var structureVisitor = exports.structureVisitor = {
         var subject = _result$value$0$value[2];
 
         self.reportError(d, notAssignableError(to, subject));
+      } else {
+        if (result.value[0].kind == "NotExhaustive") {
+          self.reportError(d, "non exhaustive pattern");
+        };
       };
     };
     var __PUCK__value__7 = d.initializer;
@@ -292,7 +298,7 @@ var PatternError = {
   },
   NotExhaustive: { kind: 'NotExhaustive', value: Symbol('NotExhaustive') }
 };
-function declarePatternVariables(scope, visitor, p, mutable, type_) {
+function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive) {
   if (p.kind == "CatchAll") {
     return (0, _core.Ok)(false);
   } else {
@@ -307,7 +313,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_) {
     } else {
       if (p.kind == "Record") {
         var properties = p.value[0].properties.map(function (p) {
-          return declarePatternVariables(scope, visitor, p.local, mutable, type_);
+          return declarePatternVariables(scope, visitor, p.local, mutable, type_, allowNotExhaustive);
         }).reduce(function (acc, cur) {
           return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
             return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
@@ -322,7 +328,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_) {
         if (p.kind == "RecordType") {
           visitor.visitTypePath(p.value[0]);
           var _properties = p.value[1].properties.map(function (p) {
-            return declarePatternVariables(scope, visitor, p.local, mutable, type_);
+            return declarePatternVariables(scope, visitor, p.local, mutable, type_, allowNotExhaustive);
           }).reduce(function (acc, cur) {
             return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
               return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
@@ -336,7 +342,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_) {
         } else {
           if (p.kind == "Tuple") {
             var _properties2 = p.value[0].properties.map(function (p) {
-              return declarePatternVariables(scope, visitor, p, mutable, type_);
+              return declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive);
             }).reduce(function (acc, cur) {
               return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
                 return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
@@ -355,7 +361,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_) {
             if (p.kind == "TupleType") {
               visitor.visitTypePath(p.value[0]);
               var _properties3 = p.value[1].properties.map(function (p) {
-                return declarePatternVariables(scope, visitor, p, mutable, type_);
+                return declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive);
               }).reduce(function (acc, cur) {
                 return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
                   return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
@@ -371,10 +377,16 @@ function declarePatternVariables(scope, visitor, p, mutable, type_) {
                 };
                 if ((0, _entities.isEnumType)(p.value[0].type_)) {
                   var enumType = p.value[0].type_;
-                  if (_js._Object.keys(enumType.members).length > 1) {
+                  if (!allowNotExhaustive && _js._Object.keys(enumType.members).length > 1) {
                     return (0, _core.Err)(PatternError.NotExhaustive);
                   } else {
-                    return (0, _core.Ok)(enumType);
+                    var member = p.value[0].value[1].value[0].name;
+                    var enumArmType = p.value[0].type_.members[member];
+                    if ((0, _types.isAssignable)(enumArmType, type_)) {
+                      return (0, _core.Ok)(enumType);
+                    } else {
+                      return (0, _core.Err)(PatternError.PatternMismatch(p, enumArmType, type_));
+                    };
                   };
                 } else {
                   if ((0, _types.isAssignable)(p.value[0].type_, type_)) {

@@ -32,7 +32,7 @@ export type FunctionDeclaration {
   typeParameters: List<TypeParameter>
   parameterList: List<VariableDeclaration>
   returnType: Maybe<TypeBound>
-  body: Block
+  body: Maybe<Block>
 }
 
 export type Identifier {
