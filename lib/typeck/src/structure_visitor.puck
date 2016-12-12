@@ -23,7 +23,17 @@ import '../../ast/ast.puck' as {
 }
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
-import '../../entities.puck' as {Scope, TypeInstance, isEnumType, isFunctionType, isObjectType, isTupleType, isTypeClass}
+import '../../entities.puck' as {
+  Scope
+  TypeInstance
+  isEnumType
+  isFunctionType
+  isObjectType
+  isStruct
+  isTupleType
+  isTypeClass
+  isTypeParameter
+}
 import 'functions.puck' as {createFunctionType, getTupleTypeName}
 import 'range.puck' as {checkRange}
 import 'types.puck' as {createTypeInstanceTypeCast, getType, isAssignable}
@@ -213,8 +223,9 @@ export let structureVisitor = {
 enum PatternError
   = PatternMismatch(Pattern , TypeInstance, TypeInstance)
   | NotExhaustive
+  | Other(Pattern, String)
 
-fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_, allowNotExhaustive: Bool):
+export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_, allowNotExhaustive: Bool):
     Result<TypeInstance, PatternError> {
   if p.kind == 'CatchAll' {
     Ok(false)
@@ -230,7 +241,7 @@ fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool,
   }
   else if p.kind == 'Record' {
     let properties: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)> = p.value[0].properties
-      .map(|mut p| declarePatternVariables(scope, visitor, p.local, mutable, type_, allowNotExhaustive))
+      .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, type_ and type_.properties[p.property.name], allowNotExhaustive))
       .reduce(|acc: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)>, cur: Result<TypeInstance, (Pattern, TypeInstance, TypeInstance)>| {
         acc.andThen(|props| cur.map(|prop| props.concat(prop)))
       }, Ok([]))
@@ -238,8 +249,20 @@ fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool,
   }
   else if p.kind == 'RecordType' {
     visitor.visitTypePath(p.value[0])
+    let recordType =
+      if type_ and (isStruct(type_) or isEnumType(type_))
+        then type_
+        else p.value[0].type_
+    let recordType =
+      if isEnumType(recordType) {
+        let member = p.value[0].value[1].value[0].name
+        let enumArmType = recordType.members[member]
+        enumArmType
+      }
+      else recordType
+
     let properties: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)> = p.value[1].properties
-      .map(|mut p| declarePatternVariables(scope, visitor, p.local, mutable, type_, allowNotExhaustive))
+      .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, recordType and recordType.properties[p.property.name], allowNotExhaustive))
       .reduce(|acc: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)>, cur: Result<TypeInstance, (Pattern, TypeInstance, TypeInstance)>| {
         acc.andThen(|props| cur.map(|prop| props.concat(prop)))
       }, Ok([]))
@@ -247,7 +270,7 @@ fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool,
   }
   else if p.kind == 'Tuple' {
     let properties: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)> = p.value[0].properties
-      .map(|mut p| declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive))
+      .map(|mut p, i| declarePatternVariables(scope, visitor, p, mutable, type_ and type_.properties and type_.properties[i], allowNotExhaustive))
       .reduce(|acc: Result<List<TypeInstance>, (Pattern, TypeInstance, TypeInstance)>, cur: Result<TypeInstance, (Pattern, TypeInstance, TypeInstance)>| {
         acc.andThen(|props| cur.map(|prop| props.concat(prop)))
       }, Ok([]))
@@ -259,8 +282,20 @@ fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool,
   }
   else if p.kind == 'TupleType' {
     visitor.visitTypePath(p.value[0])
+    let tupleType =
+      if type_ and (isTupleType(type_) or isEnumType(type_))
+        then type_
+        else p.value[0].type_
+    let tupleType =
+      if isEnumType(tupleType) {
+        let member = p.value[0].value[1].value[0].name
+        let enumArmType = tupleType.members[member]
+        enumArmType
+      }
+      else tupleType
+
     let properties: Result<List<TypeInstance>, PatternError> = p.value[1].properties
-      .map(|mut p| declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive))
+      .map(|mut p, i| declarePatternVariables(scope, visitor, p, mutable, tupleType and tupleType.properties[i], allowNotExhaustive))
       .reduce(|acc: Result<List<TypeInstance>, PatternError>, cur: Result<TypeInstance, PatternError>| {
         acc.andThen(|props| cur.map(|prop| props.concat(prop)))
       }, Ok([]))
@@ -289,5 +324,9 @@ fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool,
           else Err(PatternError::PatternMismatch(p, p.value[0].type_, type_))
       }
     })
+  }
+  else if p.kind == 'UnitType' {
+    visitor.visitTypePath(p.value[0])
+    Ok(false)
   }
 }

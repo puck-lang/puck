@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TupleLiteral = exports.StringLiteral = exports.StringLiteralPart = exports.ObjectLiteralMember = exports.ObjectLiteral = exports.NumberLiteral = exports.BooleanLiteral = exports.ListLiteral = exports.ReturnStatement = exports.BreakStatement = exports.Pattern = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.TypePath = exports.MemberAccess = exports.IndexAccess = exports.WhileExpression = exports.UnaryExpression = exports.TypePathExpression = exports.LoopExpression = exports.IfLetExpression = exports.IfExpression = exports.ForExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.ImportDirective = exports.ExportDirective = exports.VariableDeclaration = exports.TypeProperty = exports.TypeParameter = exports.TypeDeclaration = exports.TupleTypeBound = exports.ObjectTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TypeBound = exports.TraitDeclaration = exports.SimpleIdentifier = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.Module = exports.ImplDeclaration = exports.Identifier = exports.FunctionDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Block = exports.CommentNode = exports.Expression = exports.Token = exports.SyntaxKind = undefined;
+exports.TupleLiteral = exports.StringLiteral = exports.StringLiteralPart = exports.ObjectLiteralMember = exports.ObjectLiteral = exports.NumberLiteral = exports.BooleanLiteral = exports.ListLiteral = exports.ReturnStatement = exports.BreakStatement = exports.Pattern = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.TypePath = exports.MemberAccess = exports.IndexAccess = exports.WhileExpression = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.LoopExpression = exports.IfLetExpression = exports.IfExpression = exports.ForExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.ImportDirective = exports.ExportDirective = exports.VariableDeclaration = exports.TypeProperty = exports.TypeParameter = exports.TypeDeclaration = exports.TupleTypeBound = exports.ObjectTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TypeBound = exports.TraitDeclaration = exports.SimpleIdentifier = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.Module = exports.ImplDeclaration = exports.Identifier = exports.FunctionDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Block = exports.CommentNode = exports.Expression = exports.Token = exports.SyntaxKind = undefined;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -108,6 +108,12 @@ var IfLetExpression = exports.IfLetExpression = function IfLetExpression(object)
 var LoopExpression = exports.LoopExpression = function LoopExpression(object) {
   return object;
 };
+var MatchExpression = exports.MatchExpression = function MatchExpression(object) {
+  return object;
+};
+var MatchArm = exports.MatchArm = function MatchArm(object) {
+  return object;
+};
 var TypePathExpression = exports.TypePathExpression = function TypePathExpression(object) {
   return object;
 };
@@ -184,6 +190,13 @@ var Pattern = exports.Pattern = {
     }
 
     return { kind: 'TupleType', value: members };
+  },
+  UnitType: function UnitType() {
+    for (var _len8 = arguments.length, members = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
+      members[_key8] = arguments[_key8];
+    }
+
+    return { kind: 'UnitType', value: members };
   }
 };
 var BreakStatement = exports.BreakStatement = function BreakStatement(object) {

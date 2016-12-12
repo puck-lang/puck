@@ -42,6 +42,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function ScopeVisitor(context, file) {
   var importDirective = void 0;
+  var matchExpression = _core.Nothing;
   var reportError = context.reportError.bind(context, file);
   function getBinding(token) {
     if (token.kind == _ast2.SyntaxKind.Identifier) {
@@ -394,6 +395,50 @@ function ScopeVisitor(context, file) {
       visit.walkLoopExpression(self, e);
       return self.scope = self.scope.parent;
     },
+    visitMatchExpression: function visitMatchExpression(e) {
+      var self = this;
+      e.scope = self.scope;
+      matchExpression = (0, _core.Just)(e);
+      self.visitExpression(e.expression);
+      e.type_ = e.expression.type_;
+      e.patterns.forEach(function (a) {
+        return self.visitMatchArm(a);
+      });
+      var __PUCK__value__12 = checkExhaustive(e);
+      if (__PUCK__value__12.kind == "Err") {
+        var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1);
+
+        var error = _PUCK__value__12$val[0];
+
+        self.reportError(e, error);
+      };
+      return matchExpression = _core.Nothing;
+    },
+    visitMatchArm: function visitMatchArm(a) {
+      var self = this;
+      self.scope = (0, _scope.createScope)(context, file, self.scope);
+      a.scope = self.scope;
+      var m = _core.MaybeTrait['$Maybe'].unwrap.call(matchExpression);
+      var result = (0, _structure_visitor.declarePatternVariables)(a.scope, self, a.pattern, false, m.type_, true);
+      if (_core.ResultTrait['$Result'].isOk.call(result)) {
+        var patternTy = result.value[0];
+        if (!(0, _types.isAssignable)(m.type_, patternTy)) {
+          self.reportError(a, (0, _structure_visitor.notAssignableError)(m.type_, patternTy));
+        };
+      } else {
+        if (result.value[0].kind == "PatternMismatch") {
+          var _result$value$0$value = _slicedToArray(result.value[0].value, 3);
+
+          var pattern = _result$value$0$value[0];
+          var to = _result$value$0$value[1];
+          var subject = _result$value$0$value[2];
+
+          self.reportError(a, (0, _structure_visitor.notAssignableError)(to, subject));
+        };
+      };
+      self.visitExpression(a.expression);
+      return self.scope = self.scope.parent;
+    },
     visitTypePathExpression: function visitTypePathExpression(e) {
       var self = this;
       e.scope = self.scope;
@@ -488,17 +533,17 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
-      var __PUCK__value__12 = void 0;
+      var __PUCK__value__13 = void 0;
       if (e.operator.kind == _ast2.SyntaxKind.NotKeyword) {
-        __PUCK__value__12 = e.scope.getTypeBinding("Bool").type_;
+        __PUCK__value__13 = e.scope.getTypeBinding("Bool").type_;
       } else {
-        var __PUCK__value__13 = void 0;
+        var __PUCK__value__14 = void 0;
         if (e.operator.kind == _ast2.SyntaxKind.MinusToken || e.operator.kind == _ast2.SyntaxKind.PlusToken) {
-          __PUCK__value__13 = e.scope.getTypeBinding("Num").type_;
+          __PUCK__value__14 = e.scope.getTypeBinding("Num").type_;
         };
-        __PUCK__value__12 = __PUCK__value__13;
+        __PUCK__value__13 = __PUCK__value__14;
       };
-      return e.type_ = __PUCK__value__12;
+      return e.type_ = __PUCK__value__13;
     },
     visitWhileExpression: function visitWhileExpression(e) {
       var self = this;
@@ -578,4 +623,143 @@ function ScopeVisitor(context, file) {
       };
     }
   });
+};
+function isExhaustive(p) {
+  if (p.kind == "CatchAll") {
+    return true;
+  } else {
+    if (p.kind == "Identifier") {
+      return true;
+    } else {
+      if (p.kind == "Record") {
+        return p.value[0].properties.every(function (p) {
+          return isExhaustive(p.pattern);
+        });
+      } else {
+        if (p.kind == "RecordType") {
+          return p.value[1].properties.every(function (p) {
+            return isExhaustive(p.pattern);
+          });
+        } else {
+          if (p.kind == "Tuple") {
+            return p.value[0].properties.every(isExhaustive);
+          } else {
+            if (p.kind == "TupleType") {
+              return p.value[1].properties.every(isExhaustive);
+            } else {
+              if (p.kind == "UnitType") {
+                return true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+};
+function checkExhaustive(e) {
+  if ((0, _entities.isEnumType)(e.type_)) {
+    var _ret5 = function () {
+      var enum_ = e.type_;
+      var typeName = e.type_.name;
+      var map = _core.ObjectMapTrait._new();
+      var __PUCK__value__15 = _core.Iterable['$List'].find.call(e.patterns, function (a) {
+        var pattern = a.pattern;
+        var member = "";
+        if (pattern.kind == "CatchAll") {
+          return true;
+        } else {
+          if (pattern.kind == "Variable") {
+            return true;
+          } else {
+            if (pattern.kind == "Record") {
+              (0, _core.print)("Record bad!!!");
+            } else {
+              if (pattern.kind == "RecordType") {
+                member = pattern.value[0].value[1].value[0].name;
+              } else {
+                if (pattern.kind == "Tuple") {
+                  (0, _core.print)("Tuple bad!!!");
+                } else {
+                  if (pattern.kind == "TupleType") {
+                    member = pattern.value[0].value[1].value[0].name;
+                  } else {
+                    if (pattern.kind == "UnitType") {
+                      member = pattern.value[0].value[1].value[0].name;
+                    } else {
+                      (0, _core.print)("else bad!!!");
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+        if (!map[member]) {
+          map[member] = isExhaustive(pattern);
+        };
+        return false;
+      });
+      if (__PUCK__value__15.kind == "Just") {
+        var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1);
+
+        var __PUCK__value__16 = _PUCK__value__15$val[0];
+
+        return {
+          v: (0, _core.Ok)([])
+        };
+      };
+      var mapSize = _core.ObjectMapTrait['$ObjectMap'].size.call(map);
+      var memberCount = _core.ObjectMapTrait['$ObjectMap'].size.call(enum_.members);
+      if (mapSize == memberCount - 1) {
+        var _MaybeTrait$$Maybe$un = _core.MaybeTrait['$Maybe'].unwrap.call(_core.ObjectMapTrait['$ObjectMap'].find.call(enum_.members, function (_ref) {
+          var _ref2 = _slicedToArray(_ref, 2);
+
+          var member = _ref2[0];
+          var __PUCK__value__17 = _ref2[1];
+
+          return !map[member];
+        }));
+
+        var _MaybeTrait$$Maybe$un2 = _slicedToArray(_MaybeTrait$$Maybe$un, 2);
+
+        var missing = _MaybeTrait$$Maybe$un2[0];
+        var __PUCK__value__18 = _MaybeTrait$$Maybe$un2[1];
+
+        return {
+          v: (0, _core.Err)("Match is not exhaustive. It is missing a case for " + typeName + "::" + missing + "")
+        };
+      } else {
+        if (mapSize < memberCount) {
+          return {
+            v: (0, _core.Err)("Match is not exhaustive.")
+          };
+        } else {
+          var __PUCK__value__19 = _core.ObjectMapTrait['$ObjectMap'].find.call(map, function (_ref3) {
+            var _ref4 = _slicedToArray(_ref3, 2);
+
+            var __PUCK__value__20 = _ref4[0];
+            var exhaustive = _ref4[1];
+
+            return !exhaustive;
+          });
+          if (__PUCK__value__19.kind == "Just") {
+            var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
+
+            var _PUCK__value__19$val$ = _slicedToArray(_PUCK__value__19$val[0], 2);
+
+            var member = _PUCK__value__19$val$[0];
+            var __PUCK__value__21 = _PUCK__value__19$val$[1];
+
+            return {
+              v: (0, _core.Err)("Match is not exhaustive. " + typeName + "::" + member + " is not exhaustive.")
+            };
+          };
+        };
+      };
+    }();
+
+    if ((typeof _ret5 === 'undefined' ? 'undefined' : _typeof(_ret5)) === "object") return _ret5.v;
+  };
+  return (0, _core.Ok)([]);
 }

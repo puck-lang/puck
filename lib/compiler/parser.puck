@@ -33,6 +33,8 @@ import '../ast/ast.puck' as {
   CallExpression
   IfExpression
   IfLetExpression
+  MatchExpression
+  MatchArm
   UnaryExpression
   WhileExpression
 
@@ -337,12 +339,12 @@ export fn parse(input) { // : TokenStream
 
   fn parseRecordPatternMember(): RecordPatternMember {
     let property = consumeToken(SyntaxKind.Identifier, 'identifier')
-    let local =
+    let pattern =
       if maybeConsumeToken(SyntaxKind.ColonToken).isJust()
         then parsePattern()
         else Pattern.Identifier(property)
 
-    {property, local}
+    {property, pattern}
   }
 
   fn parseRecordPattern(): RecordPattern {
@@ -380,6 +382,7 @@ export fn parse(input) { // : TokenStream
           then Pattern.TupleType(typePath, parseTuplePattern())
         else if isToken(SyntaxKind.OpenBraceToken)
           then Pattern.RecordType(typePath, parseRecordPattern())
+        else Pattern.UnitType(typePath)
       }
       else Pattern.Identifier(identifier)
     }
@@ -746,6 +749,25 @@ export fn parse(input) { // : TokenStream
       else parseIfCondition(ifKeyword)
   }
 
+  fn parseMatch(): MatchExpression {
+    {
+      kind: SyntaxKind.MatchExpression
+      matchKeyword: skipKeyword(SyntaxKind.MatchKeyword)
+      expression: parseExpression()
+      openBrace: input.peek()
+      patterns: delimited('{', '}', ',', parseMatchArm, false)
+      closeBrace: consumeToken(SyntaxKind.CloseBraceToken)
+    }
+  }
+
+  fn parseMatchArm(): MatchArm {
+    {
+      pattern: parsePattern()
+      arrow: consumeToken(SyntaxKind.EqualsGreaterThanToken)
+      expression: parseExpression()
+    }
+  }
+
   fn parseUnaryExpression(): UnaryExpression {
     let operator = input.next()
 
@@ -833,6 +855,7 @@ export fn parse(input) { // : TokenStream
       else if isToken(SyntaxKind.OpenBraceToken) then parseObjectLiteral()
       else if isToken(SyntaxKind.BarToken) then parseLambda()
       else if isToken(SyntaxKind.IfKeyword) then parseIf()
+      else if isToken(SyntaxKind.MatchKeyword) then parseMatch()
       else if isToken(SyntaxKind.WhileKeyword) then parseWhile()
       else if isToken(SyntaxKind.FnKeyword) then parseFunctionDeclaration()
       else if isToken(SyntaxKind.LetKeyword) {

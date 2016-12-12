@@ -173,6 +173,23 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
     });
     return _new;
   },
+  find: function find(predicate) {
+    var self = this;
+    var key = _js._Object.keys(self).find(function (key) {
+      return predicate([key, self[key]]);
+    });
+    if (key) {
+      return Just([key, self[key]]);
+    } else {
+      return Nothing;
+    };
+  },
+  forEach: function forEach(func) {
+    var self = this;
+    return _js._Object.keys(self).forEach(function (key) {
+      return func([key, self[key]]);
+    })([]);
+  },
   size: function size() {
     var self = this;
     return _js._Object.keys(self).length;
@@ -202,6 +219,15 @@ ListTrait['$List'] = {
 };
 Iterable['$List'] = {
   size: Iterable.size,
+  find: function find(predicate) {
+    var self = this;
+    var index = self.findIndex(predicate);
+    if (index >= 0) {
+      return Just(self[index]);
+    } else {
+      return Nothing;
+    };
+  },
   skip: function skip(count) {
     var self = this;
     return self.slice(count);
@@ -230,6 +256,8 @@ ObjectMapTrait['$ObjectMap'] = {
   _new: ObjectMapTrait._new,
   fromList: ObjectMapTrait.fromList,
   map: ObjectMapTrait.map,
+  find: ObjectMapTrait.find,
+  forEach: ObjectMapTrait.forEach,
   size: ObjectMapTrait.size
 };
 var Bool = exports.Bool = function Bool(object) {

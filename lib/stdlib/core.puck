@@ -100,6 +100,8 @@ export trait Iterable<E> {
     self.length
   }
 
+  fn find(self, predicate: (E) => Bool): Maybe<E>
+
   /// Returns an [Iterable] that provides all but the first [count] elements.
   // fn skip(self, count: Num): Iterable<E>
   fn skip(self, count: Num): List<E>
@@ -110,6 +112,14 @@ export trait Iterable<E> {
 }
 
 impl<E> Iterable<E> for List<E> {
+  fn find(self, predicate: (E) => Bool): Maybe<E> {
+    let index = self.findIndex(predicate)
+
+    if index >= 0
+      then Just(self[index])
+      else Nothing
+  }
+
   fn skip(self, count): List<E> {
     self.slice(count)
   }
@@ -176,6 +186,21 @@ export trait ObjectMapTrait<T> {
       new[key] = mapper(self[key])
     })
     new
+  }
+
+  fn find(self, predicate: ((String, T)) => Bool): Maybe<(String, T)> {
+    let key = Object.keys(self).find(|key| predicate((key, self[key])))
+
+    if key
+      then Just((key, self[key]))
+      else Nothing
+  }
+
+  fn forEach(self, func: ((String, T)) => ()): () {
+    Object.keys(self).forEach(|key| {
+      func((key, self[key]))
+    })
+    (())
   }
 
   fn size(self): Num {

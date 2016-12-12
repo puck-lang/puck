@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.resolveTypeParameters = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.createTypeInstance = createTypeInstance;
 exports.createTypeInstanceTypeCast = createTypeInstanceTypeCast;
 exports.getType = getType;
@@ -112,12 +115,16 @@ function createTypeInstance(_class, typeParameters) {
     __PUCK__value__8 = typeParameters;
   };
   typeParameters = __PUCK__value__8;
-  var cachedInstance = _class.instances.find(function (i) {
+  var __PUCK__value__9 = _core.Iterable['$List'].find.call(_class.instances, function (i) {
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
       return isSameType(p, typeParameters[i]);
     });
   });
-  if (cachedInstance) {
+  if (__PUCK__value__9.kind == "Just") {
+    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
+
+    var cachedInstance = _PUCK__value__9$valu[0];
+
     return cachedInstance;
   };
   var parameterMap = _core.ObjectMapTrait.fromList(_core.ListTrait.zip(typeParameters, _class.typeParameters).map(function (p) {
@@ -125,23 +132,23 @@ function createTypeInstance(_class, typeParameters) {
     var typeParameter = p[1];
     return [typeParameter.name, typeArgument];
   }));
-  var __PUCK__value__9 = void 0;
-  if (_class.functions) {
-    __PUCK__value__9 = mapObject(_class.functions, resolveTypeParameters(parameterMap));
-  };
   var __PUCK__value__10 = void 0;
-  if (_class.members) {
-    __PUCK__value__10 = mapObject(_class.members, resolveTypeParameters(parameterMap));
+  if (_class.functions) {
+    __PUCK__value__10 = mapObject(_class.functions, resolveTypeParameters(parameterMap));
   };
   var __PUCK__value__11 = void 0;
+  if (_class.members) {
+    __PUCK__value__11 = mapObject(_class.members, resolveTypeParameters(parameterMap));
+  };
+  var __PUCK__value__12 = void 0;
   if (_class.properties) {
-    __PUCK__value__11 = mapObject(_class.properties, resolveTypeParameters(parameterMap));
+    __PUCK__value__12 = mapObject(_class.properties, resolveTypeParameters(parameterMap));
   };
   var instance = {
     isTrait: _class.isTrait,
-    functions: __PUCK__value__9,
-    members: __PUCK__value__10,
-    properties: __PUCK__value__11,
+    functions: __PUCK__value__10,
+    members: __PUCK__value__11,
+    properties: __PUCK__value__12,
     implementations: _class.implementations && [],
     kind: _class.name,
     name: _class.name + "<" + typeParameters.map(function (p) {
@@ -178,9 +185,9 @@ function getType(scope, t) {
     };
   } else {
     if (t.kind == _ast2.SyntaxKind.ObjectTypeBound) {
-      var properties = mapObject(t.properties, function (p) {
-        return getType(scope, p.typeBound, "ObjectTypeBound");
-      });
+      var properties = _core.ObjectMapTrait.fromList(t.properties.map(function (member) {
+        return [member.name.name, getType(scope, member.typeBound, "ObjectTypeBound")];
+      }));
       return {
         kind: "Object",
         name: "Object",

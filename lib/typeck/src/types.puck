@@ -84,11 +84,10 @@ export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
     }
     else typeParameters
 
-  let cachedInstance = class.instances.find(|i|
+  if let Maybe::Just(cachedInstance) = class.instances.find(|i|
     i.typeParameters.length == typeParameters.length and
-    i.typeParameters.every(|p, i| isSameType(p, typeParameters[i])))
-
-  if cachedInstance
+    i.typeParameters.every(|p, i| isSameType(p, typeParameters[i]))
+  )
     then return cachedInstance
 
   let parameterMap = ObjectMapTrait.fromList(
@@ -136,7 +135,12 @@ export fn getType(scope: Scope, t, msg = '') { // t: TypeBound
     else binding.type_
   }
   else if t.kind == SyntaxKind.ObjectTypeBound {
-    let properties = mapObject(t.properties, |p| getType(scope, p.typeBound, 'ObjectTypeBound'))
+    let properties = ObjectMapTrait.fromList(
+      t.properties.map(|member| (
+        member.name.name
+        getType(scope, member.typeBound, 'ObjectTypeBound')
+      ))
+    )
 
     {
       kind: 'Object'

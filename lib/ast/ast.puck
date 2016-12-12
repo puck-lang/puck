@@ -181,15 +181,26 @@ export type IfLetExpression {
   ifKeyword: Token
   letKeyword: Token
   variableDeclaration: VariableDeclaration
-  // pattern: Pattern
-  // equalsToken: Token
-  // expression: Expression
   then_: Block
   else_: Maybe<Block>
 }
 
 export type LoopExpression {
   body: Block
+}
+
+export type MatchExpression {
+  matchKeyword: Token
+  expression: Expression
+  openBrace: Token
+  patterns: List<MatchArm>
+  closeBrace: Token
+}
+
+export type MatchArm {
+  pattern: Pattern
+  arrow: Token
+  expression: Expression
 }
 
 export type TypePathExpression {
@@ -247,6 +258,7 @@ export enum Pattern
   | Tuple(TuplePattern)
   | RecordType(TypePath, RecordPattern)
   | TupleType(TypePath, TuplePattern)
+  | UnitType(TypePath)
 
 export type BreakStatement {
   keyword: Token

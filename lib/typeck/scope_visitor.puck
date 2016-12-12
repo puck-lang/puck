@@ -21,6 +21,8 @@ import '../ast/ast.puck' as {
   ExportDirective
   ImportDirective
 
+  Pattern
+
   AssignmentExpression
   BinaryExpression
   CallExpression
@@ -28,6 +30,8 @@ import '../ast/ast.puck' as {
   IfExpression
   IfLetExpression
   LoopExpression
+  MatchExpression
+  MatchArm
   TypePathExpression
   UnaryExpression
   WhileExpression
@@ -50,26 +54,28 @@ import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/functions.puck' as {getTupleTypeName}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
-import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
+import 'src/structure_visitor.puck' as {declarePatternVariables, notAssignableError, structureVisitor}
 import 'src/types.puck' as {createTypeInstance, getType, isAssignable, isSameType, resolveTypeParameters}
 import '../entities.puck' as {
-  isEnumType
-  isObjectType
-  isStruct
-  isTrait
-  isTypeClass
-  isTypeInstance
-  isTypeParameter
-  isTupleType
   Binding
+  EnumType
   FunctionType
   Scope
   Struct
   TypeInstance
+  isEnumType
+  isObjectType
+  isStruct
+  isTrait
+  isTupleType
+  isTypeClass
+  isTypeInstance
+  isTypeParameter
 }
 
 export fn ScopeVisitor(context, file) {
   let mut importDirective: ImportDirective
+  let mut matchExpression: Maybe<MatchExpression> = Nothing
   let reportError = context.reportError.bind(context, file)
 
   fn getBinding(token: Expression)
@@ -391,6 +397,46 @@ export fn ScopeVisitor(context, file) {
       visit.walkLoopExpression(self, e)
       self.scope = self.scope.parent
     }
+    visitMatchExpression: |mut self, mut e: MatchExpression| {
+      e.scope = self.scope
+      matchExpression = Just(e)
+
+      self.visitExpression(e.expression)
+      e.type_ = e.expression.type_
+
+      // print('e.type_', e.type_)
+      e.patterns.forEach(|a| self.visitMatchArm(a))
+
+      if let Result::Err(error) = checkExhaustive(e) {
+        self.reportError(e, error)
+      }
+
+      matchExpression = Nothing
+    }
+    visitMatchArm: |mut self, mut a: MatchArm| {
+      self.scope = createScope(context, file, self.scope)
+      a.scope = self.scope
+
+      let m = matchExpression.unwrap()
+
+      let result: Result<(), ()> = declarePatternVariables(a.scope, self, a.pattern, false, m.type_, true)
+      if result.isOk() {
+        let patternTy = result.value[0]
+
+        if not isAssignable(m.type_, patternTy)
+          then self.reportError(a, notAssignableError(m.type_, patternTy))
+      }
+      else {
+        if result.value[0].kind == 'PatternMismatch' {
+          let (pattern, to, subject) = result.value[0].value
+          self.reportError(a, notAssignableError(to, subject))
+        }
+      }
+
+      self.visitExpression(a.expression)
+
+      self.scope = self.scope.parent
+    }
     visitTypePathExpression: |self, mut e: TypePathExpression| {
       e.scope = self.scope
       let typePath = e.typePath
@@ -541,3 +587,70 @@ export fn ScopeVisitor(context, file) {
   })
 }
 
+fn isExhaustive(p: Pattern) {
+  if p.kind == 'CatchAll' {
+    true
+  }
+  else if p.kind == 'Identifier' {
+    true
+  }
+  else if p.kind == 'Record' {
+    p.value[0].properties.every(|p| isExhaustive(p.pattern))
+  }
+  else if p.kind == 'RecordType' {
+    p.value[1].properties.every(|p| isExhaustive(p.pattern))
+  }
+  else if p.kind == 'Tuple' {
+    p.value[0].properties.every(isExhaustive)
+  }
+  else if p.kind == 'TupleType' {
+    p.value[1].properties.every(isExhaustive)
+  }
+  else if p.kind == 'UnitType' {
+    true
+  }
+}
+
+fn checkExhaustive(e: MatchExpression): Result<(), String> {
+  if isEnumType(e.type_) {
+    let enum_: EnumType = e.type_
+    let typeName = e.type_.name
+    let mut map = ObjectMapTrait.new()
+
+    if let Maybe::Just(_) = e.patterns.find(|a| {
+      let pattern = a.pattern
+      let mut member = ''
+      if pattern.kind == 'CatchAll' then return true
+      else if pattern.kind == 'Variable' then return true
+      else if pattern.kind == 'Record' then print('Record bad!!!')
+      else if pattern.kind == 'RecordType' then member = pattern.value[0].value[1].value[0].name
+      else if pattern.kind == 'Tuple' then print('Tuple bad!!!')
+      else if pattern.kind == 'TupleType' then member = pattern.value[0].value[1].value[0].name
+      else if pattern.kind == 'UnitType' then member = pattern.value[0].value[1].value[0].name
+      else print('else bad!!!')
+
+      if not map[member] {
+        map[member] = isExhaustive(pattern)
+      }
+
+      false
+    })
+      then return Ok(())
+
+    let mapSize = map.size()
+    let memberCount = enum_.members.size()
+
+    if mapSize == memberCount - 1 {
+      let mut (missing, _) = enum_.members.find(|(member, _)| not map[member]).unwrap()
+      return Err('Match is not exhaustive. It is missing a case for $typeName::$missing')
+    }
+    else if mapSize < memberCount {
+      return Err('Match is not exhaustive.')
+    }
+    else if let Maybe::Just((member, _)) = map.find(|(_, exhaustive)| not exhaustive) {
+      return Err('Match is not exhaustive. $typeName::$member is not exhaustive.')
+    }
+  }
+
+  Ok(())
+}

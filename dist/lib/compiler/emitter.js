@@ -13,7 +13,7 @@ var Context;
     Context[Context["Value"] = 2] = "Value";
 })(Context || (Context = {}));
 function isEnumPattern(pattern) {
-    if (pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
+    if (pattern.kind === 'UnitType' || pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
         var typePath = pattern.value[0];
         if (typePath.kind === '_Object') {
             if (typePath.value[1].kind !== 'Member')
@@ -175,6 +175,7 @@ function Emitter() {
                 case ast_1.SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
                 case ast_1.SyntaxKind.IfExpression: return emitIfExpression(expression);
                 case ast_1.SyntaxKind.IfLetExpression: return emitIfLetExpression(expression);
+                case ast_1.SyntaxKind.MatchExpression: return emitMatchExpression(expression);
                 default:
                     console.error('expression', expression);
                     throw Error(ast_1.SyntaxKind[expression.kind] + " is not supported");
@@ -378,14 +379,14 @@ function Emitter() {
         }
         else if (p.kind === 'Record') {
             return "{" + p.value[0].properties.map(function (_a) {
-                var property = _a.property, local = _a.local;
-                return (emitIdentifier(property) + ": " + emitPattern(local));
+                var property = _a.property, pattern = _a.pattern;
+                return (emitIdentifier(property) + ": " + emitPattern(pattern));
             }).join(', ') + "}";
         }
         else if (p.kind === 'RecordType') {
             return "{" + p.value[1].properties.map(function (_a) {
-                var property = _a.property, local = _a.local;
-                return (emitIdentifier(property) + ": " + emitPattern(local));
+                var property = _a.property, pattern = _a.pattern;
+                return (emitIdentifier(property) + ": " + emitPattern(pattern));
             }).join(', ') + "}";
         }
         else if (p.kind === 'Tuple') {
@@ -503,6 +504,41 @@ function Emitter() {
             then_: then_,
             else_: e.else_,
         });
+    }
+    function emitMatchExpression(e) {
+        var outerValueVariable = valueVariable;
+        valueVariable = newValueVariable();
+        hoist("let " + valueVariable + " = " + emitExpression(e.expression));
+        if (e.patterns.length === 0)
+            return '';
+        var ifLet;
+        for (var i = e.patterns.length - 1; i >= 0; i--) {
+            var arm = e.patterns[i];
+            ifLet = {
+                kind: ast_1.SyntaxKind.IfLetExpression,
+                variableDeclaration: {
+                    kind: ast_1.SyntaxKind.VariableDeclaration,
+                    mutable: false,
+                    typeBound: null,
+                    pattern: arm.pattern,
+                    initializer: { kind: 'Just', value: [
+                            { kind: ast_1.SyntaxKind.Identifier, name: valueVariable }
+                        ] },
+                },
+                then_: {
+                    kind: ast_1.SyntaxKind.Block,
+                    expressions: [arm.expression],
+                },
+                else_: ifLet
+                    ? { kind: 'Just', value: [{
+                                kind: ast_1.SyntaxKind.Block,
+                                expressions: [ifLet]
+                            }] }
+                    : { kind: 'Nothing' }
+            };
+        }
+        valueVariable = outerValueVariable;
+        return emitIfLetExpression(ifLet);
     }
     function emitUnaryExpression(e) {
         return withPrecedence(e.operator, function () { return ("" + tokenToJs[e.operator.kind] + emitExpression(e.rhs)); });

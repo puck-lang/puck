@@ -22,6 +22,9 @@ import {
   isMember,
   ListLiteral,
   LoopExpression,
+  MatchArm,
+  MatchExpression,
+  Maybe,
   MemberAccess,
   Module,
   NumberLiteral,
@@ -63,7 +66,7 @@ enum Context {
 }
 
 function isEnumPattern(pattern: Pattern) {
-  if (pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
+  if (pattern.kind === 'UnitType' || pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
       const typePath = pattern.value[0]
       if (typePath.kind === '_Object') {
         if (typePath.value[1].kind !== 'Member')
@@ -249,6 +252,7 @@ export function Emitter() {
         case SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
         case SyntaxKind.IfExpression: return emitIfExpression(expression);
         case SyntaxKind.IfLetExpression: return emitIfLetExpression(expression);
+        case SyntaxKind.MatchExpression: return emitMatchExpression(expression);
         default:
           console.error('expression', expression)
           throw Error(`${SyntaxKind[expression.kind]} is not supported`)
@@ -478,13 +482,13 @@ export function Emitter() {
       return emitIdentifier(p.value[0])
     }
     else if (p.kind === 'Record') {
-      return `{${p.value[0].properties.map(({property, local}) =>
-        `${emitIdentifier(property)}: ${emitPattern(local)}`
+      return `{${p.value[0].properties.map(({property, pattern}) =>
+        `${emitIdentifier(property)}: ${emitPattern(pattern)}`
       ).join(', ')}}`
     }
     else if (p.kind === 'RecordType') {
-      return `{${p.value[1].properties.map(({property, local}) =>
-        `${emitIdentifier(property)}: ${emitPattern(local)}`
+      return `{${p.value[1].properties.map(({property, pattern}) =>
+        `${emitIdentifier(property)}: ${emitPattern(pattern)}`
       ).join(', ')}}`
     }
     else if (p.kind === 'Tuple') {
@@ -560,7 +564,6 @@ export function Emitter() {
     let isEnum = isEnumPattern(e.variableDeclaration.pattern)
     let condition: Expression
 
-
     if (isEnum) {
       const typePath = e.variableDeclaration.pattern.value[0] as TypePathObjectArm
 
@@ -619,6 +622,45 @@ export function Emitter() {
       then_,
       else_: e.else_,
     })
+  }
+
+  function emitMatchExpression(e: MatchExpression) {
+    let outerValueVariable = valueVariable
+    valueVariable = newValueVariable()
+    hoist(`let ${valueVariable} = ${emitExpression(e.expression)}`)
+
+    if (e.patterns.length === 0) return ''
+
+    let ifLet: IfLetExpression
+    for (let i = e.patterns.length - 1; i >= 0; i--) {
+      let arm = e.patterns[i]
+      ifLet = {
+        kind: SyntaxKind.IfLetExpression,
+        variableDeclaration: {
+          kind: SyntaxKind.VariableDeclaration,
+          mutable: false,
+          typeBound: null,
+          pattern: arm.pattern,
+          initializer: {kind: 'Just', value: [
+            {kind: SyntaxKind.Identifier, name: valueVariable} as Identifier
+          ]},
+        },
+        then_: {
+          kind: SyntaxKind.Block,
+          expressions: [arm.expression],
+        },
+        else_: ifLet
+          ? {kind: 'Just', value: [{
+              kind: SyntaxKind.Block,
+              expressions: [ifLet]
+            }]}
+          : {kind: 'Nothing'}
+      }
+    }
+
+    valueVariable = outerValueVariable
+
+    return emitIfLetExpression(ifLet)
   }
 
   function emitUnaryExpression(e: BinaryExpression) {

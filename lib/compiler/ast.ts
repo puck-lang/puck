@@ -14,6 +14,7 @@ export enum SyntaxKind {
   LetKeyword,
   LoopKeyword,
   MutKeyword,
+  MatchKeyword,
   NotKeyword,
   OrKeyword,
   ReturnKeyword,
@@ -92,6 +93,7 @@ export enum SyntaxKind {
   IfExpression,
   IfLetExpression,
   LoopExpression,
+  MatchExpression,
   TypePathExpression,
   UnaryExpression,
   WhileExpression,
@@ -118,38 +120,30 @@ export enum SyntaxKind {
 export const textToToken = Object['assign'](Object.create(null), {
   'and': SyntaxKind.AndKeyword,
   'break': SyntaxKind.BreakKeyword,
-  // 'any': SyntaxKind.AnyKeyword,
   // 'as': SyntaxKind.AsKeyword,
   // 'debugger': SyntaxKind.DebuggerKeyword,
-  // 'delete': SyntaxKind.DeleteKeyword,
   'else': SyntaxKind.ElseKeyword,
   'enum': SyntaxKind.EnumKeyword,
   'export': SyntaxKind.ExportKeyword,
   'false': SyntaxKind.FalseKeyword,
   'for': SyntaxKind.ForKeyword,
   'fn': SyntaxKind.FnKeyword,
-  // 'get': SyntaxKind.GetKeyword,
   'if': SyntaxKind.IfKeyword,
   'impl': SyntaxKind.ImplKeyword,
   'import': SyntaxKind.ImportKeyword,
-  // 'is': SyntaxKind.IsKeyword,
   'let': SyntaxKind.LetKeyword,
   'loop': SyntaxKind.LoopKeyword,
+  'match': SyntaxKind.MatchKeyword,
   'mut': SyntaxKind.MutKeyword,
   'not': SyntaxKind.NotKeyword,
   'or': SyntaxKind.OrKeyword,
   'return': SyntaxKind.ReturnKeyword,
-  // 'set': SyntaxKind.SetKeyword,
   'throw': SyntaxKind.ThrowKeyword,
   'true': SyntaxKind.TrueKeyword,
   'then': SyntaxKind.ThenKeyword,
   'trait': SyntaxKind.TraitKeyword,
-  // 'try': SyntaxKind.TryKeyword,
   'type': SyntaxKind.TypeKeyword,
   'while': SyntaxKind.WhileKeyword,
-  // 'yield': SyntaxKind.YieldKeyword,
-  // 'async': SyntaxKind.AsyncKeyword,
-  // 'await': SyntaxKind.AwaitKeyword,
   // 'of': SyntaxKind.OfKeyword,
   '{': SyntaxKind.OpenBraceToken,
   '}': SyntaxKind.CloseBraceToken,
@@ -413,7 +407,7 @@ export type Pattern
   | TupleTypePatternArm
 
 export interface RecordPattern extends Token {
-  properties: Array<{property: Identifier, local: Pattern}>
+  properties: Array<{property: Identifier, pattern: Pattern}>
 }
 export interface TuplePattern extends Token {
   properties: Array<Pattern>
@@ -456,6 +450,16 @@ export interface IfLetExpression extends Token {
 
 export interface LoopExpression extends Token {
   body: BlockNode,
+}
+
+export interface MatchExpression extends Token {
+  expression: Expression
+  patterns: Array<MatchArm>
+}
+
+export interface MatchArm {
+  pattern: Pattern
+  expression: Expression
 }
 
 export interface TypePathExpression extends Token {

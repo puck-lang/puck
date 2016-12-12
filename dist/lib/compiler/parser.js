@@ -308,10 +308,10 @@ function parse(input) {
     } else {
       __PUCK__value__6 = _ast.Pattern.Identifier(property);
     };
-    var local = __PUCK__value__6;
+    var pattern = __PUCK__value__6;
     return {
       property: property,
-      local: local
+      pattern: pattern
     };
   };
   function parseRecordPattern() {
@@ -352,6 +352,8 @@ function parse(input) {
             } else {
               if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
                 return _ast.Pattern.RecordType(typePath, parseRecordPattern());
+              } else {
+                return _ast.Pattern.UnitType(typePath);
               };
             };
           } else {
@@ -753,6 +755,23 @@ function parse(input) {
       return parseIfCondition(ifKeyword);
     };
   };
+  function parseMatch() {
+    return {
+      kind: _ast2.SyntaxKind.MatchExpression,
+      matchKeyword: skipKeyword(_ast2.SyntaxKind.MatchKeyword),
+      expression: parseExpression(),
+      openBrace: input.peek(),
+      patterns: delimited("{", "}", ",", parseMatchArm, false),
+      closeBrace: consumeToken(_ast2.SyntaxKind.CloseBraceToken)
+    };
+  };
+  function parseMatchArm() {
+    return {
+      pattern: parsePattern(),
+      arrow: consumeToken(_ast2.SyntaxKind.EqualsGreaterThanToken),
+      expression: parseExpression()
+    };
+  };
   function parseUnaryExpression() {
     var operator = input.next();
     return {
@@ -851,56 +870,60 @@ function parse(input) {
               if (isToken(_ast2.SyntaxKind.IfKeyword)) {
                 return parseIf();
               } else {
-                if (isToken(_ast2.SyntaxKind.WhileKeyword)) {
-                  return parseWhile();
+                if (isToken(_ast2.SyntaxKind.MatchKeyword)) {
+                  return parseMatch();
                 } else {
-                  if (isToken(_ast2.SyntaxKind.FnKeyword)) {
-                    return parseFunctionDeclaration();
+                  if (isToken(_ast2.SyntaxKind.WhileKeyword)) {
+                    return parseWhile();
                   } else {
-                    if (isToken(_ast2.SyntaxKind.LetKeyword)) {
-                      input.next();
-                      return parseVariableDeclaration();
+                    if (isToken(_ast2.SyntaxKind.FnKeyword)) {
+                      return parseFunctionDeclaration();
                     } else {
-                      if (isToken(_ast2.SyntaxKind.NotKeyword) || isToken(_ast2.SyntaxKind.MinusToken) || isToken(_ast2.SyntaxKind.PlusToken)) {
-                        return parseUnaryExpression();
+                      if (isToken(_ast2.SyntaxKind.LetKeyword)) {
+                        input.next();
+                        return parseVariableDeclaration();
                       } else {
-                        if (isToken(_ast2.SyntaxKind.BreakKeyword)) {
-                          return input.next();
+                        if (isToken(_ast2.SyntaxKind.NotKeyword) || isToken(_ast2.SyntaxKind.MinusToken) || isToken(_ast2.SyntaxKind.PlusToken)) {
+                          return parseUnaryExpression();
                         } else {
-                          if (isToken(_ast2.SyntaxKind.ReturnKeyword)) {
-                            return {
-                              kind: _ast2.SyntaxKind.ReturnStatement,
-                              keyword: input.next(),
-                              expression: parseExpression()
-                            };
+                          if (isToken(_ast2.SyntaxKind.BreakKeyword)) {
+                            return input.next();
                           } else {
-                            if (isToken(_ast2.SyntaxKind.ThrowKeyword)) {
+                            if (isToken(_ast2.SyntaxKind.ReturnKeyword)) {
                               return {
-                                kind: input.next().kind,
+                                kind: _ast2.SyntaxKind.ReturnStatement,
+                                keyword: input.next(),
                                 expression: parseExpression()
                               };
                             } else {
-                              if (isToken(_ast2.SyntaxKind.TrueKeyword) || isToken(_ast2.SyntaxKind.FalseKeyword)) {
-                                return maybeAccess({
-                                  kind: _ast2.SyntaxKind.BooleanLiteral,
-                                  value: input.next().kind == _ast2.SyntaxKind.TrueKeyword
-                                });
+                              if (isToken(_ast2.SyntaxKind.ThrowKeyword)) {
+                                return {
+                                  kind: input.next().kind,
+                                  expression: parseExpression()
+                                };
                               } else {
-                                if (isToken(_ast2.SyntaxKind.NumberLiteral) || isToken(_ast2.SyntaxKind.StringLiteral)) {
-                                  return maybeAccess(input.next());
+                                if (isToken(_ast2.SyntaxKind.TrueKeyword) || isToken(_ast2.SyntaxKind.FalseKeyword)) {
+                                  return maybeAccess({
+                                    kind: _ast2.SyntaxKind.BooleanLiteral,
+                                    value: input.next().kind == _ast2.SyntaxKind.TrueKeyword
+                                  });
                                 } else {
-                                  if (isToken(_ast2.SyntaxKind.Identifier)) {
-                                    var identifier = input.next();
-                                    if (isToken(_ast2.SyntaxKind.ColonColonToken)) {
-                                      return {
-                                        kind: _ast2.SyntaxKind.TypePathExpression,
-                                        typePath: parseTypePath((0, _core.Just)(identifier))
+                                  if (isToken(_ast2.SyntaxKind.NumberLiteral) || isToken(_ast2.SyntaxKind.StringLiteral)) {
+                                    return maybeAccess(input.next());
+                                  } else {
+                                    if (isToken(_ast2.SyntaxKind.Identifier)) {
+                                      var identifier = input.next();
+                                      if (isToken(_ast2.SyntaxKind.ColonColonToken)) {
+                                        return {
+                                          kind: _ast2.SyntaxKind.TypePathExpression,
+                                          typePath: parseTypePath((0, _core.Just)(identifier))
+                                        };
+                                      } else {
+                                        return maybeAccess(identifier);
                                       };
                                     } else {
-                                      return maybeAccess(identifier);
+                                      return unexpected();
                                     };
-                                  } else {
-                                    return unexpected();
                                   };
                                 };
                               };
