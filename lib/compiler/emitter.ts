@@ -645,10 +645,7 @@ export function Emitter() {
             {kind: SyntaxKind.Identifier, name: valueVariable} as Identifier
           ]},
         },
-        then_: {
-          kind: SyntaxKind.Block,
-          expressions: [arm.expression],
-        },
+        then_: arm.block,
         else_: ifLet
           ? {kind: 'Just', value: [{
               kind: SyntaxKind.Block,

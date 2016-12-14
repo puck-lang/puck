@@ -711,7 +711,7 @@ function walkMatchExpression(visitor, e) {
 };
 function walkMatchArm(visitor, e) {
   visitor.visitPattern(e.pattern);
-  return visitor.visitExpression(e.expression);
+  return visitor.visitBlock(e.block);
 };
 function walkUnaryExpression(visitor, e) {
   return visitor.visitExpression(e.rhs);

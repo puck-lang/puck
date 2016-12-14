@@ -200,7 +200,7 @@ export type MatchExpression {
 export type MatchArm {
   pattern: Pattern
   arrow: Token
-  expression: Expression
+  block: Block
 }
 
 export type TypePathExpression {

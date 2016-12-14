@@ -459,7 +459,7 @@ export interface MatchExpression extends Token {
 
 export interface MatchArm {
   pattern: Pattern
-  expression: Expression
+  block: BlockNode
 }
 
 export interface TypePathExpression extends Token {

@@ -436,7 +436,7 @@ function ScopeVisitor(context, file) {
           self.reportError(a, (0, _structure_visitor.notAssignableError)(to, subject));
         };
       };
-      self.visitExpression(a.expression);
+      self.visitBlock(a.block);
       return self.scope = self.scope.parent;
     },
     visitTypePathExpression: function visitTypePathExpression(e) {

@@ -144,6 +144,7 @@ if (__PUCK__value__40.kind == "Just") {
 
   var name = _PUCK__value__40$val[0];
 
+  name = name.reverse();
   sayHello(name);
 } else {
   var __PUCK__value__41 = __PUCK__value__39;

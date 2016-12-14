@@ -43,7 +43,10 @@ print(
 fn sayHello(name: String) then print('Hello, $name')
 
 match Maybe::Just('World') {
-  Maybe::Just(name) => sayHello(name)
+  Maybe::Just(name) => {
+    let name = name.reverse()
+    sayHello(name)
+  }
   Maybe::Nothing => print('Oh, nothing')
 }
 

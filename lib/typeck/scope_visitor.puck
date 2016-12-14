@@ -404,7 +404,6 @@ export fn ScopeVisitor(context, file) {
       self.visitExpression(e.expression)
       e.type_ = e.expression.type_
 
-      // print('e.type_', e.type_)
       e.patterns.forEach(|a| self.visitMatchArm(a))
 
       if let Result::Err(error) = checkExhaustive(e) {
@@ -433,7 +432,7 @@ export fn ScopeVisitor(context, file) {
         }
       }
 
-      self.visitExpression(a.expression)
+      self.visitBlock(a.block)
 
       self.scope = self.scope.parent
     }

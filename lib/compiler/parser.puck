@@ -761,10 +761,19 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseMatchArm(): MatchArm {
+    let pattern = parsePattern()
+    let arrow = consumeToken(SyntaxKind.EqualsGreaterThanToken)
+    let block =
+      if isToken(SyntaxKind.OpenBraceToken)
+        then parseBlock()
+        else {{
+          kind: SyntaxKind.Block
+          expressions: [parseExpression()]
+        }}
     {
-      pattern: parsePattern()
-      arrow: consumeToken(SyntaxKind.EqualsGreaterThanToken)
-      expression: parseExpression()
+      pattern
+      arrow
+      block
     }
   }
 

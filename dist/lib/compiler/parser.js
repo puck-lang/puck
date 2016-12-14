@@ -766,10 +766,22 @@ function parse(input) {
     };
   };
   function parseMatchArm() {
+    var pattern = parsePattern();
+    var arrow = consumeToken(_ast2.SyntaxKind.EqualsGreaterThanToken);
+    var __PUCK__value__29 = void 0;
+    if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
+      __PUCK__value__29 = parseBlock();
+    } else {
+      __PUCK__value__29 = {
+        kind: _ast2.SyntaxKind.Block,
+        expressions: [parseExpression()]
+      };
+    };
+    var block = __PUCK__value__29;
     return {
-      pattern: parsePattern(),
-      arrow: consumeToken(_ast2.SyntaxKind.EqualsGreaterThanToken),
-      expression: parseExpression()
+      pattern: pattern,
+      arrow: arrow,
+      block: block
     };
   };
   function parseUnaryExpression() {
@@ -783,17 +795,17 @@ function parse(input) {
   function parseWhile() {
     skipKeyword(_ast2.SyntaxKind.WhileKeyword);
     var condition = parseExpression();
-    var __PUCK__value__29 = void 0;
+    var __PUCK__value__30 = void 0;
     if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__29 = parseBlock();
+      __PUCK__value__30 = parseBlock();
     } else {
       skipKeyword(_ast2.SyntaxKind.ThenKeyword);
-      __PUCK__value__29 = {
+      __PUCK__value__30 = {
         kind: _ast2.SyntaxKind.Block,
         expressions: [parseExpression()]
       };
     };
-    var body = __PUCK__value__29;
+    var body = __PUCK__value__30;
     return {
       kind: _ast2.SyntaxKind.WhileExpression,
       condition: condition,
@@ -809,14 +821,14 @@ function parse(input) {
   };
   function parseObjectLiteralMember() {
     var name = consumeToken(_ast2.SyntaxKind.Identifier, "identifier");
-    var __PUCK__value__30 = void 0;
+    var __PUCK__value__31 = void 0;
     if (isToken(_ast2.SyntaxKind.ColonToken)) {
       input.next();
-      __PUCK__value__30 = parseExpression();
+      __PUCK__value__31 = parseExpression();
     } else {
-      __PUCK__value__30 = name;
+      __PUCK__value__31 = name;
     };
-    var value = __PUCK__value__30;
+    var value = __PUCK__value__31;
     return {
       kind: _ast2.SyntaxKind.ObjectLiteralMember,
       name: name,
@@ -952,11 +964,11 @@ function parse(input) {
       if (isToken(_ast2.SyntaxKind.FnKeyword)) {
         expression = parseFunctionDeclaration();
         var func = expression;
-        var __PUCK__value__31 = func.name;
-        if (__PUCK__value__31.kind == "Just") {
-          var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1);
+        var __PUCK__value__32 = func.name;
+        if (__PUCK__value__32.kind == "Just") {
+          var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1);
 
-          var name = _PUCK__value__31$val[0];
+          var name = _PUCK__value__32$val[0];
 
           identifier = name;
         } else {
@@ -966,11 +978,11 @@ function parse(input) {
         if (isToken(_ast2.SyntaxKind.LetKeyword)) {
           input.next();
           expression = parseVariableDeclaration();
-          var __PUCK__value__32 = expression.pattern;
-          if (__PUCK__value__32.kind == "Identifier") {
-            var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1);
+          var __PUCK__value__33 = expression.pattern;
+          if (__PUCK__value__33.kind == "Identifier") {
+            var _PUCK__value__33$val = _slicedToArray(__PUCK__value__33.value, 1);
 
-            var _name = _PUCK__value__32$val[0];
+            var _name = _PUCK__value__33$val[0];
 
             identifier = _name;
           } else {
@@ -1008,34 +1020,34 @@ function parse(input) {
     if (parts > 2) {
       input.croak("Illegal token \":\" used in import path");
     };
-    var __PUCK__value__33 = void 0;
-    if (parts.length == 2) {
-      __PUCK__value__33 = (0, _core.Just)(parts[0]);
-    } else {
-      __PUCK__value__33 = _core.Nothing;
-    };
-    var domain = __PUCK__value__33;
     var __PUCK__value__34 = void 0;
     if (parts.length == 2) {
-      __PUCK__value__34 = parts[1];
+      __PUCK__value__34 = (0, _core.Just)(parts[0]);
     } else {
-      __PUCK__value__34 = parts[0];
+      __PUCK__value__34 = _core.Nothing;
     };
-    var path = __PUCK__value__34;
-    var asKeyword = consumeToken(_ast2.SyntaxKind.AsKeyword);
+    var domain = __PUCK__value__34;
     var __PUCK__value__35 = void 0;
-    if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__35 = parseObjectDestructure();
+    if (parts.length == 2) {
+      __PUCK__value__35 = parts[1];
     } else {
-      var __PUCK__value__36 = void 0;
-      if (isToken(_ast2.SyntaxKind.AsteriskToken)) {
-        __PUCK__value__36 = consumeToken(false);
-      } else {
-        __PUCK__value__36 = consumeToken(_ast2.SyntaxKind.Identifier, "identifier");
-      };
-      __PUCK__value__35 = __PUCK__value__36;
+      __PUCK__value__35 = parts[0];
     };
-    var specifier = __PUCK__value__35;
+    var path = __PUCK__value__35;
+    var asKeyword = consumeToken(_ast2.SyntaxKind.AsKeyword);
+    var __PUCK__value__36 = void 0;
+    if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
+      __PUCK__value__36 = parseObjectDestructure();
+    } else {
+      var __PUCK__value__37 = void 0;
+      if (isToken(_ast2.SyntaxKind.AsteriskToken)) {
+        __PUCK__value__37 = consumeToken(false);
+      } else {
+        __PUCK__value__37 = consumeToken(_ast2.SyntaxKind.Identifier, "identifier");
+      };
+      __PUCK__value__36 = __PUCK__value__37;
+    };
+    var specifier = __PUCK__value__36;
     return {
       kind: _ast2.SyntaxKind.ImportDirective,
       importKeyword: importKeyword,

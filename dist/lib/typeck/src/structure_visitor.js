@@ -352,7 +352,6 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
               __PUCK__value__10 = recordType;
             };
             recordType = __PUCK__value__10;
-            (0, _core.print)("recordType", recordType);
             var properties = p.value[1].properties.map(function (p) {
               return declarePatternVariables(scope, visitor, p.pattern, mutable, recordType && recordType.properties[p.property.name], allowNotExhaustive);
             }).reduce(function (acc, cur) {

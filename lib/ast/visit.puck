@@ -412,7 +412,7 @@ export fn walkMatchExpression(visitor: Visitor, e: MatchExpression) {
 }
 export fn walkMatchArm(visitor: Visitor, e: MatchArm) {
   visitor.visitPattern(e.pattern)
-  visitor.visitExpression(e.expression)
+  visitor.visitBlock(e.block)
 }
 export fn walkUnaryExpression(visitor: Visitor, e: UnaryExpression) {
   visitor.visitExpression(e.rhs)

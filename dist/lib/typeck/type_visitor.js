@@ -202,9 +202,6 @@ function TypeVisitor(context, file) {
       var self = this;
       if (!t.type_) {
         t.type_ = self.scope.defineType(t, true).type_;
-        if (t.type_.name == "One") {
-          (0, _core.print)("t.type_", t.type_);
-        };
         t.scope = (0, _scope.createScope)(context, file, self.scope);
         return self.postHoist.push(t);
       } else {
