@@ -94,11 +94,20 @@ export function Emitter() {
     return `__PUCK__value__${valueVarableCount}`
   }
 
-  function withContext<T>(newContext: Context, fn: () => T): T {
+  function withContext<T>(newContext: Context, fn: () => T, forceSet = false): T {
+    if (!forceSet && newContext === Context.Return && context === Context.Return) {
+      return fn()
+    }
+    if (newContext === Context.Return) {
+      allowReturnContext = true
+    }
     let wasInContext = context
     context = newContext
     let value = fn()
     context = wasInContext
+    if (newContext === Context.Return) {
+      allowReturnContext = true
+    }
     return value
   }
 
@@ -144,6 +153,7 @@ export function Emitter() {
       if (i == block.length - 1) {
         context = wasInContext
       }
+      allowReturnContext = true
       expressions.push(emitExpressionKeepContext(block[i]))
     }
     hoist = outerHoist
@@ -238,14 +248,14 @@ export function Emitter() {
     try {
       let scalarExpression = emitScalarExpression(expression)
       if (scalarExpression) {
-        if (context == Context.Return) {
+        if (allowReturnContext && context == Context.Return) {
+          allowReturnContext = false
           return `return ${scalarExpression}`
         }
-        else if (context == Context.Value && valueVariable) {
+        else if (allowReturnContext && context == Context.Value && valueVariable) {
           return `${valueVariable} = ${scalarExpression}`
         }
         else {
-          allowReturnContext = true
           return scalarExpression
         }
       }
@@ -326,7 +336,7 @@ export function Emitter() {
       }
     }
     let code = `function ${name}(${parameterList.map(emitFunctionParameter).join(', ')}) `
-    code += withContext(Context.Return, () => emitBlock(body))
+    code += withContext(Context.Return, () => emitBlock(body), true)
 
     return code
   }
@@ -418,10 +428,6 @@ export function Emitter() {
     let initializer = vd.initializer.kind == 'Just'
       ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
-
-    // if (isEnumPattern(vd.pattern)) {
-    //   initializer = `${initializer}.value`
-    // }
 
     if (binding && binding.previous) {
       return `${emitPatternDestructuring(vd.pattern)}${initializer}`
@@ -620,12 +626,6 @@ export function Emitter() {
             },
           } as MemberAccess)
         )
-        // condition = {
-        //   kind: SyntaxKind.BinaryExpression,
-        //   lhs: condition,
-        //   operator: {kind: SyntaxKind.AndKeyword},
-        //   rhs: ,
-        // } as BinaryExpression
       }
     } else {
       if (pattern.kind === 'Record') {
@@ -787,14 +787,14 @@ export function Emitter() {
   }
 
   function emitReturn(e: ReturnStatement) {
+    // context = Context.Return
+    const code = emitExpression(e.expression, Context.Return)
     allowReturnContext = false
-    context = null
-    return `return ${emitExpression(e.expression, Context.Value)}`
+    return code
   }
 
   function emitThrow(e) {
     allowReturnContext = false
-    context = null
     return `throw ${emitExpression(e.expression, Context.Value)}`
   }
 

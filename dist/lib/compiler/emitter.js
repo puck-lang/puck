@@ -35,11 +35,21 @@ function Emitter() {
         valueVarableCount += 1;
         return "__PUCK__value__" + valueVarableCount;
     }
-    function withContext(newContext, fn) {
+    function withContext(newContext, fn, forceSet) {
+        if (forceSet === void 0) { forceSet = false; }
+        if (!forceSet && newContext === Context.Return && context === Context.Return) {
+            return fn();
+        }
+        if (newContext === Context.Return) {
+            allowReturnContext = true;
+        }
         var wasInContext = context;
         context = newContext;
         var value = fn();
         context = wasInContext;
+        if (newContext === Context.Return) {
+            allowReturnContext = true;
+        }
         return value;
     }
     function withPrecedence(operator, emitter) {
@@ -81,6 +91,7 @@ function Emitter() {
             if (i == block.length - 1) {
                 context = wasInContext;
             }
+            allowReturnContext = true;
             expressions.push(emitExpressionKeepContext(block[i]));
         }
         hoist = outerHoist;
@@ -159,14 +170,14 @@ function Emitter() {
         try {
             var scalarExpression = emitScalarExpression(expression);
             if (scalarExpression) {
-                if (context == Context.Return) {
+                if (allowReturnContext && context == Context.Return) {
+                    allowReturnContext = false;
                     return "return " + scalarExpression;
                 }
-                else if (context == Context.Value && valueVariable) {
+                else if (allowReturnContext && context == Context.Value && valueVariable) {
                     return valueVariable + " = " + scalarExpression;
                 }
                 else {
-                    allowReturnContext = true;
                     return scalarExpression;
                 }
             }
@@ -243,7 +254,7 @@ function Emitter() {
             }
         }
         var code = "function " + name + "(" + parameterList.map(emitFunctionParameter).join(', ') + ") ";
-        code += withContext(Context.Return, function () { return emitBlock(body); });
+        code += withContext(Context.Return, function () { return emitBlock(body); }, true);
         return code;
     }
     function emitFunctionParameter(vd) {
@@ -319,9 +330,6 @@ function Emitter() {
         var initializer = vd.initializer.kind == 'Just'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
-        // if (isEnumPattern(vd.pattern)) {
-        //   initializer = `${initializer}.value`
-        // }
         if (binding && binding.previous) {
             return "" + emitPatternDestructuring(vd.pattern) + initializer;
         }
@@ -640,13 +648,13 @@ function Emitter() {
         return "break";
     }
     function emitReturn(e) {
+        // context = Context.Return
+        var code = emitExpression(e.expression, Context.Return);
         allowReturnContext = false;
-        context = null;
-        return "return " + emitExpression(e.expression, Context.Value);
+        return code;
     }
     function emitThrow(e) {
         allowReturnContext = false;
-        context = null;
         return "throw " + emitExpression(e.expression, Context.Value);
     }
     function emitBooleanLiteral(l) {
