@@ -16,10 +16,6 @@ import {
   ImplDeclaration,
   ImportDirective,
   IndexAccess,
-  isBlock,
-  isExport,
-  isIdentifier,
-  isMember,
   ListLiteral,
   LoopExpression,
   MatchArm,
@@ -30,15 +26,13 @@ import {
   NumberLiteral,
   ObjectLiteral,
   Pattern,
-  precedence,
+  RecordPatternArm,
   ReturnStatement,
   SimpleIdentifier,
   StringLiteral,
   StringLiteralPart,
   SyntaxKind,
-  textToToken,
   Token,
-  tokenToText,
   TraitDeclaration,
   TupleLiteral,
   TuplePattern,
@@ -48,9 +42,17 @@ import {
   TypePath,
   TypePathObjectArm,
   UnaryExpression,
+  UnitPatternArm,
   VariableDeclaration,
-  WhileExpression
-} from './ast';
+  WhileExpression,
+  isBlock,
+  isExport,
+  isIdentifier,
+  isMember,
+  precedence,
+  textToToken,
+  tokenToText,
+} from './ast'
 import {isTypeScopeDeclaration} from '../helpers'
 
 const jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
@@ -65,7 +67,7 @@ enum Context {
   Value = 2,
 }
 
-function isEnumPattern(pattern: Pattern) {
+function isEnumPattern(pattern: Pattern): pattern is RecordPatternArm|TuplePatternArm|UnitPatternArm {
   if (pattern.kind === 'UnitType' || pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
       const typePath = pattern.value[0]
       if (typePath.kind === '_Object') {
@@ -333,7 +335,7 @@ export function Emitter() {
     let initializer = vd.initializer.kind == 'Just'
       ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
-    return `${emitPattern(vd.pattern)}${initializer}`
+    return `${emitPatternDestructuring(vd.pattern)}${initializer}`
   }
 
   function emitIdentifier(identifier: {name: string}) {
@@ -417,23 +419,23 @@ export function Emitter() {
       ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
 
-    if (isEnumPattern(vd.pattern)) {
-      initializer = `${initializer}.value`
-    }
+    // if (isEnumPattern(vd.pattern)) {
+    //   initializer = `${initializer}.value`
+    // }
 
     if (binding && binding.previous) {
-      return `${emitPattern(vd.pattern)}${initializer}`
+      return `${emitPatternDestructuring(vd.pattern)}${initializer}`
     }
 
     if (context) {
       let valueVariable = newValueVariable()
-      hoist(`let ${emitPattern(vd.pattern)};`)
+      hoist(`let ${emitPatternDestructuring(vd.pattern)};`)
 
-      return `${emitPattern(vd.pattern)}${initializer}`
+      return `${emitPatternDestructuring(vd.pattern)}${initializer}`
     }
 
     let kw = (vd.mutable || willBeRedefined) ? 'let' : 'const'
-    return `${kw} ${emitPattern(vd.pattern)}${initializer}`
+    return `${kw} ${emitPatternDestructuring(vd.pattern)}${initializer}`
   }
 
   function emitExportDirective(e: ExportDirective) {
@@ -474,7 +476,9 @@ export function Emitter() {
     return `import ${specifier} from '${path}'`
   }
 
-  function emitPattern(p: Pattern) {
+  function emitPatternDestructuring(p: Pattern) {
+    let isEnum = isEnumPattern(p)
+
     if (p.kind === 'CatchAll') {
       return newValueVariable()
     }
@@ -483,19 +487,27 @@ export function Emitter() {
     }
     else if (p.kind === 'Record') {
       return `{${p.value[0].properties.map(({property, pattern}) =>
-        `${emitIdentifier(property)}: ${emitPattern(pattern)}`
+        `${emitIdentifier(property)}: ${emitPatternDestructuring(pattern)}`
       ).join(', ')}}`
     }
     else if (p.kind === 'RecordType') {
-      return `{${p.value[1].properties.map(({property, pattern}) =>
-        `${emitIdentifier(property)}: ${emitPattern(pattern)}`
+      let destructure = `{${p.value[1].properties.map(({property, pattern}) =>
+        `${emitIdentifier(property)}: ${emitPatternDestructuring(pattern)}`
       ).join(', ')}}`
+      if (isEnum) {
+        destructure = `{value: ${destructure}}`
+      }
+      return destructure
     }
     else if (p.kind === 'Tuple') {
-      return `[${p.value[0].properties.map(emitPattern).join(', ')}]`
+      return `[${p.value[0].properties.map(emitPatternDestructuring).join(', ')}]`
     }
     else if (p.kind === 'TupleType') {
-      return `[${p.value[1].properties.map(emitPattern).join(', ')}]`
+      let destructure = `[${p.value[1].properties.map(emitPatternDestructuring).join(', ')}]`
+      if (isEnum) {
+        destructure = `{value: ${destructure}}`
+      }
+      return destructure
     }
   }
 
@@ -556,25 +568,18 @@ export function Emitter() {
     else return code
   }
 
-  function emitIfLetExpression(e: IfLetExpression) {
-    let outerValueVariable = valueVariable
-    valueVariable = newValueVariable()
-    hoist(`let ${valueVariable} = ${emitExpression((e.variableDeclaration.initializer as any).value[0])}`)
-
-    let isEnum = isEnumPattern(e.variableDeclaration.pattern)
-    let condition: Expression
+  function emitPatternComparison(pattern: Pattern, expression: Expression): Expression {
+    let isEnum = isEnumPattern(pattern)
+    let condition: Array<Expression> = []
 
     if (isEnum) {
-      const typePath = e.variableDeclaration.pattern.value[0] as TypePathObjectArm
+      const typePath = pattern.value[0] as TypePathObjectArm
 
-      condition = {
+      condition.push({
         kind: SyntaxKind.BinaryExpression,
         lhs: {
           kind: SyntaxKind.MemberAccess,
-          object: {
-            kind: SyntaxKind.Identifier,
-            name: valueVariable,
-          },
+          object: expression,
           member: {
             kind: SyntaxKind.Identifier,
             name: 'kind',
@@ -588,10 +593,83 @@ export function Emitter() {
             value: typePath.value[1].value[0].name,
           }],
         } as StringLiteral,
-      } as BinaryExpression
+      } as BinaryExpression)
+
+      let innerPattern: Pattern
+      if (pattern.kind === 'TupleType') {
+        innerPattern = {
+          kind: 'Tuple',
+          value: [pattern.value[1]],
+        }
+      }
+      else if (pattern.kind === 'RecordType') {
+        innerPattern = {
+          kind: 'Record',
+          value: [pattern.value[1]],
+        }
+      }
+
+      if (innerPattern) {
+        condition.push(
+          emitPatternComparison(innerPattern, {
+            kind: SyntaxKind.MemberAccess,
+            object: expression,
+            member: {
+              kind: SyntaxKind.Identifier,
+              name: 'value',
+            },
+          } as MemberAccess)
+        )
+        // condition = {
+        //   kind: SyntaxKind.BinaryExpression,
+        //   lhs: condition,
+        //   operator: {kind: SyntaxKind.AndKeyword},
+        //   rhs: ,
+        // } as BinaryExpression
+      }
     } else {
-      condition = {kind: SyntaxKind.BooleanLiteral, value: true} as BooleanLiteral
+      if (pattern.kind === 'Record') {
+        condition = pattern.value[0].properties
+          .map(p => emitPatternComparison(p.pattern, {
+            kind: SyntaxKind.MemberAccess,
+            object: expression,
+            member: p.property,
+          } as MemberAccess))
+      }
+      else if (pattern.kind === 'Tuple') {
+        condition = pattern.value[0].properties
+          .map((p, i) => emitPatternComparison(p, {
+            kind: SyntaxKind.IndexAccess,
+            object: expression,
+            index: {
+              kind: SyntaxKind.NumberLiteral,
+              value: i,
+            } as NumberLiteral,
+          } as IndexAccess))
+      }
     }
+
+    condition = condition.filter(e => e.kind !== SyntaxKind.BooleanLiteral)
+
+    if (condition.length === 0) return {kind: SyntaxKind.BooleanLiteral, value: true} as BooleanLiteral
+
+    return condition.reduce((acc, curr) => ({
+      kind: SyntaxKind.BinaryExpression,
+      lhs: acc,
+      operator: {kind: SyntaxKind.AndKeyword},
+      rhs: curr,
+    } as BinaryExpression))
+  }
+
+  function emitIfLetExpression(e: IfLetExpression) {
+    let outerValueVariable = valueVariable
+    valueVariable = newValueVariable()
+    hoist(`let ${valueVariable} = ${emitExpression((e.variableDeclaration.initializer as any).value[0])}`)
+
+    let condition = emitPatternComparison(e.variableDeclaration.pattern, {
+      kind: SyntaxKind.Identifier,
+      name: valueVariable,
+    } as Identifier)
 
     let then_ = {
       kind: e.then_.kind,

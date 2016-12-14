@@ -44,7 +44,7 @@ fn sayHello(name: String) then print('Hello, $name')
 
 match Maybe::Just('World') {
   Maybe::Just(name) => {
-    let name = name.reverse()
+    let name = name.toUpperCase()
     sayHello(name)
   }
   Maybe::Nothing => print('Oh, nothing')
@@ -70,4 +70,15 @@ match Value::Three {
   Value::Two => print('two')
   Value::Three => print('three')
   _ => print('Sorry')
+}
+
+fn func(): Result<(), Value> {
+  Err(Value::Two)
+}
+
+match func() {
+  Result::Ok(_) => print('ok')
+  Result::Err(Value::One {value}) => sayHello(value)
+  Result::Err(Value::Two) => print('two')
+  Result::Err(Value::Three) => print('three')
 }

@@ -43,6 +43,22 @@ match Value::One({value: 'World'}) {
   Value::One {num} => sayHello(num)
 }
 
+///// Num is not assignable to type String
+fn sayHello(name: String) then print('Hello, $name')
+
+enum Value = One {num: Num} | Two
+
+fn func(): Result<(), Value> {
+  Err(Value::Two)
+}
+
+match func() {
+  Result::Ok(_) => print('ok')
+  Result::Err(Value::One {num}) => sayHello(num)
+  Result::Err(Value::Two) => print('two')
+}
+
+
 // TODO: Make this error
 //// 123
 match Result::Ok(5) {

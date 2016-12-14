@@ -6,6 +6,8 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
+
 var __PUCK__value__1 = _core.Maybe.Just(5);
 var __PUCK__value__2 = __PUCK__value__1;
 var __PUCK__value__3 = void 0;
@@ -19,7 +21,7 @@ if (__PUCK__value__2.kind == "Just") {
   var __PUCK__value__4 = __PUCK__value__1;
   var __PUCK__value__5 = void 0;
   if (__PUCK__value__4.kind == "Nothing") {
-    var _undefined = __PUCK__value__4.value;
+    var _undefined = __PUCK__value__4;
     __PUCK__value__5 = "nothing";
   };
   __PUCK__value__3 = __PUCK__value__5;
@@ -79,7 +81,7 @@ if (__PUCK__value__19.kind == "Just") {
   var __PUCK__value__21 = __PUCK__value__18;
   var __PUCK__value__22 = void 0;
   if (__PUCK__value__21.kind == "Nothing") {
-    var _undefined2 = __PUCK__value__21.value;
+    var _undefined2 = __PUCK__value__21;
     __PUCK__value__22 = 0;
   };
   __PUCK__value__20 = __PUCK__value__22;
@@ -98,7 +100,7 @@ if (__PUCK__value__24.kind == "Just") {
   var __PUCK__value__27 = __PUCK__value__23;
   var __PUCK__value__28 = void 0;
   if (__PUCK__value__27.kind == "Nothing") {
-    var _undefined3 = __PUCK__value__27.value;
+    var _undefined3 = __PUCK__value__27;
     __PUCK__value__28 = "nothing";
   };
   __PUCK__value__25 = __PUCK__value__28;
@@ -144,12 +146,12 @@ if (__PUCK__value__40.kind == "Just") {
 
   var name = _PUCK__value__40$val[0];
 
-  name = name.reverse();
+  name = name.toUpperCase();
   sayHello(name);
 } else {
   var __PUCK__value__41 = __PUCK__value__39;
   if (__PUCK__value__41.kind == "Nothing") {
-    var _undefined4 = __PUCK__value__41.value;
+    var _undefined4 = __PUCK__value__41;
     (0, _core.print)("Oh, nothing");
   };
 };
@@ -176,12 +178,12 @@ if (__PUCK__value__43.kind == "One") {
 var __PUCK__value__46 = Value.Two;
 var __PUCK__value__47 = __PUCK__value__46;
 if (__PUCK__value__47.kind == "Two") {
-  var _undefined5 = __PUCK__value__47.value;
+  var _undefined5 = __PUCK__value__47;
   (0, _core.print)("two");
 } else {
   var __PUCK__value__48 = __PUCK__value__46;
   if (__PUCK__value__48.kind == "Three") {
-    var _undefined6 = __PUCK__value__48.value;
+    var _undefined6 = __PUCK__value__48;
     (0, _core.print)("three");
   } else {
     var __PUCK__value__49 = __PUCK__value__46;
@@ -194,18 +196,53 @@ if (__PUCK__value__47.kind == "Two") {
 var __PUCK__value__51 = Value.Three;
 var __PUCK__value__52 = __PUCK__value__51;
 if (__PUCK__value__52.kind == "Two") {
-  var _undefined7 = __PUCK__value__52.value;
+  var _undefined7 = __PUCK__value__52;
   (0, _core.print)("two");
 } else {
   var __PUCK__value__53 = __PUCK__value__51;
   if (__PUCK__value__53.kind == "Three") {
-    var _undefined8 = __PUCK__value__53.value;
+    var _undefined8 = __PUCK__value__53;
     (0, _core.print)("three");
   } else {
     var __PUCK__value__54 = __PUCK__value__51;
     if (true) {
       var __PUCK__value__55 = __PUCK__value__54;
       (0, _core.print)("Sorry");
+    };
+  };
+};
+function func() {
+  return (0, _core.Err)(Value.Two);
+};
+var __PUCK__value__56 = func();
+var __PUCK__value__57 = __PUCK__value__56;
+if (__PUCK__value__57.kind == "Ok") {
+  var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1);
+
+  var __PUCK__value__58 = _PUCK__value__57$val[0];
+
+  (0, _core.print)("ok");
+} else {
+  var __PUCK__value__59 = __PUCK__value__56;
+  if (__PUCK__value__59.kind == "Err" && __PUCK__value__59.value[0].kind == "One") {
+    var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 1);
+
+    var _value = _PUCK__value__59$val[0].value.value;
+
+    sayHello(_value);
+  } else {
+    var __PUCK__value__60 = __PUCK__value__56;
+    if (__PUCK__value__60.kind == "Err" && __PUCK__value__60.value[0].kind == "Two") {
+      var _PUCK__value__60$val = _toArray(__PUCK__value__60.value);
+
+      (0, _core.print)("two");
+    } else {
+      var __PUCK__value__61 = __PUCK__value__56;
+      if (__PUCK__value__61.kind == "Err" && __PUCK__value__61.value[0].kind == "Three") {
+        var _PUCK__value__61$val = _toArray(__PUCK__value__61.value);
+
+        (0, _core.print)("three");
+      };
     };
   };
 }

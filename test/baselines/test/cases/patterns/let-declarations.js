@@ -73,7 +73,9 @@ var _a$b2 = {
 };
 var r = _a$b2.a;
 
-var _Enum$A$value = _slicedToArray(Enum.A(1).value, 1);
+var _Enum$A = Enum.A(1);
+
+var _Enum$A$value = _slicedToArray(_Enum$A.value, 1);
 
 var s = _Enum$A$value[0];
 

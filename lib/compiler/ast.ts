@@ -399,12 +399,17 @@ export interface TupleTypePatternArm {
   kind: 'TupleType'
   value: [TypePath, TuplePattern]
 }
+export interface UnitPatternArm {
+  kind: 'UnitType'
+  value: [TypePath]
+}
 export type Pattern
   = IdentifierPatternArm
   | RecordPatternArm
   | RecordTypePatternArm
   | TuplePatternArm
   | TupleTypePatternArm
+  | UnitPatternArm
 
 export interface RecordPattern extends Token {
   properties: Array<{property: Identifier, pattern: Pattern}>

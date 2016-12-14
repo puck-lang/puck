@@ -250,7 +250,7 @@ function Emitter() {
         var initializer = vd.initializer.kind == 'Just'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
-        return "" + emitPattern(vd.pattern) + initializer;
+        return "" + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitIdentifier(identifier) {
         if (jsKeywords.indexOf(identifier.name) != -1) {
@@ -319,19 +319,19 @@ function Emitter() {
         var initializer = vd.initializer.kind == 'Just'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
-        if (isEnumPattern(vd.pattern)) {
-            initializer = initializer + ".value";
-        }
+        // if (isEnumPattern(vd.pattern)) {
+        //   initializer = `${initializer}.value`
+        // }
         if (binding && binding.previous) {
-            return "" + emitPattern(vd.pattern) + initializer;
+            return "" + emitPatternDestructuring(vd.pattern) + initializer;
         }
         if (context) {
             var valueVariable_1 = newValueVariable();
-            hoist("let " + emitPattern(vd.pattern) + ";");
-            return "" + emitPattern(vd.pattern) + initializer;
+            hoist("let " + emitPatternDestructuring(vd.pattern) + ";");
+            return "" + emitPatternDestructuring(vd.pattern) + initializer;
         }
         var kw = (vd.mutable || willBeRedefined) ? 'let' : 'const';
-        return kw + " " + emitPattern(vd.pattern) + initializer;
+        return kw + " " + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitExportDirective(e) {
         return "export " + (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration
@@ -370,7 +370,8 @@ function Emitter() {
         }
         return "import " + specifier + " from '" + path + "'";
     }
-    function emitPattern(p) {
+    function emitPatternDestructuring(p) {
+        var isEnum = isEnumPattern(p);
         if (p.kind === 'CatchAll') {
             return newValueVariable();
         }
@@ -380,20 +381,28 @@ function Emitter() {
         else if (p.kind === 'Record') {
             return "{" + p.value[0].properties.map(function (_a) {
                 var property = _a.property, pattern = _a.pattern;
-                return (emitIdentifier(property) + ": " + emitPattern(pattern));
+                return (emitIdentifier(property) + ": " + emitPatternDestructuring(pattern));
             }).join(', ') + "}";
         }
         else if (p.kind === 'RecordType') {
-            return "{" + p.value[1].properties.map(function (_a) {
+            var destructure = "{" + p.value[1].properties.map(function (_a) {
                 var property = _a.property, pattern = _a.pattern;
-                return (emitIdentifier(property) + ": " + emitPattern(pattern));
+                return (emitIdentifier(property) + ": " + emitPatternDestructuring(pattern));
             }).join(', ') + "}";
+            if (isEnum) {
+                destructure = "{value: " + destructure + "}";
+            }
+            return destructure;
         }
         else if (p.kind === 'Tuple') {
-            return "[" + p.value[0].properties.map(emitPattern).join(', ') + "]";
+            return "[" + p.value[0].properties.map(emitPatternDestructuring).join(', ') + "]";
         }
         else if (p.kind === 'TupleType') {
-            return "[" + p.value[1].properties.map(emitPattern).join(', ') + "]";
+            var destructure = "[" + p.value[1].properties.map(emitPatternDestructuring).join(', ') + "]";
+            if (isEnum) {
+                destructure = "{value: " + destructure + "}";
+            }
+            return destructure;
         }
     }
     function emitAssignmentExpression(e) {
@@ -444,22 +453,16 @@ function Emitter() {
         else
             return code;
     }
-    function emitIfLetExpression(e) {
-        var outerValueVariable = valueVariable;
-        valueVariable = newValueVariable();
-        hoist("let " + valueVariable + " = " + emitExpression(e.variableDeclaration.initializer.value[0]));
-        var isEnum = isEnumPattern(e.variableDeclaration.pattern);
-        var condition;
+    function emitPatternComparison(pattern, expression) {
+        var isEnum = isEnumPattern(pattern);
+        var condition = [];
         if (isEnum) {
-            var typePath = e.variableDeclaration.pattern.value[0];
-            condition = {
+            var typePath = pattern.value[0];
+            condition.push({
                 kind: ast_1.SyntaxKind.BinaryExpression,
                 lhs: {
                     kind: ast_1.SyntaxKind.MemberAccess,
-                    object: {
-                        kind: ast_1.SyntaxKind.Identifier,
-                        name: valueVariable,
-                    },
+                    object: expression,
                     member: {
                         kind: ast_1.SyntaxKind.Identifier,
                         name: 'kind',
@@ -473,11 +476,70 @@ function Emitter() {
                             value: typePath.value[1].value[0].name,
                         }],
                 },
-            };
+            });
+            var innerPattern = void 0;
+            if (pattern.kind === 'TupleType') {
+                innerPattern = {
+                    kind: 'Tuple',
+                    value: [pattern.value[1]],
+                };
+            }
+            else if (pattern.kind === 'RecordType') {
+                innerPattern = {
+                    kind: 'Record',
+                    value: [pattern.value[1]],
+                };
+            }
+            if (innerPattern) {
+                condition.push(emitPatternComparison(innerPattern, {
+                    kind: ast_1.SyntaxKind.MemberAccess,
+                    object: expression,
+                    member: {
+                        kind: ast_1.SyntaxKind.Identifier,
+                        name: 'value',
+                    },
+                }));
+            }
         }
         else {
-            condition = { kind: ast_1.SyntaxKind.BooleanLiteral, value: true };
+            if (pattern.kind === 'Record') {
+                condition = pattern.value[0].properties
+                    .map(function (p) { return emitPatternComparison(p.pattern, {
+                    kind: ast_1.SyntaxKind.MemberAccess,
+                    object: expression,
+                    member: p.property,
+                }); });
+            }
+            else if (pattern.kind === 'Tuple') {
+                condition = pattern.value[0].properties
+                    .map(function (p, i) { return emitPatternComparison(p, {
+                    kind: ast_1.SyntaxKind.IndexAccess,
+                    object: expression,
+                    index: {
+                        kind: ast_1.SyntaxKind.NumberLiteral,
+                        value: i,
+                    },
+                }); });
+            }
         }
+        condition = condition.filter(function (e) { return e.kind !== ast_1.SyntaxKind.BooleanLiteral; });
+        if (condition.length === 0)
+            return { kind: ast_1.SyntaxKind.BooleanLiteral, value: true };
+        return condition.reduce(function (acc, curr) { return ({
+            kind: ast_1.SyntaxKind.BinaryExpression,
+            lhs: acc,
+            operator: { kind: ast_1.SyntaxKind.AndKeyword },
+            rhs: curr,
+        }); });
+    }
+    function emitIfLetExpression(e) {
+        var outerValueVariable = valueVariable;
+        valueVariable = newValueVariable();
+        hoist("let " + valueVariable + " = " + emitExpression(e.variableDeclaration.initializer.value[0]));
+        var condition = emitPatternComparison(e.variableDeclaration.pattern, {
+            kind: ast_1.SyntaxKind.Identifier,
+            name: valueVariable,
+        });
         var then_ = {
             kind: e.then_.kind,
             expressions: [
