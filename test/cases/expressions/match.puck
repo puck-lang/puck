@@ -82,3 +82,11 @@ match func() {
   Result::Err(Value::Two) => print('two')
   Result::Err(Value::Three) => print('three')
 }
+
+match Maybe::Just(Maybe::Just(5)) {
+  Maybe::Just(inner) => match inner {
+    Maybe::Just(value) => value
+    Maybe::None => 0
+  }
+  Maybe::None => 0
+}

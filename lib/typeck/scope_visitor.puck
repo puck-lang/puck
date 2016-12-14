@@ -399,6 +399,7 @@ export fn ScopeVisitor(context, file) {
     }
     visitMatchExpression: |mut self, mut e: MatchExpression| {
       e.scope = self.scope
+      let oldMatchExpression = matchExpression
       matchExpression = Just(e)
 
       self.visitExpression(e.expression)
@@ -410,7 +411,7 @@ export fn ScopeVisitor(context, file) {
         self.reportError(e, error)
       }
 
-      matchExpression = Nothing
+      matchExpression = oldMatchExpression
     }
     visitMatchArm: |mut self, mut a: MatchArm| {
       self.scope = createScope(context, file, self.scope)

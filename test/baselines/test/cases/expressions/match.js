@@ -245,4 +245,33 @@ if (__PUCK__value__57.kind == "Ok") {
       };
     };
   };
+};
+var __PUCK__value__62 = _core.Maybe.Just(_core.Maybe.Just(5));
+var __PUCK__value__63 = __PUCK__value__62;
+if (__PUCK__value__63.kind == "Just") {
+  var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1);
+
+  var inner = _PUCK__value__63$val[0];
+
+  var __PUCK__value__64 = inner;
+  var __PUCK__value__65 = __PUCK__value__64;
+  if (__PUCK__value__65.kind == "Just") {
+    var _PUCK__value__65$val = _slicedToArray(__PUCK__value__65.value, 1);
+
+    var _value2 = _PUCK__value__65$val[0];
+
+    _value2;
+  } else {
+    var __PUCK__value__66 = __PUCK__value__64;
+    if (__PUCK__value__66.kind == "None") {
+      var _undefined9 = __PUCK__value__66;
+      0;
+    };
+  };
+} else {
+  var __PUCK__value__67 = __PUCK__value__62;
+  if (__PUCK__value__67.kind == "None") {
+    var _undefined10 = __PUCK__value__67;
+    0;
+  };
 }

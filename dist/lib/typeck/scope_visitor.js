@@ -398,6 +398,7 @@ function ScopeVisitor(context, file) {
     visitMatchExpression: function visitMatchExpression(e) {
       var self = this;
       e.scope = self.scope;
+      var oldMatchExpression = matchExpression;
       matchExpression = (0, _core.Just)(e);
       self.visitExpression(e.expression);
       e.type_ = e.expression.type_;
@@ -412,7 +413,7 @@ function ScopeVisitor(context, file) {
 
         self.reportError(e, error);
       };
-      return matchExpression = _core.Nothing;
+      return matchExpression = oldMatchExpression;
     },
     visitMatchArm: function visitMatchArm(a) {
       var self = this;
