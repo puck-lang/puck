@@ -90,3 +90,9 @@ match Maybe::Just(Maybe::Just(5)) {
   }
   Maybe::None => 0
 }
+
+enum Object = Object
+
+match Object::Object {
+  Object::Object => 'Object'
+}

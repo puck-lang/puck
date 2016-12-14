@@ -590,7 +590,7 @@ export function Emitter() {
           kind: SyntaxKind.StringLiteral,
           parts: [{
             kind: SyntaxKind.StringLiteralPart,
-            value: typePath.value[1].value[0].name,
+            value: emitIdentifier(typePath.value[1].value[0]),
           }],
         } as StringLiteral,
       } as BinaryExpression)

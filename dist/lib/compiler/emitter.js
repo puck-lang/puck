@@ -473,7 +473,7 @@ function Emitter() {
                     kind: ast_1.SyntaxKind.StringLiteral,
                     parts: [{
                             kind: ast_1.SyntaxKind.StringLiteralPart,
-                            value: typePath.value[1].value[0].name,
+                            value: emitIdentifier(typePath.value[1].value[0]),
                         }],
                 },
             });

@@ -274,4 +274,13 @@ if (__PUCK__value__63.kind == "Just") {
     var _undefined10 = __PUCK__value__67;
     0;
   };
+};
+var _Object = {
+  _Object: { kind: '_Object', value: Symbol('_Object') }
+};
+var __PUCK__value__68 = _Object._Object;
+var __PUCK__value__69 = __PUCK__value__68;
+if (__PUCK__value__69.kind == "_Object") {
+  var _undefined11 = __PUCK__value__69;
+  "Object";
 }
