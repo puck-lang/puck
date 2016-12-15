@@ -12,6 +12,17 @@ var Context;
     Context[Context["Return"] = 1] = "Return";
     Context[Context["Value"] = 2] = "Value";
 })(Context || (Context = {}));
+function isEnumPattern(pattern) {
+    if (pattern.kind === 'UnitType' || pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
+        var typePath = pattern.value[0];
+        if (typePath.kind === '_Object') {
+            if (typePath.value[1].kind !== 'Member')
+                throw 'Multi step type paths is not supported';
+            return true;
+        }
+    }
+    return false;
+}
 function Emitter() {
     var level = 0;
     var context = null;
@@ -24,11 +35,21 @@ function Emitter() {
         valueVarableCount += 1;
         return "__PUCK__value__" + valueVarableCount;
     }
-    function withContext(newContext, fn) {
+    function withContext(newContext, fn, forceSet) {
+        if (forceSet === void 0) { forceSet = false; }
+        if (!forceSet && newContext === Context.Return && context === Context.Return) {
+            return fn();
+        }
+        if (newContext === Context.Return) {
+            allowReturnContext = true;
+        }
         var wasInContext = context;
         context = newContext;
         var value = fn();
         context = wasInContext;
+        if (newContext === Context.Return) {
+            allowReturnContext = true;
+        }
         return value;
     }
     function withPrecedence(operator, emitter) {
@@ -70,6 +91,7 @@ function Emitter() {
             if (i == block.length - 1) {
                 context = wasInContext;
             }
+            allowReturnContext = true;
             expressions.push(emitExpressionKeepContext(block[i]));
         }
         hoist = outerHoist;
@@ -119,11 +141,12 @@ function Emitter() {
             case ast_1.SyntaxKind.AssignmentExpression: return emitAssignmentExpression(expression);
             case ast_1.SyntaxKind.BinaryExpression: return emitBinaryExpression(expression);
             case ast_1.SyntaxKind.CallExpression: return emitCallExpression(expression);
+            case ast_1.SyntaxKind.TypePathExpression: return emitTypePath(expression.typePath);
             case ast_1.SyntaxKind.UnaryExpression: return emitUnaryExpression(expression);
             case ast_1.SyntaxKind.WhileExpression: return emitWhileExpression(expression);
             case ast_1.SyntaxKind.IndexAccess: return emitIndexAccess(expression);
             case ast_1.SyntaxKind.MemberAccess: return emitMemberAccess(expression);
-            case ast_1.SyntaxKind.TypePath: return emitTypePath(expression);
+            case ast_1.SyntaxKind.TypePath: return emitOldTypePath(expression);
             case ast_1.SyntaxKind.BreakKeyword: return emitBreak(expression);
             case ast_1.SyntaxKind.ReturnStatement: return emitReturn(expression);
             case ast_1.SyntaxKind.ThrowKeyword: return emitThrow(expression);
@@ -147,14 +170,14 @@ function Emitter() {
         try {
             var scalarExpression = emitScalarExpression(expression);
             if (scalarExpression) {
-                if (context == Context.Return) {
+                if (allowReturnContext && context == Context.Return) {
+                    allowReturnContext = false;
                     return "return " + scalarExpression;
                 }
-                else if (context == Context.Value && valueVariable) {
+                else if (allowReturnContext && context == Context.Value && valueVariable) {
                     return valueVariable + " = " + scalarExpression;
                 }
                 else {
-                    allowReturnContext = true;
                     return scalarExpression;
                 }
             }
@@ -162,7 +185,11 @@ function Emitter() {
                 case ast_1.SyntaxKind.EnumDeclaration: return emitEnumDeclaration(expression);
                 case ast_1.SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
                 case ast_1.SyntaxKind.IfExpression: return emitIfExpression(expression);
-                default: throw Error(ast_1.SyntaxKind[expression.kind] + " is not supported");
+                case ast_1.SyntaxKind.IfLetExpression: return emitIfLetExpression(expression);
+                case ast_1.SyntaxKind.MatchExpression: return emitMatchExpression(expression);
+                default:
+                    console.error('expression', expression);
+                    throw Error(ast_1.SyntaxKind[expression.kind] + " is not supported");
             }
         }
         finally {
@@ -197,10 +224,20 @@ function Emitter() {
         return emitIdentifier(t.name) + ": " + value + ",";
     }
     function emitFunctionDeclaration(fn) {
+        fn.parameterList = fn.parameterList.map(function (p) {
+            if (p['identifier']) {
+                p.pattern = {
+                    kind: 'Identifier',
+                    value: [p['identifier']],
+                };
+            }
+            return p;
+        });
         var name = fn.name.kind == 'Just' ? emitIdentifier(fn.name.value[0]) : '';
         var parameterList = fn.parameterList;
         var body = fn.body;
-        if (parameterList.length > 0 && parameterList[0].identifier.name == 'self') {
+        var firstParameter = parameterList.length > 0 && parameterList[0];
+        if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value[0].name == 'self') {
             parameterList = fn.parameterList.slice(1);
             if (fn.body.expressions.length > 0) {
                 body = Object['assign']({}, body, {
@@ -217,14 +254,14 @@ function Emitter() {
             }
         }
         var code = "function " + name + "(" + parameterList.map(emitFunctionParameter).join(', ') + ") ";
-        code += withContext(Context.Return, function () { return emitBlock(body); });
+        code += withContext(Context.Return, function () { return emitBlock(body); }, true);
         return code;
     }
     function emitFunctionParameter(vd) {
         var initializer = vd.initializer.kind == 'Just'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
-        return "" + emitIdentifier(vd.identifier) + initializer;
+        return "" + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitIdentifier(identifier) {
         if (jsKeywords.indexOf(identifier.name) != -1) {
@@ -233,12 +270,12 @@ function Emitter() {
         return identifier.name;
     }
     function emitImplDeclaration(i) {
-        var functions = Object['assign']({}, i.tra.ty.functions);
+        var functions = Object['assign']({}, i.trait_.type_.functions);
         i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m); });
-        return emitIdentifier(i.tra.name) + "[" + getTypeProp(i.ty.ty) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
+        return (i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)) + "[" + getTypeProp(i.type_.type_) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
             return (emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
-                : emitIdentifier(i.tra.name) + "." + emitIdentifier({ name: f })));
+                : (i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)) + "." + emitIdentifier({ name: f })));
         }))
             .join(',\n') + "\n}";
     }
@@ -268,24 +305,41 @@ function Emitter() {
         return "var " + emitIdentifier(t.name) + " = " + value;
     }
     function emitVariableDeclaration(vd) {
-        var binding = vd.scope.getBinding(vd.identifier.name);
-        var willBeRedefined = binding.redefined;
-        while (binding && binding.token !== vd) {
-            binding = binding.previous;
+        if (vd['identifier']) {
+            vd.pattern = {
+                kind: 'Identifier',
+                value: [vd['identifier']],
+            };
+        }
+        var willBeRedefined = true;
+        var binding;
+        if (vd.pattern.kind === 'Identifier') {
+            binding = vd.scope.getBinding(vd.pattern.value[0].name);
+            willBeRedefined = binding.redefined;
+            if (vd['identifier']) {
+                while (binding && (binding.token !== vd)) {
+                    binding = binding.previous;
+                }
+            }
+            else {
+                while (binding && (binding.token !== vd.pattern)) {
+                    binding = binding.previous;
+                }
+            }
         }
         var initializer = vd.initializer.kind == 'Just'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
         if (binding && binding.previous) {
-            return "" + emitIdentifier(vd.identifier) + initializer;
+            return "" + emitPatternDestructuring(vd.pattern) + initializer;
         }
         if (context) {
             var valueVariable_1 = newValueVariable();
-            hoist("let " + emitIdentifier(vd.identifier) + ";");
-            return "" + emitIdentifier(vd.identifier) + initializer;
+            hoist("let " + emitPatternDestructuring(vd.pattern) + ";");
+            return "" + emitPatternDestructuring(vd.pattern) + initializer;
         }
         var kw = (vd.mutable || willBeRedefined) ? 'let' : 'const';
-        return kw + " " + emitIdentifier(vd.identifier) + initializer;
+        return kw + " " + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitExportDirective(e) {
         return "export " + (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration
@@ -324,6 +378,41 @@ function Emitter() {
         }
         return "import " + specifier + " from '" + path + "'";
     }
+    function emitPatternDestructuring(p) {
+        var isEnum = isEnumPattern(p);
+        if (p.kind === 'CatchAll') {
+            return newValueVariable();
+        }
+        if (p.kind === 'Identifier') {
+            return emitIdentifier(p.value[0]);
+        }
+        else if (p.kind === 'Record') {
+            return "{" + p.value[0].properties.map(function (_a) {
+                var property = _a.property, pattern = _a.pattern;
+                return (emitIdentifier(property) + ": " + emitPatternDestructuring(pattern));
+            }).join(', ') + "}";
+        }
+        else if (p.kind === 'RecordType') {
+            var destructure = "{" + p.value[1].properties.map(function (_a) {
+                var property = _a.property, pattern = _a.pattern;
+                return (emitIdentifier(property) + ": " + emitPatternDestructuring(pattern));
+            }).join(', ') + "}";
+            if (isEnum) {
+                destructure = "{value: " + destructure + "}";
+            }
+            return destructure;
+        }
+        else if (p.kind === 'Tuple') {
+            return "[" + p.value[0].properties.map(emitPatternDestructuring).join(', ') + "]";
+        }
+        else if (p.kind === 'TupleType') {
+            var destructure = "[" + p.value[1].properties.map(emitPatternDestructuring).join(', ') + "]";
+            if (isEnum) {
+                destructure = "{value: " + destructure + "}";
+            }
+            return destructure;
+        }
+    }
     function emitAssignmentExpression(e) {
         var left = ast_1.isIdentifier(e.lhs)
             ? emitIdentifier(e.lhs)
@@ -356,9 +445,9 @@ function Emitter() {
         if (produceValue) {
             valueVariable = newValueVariable();
         }
-        var then = emitBlock(e._then);
-        var el = e._else.kind == 'Just'
-            ? ("\n" + indent('else') + " " + emitBlock(e._else.value[0]))
+        var then = emitBlock(e.then_);
+        var el = e.else_.kind == 'Just'
+            ? ("\n" + indent('else') + " " + emitBlock(e.else_.value[0]))
             : '';
         var code = "if (" + condition + ") " + then + el;
         if (produceValue) {
@@ -371,6 +460,152 @@ function Emitter() {
         }
         else
             return code;
+    }
+    function emitPatternComparison(pattern, expression) {
+        var isEnum = isEnumPattern(pattern);
+        var condition = [];
+        if (isEnum) {
+            var typePath = pattern.value[0];
+            condition.push({
+                kind: ast_1.SyntaxKind.BinaryExpression,
+                lhs: {
+                    kind: ast_1.SyntaxKind.MemberAccess,
+                    object: expression,
+                    member: {
+                        kind: ast_1.SyntaxKind.Identifier,
+                        name: 'kind',
+                    },
+                },
+                operator: { kind: ast_1.SyntaxKind.EqualsEqualsToken },
+                rhs: {
+                    kind: ast_1.SyntaxKind.StringLiteral,
+                    parts: [{
+                            kind: ast_1.SyntaxKind.StringLiteralPart,
+                            value: emitIdentifier(typePath.value[1].value[0]),
+                        }],
+                },
+            });
+            var innerPattern = void 0;
+            if (pattern.kind === 'TupleType') {
+                innerPattern = {
+                    kind: 'Tuple',
+                    value: [pattern.value[1]],
+                };
+            }
+            else if (pattern.kind === 'RecordType') {
+                innerPattern = {
+                    kind: 'Record',
+                    value: [pattern.value[1]],
+                };
+            }
+            if (innerPattern) {
+                condition.push(emitPatternComparison(innerPattern, {
+                    kind: ast_1.SyntaxKind.MemberAccess,
+                    object: expression,
+                    member: {
+                        kind: ast_1.SyntaxKind.Identifier,
+                        name: 'value',
+                    },
+                }));
+            }
+        }
+        else {
+            if (pattern.kind === 'Record') {
+                condition = pattern.value[0].properties
+                    .map(function (p) { return emitPatternComparison(p.pattern, {
+                    kind: ast_1.SyntaxKind.MemberAccess,
+                    object: expression,
+                    member: p.property,
+                }); });
+            }
+            else if (pattern.kind === 'Tuple') {
+                condition = pattern.value[0].properties
+                    .map(function (p, i) { return emitPatternComparison(p, {
+                    kind: ast_1.SyntaxKind.IndexAccess,
+                    object: expression,
+                    index: {
+                        kind: ast_1.SyntaxKind.NumberLiteral,
+                        value: i,
+                    },
+                }); });
+            }
+        }
+        condition = condition.filter(function (e) { return e.kind !== ast_1.SyntaxKind.BooleanLiteral; });
+        if (condition.length === 0)
+            return { kind: ast_1.SyntaxKind.BooleanLiteral, value: true };
+        return condition.reduce(function (acc, curr) { return ({
+            kind: ast_1.SyntaxKind.BinaryExpression,
+            lhs: acc,
+            operator: { kind: ast_1.SyntaxKind.AndKeyword },
+            rhs: curr,
+        }); });
+    }
+    function emitIfLetExpression(e) {
+        var outerValueVariable = valueVariable;
+        valueVariable = newValueVariable();
+        hoist("let " + valueVariable + " = " + emitExpression(e.variableDeclaration.initializer.value[0]));
+        var condition = emitPatternComparison(e.variableDeclaration.pattern, {
+            kind: ast_1.SyntaxKind.Identifier,
+            name: valueVariable,
+        });
+        var then_ = {
+            kind: e.then_.kind,
+            expressions: [
+                {
+                    scope: e.variableDeclaration.scope,
+                    kind: ast_1.SyntaxKind.VariableDeclaration,
+                    mutable: false,
+                    pattern: e.variableDeclaration.pattern,
+                    typeBound: { kind: 'Nothing' },
+                    initializer: {
+                        kind: 'Just',
+                        value: [{
+                                kind: ast_1.SyntaxKind.Identifier,
+                                name: valueVariable,
+                            }],
+                    },
+                }
+            ].concat(e.then_.expressions)
+        };
+        valueVariable = outerValueVariable;
+        return emitIfExpression({
+            kind: ast_1.SyntaxKind.IfExpression,
+            condition: condition,
+            then_: then_,
+            else_: e.else_,
+        });
+    }
+    function emitMatchExpression(e) {
+        var outerValueVariable = valueVariable;
+        valueVariable = newValueVariable();
+        hoist("let " + valueVariable + " = " + emitExpression(e.expression));
+        if (e.patterns.length === 0)
+            return '';
+        var ifLet;
+        for (var i = e.patterns.length - 1; i >= 0; i--) {
+            var arm = e.patterns[i];
+            ifLet = {
+                kind: ast_1.SyntaxKind.IfLetExpression,
+                variableDeclaration: {
+                    kind: ast_1.SyntaxKind.VariableDeclaration,
+                    mutable: false,
+                    typeBound: null,
+                    pattern: arm.pattern,
+                    initializer: { kind: 'Just', value: [
+                            { kind: ast_1.SyntaxKind.Identifier, name: valueVariable }
+                        ] },
+                },
+                then_: arm.block,
+                else_: ifLet
+                    ? { kind: 'Just', value: [{
+                                kind: ast_1.SyntaxKind.Block,
+                                expressions: [ifLet]
+                            }] }
+                    : { kind: 'Nothing' }
+            };
+        }
+        valueVariable = outerValueVariable;
+        return emitIfLetExpression(ifLet);
     }
     function emitUnaryExpression(e) {
         return withPrecedence(e.operator, function () { return ("" + tokenToJs[e.operator.kind] + emitExpression(e.rhs)); });
@@ -397,6 +632,14 @@ function Emitter() {
         return object + "." + emitExpression(e.member, Context.Value);
     }
     function emitTypePath(e) {
+        if (e.kind === 'Member') {
+            return emitIdentifier(e.value[0]);
+        }
+        else {
+            return emitIdentifier(e.value[0]) + "." + emitTypePath(e.value[1]);
+        }
+    }
+    function emitOldTypePath(e) {
         var object = emitExpression(e.object);
         return object + "." + emitExpression(e.member, Context.Value);
     }
@@ -405,13 +648,13 @@ function Emitter() {
         return "break";
     }
     function emitReturn(e) {
+        // context = Context.Return
+        var code = emitExpression(e.expression, Context.Return);
         allowReturnContext = false;
-        context = null;
-        return "return " + emitExpression(e.expression, Context.Value);
+        return code;
     }
     function emitThrow(e) {
         allowReturnContext = false;
-        context = null;
         return "throw " + emitExpression(e.expression, Context.Value);
     }
     function emitBooleanLiteral(l) {

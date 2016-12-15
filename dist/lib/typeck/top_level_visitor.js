@@ -5,6 +5,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.TopLevelVisitor = TopLevelVisitor;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -25,6 +28,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function TopLevelVisitor(context, file) {
   var scope = (0, _scope.createScope)(context, file);
+  var variableDeclaration = _core.Nothing;
   return _js._Object.assign({}, visit.emptyVisitor, {
     visitBlock: function visitBlock(b) {},
     visitEnumDeclaration: function visitEnumDeclaration(t) {
@@ -33,9 +37,14 @@ function TopLevelVisitor(context, file) {
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      if (_core.MaybeTrait['$Maybe'].isJust.call(f.name)) {
+      var __PUCK__value__1 = f.name;
+      if (__PUCK__value__1.kind == "Just") {
+        var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
+
+        var name = _PUCK__value__1$valu[0];
+
         return scope.define({
-          name: f.name.value[0].name,
+          name: name.name,
           token: f,
           mutable: false
         });
@@ -66,11 +75,9 @@ function TopLevelVisitor(context, file) {
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
-      return scope.define({
-        name: d.identifier.name,
-        mutable: d.mutable,
-        token: d
-      }, true);
+      variableDeclaration = (0, _core.Just)(d);
+      visit.walkVariableDeclaration(self, d);
+      return variableDeclaration = _core.Nothing;
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -89,6 +96,17 @@ function TopLevelVisitor(context, file) {
           return visit.walkImportDirective(self, i);
         };
       };
+    },
+    visitPattern: visit.walkingVisitor.visitPattern,
+    visitIdentifierPattern: function visitIdentifierPattern(p) {
+      var self = this;
+      return _core.MaybeTrait['$Maybe'].map.call(variableDeclaration, function (d) {
+        return scope.define({
+          name: p.name,
+          mutable: d.mutable,
+          token: d
+        }, true);
+      });
     }
   });
 }

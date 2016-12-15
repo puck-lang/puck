@@ -1,0 +1,79 @@
+///// Use of undefined variable value
+match Maybe::Just(5) {
+  Maybe::Just(num) => '$value'
+  Maybe::Nothing => 'nothing'
+}
+
+///// Match is not exhaustive. It is missing a case for Maybe<Num>::Nothing
+match Maybe::Just(5) {
+  Maybe::Just(num) => '$num'
+}
+
+///// (??, ??) is not assignable to type (T)
+match Result::Ok(5) {
+  Result::Ok(num, value) => '$num'
+  Result::Err(_) => 'error'
+}
+
+///// () is not assignable to type (T)
+match Result::Ok(5) {
+  Result::Ok() => '$num'
+  Result::Err(_) => 'error'
+}
+
+///// Maybe is not assignable to type Result<Num, E>
+match Result::Ok(5) {
+  Maybe::Just(_) => 'Something'
+}
+
+///// Num is not assignable to type String
+fn sayHello(name: String) then print('Hello, $name')
+
+match Maybe::Just(5) {
+  Maybe::Just(num) => sayHello(num)
+  Maybe::Nothing => print('Oh, nothing')
+}
+
+///// Num is not assignable to type String
+fn sayHello(name: String) then print('Hello, $name')
+
+enum Value = One {num: Num}
+
+match Value::One({value: 'World'}) {
+  Value::One {num} => sayHello(num)
+}
+
+///// Num is not assignable to type String
+fn sayHello(name: String) then print('Hello, $name')
+
+enum Value = One {num: Num} | Two
+
+fn func(): Result<(), Value> {
+  Err(Value::Two)
+}
+
+match func() {
+  Result::Ok(_) => print('ok')
+  Result::Err(Value::One {num}) => sayHello(num)
+  Result::Err(Value::Two) => print('two')
+}
+
+///// Match is not exhaustive. It is missing a case for Value::Three
+enum Value = One | Two | Three
+
+fn func(): Maybe<Value> {
+  Just(Value::Two)
+}
+
+match func() {
+  Maybe::Just(Value::One) => print('one')
+  Maybe::Just(Value::Two) => print('two')
+  Maybe::None => print('no value')
+}
+
+// TODO: Make this error
+//// 123
+match Result::Ok(5) {
+  Result::Ok(num) => num
+  _ => 'something'
+}

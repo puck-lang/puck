@@ -5,7 +5,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ObjectMap = exports.Range = exports.List = exports.Nothing = exports.Just = exports.Maybe = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.MaybeTrait = exports.StringTrait = undefined;
+exports.ObjectMap = exports.Range = exports.List = exports.Nothing = exports.Just = exports.Maybe = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.MaybeTrait = exports.ResultTrait = exports.StringTrait = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.print = print;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
@@ -14,6 +17,42 @@ var StringTrait = exports.StringTrait = {
   contains: function contains(subStr) {
     var self = this;
     return self.indexOf(subStr) >= 0;
+  }
+};
+var ResultTrait = exports.ResultTrait = {
+  isOk: function isOk() {
+    var self = this;
+    return self.kind == "Ok";
+  },
+  isErr: function isErr() {
+    var self = this;
+    return !ResultTrait['$Result'].isOk.call(self);
+  },
+  andThen: function andThen(op) {
+    var self = this;
+    var __PUCK__value__1 = self;
+    if (__PUCK__value__1.kind == "Ok") {
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
+
+      var value = _PUCK__value__1$valu[0];
+
+      return op(value);
+    } else {
+      return self;
+    };
+  },
+  map: function map(op) {
+    var self = this;
+    var __PUCK__value__2 = self;
+    if (__PUCK__value__2.kind == "Ok") {
+      var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
+
+      var value = _PUCK__value__2$valu[0];
+
+      return Ok(op(value));
+    } else {
+      return self;
+    };
   }
 };
 var MaybeTrait = exports.MaybeTrait = {
@@ -25,18 +64,41 @@ var MaybeTrait = exports.MaybeTrait = {
     var self = this;
     return !MaybeTrait['$Maybe'].isJust.call(self);
   },
+  map: function map(f) {
+    var self = this;
+    var __PUCK__value__3 = self;
+    if (__PUCK__value__3.kind == "Just") {
+      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
+
+      var value = _PUCK__value__3$valu[0];
+
+      return Just(f(value));
+    } else {
+      return self;
+    };
+  },
   mapOr: function mapOr(_default, f) {
     var self = this;
-    if (MaybeTrait['$Maybe'].isJust.call(self)) {
-      return f(MaybeTrait['$Maybe'].unwrap.call(self));
+    var __PUCK__value__4 = self;
+    if (__PUCK__value__4.kind == "Just") {
+      var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
+
+      var value = _PUCK__value__4$valu[0];
+
+      return f(value);
     } else {
       return _default;
     };
   },
   mapOrElse: function mapOrElse(_default, f) {
     var self = this;
-    if (MaybeTrait['$Maybe'].isJust.call(self)) {
-      return f(MaybeTrait['$Maybe'].unwrap.call(self));
+    var __PUCK__value__5 = self;
+    if (__PUCK__value__5.kind == "Just") {
+      var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
+
+      var value = _PUCK__value__5$valu[0];
+
+      return f(value);
     } else {
       return _default();
     };
@@ -47,6 +109,32 @@ var MaybeTrait = exports.MaybeTrait = {
       throw (0, _js.Error)("Can not unwap empty maybe");
     };
     return self.value[0];
+  },
+  unwrapOr: function unwrapOr(_default) {
+    var self = this;
+    var __PUCK__value__6 = self;
+    if (__PUCK__value__6.kind == "Just") {
+      var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
+
+      var value = _PUCK__value__6$valu[0];
+
+      return value;
+    } else {
+      return _default;
+    };
+  },
+  unwrapOrElse: function unwrapOrElse(_default) {
+    var self = this;
+    var __PUCK__value__7 = self;
+    if (__PUCK__value__7.kind == "Just") {
+      var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
+
+      var value = _PUCK__value__7$valu[0];
+
+      return value;
+    } else {
+      return _default();
+    };
   }
 };
 var ListTrait = exports.ListTrait = {
@@ -59,12 +147,7 @@ var ListTrait = exports.ListTrait = {
     });
   }
 };
-var Iterable = exports.Iterable = {
-  size: function size() {
-    var self = this;
-    return self.length;
-  }
-};
+var Iterable = exports.Iterable = {};
 var RangeTrait = exports.RangeTrait = {};
 var ObjectMapTrait = exports.ObjectMapTrait = {
   _new: function _new() {
@@ -85,6 +168,24 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
     });
     return _new;
   },
+  find: function find(predicate) {
+    var self = this;
+    var key = _js._Object.keys(self).find(function (key) {
+      return predicate([key, self[key]]);
+    });
+    if (key) {
+      return Just([key, self[key]]);
+    } else {
+      return Nothing;
+    };
+  },
+  forEach: function forEach(func) {
+    var self = this;
+    _js._Object.keys(self).forEach(function (key) {
+      return func([key, self[key]]);
+    });
+    return [];
+  },
   size: function size() {
     var self = this;
     return _js._Object.keys(self).length;
@@ -93,18 +194,45 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
 StringTrait['$String'] = {
   contains: StringTrait.contains
 };
+ResultTrait['$Result'] = {
+  isOk: ResultTrait.isOk,
+  isErr: ResultTrait.isErr,
+  andThen: ResultTrait.andThen,
+  map: ResultTrait.map
+};
 MaybeTrait['$Maybe'] = {
   isJust: MaybeTrait.isJust,
   isNothing: MaybeTrait.isNothing,
+  map: MaybeTrait.map,
   mapOr: MaybeTrait.mapOr,
   mapOrElse: MaybeTrait.mapOrElse,
-  unwrap: MaybeTrait.unwrap
+  unwrap: MaybeTrait.unwrap,
+  unwrapOr: MaybeTrait.unwrapOr,
+  unwrapOrElse: MaybeTrait.unwrapOrElse
 };
 ListTrait['$List'] = {
   zip: ListTrait.zip
 };
 Iterable['$List'] = {
-  size: Iterable.size,
+  enumerate: function enumerate() {
+    var self = this;
+    return self.map(function (element, index) {
+      return [element, index];
+    });
+  },
+  size: function size() {
+    var self = this;
+    return self.length;
+  },
+  find: function find(predicate) {
+    var self = this;
+    var index = self.findIndex(predicate);
+    if (index >= 0) {
+      return Just(self[index]);
+    } else {
+      return Nothing;
+    };
+  },
   skip: function skip(count) {
     var self = this;
     return self.slice(count);
@@ -133,6 +261,8 @@ ObjectMapTrait['$ObjectMap'] = {
   _new: ObjectMapTrait._new,
   fromList: ObjectMapTrait.fromList,
   map: ObjectMapTrait.map,
+  find: ObjectMapTrait.find,
+  forEach: ObjectMapTrait.forEach,
   size: ObjectMapTrait.size
 };
 var Bool = exports.Bool = function Bool(object) {

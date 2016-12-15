@@ -14,6 +14,30 @@ impl StringTrait for String {}
 export enum Result<T, E> = Ok(T) | Err(E)
 export let Ok = Result::Ok
 export let Err = Result::Err
+export trait ResultTrait<T, E> {
+  fn isOk(self): Bool then self.kind == 'Ok'
+  fn isErr(self: Result<T, E>): Bool {not self.isOk()}
+
+  /// Calls op if the result is Ok, otherwise returns the Err value of self.
+  ///
+  /// This function can be used for control flow based on Result values.
+  fn andThen<U>(self: Result<T, E>, op: (T) => Result<U, E>): Result<U, E> {
+    if let Result::Ok(value) = self
+      then op(value)
+      else self
+  }
+
+  /// Maps a Result<T, E> to Result<U, E> by applying a function to a contained Ok value, leaving an Err value untouched.
+  ///
+  /// This function can be used to compose the results of two functions.
+  fn map<U>(self: Result<T, E>, op: (T) => U): Result<U, E> {
+    if let Result::Ok(value) = self
+      then Ok(op(value))
+      else self
+  }
+}
+impl<T, E> ResultTrait<T, E> for Result<T, E> {}
+
 export enum Maybe<T> = Just(T) | Nothing
 export let Just = Maybe::Just
 export let Nothing = Maybe::Nothing
@@ -22,23 +46,41 @@ export trait MaybeTrait<T> {
   fn isJust(self): Bool then self.kind == 'Just'
   fn isNothing(self: Maybe<T>): Bool {not self.isJust()}
 
+  fn map<U>(self: Maybe<T>, f: (T) => U): Maybe<U> {
+    if let Maybe::Just(value) = self
+      then Just(f(value))
+      else self
+  }
+
   fn mapOr<U>(self: Maybe<T>, default: U, f: (T) => U): U {
-    if (self.isJust())
-      then f(self.unwrap())
+    if let Maybe::Just(value) = self
+      then f(value)
       else default
   }
 
   fn mapOrElse<U>(self: Maybe<T>, default: () => U, f: (T) => U): U {
-    if (self.isJust())
-      then f(self.unwrap())
+    if let Maybe::Just(value) = self
+      then f(value)
       else default()
   }
 
   fn unwrap(self: Maybe<T>): T {
-    if (self.isNothing())
+    if self.isNothing()
       then throw Error('Can not unwap empty maybe')
 
     self.value[0]
+  }
+
+  fn unwrapOr(self: Maybe<T>, default: T): T {
+    if let Maybe::Just(value) = self
+      then value
+      else default
+  }
+
+  fn unwrapOrElse(self: Maybe<T>, default: () => T): T {
+    if let Maybe::Just(value) = self
+      then value
+      else default()
   }
 }
 impl<T> MaybeTrait<T> for Maybe<T> {}
@@ -54,9 +96,11 @@ export trait ListTrait<E> {
 }
 impl<E> ListTrait<E> for List<E> {}
 export trait Iterable<E> {
-  fn size(self): Num {
-    self.length
-  }
+  fn enumerate(self): List<(E, Num)>
+
+  fn size(self): Num
+
+  fn find(self, predicate: (E) => Bool): Maybe<E>
 
   /// Returns an [Iterable] that provides all but the first [count] elements.
   // fn skip(self, count: Num): Iterable<E>
@@ -68,6 +112,23 @@ export trait Iterable<E> {
 }
 
 impl<E> Iterable<E> for List<E> {
+
+  fn enumerate(self): List<(E, Num)> {
+    self.map(|element, index| (element, index))
+  }
+
+  fn size(self): Num {
+    self.length
+  }
+
+  fn find(self, predicate: (E) => Bool): Maybe<E> {
+    let index = self.findIndex(predicate)
+
+    if index >= 0
+      then Just(self[index])
+      else Nothing
+  }
+
   fn skip(self, count): List<E> {
     self.slice(count)
   }
@@ -134,6 +195,21 @@ export trait ObjectMapTrait<T> {
       new[key] = mapper(self[key])
     })
     new
+  }
+
+  fn find(self, predicate: ((String, T)) => Bool): Maybe<(String, T)> {
+    let key = Object.keys(self).find(|key| predicate((key, self[key])))
+
+    if key
+      then Just((key, self[key]))
+      else Nothing
+  }
+
+  fn forEach(self, func: ((String, T)) => ()): () {
+    Object.keys(self).forEach(|key| {
+      func((key, self[key]))
+    });
+    (())
   }
 
   fn size(self): Num {

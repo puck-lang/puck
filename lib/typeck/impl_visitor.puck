@@ -73,24 +73,24 @@ export fn ImplVisitor(context, file) {
       i.scope = self.scope
       visit.walkImplDeclaration(self, i)
 
-      let _trait = i.tra.ty
-      let struct = i.ty.ty
+      let _trait = i.trait_.type_
+      let struct = i.type_.type_
 
       if not isTrait(_trait)
-        then reportError(i.tra, _trait.name + ' is not a trait')
+        then reportError(i.trait_, _trait.name + ' is not a trait')
       if not isStruct(struct)
-        then reportError(i.ty, struct.name + ' is not a type')
+        then reportError(i.type_, struct.name + ' is not a type')
 
       let struct =
         if isTypeInstance(struct) and struct.typeParameters.some(|p| p.isTypeParameter)
           then struct.class
           else struct
 
-      if struct.implementations.some(|imp| isSameType(imp.tra, _trait))
+      if struct.implementations.some(|imp| isSameType(imp.trait_, _trait))
         then reportError(i, _trait.name + ' has already been implemented for ' + struct.name)
 
       let functions = i.members.reduce(|mut functions, member| {
-        functions[member.ty.name] = member.ty
+        functions[member.type_.name] = member.type_
         functions
       }, {})
 
@@ -103,27 +103,27 @@ export fn ImplVisitor(context, file) {
       }, {})
 
       i.members.forEach(|function| {
-        let traitFunction = traitFunctions[function.ty.name]
+        let traitFunction = traitFunctions[function.type_.name]
         if not traitFunction
-          then reportError(i, 'Function ' + function.ty.name + ' is not defined by ' + i.tra.ty.name)
+          then reportError(i, 'Function ' + function.type_.name + ' is not defined by ' + i.trait_.type_.name)
 
-        if function.ty.selfBinding and not traitFunction.selfBinding
+        if function.type_.selfBinding and not traitFunction.selfBinding
           then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' is static')
 
-        if not function.ty.selfBinding and traitFunction.selfBinding
+        if not function.type_.selfBinding and traitFunction.selfBinding
           then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' requires a self parameter')
 
-        if function.ty.selfBinding and traitFunction.selfBinding
-          then if function.ty.selfBinding.mutable and not traitFunction.selfBinding.mutable
+        if function.type_.selfBinding and traitFunction.selfBinding
+          then if function.type_.selfBinding.mutable and not traitFunction.selfBinding.mutable
             then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' requires an immutable self parameter')
 
-        if let error = checkFunctionAssignability(traitFunction, function.ty)
+        if let Result::Err(error) = checkFunctionAssignability(traitFunction, function.type_)
           then reportError(function, error)
       })
 
       struct.implementations.push({
-        ty: struct
-        tra: _trait
+        type_: struct
+        trait_: _trait
       })
 
       self.scope = self.scope.parent
@@ -146,16 +146,16 @@ export fn ImplVisitor(context, file) {
               // Get the from the imported module again as it may have been missing during the
               // TypeVisitor pass depending on file order
               let mut binding = self.scope.getTypeBinding(m.local.name)
-              binding.ty = e.expression.ty
+              binding.type_ = e.expression.type_
               let mut binding = self.scope.getBinding(m.local.name)
-              binding.ty = e.expression.ty
+              binding.type_ = e.expression.type_
             }
           if e.expression.kind == SyntaxKind.TypeDeclaration
             {
               // Get the from the imported module again as it may have been missing during the
               // TypeVisitor pass depending on file order
               let mut binding = self.scope.getTypeBinding(m.local.name)
-              binding.ty = e.expression.ty
+              binding.type_ = e.expression.type_
             }
         }
       })

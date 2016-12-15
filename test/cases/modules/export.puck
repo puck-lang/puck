@@ -3,3 +3,5 @@ export fn a() {
 }
 
 export let b = 'exported'
+
+export let q = ''

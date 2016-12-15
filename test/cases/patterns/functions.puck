@@ -1,0 +1,16 @@
+fn a(_: String) {5}
+fn b(_: String, num: Num) {num}
+a('hello')
+b('hello', 5)
+
+fn c() {
+  if false == true then return 'Wut?'
+  else if false == true then return 'Wut?'
+  else if false == true then return 'Wut?'
+  else if false == true then return 'Wut?'
+  else if false == true then return 'Wut?'
+  else if false == true then return 'Wut?'
+  else if false == true then return 'Wut?'
+  else if false == true then return 'Wut?'
+  else 'fine'
+}

@@ -5,6 +5,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.TypeVisitor = TypeVisitor;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -39,13 +42,13 @@ function TypeVisitor(context, file) {
     postHoist: [],
     visitEnumDeclaration: function visitEnumDeclaration(t) {
       var self = this;
-      if (!t.ty) {
-        t.ty = self.scope.defineType(t, true).ty;
+      if (!t.type_) {
+        t.type_ = self.scope.defineType(t, true).type_;
         self.scope.define({
           name: t.name.name,
           mutable: false,
           token: t,
-          ty: t.ty
+          type_: t.type_
         });
         t.scope = (0, _scope.createScope)(context, file, self.scope);
         return self.postHoist.push(t);
@@ -54,7 +57,7 @@ function TypeVisitor(context, file) {
           self.scope = t.scope;
           t.typeParameters.forEach(function (p) {
             self.visitTypeParameter(p);
-            return t.ty.typeParameters.push(p.ty);
+            return t.type_.typeParameters.push(p.type_);
           });
           t.typeParametersAssigned = true;
           return self.scope = self.scope.parent;
@@ -72,7 +75,7 @@ function TypeVisitor(context, file) {
                 isUnit: true
               };
             }, function (bound) {
-              return bound.ty;
+              return bound.type_;
             })];
           }));
           if (_core.Iterable['$List'].size.call(t.members) != _core.ObjectMapTrait['$ObjectMap'].size.call(memberMap)) {
@@ -86,7 +89,7 @@ function TypeVisitor(context, file) {
               });
             })();
           };
-          _js._Object.assign(t.ty.members, memberMap);
+          _js._Object.assign(t.type_.members, memberMap);
           return self.scope = self.scope.parent;
         };
       };
@@ -107,15 +110,15 @@ function TypeVisitor(context, file) {
     },
     visitNamedTypeBound: function visitNamedTypeBound(t) {
       var self = this;
-      var binding = self.scope.getTypeBinding(t.name.name);
+      var binding = self.scope.getTypePath(t.path);
       if (!binding) {
-        self.reportError(t, "Use of undeclared type " + t.name.name);
+        self.reportError(t, "Use of undeclared type " + t.path.value[0].name);
       };
       if (!binding.token.scope) {
-        if (!self.imports[t.name.name]) {
-          reportError(t, "Scope not set for binding " + t.name.name + " but not found in imports either");
+        if (!self.imports[t.path.value[0].name]) {
+          reportError(t, "Scope not set for binding " + t.path.value[0].name + " but not found in imports either");
         };
-        context.runTypeVisitorOnFile(self.imports[t.name.name]);
+        context.runTypeVisitorOnFile(self.imports[t.path.value[0].name]);
       };
       return _structure_visitor.structureVisitor.visitNamedTypeBound.call(self, t);
     },
@@ -132,7 +135,7 @@ function TypeVisitor(context, file) {
               name: m.local.name,
               mutable: false,
               token: m,
-              ty: typeBinding.ty
+              type_: typeBinding.type_
             });
           } else {
             if (e.expression.kind == _ast2.SyntaxKind.TypeDeclaration) {
@@ -158,13 +161,13 @@ function TypeVisitor(context, file) {
     },
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
-      if (!t.ty) {
-        t.ty = self.scope.defineType(t, true).ty;
+      if (!t.type_) {
+        t.type_ = self.scope.defineType(t, true).type_;
         t.binding = self.scope.define({
           name: t.name.name,
           mutable: false,
           token: t,
-          ty: t.ty
+          type_: t.type_
         });
         return self.postHoist.push(t);
       } else {
@@ -174,7 +177,7 @@ function TypeVisitor(context, file) {
           if (t.typeParameters) {
             t.typeParameters.forEach(function (p) {
               self.visitTypeParameter(p);
-              return t.ty.typeParameters.push(p.ty);
+              return t.type_.typeParameters.push(p.type_);
             });
           };
           return self.scope = self.scope.parent;
@@ -183,12 +186,12 @@ function TypeVisitor(context, file) {
           t.members.forEach(function (t) {
             return self.visitFunctionDeclaration(t);
           });
-          _js._Object.assign(t.ty.functions, _core.ObjectMapTrait.fromList(t.members.map(function (m) {
-            return [m.name.value[0].name, m.ty];
+          _js._Object.assign(t.type_.functions, _core.ObjectMapTrait.fromList(t.members.map(function (m) {
+            return [m.name.value[0].name, m.type_];
           })));
-          if (t.ty.instances) {
-            t.ty.instances.forEach(function (instance) {
-              return instance.functions = t.ty.functions;
+          if (t.type_.instances) {
+            t.type_.instances.forEach(function (instance) {
+              return instance.functions = t.type_.functions;
             });
           };
           return self.scope = self.scope.parent;
@@ -197,8 +200,8 @@ function TypeVisitor(context, file) {
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
-      if (!t.ty) {
-        t.ty = self.scope.defineType(t, true).ty;
+      if (!t.type_) {
+        t.type_ = self.scope.defineType(t, true).type_;
         t.scope = (0, _scope.createScope)(context, file, self.scope);
         return self.postHoist.push(t);
       } else {
@@ -206,23 +209,28 @@ function TypeVisitor(context, file) {
           self.scope = t.scope;
           t.typeParameters.forEach(function (p) {
             self.visitTypeParameter(p);
-            return t.ty.typeParameters.push(p.ty);
+            return t.type_.typeParameters.push(p.type_);
           });
           t.typeParametersAssigned = true;
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
-          if (_core.MaybeTrait['$Maybe'].isJust.call(t.bound)) {
-            self.visitTypeBound(t.bound.value[0]);
+          var __PUCK__value__1 = t.bound;
+          if (__PUCK__value__1.kind == "Just") {
+            var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
+
+            var typeBound = _PUCK__value__1$valu[0];
+
+            self.visitTypeBound(typeBound);
           };
-          if ((0, _entities.isObjectType)(t.ty)) {
-            _js._Object.assign(t.ty.properties, _core.ObjectMapTrait.fromList(t.bound.value[0].properties.map(function (p) {
-              return [p.name.name, p.typeBound.ty];
+          if ((0, _entities.isObjectType)(t.type_)) {
+            _js._Object.assign(t.type_.properties, _core.ObjectMapTrait.fromList(t.bound.value[0].properties.map(function (p) {
+              return [p.name.name, p.typeBound.type_];
             })));
           } else {
-            if ((0, _entities.isTupleType)(t.ty)) {
-              t.ty.properties = t.bound.value[0].properties.map(function (p) {
-                return p.ty;
+            if ((0, _entities.isTupleType)(t.type_)) {
+              t.type_.properties = t.bound.value[0].properties.map(function (p) {
+                return p.type_;
               });
             };
           };

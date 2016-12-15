@@ -14,6 +14,7 @@ export enum SyntaxKind {
   LetKeyword,
   LoopKeyword,
   MutKeyword,
+  MatchKeyword,
   NotKeyword,
   OrKeyword,
   ReturnKeyword,
@@ -57,6 +58,7 @@ export enum SyntaxKind {
   SemicolonToken,
   SlashEqualsToken,
   SlashToken,
+  UnderscoreToken,
 
   NewlineToken,
   EndOfFileToken,
@@ -89,7 +91,10 @@ export enum SyntaxKind {
   CallExpression,
   ForExpression,
   IfExpression,
+  IfLetExpression,
   LoopExpression,
+  MatchExpression,
+  TypePathExpression,
   UnaryExpression,
   WhileExpression,
 
@@ -115,38 +120,30 @@ export enum SyntaxKind {
 export const textToToken = Object['assign'](Object.create(null), {
   'and': SyntaxKind.AndKeyword,
   'break': SyntaxKind.BreakKeyword,
-  // 'any': SyntaxKind.AnyKeyword,
   // 'as': SyntaxKind.AsKeyword,
   // 'debugger': SyntaxKind.DebuggerKeyword,
-  // 'delete': SyntaxKind.DeleteKeyword,
   'else': SyntaxKind.ElseKeyword,
   'enum': SyntaxKind.EnumKeyword,
   'export': SyntaxKind.ExportKeyword,
   'false': SyntaxKind.FalseKeyword,
   'for': SyntaxKind.ForKeyword,
   'fn': SyntaxKind.FnKeyword,
-  // 'get': SyntaxKind.GetKeyword,
   'if': SyntaxKind.IfKeyword,
   'impl': SyntaxKind.ImplKeyword,
   'import': SyntaxKind.ImportKeyword,
-  // 'is': SyntaxKind.IsKeyword,
   'let': SyntaxKind.LetKeyword,
   'loop': SyntaxKind.LoopKeyword,
+  'match': SyntaxKind.MatchKeyword,
   'mut': SyntaxKind.MutKeyword,
   'not': SyntaxKind.NotKeyword,
   'or': SyntaxKind.OrKeyword,
   'return': SyntaxKind.ReturnKeyword,
-  // 'set': SyntaxKind.SetKeyword,
   'throw': SyntaxKind.ThrowKeyword,
   'true': SyntaxKind.TrueKeyword,
   'then': SyntaxKind.ThenKeyword,
   'trait': SyntaxKind.TraitKeyword,
-  // 'try': SyntaxKind.TryKeyword,
   'type': SyntaxKind.TypeKeyword,
   'while': SyntaxKind.WhileKeyword,
-  // 'yield': SyntaxKind.YieldKeyword,
-  // 'async': SyntaxKind.AsyncKeyword,
-  // 'await': SyntaxKind.AwaitKeyword,
   // 'of': SyntaxKind.OfKeyword,
   '{': SyntaxKind.OpenBraceToken,
   '}': SyntaxKind.CloseBraceToken,
@@ -161,6 +158,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   '.': SyntaxKind.DotToken,
   // '...': SyntaxKind.DotDotDotToken,
   ';': SyntaxKind.SemicolonToken,
+  '_': SyntaxKind.UnderscoreToken,
   '<': SyntaxKind.LessThanToken,
   '>': SyntaxKind.GreaterThanToken,
   '<=': SyntaxKind.LessThanEqualsToken,
@@ -194,7 +192,8 @@ function reverse(object) {
 }
 
 export const operators = [
-  ',', ';', ':', '::', '.', '{', '}', '[', ']', '(', ')', '|',
+  ',', ';', ':', '::', '.', '_', '|',
+  '{', '}', '[', ']', '(', ')',
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',
@@ -290,8 +289,8 @@ export interface Identifier extends SimpleIdentifier, Expression {
 }
 
 export interface ImplDeclaration extends Token {
-  tra: TypeBound
-  ty: TypeBound
+  trait_: TypeBound
+  type_: TypeBound
   members: Array<FunctionDeclaration>
 }
 
@@ -323,9 +322,9 @@ export interface TraitDeclaration extends Token {
 }
 
 export interface TypeBound extends Token {
-  name: SimpleIdentifier
+  path: TypePath
   typeParameters: Array<TypeBound>
-  ty: any
+  type_: any
 }
 
 export interface TypeDeclaration extends Token {
@@ -340,13 +339,27 @@ export interface TypeParameter extends Token {
   defaultValue: TypeBound
 }
 
+export interface TypePathMemberArm {
+  kind: 'Member'
+  value: [Identifier]
+}
+
+export interface TypePathObjectArm {
+  kind: '_Object'
+  value: [Identifier, TypePath]
+}
+
+export type TypePath
+  = TypePathMemberArm
+  | TypePathObjectArm
+
 export interface TypeProperty extends Token {
   name: Identifier
   typeBound: TypeBound
 }
 
 export interface VariableDeclaration extends Token {
-  identifier: SimpleIdentifier
+  pattern: Pattern
   mutable: boolean
   typeBound: Maybe<TypeBound>
   initializer: Maybe<Expression>
@@ -364,6 +377,45 @@ export interface ImportDirective extends Token {
   path: string
   asKeyword: Token
   specifier: Identifier|ObjectDestructure
+}
+
+export interface IdentifierPatternArm {
+  kind: 'Identifier'
+  value: [Identifier]
+}
+export interface RecordPatternArm {
+  kind: 'Record'
+  value: [RecordPattern]
+}
+export interface RecordTypePatternArm {
+  kind: 'RecordType'
+  value: [TypePath, RecordPattern]
+}
+export interface TuplePatternArm {
+  kind: 'Tuple'
+  value: [TuplePattern]
+}
+export interface TupleTypePatternArm {
+  kind: 'TupleType'
+  value: [TypePath, TuplePattern]
+}
+export interface UnitPatternArm {
+  kind: 'UnitType'
+  value: [TypePath]
+}
+export type Pattern
+  = IdentifierPatternArm
+  | RecordPatternArm
+  | RecordTypePatternArm
+  | TuplePatternArm
+  | TupleTypePatternArm
+  | UnitPatternArm
+
+export interface RecordPattern extends Token {
+  properties: Array<{property: Identifier, pattern: Pattern}>
+}
+export interface TuplePattern extends Token {
+  properties: Array<Pattern>
 }
 
 export interface AssignmentExpression extends Expression {
@@ -391,12 +443,32 @@ export interface ForExpression extends Token {
 
 export interface IfExpression extends Token {
   condition: Expression
-  _then: BlockNode
-  _else: Maybe<BlockNode>
+  then_: BlockNode
+  else_: Maybe<BlockNode>
+}
+
+export interface IfLetExpression extends Token {
+  variableDeclaration: VariableDeclaration
+  then_: BlockNode
+  else_: Maybe<BlockNode>
 }
 
 export interface LoopExpression extends Token {
   body: BlockNode,
+}
+
+export interface MatchExpression extends Token {
+  expression: Expression
+  patterns: Array<MatchArm>
+}
+
+export interface MatchArm {
+  pattern: Pattern
+  block: BlockNode
+}
+
+export interface TypePathExpression extends Token {
+  typePath: TypePath,
 }
 
 export interface UnaryExpression extends Expression {

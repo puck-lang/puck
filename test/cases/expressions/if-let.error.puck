@@ -1,0 +1,19 @@
+///// Maybe<Num> is not assignable to type Result
+if let Result::Ok(_) = Maybe::Just(4) {
+
+}
+
+///// Maybe<Num> is not assignable to type (??)
+if let (_) = Maybe::Just(4) {
+
+}
+
+///// (Num) is not assignable to type Maybe
+if let Maybe::Just(_) = ((4)) {
+
+}
+
+///// (??, ??) is not assignable to type (T)
+if let Maybe::Just(_, _) = Maybe::Just(3) {
+
+}

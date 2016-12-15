@@ -1,0 +1,55 @@
+///// Duplicate declaration "a"
+let (a, a) = (1, 2)
+
+///// (Num, Num) is not assignable to type (??)
+let (a) = (1, 2)
+
+///// (Num, Num) is not assignable to type (??, ??, ??)
+let (a, b, c) = (1, 2)
+
+///// (Num, Num) is not assignable to type (Num, Bool)
+let (a, b): (Num, Bool) = (1, 2)
+
+///// (Bool, Bool) is not assignable to type (??)
+let (a): (Bool, Bool) = (1, 2)
+
+///// (Bool, Bool) is not assignable to type (??, ??, ??)
+let (a, b, c): (Bool, Bool) = (1, 2)
+
+///// (Num, Num) is not assignable to type (Num)
+let (a): (Num) = (1, 2)
+
+///// (Num, Num) is not assignable to type (Num, Num, Num)
+let (a, b, c): (Num, Num, Num) = (1, 2)
+
+// TODO: Make this error
+//// 123
+let {a} = {b: 2}
+
+///// (Num, Bool) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a, b) = (1, true)
+
+///// (Num, Num, Num) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a, b) = (1, 2, 3)
+
+///// (??) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a) = ((1))
+
+///// (??, ??, ??) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a, b, c) = (1, 2, 3)
+
+///// (??, ??, ??) is not assignable to type Tuple
+type Tuple(Num, Num)
+let Tuple(a, b, c) = (1, 2)
+
+// TODO: Make this error
+//// (??, ??, ??) is not assignable to type Tuple
+type Record {a: Num, b: Num}
+let Record {c} = {c: 5}
+
+///// non exhaustive pattern
+let Maybe::Just(value) = Maybe::Just(5)

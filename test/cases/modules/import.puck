@@ -4,3 +4,6 @@ import 'export.puck' as e
 import 'export.puck' as *
 
 export let foo = e.b + a + b + c
+
+// asterisk imports can be shadowed
+let q = 'not imported'

@@ -1,0 +1,98 @@
+print(
+  match Maybe::Just(5) {
+    Maybe::Just(num) => '$num'
+    Maybe::Nothing => 'nothing'
+  }
+)
+
+print(
+  match Result::Ok(5) {
+    Result::Ok(num) => '$num'
+    Result::Err(_) => 'error'
+  }
+)
+
+print(
+  match Result::Ok(5) {
+    Result::Ok(num) => '$num'
+    _ => 'error'
+  }
+)
+
+print(match Maybe::Just(5) { Maybe::Just(num) => num, Maybe::Nothing => 0 })
+
+print(
+  match Maybe::Nothing {
+    Maybe::Just(_) => 'someting'
+    Maybe::Nothing => 'nothing'
+  }
+)
+
+print(
+  match Maybe::Nothing {
+    _ => 'whatever'
+  }
+)
+
+print(
+  match Result::Err(5) {
+    Result::Ok(_) => 'ok'
+    Result::Err(err) => 'error: $err'
+  }
+)
+fn sayHello(name: String) then print('Hello, $name')
+
+match Maybe::Just('World') {
+  Maybe::Just(name) => {
+    let name = name.toUpperCase()
+    sayHello(name)
+  }
+  Maybe::Nothing => print('Oh, nothing')
+}
+
+enum Value
+  = One {value: String}
+  | Two
+  | Three
+
+match Value::One({value: 'World'}) {
+  Value::One {value} => sayHello(value)
+  _ => print('Sorry')
+}
+
+match Value::Two {
+  Value::Two => print('two')
+  Value::Three => print('three')
+  _ => print('Sorry')
+}
+
+match Value::Three {
+  Value::Two => print('two')
+  Value::Three => print('three')
+  _ => print('Sorry')
+}
+
+fn func(): Result<(), Value> {
+  Err(Value::Two)
+}
+
+match func() {
+  Result::Ok(_) => print('ok')
+  Result::Err(Value::One {value}) => sayHello(value)
+  Result::Err(Value::Two) => print('two')
+  Result::Err(Value::Three) => print('three')
+}
+
+match Maybe::Just(Maybe::Just(5)) {
+  Maybe::Just(inner) => match inner {
+    Maybe::Just(value) => value
+    Maybe::None => 0
+  }
+  Maybe::None => 0
+}
+
+enum Object = Object
+
+match Object::Object {
+  Object::Object => 'Object'
+}

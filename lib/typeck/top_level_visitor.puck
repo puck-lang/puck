@@ -48,6 +48,7 @@ import 'src/scope.puck' as {createScope}
 /// throwed away becouse too little information is known about the imported bindings
 export fn TopLevelVisitor(context, file) {
   let mut scope = createScope(context, file)
+  let mut variableDeclaration: Maybe<VariableDeclaration> = Nothing
 
   Object.assign({}, visit.emptyVisitor, {
 
@@ -56,9 +57,9 @@ export fn TopLevelVisitor(context, file) {
       scope.defineType(t)
     }
     visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
-      if f.name.isJust() then
+      if let Maybe::Just(name) = f.name then
         scope.define({
-          name: f.name.value[0].name
+          name: name.name
           token: f
           mutable: false
         })
@@ -79,7 +80,9 @@ export fn TopLevelVisitor(context, file) {
       scope.defineType(t)
     }
     visitVariableDeclaration: |self, d: VariableDeclaration| {
-      scope.define({name: d.identifier.name, mutable: d.mutable, token: d}, true)
+      variableDeclaration = Just(d)
+      visit.walkVariableDeclaration(self, d)
+      variableDeclaration = Nothing
     }
 
     visitExportDirective: |self, e: ExportDirective| {
@@ -90,6 +93,13 @@ export fn TopLevelVisitor(context, file) {
         then scope.define({name: i.specifier.name, mutable: false, token: i})
       else if i.specifier.kind == SyntaxKind.ObjectDestructure
         then visit.walkImportDirective(self, i)
+    }
+
+    visitPattern: visit.walkingVisitor.visitPattern
+    visitIdentifierPattern: |self, p: Identifier| {
+      variableDeclaration.map(|d| {
+        scope.define({name: p.name, mutable: d.mutable, token: d}, true)
+      })
     }
   })
 }

@@ -4,15 +4,19 @@
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var _js = require('puck-lang/dist/lib/stdlib/js');
+
 var _path = require('path');
 
 var _helpers = require('./../lib/helpers.js');
 
 var _compiler = require('./../lib/compiler.js');
 
-var _js = require('./../lib/stdlib/js.js');
+var _js2 = require('./../lib/stdlib/js.js');
 
-var argv = _js.process.argv;
+var E = _js.Error;
+E.stackTraceLimit = 100;
+var argv = _js2.process.argv;
 var _arguments = _core.Iterable['$List'].skip.call(_core.Iterable['$List'].skipUntil.call(argv, function (arg) {
   return _core.StringTrait['$String'].contains.call(arg, "puckc");
 }), 1);
@@ -28,17 +32,17 @@ if ((0, _helpers.flag)(_arguments, "--skip-extension")) {
 var extension = __PUCK__value__1;
 var ignoreErrors = (0, _helpers.flag)(_arguments, "--ignore-errors");
 if (_arguments.length > 1 && outFile) {
-  _js.console.error("Can't specify --out-file with more than one input file");
-  _js.process.exit(1);
+  _js2.console.error("Can't specify --out-file with more than one input file");
+  _js2.process.exit(1);
 };
 if (_arguments.length == 0) {
   (0, _core.print)("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] ...files\n");
-  _js.process.exit(1);
+  _js2.process.exit(1);
 } else {
   var files = _arguments.map(function (file) {
     return {
       file: file,
-      outFile: outFile || (0, _path.join)(outDir, file.replace((0, _js.RegExp)("\\.puck$"), extension))
+      outFile: outFile || (0, _path.join)(outDir, file.replace((0, _js2.RegExp)("\\.puck$"), extension))
     };
   });
   (0, _compiler.build)(files, {

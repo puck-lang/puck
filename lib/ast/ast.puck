@@ -32,7 +32,7 @@ export type FunctionDeclaration {
   typeParameters: List<TypeParameter>
   parameterList: List<VariableDeclaration>
   returnType: Maybe<TypeBound>
-  body: Block
+  body: Maybe<Block>
 }
 
 export type Identifier {
@@ -43,9 +43,9 @@ export type ImplDeclaration {
   implKeyword: Token
   typeParameters: List<TypeParameter>
 
-  tra: TypeBound
+  trait_: TypeBound
   forKeyword: Token
-  ty: TypeBound
+  type_: TypeBound
 
   openBrace: Token
   members: List<FunctionDeclaration>
@@ -92,7 +92,7 @@ export type FunctionTypeBound {
 }
 
 export type NamedTypeBound {
-  name: SimpleIdentifier
+  path: TypePath
   typeParameters: List<TypeBound>
 }
 
@@ -127,7 +127,7 @@ export type TypeProperty {
 }
 
 export type VariableDeclaration {
-  identifier: SimpleIdentifier
+  pattern: Pattern
   mutable: Bool
   typeBound: Maybe<TypeBound>
   initializer: Maybe<Expression>
@@ -171,13 +171,40 @@ export type ForExpression {
 }
 
 export type IfExpression {
+  ifKeyword: Token
   condition: Expression
-  _then: Block
-  _else: Maybe<Block>
+  then_: Block
+  else_: Maybe<Block>
+}
+
+export type IfLetExpression {
+  ifKeyword: Token
+  letKeyword: Token
+  variableDeclaration: VariableDeclaration
+  then_: Block
+  else_: Maybe<Block>
 }
 
 export type LoopExpression {
   body: Block
+}
+
+export type MatchExpression {
+  matchKeyword: Token
+  expression: Expression
+  openBrace: Token
+  patterns: List<MatchArm>
+  closeBrace: Token
+}
+
+export type MatchArm {
+  pattern: Pattern
+  arrow: Token
+  block: Block
+}
+
+export type TypePathExpression {
+  typePath: TypePath
 }
 
 export type UnaryExpression {
@@ -200,10 +227,38 @@ export type MemberAccess {
   member: Identifier
 }
 
-export type TypePath {
-  object: Expression
-  member: Identifier
+export enum TypePath
+  = Object(Identifier, TypePath)
+  | Member(Identifier)
+
+export type RecordPattern {
+  openBrace: Token
+  properties: List<RecordPatternMember>
+  closeBrace: Token
 }
+
+export type RecordPatternMember {
+  property: SimpleIdentifier
+  pattern: Pattern
+}
+
+export type TuplePattern {
+  openParen: Token
+  properties: List<Pattern>
+  closeParen: Token
+}
+
+export enum Pattern
+  = CatchAll
+  | Identifier(Identifier)
+  // | Boolen(BooleanLiteral)
+  // | Number(NumberLiteral)
+  // | String(StringLiteralPart)
+  | Record(RecordPattern)
+  | Tuple(TuplePattern)
+  | RecordType(TypePath, RecordPattern)
+  | TupleType(TypePath, TuplePattern)
+  | UnitType(TypePath)
 
 export type BreakStatement {
   keyword: Token
