@@ -258,14 +258,14 @@ export fn walkEnumDeclaration(visitor: Visitor, e: EnumDeclaration) {
 }
 export fn walkEnumMember(visitor: Visitor, e: EnumMember) {
   // visitor.visitIdentifier(e.name)
-  if let Maybe::Just(typeBound) = e.bound then visitor.visitTypeBound(typeBound)
+  if let Option::Some(typeBound) = e.bound then visitor.visitTypeBound(typeBound)
 }
 export fn walkFunction(visitor: Visitor, f: FunctionDeclaration) {
   if f.typeParameters
     then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
-  if let Maybe::Just(returnType) = f.returnType then visitor.visitTypeBound(returnType)
-  if let Maybe::Just(body) = f.body then visitor.visitBlock(body)
+  if let Option::Some(returnType) = f.returnType then visitor.visitTypeBound(returnType)
+  if let Option::Some(body) = f.body then visitor.visitBlock(body)
 }
 export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
 export fn walkImplDeclaration(visitor: Visitor, i: ImplDeclaration) {
@@ -320,11 +320,11 @@ export fn walkTupleTypeBound(visitor: Visitor, t: TupleTypeBound) {
 export fn walkTypeDeclaration(visitor: Visitor, t: TypeDeclaration) {
   // visitor.visitIdentifier(t.name)
   t.typeParameters.forEach(|t| visitor.visitTypeParameter(t))
-  if let Maybe::Just(typeBound) = t.bound then visitor.visitTypeBound(typeBound)
+  if let Option::Some(typeBound) = t.bound then visitor.visitTypeBound(typeBound)
 }
 export fn walkTypeParameter(visitor: Visitor, t: TypeParameter) {
   // visitor.visitIdentifier(t.name)
-  if let Maybe::Just(defaultValue) = t.defaultValue then visitor.visitTypeBound(defaultValue)
+  if let Option::Some(defaultValue) = t.defaultValue then visitor.visitTypeBound(defaultValue)
 }
 export fn walkTypeProperty(visitor: Visitor, t: TypeProperty) {
   // visitor.visitIdentifier(t.name)
@@ -332,8 +332,8 @@ export fn walkTypeProperty(visitor: Visitor, t: TypeProperty) {
 }
 export fn walkVariableDeclaration(visitor: Visitor, d: VariableDeclaration) {
   visitor.visitPattern(d.pattern)
-  if let Maybe::Just(typeBound) = d.typeBound then visitor.visitTypeBound(typeBound)
-  if let Maybe::Just(initializer) = d.initializer then visitor.visitExpression(initializer)
+  if let Option::Some(typeBound) = d.typeBound then visitor.visitTypeBound(typeBound)
+  if let Option::Some(initializer) = d.initializer then visitor.visitExpression(initializer)
 }
 
 export fn walkExportDirective(visitor: Visitor, e: ExportDirective) {
@@ -396,12 +396,12 @@ export fn walkForExpression(visitor: Visitor, e: ForExpression) {
 export fn walkIfExpression(visitor: Visitor, e: IfExpression) {
   visitor.visitExpression(e.condition)
   visitor.visitBlock(e.then_)
-  if let Maybe::Just(else_) = e.else_ then visitor.visitBlock(else_)
+  if let Option::Some(else_) = e.else_ then visitor.visitBlock(else_)
 }
 export fn walkIfLetExpression(visitor: Visitor, e: IfLetExpression) {
   visitor.visitVariableDeclaration(e.variableDeclaration)
   visitor.visitBlock(e.then_)
-  if let Maybe::Just(else_) = e.else_ then visitor.visitBlock(else_)
+  if let Option::Some(else_) = e.else_ then visitor.visitBlock(else_)
 }
 export fn walkLoopExpression(visitor: Visitor, e: LoopExpression) {
   visitor.visitBlock(e.body)

@@ -88,10 +88,10 @@ export fn parse(input) { // : TokenStream
     return input.next()
   }
 
-  fn maybeConsumeToken<T>(token, name = 'token'): Maybe<T> {
+  fn maybeConsumeToken<T>(token, name = 'token'): Option<T> {
     if isToken(token)
-      then Just(consumeToken(token, name))
-      else Nothing
+      then Some(consumeToken(token, name))
+      else None
   }
 
   fn skipKeyword(kw) { // kind: SyntaxKind
@@ -296,10 +296,10 @@ export fn parse(input) { // : TokenStream
 
     let bound =
       if isToken(SyntaxKind.OpenBraceToken)
-        then Just(parseObjectTypeBound())
+        then Some(parseObjectTypeBound())
       else if isToken(SyntaxKind.OpenParenToken)
-        then Just(parseTupleTypeBound())
-      else Nothing
+        then Some(parseTupleTypeBound())
+      else None
 
     {
       kind: SyntaxKind.EnumMember
@@ -376,7 +376,7 @@ export fn parse(input) { // : TokenStream
       if isToken(SyntaxKind.ColonColonToken)
       or isToken(SyntaxKind.OpenParenToken)
       or isToken(SyntaxKind.OpenBraceToken) {
-        let typePath = parseTypePath(Just(identifier))
+        let typePath = parseTypePath(Some(identifier))
 
         if isToken(SyntaxKind.OpenParenToken)
           then Pattern.TupleType(typePath, parseTuplePattern())
@@ -474,7 +474,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseNamedTypeBound(): NamedTypeBound {
-    let path = parseTypePath(Nothing)
+    let path = parseTypePath(None)
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeBound)
@@ -533,9 +533,9 @@ export fn parse(input) { // : TokenStream
     let defaultValue =
       if isToken(SyntaxKind.EqualsToken) {
         input.next()
-        Just(parseTypeBound())
+        Some(parseTypeBound())
       }
-      else Nothing
+      else None
     {
       kind: SyntaxKind.TypeParameter
       name
@@ -543,11 +543,11 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseTypePath(identifier: Maybe<Identifier>): TypePath {
+  fn parseTypePath(identifier: Option<Identifier>): TypePath {
     let i = identifier.unwrapOrElse(|| consumeToken(SyntaxKind.Identifier, 'identifier'))
 
     if maybeConsumeToken(SyntaxKind.ColonColonToken).isJust()
-      then TypePath::Object(i, parseTypePath(Nothing))
+      then TypePath::Object(i, parseTypePath(None))
       else TypePath::Member(i)
   }
 
@@ -572,10 +572,10 @@ export fn parse(input) { // : TokenStream
 
     let bound =
       if isToken(SyntaxKind.OpenBraceToken)
-        then Just(parseObjectTypeBound())
+        then Some(parseObjectTypeBound())
       else if isToken(SyntaxKind.OpenParenToken)
-        then Just(parseTupleTypeBound())
-      else Nothing
+        then Some(parseTupleTypeBound())
+      else None
 
     {
       kind: SyntaxKind.TypeDeclaration
@@ -602,8 +602,8 @@ export fn parse(input) { // : TokenStream
     consumeToken(SyntaxKind.FnKeyword)
     let name = maybeConsumeToken(SyntaxKind.Identifier, 'identifier')
       if isToken(SyntaxKind.Identifier)
-        then Just(consumeToken(SyntaxKind.Identifier, 'identifier'))
-        else Nothing
+        then Some(consumeToken(SyntaxKind.Identifier, 'identifier'))
+        else None
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
@@ -613,9 +613,9 @@ export fn parse(input) { // : TokenStream
     let returnType =
       if isToken(SyntaxKind.ColonToken) {
         input.next()
-        Just(parseTypeBound())
+        Some(parseTypeBound())
       }
-      else Nothing
+      else None
 
     let body: Block =
       if isToken(SyntaxKind.OpenBraceToken)
@@ -653,9 +653,9 @@ export fn parse(input) { // : TokenStream
 
     {
       kind: SyntaxKind.Function
-      name: Nothing
+      name: None
       parameterList
-      returnType: Nothing
+      returnType: None
       body
     }
   }
@@ -684,8 +684,8 @@ export fn parse(input) { // : TokenStream
         kind: SyntaxKind.VariableDeclaration
         pattern
         mutable: false
-        typeBound: Nothing
-        initializer: Just(expression)
+        typeBound: None
+        initializer: Some(expression)
       }
       // pattern
       // equalsToken
@@ -694,7 +694,7 @@ export fn parse(input) { // : TokenStream
       else_:
         if isToken(SyntaxKind.ElseKeyword) {
           input.next()
-          Just(
+          Some(
             if isToken(SyntaxKind.OpenBraceToken)
               then parseBlock()
               else ({
@@ -703,7 +703,7 @@ export fn parse(input) { // : TokenStream
               })
           )
         }
-        else Nothing
+        else None
     }
   }
 
@@ -728,7 +728,7 @@ export fn parse(input) { // : TokenStream
       else_:
         if isToken(SyntaxKind.ElseKeyword) {
           input.next()
-          Just(
+          Some(
             if isToken(SyntaxKind.OpenBraceToken)
               then parseBlock()
               else ({
@@ -737,7 +737,7 @@ export fn parse(input) { // : TokenStream
               })
           )
         }
-        else Nothing
+        else None
     }
   }
 
@@ -900,7 +900,7 @@ export fn parse(input) { // : TokenStream
         if isToken(SyntaxKind.ColonColonToken)
           then {
             kind: SyntaxKind.TypePathExpression
-            typePath: parseTypePath(Just(identifier))
+            typePath: parseTypePath(Some(identifier))
           }
           else maybeAccess(identifier)
       }
@@ -919,7 +919,7 @@ export fn parse(input) { // : TokenStream
     else if isToken(SyntaxKind.FnKeyword) {
       expression = parseFunctionDeclaration()
       let func: FunctionDeclaration = expression
-      if let Maybe::Just(name) = func.name {
+      if let Option::Some(name) = func.name {
         identifier = name
       }
       else input.croak('Can not export function without a name')
@@ -956,7 +956,7 @@ export fn parse(input) { // : TokenStream
     if locator.parts.length != 1 then throw Error('More than one part in import string')
     let parts = locator.parts[0].value.split(':')
     if parts > 2 then input.croak('Illegal token ":" used in import path')
-    let domain = if parts.length == 2 then Just(parts[0]) else Nothing
+    let domain = if parts.length == 2 then Some(parts[0]) else None
     let path = if parts.length == 2 then parts[1] else parts[0]
 
     let asKeyword = consumeToken(SyntaxKind.AsKeyword)

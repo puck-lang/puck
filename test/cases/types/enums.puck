@@ -1,8 +1,8 @@
-let five: Maybe<Num> = Just(5)
-let nothing: Maybe<Num> = Nothing
+let five: Option<Num> = Some(5)
+let nothing: Option<Num> = None
 
-let maybeFive: Maybe<Num> = Maybe.Just(5)
-let maybeNothing: Maybe<Num> = Maybe.Nothing
+let maybeFive: Option<Num> = Option.Some(5)
+let maybeNothing: Option<Num> = Option.None
 
 enum Enum = A {b: Num}
 

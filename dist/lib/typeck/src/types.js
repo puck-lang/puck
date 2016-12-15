@@ -120,7 +120,7 @@ function createTypeInstance(_class, typeParameters) {
       return isSameType(p, typeParameters[i]);
     });
   });
-  if (__PUCK__value__9.kind == "Just") {
+  if (__PUCK__value__9.kind == "Some") {
     var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
 
     var cachedInstance = _PUCK__value__9$valu[0];

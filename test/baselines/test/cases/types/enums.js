@@ -19,10 +19,10 @@ EnumTrait['$Enum'] = {
   getB: EnumTrait.getB
 };
 
-var five = (0, _core.Just)(5);
-var nothing = _core.Nothing;
-var maybeFive = _core.Maybe.Just(5);
-var maybeNothing = _core.Maybe.Nothing;
+var five = (0, _core.Some)(5);
+var nothing = _core.None;
+var maybeFive = _core.Option.Some(5);
+var maybeNothing = _core.Option.None;
 var Enum = {
   A: function A(object) {
     return { kind: 'A', value: object };

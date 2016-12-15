@@ -38,52 +38,52 @@ export trait ResultTrait<T, E> {
 }
 impl<T, E> ResultTrait<T, E> for Result<T, E> {}
 
-export enum Maybe<T> = Just(T) | Nothing
-export let Just = Maybe::Just
-export let Nothing = Maybe::Nothing
+export enum Option<T> = Some(T) | None
+export let Some = Option::Some
+export let None = Option::None
 export trait MaybeTrait<T> {
 
-  fn isJust(self): Bool then self.kind == 'Just'
-  fn isNothing(self: Maybe<T>): Bool {not self.isJust()}
+  fn isJust(self): Bool then self.kind == 'Some'
+  fn isNothing(self: Option<T>): Bool {not self.isJust()}
 
-  fn map<U>(self: Maybe<T>, f: (T) => U): Maybe<U> {
-    if let Maybe::Just(value) = self
-      then Just(f(value))
+  fn map<U>(self: Option<T>, f: (T) => U): Option<U> {
+    if let Option::Some(value) = self
+      then Some(f(value))
       else self
   }
 
-  fn mapOr<U>(self: Maybe<T>, default: U, f: (T) => U): U {
-    if let Maybe::Just(value) = self
+  fn mapOr<U>(self: Option<T>, default: U, f: (T) => U): U {
+    if let Option::Some(value) = self
       then f(value)
       else default
   }
 
-  fn mapOrElse<U>(self: Maybe<T>, default: () => U, f: (T) => U): U {
-    if let Maybe::Just(value) = self
+  fn mapOrElse<U>(self: Option<T>, default: () => U, f: (T) => U): U {
+    if let Option::Some(value) = self
       then f(value)
       else default()
   }
 
-  fn unwrap(self: Maybe<T>): T {
+  fn unwrap(self: Option<T>): T {
     if self.isNothing()
       then throw Error('Can not unwap empty maybe')
 
     self.value[0]
   }
 
-  fn unwrapOr(self: Maybe<T>, default: T): T {
-    if let Maybe::Just(value) = self
+  fn unwrapOr(self: Option<T>, default: T): T {
+    if let Option::Some(value) = self
       then value
       else default
   }
 
-  fn unwrapOrElse(self: Maybe<T>, default: () => T): T {
-    if let Maybe::Just(value) = self
+  fn unwrapOrElse(self: Option<T>, default: () => T): T {
+    if let Option::Some(value) = self
       then value
       else default()
   }
 }
-impl<T> MaybeTrait<T> for Maybe<T> {}
+impl<T> MaybeTrait<T> for Option<T> {}
 
 export type List<E> {}
 export trait ListTrait<E> {
@@ -100,7 +100,7 @@ export trait Iterable<E> {
 
   fn size(self): Num
 
-  fn find(self, predicate: (E) => Bool): Maybe<E>
+  fn find(self, predicate: (E) => Bool): Option<E>
 
   /// Returns an [Iterable] that provides all but the first [count] elements.
   // fn skip(self, count: Num): Iterable<E>
@@ -121,12 +121,12 @@ impl<E> Iterable<E> for List<E> {
     self.length
   }
 
-  fn find(self, predicate: (E) => Bool): Maybe<E> {
+  fn find(self, predicate: (E) => Bool): Option<E> {
     let index = self.findIndex(predicate)
 
     if index >= 0
-      then Just(self[index])
-      else Nothing
+      then Some(self[index])
+      else None
   }
 
   fn skip(self, count): List<E> {
@@ -197,12 +197,12 @@ export trait ObjectMapTrait<T> {
     new
   }
 
-  fn find(self, predicate: ((String, T)) => Bool): Maybe<(String, T)> {
+  fn find(self, predicate: ((String, T)) => Bool): Option<(String, T)> {
     let key = Object.keys(self).find(|key| predicate((key, self[key])))
 
     if key
-      then Just((key, self[key]))
-      else Nothing
+      then Some((key, self[key]))
+      else None
   }
 
   fn forEach(self, func: ((String, T)) => ()): () {

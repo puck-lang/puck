@@ -206,7 +206,7 @@ function Emitter() {
     }
     function emitEnumMember(t) {
         var value;
-        if (t.bound.kind == 'Just') {
+        if (t.bound.kind == 'Some') {
             var bound = t.bound.value[0];
             if (bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
                 value = "(object) => ({kind: '" + emitIdentifier(t.name) + "', value: object})";
@@ -233,7 +233,7 @@ function Emitter() {
             }
             return p;
         });
-        var name = fn.name.kind == 'Just' ? emitIdentifier(fn.name.value[0]) : '';
+        var name = fn.name.kind == 'Some' ? emitIdentifier(fn.name.value[0]) : '';
         var parameterList = fn.parameterList;
         var body = fn.body;
         var firstParameter = parameterList.length > 0 && parameterList[0];
@@ -243,7 +243,7 @@ function Emitter() {
                 body = Object['assign']({}, body, {
                     expressions: [Object['assign'](fn.parameterList[0], {
                         initializer: {
-                            kind: 'Just',
+                            kind: 'Some',
                             value: [{
                                     kind: ast_1.SyntaxKind.Identifier,
                                     name: 'this',
@@ -258,7 +258,7 @@ function Emitter() {
         return code;
     }
     function emitFunctionParameter(vd) {
-        var initializer = vd.initializer.kind == 'Just'
+        var initializer = vd.initializer.kind == 'Some'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
         return "" + emitPatternDestructuring(vd.pattern) + initializer;
@@ -287,7 +287,7 @@ function Emitter() {
     }
     function emitTypeDeclaration(t) {
         var value;
-        if (t.bound.kind == 'Just') {
+        if (t.bound.kind == 'Some') {
             var bound = t.bound.value[0];
             if (bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
                 value = "(object) => object";
@@ -327,7 +327,7 @@ function Emitter() {
                 }
             }
         }
-        var initializer = vd.initializer.kind == 'Just'
+        var initializer = vd.initializer.kind == 'Some'
             ? " = " + emitExpression(vd.initializer.value[0], Context.Value)
             : '';
         if (binding && binding.previous) {
@@ -358,7 +358,7 @@ function Emitter() {
             })
                 .join(', ') + "}";
         var path;
-        if (i.domain.kind == 'Nothing') {
+        if (i.domain.kind == 'None') {
             if (i.path.charAt(0) == '/') {
                 path = i.path;
             }
@@ -446,7 +446,7 @@ function Emitter() {
             valueVariable = newValueVariable();
         }
         var then = emitBlock(e.then_);
-        var el = e.else_.kind == 'Just'
+        var el = e.else_.kind == 'Some'
             ? ("\n" + indent('else') + " " + emitBlock(e.else_.value[0]))
             : '';
         var code = "if (" + condition + ") " + then + el;
@@ -556,9 +556,9 @@ function Emitter() {
                     kind: ast_1.SyntaxKind.VariableDeclaration,
                     mutable: false,
                     pattern: e.variableDeclaration.pattern,
-                    typeBound: { kind: 'Nothing' },
+                    typeBound: { kind: 'None' },
                     initializer: {
-                        kind: 'Just',
+                        kind: 'Some',
                         value: [{
                                 kind: ast_1.SyntaxKind.Identifier,
                                 name: valueVariable,
@@ -591,17 +591,17 @@ function Emitter() {
                     mutable: false,
                     typeBound: null,
                     pattern: arm.pattern,
-                    initializer: { kind: 'Just', value: [
+                    initializer: { kind: 'Some', value: [
                             { kind: ast_1.SyntaxKind.Identifier, name: valueVariable }
                         ] },
                 },
                 then_: arm.block,
                 else_: ifLet
-                    ? { kind: 'Just', value: [{
+                    ? { kind: 'Some', value: [{
                                 kind: ast_1.SyntaxKind.Block,
                                 expressions: [ifLet]
                             }] }
-                    : { kind: 'Nothing' }
+                    : { kind: 'None' }
             };
         }
         valueVariable = outerValueVariable;

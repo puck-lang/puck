@@ -20,7 +20,7 @@ import {
   LoopExpression,
   MatchArm,
   MatchExpression,
-  Maybe,
+  Option,
   MemberAccess,
   Module,
   NumberLiteral,
@@ -287,7 +287,7 @@ export function Emitter() {
 
   function emitEnumMember(t: TypeDeclaration) {
     let value
-    if (t.bound.kind == 'Just') {
+    if (t.bound.kind == 'Some') {
       let bound = t.bound.value[0]
       if (bound.kind === SyntaxKind.ObjectTypeBound) {
         value = `(object) => ({kind: '${emitIdentifier(t.name)}', value: object})`
@@ -315,7 +315,7 @@ export function Emitter() {
       }
       return p
     })
-    let name = fn.name.kind == 'Just' ? emitIdentifier(fn.name.value[0]) : ''
+    let name = fn.name.kind == 'Some' ? emitIdentifier(fn.name.value[0]) : ''
     let parameterList = fn.parameterList
     let body = fn.body
     const firstParameter = parameterList.length > 0 && parameterList[0]
@@ -325,7 +325,7 @@ export function Emitter() {
         body = Object['assign']({}, body, {
           expressions: [Object['assign'](fn.parameterList[0], {
             initializer: {
-                kind: 'Just',
+                kind: 'Some',
                 value: [{
                   kind: SyntaxKind.Identifier,
                   name: 'this',
@@ -342,7 +342,7 @@ export function Emitter() {
   }
 
   function emitFunctionParameter(vd: VariableDeclaration) {
-    let initializer = vd.initializer.kind == 'Just'
+    let initializer = vd.initializer.kind == 'Some'
       ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
     return `${emitPatternDestructuring(vd.pattern)}${initializer}`
@@ -384,7 +384,7 @@ export function Emitter() {
 
   function emitTypeDeclaration(t: TypeDeclaration) {
     let value
-    if (t.bound.kind == 'Just') {
+    if (t.bound.kind == 'Some') {
       let bound = t.bound.value[0]
       if (bound.kind === SyntaxKind.ObjectTypeBound) {
         value = `(object) => object`
@@ -425,7 +425,7 @@ export function Emitter() {
       }
     }
 
-    let initializer = vd.initializer.kind == 'Just'
+    let initializer = vd.initializer.kind == 'Some'
       ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
       : ''
 
@@ -464,7 +464,7 @@ export function Emitter() {
         }}`
 
     let path
-    if (i.domain.kind == 'Nothing') {
+    if (i.domain.kind == 'None') {
       if (i.path.charAt(0) == '/') {
         path = i.path
       } else {
@@ -557,7 +557,7 @@ export function Emitter() {
       valueVariable = newValueVariable()
     }
     let then = emitBlock(e.then_)
-    let el = e.else_.kind == 'Just'
+    let el = e.else_.kind == 'Some'
       ? (`\n${indent('else')} ${emitBlock(e.else_.value[0])}`)
       : ''
 
@@ -679,9 +679,9 @@ export function Emitter() {
           kind: SyntaxKind.VariableDeclaration,
           mutable: false,
           pattern: e.variableDeclaration.pattern,
-          typeBound: {kind: 'Nothing'},
+          typeBound: {kind: 'None'},
           initializer: {
-            kind: 'Just',
+            kind: 'Some',
             value: [{
               kind: SyntaxKind.Identifier,
               name: valueVariable,
@@ -719,17 +719,17 @@ export function Emitter() {
           mutable: false,
           typeBound: null,
           pattern: arm.pattern,
-          initializer: {kind: 'Just', value: [
+          initializer: {kind: 'Some', value: [
             {kind: SyntaxKind.Identifier, name: valueVariable} as Identifier
           ]},
         },
         then_: arm.block,
         else_: ifLet
-          ? {kind: 'Just', value: [{
+          ? {kind: 'Some', value: [{
               kind: SyntaxKind.Block,
               expressions: [ifLet]
             }]}
-          : {kind: 'Nothing'}
+          : {kind: 'None'}
       }
     }
 

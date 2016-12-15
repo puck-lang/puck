@@ -84,7 +84,7 @@ function ImportVisitor(context, file) {
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
-      if (_core.MaybeTrait['$Maybe'].isNothing.call(i.domain)) {
+      if (_core.MaybeTrait['$Option'].isNothing.call(i.domain)) {
         var _ret = function () {
           var importedFile = context.resolvePath(i.path, file);
           var path = importedFile.absolutePath;

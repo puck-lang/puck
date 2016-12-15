@@ -68,7 +68,7 @@ var structureVisitor = exports.structureVisitor = {
           return self.visitFunctionParameter(p, type_);
         });
         var __PUCK__value__3 = f.returnType;
-        if (__PUCK__value__3.kind == "Just") {
+        if (__PUCK__value__3.kind == "Some") {
           var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
 
           var returnType = _PUCK__value__3$valu[0];
@@ -77,7 +77,7 @@ var structureVisitor = exports.structureVisitor = {
         };
         f.type_ = (0, _functions.createFunctionType)(f.scope, f, self.reportError);
         var __PUCK__value__4 = f.name;
-        if (__PUCK__value__4.kind == "Just") {
+        if (__PUCK__value__4.kind == "Some") {
           var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
 
           var name = _PUCK__value__4$valu[0];
@@ -186,7 +186,7 @@ var structureVisitor = exports.structureVisitor = {
       return _js._undefined;
     };
     d.scope = self.scope;
-    d.type_ = _core.MaybeTrait['$Maybe'].mapOr.call(d.typeBound, type_, function (bound) {
+    d.type_ = _core.MaybeTrait['$Option'].mapOr.call(d.typeBound, type_, function (bound) {
       self.visitTypeBound(bound);
       return (0, _types.getType)(d.scope, bound) || type_;
     });
@@ -228,7 +228,7 @@ var structureVisitor = exports.structureVisitor = {
       };
     };
     var __PUCK__value__12 = d.initializer;
-    if (__PUCK__value__12.kind == "Just") {
+    if (__PUCK__value__12.kind == "Some") {
       var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1);
 
       var initializer = _PUCK__value__12$val[0];

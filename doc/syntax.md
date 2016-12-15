@@ -127,7 +127,7 @@ type Point {
 }
 
 // Enums can hold a set of different types  
-enum Maybe<T> = Just(T) | Nothing
+enum Option<T> = Some(T) | None
 ```
 
 Puck enums are tagged unions or just union types which can be 

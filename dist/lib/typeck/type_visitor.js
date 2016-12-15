@@ -67,7 +67,7 @@ function TypeVisitor(context, file) {
             return self.visitEnumMember(m);
           });
           var memberMap = _core.ObjectMapTrait.fromList(t.members.map(function (p) {
-            return [p.name.name, _core.MaybeTrait['$Maybe'].mapOrElse.call(p.bound, function () {
+            return [p.name.name, _core.MaybeTrait['$Option'].mapOrElse.call(p.bound, function () {
               return {
                 kind: p.name.name,
                 name: p.name.name,
@@ -216,7 +216,7 @@ function TypeVisitor(context, file) {
         } else {
           self.scope = t.scope;
           var __PUCK__value__1 = t.bound;
-          if (__PUCK__value__1.kind == "Just") {
+          if (__PUCK__value__1.kind == "Some") {
             var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
 
             var typeBound = _PUCK__value__1$valu[0];

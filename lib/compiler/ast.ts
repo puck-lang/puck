@@ -247,13 +247,13 @@ export function isIndex(token: Token): token is IndexAccess {
   return token.kind === SyntaxKind.IndexAccess
 }
 
-export type Maybe<T>
+export type Option<T>
   = {
-      kind: 'Just'
+      kind: 'Some'
       value: [T]
     }
   | {
-      kind: 'Nothing'
+      kind: 'None'
     }
 
 export interface Token {
@@ -278,9 +278,9 @@ export interface EnumDeclaration extends Token {
 }
 
 export interface FunctionDeclaration extends Token {
-  name: Maybe<Identifier>
+  name: Option<Identifier>
   parameterList: Array<VariableDeclaration>
-  returnType: Maybe<TypeBound>
+  returnType: Option<TypeBound>
   body: BlockNode
 }
 
@@ -331,7 +331,7 @@ export interface TypeDeclaration extends Token {
   keyword: Token
   name: Identifier
   typeParameters: Array<TypeParameter>
-  bound: Maybe<TypeBound>
+  bound: Option<TypeBound>
 }
 
 export interface TypeParameter extends Token {
@@ -361,8 +361,8 @@ export interface TypeProperty extends Token {
 export interface VariableDeclaration extends Token {
   pattern: Pattern
   mutable: boolean
-  typeBound: Maybe<TypeBound>
-  initializer: Maybe<Expression>
+  typeBound: Option<TypeBound>
+  initializer: Option<Expression>
 }
 
 export interface ExportDirective extends Token {
@@ -373,7 +373,7 @@ export interface ExportDirective extends Token {
 
 export interface ImportDirective extends Token {
   importKeyword: Token
-  domain: Maybe<string>
+  domain: Option<string>
   path: string
   asKeyword: Token
   specifier: Identifier|ObjectDestructure
@@ -444,13 +444,13 @@ export interface ForExpression extends Token {
 export interface IfExpression extends Token {
   condition: Expression
   then_: BlockNode
-  else_: Maybe<BlockNode>
+  else_: Option<BlockNode>
 }
 
 export interface IfLetExpression extends Token {
   variableDeclaration: VariableDeclaration
   then_: BlockNode
-  else_: Maybe<BlockNode>
+  else_: Option<BlockNode>
 }
 
 export interface LoopExpression extends Token {

@@ -81,7 +81,7 @@ export fn createScope(context, file, parent = false) {
             }
             else if t.kind == SyntaxKind.TypeDeclaration {
               type_.implementations = []
-              if let Maybe::Just(typeBound) = t.bound {
+              if let Option::Some(typeBound) = t.bound {
                 if typeBound.kind == SyntaxKind.ObjectTypeBound
                   then type_.properties = Object.create(null)
                 else if typeBound.kind == SyntaxKind.TupleTypeBound
@@ -91,7 +91,7 @@ export fn createScope(context, file, parent = false) {
             else if t.kind == SyntaxKind.TypeParameter {
               type_.isTypeParameter = true
               let p: TypeParameter = any(t)
-              if let Maybe::Just(defaultValue) = p.defaultValue {
+              if let Option::Some(defaultValue) = p.defaultValue {
                 type_.defaultValue = getType(self, defaultValue)
               }
             }

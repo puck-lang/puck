@@ -28,7 +28,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function TopLevelVisitor(context, file) {
   var scope = (0, _scope.createScope)(context, file);
-  var variableDeclaration = _core.Nothing;
+  var variableDeclaration = _core.None;
   return _js._Object.assign({}, visit.emptyVisitor, {
     visitBlock: function visitBlock(b) {},
     visitEnumDeclaration: function visitEnumDeclaration(t) {
@@ -38,7 +38,7 @@ function TopLevelVisitor(context, file) {
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
       var __PUCK__value__1 = f.name;
-      if (__PUCK__value__1.kind == "Just") {
+      if (__PUCK__value__1.kind == "Some") {
         var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
 
         var name = _PUCK__value__1$valu[0];
@@ -75,9 +75,9 @@ function TopLevelVisitor(context, file) {
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;
-      variableDeclaration = (0, _core.Just)(d);
+      variableDeclaration = (0, _core.Some)(d);
       visit.walkVariableDeclaration(self, d);
-      return variableDeclaration = _core.Nothing;
+      return variableDeclaration = _core.None;
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -100,7 +100,7 @@ function TopLevelVisitor(context, file) {
     visitPattern: visit.walkingVisitor.visitPattern,
     visitIdentifierPattern: function visitIdentifierPattern(p) {
       var self = this;
-      return _core.MaybeTrait['$Maybe'].map.call(variableDeclaration, function (d) {
+      return _core.MaybeTrait['$Option'].map.call(variableDeclaration, function (d) {
         return scope.define({
           name: p.name,
           mutable: d.mutable,
