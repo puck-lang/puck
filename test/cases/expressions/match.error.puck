@@ -1,12 +1,12 @@
 ///// Use of undefined variable value
-match Maybe::Just(5) {
-  Maybe::Just(num) => '$value'
-  Maybe::Nothing => 'nothing'
+match Option::Some(5) {
+  Option::Some(num) => '$value'
+  Option::None => 'nothing'
 }
 
-///// Match is not exhaustive. It is missing a case for Maybe<Num>::Nothing
-match Maybe::Just(5) {
-  Maybe::Just(num) => '$num'
+///// Match is not exhaustive. It is missing a case for Option<Num>::None
+match Option::Some(5) {
+  Option::Some(num) => '$num'
 }
 
 ///// (??, ??) is not assignable to type (T)
@@ -21,17 +21,17 @@ match Result::Ok(5) {
   Result::Err(_) => 'error'
 }
 
-///// Maybe is not assignable to type Result<Num, E>
+///// Option is not assignable to type Result<Num, E>
 match Result::Ok(5) {
-  Maybe::Just(_) => 'Something'
+  Option::Some(_) => 'Something'
 }
 
 ///// Num is not assignable to type String
 fn sayHello(name: String) then print('Hello, $name')
 
-match Maybe::Just(5) {
-  Maybe::Just(num) => sayHello(num)
-  Maybe::Nothing => print('Oh, nothing')
+match Option::Some(5) {
+  Option::Some(num) => sayHello(num)
+  Option::None => print('Oh, nothing')
 }
 
 ///// Num is not assignable to type String
@@ -61,14 +61,14 @@ match func() {
 ///// Match is not exhaustive. It is missing a case for Value::Three
 enum Value = One | Two | Three
 
-fn func(): Maybe<Value> {
-  Just(Value::Two)
+fn func(): Option<Value> {
+  Some(Value::Two)
 }
 
 match func() {
-  Maybe::Just(Value::One) => print('one')
-  Maybe::Just(Value::Two) => print('two')
-  Maybe::None => print('no value')
+  Option::Some(Value::One) => print('one')
+  Option::Some(Value::Two) => print('two')
+  Option::None => print('no value')
 }
 
 // TODO: Make this error

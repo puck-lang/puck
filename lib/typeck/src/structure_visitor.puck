@@ -58,10 +58,10 @@ export let structureVisitor = {
           if assignedTo then assignedTo.arguments[i].type_
         self.visitFunctionParameter(p, type_)
       })
-      if let Maybe::Just(returnType) = f.returnType then self.visitTypeBound(returnType)
+      if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
 
       f.type_ = createFunctionType(f.scope, f, self.reportError)
-      if let Maybe::Just(name) = f.name then
+      if let Option::Some(name) = f.name then
         f.scope.parent.define({
           name: name.name
           token: f
@@ -165,7 +165,7 @@ export let structureVisitor = {
         self.reportError(d, 'non exhaustive pattern')
     }
 
-    if let Maybe::Just(initializer) = d.initializer {
+    if let Option::Some(initializer) = d.initializer {
       visitInitializer(initializer)
       if not d.type_ and d.pattern.binding {
         d.pattern.binding.type_ = initializer.type_

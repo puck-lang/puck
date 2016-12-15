@@ -48,7 +48,7 @@ import 'src/scope.puck' as {createScope}
 /// throwed away becouse too little information is known about the imported bindings
 export fn TopLevelVisitor(context, file) {
   let mut scope = createScope(context, file)
-  let mut variableDeclaration: Maybe<VariableDeclaration> = Nothing
+  let mut variableDeclaration: Option<VariableDeclaration> = None
 
   Object.assign({}, visit.emptyVisitor, {
 
@@ -57,7 +57,7 @@ export fn TopLevelVisitor(context, file) {
       scope.defineType(t)
     }
     visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
-      if let Maybe::Just(name) = f.name then
+      if let Option::Some(name) = f.name then
         scope.define({
           name: name.name
           token: f
@@ -80,9 +80,9 @@ export fn TopLevelVisitor(context, file) {
       scope.defineType(t)
     }
     visitVariableDeclaration: |self, d: VariableDeclaration| {
-      variableDeclaration = Just(d)
+      variableDeclaration = Some(d)
       visit.walkVariableDeclaration(self, d)
-      variableDeclaration = Nothing
+      variableDeclaration = None
     }
 
     visitExportDirective: |self, e: ExportDirective| {

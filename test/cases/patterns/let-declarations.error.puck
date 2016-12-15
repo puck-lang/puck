@@ -52,4 +52,4 @@ type Record {a: Num, b: Num}
 let Record {c} = {c: 5}
 
 ///// non exhaustive pattern
-let Maybe::Just(value) = Maybe::Just(5)
+let Option::Some(value) = Option::Some(5)

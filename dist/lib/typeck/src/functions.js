@@ -37,7 +37,7 @@ function createFunctionType(scope, f, reportError) {
   var typeParameters = void 0;
   if (f.typeParameters && f.typeParameters.length) {
     parameterRange = (0, _range.getRange)(f.typeParameters, function (p) {
-      return _core.MaybeTrait['$Maybe'].isJust.call(p.defaultValue);
+      return _core.MaybeTrait['$Option'].isJust.call(p.defaultValue);
     }, reportError, "type parameter");
     instances = [];
     typeParameters = f.typeParameters;
@@ -52,7 +52,7 @@ function createFunctionType(scope, f, reportError) {
   });
   var __PUCK__value__1 = f.returnType;
   var __PUCK__value__2 = void 0;
-  if (__PUCK__value__1.kind == "Just") {
+  if (__PUCK__value__1.kind == "Some") {
     var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
 
     var _returnType = _PUCK__value__1$valu[0];
@@ -76,7 +76,7 @@ function createFunctionType(scope, f, reportError) {
   if (f.parameterList) {
     __PUCK__value__5 = (0, _range.getRange)(_arguments, function (p) {
       var vd = p.token;
-      return _core.MaybeTrait['$Maybe'].isJust.call(vd.initializer);
+      return _core.MaybeTrait['$Option'].isJust.call(vd.initializer);
     }, reportError, "parameter");
   } else {
     __PUCK__value__5 = {
@@ -86,7 +86,7 @@ function createFunctionType(scope, f, reportError) {
   };
   return {
     kind: "Function",
-    name: _core.MaybeTrait['$Maybe'].mapOrElse.call(f.name, function () {
+    name: _core.MaybeTrait['$Option'].mapOrElse.call(f.name, function () {
       return getFunctionTypeName(_arguments, returnType);
     }, function (ident) {
       return ident.name;

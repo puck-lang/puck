@@ -23,16 +23,16 @@ export type EnumDeclaration {
 
 export type EnumMember {
   name: Identifier
-  //bound: Maybe<ObjectTypeBound | TupleTypeBound>
-  bound: Maybe<Expression>
+  //bound: Option<ObjectTypeBound | TupleTypeBound>
+  bound: Option<Expression>
 }
 
 export type FunctionDeclaration {
-  name: Maybe<Identifier>
+  name: Option<Identifier>
   typeParameters: List<TypeParameter>
   parameterList: List<VariableDeclaration>
-  returnType: Maybe<TypeBound>
-  body: Maybe<Block>
+  returnType: Option<TypeBound>
+  body: Option<Block>
 }
 
 export type Identifier {
@@ -112,13 +112,13 @@ export type TypeDeclaration {
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
-  //bound: Maybe<ObjectTypeBound | TupleTypeBound>
-  bound: Maybe<Expression>
+  //bound: Option<ObjectTypeBound | TupleTypeBound>
+  bound: Option<Expression>
 }
 
 export type TypeParameter {
   name: Identifier
-  defaultValue: Maybe<TypeBound>
+  defaultValue: Option<TypeBound>
 }
 
 export type TypeProperty {
@@ -129,8 +129,8 @@ export type TypeProperty {
 export type VariableDeclaration {
   pattern: Pattern
   mutable: Bool
-  typeBound: Maybe<TypeBound>
-  initializer: Maybe<Expression>
+  typeBound: Option<TypeBound>
+  initializer: Option<Expression>
 }
 
 export type ExportDirective {
@@ -141,7 +141,7 @@ export type ExportDirective {
 
 export type ImportDirective {
   importKeyword: Token
-  domain: Maybe<String>
+  domain: Option<String>
   path: String
   asKeyword: Token
   // specifier: Identifier|ObjectDestructure
@@ -174,7 +174,7 @@ export type IfExpression {
   ifKeyword: Token
   condition: Expression
   then_: Block
-  else_: Maybe<Block>
+  else_: Option<Block>
 }
 
 export type IfLetExpression {
@@ -182,7 +182,7 @@ export type IfLetExpression {
   letKeyword: Token
   variableDeclaration: VariableDeclaration
   then_: Block
-  else_: Maybe<Block>
+  else_: Option<Block>
 }
 
 export type LoopExpression {

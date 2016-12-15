@@ -42,7 +42,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function ScopeVisitor(context, file) {
   var importDirective = void 0;
-  var matchExpression = _core.Nothing;
+  var matchExpression = _core.None;
   var reportError = context.reportError.bind(context, file);
   function getBinding(token) {
     if (token.kind == _ast2.SyntaxKind.Identifier) {
@@ -379,7 +379,7 @@ function ScopeVisitor(context, file) {
       self.visitVariableDeclaration(e.variableDeclaration, _js._undefined, _js._undefined, true);
       self.visitBlock(e.then_);
       var __PUCK__value__11 = e.else_;
-      if (__PUCK__value__11.kind == "Just") {
+      if (__PUCK__value__11.kind == "Some") {
         var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1);
 
         var else_ = _PUCK__value__11$val[0];
@@ -399,7 +399,7 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       var oldMatchExpression = matchExpression;
-      matchExpression = (0, _core.Just)(e);
+      matchExpression = (0, _core.Some)(e);
       self.visitExpression(e.expression);
       e.type_ = e.expression.type_;
       e.patterns.forEach(function (a) {
@@ -419,7 +419,7 @@ function ScopeVisitor(context, file) {
       var self = this;
       self.scope = (0, _scope.createScope)(context, file, self.scope);
       a.scope = self.scope;
-      var m = _core.MaybeTrait['$Maybe'].unwrap.call(matchExpression);
+      var m = _core.MaybeTrait['$Option'].unwrap.call(matchExpression);
       var result = (0, _structure_visitor.declarePatternVariables)(a.scope, self, a.pattern, false, m.type_, true);
       if (_core.ResultTrait['$Result'].isOk.call(result)) {
         var patternTy = result.value[0];
@@ -988,7 +988,7 @@ function checkExhaustiveEnum(patterns, enum_) {
     };
     return false;
   });
-  if (__PUCK__value__67.kind == "Just") {
+  if (__PUCK__value__67.kind == "Some") {
     var _PUCK__value__67$val = _slicedToArray(__PUCK__value__67.value, 1);
 
     var __PUCK__value__88 = _PUCK__value__67$val[0];
@@ -1085,7 +1085,7 @@ function checkExhaustiveEnum(patterns, enum_) {
   var mapSize = _core.ObjectMapTrait['$ObjectMap'].size.call(exhaustiveMap);
   var memberCount = _core.ObjectMapTrait['$ObjectMap'].size.call(enum_.members);
   if (mapSize == memberCount - 1) {
-    var _MaybeTrait$$Maybe$un = _core.MaybeTrait['$Maybe'].unwrap.call(_core.ObjectMapTrait['$ObjectMap'].find.call(enum_.members, function (_ref9) {
+    var _MaybeTrait$$Option$u = _core.MaybeTrait['$Option'].unwrap.call(_core.ObjectMapTrait['$ObjectMap'].find.call(enum_.members, function (_ref9) {
       var _ref10 = _slicedToArray(_ref9, 2);
 
       var member = _ref10[0];
@@ -1094,10 +1094,10 @@ function checkExhaustiveEnum(patterns, enum_) {
       return !exhaustiveMap[member];
     }));
 
-    var _MaybeTrait$$Maybe$un2 = _slicedToArray(_MaybeTrait$$Maybe$un, 2);
+    var _MaybeTrait$$Option$u2 = _slicedToArray(_MaybeTrait$$Option$u, 2);
 
-    var missing = _MaybeTrait$$Maybe$un2[0];
-    var __PUCK__value__103 = _MaybeTrait$$Maybe$un2[1];
+    var missing = _MaybeTrait$$Option$u2[0];
+    var __PUCK__value__103 = _MaybeTrait$$Option$u2[1];
 
     return (0, _core.Err)("Match is not exhaustive. It is missing a case for " + typeName + "::" + missing + "");
   } else {
@@ -1112,7 +1112,7 @@ function checkExhaustiveEnum(patterns, enum_) {
 
         return !exhaustive;
       });
-      if (__PUCK__value__104.kind == "Just") {
+      if (__PUCK__value__104.kind == "Some") {
         var _PUCK__value__104$va = _slicedToArray(__PUCK__value__104.value, 1);
 
         var _PUCK__value__104$va$ = _slicedToArray(_PUCK__value__104$va[0], 2);

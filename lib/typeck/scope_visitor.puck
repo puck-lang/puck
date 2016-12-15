@@ -75,7 +75,7 @@ import '../entities.puck' as {
 
 export fn ScopeVisitor(context, file) {
   let mut importDirective: ImportDirective
-  let mut matchExpression: Maybe<MatchExpression> = Nothing
+  let mut matchExpression: Option<MatchExpression> = None
   let reportError = context.reportError.bind(context, file)
 
   fn getBinding(token: Expression)
@@ -388,7 +388,7 @@ export fn ScopeVisitor(context, file) {
       e.scope = self.scope
       self.visitVariableDeclaration(e.variableDeclaration, undefined, undefined, true)
       self.visitBlock(e.then_)
-      if let Maybe::Just(else_) = e.else_ then self.visitBlock(else_)
+      if let Option::Some(else_) = e.else_ then self.visitBlock(else_)
       self.scope = self.scope.parent
     }
     visitLoopExpression: |mut self, mut e: LoopExpression| {
@@ -400,7 +400,7 @@ export fn ScopeVisitor(context, file) {
     visitMatchExpression: |mut self, mut e: MatchExpression| {
       e.scope = self.scope
       let oldMatchExpression = matchExpression
-      matchExpression = Just(e)
+      matchExpression = Some(e)
 
       self.visitExpression(e.expression)
       e.type_ = e.expression.type_
@@ -651,7 +651,7 @@ fn checkExhaustiveEnum(patterns: List<Pattern>, enum_: EnumType): Result<(), Str
   let mut exhaustiveMap = ObjectMapTrait.new()
   let mut enumArmsMap = ObjectMapTrait.new()
 
-  if let Maybe::Just(_) = patterns.find(|pattern| {
+  if let Option::Some(_) = patterns.find(|pattern| {
     let member = match pattern {
       Pattern::CatchAll => return true
       Pattern::Identifier(_) => return true
@@ -724,7 +724,7 @@ fn checkExhaustiveEnum(patterns: List<Pattern>, enum_: EnumType): Result<(), Str
   else if mapSize < memberCount {
     return Err('Match is not exhaustive.')
   }
-  else if let Maybe::Just((member, a)) = exhaustiveMap.find(|(_, exhaustive)| not exhaustive) {
+  else if let Option::Some((member, a)) = exhaustiveMap.find(|(_, exhaustive)| not exhaustive) {
     return Err('Match is not exhaustive. $typeName::$member is not exhaustive. $a')
   }
 

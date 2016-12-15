@@ -217,7 +217,7 @@ export fn TypeVisitor(context, file) {
       }
       else {
         self.scope = t.scope
-        if let Maybe::Just(typeBound) = t.bound then self.visitTypeBound(typeBound)
+        if let Option::Some(typeBound) = t.bound then self.visitTypeBound(typeBound)
 
         if isObjectType(t.type_)
           then Object.assign(t.type_.properties, ObjectMapTrait.fromList(

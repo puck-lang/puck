@@ -1,7 +1,7 @@
 print(
-  match Maybe::Just(5) {
-    Maybe::Just(num) => '$num'
-    Maybe::Nothing => 'nothing'
+  match Option::Some(5) {
+    Option::Some(num) => '$num'
+    Option::None => 'nothing'
   }
 )
 
@@ -19,17 +19,17 @@ print(
   }
 )
 
-print(match Maybe::Just(5) { Maybe::Just(num) => num, Maybe::Nothing => 0 })
+print(match Option::Some(5) { Option::Some(num) => num, Option::None => 0 })
 
 print(
-  match Maybe::Nothing {
-    Maybe::Just(_) => 'someting'
-    Maybe::Nothing => 'nothing'
+  match Option::None {
+    Option::Some(_) => 'someting'
+    Option::None => 'nothing'
   }
 )
 
 print(
-  match Maybe::Nothing {
+  match Option::None {
     _ => 'whatever'
   }
 )
@@ -42,12 +42,12 @@ print(
 )
 fn sayHello(name: String) then print('Hello, $name')
 
-match Maybe::Just('World') {
-  Maybe::Just(name) => {
+match Option::Some('World') {
+  Option::Some(name) => {
     let name = name.toUpperCase()
     sayHello(name)
   }
-  Maybe::Nothing => print('Oh, nothing')
+  Option::None => print('Oh, nothing')
 }
 
 enum Value
@@ -83,12 +83,12 @@ match func() {
   Result::Err(Value::Three) => print('three')
 }
 
-match Maybe::Just(Maybe::Just(5)) {
-  Maybe::Just(inner) => match inner {
-    Maybe::Just(value) => value
-    Maybe::None => 0
+match Option::Some(Option::Some(5)) {
+  Option::Some(inner) => match inner {
+    Option::Some(value) => value
+    Option::None => 0
   }
-  Maybe::None => 0
+  Option::None => 0
 }
 
 enum Object = Object

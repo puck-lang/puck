@@ -103,7 +103,7 @@ function createScope(context, file) {
       var __PUCK__value__1 = void 0;
       if (t.typeParameters && t.typeParameters.length) {
         __PUCK__value__1 = (0, _range.getRange)(t.typeParameters, function (p) {
-          return _core.MaybeTrait['$Maybe'].isJust.call(p.defaultValue);
+          return _core.MaybeTrait['$Option'].isJust.call(p.defaultValue);
         }, reportError, "type parameter");
       };
       var parameterRange = __PUCK__value__1;
@@ -126,7 +126,7 @@ function createScope(context, file) {
             if (t.kind == _ast2.SyntaxKind.TypeDeclaration) {
               _type_.implementations = [];
               var __PUCK__value__3 = t.bound;
-              if (__PUCK__value__3.kind == "Just") {
+              if (__PUCK__value__3.kind == "Some") {
                 var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
 
                 var typeBound = _PUCK__value__3$valu[0];
@@ -144,7 +144,7 @@ function createScope(context, file) {
                 _type_.isTypeParameter = true;
                 var p = any(t);
                 var __PUCK__value__4 = p.defaultValue;
-                if (__PUCK__value__4.kind == "Just") {
+                if (__PUCK__value__4.kind == "Some") {
                   var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
 
                   var defaultValue = _PUCK__value__4$valu[0];

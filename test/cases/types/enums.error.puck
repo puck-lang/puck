@@ -16,22 +16,22 @@ let five = Enum::A('five')
 // enum Enum = A {b: Num}
 // let five = Enum.A({b: 'five'})
 
-///// Maybe.Nothing is not callable
-let five = Maybe::Nothing('five')
+///// Option.None is not callable
+let five = Option::None('five')
 
-///// Maybe<String> is not assignable to type Maybe<Num>
-let five: Maybe<Num> = Maybe::Just('five')
+///// Option<String> is not assignable to type Option<Num>
+let five: Option<Num> = Option::Some('five')
 
-//// Maybe<String> is not assignable to type Maybe<Num>
+//// Option<String> is not assignable to type Option<Num>
 // TODO: Make this error
-let five: Maybe<Num> = Just('five')
+let five: Option<Num> = Some('five')
 
-///// Result<Num, E> is not assignable to type Maybe<Num>
-let five: Maybe<Num> = Result::Ok(5)
+///// Result<Num, E> is not assignable to type Option<Num>
+let five: Option<Num> = Result::Ok(5)
 
-//// Result is not assignable to type Maybe<Num>
+//// Result is not assignable to type Option<Num>
 // TODO: Make this error
-let five: Maybe<Num> = Ok(5)
+let five: Option<Num> = Ok(5)
 
-///// Maybe has no member named Some
-let five: Maybe<Num> = Maybe::Some(5)
+///// Option has no member named Just
+let five: Option<Num> = Option::Just(5)

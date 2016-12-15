@@ -8,10 +8,10 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
-var __PUCK__value__1 = _core.Maybe.Just(5);
+var __PUCK__value__1 = _core.Option.Some(5);
 var __PUCK__value__2 = __PUCK__value__1;
 var __PUCK__value__3 = void 0;
-if (__PUCK__value__2.kind == "Just") {
+if (__PUCK__value__2.kind == "Some") {
   var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
 
   var num = _PUCK__value__2$valu[0];
@@ -20,7 +20,7 @@ if (__PUCK__value__2.kind == "Just") {
 } else {
   var __PUCK__value__4 = __PUCK__value__1;
   var __PUCK__value__5 = void 0;
-  if (__PUCK__value__4.kind == "Nothing") {
+  if (__PUCK__value__4.kind == "None") {
     var _undefined = __PUCK__value__4;
     __PUCK__value__5 = "nothing";
   };
@@ -68,10 +68,10 @@ if (__PUCK__value__13.kind == "Ok") {
   __PUCK__value__14 = __PUCK__value__16;
 };
 (0, _core.print)(__PUCK__value__14);
-var __PUCK__value__18 = _core.Maybe.Just(5);
+var __PUCK__value__18 = _core.Option.Some(5);
 var __PUCK__value__19 = __PUCK__value__18;
 var __PUCK__value__20 = void 0;
-if (__PUCK__value__19.kind == "Just") {
+if (__PUCK__value__19.kind == "Some") {
   var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
 
   var _num3 = _PUCK__value__19$val[0];
@@ -80,17 +80,17 @@ if (__PUCK__value__19.kind == "Just") {
 } else {
   var __PUCK__value__21 = __PUCK__value__18;
   var __PUCK__value__22 = void 0;
-  if (__PUCK__value__21.kind == "Nothing") {
+  if (__PUCK__value__21.kind == "None") {
     var _undefined2 = __PUCK__value__21;
     __PUCK__value__22 = 0;
   };
   __PUCK__value__20 = __PUCK__value__22;
 };
 (0, _core.print)(__PUCK__value__20);
-var __PUCK__value__23 = _core.Maybe.Nothing;
+var __PUCK__value__23 = _core.Option.None;
 var __PUCK__value__24 = __PUCK__value__23;
 var __PUCK__value__25 = void 0;
-if (__PUCK__value__24.kind == "Just") {
+if (__PUCK__value__24.kind == "Some") {
   var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1);
 
   var __PUCK__value__26 = _PUCK__value__24$val[0];
@@ -99,14 +99,14 @@ if (__PUCK__value__24.kind == "Just") {
 } else {
   var __PUCK__value__27 = __PUCK__value__23;
   var __PUCK__value__28 = void 0;
-  if (__PUCK__value__27.kind == "Nothing") {
+  if (__PUCK__value__27.kind == "None") {
     var _undefined3 = __PUCK__value__27;
     __PUCK__value__28 = "nothing";
   };
   __PUCK__value__25 = __PUCK__value__28;
 };
 (0, _core.print)(__PUCK__value__25);
-var __PUCK__value__29 = _core.Maybe.Nothing;
+var __PUCK__value__29 = _core.Option.None;
 var __PUCK__value__30 = __PUCK__value__29;
 var __PUCK__value__31 = void 0;
 if (true) {
@@ -139,9 +139,9 @@ if (__PUCK__value__34.kind == "Ok") {
 function sayHello(name) {
   return (0, _core.print)("Hello, " + name + "");
 };
-var __PUCK__value__39 = _core.Maybe.Just("World");
+var __PUCK__value__39 = _core.Option.Some("World");
 var __PUCK__value__40 = __PUCK__value__39;
-if (__PUCK__value__40.kind == "Just") {
+if (__PUCK__value__40.kind == "Some") {
   var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1);
 
   var name = _PUCK__value__40$val[0];
@@ -150,7 +150,7 @@ if (__PUCK__value__40.kind == "Just") {
   sayHello(name);
 } else {
   var __PUCK__value__41 = __PUCK__value__39;
-  if (__PUCK__value__41.kind == "Nothing") {
+  if (__PUCK__value__41.kind == "None") {
     var _undefined4 = __PUCK__value__41;
     (0, _core.print)("Oh, nothing");
   };
@@ -246,16 +246,16 @@ if (__PUCK__value__57.kind == "Ok") {
     };
   };
 };
-var __PUCK__value__62 = _core.Maybe.Just(_core.Maybe.Just(5));
+var __PUCK__value__62 = _core.Option.Some(_core.Option.Some(5));
 var __PUCK__value__63 = __PUCK__value__62;
-if (__PUCK__value__63.kind == "Just") {
+if (__PUCK__value__63.kind == "Some") {
   var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1);
 
   var inner = _PUCK__value__63$val[0];
 
   var __PUCK__value__64 = inner;
   var __PUCK__value__65 = __PUCK__value__64;
-  if (__PUCK__value__65.kind == "Just") {
+  if (__PUCK__value__65.kind == "Some") {
     var _PUCK__value__65$val = _slicedToArray(__PUCK__value__65.value, 1);
 
     var _value2 = _PUCK__value__65$val[0];

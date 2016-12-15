@@ -84,7 +84,7 @@ export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
     }
     else typeParameters
 
-  if let Maybe::Just(cachedInstance) = class.instances.find(|i|
+  if let Option::Some(cachedInstance) = class.instances.find(|i|
     i.typeParameters.length == typeParameters.length and
     i.typeParameters.every(|p, i| isSameType(p, typeParameters[i]))
   )

@@ -1,14 +1,14 @@
 // TODO: Support this
-// if let Just(value) = Just(5) {
+// if let Some(value) = Some(5) {
 //   print(value)
 // }
 // else {
-//   print('Nothing')
+//   print('None')
 // }
 
-if let Maybe::Just(value) = Maybe::Just(5) {
+if let Option::Some(value) = Option::Some(5) {
   print(value)
 }
 else {
-  print('Nothing')
+  print('None')
 }

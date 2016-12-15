@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ObjectMap = exports.Range = exports.List = exports.Nothing = exports.Just = exports.Maybe = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.MaybeTrait = exports.ResultTrait = exports.StringTrait = undefined;
+exports.ObjectMap = exports.Range = exports.List = exports.None = exports.Some = exports.Option = exports.Err = exports.Ok = exports.Result = exports.String = exports.Num = exports.Bool = exports.ObjectMapTrait = exports.RangeTrait = exports.Iterable = exports.ListTrait = exports.MaybeTrait = exports.ResultTrait = exports.StringTrait = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -58,21 +58,21 @@ var ResultTrait = exports.ResultTrait = {
 var MaybeTrait = exports.MaybeTrait = {
   isJust: function isJust() {
     var self = this;
-    return self.kind == "Just";
+    return self.kind == "Some";
   },
   isNothing: function isNothing() {
     var self = this;
-    return !MaybeTrait['$Maybe'].isJust.call(self);
+    return !MaybeTrait['$Option'].isJust.call(self);
   },
   map: function map(f) {
     var self = this;
     var __PUCK__value__3 = self;
-    if (__PUCK__value__3.kind == "Just") {
+    if (__PUCK__value__3.kind == "Some") {
       var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
 
       var value = _PUCK__value__3$valu[0];
 
-      return Just(f(value));
+      return Some(f(value));
     } else {
       return self;
     };
@@ -80,7 +80,7 @@ var MaybeTrait = exports.MaybeTrait = {
   mapOr: function mapOr(_default, f) {
     var self = this;
     var __PUCK__value__4 = self;
-    if (__PUCK__value__4.kind == "Just") {
+    if (__PUCK__value__4.kind == "Some") {
       var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
 
       var value = _PUCK__value__4$valu[0];
@@ -93,7 +93,7 @@ var MaybeTrait = exports.MaybeTrait = {
   mapOrElse: function mapOrElse(_default, f) {
     var self = this;
     var __PUCK__value__5 = self;
-    if (__PUCK__value__5.kind == "Just") {
+    if (__PUCK__value__5.kind == "Some") {
       var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
 
       var value = _PUCK__value__5$valu[0];
@@ -105,7 +105,7 @@ var MaybeTrait = exports.MaybeTrait = {
   },
   unwrap: function unwrap() {
     var self = this;
-    if (MaybeTrait['$Maybe'].isNothing.call(self)) {
+    if (MaybeTrait['$Option'].isNothing.call(self)) {
       throw (0, _js.Error)("Can not unwap empty maybe");
     };
     return self.value[0];
@@ -113,7 +113,7 @@ var MaybeTrait = exports.MaybeTrait = {
   unwrapOr: function unwrapOr(_default) {
     var self = this;
     var __PUCK__value__6 = self;
-    if (__PUCK__value__6.kind == "Just") {
+    if (__PUCK__value__6.kind == "Some") {
       var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
 
       var value = _PUCK__value__6$valu[0];
@@ -126,7 +126,7 @@ var MaybeTrait = exports.MaybeTrait = {
   unwrapOrElse: function unwrapOrElse(_default) {
     var self = this;
     var __PUCK__value__7 = self;
-    if (__PUCK__value__7.kind == "Just") {
+    if (__PUCK__value__7.kind == "Some") {
       var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
 
       var value = _PUCK__value__7$valu[0];
@@ -174,9 +174,9 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
       return predicate([key, self[key]]);
     });
     if (key) {
-      return Just([key, self[key]]);
+      return Some([key, self[key]]);
     } else {
-      return Nothing;
+      return None;
     };
   },
   forEach: function forEach(func) {
@@ -200,7 +200,7 @@ ResultTrait['$Result'] = {
   andThen: ResultTrait.andThen,
   map: ResultTrait.map
 };
-MaybeTrait['$Maybe'] = {
+MaybeTrait['$Option'] = {
   isJust: MaybeTrait.isJust,
   isNothing: MaybeTrait.isNothing,
   map: MaybeTrait.map,
@@ -228,9 +228,9 @@ Iterable['$List'] = {
     var self = this;
     var index = self.findIndex(predicate);
     if (index >= 0) {
-      return Just(self[index]);
+      return Some(self[index]);
     } else {
-      return Nothing;
+      return None;
     };
   },
   skip: function skip(count) {
@@ -292,18 +292,18 @@ var Result = exports.Result = {
 };
 var Ok = exports.Ok = Result.Ok;
 var Err = exports.Err = Result.Err;
-var Maybe = exports.Maybe = {
-  Just: function Just() {
+var Option = exports.Option = {
+  Some: function Some() {
     for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       members[_key3] = arguments[_key3];
     }
 
-    return { kind: 'Just', value: members };
+    return { kind: 'Some', value: members };
   },
-  Nothing: { kind: 'Nothing', value: Symbol('Nothing') }
+  None: { kind: 'None', value: Symbol('None') }
 };
-var Just = exports.Just = Maybe.Just;
-var Nothing = exports.Nothing = Maybe.Nothing;
+var Some = exports.Some = Option.Some;
+var None = exports.None = Option.None;
 var List = exports.List = function List(object) {
   return object;
 };

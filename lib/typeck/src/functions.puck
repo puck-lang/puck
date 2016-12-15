@@ -26,7 +26,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
     type_: p.type_
     token: p
   }})
-  let returnType = if let Maybe::Just(returnType) = f.returnType then getType(scope, returnType)
+  let returnType = if let Option::Some(returnType) = f.returnType then getType(scope, returnType)
   let selfBinding =
     if arguments.length > 0 and arguments[0].pattern.kind == 'Identifier' and arguments[0].pattern.value[0].name == 'self'
       then arguments[0].pattern.binding
