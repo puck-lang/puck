@@ -147,12 +147,7 @@ var ListTrait = exports.ListTrait = {
     });
   }
 };
-var Iterable = exports.Iterable = {
-  size: function size() {
-    var self = this;
-    return self.length;
-  }
-};
+var Iterable = exports.Iterable = {};
 var RangeTrait = exports.RangeTrait = {};
 var ObjectMapTrait = exports.ObjectMapTrait = {
   _new: function _new() {
@@ -186,9 +181,10 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
   },
   forEach: function forEach(func) {
     var self = this;
-    return _js._Object.keys(self).forEach(function (key) {
+    _js._Object.keys(self).forEach(function (key) {
       return func([key, self[key]]);
-    })([]);
+    });
+    return [];
   },
   size: function size() {
     var self = this;
@@ -218,7 +214,16 @@ ListTrait['$List'] = {
   zip: ListTrait.zip
 };
 Iterable['$List'] = {
-  size: Iterable.size,
+  enumerate: function enumerate() {
+    var self = this;
+    return self.map(function (element, index) {
+      return [element, index];
+    });
+  },
+  size: function size() {
+    var self = this;
+    return self.length;
+  },
   find: function find(predicate) {
     var self = this;
     var index = self.findIndex(predicate);

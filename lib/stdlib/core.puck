@@ -96,9 +96,9 @@ export trait ListTrait<E> {
 }
 impl<E> ListTrait<E> for List<E> {}
 export trait Iterable<E> {
-  fn size(self): Num {
-    self.length
-  }
+  fn enumerate(self): List<(E, Num)>
+
+  fn size(self): Num
 
   fn find(self, predicate: (E) => Bool): Maybe<E>
 
@@ -112,6 +112,15 @@ export trait Iterable<E> {
 }
 
 impl<E> Iterable<E> for List<E> {
+
+  fn enumerate(self): List<(E, Num)> {
+    self.map(|element, index| (element, index))
+  }
+
+  fn size(self): Num {
+    self.length
+  }
+
   fn find(self, predicate: (E) => Bool): Maybe<E> {
     let index = self.findIndex(predicate)
 
@@ -199,7 +208,7 @@ export trait ObjectMapTrait<T> {
   fn forEach(self, func: ((String, T)) => ()): () {
     Object.keys(self).forEach(|key| {
       func((key, self[key]))
-    })
+    });
     (())
   }
 

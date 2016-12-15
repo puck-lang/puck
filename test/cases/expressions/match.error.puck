@@ -58,6 +58,18 @@ match func() {
   Result::Err(Value::Two) => print('two')
 }
 
+///// Match is not exhaustive. It is missing a case for Value::Three
+enum Value = One | Two | Three
+
+fn func(): Maybe<Value> {
+  Just(Value::Two)
+}
+
+match func() {
+  Maybe::Just(Value::One) => print('one')
+  Maybe::Just(Value::Two) => print('two')
+  Maybe::None => print('no value')
+}
 
 // TODO: Make this error
 //// 123

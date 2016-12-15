@@ -309,14 +309,7 @@ var PatternError = {
 
     return { kind: 'PatternMismatch', value: members };
   },
-  NotExhaustive: { kind: 'NotExhaustive', value: Symbol('NotExhaustive') },
-  Other: function Other() {
-    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      members[_key2] = arguments[_key2];
-    }
-
-    return { kind: 'Other', value: members };
-  }
+  NotExhaustive: { kind: 'NotExhaustive', value: Symbol('NotExhaustive') }
 };
 function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive) {
   if (p.kind == "CatchAll") {

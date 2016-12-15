@@ -625,31 +625,228 @@ function ScopeVisitor(context, file) {
     }
   });
 };
-function isExhaustive(p) {
-  if (p.kind == "CatchAll") {
+function isIndividuallyExhaustive(p) {
+  var __PUCK__value__15 = p;
+  var __PUCK__value__16 = __PUCK__value__15;
+  if (__PUCK__value__16.kind == "CatchAll") {
+    var _undefined2 = __PUCK__value__16;
     return true;
   } else {
-    if (p.kind == "Identifier") {
+    var __PUCK__value__17 = __PUCK__value__15;
+    if (__PUCK__value__17.kind == "Identifier") {
+      var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1);
+
+      var __PUCK__value__18 = _PUCK__value__17$val[0];
+
       return true;
     } else {
-      if (p.kind == "Record") {
-        return p.value[0].properties.every(function (p) {
-          return isExhaustive(p.pattern);
+      var __PUCK__value__19 = __PUCK__value__15;
+      if (__PUCK__value__19.kind == "Record") {
+        var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
+
+        var record = _PUCK__value__19$val[0];
+
+        return record.properties.every(function (p) {
+          return isIndividuallyExhaustive(p.pattern);
         });
       } else {
-        if (p.kind == "RecordType") {
-          return p.value[1].properties.every(function (p) {
-            return isExhaustive(p.pattern);
+        var __PUCK__value__20 = __PUCK__value__15;
+        if (__PUCK__value__20.kind == "RecordType") {
+          var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 2);
+
+          var __PUCK__value__21 = _PUCK__value__20$val[0];
+          var _record = _PUCK__value__20$val[1];
+
+          return _record.properties.every(function (p) {
+            return isIndividuallyExhaustive(p.pattern);
           });
         } else {
-          if (p.kind == "Tuple") {
-            return p.value[0].properties.every(isExhaustive);
+          var __PUCK__value__22 = __PUCK__value__15;
+          if (__PUCK__value__22.kind == "Tuple") {
+            var _PUCK__value__22$val = _slicedToArray(__PUCK__value__22.value, 1);
+
+            var tuple = _PUCK__value__22$val[0];
+
+            return tuple.properties.every(isIndividuallyExhaustive);
           } else {
-            if (p.kind == "TupleType") {
-              return p.value[1].properties.every(isExhaustive);
+            var __PUCK__value__23 = __PUCK__value__15;
+            if (__PUCK__value__23.kind == "TupleType") {
+              var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 2);
+
+              var __PUCK__value__24 = _PUCK__value__23$val[0];
+              var _tuple = _PUCK__value__23$val[1];
+
+              return _tuple.properties.every(isIndividuallyExhaustive);
             } else {
-              if (p.kind == "UnitType") {
+              var __PUCK__value__25 = __PUCK__value__15;
+              if (__PUCK__value__25.kind == "UnitType") {
+                var _PUCK__value__25$val = _slicedToArray(__PUCK__value__25.value, 1);
+
+                var __PUCK__value__26 = _PUCK__value__25$val[0];
+
                 return true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+};
+function getEnumMember(typePath) {
+  var __PUCK__value__27 = typePath;
+  var __PUCK__value__28 = __PUCK__value__27;
+  if (__PUCK__value__28.kind == "_Object") {
+    var _PUCK__value__28$val = _slicedToArray(__PUCK__value__28.value, 2);
+
+    var __PUCK__value__29 = _PUCK__value__28$val[0];
+    var _typePath = _PUCK__value__28$val[1];
+
+    var __PUCK__value__30 = _typePath;
+    var __PUCK__value__31 = __PUCK__value__30;
+    if (__PUCK__value__31.kind == "Member") {
+      var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1);
+
+      var member = _PUCK__value__31$val[0];
+
+      return member.name;
+    } else {
+      var __PUCK__value__32 = __PUCK__value__30;
+      if (true) {
+        var __PUCK__value__33 = __PUCK__value__32;
+        throw "Invalid typepath";
+      };
+    };
+  } else {
+    var __PUCK__value__34 = __PUCK__value__27;
+    if (true) {
+      var __PUCK__value__35 = __PUCK__value__34;
+      throw "Invalid typepath";
+    };
+  };
+};
+function isEnumPattern(p) {
+  var __PUCK__value__36 = p;
+  var __PUCK__value__37 = __PUCK__value__36;
+  if (__PUCK__value__37.kind == "CatchAll") {
+    var _undefined3 = __PUCK__value__37;
+    return false;
+  } else {
+    var __PUCK__value__38 = __PUCK__value__36;
+    if (__PUCK__value__38.kind == "Identifier") {
+      var _PUCK__value__38$val = _slicedToArray(__PUCK__value__38.value, 1);
+
+      var __PUCK__value__39 = _PUCK__value__38$val[0];
+
+      return false;
+    } else {
+      var __PUCK__value__40 = __PUCK__value__36;
+      if (__PUCK__value__40.kind == "Record") {
+        var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1);
+
+        var record = _PUCK__value__40$val[0];
+
+        return false;
+      } else {
+        var __PUCK__value__41 = __PUCK__value__36;
+        if (__PUCK__value__41.kind == "RecordType") {
+          var _PUCK__value__41$val = _slicedToArray(__PUCK__value__41.value, 2);
+
+          var __PUCK__value__42 = _PUCK__value__41$val[0];
+          var _record2 = _PUCK__value__41$val[1];
+
+          return true;
+        } else {
+          var __PUCK__value__43 = __PUCK__value__36;
+          if (__PUCK__value__43.kind == "Tuple") {
+            var _PUCK__value__43$val = _slicedToArray(__PUCK__value__43.value, 1);
+
+            var tuple = _PUCK__value__43$val[0];
+
+            return false;
+          } else {
+            var __PUCK__value__44 = __PUCK__value__36;
+            if (__PUCK__value__44.kind == "TupleType") {
+              var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 2);
+
+              var __PUCK__value__45 = _PUCK__value__44$val[0];
+              var _tuple2 = _PUCK__value__44$val[1];
+
+              return true;
+            } else {
+              var __PUCK__value__46 = __PUCK__value__36;
+              if (__PUCK__value__46.kind == "UnitType") {
+                var _PUCK__value__46$val = _slicedToArray(__PUCK__value__46.value, 1);
+
+                var __PUCK__value__47 = _PUCK__value__46$val[0];
+
+                return true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+};
+function isEnumArm(p) {
+  var __PUCK__value__48 = p;
+  var __PUCK__value__49 = __PUCK__value__48;
+  if (__PUCK__value__49.kind == "CatchAll") {
+    var _undefined4 = __PUCK__value__49;
+    return false;
+  } else {
+    var __PUCK__value__50 = __PUCK__value__48;
+    if (__PUCK__value__50.kind == "Identifier") {
+      var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 1);
+
+      var __PUCK__value__51 = _PUCK__value__50$val[0];
+
+      return false;
+    } else {
+      var __PUCK__value__52 = __PUCK__value__48;
+      if (__PUCK__value__52.kind == "Record") {
+        var _PUCK__value__52$val = _slicedToArray(__PUCK__value__52.value, 1);
+
+        var record = _PUCK__value__52$val[0];
+
+        return false;
+      } else {
+        var __PUCK__value__53 = __PUCK__value__48;
+        if (__PUCK__value__53.kind == "RecordType") {
+          var _PUCK__value__53$val = _slicedToArray(__PUCK__value__53.value, 2);
+
+          var __PUCK__value__54 = _PUCK__value__53$val[0];
+          var _record3 = _PUCK__value__53$val[1];
+
+          return _record3.properties.some(function (p) {
+            return isEnumPattern(p.pattern);
+          });
+        } else {
+          var __PUCK__value__55 = __PUCK__value__48;
+          if (__PUCK__value__55.kind == "Tuple") {
+            var _PUCK__value__55$val = _slicedToArray(__PUCK__value__55.value, 1);
+
+            var tuple = _PUCK__value__55$val[0];
+
+            return false;
+          } else {
+            var __PUCK__value__56 = __PUCK__value__48;
+            if (__PUCK__value__56.kind == "TupleType") {
+              var _PUCK__value__56$val = _slicedToArray(__PUCK__value__56.value, 2);
+
+              var __PUCK__value__57 = _PUCK__value__56$val[0];
+              var _tuple3 = _PUCK__value__56$val[1];
+
+              return _tuple3.properties.some(isEnumPattern);
+            } else {
+              var __PUCK__value__58 = __PUCK__value__48;
+              if (__PUCK__value__58.kind == "UnitType") {
+                var _PUCK__value__58$val = _slicedToArray(__PUCK__value__58.value, 1);
+
+                var __PUCK__value__59 = _PUCK__value__58$val[0];
+
+                return false;
               };
             };
           };
@@ -660,107 +857,272 @@ function isExhaustive(p) {
 };
 function checkExhaustive(e) {
   if ((0, _entities.isEnumType)(e.type_)) {
-    var _ret5 = function () {
-      var enum_ = e.type_;
-      var typeName = e.type_.name;
-      var map = _core.ObjectMapTrait._new();
-      var __PUCK__value__15 = _core.Iterable['$List'].find.call(e.patterns, function (a) {
-        var pattern = a.pattern;
-        var member = "";
-        if (pattern.kind == "CatchAll") {
-          return true;
-        } else {
-          if (pattern.kind == "Variable") {
-            return true;
-          } else {
-            if (pattern.kind == "Record") {
-              (0, _core.print)("Record bad!!!");
-            } else {
-              if (pattern.kind == "RecordType") {
-                member = pattern.value[0].value[1].value[0].name;
-              } else {
-                if (pattern.kind == "Tuple") {
-                  (0, _core.print)("Tuple bad!!!");
-                } else {
-                  if (pattern.kind == "TupleType") {
-                    member = pattern.value[0].value[1].value[0].name;
-                  } else {
-                    if (pattern.kind == "UnitType") {
-                      member = pattern.value[0].value[1].value[0].name;
-                    } else {
-                      (0, _core.print)("else bad!!!");
-                    };
-                  };
-                };
-              };
-            };
-          };
-        };
-        if (!map[member]) {
-          map[member] = isExhaustive(pattern);
-        };
-        return false;
-      });
-      if (__PUCK__value__15.kind == "Just") {
-        var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1);
+    return checkExhaustiveEnum(e.patterns.map(function (a) {
+      return a.pattern;
+    }), e.type_);
+  } else {
+    return (0, _core.Ok)([]);
+  };
+};
+function getSubPatterns(pattern) {
+  var __PUCK__value__60 = pattern;
+  var __PUCK__value__61 = __PUCK__value__60;
+  if (__PUCK__value__61.kind == "RecordType") {
+    var _PUCK__value__61$val = _slicedToArray(__PUCK__value__61.value, 2);
 
-        var __PUCK__value__16 = _PUCK__value__15$val[0];
+    var __PUCK__value__62 = _PUCK__value__61$val[0];
+    var record = _PUCK__value__61$val[1];
 
-        return {
-          v: (0, _core.Ok)([])
-        };
+    return record.properties.map(function (p) {
+      return p.pattern;
+    });
+  } else {
+    var __PUCK__value__63 = __PUCK__value__60;
+    if (__PUCK__value__63.kind == "TupleType") {
+      var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 2);
+
+      var __PUCK__value__64 = _PUCK__value__63$val[0];
+      var tuple = _PUCK__value__63$val[1];
+
+      return tuple.properties;
+    } else {
+      var __PUCK__value__65 = __PUCK__value__60;
+      if (true) {
+        var __PUCK__value__66 = __PUCK__value__65;
+        return [];
       };
-      var mapSize = _core.ObjectMapTrait['$ObjectMap'].size.call(map);
-      var memberCount = _core.ObjectMapTrait['$ObjectMap'].size.call(enum_.members);
-      if (mapSize == memberCount - 1) {
-        var _MaybeTrait$$Maybe$un = _core.MaybeTrait['$Maybe'].unwrap.call(_core.ObjectMapTrait['$ObjectMap'].find.call(enum_.members, function (_ref) {
-          var _ref2 = _slicedToArray(_ref, 2);
+    };
+  };
+};
+function checkExhaustiveEnum(patterns, enum_) {
+  var typeName = enum_.name;
+  var exhaustiveMap = _core.ObjectMapTrait._new();
+  var enumArmsMap = _core.ObjectMapTrait._new();
+  var __PUCK__value__67 = _core.Iterable['$List'].find.call(patterns, function (pattern) {
+    var __PUCK__value__68 = pattern;
+    var __PUCK__value__69 = __PUCK__value__68;
+    var __PUCK__value__70 = void 0;
+    if (__PUCK__value__69.kind == "CatchAll") {
+      var _undefined5 = __PUCK__value__69;
+      return true;
+    } else {
+      var __PUCK__value__71 = __PUCK__value__68;
+      var __PUCK__value__72 = void 0;
+      if (__PUCK__value__71.kind == "Identifier") {
+        var _PUCK__value__71$val = _slicedToArray(__PUCK__value__71.value, 1);
 
-          var member = _ref2[0];
-          var __PUCK__value__17 = _ref2[1];
+        var __PUCK__value__73 = _PUCK__value__71$val[0];
 
-          return !map[member];
-        }));
-
-        var _MaybeTrait$$Maybe$un2 = _slicedToArray(_MaybeTrait$$Maybe$un, 2);
-
-        var missing = _MaybeTrait$$Maybe$un2[0];
-        var __PUCK__value__18 = _MaybeTrait$$Maybe$un2[1];
-
-        return {
-          v: (0, _core.Err)("Match is not exhaustive. It is missing a case for " + typeName + "::" + missing + "")
-        };
+        return true;
       } else {
-        if (mapSize < memberCount) {
-          return {
-            v: (0, _core.Err)("Match is not exhaustive.")
-          };
+        var __PUCK__value__74 = __PUCK__value__68;
+        var __PUCK__value__75 = void 0;
+        if (__PUCK__value__74.kind == "Record") {
+          var _PUCK__value__74$val = _slicedToArray(__PUCK__value__74.value, 1);
+
+          var __PUCK__value__76 = _PUCK__value__74$val[0];
+
+          throw "Invalid pattern";
         } else {
-          var __PUCK__value__19 = _core.ObjectMapTrait['$ObjectMap'].find.call(map, function (_ref3) {
-            var _ref4 = _slicedToArray(_ref3, 2);
+          var __PUCK__value__77 = __PUCK__value__68;
+          var __PUCK__value__78 = void 0;
+          if (__PUCK__value__77.kind == "RecordType") {
+            var _PUCK__value__77$val = _slicedToArray(__PUCK__value__77.value, 2);
 
-            var __PUCK__value__20 = _ref4[0];
-            var exhaustive = _ref4[1];
+            var typePath = _PUCK__value__77$val[0];
+            var __PUCK__value__79 = _PUCK__value__77$val[1];
 
-            return !exhaustive;
-          });
-          if (__PUCK__value__19.kind == "Just") {
-            var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
+            __PUCK__value__78 = getEnumMember(typePath);
+          } else {
+            var __PUCK__value__80 = __PUCK__value__68;
+            var __PUCK__value__81 = void 0;
+            if (__PUCK__value__80.kind == "Tuple") {
+              var _PUCK__value__80$val = _slicedToArray(__PUCK__value__80.value, 1);
 
-            var _PUCK__value__19$val$ = _slicedToArray(_PUCK__value__19$val[0], 2);
+              var __PUCK__value__82 = _PUCK__value__80$val[0];
 
-            var member = _PUCK__value__19$val$[0];
-            var __PUCK__value__21 = _PUCK__value__19$val$[1];
+              throw "Invalid pattern";
+            } else {
+              var __PUCK__value__83 = __PUCK__value__68;
+              var __PUCK__value__84 = void 0;
+              if (__PUCK__value__83.kind == "TupleType") {
+                var _PUCK__value__83$val = _slicedToArray(__PUCK__value__83.value, 2);
 
-            return {
-              v: (0, _core.Err)("Match is not exhaustive. " + typeName + "::" + member + " is not exhaustive.")
+                var _typePath2 = _PUCK__value__83$val[0];
+                var __PUCK__value__85 = _PUCK__value__83$val[1];
+
+                __PUCK__value__84 = getEnumMember(_typePath2);
+              } else {
+                var __PUCK__value__86 = __PUCK__value__68;
+                var __PUCK__value__87 = void 0;
+                if (__PUCK__value__86.kind == "UnitType") {
+                  var _PUCK__value__86$val = _slicedToArray(__PUCK__value__86.value, 1);
+
+                  var _typePath3 = _PUCK__value__86$val[0];
+
+                  __PUCK__value__87 = getEnumMember(_typePath3);
+                };
+                __PUCK__value__84 = __PUCK__value__87;
+              };
+              __PUCK__value__81 = __PUCK__value__84;
             };
+            __PUCK__value__78 = __PUCK__value__81;
           };
+          __PUCK__value__75 = __PUCK__value__78;
         };
+        __PUCK__value__72 = __PUCK__value__75;
       };
-    }();
+      __PUCK__value__70 = __PUCK__value__72;
+    };
+    var member = __PUCK__value__70;
+    if (!exhaustiveMap[member]) {
+      var individuallyExhaustive = isIndividuallyExhaustive(pattern);
+      var isEnum = isEnumArm(pattern);
+      exhaustiveMap[member] = individuallyExhaustive && !isEnum;
+      if (isEnum) {
+        if (!enumArmsMap[member]) {
+          enumArmsMap[member] = [];
+        };
+        enumArmsMap[member].push(pattern);
+      };
+    };
+    return false;
+  });
+  if (__PUCK__value__67.kind == "Just") {
+    var _PUCK__value__67$val = _slicedToArray(__PUCK__value__67.value, 1);
 
-    if ((typeof _ret5 === 'undefined' ? 'undefined' : _typeof(_ret5)) === "object") return _ret5.v;
+    var __PUCK__value__88 = _PUCK__value__67$val[0];
+
+    return (0, _core.Ok)([]);
+  };
+  var innerErrors = [];
+  _core.ObjectMapTrait['$ObjectMap'].forEach.call(enumArmsMap, function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2);
+
+    var member = _ref2[0];
+    var patterns = _ref2[1];
+
+    var enumPatterns = _core.Iterable['$List'].enumerate.call(getSubPatterns(patterns[0])).filter(function (_ref3) {
+      var _ref4 = _slicedToArray(_ref3, 2);
+
+      var pattern = _ref4[0];
+      var __PUCK__value__89 = _ref4[1];
+
+      return isEnumPattern(pattern);
+    }).map(function (_ref5) {
+      var _ref6 = _slicedToArray(_ref5, 2);
+
+      var pattern = _ref6[0];
+      var index = _ref6[1];
+
+      var p = pattern;
+      var __PUCK__value__90 = p;
+      var __PUCK__value__91 = __PUCK__value__90;
+      var __PUCK__value__92 = void 0;
+      if (__PUCK__value__91.kind == "RecordType") {
+        var _PUCK__value__91$val = _slicedToArray(__PUCK__value__91.value, 2);
+
+        var typePath = _PUCK__value__91$val[0];
+        var __PUCK__value__93 = _PUCK__value__91$val[1];
+
+        __PUCK__value__92 = typePath;
+      } else {
+        var __PUCK__value__94 = __PUCK__value__90;
+        var __PUCK__value__95 = void 0;
+        if (__PUCK__value__94.kind == "TupleType") {
+          var _PUCK__value__94$val = _slicedToArray(__PUCK__value__94.value, 2);
+
+          var _typePath4 = _PUCK__value__94$val[0];
+          var __PUCK__value__96 = _PUCK__value__94$val[1];
+
+          __PUCK__value__95 = _typePath4;
+        } else {
+          var __PUCK__value__97 = __PUCK__value__90;
+          var __PUCK__value__98 = void 0;
+          if (__PUCK__value__97.kind == "UnitType") {
+            var _PUCK__value__97$val = _slicedToArray(__PUCK__value__97.value, 1);
+
+            var _typePath5 = _PUCK__value__97$val[0];
+
+            __PUCK__value__98 = _typePath5;
+          } else {
+            var __PUCK__value__99 = __PUCK__value__90;
+            var __PUCK__value__100 = void 0;
+            if (true) {
+              var __PUCK__value__101 = __PUCK__value__99;
+              throw "Invalid pattern6";
+            };
+            __PUCK__value__98 = __PUCK__value__100;
+          };
+          __PUCK__value__95 = __PUCK__value__98;
+        };
+        __PUCK__value__92 = __PUCK__value__95;
+      };
+      var _PUCK__value__ = __PUCK__value__92;
+      var type_ = _PUCK__value__.type_;
+
+      var subPatterns = patterns.map(getSubPatterns).map(function (subPatterns) {
+        return subPatterns[index];
+      });
+      return [type_, subPatterns];
+    });
+    var errors = enumPatterns.map(function (_ref7) {
+      var _ref8 = _slicedToArray(_ref7, 2);
+
+      var type_ = _ref8[0];
+      var subPatterns = _ref8[1];
+
+      return checkExhaustiveEnum(subPatterns, type_);
+    }).filter(function (result) {
+      return _core.ResultTrait['$Result'].isErr.call(result);
+    });
+    innerErrors = innerErrors.concat(errors);
+    return exhaustiveMap[member] = errors.length == 0;
+  });
+  if (innerErrors.length > 0) {
+    return innerErrors[0];
+  };
+  var mapSize = _core.ObjectMapTrait['$ObjectMap'].size.call(exhaustiveMap);
+  var memberCount = _core.ObjectMapTrait['$ObjectMap'].size.call(enum_.members);
+  if (mapSize == memberCount - 1) {
+    var _MaybeTrait$$Maybe$un = _core.MaybeTrait['$Maybe'].unwrap.call(_core.ObjectMapTrait['$ObjectMap'].find.call(enum_.members, function (_ref9) {
+      var _ref10 = _slicedToArray(_ref9, 2);
+
+      var member = _ref10[0];
+      var __PUCK__value__102 = _ref10[1];
+
+      return !exhaustiveMap[member];
+    }));
+
+    var _MaybeTrait$$Maybe$un2 = _slicedToArray(_MaybeTrait$$Maybe$un, 2);
+
+    var missing = _MaybeTrait$$Maybe$un2[0];
+    var __PUCK__value__103 = _MaybeTrait$$Maybe$un2[1];
+
+    return (0, _core.Err)("Match is not exhaustive. It is missing a case for " + typeName + "::" + missing + "");
+  } else {
+    if (mapSize < memberCount) {
+      return (0, _core.Err)("Match is not exhaustive.");
+    } else {
+      var __PUCK__value__104 = _core.ObjectMapTrait['$ObjectMap'].find.call(exhaustiveMap, function (_ref11) {
+        var _ref12 = _slicedToArray(_ref11, 2);
+
+        var __PUCK__value__105 = _ref12[0];
+        var exhaustive = _ref12[1];
+
+        return !exhaustive;
+      });
+      if (__PUCK__value__104.kind == "Just") {
+        var _PUCK__value__104$va = _slicedToArray(__PUCK__value__104.value, 1);
+
+        var _PUCK__value__104$va$ = _slicedToArray(_PUCK__value__104$va[0], 2);
+
+        var member = _PUCK__value__104$va$[0];
+        var a = _PUCK__value__104$va$[1];
+
+        return (0, _core.Err)("Match is not exhaustive. " + typeName + "::" + member + " is not exhaustive. " + a + "");
+      };
+    };
   };
   return (0, _core.Ok)([]);
 }

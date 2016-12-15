@@ -217,7 +217,6 @@ export let structureVisitor = {
 enum PatternError
   = PatternMismatch(Pattern , TypeInstance, TypeInstance)
   | NotExhaustive
-  | Other(Pattern, String)
 
 export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_, allowNotExhaustive: Bool):
     Result<TypeInstance, PatternError> {
