@@ -576,6 +576,7 @@ function ScopeVisitor(context, file) {
     visitListLiteral: function visitListLiteral(l) {
       var self = this;
       l.scope = self.scope;
+      l.type_ = self.scope.getTypeBinding("List").type_;
       return visit.walkListLiteral(self, l);
     },
     visitBooleanLiteral: function visitBooleanLiteral(l) {

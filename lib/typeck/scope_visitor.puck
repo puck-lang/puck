@@ -545,6 +545,7 @@ export fn ScopeVisitor(context, file) {
 
     visitListLiteral: |self, mut l: ListLiteral| {
       l.scope = self.scope
+      l.type_ = self.scope.getTypeBinding('List').type_
       visit.walkListLiteral(self, l)
     }
     visitBooleanLiteral: |self, mut l: BooleanLiteral| {

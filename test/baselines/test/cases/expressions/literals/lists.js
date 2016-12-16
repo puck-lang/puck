@@ -15,3 +15,5 @@ var b = [a, "b", 3, [1, [], {
   a: a,
   b: "b"
 }]];
+_core.Iterable['$List'].size.call(b);
+_core.Iterable['$List'].size.call([]);
