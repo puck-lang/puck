@@ -80,7 +80,7 @@ fn createContext(ignoreErrors = false) {
       TypeVisitor(self, file).visitModule(file.ast)
     }
     defer: fn (mut self, file, func) then self.deferred[file.absolutePath] = func
-    resolvePath: fn (file, relativeTo): File {
+    resolvePath: fn (file, relativeTo) -> File {
       let filePath =
         if file.substring(0, 1) == '/'
           then file

@@ -5,7 +5,7 @@ export type Bool {}
 export type Num {}
 export type String {}
 export trait StringTrait {
-  fn contains(self, subStr: String): Bool {
+  fn contains(self, subStr: String) -> Bool {
     self.indexOf(subStr) >= 0
   }
 }
@@ -15,13 +15,13 @@ export enum Result<T, E> = Ok(T) | Err(E)
 export let Ok = Result::Ok
 export let Err = Result::Err
 export trait ResultTrait<T, E> {
-  fn isOk(self): Bool then self.kind == 'Ok'
-  fn isErr(self: Result<T, E>): Bool {not self.isOk()}
+  fn isOk(self) -> Bool then self.kind == 'Ok'
+  fn isErr(self: Result<T, E>) -> Bool {not self.isOk()}
 
   /// Calls op if the result is Ok, otherwise returns the Err value of self.
   ///
   /// This function can be used for control flow based on Result values.
-  fn andThen<U>(self: Result<T, E>, op: (T) => Result<U, E>): Result<U, E> {
+  fn andThen<U>(self: Result<T, E>, op: (T) -> Result<U, E>) -> Result<U, E> {
     if let Result::Ok(value) = self
       then op(value)
       else self
@@ -30,7 +30,7 @@ export trait ResultTrait<T, E> {
   /// Maps a Result<T, E> to Result<U, E> by applying a function to a contained Ok value, leaving an Err value untouched.
   ///
   /// This function can be used to compose the results of two functions.
-  fn map<U>(self: Result<T, E>, op: (T) => U): Result<U, E> {
+  fn map<U>(self: Result<T, E>, op: (T) -> U) -> Result<U, E> {
     if let Result::Ok(value) = self
       then Ok(op(value))
       else self
@@ -43,41 +43,41 @@ export let Some = Option::Some
 export let None = Option::None
 export trait MaybeTrait<T> {
 
-  fn isJust(self): Bool then self.kind == 'Some'
-  fn isNothing(self: Option<T>): Bool {not self.isJust()}
+  fn isJust(self) -> Bool then self.kind == 'Some'
+  fn isNothing(self: Option<T>) -> Bool {not self.isJust()}
 
-  fn map<U>(self: Option<T>, f: (T) => U): Option<U> {
+  fn map<U>(self: Option<T>, f: (T) -> U) -> Option<U> {
     if let Option::Some(value) = self
       then Some(f(value))
       else self
   }
 
-  fn mapOr<U>(self: Option<T>, default: U, f: (T) => U): U {
+  fn mapOr<U>(self: Option<T>, default: U, f: (T) -> U) -> U {
     if let Option::Some(value) = self
       then f(value)
       else default
   }
 
-  fn mapOrElse<U>(self: Option<T>, default: () => U, f: (T) => U): U {
+  fn mapOrElse<U>(self: Option<T>, default: () -> U, f: (T) -> U) -> U {
     if let Option::Some(value) = self
       then f(value)
       else default()
   }
 
-  fn unwrap(self: Option<T>): T {
+  fn unwrap(self: Option<T>) -> T {
     if self.isNothing()
       then throw Error('Can not unwap empty maybe')
 
     self.value[0]
   }
 
-  fn unwrapOr(self: Option<T>, default: T): T {
+  fn unwrapOr(self: Option<T>, default: T) -> T {
     if let Option::Some(value) = self
       then value
       else default
   }
 
-  fn unwrapOrElse(self: Option<T>, default: () => T): T {
+  fn unwrapOrElse(self: Option<T>, default: () -> T) -> T {
     if let Option::Some(value) = self
       then value
       else default()
@@ -87,7 +87,7 @@ impl<T> MaybeTrait<T> for Option<T> {}
 
 export type List<E> {}
 export trait ListTrait<E> {
-  fn zip<A, B>(a: List<A>, b: List<B>): List<(A, B)> {
+  fn zip<A, B>(a: List<A>, b: List<B>) -> List<(A, B)> {
     if a.length != b.length
       then throw Error('List a and b are not of the same length')
 
@@ -96,32 +96,32 @@ export trait ListTrait<E> {
 }
 impl<E> ListTrait<E> for List<E> {}
 export trait Iterable<E> {
-  fn enumerate(self): List<(E, Num)>
+  fn enumerate(self) -> List<(E, Num)>
 
-  fn size(self): Num
+  fn size(self) -> Num
 
-  fn find(self, predicate: (E) => Bool): Option<E>
+  fn find(self, predicate: (E) -> Bool) -> Option<E>
 
   /// Returns an [Iterable] that provides all but the first [count] elements.
-  // fn skip(self, count: Num): Iterable<E>
-  fn skip(self, count: Num): List<E>
+  // fn skip(self, count: Num) -> Iterable<E>
+  fn skip(self, count: Num) -> List<E>
 
   /// Returns an [Iterable] that skips leading elements until [test] is satisfied.
-  // fn skipUntil(self, test: (E) => Bool): Iterable<E>
-  fn skipUntil(self, test: (E) => Bool): List<E>
+  // fn skipUntil(self, test: (E) -> Bool) -> Iterable<E>
+  fn skipUntil(self, test: (E) -> Bool) -> List<E>
 }
 
 impl<E> Iterable<E> for List<E> {
 
-  fn enumerate(self): List<(E, Num)> {
+  fn enumerate(self) -> List<(E, Num)> {
     self.map(|element, index| (element, index))
   }
 
-  fn size(self): Num {
+  fn size(self) -> Num {
     self.length
   }
 
-  fn find(self, predicate: (E) => Bool): Option<E> {
+  fn find(self, predicate: (E) -> Bool) -> Option<E> {
     let index = self.findIndex(predicate)
 
     if index >= 0
@@ -129,11 +129,11 @@ impl<E> Iterable<E> for List<E> {
       else None
   }
 
-  fn skip(self, count): List<E> {
+  fn skip(self, count) -> List<E> {
     self.slice(count)
   }
 
-  fn skipUntil(self, test): List<E>  {
+  fn skipUntil(self, test) -> List<E>  {
     let index = self.findIndex(test)
     if index == -1
       then []
@@ -150,14 +150,14 @@ export type Range<Idx=Num> {
   end: Idx
 }
 export trait RangeTrait<Idx> {
-  fn contains(self, item: Idx): Bool
-  fn isSubsetOf(self, other: Range<Idx>): Bool
+  fn contains(self, item: Idx) -> Bool
+  fn isSubsetOf(self, other: Range<Idx>) -> Bool
 }
 impl RangeTrait<Num> for Range<Num> {
-  fn contains(self, item): Bool {
+  fn contains(self, item) -> Bool {
     self.start <= item and item < self.end
   }
-  fn isSubsetOf(self, other): Bool {
+  fn isSubsetOf(self, other) -> Bool {
     self.start >= other.start and other.end >= self.end
   }
 }
@@ -179,17 +179,17 @@ export fn print(message, a, b, c) {
 
 export type ObjectMap<T> {}
 export trait ObjectMapTrait<T> {
-  fn new<T>(): ObjectMap<T> {
+  fn new<T>() -> ObjectMap<T> {
     Object.create(null)
   }
 
-  fn fromList<T>(list: List<(String, T)>): ObjectMap<T> {
+  fn fromList<T>(list: List<(String, T)>) -> ObjectMap<T> {
     let mut object = Object.create(null)
     list.forEach(|item| object[item[0]] = item[1])
     object
   }
 
-  fn map<U>(self, mapper: (T) => U): ObjectMap<U> {
+  fn map<U>(self, mapper: (T) -> U) -> ObjectMap<U> {
     let mut new = ObjectMapTrait.new()
     Object.keys(self).forEach(|key| {
       new[key] = mapper(self[key])
@@ -197,7 +197,7 @@ export trait ObjectMapTrait<T> {
     new
   }
 
-  fn find(self, predicate: ((String, T)) => Bool): Option<(String, T)> {
+  fn find(self, predicate: ((String, T)) -> Bool) -> Option<(String, T)> {
     let key = Object.keys(self).find(|key| predicate((key, self[key])))
 
     if key
@@ -205,14 +205,14 @@ export trait ObjectMapTrait<T> {
       else None
   }
 
-  fn forEach(self, func: ((String, T)) => ()): () {
+  fn forEach(self, func: ((String, T)) -> ()) -> () {
     Object.keys(self).forEach(|key| {
       func((key, self[key]))
     });
     (())
   }
 
-  fn size(self): Num {
+  fn size(self) -> Num {
     Object.keys(self).length
   }
 }

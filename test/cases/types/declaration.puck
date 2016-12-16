@@ -15,10 +15,10 @@ export type A<B=Generic<Foo>> {
 }
 
 type Functions {
-  noParam: () => Num
-  params: (String, Generic<Num, String>) => Generic<String>
-  typeParams: <A, B>(A, Generic<B>) => B
-  sameTypeParams: <A, B>(A, Generic<B>) => B
+  noParam: () -> Num
+  params: (String, Generic<Num, String>) -> Generic<String>
+  typeParams: <A, B>(A, Generic<B>) -> B
+  sameTypeParams: <A, B>(A, Generic<B>) -> B
 }
 
 type NamedTuple(Num, Bool, Functions)

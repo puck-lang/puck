@@ -9,7 +9,7 @@ enum Enum = A {b: Num}
 let a = Enum::A({b: 5})
 
 export trait EnumTrait {
-  fn getB(self): Num {
+  fn getB(self) -> Num {
     self.value.b
   }
 }

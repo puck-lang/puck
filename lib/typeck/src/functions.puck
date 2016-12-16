@@ -57,7 +57,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
   }
 }
 
-export fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token): Result<(), String> {
+export fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token) -> Result<(), String> {
   if let Result::Err(error) = checkRange(subject.arguments, to.argumentRange, 'arguments', subject.name)
     then return Err(error)
 

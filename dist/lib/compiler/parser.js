@@ -440,7 +440,7 @@ function parse(input) {
     };
     var typeParameters = __PUCK__value__9;
     var _arguments = tuple || parseTupleTypeBound();
-    consumeToken(_ast2.SyntaxKind.EqualsGreaterThanToken);
+    consumeToken(_ast2.SyntaxKind.MinusGreaterThanToken);
     var returnType = parseTypeBound();
     return {
       kind: _ast2.SyntaxKind.FunctionTypeBound,
@@ -494,7 +494,7 @@ function parse(input) {
     } else {
       if (isToken(_ast2.SyntaxKind.OpenParenToken)) {
         var tuple = parseTupleTypeBound();
-        if (isToken(_ast2.SyntaxKind.EqualsGreaterThanToken)) {
+        if (isToken(_ast2.SyntaxKind.MinusGreaterThanToken)) {
           return parseFunctionTypeBound(tuple);
         } else {
           return tuple;
@@ -608,8 +608,7 @@ function parse(input) {
     var typeParameters = __PUCK__value__17;
     var parameterList = delimited("(", ")", ",", parseVariableDeclaration);
     var __PUCK__value__18 = void 0;
-    if (isToken(_ast2.SyntaxKind.ColonToken)) {
-      input.next();
+    if (_core.MaybeTrait['$Option'].isJust.call(maybeConsumeToken(_ast2.SyntaxKind.MinusGreaterThanToken))) {
       __PUCK__value__18 = (0, _core.Some)(parseTypeBound());
     } else {
       __PUCK__value__18 = _core.None;

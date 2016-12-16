@@ -72,7 +72,7 @@ match Value::Three {
   _ => print('Sorry')
 }
 
-fn func(): Result<(), Value> {
+fn func() -> Result<(), Value> {
   Err(Value::Two)
 }
 

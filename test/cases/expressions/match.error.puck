@@ -48,7 +48,7 @@ fn sayHello(name: String) then print('Hello, $name')
 
 enum Value = One {num: Num} | Two
 
-fn func(): Result<(), Value> {
+fn func() -> Result<(), Value> {
   Err(Value::Two)
 }
 
@@ -61,7 +61,7 @@ match func() {
 ///// Match is not exhaustive. It is missing a case for Value::Three
 enum Value = One | Two | Three
 
-fn func(): Option<Value> {
+fn func() -> Option<Value> {
   Some(Value::Two)
 }
 

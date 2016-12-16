@@ -1,4 +1,4 @@
-export fn getRange<T>(parameters: List<T>, isOptional: (T) => Bool, reportError, name: String): Range {
+export fn getRange<T>(parameters: List<T>, isOptional: (T) -> Bool, reportError, name: String) -> Range {
   let mut firstOptional = parameters.length
   let mut hasOptional = false
 
@@ -18,7 +18,7 @@ export fn getRange<T>(parameters: List<T>, isOptional: (T) => Bool, reportError,
   }
 }
 
-export fn checkRange<T>(arguments: List<T>, range: Range, argumentName: String, subjectName: String): Result<(), String> {
+export fn checkRange<T>(arguments: List<T>, range: Range, argumentName: String, subjectName: String) -> Result<(), String> {
   let argumentCount = arguments.length
   let max = range.end - 1
   let min = range.start

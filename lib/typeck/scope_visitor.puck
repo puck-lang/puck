@@ -631,14 +631,14 @@ fn isEnumArm(p: Pattern) {
   }
 }
 
-fn checkExhaustive(e: MatchExpression): Result<(), String> {
+fn checkExhaustive(e: MatchExpression) -> Result<(), String> {
   if isEnumType(e.type_) {
     checkExhaustiveEnum(e.patterns.map(|a| a.pattern), e.type_)
   }
   else Ok(())
 }
 
-fn getSubPatterns(pattern: Pattern): List<Pattern> {
+fn getSubPatterns(pattern: Pattern) -> List<Pattern> {
   match pattern {
     Pattern::RecordType(_, record) => record.properties.map(|p| p.pattern)
     Pattern::TupleType(_, tuple) => tuple.properties
@@ -646,7 +646,7 @@ fn getSubPatterns(pattern: Pattern): List<Pattern> {
   }
 }
 
-fn checkExhaustiveEnum(patterns: List<Pattern>, enum_: EnumType): Result<(), String> {
+fn checkExhaustiveEnum(patterns: List<Pattern>, enum_: EnumType) -> Result<(), String> {
   let typeName = enum_.name
   let mut exhaustiveMap = ObjectMapTrait.new()
   let mut enumArmsMap = ObjectMapTrait.new()

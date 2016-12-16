@@ -50,6 +50,7 @@ export enum SyntaxKind {
   LessThanEqualsToken,
   LessThanToken,
   MinusEqualsToken,
+  MinusGreaterThanToken,
   MinusToken,
   PercentEqualsToken,
   PercentToken,
@@ -166,6 +167,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   '==': SyntaxKind.EqualsEqualsToken,
   '!=': SyntaxKind.ExclamationEqualsToken,
   '=>': SyntaxKind.EqualsGreaterThanToken,
+  '->': SyntaxKind.MinusGreaterThanToken,
   '+': SyntaxKind.PlusToken,
   '-': SyntaxKind.MinusToken,
   '**': SyntaxKind.AsteriskAsteriskToken,
@@ -197,7 +199,7 @@ export const operators = [
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',
-  '=>',
+  '=>', '->',
 ]
 
 export const precedence = {

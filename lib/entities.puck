@@ -56,7 +56,7 @@ export type EnumType { // + Struct
   members: ObjectMap<Type>
 }
 
-/// Represents a function type (Num, Num) => Bool
+/// Represents a function type (Num, Num) -> Bool
 export type FunctionType { // + Type
   selfBinding: Binding //?
   arguments: List<Binding>
@@ -95,12 +95,12 @@ export type TypeBinding {
 }
 
 export type Scope {
-  getLocalBinding: (String) => Binding
-  // getBinding: (String, allowRedeclare = true) => Binding
-  getBinding: (String) => Binding
-  getTypeBinding: (String) => Binding
-  define: (Binding, Bool) => Binding
-  defineType: (String, Binding) => Binding
+  getLocalBinding: (String) -> Binding
+  // getBinding: (String, allowRedeclare = true) -> Binding
+  getBinding: (String) -> Binding
+  getTypeBinding: (String) -> Binding
+  define: (Binding, Bool) -> Binding
+  defineType: (String, Binding) -> Binding
 }
 
 export type ScopeAware {

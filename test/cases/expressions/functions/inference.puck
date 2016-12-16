@@ -1,2 +1,2 @@
-fn a(b: (String) => Bool) {}
+fn a(b: (String) -> Bool) {}
 a(|c| c.contains('text'))

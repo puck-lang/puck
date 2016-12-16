@@ -15,7 +15,7 @@ fn a(a, b) {}
 a(1, 2, 3)
 
 ///// Too many arguments given to a, 1 required, 2 given
-let mut a: (Num) => Bool
+let mut a: (Num) -> Bool
 a(1, 2)
 
 ///// Too many arguments given to a, 1 required, 2 given
@@ -28,9 +28,9 @@ let c = true
 a(c)
 
 ///// Bool is not assignable to type Num
-fn isEqual(a, b): Bool then a == b
+fn isEqual(a, b) -> Bool then a == b
 let max: Num = isEqual(1, 2)
 
 ///// String is not assignable to type Num
-fn ident<T>(a: T): T then a
+fn ident<T>(a: T) -> T then a
 let five: Num = ident('five')
