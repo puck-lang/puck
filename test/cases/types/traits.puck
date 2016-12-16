@@ -8,9 +8,9 @@ export trait Functions {
   }
 }
 export trait SelfAware {
-  fn static() -> Num then 5
-  fn withImmutableSelf(self, a: String) -> String then a
-  fn withMutableSelf(mut self) -> SelfAware then self
+  fn static() -> Num {5}
+  fn withImmutableSelf(self, a: String) -> String {a}
+  fn withMutableSelf(mut self) -> SelfAware {self}
 }
 export trait Generic<T> {
   fn generic(a: T) -> T
@@ -28,24 +28,24 @@ export type GenericType<T> {}
 impl Empty for EmptyType {}
 
 impl Functions for EmptyType {
-  fn noBody() -> Num then 5
+  fn noBody() -> Num {5}
 }
 
 impl Functions for FunctionsType {
-  fn noBody() -> Num then 5
-  fn withBody(self, a: String) -> String then self.name
+  fn noBody() -> Num {5}
+  fn withBody(self, a: String) -> String {self.name}
 }
 
 impl<T> Generic<T> for GenericType<T> {
-  fn generic(a: T) -> T then a
+  fn generic(a: T) -> T {a}
 }
 
 impl<T> GenericSelf<T> for GenericType<String> {
-  fn genericSelf(self, a: GenericSelf<T>) -> GenericSelf<T> then a
+  fn genericSelf(self, a: GenericSelf<T>) -> GenericSelf<T> {a}
 }
 
 impl Generic<String> for GenericType<String> {
-  fn generic(a: String) -> String then a + a
+  fn generic(a: String) -> String {a + a}
 }
 
 impl SelfAware for FunctionsType {}

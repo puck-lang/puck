@@ -55,6 +55,7 @@ export fn flag(arguments, name, defaultValue) {
   } else defaultValue
 }
 
-export fn isTypeScopeDeclaration(t: Token)
-  then t.kind == SyntaxKind.TraitDeclaration
-    or t.kind == SyntaxKind.TypeDeclaration
+export fn isTypeScopeDeclaration(t: Token) {
+  t.kind == SyntaxKind.TraitDeclaration or
+  t.kind == SyntaxKind.TypeDeclaration
+}

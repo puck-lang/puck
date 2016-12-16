@@ -78,13 +78,14 @@ export fn ScopeVisitor(context, file) {
   let mut matchExpression: Option<MatchExpression> = None
   let reportError = context.reportError.bind(context, file)
 
-  fn getBinding(token: Expression)
-    then if token.kind == SyntaxKind.Identifier
+  fn getBinding(token: Expression) {
+    if token.kind == SyntaxKind.Identifier
       then token.scope.getBinding(token.name)
     else if token.kind == SyntaxKind.MemberAccess
       then getBinding(token.object)
     else if token.kind == SyntaxKind.IndexAccess
       then getBinding(token.object)
+  }
 
   fn checkFunctionCall(function: FunctionType, c: CallExpression) {
     if not function then return undefined
@@ -599,12 +600,14 @@ fn isIndividuallyExhaustive(p: Pattern) {
   }
 }
 
-fn getEnumMember(typePath: TypePath) then match typePath {
-  TypePath::Object(_, typePath) => match typePath {
-    TypePath::Member(member) => member.name
+fn getEnumMember(typePath: TypePath) {
+  match typePath {
+    TypePath::Object(_, typePath) => match typePath {
+      TypePath::Member(member) => member.name
+      _ => throw 'Invalid typepath'
+    }
     _ => throw 'Invalid typepath'
   }
-  _ => throw 'Invalid typepath'
 }
 
 fn isEnumPattern(p: Pattern) {

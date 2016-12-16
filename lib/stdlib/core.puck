@@ -18,7 +18,7 @@ export enum Result<T, E> {
 export let Ok = Result::Ok
 export let Err = Result::Err
 export trait ResultTrait<T, E> {
-  fn isOk(self) -> Bool then self.kind == 'Ok'
+  fn isOk(self) -> Bool {self.kind == 'Ok'}
   fn isErr(self: Result<T, E>) -> Bool {not self.isOk()}
 
   /// Calls op if the result is Ok, otherwise returns the Err value of self.
@@ -49,7 +49,7 @@ export let Some = Option::Some
 export let None = Option::None
 export trait MaybeTrait<T> {
 
-  fn isJust(self) -> Bool then self.kind == 'Some'
+  fn isJust(self) -> Bool {self.kind == 'Some'}
   fn isNothing(self: Option<T>) -> Bool {not self.isJust()}
 
   fn map<U>(self: Option<T>, f: (T) -> U) -> Option<U> {

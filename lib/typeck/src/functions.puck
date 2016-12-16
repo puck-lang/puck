@@ -3,11 +3,13 @@ import '../../entities.puck' as {FunctionType, Scope, TypeInstance}
 import 'range.puck' as {checkRange, getRange}
 import 'types.puck' as {getType, isAssignable}
 
-export fn getFunctionTypeName(arguments: List<TypeInstance>, returnType: TypeInstance)
-  then getTupleTypeName(arguments) + ' => ' + (returnType and returnType.name or '??')
+export fn getFunctionTypeName(arguments: List<TypeInstance>, returnType: TypeInstance) {
+  getTupleTypeName(arguments) + ' => ' + (returnType and returnType.name or '??')
+}
 
-export fn getTupleTypeName(properties: List<TypeInstance>)
-  then '(' + properties.map(|a| (a and a.name) or '??').join(', ') + ')'
+export fn getTupleTypeName(properties: List<TypeInstance>) {
+  '(' + properties.map(|a| (a and a.name) or '??').join(', ') + ')'
+}
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
   let mut parameterRange

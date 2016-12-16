@@ -63,7 +63,9 @@ false : Bool
 
 ## Functions
 ```puck
-fn add(a, b) then a + b
+fn add(a, b) {
+  a + b
+}
 
 fn avarage(numbers) {
   let total = numbers.reduce(add, 0)
@@ -77,7 +79,7 @@ fn avarage(numbers) {
 names.map(|name| name.toUpperCase())
 
 // Functions can take mutable parameters, and type them!
-fn makeAdmin(mut user: User): User {
+fn makeAdmin(mut user: User) -> User {
   user.isAdmin = true
   user
 }
@@ -127,7 +129,10 @@ type Point {
 }
 
 // Enums can hold a set of different types  
-enum Option<T> = Some(T) | None
+enum Option<T> {
+  Some(T)
+  None
+}
 ```
 
 Puck enums are tagged unions or just union types which can be 
@@ -142,18 +147,23 @@ trait Area {
 }
 
 impl Area on Rect {
-  fn calculateArea(self) then self.width * self.height
+  fn calculateArea(self) {self.width * self.height}
 }
 
 impl Area on Circle {
-  fn calculateArea(self) then pi * self.radius ^ 2
+  fn calculateArea(self) {pi * self.radius ** 2}
 }
 
 // Sometimes you doesn't need a trait, for example factory functions
 // that just create objects of their types
 impl Rect {
-  fn square(length: Num) then 
+  fn new(width: Num, height: Num) {
+    Rect { width, height }
+  }
+
+  fn square(length: Num) {
     Rect { width: length, height: length }
+  }
 }
 ```
 

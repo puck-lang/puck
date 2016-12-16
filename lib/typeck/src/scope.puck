@@ -6,7 +6,7 @@ import '../../entities.puck' as {Binding, isTypeClass}
 import 'range.puck' as {getRange}
 import 'types.puck' as {getType}
 
-fn any(a) then a
+fn any(a) {a}
 
 export fn createScope(context, file, parent = false) {
   let reportError = context.reportError.bind(context, file)

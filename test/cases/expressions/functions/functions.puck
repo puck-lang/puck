@@ -2,18 +2,18 @@ fn a() {}
 fn b(a) {}
 fn c(a = 1) {a}
 fn d(a,b) {c(a)}
-fn e(a,b) then d(a,b)
-fn f(a,b) then fn c(a,b) then f(a,b)
+fn e(a,b) {d(a,b)}
+fn f(a,b) {fn c(a,b) {f(a,b)}}
 fn g(a,b) {
   a()
   b()
   fn c() {
-    fn g() then g()
+    fn g() {g()}
     g()
   }
 }
 
-fn h(a: Num, b: String) -> Bool then a == b
+fn h(a: Num, b: String) -> Bool {a == b}
 fn i(a: Num, b: String) -> Bool {
   if a > 0 then return b
   a == b
@@ -30,9 +30,9 @@ fn l(a, b: String) {
 fn m(a, b) -> Bool {
   a == b
 }
-fn n(self) then self.toString()
-fn o(mut self) then self.toString()
-fn p(self, a) then self.toString()
+fn n(self) {self.toString()}
+fn o(mut self) {self.toString()}
+fn p(self, a) {self.toString()}
 
 a()
 b(1)

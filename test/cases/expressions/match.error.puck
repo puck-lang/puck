@@ -27,7 +27,7 @@ match Result::Ok(5) {
 }
 
 ///// Num is not assignable to type String
-fn sayHello(name: String) then print('Hello, $name')
+fn sayHello(name: String) {print('Hello, $name')}
 
 match Option::Some(5) {
   Option::Some(num) => sayHello(num)
@@ -35,7 +35,7 @@ match Option::Some(5) {
 }
 
 ///// Num is not assignable to type String
-fn sayHello(name: String) then print('Hello, $name')
+fn sayHello(name: String) {print('Hello, $name')}
 
 enum Value { One {num: Num} }
 
@@ -44,7 +44,7 @@ match Value::One({value: 'World'}) {
 }
 
 ///// Num is not assignable to type String
-fn sayHello(name: String) then print('Hello, $name')
+fn sayHello(name: String) {print('Hello, $name')}
 
 enum Value {
   One {num: Num}

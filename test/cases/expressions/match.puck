@@ -40,7 +40,7 @@ print(
     Result::Err(err) => 'error: $err'
   }
 )
-fn sayHello(name: String) then print('Hello, $name')
+fn sayHello(name: String) {print('Hello, $name')}
 
 match Option::Some('World') {
   Option::Some(name) => {

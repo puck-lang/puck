@@ -14,40 +14,40 @@ impl Empty for FunctionsType {}
 ///// Trait functions must have a return type
 import 'traits.puck' as {Functions, FunctionsType}
 impl Functions for FunctionsType {
-  fn noBody() then 1
+  fn noBody() {1}
 }
 
 ///// Functions has already been implemented for FunctionsType
 import 'traits.puck' as {Functions, FunctionsType}
 impl Functions for FunctionsType {
-  fn noBody() -> Num then 1
+  fn noBody() -> Num {1}
 }
 
 ///// Generic<String> has already been implemented for FunctionsType
 import 'traits.puck' as {Generic, FunctionsType}
 impl Generic<String> for FunctionsType {
-  fn generic(a: String) -> String then a
+  fn generic(a: String) -> String {a}
 }
 impl Generic<String> for FunctionsType {
-  fn generic(a: String) -> String then a
+  fn generic(a: String) -> String {a}
 }
 
 ///// Generic<T> has already been implemented for FunctionsType
 import 'traits.puck' as {Generic, FunctionsType}
 impl<T> Generic<T> for FunctionsType {
-  fn generic<T>(a: T) -> T then a
+  fn generic<T>(a: T) -> T {a}
 }
 impl<T> Generic<T> for FunctionsType {
-  fn generic<T>(a: T) -> T then a
+  fn generic<T>(a: T) -> T {a}
 }
 
 ///// Generic<Num> has already been implemented for GenericType<Num>
 import 'traits.puck' as {Generic, GenericType}
 impl Generic<Num> for GenericType<Num> {
-  fn generic(a: Num) -> Num then a
+  fn generic(a: Num) -> Num {a}
 }
 impl Generic<Num> for GenericType<Num> {
-  fn generic(a: Num) -> Num then a
+  fn generic(a: Num) -> Num {a}
 }
 
 ///// Function Functions::noBody is not implemented for EmptyType
@@ -63,49 +63,49 @@ impl Empty for FunctionsType {
 ///// Function SelfAware::static is static
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn static(self) -> Num then 5
+  fn static(self) -> Num {5}
 }
 
 ///// Too many arguments given to static, 0 required, 1 given
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn static(a: Num) -> Num then a
+  fn static(a: Num) -> Num {a}
 }
 
 ///// Return type String is not assignable to Num
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn static() -> String then ''
+  fn static() -> String {''}
 }
 
 ///// Function SelfAware::withImmutableSelf requires a self parameter
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn withImmutableSelf() -> String then 'a'
+  fn withImmutableSelf() -> String {'a'}
 }
 
 ///// Function SelfAware::withImmutableSelf requires a self parameter
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn withImmutableSelf(a: String) -> String then a
+  fn withImmutableSelf(a: String) -> String {a}
 }
 
 ///// Function SelfAware::withImmutableSelf requires an immutable self parameter
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn withImmutableSelf(mut self, a: String) -> String then a
+  fn withImmutableSelf(mut self, a: String) -> String {a}
 }
 
 ///// Types of parameter #0 does not match. Num is not assignable to String
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn withImmutableSelf(self, a: Num) -> Num then a
+  fn withImmutableSelf(self, a: Num) -> Num {a}
 }
 
 ///// Parameter #0 is required to be immutable
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn withImmutableSelf(self, mut a: String) -> String then a
+  fn withImmutableSelf(self, mut a: String) -> String {a}
 }
 
 ///// A has already been declared in the scope
@@ -139,7 +139,7 @@ export trait GenericSelf<T> {
 }
 
 impl<T> GenericSelf<T> for GenericType<T> {
-  fn generic(self, a: GenericSelf<T>) -> GenericSelf<T> then a
+  fn generic(self, a: GenericSelf<T>) -> GenericSelf<T> {a}
 }
 
 let genericNum: GenericType<Num> = {}

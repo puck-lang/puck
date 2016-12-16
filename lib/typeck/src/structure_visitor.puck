@@ -38,8 +38,9 @@ import 'functions.puck' as {createFunctionType, getTupleTypeName}
 import 'range.puck' as {checkRange}
 import 'types.puck' as {createTypeInstanceTypeCast, getType, isAssignable}
 
-export fn notAssignableError(to: TypeInstance, subject: TypeInstance)
-  then subject.name + ' is not assignable to type ' + to.name
+export fn notAssignableError(to: TypeInstance, subject: TypeInstance) {
+  subject.name + ' is not assignable to type ' + to.name
+}
 
 export let structureVisitor = {
   visitEnumMember: visit.walkingVisitor.visitEnumMember

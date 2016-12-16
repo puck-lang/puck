@@ -73,8 +73,9 @@ export fn TokenStream(input) {
 
   fn readWhile(predicate) {
     let mut str = ''
-    while not input.eof() and predicate(input.peek()) then
-        str += input.next()
+    while not input.eof() and predicate(input.peek()) {
+      str += input.next()
+    }
     str
   }
 
@@ -192,8 +193,9 @@ export fn TokenStream(input) {
     current = readNext()
     currentDummy = current
 
-    while isDummy(current) and not returnDummy then
+    while isDummy(current) and not returnDummy {
       current = readNext()
+    }
 
     current
   }
@@ -214,9 +216,9 @@ export fn TokenStream(input) {
 
     let mut token = readNext()
 
-    while isDummy(token) and not returnDummy then
+    while isDummy(token) and not returnDummy {
       token = readNext()
-
+    }
     token
   }
 

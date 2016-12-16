@@ -615,17 +615,8 @@ export fn parse(input) { // : TokenStream
       else None
 
     let body: Block =
-      if isToken(SyntaxKind.OpenBraceToken)
+      if isToken(SyntaxKind.OpenBraceToken) or not optionalBody
         then parseBlock()
-      else if isToken(SyntaxKind.ThenKeyword) {
-        skipKeyword(SyntaxKind.ThenKeyword)
-        {
-          kind: SyntaxKind.Block,
-          expressions: [parseExpression()],
-        }
-      }
-      else if not optionalBody
-        then input.croak('A function declaration must be followed by a `{` or `then`')
 
     {
       kind: SyntaxKind.Function
@@ -788,16 +779,7 @@ export fn parse(input) { // : TokenStream
     skipKeyword(SyntaxKind.WhileKeyword)
 
     let condition = parseExpression()
-    let body: Block =
-      if isToken(SyntaxKind.OpenBraceToken)
-        then parseBlock()
-        else {
-          skipKeyword(SyntaxKind.ThenKeyword)
-          {
-            kind: SyntaxKind.Block,
-            expressions: [parseExpression()],
-          }
-        }
+    let body = parseBlock()
 
     {
       kind: SyntaxKind.WhileExpression
