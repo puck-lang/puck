@@ -187,13 +187,12 @@ export fn TokenStream(input) {
 
   fn peek(returnDummy = false) {
     if returnDummy and currentDummy then return currentDummy
-    if current then
-      if returnDummy or not isDummy(current) then return current
+    if current and not isDummy(current) or returnDummy then return current
 
     current = readNext()
     currentDummy = current
 
-    while isDummy(current) and not returnDummy {
+    while not returnDummy and isDummy(current) {
       current = readNext()
     }
 

@@ -247,14 +247,12 @@ function TokenStream(input) {
     if (returnDummy && currentDummy) {
       return currentDummy;
     };
-    if (current) {
-      if (returnDummy || !isDummy(current)) {
-        return current;
-      };
+    if (current && !isDummy(current) || returnDummy) {
+      return current;
     };
     current = readNext();
     currentDummy = current;
-    while (isDummy(current) && !returnDummy) {
+    while (!returnDummy && isDummy(current)) {
       current = readNext();
     };
     return current;

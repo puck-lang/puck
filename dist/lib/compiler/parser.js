@@ -20,9 +20,9 @@ var _ast2 = require('./ast.js');
 
 function parse(input) {
   function isToken(kind) {
-    var peekDistance = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+    var withDummy = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
-    var token = input.peek(false, peekDistance);
+    var token = input.peek(withDummy);
     return token && token.kind == kind;
   };
   function tokenName(token) {
@@ -144,7 +144,7 @@ function parse(input) {
     return left;
   };
   function maybeCall(expr) {
-    if (isToken(_ast2.SyntaxKind.OpenParenToken)) {
+    if (isToken(_ast2.SyntaxKind.OpenParenToken, true)) {
       return maybeCall(maybeMemberAccess({
         kind: _ast2.SyntaxKind.CallExpression,
         func: expr,
@@ -169,7 +169,7 @@ function parse(input) {
     };
   };
   function maybeIndexAccess(token) {
-    if (isToken(_ast2.SyntaxKind.OpenBracketToken)) {
+    if (isToken(_ast2.SyntaxKind.OpenBracketToken, true)) {
       input.next();
       var index = parseExpression();
       consumeToken(_ast2.SyntaxKind.CloseBracketToken);

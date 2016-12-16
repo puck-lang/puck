@@ -1,0 +1,13 @@
+fn a() {}
+let b = []
+
+// function call
+a()
+// variable and tuple
+a
+()
+// index access
+b[0]
+// variable and list literal
+b
+[0]

@@ -54,8 +54,8 @@ import 'ast.ts' as {
 
 export fn parse(input) { // : TokenStream
 
-  fn isToken(kind, peekDistance = 0) { // kind: SyntaxKind
-    let token = input.peek(false, peekDistance)
+  fn isToken(kind, withDummy = false) { // kind: SyntaxKind
+    let token = input.peek(withDummy)
     token and token.kind == kind
   }
 
@@ -195,7 +195,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn maybeCall(expr: Expression) -> CallExpression {
-    if isToken(SyntaxKind.OpenParenToken)
+    if isToken(SyntaxKind.OpenParenToken, true)
       then maybeCall(maybeMemberAccess({
         kind: SyntaxKind.CallExpression,
         func: expr,
@@ -219,7 +219,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn maybeIndexAccess(token: Expression) -> Expression {
-    if isToken(SyntaxKind.OpenBracketToken) {
+    if isToken(SyntaxKind.OpenBracketToken, true) {
       input.next()
       let index = parseExpression()
       consumeToken(SyntaxKind.CloseBracketToken)
@@ -675,9 +675,6 @@ export fn parse(input) { // : TokenStream
         typeBound: None
         initializer: Some(expression)
       }
-      // pattern
-      // equalsToken
-      // expression
       then_
       else_:
         if isToken(SyntaxKind.ElseKeyword) {
