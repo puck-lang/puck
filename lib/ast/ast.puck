@@ -187,10 +187,6 @@ export type IfLetExpression {
   else_: Option<Block>
 }
 
-export type LoopExpression {
-  body: Block
-}
-
 export type MatchExpression {
   matchKeyword: Token
   expression: Expression

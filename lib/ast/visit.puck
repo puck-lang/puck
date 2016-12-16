@@ -32,7 +32,6 @@ import 'ast.puck' as {
   ForExpression
   IfExpression
   IfLetExpression
-  LoopExpression
   MatchExpression
   MatchArm
   TypePathExpression
@@ -122,7 +121,6 @@ export let walkingVisitor = {
   visitForExpression: |self, e: ForExpression| walkForExpression(self, e)
   visitIfExpression: |self, e: IfExpression| walkIfExpression(self, e)
   visitIfLetExpression: |self, e: IfLetExpression| walkIfLetExpression(self, e)
-  visitLoopExpression: |self, e: LoopExpression| walkLoopExpression(self, e)
   visitMatchExpression: |self, e: MatchExpression| walkMatchExpression(self, e)
   visitMatchArm: |self, e: MatchArm| walkMatchArm(self, e)
   visitUnaryExpression: |self, e: UnaryExpression| walkUnaryExpression(self, e)
@@ -179,7 +177,6 @@ export let emptyVisitor = {
   visitForExpression: || {}
   visitIfExpression: || {}
   visitIfLetExpression: || {}
-  visitLoopExpression: || {}
   visitMatchExpression: || {}
   visitMatchArm: || {}
   visitTypePathExpression: || {}
@@ -228,7 +225,6 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.ForExpression then visitor.visitForExpression(e)
   else if e.kind == SyntaxKind.IfExpression then visitor.visitIfExpression(e)
   else if e.kind == SyntaxKind.IfLetExpression then visitor.visitIfLetExpression(e)
-  else if e.kind == SyntaxKind.LoopExpression then visitor.visitLoopExpression(e)
   else if e.kind == SyntaxKind.MatchExpression then visitor.visitMatchExpression(e)
   else if e.kind == SyntaxKind.TypePathExpression then visitor.visitTypePathExpression(e)
   else if e.kind == SyntaxKind.UnaryExpression then visitor.visitUnaryExpression(e)
@@ -402,9 +398,6 @@ export fn walkIfLetExpression(visitor: Visitor, e: IfLetExpression) {
   visitor.visitVariableDeclaration(e.variableDeclaration)
   visitor.visitBlock(e.then_)
   if let Option::Some(else_) = e.else_ then visitor.visitBlock(else_)
-}
-export fn walkLoopExpression(visitor: Visitor, e: LoopExpression) {
-  visitor.visitBlock(e.body)
 }
 export fn walkMatchExpression(visitor: Visitor, e: MatchExpression) {
   visitor.visitExpression(e.expression)

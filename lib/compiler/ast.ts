@@ -12,7 +12,6 @@ export enum SyntaxKind {
   ImplKeyword,
   ImportKeyword,
   LetKeyword,
-  LoopKeyword,
   MutKeyword,
   MatchKeyword,
   NotKeyword,
@@ -93,7 +92,6 @@ export enum SyntaxKind {
   ForExpression,
   IfExpression,
   IfLetExpression,
-  LoopExpression,
   MatchExpression,
   TypePathExpression,
   UnaryExpression,
@@ -133,7 +131,6 @@ export const textToToken = Object['assign'](Object.create(null), {
   'impl': SyntaxKind.ImplKeyword,
   'import': SyntaxKind.ImportKeyword,
   'let': SyntaxKind.LetKeyword,
-  'loop': SyntaxKind.LoopKeyword,
   'match': SyntaxKind.MatchKeyword,
   'mut': SyntaxKind.MutKeyword,
   'not': SyntaxKind.NotKeyword,
@@ -453,10 +450,6 @@ export interface IfLetExpression extends Token {
   variableDeclaration: VariableDeclaration
   then_: BlockNode
   else_: Option<BlockNode>
-}
-
-export interface LoopExpression extends Token {
-  body: BlockNode,
 }
 
 export interface MatchExpression extends Token {

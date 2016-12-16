@@ -19,26 +19,7 @@ import '../ast/ast.puck' as {
   ExportDirective
   ImportDirective
 
-  AssignmentExpression
-  BinaryExpression
-  CallExpression
-  ForExpression
-  IfExpression
-  LoopExpression
-  UnaryExpression
-  WhileExpression
-
-  IndexAccess
-  MemberAccess
-
   Token
-  ReturnStatement
-
-  ListLiteral
-  BooleanLiteral
-  NumberLiteral
-  ObjectLiteral
-  StringLiteral
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}

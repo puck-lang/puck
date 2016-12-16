@@ -25,7 +25,6 @@ import '../ast/ast.puck' as {
   CallExpression
   ForExpression
   IfExpression
-  LoopExpression
   UnaryExpression
   WhileExpression
 

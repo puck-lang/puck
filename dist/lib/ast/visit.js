@@ -40,7 +40,6 @@ exports.walkCallExpression = walkCallExpression;
 exports.walkForExpression = walkForExpression;
 exports.walkIfExpression = walkIfExpression;
 exports.walkIfLetExpression = walkIfLetExpression;
-exports.walkLoopExpression = walkLoopExpression;
 exports.walkMatchExpression = walkMatchExpression;
 exports.walkMatchArm = walkMatchArm;
 exports.walkUnaryExpression = walkUnaryExpression;
@@ -190,10 +189,6 @@ var walkingVisitor = exports.walkingVisitor = {
     var self = this;
     return walkIfLetExpression(self, e);
   },
-  visitLoopExpression: function visitLoopExpression(e) {
-    var self = this;
-    return walkLoopExpression(self, e);
-  },
   visitMatchExpression: function visitMatchExpression(e) {
     var self = this;
     return walkMatchExpression(self, e);
@@ -290,7 +285,6 @@ var emptyVisitor = exports.emptyVisitor = {
   visitForExpression: function visitForExpression() {},
   visitIfExpression: function visitIfExpression() {},
   visitIfLetExpression: function visitIfLetExpression() {},
-  visitLoopExpression: function visitLoopExpression() {},
   visitMatchExpression: function visitMatchExpression() {},
   visitMatchArm: function visitMatchArm() {},
   visitTypePathExpression: function visitTypePathExpression() {},
@@ -380,51 +374,47 @@ function walkExpression(visitor, e) {
                                                 if (e.kind == _ast2.SyntaxKind.IfLetExpression) {
                                                   return visitor.visitIfLetExpression(e);
                                                 } else {
-                                                  if (e.kind == _ast2.SyntaxKind.LoopExpression) {
-                                                    return visitor.visitLoopExpression(e);
+                                                  if (e.kind == _ast2.SyntaxKind.MatchExpression) {
+                                                    return visitor.visitMatchExpression(e);
                                                   } else {
-                                                    if (e.kind == _ast2.SyntaxKind.MatchExpression) {
-                                                      return visitor.visitMatchExpression(e);
+                                                    if (e.kind == _ast2.SyntaxKind.TypePathExpression) {
+                                                      return visitor.visitTypePathExpression(e);
                                                     } else {
-                                                      if (e.kind == _ast2.SyntaxKind.TypePathExpression) {
-                                                        return visitor.visitTypePathExpression(e);
+                                                      if (e.kind == _ast2.SyntaxKind.UnaryExpression) {
+                                                        return visitor.visitUnaryExpression(e);
                                                       } else {
-                                                        if (e.kind == _ast2.SyntaxKind.UnaryExpression) {
-                                                          return visitor.visitUnaryExpression(e);
+                                                        if (e.kind == _ast2.SyntaxKind.WhileExpression) {
+                                                          return visitor.visitWhileExpression(e);
                                                         } else {
-                                                          if (e.kind == _ast2.SyntaxKind.WhileExpression) {
-                                                            return visitor.visitWhileExpression(e);
+                                                          if (e.kind == _ast2.SyntaxKind.IndexAccess) {
+                                                            return visitor.visitIndexAccess(e);
                                                           } else {
-                                                            if (e.kind == _ast2.SyntaxKind.IndexAccess) {
-                                                              return visitor.visitIndexAccess(e);
+                                                            if (e.kind == _ast2.SyntaxKind.MemberAccess) {
+                                                              return visitor.visitMemberAccess(e);
                                                             } else {
-                                                              if (e.kind == _ast2.SyntaxKind.MemberAccess) {
-                                                                return visitor.visitMemberAccess(e);
+                                                              if (e.kind == _ast2.SyntaxKind.BreakKeyword) {
+                                                                return visitor.visitBreak(e);
                                                               } else {
-                                                                if (e.kind == _ast2.SyntaxKind.BreakKeyword) {
-                                                                  return visitor.visitBreak(e);
+                                                                if (e.kind == _ast2.SyntaxKind.ReturnStatement) {
+                                                                  return visitor.visitReturn(e);
                                                                 } else {
-                                                                  if (e.kind == _ast2.SyntaxKind.ReturnStatement) {
-                                                                    return visitor.visitReturn(e);
+                                                                  if (e.kind == _ast2.SyntaxKind.ListLiteral) {
+                                                                    return visitor.visitListLiteral(e);
                                                                   } else {
-                                                                    if (e.kind == _ast2.SyntaxKind.ListLiteral) {
-                                                                      return visitor.visitListLiteral(e);
+                                                                    if (e.kind == _ast2.SyntaxKind.BooleanLiteral) {
+                                                                      return visitor.visitBooleanLiteral(e);
                                                                     } else {
-                                                                      if (e.kind == _ast2.SyntaxKind.BooleanLiteral) {
-                                                                        return visitor.visitBooleanLiteral(e);
+                                                                      if (e.kind == _ast2.SyntaxKind.NumberLiteral) {
+                                                                        return visitor.visitNumberLiteral(e);
                                                                       } else {
-                                                                        if (e.kind == _ast2.SyntaxKind.NumberLiteral) {
-                                                                          return visitor.visitNumberLiteral(e);
+                                                                        if (e.kind == _ast2.SyntaxKind.ObjectLiteral) {
+                                                                          return visitor.visitObjectLiteral(e);
                                                                         } else {
-                                                                          if (e.kind == _ast2.SyntaxKind.ObjectLiteral) {
-                                                                            return visitor.visitObjectLiteral(e);
+                                                                          if (e.kind == _ast2.SyntaxKind.StringLiteral) {
+                                                                            return visitor.visitStringLiteral(e);
                                                                           } else {
-                                                                            if (e.kind == _ast2.SyntaxKind.StringLiteral) {
-                                                                              return visitor.visitStringLiteral(e);
-                                                                            } else {
-                                                                              if (e.kind == _ast2.SyntaxKind.TupleLiteral) {
-                                                                                return visitor.visitTupleLiteral(e);
-                                                                              };
+                                                                            if (e.kind == _ast2.SyntaxKind.TupleLiteral) {
+                                                                              return visitor.visitTupleLiteral(e);
                                                                             };
                                                                           };
                                                                         };
@@ -699,9 +689,6 @@ function walkIfLetExpression(visitor, e) {
 
     return visitor.visitBlock(else_);
   };
-};
-function walkLoopExpression(visitor, e) {
-  return visitor.visitBlock(e.body);
 };
 function walkMatchExpression(visitor, e) {
   visitor.visitExpression(e.expression);

@@ -29,7 +29,6 @@ import '../ast/ast.puck' as {
   ForExpression
   IfExpression
   IfLetExpression
-  LoopExpression
   MatchExpression
   MatchArm
   TypePathExpression
@@ -390,12 +389,6 @@ export fn ScopeVisitor(context, file) {
       self.visitVariableDeclaration(e.variableDeclaration, undefined, undefined, true)
       self.visitBlock(e.then_)
       if let Option::Some(else_) = e.else_ then self.visitBlock(else_)
-      self.scope = self.scope.parent
-    }
-    visitLoopExpression: |mut self, mut e: LoopExpression| {
-      self.scope = createScope(context, file, self.scope)
-      e.scope = self.scope
-      visit.walkLoopExpression(self, e)
       self.scope = self.scope.parent
     }
     visitMatchExpression: |mut self, mut e: MatchExpression| {

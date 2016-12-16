@@ -388,13 +388,6 @@ function ScopeVisitor(context, file) {
       };
       return self.scope = self.scope.parent;
     },
-    visitLoopExpression: function visitLoopExpression(e) {
-      var self = this;
-      self.scope = (0, _scope.createScope)(context, file, self.scope);
-      e.scope = self.scope;
-      visit.walkLoopExpression(self, e);
-      return self.scope = self.scope.parent;
-    },
     visitMatchExpression: function visitMatchExpression(e) {
       var self = this;
       e.scope = self.scope;
