@@ -1,10 +1,10 @@
 let five: Option<Num> = Some(5)
 let nothing: Option<Num> = None
 
-let maybeFive: Option<Num> = Option.Some(5)
-let maybeNothing: Option<Num> = Option.None
+let maybeFive: Option<Num> = Option::Some(5)
+let maybeNothing: Option<Num> = Option::None
 
-enum Enum = A {b: Num}
+enum Enum { A {b: Num} }
 
 let a = Enum::A({b: 5})
 

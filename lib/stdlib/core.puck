@@ -11,7 +11,10 @@ export trait StringTrait {
 }
 impl StringTrait for String {}
 
-export enum Result<T, E> = Ok(T) | Err(E)
+export enum Result<T, E> {
+  Ok(T)
+  Err(E)
+}
 export let Ok = Result::Ok
 export let Err = Result::Err
 export trait ResultTrait<T, E> {
@@ -38,7 +41,10 @@ export trait ResultTrait<T, E> {
 }
 impl<T, E> ResultTrait<T, E> for Result<T, E> {}
 
-export enum Option<T> = Some(T) | None
+export enum Option<T> {
+  Some(T)
+  None
+}
 export let Some = Option::Some
 export let None = Option::None
 export trait MaybeTrait<T> {

@@ -18,7 +18,9 @@ export type EnumDeclaration {
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
+  openBrace: Token
   members: List<EnumMember>
+  closeBrace: Token
 }
 
 export type EnumMember {
@@ -227,9 +229,10 @@ export type MemberAccess {
   member: Identifier
 }
 
-export enum TypePath
-  = Object(Identifier, TypePath)
-  | Member(Identifier)
+export enum TypePath {
+  Object(Identifier, TypePath)
+  Member(Identifier)
+}
 
 export type RecordPattern {
   openBrace: Token
@@ -248,17 +251,18 @@ export type TuplePattern {
   closeParen: Token
 }
 
-export enum Pattern
-  = CatchAll
-  | Identifier(Identifier)
-  // | Boolen(BooleanLiteral)
-  // | Number(NumberLiteral)
-  // | String(StringLiteralPart)
-  | Record(RecordPattern)
-  | Tuple(TuplePattern)
-  | RecordType(TypePath, RecordPattern)
-  | TupleType(TypePath, TuplePattern)
-  | UnitType(TypePath)
+export enum Pattern {
+  CatchAll
+  Identifier(Identifier)
+  // Boolen(BooleanLiteral)
+  // Number(NumberLiteral)
+  // String(StringLiteralPart)
+  Record(RecordPattern)
+  Tuple(TuplePattern)
+  RecordType(TypePath, RecordPattern)
+  TupleType(TypePath, TuplePattern)
+  UnitType(TypePath)
+}
 
 export type BreakStatement {
   keyword: Token

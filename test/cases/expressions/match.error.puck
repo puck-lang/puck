@@ -37,7 +37,7 @@ match Option::Some(5) {
 ///// Num is not assignable to type String
 fn sayHello(name: String) then print('Hello, $name')
 
-enum Value = One {num: Num}
+enum Value { One {num: Num} }
 
 match Value::One({value: 'World'}) {
   Value::One {num} => sayHello(num)
@@ -46,7 +46,10 @@ match Value::One({value: 'World'}) {
 ///// Num is not assignable to type String
 fn sayHello(name: String) then print('Hello, $name')
 
-enum Value = One {num: Num} | Two
+enum Value {
+  One {num: Num}
+  Two
+}
 
 fn func() -> Result<(), Value> {
   Err(Value::Two)
@@ -59,7 +62,7 @@ match func() {
 }
 
 ///// Match is not exhaustive. It is missing a case for Value::Three
-enum Value = One | Two | Three
+enum Value { One, Two, Three }
 
 fn func() -> Option<Value> {
   Some(Value::Two)

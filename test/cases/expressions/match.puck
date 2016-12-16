@@ -50,10 +50,11 @@ match Option::Some('World') {
   Option::None => print('Oh, nothing')
 }
 
-enum Value
-  = One {value: String}
-  | Two
-  | Three
+enum Value {
+  One {value: String}
+  Two
+  Three
+}
 
 match Value::One({value: 'World'}) {
   Value::One {value} => sayHello(value)
@@ -91,7 +92,7 @@ match Option::Some(Option::Some(5)) {
   Option::None => 0
 }
 
-enum Object = Object
+enum Object { Object }
 
 match Object::Object {
   Object::Object => 'Object'

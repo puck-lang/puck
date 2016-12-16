@@ -239,17 +239,16 @@ function parse(input) {
       __PUCK__value__2 = [];
     };
     var typeParameters = __PUCK__value__2;
-    consumeToken(_ast2.SyntaxKind.EqualsToken);
-    var members = [parseEnumMember()];
-    while (isToken(_ast2.SyntaxKind.BarToken)) {
-      input.next();
-      members.push(parseEnumMember());
-    };
+    var openBrace = input.peek();
+    var members = delimited("{", "}", ",", parseEnumMember, false);
+    var closeBrace = consumeToken(_ast2.SyntaxKind.CloseBraceToken);
     return {
       kind: _ast2.SyntaxKind.EnumDeclaration,
       name: name,
       typeParameters: typeParameters,
-      members: members
+      openBrace: openBrace,
+      members: members,
+      closeBrace: closeBrace
     };
   };
   function parseEnumMember() {

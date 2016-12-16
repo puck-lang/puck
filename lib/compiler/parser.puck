@@ -273,21 +273,19 @@ export fn parse(input) { // : TokenStream
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
-      else []
+        else []
 
-    consumeToken(SyntaxKind.EqualsToken)
-
-    let mut members = [parseEnumMember()]
-    while isToken(SyntaxKind.BarToken) {
-      input.next()
-      members.push(parseEnumMember())
-    }
+    let openBrace = input.peek()
+    let members = delimited('{', '}', ',', parseEnumMember, false)
+    let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
     {
       kind: SyntaxKind.EnumDeclaration
       name
       typeParameters
+      openBrace
       members
+      closeBrace
     }
   }
 

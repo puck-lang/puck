@@ -1,14 +1,14 @@
 ///// Use of undeclared type B
-enum Enum = A(B)
+enum Enum { A(B) }
 
 ///// Use of undeclared type B
-enum Enum = A {b: B}
+enum Enum { A {b: B} }
 
 ///// Duplicate member A
-enum Enum = A | B | A
+enum Enum { A, B, A }
 
 ///// String is not assignable to type Num
-enum Enum = A(Num)
+enum Enum { A(Num) }
 let five = Enum::A('five')
 
 //// String is not assignable to type Num
