@@ -168,19 +168,8 @@ impl RangeTrait<Num> for Range<Num> {
   }
 }
 
-export fn print(message, a, b, c) {
-  let mut args = [message]
-  if a != undefined {
-    args.push(a)
-  }
-  if b != undefined {
-    args[2] = b
-  }
-  if c != undefined {
-    args[3] = c
-  }
-
-  console.log.apply(console, args)
+export fn print(message, extra = []) {
+  console.log.apply(console, [message].concat(extra))
 }
 
 export type ObjectMap<T> {}

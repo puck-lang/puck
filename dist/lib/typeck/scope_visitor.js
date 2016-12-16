@@ -515,7 +515,7 @@ function ScopeVisitor(context, file) {
                   return {
                     v: e.type_ = {
                       kind: type_.kind,
-                      name: type_.name + "." + member.name,
+                      name: type_.name + "::" + member.name,
                       parameterRange: type_.parameterRange,
                       typeParameters: type_.typeParameters,
                       instances: []

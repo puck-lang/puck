@@ -53,7 +53,7 @@ var _entities = require('./entities.js');
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function parseString(context, file) {
-  var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(file)), file);
+  var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(file)));
   (0, _top_level_visitor.TopLevelVisitor)(context, file).visitModule(ast);
   (0, _import_visitor.ImportVisitor)(context, file).visitModule(ast);
   return ast;
@@ -114,7 +114,10 @@ function createContext() {
       return _js._Object.keys(self.files).map(function (path) {
         return self.files[path];
       }).forEach(function (file) {
-        return (0, _scope_visitor.ScopeVisitor)(self, file).visitModule(file.ast);
+        if (!file.scopeVisitorStarted) {
+          file.scopeVisitorStarted = true;
+          return (0, _scope_visitor.ScopeVisitor)(self, file).visitModule(file.ast);
+        };
       });
     },
     runTypeVisitorOnFile: function runTypeVisitorOnFile(file) {
@@ -124,6 +127,13 @@ function createContext() {
       };
       file.typeVisitorStarted = true;
       return (0, _type_visitor.TypeVisitor)(self, file).visitModule(file.ast);
+    },
+    runCheckerOnFile: function runCheckerOnFile(file) {
+      var self = this;
+      if (!file.scopeVisitorStarted) {
+        file.scopeVisitorStarted = true;
+        return (0, _scope_visitor.ScopeVisitor)(self, file).visitModule(file.ast);
+      };
     },
     defer: function defer(file, func) {
       var self = this;

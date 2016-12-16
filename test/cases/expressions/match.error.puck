@@ -26,6 +26,11 @@ match Result::Ok(5) {
   Option::Some(_) => 'Something'
 }
 
+///// Option is not assignable to type Result<Num, E>
+match Ok(5) {
+  Option::Some(_) => 'Something'
+}
+
 ///// Num is not assignable to type String
 fn sayHello(name: String) {print('Hello, $name')}
 

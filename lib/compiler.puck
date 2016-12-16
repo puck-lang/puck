@@ -16,7 +16,7 @@ import 'typeck/type_visitor.puck' as {TypeVisitor}
 import 'entities.puck' as {File}
 
 export fn parseString(context, file: File) {
-  let mut ast = parse(TokenStream(InputStream(file)), file)
+  let mut ast = parse(TokenStream(InputStream(file)))
   TopLevelVisitor(context, file).visitModule(ast)
   ImportVisitor(context, file).visitModule(ast)
   ast
@@ -70,7 +70,12 @@ fn createContext(ignoreErrors = false) {
     runChecker: fn (self) {
       Object.keys(self.files)
         .map(|path| self.files[path])
-        .forEach(|file| ScopeVisitor(self, file).visitModule(file.ast))
+        .forEach(|mut file| {
+          if not file.scopeVisitorStarted {
+            file.scopeVisitorStarted = true
+            ScopeVisitor(self, file).visitModule(file.ast)
+          }
+        })
     }
     runTypeVisitorOnFile: fn (self, mut file) {
       if file.typeVisitorStarted {
@@ -78,6 +83,12 @@ fn createContext(ignoreErrors = false) {
       }
       file.typeVisitorStarted = true
       TypeVisitor(self, file).visitModule(file.ast)
+    }
+    runCheckerOnFile: fn (self, mut file) {
+      if not file.scopeVisitorStarted {
+        file.scopeVisitorStarted = true
+        ScopeVisitor(self, file).visitModule(file.ast)
+      }
     }
     defer: fn (mut self, file, func) {
       self.deferred[file.absolutePath] = func

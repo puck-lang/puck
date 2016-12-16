@@ -51,7 +51,16 @@ function createScope(context, file) {
       return bindings[name];
     },
     getBinding: function getBinding(name) {
-      return bindings[name] || parent && parent.getBinding(name);
+      var binding = bindings[name] || parent && parent.getBinding(name);
+      if (binding.inherit) {
+        binding.type_ = binding.inherit.type_;
+        if (!binding.type_) {
+          context.runCheckerOnFile(binding.importedFrom.file);
+          var externalBinding = binding.importedFrom._module.scope.getBinding(binding.token.property.name);
+          binding.type_ = externalBinding.type_;
+        };
+      };
+      return binding;
     },
     getTypeBinding: function getTypeBinding(name) {
       return typeBindings[name] || parent && parent.getTypeBinding(name);

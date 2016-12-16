@@ -310,18 +310,10 @@ var List = exports.List = function List(object) {
 var Range = exports.Range = function Range(object) {
   return object;
 };
-function print(message, a, b, c) {
-  var args = [message];
-  if (a != _js._undefined) {
-    args.push(a);
-  };
-  if (b != _js._undefined) {
-    args[2] = b;
-  };
-  if (c != _js._undefined) {
-    args[3] = c;
-  };
-  return _js.console.log.apply(_js.console, args);
+function print(message) {
+  var extra = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+
+  return _js.console.log.apply(_js.console, [message].concat(extra));
 };
 var ObjectMap = exports.ObjectMap = function ObjectMap(object) {
   return object;

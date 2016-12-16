@@ -99,7 +99,7 @@ function createFunctionType(scope, f, reportError) {
     isAbstract: !f.body
   };
 };
-function checkFunctionAssignability(to, subject, token) {
+function checkFunctionAssignability(to, subject) {
   var __PUCK__value__6 = (0, _range.checkRange)(subject._arguments, to.argumentRange, "arguments", subject.name);
   if (__PUCK__value__6.kind == "Err") {
     var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);

@@ -20,7 +20,21 @@ export fn createScope(context, file, parent = false) {
     setTypeBinding: |binding| typeBindings[binding.name] = binding
 
     getLocalBinding: |name| bindings[name]
-    getBinding: |name| bindings[name] or (parent and parent.getBinding(name))
+    getBinding: |name| {
+      let mut binding = bindings[name] or (parent and parent.getBinding(name))
+      if binding.inherit {
+        binding.type_ = binding.inherit.type_
+        if not binding.type_ {
+          context.runCheckerOnFile(binding.importedFrom.file)
+          let externalBinding = binding.importedFrom.module.scope.getBinding(
+            binding.token.property.name
+          )
+
+          binding.type_ = externalBinding.type_
+        }
+      }
+      binding
+    }
     getTypeBinding: |name| typeBindings[name] or (parent and parent.getTypeBinding(name))
     getTypePath: |self, typePath: TypePath| {
       if typePath.kind == 'Member'

@@ -143,10 +143,13 @@ function TypeVisitor(context, file) {
               self.scope.setTypeBinding(_typeBinding);
               return self.imports[m.local.name] = importDirective.file;
             } else {
+              var binding = importDirective._module.scope.getBinding(m.property.name);
               return self.scope.define({
                 name: m.local.name,
                 mutable: false,
-                token: m
+                token: m,
+                inherit: binding,
+                importedFrom: importDirective
               });
             };
           };
