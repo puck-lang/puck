@@ -373,9 +373,9 @@ function parse(input) {
     };
     var typeParameters = __PUCK__value__7;
     var openBrace = expect(_ast2.SyntaxKind.OpenBraceToken);
-    var members = delimited("{", "}", ";", function () {
+    var members = _core.Iterable['$List'].map.call(delimited("{", "}", ";", function () {
       return parseFunctionDeclaration(true);
-    }, false).map(function (f) {
+    }, false), function (f) {
       if (_core.MaybeTrait['$Option'].isNothing.call(f.name)) {
         input.croak("Trait functions must have a name");
       };
@@ -408,7 +408,7 @@ function parse(input) {
     var forKeyword = consumeToken(_ast2.SyntaxKind.ForKeyword);
     var type_ = parseTypeBound();
     var openBrace = expect(_ast2.SyntaxKind.OpenBraceToken);
-    var members = delimited("{", "}", ";", parseFunctionDeclaration, false).map(function (f) {
+    var members = _core.Iterable['$List'].map.call(delimited("{", "}", ";", parseFunctionDeclaration, false), function (f) {
       if (_core.MaybeTrait['$Option'].isNothing.call(f.name)) {
         input.croak("Trait functions must have a name");
       };

@@ -22,6 +22,8 @@ var visit = _interopRequireWildcard(_visit);
 
 var _ast2 = require('./../compiler/ast.js');
 
+var _entities = require('./../entities.js');
+
 var _scope = require('./src/scope.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -29,11 +31,21 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 function TopLevelVisitor(context, file) {
   var scope = (0, _scope.createScope)(context, file);
   var variableDeclaration = _core.None;
+  var reportError = context.reportError.bind(context, file);
   return _js._Object.assign({}, visit.emptyVisitor, {
     visitBlock: function visitBlock(b) {},
     visitEnumDeclaration: function visitEnumDeclaration(t) {
       var self = this;
-      return scope.defineType(t);
+      return scope.defineType({
+        displayName: _core.None,
+        name: (0, _core.Some)(t.name.name),
+        kind: _entities.TypeKind.Enum({
+          implementations: [],
+          members: []
+        }),
+        _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+        instance: _core.None
+      }, t);
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
@@ -67,11 +79,48 @@ function TopLevelVisitor(context, file) {
     },
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
-      return scope.defineType(t);
+      return scope.defineType({
+        displayName: _core.None,
+        name: (0, _core.Some)(t.name.name),
+        kind: _entities.TypeKind.Trait({ functions: _core.ObjectMapTrait._new() }),
+        _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+        instance: _core.None
+      }, t);
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
-      return scope.defineType(t);
+      var __PUCK__value__2 = t.bound;
+      var __PUCK__value__3 = void 0;
+      if (__PUCK__value__2.kind == "Some") {
+        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
+
+        var typeBound = _PUCK__value__2$valu[0];
+
+        var __PUCK__value__4 = void 0;
+        if (typeBound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
+          __PUCK__value__4 = _entities.StructKind.Record({ properties: _core.ObjectMapTrait._new() });
+        } else {
+          var __PUCK__value__5 = void 0;
+          if (typeBound.kind == _ast2.SyntaxKind.TupleTypeBound) {
+            __PUCK__value__5 = _entities.StructKind.Tuple({ properties: [] });
+          };
+          __PUCK__value__4 = __PUCK__value__5;
+        };
+        __PUCK__value__3 = __PUCK__value__4;
+      } else {
+        __PUCK__value__3 = _entities.StructKind.Unit;
+      };
+      var structKind = __PUCK__value__3;
+      return scope.defineType({
+        displayName: _core.None,
+        name: (0, _core.Some)(t.name.name),
+        kind: _entities.TypeKind.Struct({
+          implementations: [],
+          kind: structKind
+        }),
+        _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+        instance: _core.None
+      }, t);
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
       var self = this;

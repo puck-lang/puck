@@ -46,12 +46,10 @@ export fn TokenStream(input) {
   }
 
   fn isDigit(ch) {
-    // /[0-9]/i.test(ch)
     RegExp('[0-9]').test(ch)
   }
 
   fn isIdStart(ch) {
-    // /[a-z_]/i.test(ch)
     RegExp('[a-z_]', 'i').test(ch)
   }
 

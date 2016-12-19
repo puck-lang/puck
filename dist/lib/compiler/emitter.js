@@ -1,5 +1,6 @@
 "use strict";
 var ast_1 = require('./ast');
+var entities_1 = require('../entities');
 var jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
@@ -74,8 +75,11 @@ function Emitter() {
         }
     }
     function getTypeProp(type) {
-        if (type._class && type.typeParameters.some(function (p) { return p.isTypeParameter; })) {
+        if (type._class && type.typeParameters && type.typeParameters.some(function (p) { return p.isTypeParameter; })) {
             type = type._class;
+        }
+        if (type && type.name && type.name.kind) {
+            return "'$" + entities_1.TypeTrait.displayName.call(type) + "'";
         }
         return "'$" + type.name + "'";
     }
@@ -270,7 +274,7 @@ function Emitter() {
         return identifier.name;
     }
     function emitImplDeclaration(i) {
-        var functions = Object['assign']({}, i.trait_.type_.functions);
+        var functions = Object['assign']({}, i.trait_.type_.functions || i.trait_.type_.kind.value[0].functions);
         i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m); });
         return (i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)) + "[" + getTypeProp(i.type_.type_) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
             return (emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'

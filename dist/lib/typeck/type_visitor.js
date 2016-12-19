@@ -43,7 +43,17 @@ function TypeVisitor(context, file) {
     visitEnumDeclaration: function visitEnumDeclaration(t) {
       var self = this;
       if (!t.type_) {
-        t.type_ = self.scope.defineType(t, true).type_;
+        t.type_ = {
+          displayName: _core.None,
+          name: (0, _core.Some)(t.name.name),
+          kind: _entities.TypeKind.Enum({
+            implementations: [],
+            members: []
+          }),
+          _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+          instance: _core.None
+        };
+        self.scope.defineType(t.type_, t, true);
         self.scope.define({
           name: t.name.name,
           mutable: false,
@@ -55,10 +65,19 @@ function TypeVisitor(context, file) {
       } else {
         if (!t.typeParametersAssigned) {
           self.scope = t.scope;
-          t.typeParameters.forEach(function (p) {
-            self.visitTypeParameter(p);
-            return t.type_.typeParameters.push(p.type_);
-          });
+          var __PUCK__value__1 = t.type_._class;
+          if (__PUCK__value__1.kind == "Some") {
+            (function () {
+              var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
+
+              var _class = _PUCK__value__1$valu[0];
+
+              t.typeParameters.forEach(function (p) {
+                self.visitTypeParameter(p);
+                return _class.typeParameters.push(p.type_);
+              });
+            })();
+          };
           t.typeParametersAssigned = true;
           return self.scope = self.scope.parent;
         } else {
@@ -66,13 +85,17 @@ function TypeVisitor(context, file) {
           t.members.forEach(function (m) {
             return self.visitEnumMember(m);
           });
-          var memberMap = _core.ObjectMapTrait.fromList(t.members.map(function (p) {
+          var memberMap = _core.ObjectMapTrait.fromList(_core.Iterable['$List'].map.call(t.members, function (p) {
             return [p.name.name, _core.MaybeTrait['$Option'].mapOrElse.call(p.bound, function () {
               return {
-                kind: p.name.name,
-                name: p.name.name,
-                implementations: [],
-                isUnit: true
+                displayName: _core.None,
+                name: (0, _core.Some)(p.name.name),
+                kind: _entities.TypeKind.Struct({
+                  implementations: [],
+                  kind: _entities.StructKind.Unit
+                }),
+                _class: _core.None,
+                instance: _core.None
               };
             }, function (bound) {
               return bound.type_;
@@ -89,7 +112,16 @@ function TypeVisitor(context, file) {
               });
             })();
           };
-          _js._Object.assign(t.type_.members, memberMap);
+          var __PUCK__value__2 = t.type_.kind;
+          if (__PUCK__value__2.kind == "Enum") {
+            var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
+
+            var enum_ = _PUCK__value__2$valu[0];
+
+            _js._Object.assign(enum_.members, memberMap);
+          } else {
+            throw "is not an enum";
+          };
           return self.scope = self.scope.parent;
         };
       };
@@ -165,7 +197,14 @@ function TypeVisitor(context, file) {
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
       if (!t.type_) {
-        t.type_ = self.scope.defineType(t, true).type_;
+        t.type_ = {
+          displayName: _core.None,
+          name: (0, _core.Some)(t.name.name),
+          kind: _entities.TypeKind.Trait({ functions: _core.ObjectMapTrait._new() }),
+          _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+          instance: _core.None
+        };
+        self.scope.defineType(t.type_, t, true);
         t.binding = self.scope.define({
           name: t.name.name,
           mutable: false,
@@ -177,11 +216,18 @@ function TypeVisitor(context, file) {
         if (!t.scope) {
           self.scope = (0, _scope.createScope)(context, file, self.scope);
           t.scope = self.scope;
-          if (t.typeParameters) {
-            t.typeParameters.forEach(function (p) {
-              self.visitTypeParameter(p);
-              return t.type_.typeParameters.push(p.type_);
-            });
+          var __PUCK__value__3 = t.type_._class;
+          if (__PUCK__value__3.kind == "Some") {
+            (function () {
+              var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
+
+              var _class = _PUCK__value__3$valu[0];
+
+              t.typeParameters.forEach(function (p) {
+                self.visitTypeParameter(p);
+                return _class.typeParameters.push(p.type_);
+              });
+            })();
           };
           return self.scope = self.scope.parent;
         } else {
@@ -189,13 +235,38 @@ function TypeVisitor(context, file) {
           t.members.forEach(function (t) {
             return self.visitFunctionDeclaration(t);
           });
-          _js._Object.assign(t.type_.functions, _core.ObjectMapTrait.fromList(t.members.map(function (m) {
-            return [m.name.value[0].name, m.type_];
-          })));
-          if (t.type_.instances) {
-            t.type_.instances.forEach(function (instance) {
-              return instance.functions = t.type_.functions;
-            });
+          var __PUCK__value__4 = t.type_.kind;
+          if (__PUCK__value__4.kind == "Trait") {
+            (function () {
+              var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
+
+              var trait_ = _PUCK__value__4$valu[0];
+
+              _js._Object.assign(trait_.functions, _core.ObjectMapTrait.fromList(_core.Iterable['$List'].map.call(t.members, function (m) {
+                return [m.name.value[0].name, m.type_];
+              })));
+              var __PUCK__value__5 = t.type_._class;
+              if (__PUCK__value__5.kind == "Some") {
+                var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
+
+                var _class2 = _PUCK__value__5$valu[0];
+
+                _class2.instances.forEach(function (instance) {
+                  var __PUCK__value__6 = instance.kind;
+                  if (__PUCK__value__6.kind == "Trait") {
+                    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
+
+                    var instanceTrait = _PUCK__value__6$valu[0];
+
+                    return _js._Object.assign(instanceTrait, { functions: trait_.functions });
+                  } else {
+                    throw "instance is not a trait";
+                  };
+                });
+              };
+            })();
+          } else {
+            throw "is not a trait";
           };
           return self.scope = self.scope.parent;
         };
@@ -204,37 +275,98 @@ function TypeVisitor(context, file) {
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
       if (!t.type_) {
-        t.type_ = self.scope.defineType(t, true).type_;
+        var __PUCK__value__7 = t.bound;
+        var __PUCK__value__8 = void 0;
+        if (__PUCK__value__7.kind == "Some") {
+          var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
+
+          var typeBound = _PUCK__value__7$valu[0];
+
+          var __PUCK__value__9 = void 0;
+          if (typeBound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
+            __PUCK__value__9 = _entities.StructKind.Record({ properties: _core.ObjectMapTrait._new() });
+          } else {
+            var __PUCK__value__10 = void 0;
+            if (typeBound.kind == _ast2.SyntaxKind.TupleTypeBound) {
+              __PUCK__value__10 = _entities.StructKind.Tuple({ properties: [] });
+            };
+            __PUCK__value__9 = __PUCK__value__10;
+          };
+          __PUCK__value__8 = __PUCK__value__9;
+        } else {
+          __PUCK__value__8 = _entities.StructKind.Unit;
+        };
+        var structKind = __PUCK__value__8;
+        t.type_ = {
+          displayName: _core.None,
+          name: (0, _core.Some)(t.name.name),
+          kind: _entities.TypeKind.Struct({
+            implementations: [],
+            kind: structKind
+          }),
+          _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+          instance: _core.None
+        };
+        self.scope.defineType(t.type_, t, true);
         t.scope = (0, _scope.createScope)(context, file, self.scope);
         return self.postHoist.push(t);
       } else {
         if (!t.typeParametersAssigned) {
           self.scope = t.scope;
-          t.typeParameters.forEach(function (p) {
-            self.visitTypeParameter(p);
-            return t.type_.typeParameters.push(p.type_);
-          });
+          var __PUCK__value__11 = t.type_._class;
+          if (__PUCK__value__11.kind == "Some") {
+            (function () {
+              var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1);
+
+              var _class = _PUCK__value__11$val[0];
+
+              t.typeParameters.forEach(function (p) {
+                self.visitTypeParameter(p);
+                return _class.typeParameters.push(p.type_);
+              });
+            })();
+          };
           t.typeParametersAssigned = true;
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
-          var __PUCK__value__1 = t.bound;
-          if (__PUCK__value__1.kind == "Some") {
-            var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
+          var __PUCK__value__12 = t.bound;
+          if (__PUCK__value__12.kind == "Some") {
+            var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1);
 
-            var typeBound = _PUCK__value__1$valu[0];
+            var _typeBound = _PUCK__value__12$val[0];
 
-            self.visitTypeBound(typeBound);
-          };
-          if ((0, _entities.isObjectType)(t.type_)) {
-            _js._Object.assign(t.type_.properties, _core.ObjectMapTrait.fromList(t.bound.value[0].properties.map(function (p) {
-              return [p.name.name, p.typeBound.type_];
-            })));
-          } else {
-            if ((0, _entities.isTupleType)(t.type_)) {
-              t.type_.properties = t.bound.value[0].properties.map(function (p) {
-                return p.type_;
-              });
+            self.visitTypeBound(_typeBound);
+            var __PUCK__value__13 = t.type_.kind;
+            var __PUCK__value__14 = __PUCK__value__13;
+            if (__PUCK__value__14.kind == "Struct" && __PUCK__value__14.value[0].kind.kind == "Record") {
+              var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1);
+
+              var _PUCK__value__14$val$ = _slicedToArray(_PUCK__value__14$val[0].kind.value, 1);
+
+              var properties = _PUCK__value__14$val$[0].properties;
+
+              _js._Object.assign(properties, _core.ObjectMapTrait.fromList(_typeBound.properties.map(function (p) {
+                return [p.name.name, p.typeBound.type_];
+              })));
+            } else {
+              var __PUCK__value__15 = __PUCK__value__13;
+              if (__PUCK__value__15.kind == "Struct" && __PUCK__value__15.value[0].kind.kind == "Tuple") {
+                var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1);
+
+                var _PUCK__value__15$val$ = _slicedToArray(_PUCK__value__15$val[0].kind.value, 1);
+
+                var tuple = _PUCK__value__15$val$[0];
+
+                _js._Object.assign(tuple, { properties: _typeBound.properties.map(function (p) {
+                    return p.type_;
+                  }) });
+              } else {
+                var __PUCK__value__16 = __PUCK__value__13;
+                if (true) {
+                  var __PUCK__value__17 = __PUCK__value__16;
+                };
+              };
             };
           };
           return self.scope = self.scope.parent;

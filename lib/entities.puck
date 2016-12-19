@@ -4,6 +4,7 @@ import 'ast/ast.puck' as {
   Identifier
   Module
 }
+import 'typeck/src/range.puck' as {getRange}
 
 export type File {
   fileName: String
@@ -17,128 +18,175 @@ export type File {
   js: String
 }
 
+fn getFunctionTypeName(function: Function) {
+  getTupleTypeName(function.arguments.map(|a| a.type_)) + ' -> ' +
+    (function.returnType and function.returnType.displayName())
+}
+
+fn getTupleTypeName(properties: List<Type>) {
+  '(' + properties.map(|type_| type_.displayName()).join(', ') + ')'
+}
+
+fn getRecordTypeName(properties: ObjectMap<Type>) {
+  '{' + properties.toList().map(|(key, type_)| '$key: ' + type_.displayName()).join(', ') + '}'
+}
+
+fn getGenericName(name: String, type_: Type, showClassParameters = false) {
+  if let Option::Some(instance) = type_.instance {
+    name + '<' + instance.typeParameters.map(|p: Type| p.displayName()).join(', ') + '>'
+  }
+  else if showClassParameters
+    then if let Option::Some(class) = type_.class {
+      name + '<' + class.typeParameters.map(|p: Type| p.displayName()).join(', ') + '>'
+    }
+    else name
+  else name
+}
+
 export type Type {
-  kind: String
-  name: String
+  displayName: Option<String>
+  name: Option<String>
+  kind: TypeKind
+  class: Option<TypeClass>
+  instance: Option<TypeInstance>
 }
 
-/// A data type (the ones declared with the `type` keywords), like String or Num
-export type Struct { // + Type
+export trait TypeTrait {
+  fn displayName(self: Type) -> String {
+    if not self then return '??'
+    if let Option::Some(name) = self.displayName {
+      return name
+    }
+    match self.kind {
+      TypeKind::Enum(enum_) => getGenericName(self.name.unwrap(), self)
+      TypeKind::Function(function) => self.name.unwrapOrElse(|| getFunctionTypeName(function))
+      TypeKind::Parameter(_) => self.name.unwrap()
+      TypeKind::Struct(struct) => {
+        self.name
+          .mapOrElse(
+            || match struct.kind {
+              StructKind::Record({properties}) => getRecordTypeName(properties)
+              StructKind::Tuple({properties}) => getTupleTypeName(properties)
+              StructKind::Unit => 'unit'
+            }
+            |name| getGenericName(name, self))
+      }
+      TypeKind::Trait(_) => getGenericName(self.name.unwrap(), self, true)
+    }
+  }
+}
+impl TypeTrait for Type {}
+
+export enum TypeKind {
+  Enum(Enum)
+  Function(Function)
+  Parameter(TypeParameter)
+  Struct(Struct)
+  Trait(Trait)
+}
+
+export type Enum {
   implementations: List<Implementation>
-}
-
-export type Trait {
-  functions: ObjectMap<FunctionType>
-}
-
-export type Implementation {
-  type_: Struct
-  trait_: Trait
-}
-
-/// Represents a generic type like List<T>
-export type TypeClass { // + Type
-  parameterRange: Range
-  typeParameters: List<TypeParameter>
-  instances: List<TypeInstance>
-}
-
-/// Represents an instance of a generic type like List<String> or List<Num>
-export type TypeInstance { // + Type
-  class: TypeClass
-  typeParameters: List<Type>
-}
-export type TypeParameter { // + Type
-  defaultValue: Type
-}
-
-export type EnumType { // + Struct
   members: ObjectMap<Type>
 }
 
 /// Represents a function type (Num, Num) -> Bool
-export type FunctionType { // + Type
-  selfBinding: Binding //?
+export type Function {
+  selfBinding: Option<Binding>
   arguments: List<Binding>
   argumentRange: Range
   returnType: Type
   isAbstract: Bool
 }
 
-export type ObjectType { // + Struct
+/// A data type (the ones declared with the `type` keywords), like String or Num
+export type Struct {
+  implementations: List<Implementation>
+  kind: StructKind
+}
+
+export type Trait {
+  functions: ObjectMap<Function>
+}
+
+export enum StructKind {
+  Record(Record)
+  Tuple(Tuple)
+  Unit
+}
+
+export type Record {
   properties: ObjectMap<Type>
 }
 
-export type TupleType { // + Struct
+export type Tuple {
   properties: List<Type>
 }
 
-export type UnitType { // + Struct
-  isUnit: Bool
+export type Implementation {
+  type_: Type
+  trait_: Type
 }
 
-export type GenericFunction {}  // FunctionType + TypeClass
-export type GenericFunctionInstace {}  // FunctionType + TypeInstance
+/// Represents a generic type like List<T>
+export type TypeClass {
+  parameterRange: Range
+  typeParameters: List<Type>
+  instances: List<Type>
+}
+export trait TypeClassTrait {
+  fn fromAstNode(astNode, reportError) -> TypeClassTrait { // : {typeParameters: List<TypeParameter>}
+    if astNode.typeParameters and astNode.typeParameters.length {
+      let parameterRange = getRange(
+        astNode.typeParameters
+        |p: TypeParameter| p.defaultValue.isJust()
+        reportError
+        'type parameter'
+      )
+
+      Some({
+        parameterRange
+        typeParameters: []
+        instances: []
+      })
+    }
+    else None
+  }
+}
+
+/// Represents an instance of a generic type like List<String> or List<Num>
+export type TypeInstance {
+  class: Type
+  typeParameters: List<Type>
+  parameterMap: ObjectMap<Type>
+}
+export type TypeParameter {
+  defaultValue: Option<Type>
+}
 
 export type Binding {
   name: String
   token: Token
   mutable: Bool
-  type_: Type //?
+  type_: Type
   redefined: Bool
-  previous: Binding //?
+  previous: Option<Binding>
 }
 
 export type TypeBinding {
   name: String
-  type_: Type //?
+  type_: Type
 }
 
 export type Scope {
   getLocalBinding: (String) -> Binding
   // getBinding: (String, allowRedeclare = true) -> Binding
   getBinding: (String) -> Binding
-  getTypeBinding: (String) -> Binding
+  getTypeBinding: (String) -> TypeBinding
   define: (Binding, Bool) -> Binding
-  defineType: (String, Binding) -> Binding
+  defineType: (Type, Bool) -> TypeBinding
 }
 
 export type ScopeAware {
   scope: Scope
-}
-
-export fn isEnumType(type_) {
-  type_.members
-}
-
-export fn isFunctionType(type_) {
-  type_.arguments
-}
-
-export fn isObjectType(type_) {
-  typeof(type_.properties) == 'object' and not isTupleType(type_)
-}
-
-export fn isTupleType(type_) {
-  Array.isArray(type_.properties)
-}
-
-export fn isStruct(type_) {
-  type_.implementations
-}
-
-export fn isTrait(type_) {
-  type_.functions
-}
-
-export fn isTypeClass(type_: Type) {
-  type_.parameterRange
-}
-
-export fn isTypeInstance(type_: Type) {
-  type_.class
-}
-
-export fn isTypeParameter(type_: Type) {
-  type_.isTypeParameter
 }

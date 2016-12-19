@@ -1,26 +1,23 @@
 import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration, TypeParameter}
-import '../../entities.puck' as {FunctionType, Scope, TypeInstance}
+import '../../entities.puck' as {Binding, Function, Scope, Type, TypeKind, TypeTrait}
 import 'range.puck' as {checkRange, getRange}
 import 'types.puck' as {getType, isAssignable}
 
-export fn getFunctionTypeName(arguments: List<TypeInstance>, returnType: TypeInstance) {
-  getTupleTypeName(arguments) + ' => ' + (returnType and returnType.name or '??')
-}
-
-export fn getTupleTypeName(properties: List<TypeInstance>) {
-  '(' + properties.map(|a| (a and a.name) or '??').join(', ') + ')'
-}
-
-export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) {
-  let mut parameterRange
-  let mut instances
-  let mut typeParameters
-
-  if f.typeParameters and f.typeParameters.length {
-    parameterRange = getRange(f.typeParameters, |p: TypeParameter| p.defaultValue.isJust(), reportError, 'type parameter')
-    instances = []
-    typeParameters = f.typeParameters
-  }
+export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) -> Type {
+  let class =
+    if f.typeParameters and f.typeParameters.length {
+      Some({
+        parameterRange: getRange(
+          f.typeParameters
+          |p: TypeParameter| p.defaultValue.isJust()
+          reportError
+          'type parameter'
+        )
+        instances: []
+        typeParameters: f.typeParameters
+      })
+    }
+    else None
 
   let arguments = f.parameterList.map(|p| {{
     pattern: p.pattern
@@ -29,48 +26,52 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
     token: p
   }})
   let returnType = if let Option::Some(returnType) = f.returnType then getType(scope, returnType)
-  let selfBinding =
+  let selfBinding: Option<Binding> =
     if arguments.length > 0 and arguments[0].pattern.kind == 'Identifier' and arguments[0].pattern.value[0].name == 'self'
-      then arguments[0].pattern.binding
+      then Some(arguments[0].pattern.binding)
+      else None
   let arguments =
-    if selfBinding
+    if selfBinding.isJust()
       then arguments.slice(1)
       else arguments
 
   {
-    kind: 'Function'
-    name: f.name.mapOrElse(|| getFunctionTypeName(arguments, returnType), |ident| ident.name)
-    parameterRange
-    selfBinding
-    arguments
-    argumentRange: if f.parameterList
-      then getRange(
-        arguments
-        |p| {
-          let vd: VariableDeclaration = p.token
-          vd.initializer.isJust()
-        }
-        reportError
-        'parameter'
-      )
-      else {{start: 0, end: 1}}
-    returnType
-    isAbstract: not f.body
+    displayName: None
+    name: f.name.map(|ident| ident.name)
+    kind: TypeKind::Function({
+      selfBinding
+      arguments
+      argumentRange: if f.parameterList
+        then getRange(
+          arguments
+          |p| {
+            let vd: VariableDeclaration = p.token
+            vd.initializer.isJust()
+          }
+          reportError
+          'parameter'
+        )
+        else {{start: 0, end: 1}}
+      returnType
+      isAbstract: not f.body
+    })
+    class
+    instance: None
   }
 }
 
-export fn checkFunctionAssignability(to: FunctionType, subject: FunctionType) -> Result<(), String> {
-  if let Result::Err(error) = checkRange(subject.arguments, to.argumentRange, 'arguments', subject.name)
+export fn checkFunctionAssignability(functionName: String, to: Function, subject: Function) -> Result<(), String> {
+  if let Result::Err(error) = checkRange(subject.arguments, to.argumentRange, 'arguments', functionName)
     then return Err(error)
 
   let mut errors = []
-  subject.arguments.forEach(|subjectArgument, i| {
-    let toArgument = to.arguments[i]
+  subject.arguments.forEach(|subjectArgument: Binding, i| {
+    let toArgument: Binding = to.arguments[i]
 
     if not isAssignable(toArgument.type_, subjectArgument.type_)
       then errors.push(
-        'Types of parameter #$i does not match. ' + subjectArgument.type_.name +
-        ' is not assignable to ' + toArgument.type_.name
+        'Types of parameter #$i does not match. ' + subjectArgument.type_.displayName() +
+        ' is not assignable to ' + toArgument.type_.displayName()
       )
     else if subjectArgument.mutable and not toArgument.mutable
       then errors.push('Parameter #$i is required to be immutable')
@@ -78,7 +79,8 @@ export fn checkFunctionAssignability(to: FunctionType, subject: FunctionType) ->
   if errors.length > 0
     then return Err(errors[0])
 
+
   if not isAssignable(to.returnType, subject.returnType)
-    then Err('Return type ' + subject.returnType.name + ' is not assignable to ' + to.returnType.name)
+    then Err('Return type ' + subject.returnType.displayName() + ' is not assignable to ' + to.returnType.displayName())
     else Ok(())
 }

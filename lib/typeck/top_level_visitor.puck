@@ -39,6 +39,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
+import '../entities.puck' as {StructKind, TypeKind, TypeClassTrait}
 import 'src/scope.puck' as {createScope}
 
 /// Visits and declares top level bindings
@@ -48,12 +49,22 @@ import 'src/scope.puck' as {createScope}
 export fn TopLevelVisitor(context, file) {
   let mut scope = createScope(context, file)
   let mut variableDeclaration: Option<VariableDeclaration> = None
+  let reportError = context.reportError.bind(context, file)
 
   Object.assign({}, visit.emptyVisitor, {
 
     visitBlock: |self, b: Block| {}
     visitEnumDeclaration: |self, t: EnumDeclaration| {
-      scope.defineType(t)
+      scope.defineType({
+        displayName: None
+        name: Some(t.name.name)
+        kind: TypeKind::Enum({
+          implementations: []
+          members: []
+        })
+        class: TypeClassTrait.fromAstNode(t, reportError)
+        instance: None
+      }, t)
     }
     visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
       if let Option::Some(name) = f.name then
@@ -73,10 +84,36 @@ export fn TopLevelVisitor(context, file) {
       i.members.forEach(|m| scope.define({name: m.local.name, mutable: false, token: m}, true))
     }
     visitTraitDeclaration: |self, t: TraitDeclaration| {
-      scope.defineType(t)
+      scope.defineType({
+        displayName: None
+        name: Some(t.name.name)
+        kind: TypeKind::Trait({
+          functions: ObjectMapTrait.new()
+        })
+        class: TypeClassTrait.fromAstNode(t, reportError)
+        instance: None
+      }, t)
     }
     visitTypeDeclaration: |self, t: TypeDeclaration| {
-      scope.defineType(t)
+      let structKind =
+        if let Option::Some(typeBound) = t.bound {
+          if typeBound.kind == SyntaxKind.ObjectTypeBound
+            then StructKind::Record({properties: ObjectMapTrait.new()})
+          else if typeBound.kind == SyntaxKind.TupleTypeBound
+            then StructKind::Tuple({properties: []})
+        }
+        else StructKind::Unit
+
+      scope.defineType({
+        displayName: None
+        name: Some(t.name.name)
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: structKind
+        })
+        class: TypeClassTrait.fromAstNode(t, reportError)
+        instance: None
+      }, t)
     }
     visitVariableDeclaration: |self, d: VariableDeclaration| {
       variableDeclaration = Some(d)

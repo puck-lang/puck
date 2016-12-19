@@ -9,6 +9,8 @@ exports.TupleLiteral = exports.StringLiteral = exports.StringLiteralPart = expor
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var _entities = require('./../entities.js');
+
 var SyntaxKind = exports.SyntaxKind = function SyntaxKind(object) {
   return object;
 };

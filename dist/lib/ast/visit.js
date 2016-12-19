@@ -536,7 +536,6 @@ function walkTypeBound(visitor, t) {
         if (t.kind == _ast2.SyntaxKind.TupleTypeBound) {
           return visitor.visitTupleTypeBound(t);
         } else {
-          (0, _core.print)("Unknown typebound " + _ast2.SyntaxKind[t.kind], t);
           throw Error("Unknown typebound " + _ast2.SyntaxKind[t.kind]);
         };
       };

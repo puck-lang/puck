@@ -52,6 +52,7 @@ import {
   textToToken,
   tokenToText,
 } from './ast'
+import {TypeTrait} from '../entities'
 import {isTypeScopeDeclaration} from '../helpers'
 
 const jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
@@ -133,8 +134,12 @@ export function Emitter() {
   }
 
   function getTypeProp(type) {
-    if (type._class && type.typeParameters.some(p => p.isTypeParameter)) {
+    if (type._class && type.typeParameters && type.typeParameters.some(p => p.isTypeParameter)) {
       type = type._class
+    }
+
+    if (type && type.name && type.name.kind) {
+      return `'$${TypeTrait.displayName.call(type)}'`
     }
 
     return `'$${type.name}'`
@@ -355,7 +360,7 @@ export function Emitter() {
   }
 
   function emitImplDeclaration(i: ImplDeclaration) {
-    let functions = Object['assign']({}, i.trait_.type_.functions)
+    let functions = Object['assign']({}, i.trait_.type_.functions || i.trait_.type_.kind.value[0].functions)
     i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m))
     return `${i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)}[${getTypeProp(i.type_.type_)}] = {\n${
       indent(

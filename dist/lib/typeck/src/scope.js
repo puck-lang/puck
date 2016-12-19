@@ -5,9 +5,6 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
 exports.createScope = createScope;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -22,13 +19,8 @@ var _ast2 = require('./../../compiler/ast.js');
 
 var _entities = require('./../../entities.js');
 
-var _range = require('./range.js');
-
 var _types = require('./types.js');
 
-function any(a) {
-  return a;
-};
 function createScope(context, file) {
   var parent = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
@@ -101,83 +93,21 @@ function createScope(context, file) {
       };
       return bindings[name] = binding;
     },
-    defineType: function defineType(t) {
-      var allowRedeclare = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+    defineType: function defineType(type_, token) {
+      var allowRedeclare = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
       var self = this;
-      var name = t.name.name;
+      var name = _core.MaybeTrait['$Option'].unwrap.call(type_.name);
       if (!allowRedeclare && typeBindings[name]) {
-        reportError(t, "Type " + name + " is already defined");
+        reportError(token, "Type " + name + " is already defined");
       };
-      var __PUCK__value__1 = void 0;
-      if (t.typeParameters && t.typeParameters.length) {
-        __PUCK__value__1 = (0, _range.getRange)(t.typeParameters, function (p) {
-          return _core.MaybeTrait['$Option'].isJust.call(p.defaultValue);
-        }, reportError, "type parameter");
-      };
-      var parameterRange = __PUCK__value__1;
-      var __PUCK__value__2 = void 0;
-      if (t.type_) {
-        __PUCK__value__2 = t.type_;
-      } else {
-        var _type_ = {
-          kind: name,
-          name: name,
-          parameterRange: parameterRange
-        };
-        if (t.kind == _ast2.SyntaxKind.EnumDeclaration) {
-          _type_.implementations = [];
-          _type_.members = {};
-        } else {
-          if (t.kind == _ast2.SyntaxKind.TraitDeclaration) {
-            _type_.functions = {};
-          } else {
-            if (t.kind == _ast2.SyntaxKind.TypeDeclaration) {
-              _type_.implementations = [];
-              var __PUCK__value__3 = t.bound;
-              if (__PUCK__value__3.kind == "Some") {
-                var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
-
-                var typeBound = _PUCK__value__3$valu[0];
-
-                if (typeBound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
-                  _type_.properties = _js._Object.create(_js._null);
-                } else {
-                  if (typeBound.kind == _ast2.SyntaxKind.TupleTypeBound) {
-                    _type_.properties = [];
-                  };
-                };
-              };
-            } else {
-              if (t.kind == _ast2.SyntaxKind.TypeParameter) {
-                _type_.isTypeParameter = true;
-                var p = any(t);
-                var __PUCK__value__4 = p.defaultValue;
-                if (__PUCK__value__4.kind == "Some") {
-                  var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
-
-                  var defaultValue = _PUCK__value__4$valu[0];
-
-                  _type_.defaultValue = (0, _types.getType)(self, defaultValue);
-                };
-              };
-            };
-          };
-        };
-        if ((0, _entities.isTypeClass)(_type_)) {
-          _type_.instances = [];
-          _type_.typeParameters = [];
-        };
-        __PUCK__value__2 = _type_;
-      };
-      var type_ = __PUCK__value__2;
       if (allowRedeclare && typeBindings[name]) {
         _js._Object.assign(typeBindings[name].type_, type_);
         return typeBindings[name];
       } else {
         return typeBindings[name] = {
           name: name,
-          token: t,
+          token: token,
           type_: type_
         };
       };

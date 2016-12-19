@@ -1,4 +1,3 @@
-import 'node:util' as {inspect}
 import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
   Expression
@@ -53,11 +52,71 @@ import 'src/types.puck' as {
 }
 import '../entities.puck' as {
   Binding
-  FunctionType
+  Implementation
+  Trait
+  Type
   TypeInstance
-  isStruct
-  isTrait
-  isTypeInstance
+  TypeKind
+  TypeTrait
+}
+
+fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, i, reportError) {
+  let traitName = traitType.displayName()
+
+  if implementable.implementations.some(|imp| imp.trait_ == traitType)
+    then reportError(i, '$traitName has already been implemented for ' + type_.displayName())
+
+  let functions = i.members.reduce(|mut functions, member| {
+    let memberType: Type = member.type_
+    functions[memberType.name.unwrap()] = member.type_
+    functions
+  }, {})
+
+  let traitFunctions = trait_.functions
+
+  Object.keys(traitFunctions).forEach(|name| {
+    let traitFunctionType: Type = traitFunctions[name]
+    let traitFunction = match traitFunctionType.kind {
+      TypeKind::Function(func) => func
+      _ => throw 'trait function is not a function'
+    }
+    if traitFunction.isAbstract and not functions[name]
+      then reportError(i, 'Function $traitName::$name is not implemented for ' + type_.displayName())
+  }, {})
+
+  i.members.forEach(|functionDeclaration: FunctionDeclaration| {
+    let functionName = functionDeclaration.type_.displayName()
+    let function = match functionDeclaration.type_.kind {
+      TypeKind::Function(func) => func
+      _ => throw 'impl function is not a function'
+    }
+    let traitFunctionType: Type = traitFunctions[functionDeclaration.type_.name.unwrap()]
+    if not traitFunctionType
+      then reportError(i, 'Function $functionName is not defined by $traitName')
+    let traitFunctionName = traitFunctionType.displayName()
+    let traitFunction = match traitFunctionType.kind {
+      TypeKind::Function(func) => func
+      _ => throw 'trait function is not a function'
+    }
+
+    if let Option::Some(implSelf) = function.selfBinding {
+      if let Option::Some(traitSelf) = traitFunction.selfBinding {
+        if implSelf.mutable and not traitSelf.mutable
+          then reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires an immutable self parameter')
+      }
+      else reportError(function, 'Function $traitName::$traitFunctionName is static')
+    }
+    else if let Option::Some(_) = traitFunction.selfBinding
+      then reportError(function, 'Function $traitName::$traitFunctionName requires a self parameter')
+
+    if let Result::Err(error) = checkFunctionAssignability(functionName, traitFunction, function)
+      then reportError(function, error)
+  })
+
+  implementable.implementations.push({
+    type_: type_
+    trait_: traitType
+  })
 }
 
 export fn ImplVisitor(context, file) {
@@ -72,58 +131,17 @@ export fn ImplVisitor(context, file) {
       i.scope = self.scope
       visit.walkImplDeclaration(self, i)
 
-      let _trait = i.trait_.type_
-      let struct = i.type_.type_
+      let traitType: Type = i.trait_.type_
+      let structType: Type = i.type_.type_
 
-      if not isTrait(_trait)
-        then reportError(i.trait_, _trait.name + ' is not a trait')
-      if not isStruct(struct)
-        then reportError(i.type_, struct.name + ' is not a type')
-
-      let struct =
-        if isTypeInstance(struct) and struct.typeParameters.some(|p| p.isTypeParameter)
-          then struct.class
-          else struct
-
-      if struct.implementations.some(|imp| isSameType(imp.trait_, _trait))
-        then reportError(i, _trait.name + ' has already been implemented for ' + struct.name)
-
-      let functions = i.members.reduce(|mut functions, member| {
-        functions[member.type_.name] = member.type_
-        functions
-      }, {})
-
-      let traitName = _trait.name
-      let traitFunctions = _trait.functions
-
-      Object.keys(traitFunctions).forEach(|name| {
-        if traitFunctions[name].isAbstract and not functions[name]
-          then reportError(i, 'Function ' + traitName + '::' + name + ' is not implemented for ' + struct.name)
-      }, {})
-
-      i.members.forEach(|function| {
-        let traitFunction = traitFunctions[function.type_.name]
-        if not traitFunction
-          then reportError(i, 'Function ' + function.type_.name + ' is not defined by ' + i.trait_.type_.name)
-
-        if function.type_.selfBinding and not traitFunction.selfBinding
-          then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' is static')
-
-        if not function.type_.selfBinding and traitFunction.selfBinding
-          then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' requires a self parameter')
-
-        if function.type_.selfBinding and traitFunction.selfBinding
-          then if function.type_.selfBinding.mutable and not traitFunction.selfBinding.mutable
-            then reportError(function, 'Function ' + traitName + '::' + traitFunction.name + ' requires an immutable self parameter')
-
-        if let Result::Err(error) = checkFunctionAssignability(traitFunction, function.type_)
-          then reportError(function, error)
-      })
-
-      struct.implementations.push({
-        type_: struct
-        trait_: _trait
-      })
+      if let TypeKind::Trait(trait_) = traitType.kind {
+        match structType.kind {
+          TypeKind::Enum(enum_) => implementTrait(traitType, trait_, structType, enum_, i, reportError)
+          TypeKind::Struct(struct) => implementTrait(traitType, trait_, structType, struct, i, reportError)
+          _ => reportError(i.type_, structType.displayName() + ' is not a struct or an enum')
+        }
+      }
+      else reportError(i.trait_, traitType.displayName() + ' is not a trait')
 
       self.scope = self.scope.parent
     }

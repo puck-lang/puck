@@ -295,7 +295,6 @@ export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
   else if t.kind == SyntaxKind.TupleTypeBound
     then visitor.visitTupleTypeBound(t)
   else {
-    print('Unknown typebound ' + SyntaxKind[t.kind], t)
     throw Error('Unknown typebound ' + SyntaxKind[t.kind])
   }
 }

@@ -25,21 +25,19 @@ import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
   Scope
-  TypeInstance
-  isEnumType
-  isFunctionType
-  isObjectType
-  isStruct
-  isTupleType
-  isTypeClass
-  isTypeParameter
+  StructKind
+  Type
+  TypeClassTrait
+  TypeKind
+  TypeTrait
 }
-import 'functions.puck' as {createFunctionType, getTupleTypeName}
+import 'enums.puck' as {getEnumMember}
+import 'functions.puck' as {createFunctionType}
 import 'range.puck' as {checkRange}
-import 'types.puck' as {createTypeInstanceTypeCast, getType, isAssignable}
+import 'types.puck' as {createTypeInstance, getType, isAssignable}
 
-export fn notAssignableError(to: TypeInstance, subject: TypeInstance) {
-  subject.name + ' is not assignable to type ' + to.name
+export fn notAssignableError(to: Type, subject: Type) {
+  subject.displayName() + ' is not assignable to type ' + to.displayName()
 }
 
 export let structureVisitor = {
@@ -50,13 +48,15 @@ export let structureVisitor = {
       f.scope = self.scope
 
       let assignedTo =
-        if self.assignedTo then self.assignedTo.type_
+        if self.assignedTo and self.assignedTo.type_ then
+          if let TypeKind::Function(func) = self.assignedTo.type_.kind
+            then func
 
       if f.typeParameters
         then f.typeParameters.forEach(self.visitTypeParameter.bind(self))
       f.parameterList.forEach(|p, i| {
         let type_ =
-          if assignedTo then assignedTo.arguments[i].type_
+          if assignedTo and assignedTo.arguments[i] then assignedTo.arguments[i].type_
         self.visitFunctionParameter(p, type_)
       })
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
@@ -92,19 +92,23 @@ export let structureVisitor = {
       t.scope = self.scope
 
       self.visitTypePath(t.path)
-      if isTypeClass(t.path.type_) {
-        if let Result::Err(error) = checkRange(t.typeParameters, t.path.type_.parameterRange, 'type parameters', t.path.type_.name)
-        then self.reportError(t, error)
+      let type_: Type = t.path.type_
+
+      if let Option::Some(class) = type_.class {
+        if let Result::Err(error) =
+          checkRange(t.typeParameters, class.parameterRange, 'type parameters', type_.displayName()) {
+          self.reportError(t, error)
+        }
       }
       else if t.typeParameters.length > 0
-        then self.reportError(t, 'Type ' + t.path.type_.name + ' is not generic')
+        then self.reportError(t, 'Type ' + type_.displayName() + ' is not generic')
 
       visit.walkNamedTypeBound(self, t)
 
       t.type_ =
-        if isTypeClass(t.path.type_)
-          then createTypeInstanceTypeCast(t.path.type_, t.typeParameters.map(|p| p.type_))
-          else t.path.type_
+        if let Option::Some(_) = type_.class
+          then createTypeInstance(type_, t.typeParameters.map(|p| p.type_))
+          else type_
     }
   }
   visitObjectTypeBound: |self, mut t: ObjectTypeBound| {
@@ -129,8 +133,16 @@ export let structureVisitor = {
     if not t.scope {
       t.scope = self.scope
       visit.walkTypeParameter(self, t)
-      let binding = self.scope.defineType(t)
-      t.type_ = binding.type_
+      t.type_ = {
+        displayName: None
+        name: Some(t.name.name)
+        kind: TypeKind::Parameter({
+          defaultValue: t.defaultValue.map(|typeBound| getType(t.scope, typeBound))
+        })
+        class: TypeClassTrait.fromAstNode(t, self.reportError)
+        instance: None
+      }
+      self.scope.defineType(t.type_, t)
     }
   }
   visitTypePath: |self, mut t: TypePath| {
@@ -150,15 +162,13 @@ export let structureVisitor = {
       getType(d.scope, bound) or type_
     })
 
+    let mut patternType = None
+
     match declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive) {
       Result::Ok(patternTy) => {
-        if patternTy {
-          if not d.type_ {
-            d.type_ = patternTy
-          }
-          else if not isAssignable(patternTy, d.type_)
-            then self.reportError(d, notAssignableError(patternTy, d.type_))
-        }
+        patternType = Some(patternTy)
+        if not isAssignable(patternTy, d.type_)
+          then self.reportError(d, notAssignableError(patternTy, d.type_))
       }
       Result::Err(PatternError::PatternMismatch(_, to, subject)) =>
         self.reportError(d, notAssignableError(to, subject))
@@ -174,6 +184,11 @@ export let structureVisitor = {
       }
       else if not isAssignable(d.type_, initializer.type_)
         then self.reportError(d, notAssignableError(d.type_, initializer.type_))
+      else if let Option::Some(patternTy) = patternType {
+        let patternTy: Type = patternTy
+        if not isAssignable(patternTy, initializer.type_)
+          then self.reportError(d, notAssignableError(patternTy, initializer.type_))
+      }
     }
   }
 
@@ -216,12 +231,12 @@ export let structureVisitor = {
 }
 
 enum PatternError {
-  PatternMismatch(Pattern, TypeInstance, TypeInstance)
+  PatternMismatch(Pattern, Type, Type)
   NotExhaustive
 }
 
-export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_, allowNotExhaustive: Bool) ->
-    Result<TypeInstance, PatternError> {
+export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool) ->
+    Result<Type, PatternError> {
   match p {
     Pattern::CatchAll => Ok(false)
     Pattern::Identifier => {
@@ -234,9 +249,23 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
       Ok(false)
     }
     Pattern::Record(record) => {
-      let properties: Result<List<TypeInstance>, PatternError> = record.properties
-        .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, type_ and type_.properties[p.property.name], allowNotExhaustive))
-        .reduce(|acc: Result<List<TypeInstance>, PatternError>, cur: Result<TypeInstance, PatternError>| {
+      let props =
+        if type_
+          then match type_.kind {
+            TypeKind::Struct(struct) => match struct.kind {
+              StructKind::Record(record) => record.properties
+              _ => throw 'bad type'
+            }
+            TypeKind::Parameter => {{}}
+            _ => {
+              throw 'abd type'
+            }
+          }
+          else ObjectMapTrait.new()
+
+      let properties: Result<ObjectMap<Type>, PatternError> = record.properties
+        .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive))
+        .reduce(|acc: Result<ObjectMap<Type>, PatternError>, cur: Result<Type, PatternError>| {
           acc.andThen(|props| cur.map(|prop| props.concat(prop)))
         }, Ok([]))
 
@@ -245,84 +274,144 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
     Pattern::RecordType(typePath, record) => {
       visitor.visitTypePath(typePath)
 
-      let recordType =
-        if type_ and (isStruct(type_) or isEnumType(type_))
+      let recordType: Type =
+        if type_
           then type_
           else typePath.type_
-      let recordType =
-        if isEnumType(recordType) {
-          let member = typePath.value[1].value[0].name
-          let enumArmType = recordType.members[member]
+      let recordType: Type = match recordType.kind {
+        TypeKind::Enum(enum_) => {
+          let member = getEnumMember(typePath)
+          let enumArmType = enum_.members[member]
           enumArmType
         }
-        else recordType
+        _ => recordType
+      }
+      let props = match recordType.kind {
+        TypeKind::Struct(struct) => match struct.kind {
+          StructKind::Record(record) => record.properties
+          _ => throw 'bad type'
+        }
+        TypeKind::Parameter => {{}}
+        _ => {
+          throw 'abd type'
+        }
+      }
 
-      let properties: Result<List<TypeInstance>, PatternError> = record.properties
-        .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, recordType and recordType.properties[p.property.name], allowNotExhaustive))
-        .reduce(|acc: Result<List<TypeInstance>, PatternError>, cur: Result<TypeInstance, PatternError>| {
+      let properties: Result<ObjectMap<Type>, PatternError> = record.properties
+        .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive))
+        .reduce(|acc: Result<ObjectMap<Type>, PatternError>, cur: Result<Type, PatternError>| {
           acc.andThen(|props| cur.map(|prop| props.concat(prop)))
         }, Ok([]))
 
       properties.map(|_| p.value[0].type_)
     }
     Pattern::Tuple(tuple) => {
-      let properties: Result<List<TypeInstance>, PatternError> = tuple.properties
-        .map(|mut p, i| declarePatternVariables(scope, visitor, p, mutable, type_ and type_.properties and type_.properties[i], allowNotExhaustive))
-        .reduce(|acc: Result<List<TypeInstance>, PatternError>, cur: Result<TypeInstance, PatternError>| {
+      let props =
+        if type_
+          then match type_.kind {
+            TypeKind::Struct(struct) => {
+              match struct.kind {
+                StructKind::Tuple(tuple) => tuple.properties
+                _ => throw 'bad type t'
+              }
+            }
+            TypeKind::Parameter => []
+            _ => {
+              throw 'abd type t'
+            }
+          }
+          else []
+
+      let properties: Result<List<Type>, PatternError> = tuple.properties
+        .enumerate()
+        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
+        .reduce(|acc: Result<List<Type>, PatternError>, cur: Result<Type, PatternError>| {
           acc.andThen(|props| cur.map(|prop| props.concat(prop)))
         }, Ok([]))
 
       properties.map(|properties| {{
-        kind: 'Tuple'
-        name: getTupleTypeName(properties)
-        properties
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Tuple({
+            properties
+          })
+        })
+        class: None
+        instance: None
       }})
     }
     Pattern::TupleType(typePath, tuple) => {
       visitor.visitTypePath(typePath)
 
-      let tupleType =
-        if type_ and (isTupleType(type_) or isEnumType(type_))
+      let tupleType: Type =
+        if type_
           then type_
           else typePath.type_
 
-      let tupleType =
-        if isEnumType(tupleType) {
-          let member = typePath.value[1].value[0].name
-          let enumArmType = tupleType.members[member]
+      let typePathType: Type =
+        if isAssignable(typePath.type_, tupleType)
+          then tupleType
+          else typePath.type_
+
+      let tupleType: Type = match typePathType.kind {
+        TypeKind::Enum(enum_) => {
+          let member = getEnumMember(typePath)
+          let enumArmType = enum_.members[member]
           enumArmType
         }
-        else tupleType
+        _ => tupleType
+      }
+      let props = match tupleType.kind {
+        TypeKind::Struct(struct) => {
+          match struct.kind {
+            StructKind::Tuple(tuple) => tuple.properties
+            _ => throw 'bad type t'
+          }
+        }
+        TypeKind::Parameter => []
+        _ => {
+          throw 'abd type t'
+        }
+      }
 
-      let properties: Result<List<TypeInstance>, PatternError> = tuple.properties
-        .map(|mut p, i| declarePatternVariables(scope, visitor, p, mutable, tupleType and tupleType.properties[i], allowNotExhaustive))
-        .reduce(|acc: Result<List<TypeInstance>, PatternError>, cur: Result<TypeInstance, PatternError>| {
+      let properties: Result<List<Type>, PatternError> = tuple.properties
+        .enumerate()
+        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
+        .reduce(|acc: Result<List<Type>, PatternError>, cur: Result<Type, PatternError>| {
           acc.andThen(|props| cur.map(|prop| props.concat(prop)))
         }, Ok([]))
 
       properties.andThen(|properties| {
         let type_ = {
-          kind: 'Tuple'
-          name: getTupleTypeName(properties)
-          properties
-        }
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Tuple({
+            properties
+          })
+        })
+        class: None
+        instance: None
+      }
 
-        if isEnumType(typePath.type_) {
-          let enumType = typePath.type_
+        if let TypeKind::Enum(enumType) = typePath.type_.kind {
           if not allowNotExhaustive and Object.keys(enumType.members).length > 1
             then Err(PatternError::NotExhaustive)
             else {
-              let member = typePath.value[1].value[0].name
-              let enumArmType = typePath.type_.members[member]
+              let member = getEnumMember(typePath)
+              let enumArmType = enumType.members[member]
 
               if isAssignable(enumArmType, type_)
-                then Ok(enumType)
+                then Ok(typePath.type_)
                 else Err(PatternError::PatternMismatch(p, enumArmType, type_))
             }
         } else {
           if isAssignable(typePath.type_, type_)
             then Ok(typePath.type_)
-            else Err(PatternError::PatternMismatch(p,typePath.type_, type_))
+            else Err(PatternError::PatternMismatch(p, typePath.type_, type_))
         }
       })
     }

@@ -1,5 +1,5 @@
-import 'node:util' as {inspect}
 import 'puck:js' as {Object, undefined}
+import 'node:util' as {inspect}
 import '../ast/ast.puck' as {
   Expression
 
@@ -50,27 +50,25 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import 'src/functions.puck' as {getTupleTypeName}
+import 'src/enums.puck' as {checkExhaustive}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {declarePatternVariables, notAssignableError, structureVisitor}
 import 'src/types.puck' as {createTypeInstance, getType, isAssignable, isSameType, resolveTypeParameters}
 import '../entities.puck' as {
   Binding
-  EnumType
-  FunctionType
+  Function
+  Implementation
   Scope
   Struct
+  StructKind
+  Type
   TypeInstance
-  isEnumType
-  isObjectType
-  isStruct
-  isTrait
-  isTupleType
-  isTypeClass
-  isTypeInstance
-  isTypeParameter
+  TypeKind
+  TypeTrait
 }
+
+fn asType(a) -> Type {a}
 
 export fn ScopeVisitor(context, file) {
   let mut importDirective: ImportDirective
@@ -86,49 +84,63 @@ export fn ScopeVisitor(context, file) {
       then getBinding(token.object)
   }
 
-  fn checkFunctionCall(function: FunctionType, c: CallExpression) {
-    if not function then return undefined
-    let name = c.func.name or function.name
+  fn checkFunctionCall(functionType: Type, c: CallExpression) {
+    if not functionType then return undefined
+    let name = c.func.name or None
+    let iName: Option<String> = if not name.kind
+      then Some(name)
+      else name
+    let name = iName.unwrapOrElse(|| functionType.displayName())
 
-    if not function.arguments
-      then reportError(c, '$name is not callable')
+    let function = match functionType.kind {
+      TypeKind::Function(func) => func
+      _ => reportError(c, '$name is not callable')
+    }
 
-    if function.selfBinding and function.selfBinding.mutable {
-      let binding = getBinding(c.func)
-      if binding and not binding.mutable
-        then reportError(c, '$name can only be called on a mutable binding')
+    if let Option::Some(selfBinding) = function.selfBinding {
+      if selfBinding.mutable {
+        let binding = getBinding(c.func)
+        if binding and not binding.mutable
+          then reportError(c, '$name can only be called on a mutable binding')
+      }
     }
 
     if let Result::Err(error) = checkRange(c.argumentList, function.argumentRange, 'arguments', name)
       then reportError(c, error)
 
     let function =
-      if isTypeClass(function) {
+      if let Option::Some(class) = functionType.class {
         let mut parameterMap = ObjectMapTrait.new()
 
-        function.arguments.forEach(|parameter, i| {
-          let argument =
+        function.arguments.forEach(|parameter: Binding, i| {
+          let argument: VariableDeclaration =
             if i < c.argumentList.length
               then c.argumentList[i]
               else parameter
 
-          if parameter.type_ and argument.type_ and
-             isTypeParameter(parameter.type_) and not isTypeParameter(argument.type_) {
-            if parameterMap[parameter.type_.name] {
-              let existingMapping = parameterMap[parameter.type_.name]
-              if not isAssignable(existingMapping, argument.type_) {
-                if isAssignable(argument.type_, existingMapping) {
-                  parameterMap[parameter.type_.name] = argument.type_
+          if parameter.type_ and argument.type_ {
+            if let TypeKind::Parameter = parameter.type_.kind {
+              if parameterMap[parameter.type_.name.unwrap()] {
+                let existingMapping = parameterMap[parameter.type_.name.unwrap()]
+                if not isAssignable(existingMapping, argument.type_) {
+                  if isAssignable(argument.type_, existingMapping) {
+                    parameterMap[parameter.type_.name.unwrap()] = argument.type_
+                  }
+                  else reportError(argument, notAssignableError(existingMapping, argument.type_))
                 }
-                else reportError(argument, notAssignableError(existingMapping, argument.type_))
               }
-            }
-            else {
-              parameterMap[parameter.type_.name] = argument.type_
+              else {
+                parameterMap[parameter.type_.name.unwrap()] = argument.type_
+              }
             }
           }
         })
-        resolveTypeParameters(parameterMap)(function)
+        let resolvedFunction: Type = resolveTypeParameters(parameterMap)(functionType)
+
+        match resolvedFunction.kind {
+          TypeKind::Function(func) => func
+          _ => throw 'resolved function is not a function'
+        }
       }
       else function
 
@@ -155,34 +167,7 @@ export fn ScopeVisitor(context, file) {
       }
     })
 
-    return function
-  }
-
-  fn checkFunctionAssignability(to: FunctionType, subject: FunctionType, token) {
-    checkRange(subject.arguments, to.argumentRange, reportError, 'arguments', subject.name, token)
-
-    subject.arguments.forEach(|subjectArgument, i| {
-      let toArgument = to.arguments[i]
-
-      if not isAssignable(toArgument.type_, subjectArgument.type_)
-        then reportError(
-          token
-          'Types of parameter #$i does not match. ' + subjectArgument.type_.name +
-          ' is not assignable to ' + toArgument.type_.name
-        )
-
-      if subjectArgument.mutable and not toArgument.mutable
-        then reportError(
-          token
-          'Parameter #$i is required to be immutable'
-        )
-    })
-
-    if not isAssignable(to.returnType, subject.returnType)
-      then reportError(
-        token
-        'Return type ' + subject.returnType.name + ' is not assignable to ' + to.returnType.name
-      )
+    function
   }
 
   fn defineHoisted(expressions, visitor) {
@@ -296,45 +281,76 @@ export fn ScopeVisitor(context, file) {
 
       if e.func.kind == SyntaxKind.MemberAccess and e.func.object.type_ {
         let name = e.func.member.name
-        let objectType = e.func.object.type_
-        let isDirectTraitCall = isTrait(objectType)
+        let objectType: Type = e.func.object.type_
 
-        if isTrait(objectType) {
-          functionType = objectType.functions[name]
+        if let TypeKind::Trait(trait_) = objectType.kind {
+          functionType = trait_.functions[name]
 
           if not functionType
-            then reportError(e, objectType.name + ' has no function named $name')
+            then reportError(e, objectType.displayName() + ' has no function named $name')
 
           if functionType.selfBinding
             then throw 'direct trait calls for functions with self bindings are not implemented'
         }
-        else if isStruct(objectType) {
-          fn getImplementations(type_: Struct) {
-            let implementations = type_.implementations
-              .filter(|i| i.trait_.functions[name])
+        else {
+          fn getFunction(type_: Type) -> Function {
+            match type_.kind {
+              TypeKind::Function(func_) => func_
+              _ => throw 'Type is not a function'
+            }
+          }
+          fn getTrait(type_: Type) {
+            match type_.kind {
+              TypeKind::Trait(trait_) => trait_
+              _ => throw 'Type is not a trait'
+            }
+          }
+          fn getImplementations(type_: Type) {
+            let implementations =  match type_.kind {
+              TypeKind::Enum(enum_) => enum_.implementations
+              TypeKind::Struct(struct) => struct.implementations
+              TypeKind::Parameter => []
+              _ => throw 'Not an enum or a struct'
+            }
+
+            let implementations = implementations
+              .filter(|i| getTrait(i.trait_).functions[name])
 
             let implementations =
               if implementations.length > 1
                 then implementations
                   .filter(|i| e.scope.getTypeBinding(
-                    if isTypeInstance(i.trait_)
-                      then i.trait_.class.name
-                      else i.trait_.name
+                    asType(i.trait_).name.unwrap()
                   ))
               else implementations
 
             let implementations =
               if implementations.length > 1
                 then implementations
-                  .map(|i| i.trait_.functions[name].argumentRange)
-                  .filter(|range: Range| range.contains(e.argumentList.length))
+                  .filter(|i| getFunction(getTrait(i.trait_).functions[name]).argumentRange
+                    .contains(e.argumentList.length)
+                  )
+              else implementations
+
+            let implementations: List<Implementation> =
+              if implementations.length > 1 {
+                let hasInstance = implementations.find(|i: Implementation| i.trait_.instance.isJust())
+                if hasInstance.isJust()
+                  then implementations
+                    .filter(|i: Implementation| i.trait_.instance.isJust())
+                  else implementations
+              }
               else implementations
 
             if implementations.length > 1 then reportError(e, 'Ambiguous trait call')
 
-            if implementations.length == 0 and isTypeInstance(type_)
-              then getImplementations(type_.class)
+            if implementations.length == 0 {
+              if let Option::Some(instance) = type_.instance {
+                getImplementations(instance.class)
+              }
               else implementations
+            }
+            else implementations
           }
 
           let implementations = getImplementations(objectType)
@@ -342,33 +358,34 @@ export fn ScopeVisitor(context, file) {
           if implementations.length == 1 {
             let implementation = implementations[0]
             let traitName =
-              if isTypeInstance(implementation.trait_)
-                then implementation.trait_.class.name
-                else implementation.trait_.name
+              if let Option::Some(instance) = implementation.trait_.instance
+                then asType(instance.class).name.unwrap()
+                else asType(implementation.trait_).name.unwrap()
             if not e.scope.getTypeBinding(traitName)
               then reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
 
             e.traitName = traitName
             e.implementationType = implementation.type_
 
-            functionType = implementation.trait_.functions[name]
+            functionType = getTrait(implementation.trait_).functions[name]
 
-            if objectType.parameterMap {
-              functionType = resolveTypeParameters(objectType.parameterMap)(functionType)
+            if let Option::Some(instance) = objectType.instance {
+              functionType = resolveTypeParameters(instance.parameterMap)(functionType)
             }
           }
         }
       }
       let parentAssignedTo = self.assignedTo
       e.argumentList.forEach(|a, i| {
-        self.assignedTo = if functionType and functionType.arguments then functionType.arguments[i]
+        self.assignedTo = if functionType
+          then if let TypeKind::Function(func) = functionType.kind then func.arguments[i]
         self.visitExpression(a)
       })
       self.assignedTo = parentAssignedTo
 
       if functionType {
-        functionType = checkFunctionCall(functionType, e)
-        e.type_ = functionType.returnType
+        let function = checkFunctionCall(functionType, e)
+        e.type_ = function.returnType
       }
     }
     visitForExpression: |mut self, mut e: ForExpression| {
@@ -404,6 +421,7 @@ export fn ScopeVisitor(context, file) {
       if let Result::Err(error) = checkExhaustive(e) {
         self.reportError(e, error)
       }
+      e.type_ = undefined
 
       matchExpression = oldMatchExpression
     }
@@ -438,62 +456,75 @@ export fn ScopeVisitor(context, file) {
         let binding = e.scope.getTypeBinding(typePath.value[0].name)
         if not binding
           then self.reportError(e, 'Use of undeclared type ' + typePath.value[0].name)
-        let type_ = binding.type_
+        let type_: Type = binding.type_
 
         if typePath.value[1].kind != 'Member'
           then self.reportError(e, 'Nested type paths are not supported')
-        let memberIdentifier = typePath.value[1].value[0]
 
-        if isEnumType(type_) {
-          let member = type_.members[memberIdentifier.name]
+        if let TypeKind::Enum(enum_) = type_.kind {
+          let memberIdentifier = typePath.value[1].value[0]
+          let member: Type = enum_.members[memberIdentifier.name]
           if not member {
-            reportError(memberIdentifier, type_.name + ' has no member named ' + memberIdentifier.name)
+            reportError(memberIdentifier, type_.displayName() + ' has no member named ' + memberIdentifier.name)
           }
-          else if isObjectType(member) {
-            e.type_ = {
-              kind: 'Function'
-              name: memberIdentifier.name
-              parameterRange: type_.parameterRange
-              typeParameters: type_.typeParameters
-              instances: []
-              arguments: [{
-                name: memberIdentifier.name
-                token: memberIdentifier
-                mutable: false
-                type_: member
-                redefined: false
-              }]
-              argumentRange: {start: 1, end: 2}
-              returnType: type_
-              isAbstract: false
+          else match member.kind {
+            TypeKind::Struct(struct) => match struct.kind {
+              StructKind::Record(record) => {
+                e.type_ = {
+                  displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
+                  name: type_.name
+                  kind: TypeKind::Function({
+                    selfBinding: None
+                    arguments: [{
+                      name: memberIdentifier.name
+                      token: memberIdentifier
+                      mutable: false
+                      type_: member
+                      redefined: false
+                    }]
+                    argumentRange: {start: 1, end: 2}
+                    returnType: type_
+                    isAbstract: false
+                  })
+                  class: type_.class
+                  instance: type_.instance
+                }
+              }
+
+              StructKind::Tuple(tuple) => {
+                e.type_ = {
+                  displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
+                  name: type_.name
+                  kind: TypeKind::Function({
+                    selfBinding: None
+                    arguments: tuple.properties.enumerate().map(|(p, i)| {{
+                      name: i.toString()
+                      token: memberIdentifier
+                      mutable: false
+                      type_: p
+                      redefined: false
+                    }})
+                    argumentRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
+                    returnType: type_
+                    isAbstract: false
+                  })
+                  class: type_.class
+                  instance: type_.instance
+                }
+              }
+
+              StructKind::Unit => {
+                e.type_ = {
+                  displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
+                  name: type_.name
+                  kind: type_.kind
+                  class: type_.class
+                  instance: type_.instance
+                }
+              }
             }
-          }
-          else if isTupleType(member) {
-            e.type_ = {
-              kind: 'Function'
-              name: memberIdentifier.name
-              parameterRange: type_.parameterRange
-              typeParameters: type_.typeParameters
-              instances: []
-              arguments: member.properties.map(|p, i| {{
-                name: i.toString()
-                token: memberIdentifier
-                mutable: false
-                type_: p
-                redefined: false
-              }})
-              argumentRange: {start: member.properties.length, end: member.properties.length + 1}
-              returnType: type_
-              isAbstract: false
-            }
-          }
-          else {
-            e.type_ = {
-              kind: type_.kind
-              name: type_.name + '::' + member.name
-              parameterRange: type_.parameterRange
-              typeParameters: type_.typeParameters
-              instances: []
+            _ => {
+              throw 'enum arm is not a struct'
             }
           }
         }
@@ -524,12 +555,11 @@ export fn ScopeVisitor(context, file) {
       a.scope = self.scope
       visit.walkExpression(self, a.object)
       if a.object.type_ {
-        if isEnumType(a.object.type_) {
+        if let TypeKind::Struct({kind: StructKind::Record(record)}) = a.object.type_.kind {
+          a.type_ = record.properties[a.member.name]
+        } else {
           // TODO: Enable this check when possible
           // reportError(a, 'can not read a property on an enum type')
-        }
-        else if isStruct(a.object.type_) {
-          a.type_ = a.object.type_.properties[a.member.name]
         }
       }
     }
@@ -574,156 +604,17 @@ export fn ScopeVisitor(context, file) {
       visit.walkTupleLiteral(self, l)
       let properties = l.expressions.map(|e| e.type_)
       l.type_ = {
-        kind: 'Tuple'
-        name: getTupleTypeName(properties)
-        properties
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Tuple({
+            properties
+          })
+        })
+        class: None
+        instance: None
       }
     }
   })
-}
-
-fn isIndividuallyExhaustive(p: Pattern) {
-  match p {
-    Pattern::CatchAll => true
-    Pattern::Identifier(_) => true
-    Pattern::Record(record) => record.properties.every(|p| isIndividuallyExhaustive(p.pattern))
-    Pattern::RecordType(_, record) => record.properties.every(|p| isIndividuallyExhaustive(p.pattern))
-    Pattern::Tuple(tuple) => tuple.properties.every(isIndividuallyExhaustive)
-    Pattern::TupleType(_, tuple) => tuple.properties.every(isIndividuallyExhaustive)
-    Pattern::UnitType(_) => true
-  }
-}
-
-fn getEnumMember(typePath: TypePath) {
-  match typePath {
-    TypePath::Object(_, typePath) => match typePath {
-      TypePath::Member(member) => member.name
-      _ => throw 'Invalid typepath'
-    }
-    _ => throw 'Invalid typepath'
-  }
-}
-
-fn isEnumPattern(p: Pattern) {
-  match p {
-    Pattern::CatchAll => false
-    Pattern::Identifier(_) => false
-    Pattern::Record(record) => false
-    Pattern::RecordType(_, record) => true
-    Pattern::Tuple(tuple) => false
-    Pattern::TupleType(_, tuple) => true
-    Pattern::UnitType(_) => true
-  }
-}
-
-fn isEnumArm(p: Pattern) {
-  match p {
-    Pattern::CatchAll => false
-    Pattern::Identifier(_) => false
-    Pattern::Record(record) => false
-    Pattern::RecordType(_, record) => record.properties.some(|p| isEnumPattern(p.pattern))
-    Pattern::Tuple(tuple) => false
-    Pattern::TupleType(_, tuple) => tuple.properties.some(isEnumPattern)
-    Pattern::UnitType(_) => false
-  }
-}
-
-fn checkExhaustive(e: MatchExpression) -> Result<(), String> {
-  if isEnumType(e.type_) {
-    checkExhaustiveEnum(e.patterns.map(|a| a.pattern), e.type_)
-  }
-  else Ok(())
-}
-
-fn getSubPatterns(pattern: Pattern) -> List<Pattern> {
-  match pattern {
-    Pattern::RecordType(_, record) => record.properties.map(|p| p.pattern)
-    Pattern::TupleType(_, tuple) => tuple.properties
-    _ => []
-  }
-}
-
-fn checkExhaustiveEnum(patterns: List<Pattern>, enum_: EnumType) -> Result<(), String> {
-  let typeName = enum_.name
-  let mut exhaustiveMap = ObjectMapTrait.new()
-  let mut enumArmsMap = ObjectMapTrait.new()
-
-  if let Option::Some(_) = patterns.find(|pattern| {
-    let member = match pattern {
-      Pattern::CatchAll => return true
-      Pattern::Identifier(_) => return true
-      Pattern::Record(_) => throw 'Invalid pattern'
-      Pattern::RecordType(typePath, _) => getEnumMember(typePath)
-      Pattern::Tuple(_) => throw 'Invalid pattern'
-      Pattern::TupleType(typePath, _) => getEnumMember(typePath)
-      Pattern::UnitType(typePath) => getEnumMember(typePath)
-    }
-
-    if not exhaustiveMap[member] {
-      let individuallyExhaustive = isIndividuallyExhaustive(pattern)
-      let isEnum = isEnumArm(pattern)
-
-      exhaustiveMap[member] = individuallyExhaustive and not isEnum
-
-      if isEnum {
-        if not enumArmsMap[member] {
-          enumArmsMap[member] = []
-        }
-        enumArmsMap[member].push(pattern)
-      }
-    }
-
-    false
-  })
-    then return Ok(())
-
-  let mut innerErrors = []
-  enumArmsMap.forEach(|(member, patterns)| {
-    let enumPatterns = getSubPatterns(patterns[0])
-      .enumerate()
-      .filter(|(pattern, _)| isEnumPattern(pattern))
-      .map(|(pattern, index)| {
-        let p: Pattern = pattern
-        let {type_} = match p {
-          Pattern::RecordType(typePath, _) => typePath
-          Pattern::TupleType(typePath, _) => typePath
-          Pattern::UnitType(typePath) => typePath
-          _ => throw 'Invalid pattern6'
-        }
-
-        let subPatterns = patterns
-          .map(getSubPatterns)
-          .map(|subPatterns| subPatterns[index]);
-
-        (type_, subPatterns)
-      })
-
-    let errors = enumPatterns
-      .map(|(type_, subPatterns)| checkExhaustiveEnum(subPatterns, type_))
-      .filter(|result: Result<(), String>| result.isErr())
-
-    innerErrors = innerErrors.concat(errors)
-
-    exhaustiveMap[member] = errors.length == 0
-  })
-
-  if (innerErrors.length > 0) {
-    return innerErrors[0]
-  }
-
-  let mapSize = exhaustiveMap.size()
-  let memberCount = enum_.members.size()
-
-  if mapSize == memberCount - 1 {
-    let mut (missing, _) = enum_.members.find(|(member, _)| not exhaustiveMap[member]).unwrap()
-    return Err('Match is not exhaustive. It is missing a case for $typeName::$missing')
-  }
-  else if mapSize < memberCount {
-    return Err('Match is not exhaustive.')
-  }
-  else if let Option::Some((member, a)) = exhaustiveMap.find(|(_, exhaustive)| not exhaustive) {
-    return Err('Match is not exhaustive. $typeName::$member is not exhaustive. $a')
-  }
-
-  Ok(())
 }

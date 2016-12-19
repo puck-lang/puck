@@ -23,7 +23,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../entities.puck' as {isObjectType, isTupleType}
+import '../entities.puck' as {StructKind, TypeClassTrait, TypeKind}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {getType}
@@ -46,17 +46,29 @@ export fn TypeVisitor(context, file) {
 
     visitEnumDeclaration: |mut self, mut t: EnumDeclaration| {
       if not t.type_ {
-        t.type_ = self.scope.defineType(t, true).type_
+        t.type_ = {
+          displayName: None
+          name: Some(t.name.name)
+          kind: TypeKind::Enum({
+            implementations: []
+            members: []
+          })
+          class: TypeClassTrait.fromAstNode(t, reportError)
+          instance: None
+        }
+        self.scope.defineType(t.type_, t, true)
         self.scope.define({name: t.name.name, mutable: false, token: t, type_: t.type_})
         t.scope = createScope(context, file, self.scope)
         self.postHoist.push(t)
       }
       else if not t.typeParametersAssigned {
         self.scope = t.scope
-        t.typeParameters.forEach(|p| {
-          self.visitTypeParameter(p)
-          t.type_.typeParameters.push(p.type_)
-        })
+        if let Option::Some(class) = t.type_.class {
+          t.typeParameters.forEach(|p| {
+            self.visitTypeParameter(p)
+            class.typeParameters.push(p.type_)
+          })
+        }
         t.typeParametersAssigned = true
         self.scope = self.scope.parent
       }
@@ -69,10 +81,14 @@ export fn TypeVisitor(context, file) {
             p.name.name
             p.bound.mapOrElse(
               || {{
-                kind: p.name.name
-                name: p.name.name
-                implementations: []
-                isUnit: true
+                displayName: None
+                name: Some(p.name.name)
+                kind: TypeKind::Struct({
+                  implementations: []
+                  kind: StructKind::Unit
+                })
+                class: None
+                instance: None
               }}
               |bound| bound.type_
             )
@@ -87,7 +103,10 @@ export fn TypeVisitor(context, file) {
           })
         }
 
-        Object.assign(t.type_.members, memberMap)
+        if let TypeKind::Enum(enum_) = t.type_.kind {
+          Object.assign(enum_.members, memberMap)
+        }
+        else throw 'is not an enum'
 
         self.scope = self.scope.parent
       }
@@ -157,7 +176,16 @@ export fn TypeVisitor(context, file) {
     }
     visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
       if not t.type_ {
-        t.type_ = self.scope.defineType(t, true).type_
+        t.type_ = {
+          displayName: None
+          name: Some(t.name.name)
+          kind: TypeKind::Trait({
+            functions: ObjectMapTrait.new()
+          })
+          class: TypeClassTrait.fromAstNode(t, reportError)
+          instance: None
+        }
+        self.scope.defineType(t.type_, t, true)
         t.binding = self.scope.define({
           name: t.name.name
           mutable: false
@@ -169,51 +197,93 @@ export fn TypeVisitor(context, file) {
       else if not t.scope {
         self.scope = createScope(context, file, self.scope)
         t.scope = self.scope
-        if t.typeParameters
-          then t.typeParameters.forEach(|p| {
+        if let Option::Some(class) = t.type_.class {
+          t.typeParameters.forEach(|p| {
             self.visitTypeParameter(p)
-            t.type_.typeParameters.push(p.type_)
+            class.typeParameters.push(p.type_)
           })
+        }
         self.scope = self.scope.parent
       }
       else {
         self.scope = t.scope
         t.members.forEach(|t| self.visitFunctionDeclaration(t))
 
-        Object.assign(t.type_.functions, ObjectMapTrait.fromList(
-          t.members.map(|m| [m.name.value[0].name, m.type_])))
-        if t.type_.instances
-          then t.type_.instances.forEach(|mut instance| {
-            instance.functions = t.type_.functions
-          })
+        if let TypeKind::Trait(trait_) = t.type_.kind {
+          Object.assign(trait_.functions, ObjectMapTrait.fromList(
+            t.members.map(|m| (m.name.value[0].name, m.type_))
+          ))
+
+          if let Option::Some(class) = t.type_.class {
+            class.instances.forEach(|mut instance| {
+              if let TypeKind::Trait(instanceTrait) = instance.kind {
+                Object.assign(instanceTrait, {
+                  functions: trait_.functions
+                })
+              }
+              else throw 'instance is not a trait'
+            })
+          }
+        }
+        else throw 'is not a trait'
 
         self.scope = self.scope.parent
       }
     }
     visitTypeDeclaration: |mut self, mut t: TypeDeclaration| {
       if not t.type_ {
-        t.type_ = self.scope.defineType(t, true).type_
+        let structKind =
+          if let Option::Some(typeBound) = t.bound {
+            if typeBound.kind == SyntaxKind.ObjectTypeBound
+              then StructKind::Record({properties: ObjectMapTrait.new()})
+            else if typeBound.kind == SyntaxKind.TupleTypeBound
+              then StructKind::Tuple({properties: []})
+          }
+          else StructKind::Unit
+
+        t.type_ = {
+          displayName: None
+          name: Some(t.name.name)
+          kind: TypeKind::Struct({
+            implementations: []
+            kind: structKind
+          })
+          class: TypeClassTrait.fromAstNode(t, reportError)
+          instance: None
+        }
+        self.scope.defineType(t.type_, t, true)
         t.scope = createScope(context, file, self.scope)
         self.postHoist.push(t)
       }
       else if not t.typeParametersAssigned {
         self.scope = t.scope
-        t.typeParameters.forEach(|p| {
-          self.visitTypeParameter(p)
-          t.type_.typeParameters.push(p.type_)
-        })
+        if let Option::Some(class) = t.type_.class {
+          t.typeParameters.forEach(|p| {
+            self.visitTypeParameter(p)
+            class.typeParameters.push(p.type_)
+          })
+        }
         t.typeParametersAssigned = true
         self.scope = self.scope.parent
       }
       else {
         self.scope = t.scope
-        if let Option::Some(typeBound) = t.bound then self.visitTypeBound(typeBound)
+        if let Option::Some(typeBound) = t.bound {
+          self.visitTypeBound(typeBound)
 
-        if isObjectType(t.type_)
-          then Object.assign(t.type_.properties, ObjectMapTrait.fromList(
-            t.bound.value[0].properties.map(|p| [p.name.name, p.typeBound.type_])))
-        else if isTupleType(t.type_) {
-          t.type_.properties = t.bound.value[0].properties.map(|p| p.type_)
+          match t.type_.kind {
+            TypeKind::Struct({kind: StructKind::Record({properties})}) => {
+              Object.assign(properties, ObjectMapTrait.fromList(
+                typeBound.properties.map(|p| (p.name.name, p.typeBound.type_))
+              ))
+            }
+            TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
+              Object.assign(tuple, {
+                properties: typeBound.properties.map(|p| p.type_)
+              })
+            }
+            _ => {}
+          }
         }
 
         self.scope = self.scope.parent

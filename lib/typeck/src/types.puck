@@ -3,69 +3,81 @@ import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound}
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
-  EnumType
-  FunctionType
+  Enum
+  Function
   Scope
-  ObjectType
   Struct
-  TupleType
+  StructKind
+  Trait
   Type
   TypeClass
-  isEnumType
-  isFunctionType
-  isObjectType
-  isStruct
-  isTupleType
-  isTypeClass
-  isTypeInstance
-  isTypeParameter
+  TypeClassTrait
+  TypeInstance
+  TypeKind
+  TypeTrait
 }
-import 'functions.puck' as {getFunctionTypeName, getTupleTypeName}
 
-export let resolveTypeParameters = |parameterMap| fn resolveTypeParametersInner(type_) {
-  let resolved = if isEnumType(type_)
-    then resolveTypeParametersEnum(parameterMap, type_)
-  else if isFunctionType(type_)
-    then resolveTypeParametersFn(parameterMap, type_)
-  else if isObjectType(type_)
-    then resolveTypeParametersObject(parameterMap, type_)
-  else if isTupleType(type_)
-    then resolveTypeParametersTuple(parameterMap, type_)
-  else if isTypeParameter(type_) {
-    parameterMap[type_.name] or type_
+fn assign(a, b) {
+  Object.assign({}, a, b)
+}
+
+export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, allowCreateInstance = true, depth = 0| fn resolveTypeParametersInner(mut type_: Type) {
+  if not type_ then return type_
+  if depth > 10 then return type_
+  if allowCreateInstance {
+    if let {kind: TypeKind::Enum(_), class: Option::Some(class)} = type_
+      then return createTypeInstance(type_, class.typeParameters.map(|p: Type| parameterMap[p.name.unwrap()] or p))
+    if let {kind: TypeKind::Struct(_), class: Option::Some(class)} = type_
+      then return createTypeInstance(type_, class.typeParameters.map(|p: Type| parameterMap[p.name.unwrap()] or p))
   }
 
-  resolved or type_
+  let resolvedKind = match type_.kind {
+    TypeKind::Enum(enum_) => TypeKind::Enum(resolveTypeParametersEnum(parameterMap, enum_, depth))
+    TypeKind::Function(func) => TypeKind::Function(resolveTypeParametersFn(parameterMap, func, depth))
+    TypeKind::Parameter => return parameterMap.get(type_.name.unwrap()).unwrapOr(type_)
+    TypeKind::Struct(struct) => TypeKind::Struct(resolveTypeParametersStruct(parameterMap, struct, depth))
+    _ => type_.kind
+  }
+
+  assign(type_, {
+    kind: resolvedKind
+  })
 }
 
-fn resolveTypeParametersEnum(parameterMap, e: EnumType) {
-  if (isTypeClass(e))
-    then createTypeInstanceTypeCast(e, e.typeParameters.map(|p| parameterMap[p.name] or p))
-    else e
+fn resolveTypeParametersEnum(parameterMap: ObjectMap<Type>, e: Enum, depth: Num) {
+  assign(e, {
+    implementations: []
+    members: e.members.map(resolveTypeParameters(parameterMap, true, depth + 1))
+  })
 }
 
-fn resolveTypeParametersFn(parameterMap, func: FunctionType) {
-  Object.assign({}, func, {
-    arguments: func.arguments.map(|binding| Object.assign({}, binding, {
-      type_: if binding.type_
-        then resolveTypeParameters(parameterMap)(binding.type_)
+fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, func: Function, depth: Num) {
+  assign(func, {
+    arguments: func.arguments.map(|binding| assign(binding, {
+      type_:
+        if binding.type_
+          then resolveTypeParameters(parameterMap, true, depth + 1)(binding.type_)
     }))
-    returnType: if func.returnType
-      then resolveTypeParameters(parameterMap)(func.returnType)
+    returnType:
+      if func.returnType
+        then resolveTypeParameters(parameterMap, true, depth + 1)(func.returnType)
   })
 }
 
-fn resolveTypeParametersObject(parameterMap, struct: ObjectType) {
-  Object.assign({}, struct, {
-    properties: struct.properties.map(resolveTypeParameters(parameterMap))
-  })
-}
+fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct, depth: Num) -> Struct {
+  assign(struct, {
+    implementations: []
+    kind: match struct.kind {
+      StructKind::Record({properties}) => StructKind::Record({
+        properties: properties.map(resolveTypeParameters(parameterMap, true, depth + 1))
+      })
 
-fn resolveTypeParametersTuple(parameterMap, struct: TupleType) {
-  let properties = struct.properties.map(resolveTypeParameters(parameterMap))
-  Object.assign({}, struct, {
-    name: getTupleTypeName(properties)
-    properties
+      StructKind::Tuple({properties}) => StructKind::Tuple({
+        properties: properties.map(resolveTypeParameters(parameterMap, true, depth + 1))
+      })
+
+      StructKind::Unit => struct.kind
+    }
   })
 }
 
@@ -73,88 +85,106 @@ fn mapObject<T>(object: ObjectMap<T>, mapper) {
   object.map(mapper)
 }
 
-export fn createTypeInstance(class: TypeClass, typeParameters: List<Type>) {
-  let typeParameters =
+export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
+  let mut class = type_.class.unwrap()
+  let typeParameters: List<Type> =
     if typeParameters.length < class.parameterRange.end - 1 {
       typeParameters.concat(
         class.typeParameters
           .slice(typeParameters.length)
-          .map(|p| p.defaultValue)
+          .map(|p| {
+            if let TypeKind::Parameter(p) = p.kind {
+              p.defaultValue.unwrap()
+            }
+            else throw 'not a type parameter'
+          })
       )
     }
     else typeParameters
 
-  if let Option::Some(cachedInstance) = class.instances.find(|i|
-    i.typeParameters.length == typeParameters.length and
-    i.typeParameters.every(|p, i| isSameType(p, typeParameters[i]))
-  )
+  if let Option::Some(cachedInstance) = class.instances
+    .find(|a: Type| {
+      let i = a.instance.unwrap()
+      i.typeParameters.length == typeParameters.length and
+      i.typeParameters.every(|p, i| isSameType(p, typeParameters[i]))
+    })
     then return cachedInstance
 
-  let parameterMap = ObjectMapTrait.fromList(
+  if typeParameters.all(|p| match p.kind {
+    TypeKind::Parameter => true
+    _ => false
+  })
+    then return type_
+
+  let parameterMap: ObjectMap<Type> = ObjectMapTrait.fromList(
     ListTrait.zip(typeParameters, class.typeParameters)
       .map(|p| {
         let typeArgument = p[0]
-        let typeParameter = p[1];
+        let typeParameter: Type = p[1]
 
-        (typeParameter.name, typeArgument)
+        (typeParameter.name.unwrap(), typeArgument)
       }))
 
   let instance = {
-    isTrait: class.isTrait
-    functions: if class.functions
-      then mapObject(class.functions, resolveTypeParameters(parameterMap))
-    members: if class.members
-      then mapObject(class.members, resolveTypeParameters(parameterMap))
-    properties: if class.properties
-      then mapObject(class.properties, resolveTypeParameters(parameterMap))
-    implementations: class.implementations and []
-    kind: class.name
-    name: class.name + '<' + typeParameters.map(|p| p.name).join(', ') + '>'
-    class
-    typeParameters
-    parameterMap
+    displayName: type_.displayName
+    name: type_.name
+    kind: resolveTypeParameters(parameterMap, false)(type_).kind
+    class: None
+    instance: Some({
+      class: type_
+      typeParameters
+      parameterMap
+    })
   }
   class.instances.push(instance)
 
   instance
 }
 
-export fn createTypeInstanceTypeCast(class, typeParameters: List<Type>) {
-  createTypeInstance(class, typeParameters)
-}
-
-export fn getType(scope: Scope, t, msg = '') { // t: TypeBound
+export fn getType(scope: Scope, t) { // t: TypeBound
   if not t then return undefined
   if t.path {
     let binding = scope.getTypePath(t.path)
 
     if not binding
       then binding
-    else if isTypeClass(binding.type_)
-      then createTypeInstanceTypeCast(binding.type_, t.typeParameters.map(|p| p.type_))
+    else if let Option::Some(_) = binding.type_.class
+      then createTypeInstance(binding.type_, t.typeParameters.map(|p| p.type_))
     else binding.type_
   }
   else if t.kind == SyntaxKind.ObjectTypeBound {
     let properties = ObjectMapTrait.fromList(
       t.properties.map(|member| (
         member.name.name
-        getType(scope, member.typeBound, 'ObjectTypeBound')
+        getType(scope, member.typeBound)
       ))
     )
 
     {
-      kind: 'Object'
-      name: 'Object'
-      properties
+      displayName: None
+      name: None
+      kind: TypeKind::Struct({
+        implementations: []
+        kind: StructKind::Record({
+          properties
+        })
+        class: None
+        instance: None
+      })
     }
   }
   else if t.kind == SyntaxKind.TupleTypeBound {
-    let properties = t.properties.map(|p| getType(scope, p, 'TupleTypeBound'))
+    let properties = t.properties.map(|p| getType(scope, p))
 
     {
-      kind: 'Tuple'
-      name: getTupleTypeName(properties)
-      properties
+      displayName: None
+      name: None
+      kind: TypeKind::Struct({
+        implementations: []
+        kind: StructKind::Tuple({properties})
+      })
+      class: None
+      instance: None
     }
   }
   else {
@@ -162,46 +192,101 @@ export fn getType(scope: Scope, t, msg = '') { // t: TypeBound
     let returnType = getType(scope, t.returnType)
 
     {
-      kind: 'Function'
-      name: getFunctionTypeName(arguments, returnType)
-      arguments
-      argumentRange: {start: arguments.length, end: arguments.length + 1}
-      returnType
+      displayName: None
+      name: None
+      kind: TypeKind::Function({
+        selfBinding: None
+        arguments
+        argumentRange: {start: arguments.length, end: arguments.length + 1}
+        returnType
+        isAbstract: false
+      })
+      class: TypeClassTrait.fromAstNode(t, || {})
+      instance: None
     }
   }
 }
 
-export fn isAssignable(to, subject) { // to: Type, subject: Type
-  if not subject or not to then return true
-  if isTypeParameter(to) then return true
-
-  let sameKind = subject.kind == to.kind
-
-  if not sameKind then return false
-
-  if isTypeInstance(to) and isTypeInstance(subject)
-    then if not subject.typeParameters.every(|p, i| isAssignable(to.typeParameters[i], p))
-      then return false
-
-  if sameKind and to.kind == 'Function'
-    then isFunctionAssignable(to, subject)
-  else if sameKind and to.kind == 'Tuple'
-    then subject.properties.length == to.properties.length
-     and subject.properties.every(|p, i| isAssignable(to.properties[i], p))
-  else true
+fn isSameName(to: Type, subject: Type) {
+  match (to.name, subject.name) {
+    (Option::Some(toName), Option::Some(subjectName)) => toName == subjectName
+    _ => true
+  }
 }
 
-fn isFunctionAssignable(to: FunctionType, subject: FunctionType) {
+export fn isAssignable(to: Type, subject: Type) {
+  if not subject or not to then return true
+  if to == subject then return true
+
+  if let TypeKind::Parameter = subject.kind then return true
+
+  match to.kind {
+    TypeKind::Enum(toEnum) => match subject.kind {
+      TypeKind::Enum(subjectEnum) => {
+        isSameName(to, subject) and isEnumAssignable(toEnum, subjectEnum)
+      }
+      _ => false
+    }
+    TypeKind::Function(toFunc) => match subject.kind {
+      TypeKind::Function(subjectFunc) => isFunctionAssignable(toFunc, subjectFunc)
+      _ => false
+    }
+    TypeKind::Parameter => true
+    TypeKind::Struct(toStruct) => match subject.kind {
+      TypeKind::Struct(subjectStruct) => {
+        isSameName(to, subject) and isStructAssignable(toStruct, subjectStruct)
+      }
+      _ => false
+    }
+    TypeKind::Trait(toTrait) => match subject.kind {
+      TypeKind::Trait(subjectTrait) => isTraitAssignable(toTrait, subjectTrait)
+      _ => false
+    }
+  }
+}
+
+fn isEnumAssignable(to: Enum, subject: Enum) {
+  if to.members.size() == subject.members.size()
+    then to.members.toList().all(|(name, toMember)|
+      isAssignable(toMember, subject.members[name])
+    )
+    else return false
+}
+
+fn isFunctionAssignable(to: Function, subject: Function) {
   if not to.argumentRange.isSubsetOf(subject.argumentRange)
     then return false
 
-  to.arguments.every(fn (toArg, i) {
-    let subjectArg = subject.arguments[i]
+  to.arguments.enumerate().all(|(toArg, i)|
+    isAssignable(toArg.type_, subject.arguments[i].type_)
+  )
+}
 
-    isAssignable(toArg, subjectArg)
-  })
+fn isStructAssignable(to: Struct, subject: Struct) {
+  match (to.kind, subject.kind) {
+    (StructKind::Record({properties: toProps}), StructKind::Record({properties: subjectProps})) => {
+      toProps.toList().all(|(key, toProp)| isAssignable(toProp, subjectProps[key]))
+    }
+    (StructKind::Tuple({properties: toProps}), StructKind::Tuple({properties: subjectProps})) => {
+      if toProps.size() != subjectProps.size() then return false
+      ListTrait.zip(toProps, subjectProps)
+        .all(|(toProp, subjectProp)| isAssignable(toProp, subjectProp))
+    }
+    (StructKind::Unit, StructKind::Unit) => to.kind.value == subject.kind.value
+    _ => to.kind == subject.kind
+  }
+}
+
+fn isTraitAssignable(to: Trait, subject: Trait) {
+  if to.functions.size() == subject.functions.size()
+    then to.functions.toList().all(|(name, toFunction)|
+      isAssignable(toFunction, subject.functions[name])
+    )
+    else return false
 }
 
 export fn isSameType(a, b) {
-  a.kind == b.kind
+  if let (Option::Some(aName), Option::Some(bName)) = (a.name, b.name)
+    then aName == bName
+    else false
 }

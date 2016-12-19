@@ -12,8 +12,6 @@ exports.ImplVisitor = ImplVisitor;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-var _util = require('util');
-
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _ast = require('./../ast/ast.js');
@@ -38,6 +36,131 @@ var _entities = require('./../entities.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function implementTrait(traitType, trait_, type_, implementable, i, reportError) {
+  var traitName = _entities.TypeTrait['$Type'].displayName.call(traitType);
+  if (implementable.implementations.some(function (imp) {
+    return imp.trait_ == traitType;
+  })) {
+    reportError(i, "" + traitName + " has already been implemented for " + _entities.TypeTrait['$Type'].displayName.call(type_));
+  };
+  var functions = i.members.reduce(function (functions, member) {
+    var memberType = member.type_;
+    functions[_core.MaybeTrait['$Option'].unwrap.call(memberType.name)] = member.type_;
+    return functions;
+  }, {});
+  var traitFunctions = trait_.functions;
+  _js._Object.keys(traitFunctions).forEach(function (name) {
+    var traitFunctionType = traitFunctions[name];
+    var __PUCK__value__1 = traitFunctionType.kind;
+    var __PUCK__value__2 = __PUCK__value__1;
+    var __PUCK__value__3 = void 0;
+    if (__PUCK__value__2.kind == "Function") {
+      var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
+
+      var func = _PUCK__value__2$valu[0];
+
+      __PUCK__value__3 = func;
+    } else {
+      var __PUCK__value__4 = __PUCK__value__1;
+      var __PUCK__value__5 = void 0;
+      if (true) {
+        var __PUCK__value__6 = __PUCK__value__4;
+        throw "trait function is not a function";
+      };
+      __PUCK__value__3 = __PUCK__value__5;
+    };
+    var traitFunction = __PUCK__value__3;
+    if (traitFunction.isAbstract && !functions[name]) {
+      return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + _entities.TypeTrait['$Type'].displayName.call(type_));
+    };
+  }, {});
+  i.members.forEach(function (functionDeclaration) {
+    var functionName = _entities.TypeTrait['$Type'].displayName.call(functionDeclaration.type_);
+    var __PUCK__value__7 = functionDeclaration.type_.kind;
+    var __PUCK__value__8 = __PUCK__value__7;
+    var __PUCK__value__9 = void 0;
+    if (__PUCK__value__8.kind == "Function") {
+      var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1);
+
+      var func = _PUCK__value__8$valu[0];
+
+      __PUCK__value__9 = func;
+    } else {
+      var __PUCK__value__10 = __PUCK__value__7;
+      var __PUCK__value__11 = void 0;
+      if (true) {
+        var __PUCK__value__12 = __PUCK__value__10;
+        throw "impl function is not a function";
+      };
+      __PUCK__value__9 = __PUCK__value__11;
+    };
+    var _function = __PUCK__value__9;
+    var traitFunctionType = traitFunctions[_core.MaybeTrait['$Option'].unwrap.call(functionDeclaration.type_.name)];
+    if (!traitFunctionType) {
+      reportError(i, "Function " + functionName + " is not defined by " + traitName + "");
+    };
+    var traitFunctionName = _entities.TypeTrait['$Type'].displayName.call(traitFunctionType);
+    var __PUCK__value__13 = traitFunctionType.kind;
+    var __PUCK__value__14 = __PUCK__value__13;
+    var __PUCK__value__15 = void 0;
+    if (__PUCK__value__14.kind == "Function") {
+      var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1);
+
+      var _func = _PUCK__value__14$val[0];
+
+      __PUCK__value__15 = _func;
+    } else {
+      var __PUCK__value__16 = __PUCK__value__13;
+      var __PUCK__value__17 = void 0;
+      if (true) {
+        var __PUCK__value__18 = __PUCK__value__16;
+        throw "trait function is not a function";
+      };
+      __PUCK__value__15 = __PUCK__value__17;
+    };
+    var traitFunction = __PUCK__value__15;
+    var __PUCK__value__19 = _function.selfBinding;
+    if (__PUCK__value__19.kind == "Some") {
+      var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
+
+      var implSelf = _PUCK__value__19$val[0];
+
+      var __PUCK__value__20 = traitFunction.selfBinding;
+      if (__PUCK__value__20.kind == "Some") {
+        var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1);
+
+        var traitSelf = _PUCK__value__20$val[0];
+
+        if (implSelf.mutable && !traitSelf.mutable) {
+          reportError(functionDeclaration, "Function " + traitName + "::" + traitFunctionName + " requires an immutable self parameter");
+        };
+      } else {
+        reportError(_function, "Function " + traitName + "::" + traitFunctionName + " is static");
+      };
+    } else {
+      var __PUCK__value__21 = traitFunction.selfBinding;
+      if (__PUCK__value__21.kind == "Some") {
+        var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1);
+
+        var __PUCK__value__22 = _PUCK__value__21$val[0];
+
+        reportError(_function, "Function " + traitName + "::" + traitFunctionName + " requires a self parameter");
+      };
+    };
+    var __PUCK__value__23 = (0, _functions.checkFunctionAssignability)(functionName, traitFunction, _function);
+    if (__PUCK__value__23.kind == "Err") {
+      var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1);
+
+      var error = _PUCK__value__23$val[0];
+
+      return reportError(_function, error);
+    };
+  });
+  return implementable.implementations.push({
+    type_: type_,
+    trait_: traitType
+  });
+};
 function ImplVisitor(context, file) {
   var importDirective = void 0;
   var reportError = context.reportError.bind(context, file);
@@ -48,68 +171,41 @@ function ImplVisitor(context, file) {
       self.scope = (0, _scope.createScope)(context, file, self.scope);
       i.scope = self.scope;
       visit.walkImplDeclaration(self, i);
-      var _trait = i.trait_.type_;
-      var struct = i.type_.type_;
-      if (!(0, _entities.isTrait)(_trait)) {
-        reportError(i.trait_, _trait.name + " is not a trait");
-      };
-      if (!(0, _entities.isStruct)(struct)) {
-        reportError(i.type_, struct.name + " is not a type");
-      };
-      var __PUCK__value__1 = void 0;
-      if ((0, _entities.isTypeInstance)(struct) && struct.typeParameters.some(function (p) {
-        return p.isTypeParameter;
-      })) {
-        __PUCK__value__1 = struct._class;
-      } else {
-        __PUCK__value__1 = struct;
-      };
-      struct = __PUCK__value__1;
-      if (struct.implementations.some(function (imp) {
-        return (0, _types.isSameType)(imp.trait_, _trait);
-      })) {
-        reportError(i, _trait.name + " has already been implemented for " + struct.name);
-      };
-      var functions = i.members.reduce(function (functions, member) {
-        functions[member.type_.name] = member.type_;
-        return functions;
-      }, {});
-      var traitName = _trait.name;
-      var traitFunctions = _trait.functions;
-      _js._Object.keys(traitFunctions).forEach(function (name) {
-        if (traitFunctions[name].isAbstract && !functions[name]) {
-          return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + struct.name);
-        };
-      }, {});
-      i.members.forEach(function (_function) {
-        var traitFunction = traitFunctions[_function.type_.name];
-        if (!traitFunction) {
-          reportError(i, "Function " + _function.type_.name + " is not defined by " + i.trait_.type_.name);
-        };
-        if (_function.type_.selfBinding && !traitFunction.selfBinding) {
-          reportError(_function, "Function " + traitName + "::" + traitFunction.name + " is static");
-        };
-        if (!_function.type_.selfBinding && traitFunction.selfBinding) {
-          reportError(_function, "Function " + traitName + "::" + traitFunction.name + " requires a self parameter");
-        };
-        if (_function.type_.selfBinding && traitFunction.selfBinding) {
-          if (_function.type_.selfBinding.mutable && !traitFunction.selfBinding.mutable) {
-            reportError(_function, "Function " + traitName + "::" + traitFunction.name + " requires an immutable self parameter");
+      var traitType = i.trait_.type_;
+      var structType = i.type_.type_;
+      var __PUCK__value__24 = traitType.kind;
+      if (__PUCK__value__24.kind == "Trait") {
+        var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1);
+
+        var trait_ = _PUCK__value__24$val[0];
+
+        var __PUCK__value__25 = structType.kind;
+        var __PUCK__value__26 = __PUCK__value__25;
+        if (__PUCK__value__26.kind == "Enum") {
+          var _PUCK__value__26$val = _slicedToArray(__PUCK__value__26.value, 1);
+
+          var enum_ = _PUCK__value__26$val[0];
+
+          implementTrait(traitType, trait_, structType, enum_, i, reportError);
+        } else {
+          var __PUCK__value__27 = __PUCK__value__25;
+          if (__PUCK__value__27.kind == "Struct") {
+            var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1);
+
+            var struct = _PUCK__value__27$val[0];
+
+            implementTrait(traitType, trait_, structType, struct, i, reportError);
+          } else {
+            var __PUCK__value__28 = __PUCK__value__25;
+            if (true) {
+              var __PUCK__value__29 = __PUCK__value__28;
+              reportError(i.type_, _entities.TypeTrait['$Type'].displayName.call(structType) + " is not a struct or an enum");
+            };
           };
         };
-        var __PUCK__value__2 = (0, _functions.checkFunctionAssignability)(traitFunction, _function.type_);
-        if (__PUCK__value__2.kind == "Err") {
-          var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-          var error = _PUCK__value__2$valu[0];
-
-          return reportError(_function, error);
-        };
-      });
-      struct.implementations.push({
-        type_: struct,
-        trait_: _trait
-      });
+      } else {
+        reportError(i.trait_, _entities.TypeTrait['$Type'].displayName.call(traitType) + " is not a trait");
+      };
       return self.scope = self.scope.parent;
     },
     visitModule: function visitModule(m) {

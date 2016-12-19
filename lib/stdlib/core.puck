@@ -91,13 +91,15 @@ export trait MaybeTrait<T> {
 }
 impl<T> MaybeTrait<T> for Option<T> {}
 
+fn any(a) {a}
+
 export type List<E> {}
 export trait ListTrait<E> {
   fn zip<A, B>(a: List<A>, b: List<B>) -> List<(A, B)> {
     if a.length != b.length
       then throw Error('List a and b are not of the same length')
 
-    a.map(|a, i| (a, b[i]))
+    any(a).map(|a, i| (a, b[i]))
   }
 }
 impl<E> ListTrait<E> for List<E> {}
@@ -106,7 +108,11 @@ export trait Iterable<E> {
 
   fn size(self) -> Num
 
+  fn all(self, predicate: (E) -> Bool) -> Bool
+  fn any(self, predicate: (E) -> Bool) -> Bool
   fn find(self, predicate: (E) -> Bool) -> Option<E>
+
+  fn map<U>(self, func: (E) -> U) -> List<U>
 
   /// Returns an [Iterable] that provides all but the first [count] elements.
   // fn skip(self, count: Num) -> Iterable<E>
@@ -127,6 +133,24 @@ impl<E> Iterable<E> for List<E> {
     self.length
   }
 
+  fn all(self, predicate: (E) -> Bool) -> Bool {
+    let mut i = 0
+    while i < self.length {
+      if not predicate(self[i]) then return false
+      i += 1
+    }
+    true
+  }
+
+  fn any(self, predicate: (E) -> Bool) -> Bool {
+    let mut i = 0
+    while i < self.length {
+      if predicate(self[i]) then return true
+      i += 1
+    }
+    false
+  }
+
   fn find(self, predicate: (E) -> Bool) -> Option<E> {
     let index = self.findIndex(predicate)
 
@@ -135,11 +159,15 @@ impl<E> Iterable<E> for List<E> {
       else None
   }
 
+  fn map<U>(self, func: (E) -> U) -> List<U> {
+    self.map(func)
+  }
+
   fn skip(self, count) -> List<E> {
     self.slice(count)
   }
 
-  fn skipUntil(self, test) -> List<E>  {
+  fn skipUntil(self, test) -> List<E> {
     let index = self.findIndex(test)
     if index == -1
       then []
@@ -184,6 +212,30 @@ export trait ObjectMapTrait<T> {
     object
   }
 
+  fn toList<T>(self) -> List<(String, T)> {
+    Object.keys(self).map(|key| (key, self[key]))
+  }
+
+  fn all(self, predicate: (T) -> Bool) -> Bool {
+    let mut i = 0
+    let keys = Object.keys(self)
+    while i < keys.length {
+      if not predicate(self[keys[i]]) then return false
+      i += 1
+    }
+    true
+  }
+
+  fn any(self, predicate: (T) -> Bool) -> Bool {
+    let mut i = 0
+    let keys = Object.keys(self)
+    while i < keys.length {
+      if predicate(self[keys[i]]) then return true
+      i += 1
+    }
+    false
+  }
+
   fn map<U>(self, mapper: (T) -> U) -> ObjectMap<U> {
     let mut new = ObjectMapTrait.new()
     Object.keys(self).forEach(|key| {
@@ -205,6 +257,13 @@ export trait ObjectMapTrait<T> {
       func((key, self[key]))
     });
     (())
+  }
+
+  fn get(self, key: String) -> Option<T> {
+    let value = self[key]
+    if value == undefined
+      then None
+      else Some(value)
   }
 
   fn size(self) -> Num {

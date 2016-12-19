@@ -2,7 +2,7 @@
 import 'traits.puck' as {EmptyType}
 impl EmptyType for EmptyType {}
 
-///// Functions is not a type
+///// Functions is not a struct or an enum
 import 'traits.puck' as {Functions}
 impl Functions for Functions {}
 
@@ -50,9 +50,9 @@ impl Generic<Num> for GenericType<Num> {
   fn generic(a: Num) -> Num {a}
 }
 
-///// Function Functions::noBody is not implemented for EmptyType
-import 'traits.puck' as {EmptyType, Functions}
-impl Functions for EmptyType {}
+///// Function Functions::noBody is not implemented for GenericType<String>
+import 'traits.puck' as {GenericType, Functions}
+impl Functions for GenericType<String> {}
 
 ///// Function anotherFunction is not defined by Empty
 import 'traits.puck' as {Empty, FunctionsType}

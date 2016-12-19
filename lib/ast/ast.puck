@@ -1,3 +1,5 @@
+import '../entities.puck' as {Type}
+
 export type SyntaxKind {}
 
 export type Token {
@@ -35,6 +37,8 @@ export type FunctionDeclaration {
   parameterList: List<VariableDeclaration>
   returnType: Option<TypeBound>
   body: Option<Block>
+
+  type_: Type
 }
 
 export type Identifier {
@@ -116,6 +120,8 @@ export type TypeDeclaration {
   typeParameters: List<TypeParameter>
   //bound: Option<ObjectTypeBound | TupleTypeBound>
   bound: Option<Expression>
+
+  type_: Type
 }
 
 export type TypeParameter {

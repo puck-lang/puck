@@ -142,7 +142,7 @@ var ListTrait = exports.ListTrait = {
     if (a.length != b.length) {
       throw (0, _js.Error)("List a and b are not of the same length");
     };
-    return a.map(function (a, i) {
+    return any(a).map(function (a, i) {
       return [a, b[i]];
     });
   }
@@ -159,6 +159,36 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
       return object[item[0]] = item[1];
     });
     return object;
+  },
+  toList: function toList() {
+    var self = this;
+    return _js._Object.keys(self).map(function (key) {
+      return [key, self[key]];
+    });
+  },
+  all: function all(predicate) {
+    var self = this;
+    var i = 0;
+    var keys = _js._Object.keys(self);
+    while (i < keys.length) {
+      if (!predicate(self[keys[i]])) {
+        return false;
+      };
+      i += 1;
+    };
+    return true;
+  },
+  any: function any(predicate) {
+    var self = this;
+    var i = 0;
+    var keys = _js._Object.keys(self);
+    while (i < keys.length) {
+      if (predicate(self[keys[i]])) {
+        return true;
+      };
+      i += 1;
+    };
+    return false;
   },
   map: function map(mapper) {
     var self = this;
@@ -185,6 +215,15 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
       return func([key, self[key]]);
     });
     return [];
+  },
+  get: function get(key) {
+    var self = this;
+    var value = self[key];
+    if (value == _js._undefined) {
+      return None;
+    } else {
+      return Some(value);
+    };
   },
   size: function size() {
     var self = this;
@@ -224,6 +263,28 @@ Iterable['$List'] = {
     var self = this;
     return self.length;
   },
+  all: function all(predicate) {
+    var self = this;
+    var i = 0;
+    while (i < self.length) {
+      if (!predicate(self[i])) {
+        return false;
+      };
+      i += 1;
+    };
+    return true;
+  },
+  any: function any(predicate) {
+    var self = this;
+    var i = 0;
+    while (i < self.length) {
+      if (predicate(self[i])) {
+        return true;
+      };
+      i += 1;
+    };
+    return false;
+  },
   find: function find(predicate) {
     var self = this;
     var index = self.findIndex(predicate);
@@ -232,6 +293,10 @@ Iterable['$List'] = {
     } else {
       return None;
     };
+  },
+  map: function map(func) {
+    var self = this;
+    return self.map(func);
   },
   skip: function skip(count) {
     var self = this;
@@ -260,9 +325,13 @@ RangeTrait['$Range<Num>'] = {
 ObjectMapTrait['$ObjectMap'] = {
   _new: ObjectMapTrait._new,
   fromList: ObjectMapTrait.fromList,
+  toList: ObjectMapTrait.toList,
+  all: ObjectMapTrait.all,
+  any: ObjectMapTrait.any,
   map: ObjectMapTrait.map,
   find: ObjectMapTrait.find,
   forEach: ObjectMapTrait.forEach,
+  get: ObjectMapTrait.get,
   size: ObjectMapTrait.size
 };
 var Bool = exports.Bool = function Bool(object) {
@@ -304,6 +373,9 @@ var Option = exports.Option = {
 };
 var Some = exports.Some = Option.Some;
 var None = exports.None = Option.None;
+function any(a) {
+  return a;
+};
 var List = exports.List = function List(object) {
   return object;
 };
