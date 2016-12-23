@@ -107,6 +107,8 @@ export trait Iterable<E> {
   fn enumerate(self) -> List<(E, Num)>
 
   fn size(self) -> Num
+  fn first(self) -> Option<E>
+  fn last(self) -> Option<E>
 
   fn all(self, predicate: (E) -> Bool) -> Bool
   fn any(self, predicate: (E) -> Bool) -> Bool
@@ -131,6 +133,18 @@ impl<E> Iterable<E> for List<E> {
 
   fn size(self) -> Num {
     self.length
+  }
+
+  fn first(self) -> Option<E> {
+    if self.length > 0
+      then Some(self[0])
+      else None
+  }
+
+  fn last(self) -> Option<E> {
+    if self.length > 0
+      then Some(self[self.length - 1])
+      else None
   }
 
   fn all(self, predicate: (E) -> Bool) -> Bool {

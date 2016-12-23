@@ -34,3 +34,16 @@ let max: Num = isEqual(1, 2)
 ///// String is not assignable to type Num
 fn ident<T>(a: T) -> T {a}
 let five: Num = ident('five')
+
+///// String is not assignable to type Num
+fn ident(a: String) {a}
+let five: Num = ident('five')
+
+// TODO: Make these error by resolving the genrics
+//// String is not assignable to type Num
+// fn addFive(num: Num) {num}
+// let list: List<String> = [].map(addFive)
+
+//// String is not assignable to type Num
+// fn addFive(num: Num) {num}
+// [].map(|_| 'five').map(addFive)

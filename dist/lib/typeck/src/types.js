@@ -288,10 +288,10 @@ function getType(scope, t) {
         name: _core.None,
         kind: _entities.TypeKind.Struct({
           implementations: [],
-          kind: _entities.StructKind.Record({ properties: properties }),
-          _class: _core.None,
-          instance: _core.None
-        })
+          kind: _entities.StructKind.Record({ properties: properties })
+        }),
+        _class: _core.None,
+        instance: _core.None
       };
     } else {
       if (t.kind == _ast2.SyntaxKind.TupleTypeBound) {

@@ -42,7 +42,7 @@ fn dumpFiles(files: List<File>, prop: String) {
     print(file.absolutePath)
     let mut data = file[prop]
     if typeof(data) != 'string' {
-      data = inspect(data, {colors: true, depth: 5})
+      data = inspect(data, {colors: false, depth: 10})
     }
     print(data.split('\n').map(|line| '  $line').join('\n'))
   })

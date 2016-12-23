@@ -194,7 +194,7 @@ export fn parse(input) { // : TokenStream
     left
   }
 
-  fn maybeCall(expr: Expression) -> CallExpression {
+  fn maybeCall(expr: Expression) -> Expression {
     if isToken(SyntaxKind.OpenParenToken, true)
       then maybeCall(maybeMemberAccess({
         kind: SyntaxKind.CallExpression,

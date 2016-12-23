@@ -263,6 +263,22 @@ Iterable['$List'] = {
     var self = this;
     return self.length;
   },
+  first: function first() {
+    var self = this;
+    if (self.length > 0) {
+      return Some(self[0]);
+    } else {
+      return None;
+    };
+  },
+  last: function last() {
+    var self = this;
+    if (self.length > 0) {
+      return Some(self[self.length - 1]);
+    } else {
+      return None;
+    };
+  },
   all: function all(predicate) {
     var self = this;
     var i = 0;

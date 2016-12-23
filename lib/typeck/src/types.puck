@@ -168,9 +168,9 @@ export fn getType(scope: Scope, t) { // t: TypeBound
         kind: StructKind::Record({
           properties
         })
-        class: None
-        instance: None
       })
+      class: None
+      instance: None
     }
   }
   else if t.kind == SyntaxKind.TupleTypeBound {

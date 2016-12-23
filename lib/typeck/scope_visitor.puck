@@ -195,6 +195,10 @@ export fn ScopeVisitor(context, file) {
       defineHoisted(b.expressions, self)
 
       visit.walkBlock(self, b)
+
+      if let Option::Some(last) = b.expressions.last() {
+        b.type_ = last.type_
+      }
     }
     visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
       structureVisitor.visitFunctionDeclaration.call(self, f)
@@ -203,7 +207,17 @@ export fn ScopeVisitor(context, file) {
         self.scope = f.scope
 
         f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
-        if f.body then self.visitBlock(f.body)
+        if f.body {
+          self.visitBlock(f.body)
+
+          if let TypeKind::Function(func) = f.type_.kind {
+            if not func.returnType {
+              Object.assign(func, {
+                returnType: f.body.type_
+              })
+            }
+          }
+        }
 
         self.scope = self.scope.parent
       }

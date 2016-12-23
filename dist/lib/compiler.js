@@ -75,8 +75,8 @@ function dumpFiles(files, prop) {
     var data = file[prop];
     if ((0, _js._typeof)(data) != "string") {
       data = (0, _util.inspect)(data, {
-        colors: true,
-        depth: 5
+        colors: false,
+        depth: 10
       });
     };
     return (0, _core.print)(data.split("\n").map(function (line) {
