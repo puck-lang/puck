@@ -39,6 +39,9 @@ let five: Num = ident('five')
 fn ident(a: String) {a}
 let five: Num = ident('five')
 
+///// Num is not assignable to type String
+fn ident(a: String) -> String {5}
+
 // TODO: Make these error by resolving the genrics
 //// String is not assignable to type Num
 // fn addFive(num: Num) {num}

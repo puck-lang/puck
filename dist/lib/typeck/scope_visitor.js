@@ -244,7 +244,11 @@ function ScopeVisitor(context, file) {
 
             var func = _PUCK__value__22$val[0];
 
-            if (!func.returnType) {
+            if (func.returnType) {
+              if (!(0, _types.isAssignable)(func.returnType, f.body.type_)) {
+                reportError(f, (0, _structure_visitor.notAssignableError)(func.returnType, f.body.type_));
+              };
+            } else {
               _js._Object.assign(func, { returnType: f.body.type_ });
             };
           };

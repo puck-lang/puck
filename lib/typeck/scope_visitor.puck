@@ -211,7 +211,11 @@ export fn ScopeVisitor(context, file) {
           self.visitBlock(f.body)
 
           if let TypeKind::Function(func) = f.type_.kind {
-            if not func.returnType {
+            if func.returnType {
+              if not isAssignable(func.returnType, f.body.type_)
+                then reportError(f, notAssignableError(func.returnType, f.body.type_))
+            }
+            else {
               Object.assign(func, {
                 returnType: f.body.type_
               })
