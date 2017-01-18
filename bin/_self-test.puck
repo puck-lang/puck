@@ -1,0 +1,7 @@
+import '../lib/helpers.puck' as {cmd}
+import '../lib/test.puck' as {buildAll, buildTestCompiler}
+
+buildTestCompiler()
+buildAll('.tmp/new', '.tmp/old')
+cmd('diff --exclude=node_modules -Nr .tmp/old .tmp/new')
+print('done')

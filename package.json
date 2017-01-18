@@ -7,8 +7,8 @@
     "build": "tsc",
     "watch": "npm run build -- --watch",
     "test": "npm-run-all test:*",
-    "test:cases": "dist/bin/puck test",
-    "test:self-test": "dist/bin/puck self-test"
+    "test:cases": "dist/bin/test",
+    "test:self-test": "dist/bin/self-test"
   },
   "author": "Rasmus Eneman <rasmus@eneman.eu>",
   "license": "MIT",

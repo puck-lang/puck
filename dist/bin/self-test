@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
+var _helpers = require('./../lib/helpers.js');
+
+var _test = require('./../lib/test.js');
+
+(0, _test.buildTestCompiler)();
+(0, _test.buildAll)(".tmp/new", ".tmp/old");
+(0, _helpers.cmd)("diff --exclude=node_modules -Nr .tmp/old .tmp/new");
+(0, _core.print)("done");

@@ -10,6 +10,12 @@ var _fs = require('fs');
 
 var fs = _interopRequireWildcard(_fs);
 
+var _path = require('path');
+
+var path = _interopRequireWildcard(_path);
+
+var _compiler = require('./../lib/compiler.js');
+
 var _helpers = require('./../lib/helpers.js');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -19,73 +25,34 @@ var _arguments = _core.Iterable['$List'].skip.call(_core.Iterable['$List'].skipU
   return _core.StringTrait['$String'].contains.call(arg, "puck");
 }), 1);
 var command = _arguments[0];
-function buildAll() {
-  var outFolder = arguments.length <= 0 || arguments[0] === undefined ? "dist" : arguments[0];
-  var compiler = arguments.length <= 1 || arguments[1] === undefined ? "dist" : arguments[1];
-
-  return (0, _helpers.cmd)("" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
-};
-function buildTestCompiler() {
-  (0, _helpers.cmd)("rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,node_modules} .tmp/{old,new}/lib/compiler .tmp/{old,new}/lib/stdlib/js");
-  buildAll(".tmp/old");
-  return (0, _helpers.cmd)("cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler &&     cp dist/lib/stdlib/js/js.js .tmp/old/lib/stdlib/js/ &&     cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ &&     cp dist/lib/stdlib/js/js.js .tmp/new/lib/stdlib/js/ &&     mkdir .tmp/{old,new}/node_modules/puck-lang &&     ln -s ../lib .tmp/lib &&     ln -s ../../../old .tmp/old/node_modules/puck-lang/dist &&     ln -s ../../../new .tmp/new/node_modules/puck-lang/dist  ");
+var puckPattern = (0, _js.RegExp)("\\.puck$", "i");
+function normalizeBinName(file) {
+  var dirname = path.dirname(file);
+  var fileName = path.basename(file, ".puck").replace((0, _js.RegExp)("^_"), "");
+  return path.join("dist", dirname, fileName);
 };
 if (command == "build") {
   var outDir = _arguments[1];
-  buildAll(outDir);
+  var binFiles = (0, _helpers.walkSync)("bin").filter(function (f) {
+    return puckPattern.test(f);
+  }).map(function (file) {
+    return {
+      file: file,
+      outFile: normalizeBinName(file)
+    };
+  });
+  var libFiles = (0, _helpers.walkSync)("lib").filter(function (f) {
+    return puckPattern.test(f);
+  }).map(function (file) {
+    return {
+      file: file,
+      outFile: path.join("dist", file.replace((0, _js.RegExp)("\\.puck$"), ".js"))
+    };
+  });
+  (0, _compiler.build)(binFiles);
+  (0, _compiler.build)(libFiles);
   (0, _core.print)("done");
 } else {
-  if (command == "test") {
-    (function () {
-      buildTestCompiler();
-      var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
-      var caseFiles = (0, _helpers.walkSync)("test/cases");
-      var failCases = caseFiles.filter(function (f) {
-        return failPattern.test(f);
-      });
-      (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
-      var buildString = (0, _js.require)("puck-lang/.tmp/old/lib/compiler").buildString;
-      failCases.forEach(function (file) {
-        return fs.readFileSync(file, { encoding: "utf-8" }).split("/////").forEach(function (test, i) {
-          var firstNewline = test.indexOf("\n");
-          var error = test.substr(0, firstNewline);
-          var code = test.substr(firstNewline);
-          if (!error && !code) {
-            return false;
-          };
-          if (!error || !code || error.substr(0, 1) != " ") {
-            (0, _core.print)("Test " + file + "::" + i + " is invalid, missing error or code");
-            _js.process.exit(1);
-          };
-          var result = buildString(code, file);
-          if (!result.error) {
-            (0, _core.print)("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
-            _js.process.exit(1);
-          };
-          if (result.error.message.indexOf(error.trim()) == -1) {
-            (0, _core.print)("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + result.error.message);
-            return _js.process.exit(1);
-          };
-        });
-      });
-      (0, _helpers.cmd)("diff -Nr test/baselines .tmp/cases");
-      (0, _core.print)("done");
-    })();
-  } else {
-    if (command == "update-baselines") {
-      buildTestCompiler();
-      (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
-      (0, _core.print)("done");
-    } else {
-      if (command == "self-test") {
-        buildTestCompiler();
-        buildAll(".tmp/new", ".tmp/old");
-        (0, _helpers.cmd)("diff --exclude=node_modules -Nr .tmp/old .tmp/new");
-        (0, _core.print)("done");
-      } else {
-        _js.console.error("Unknown command", command);
-        _js.process.exit(1);
-      };
-    };
-  };
+  _js.console.error("Unknown command", command);
+  _js.process.exit(1);
 }

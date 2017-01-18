@@ -1,0 +1,69 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var _core = require('puck-lang/dist/lib/stdlib/core');
+
+var _js = require('puck-lang/dist/lib/stdlib/js');
+
+var _fs = require('fs');
+
+var fs = _interopRequireWildcard(_fs);
+
+var _helpers = require('./../lib/helpers.js');
+
+var _test = require('./../lib/test.js');
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+var argv = _js.process.argv;
+var _arguments = _core.Iterable['$List'].skip.call(_core.Iterable['$List'].skipUntil.call(argv, function (arg) {
+  return _core.StringTrait['$String'].contains.call(arg, "test");
+}), 1);
+var command = _arguments[0];
+if (command == _js._undefined) {
+  (function () {
+    (0, _test.buildTestCompiler)();
+    var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
+    var caseFiles = (0, _helpers.walkSync)("test/cases");
+    var failCases = caseFiles.filter(function (f) {
+      return failPattern.test(f);
+    });
+    (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
+    var buildString = (0, _js.require)("puck-lang/.tmp/old/lib/compiler").buildString;
+    failCases.forEach(function (file) {
+      return fs.readFileSync(file, { encoding: "utf-8" }).split("/////").forEach(function (test, i) {
+        var firstNewline = test.indexOf("\n");
+        var error = test.substr(0, firstNewline);
+        var code = test.substr(firstNewline);
+        if (!error && !code) {
+          return false;
+        };
+        if (!error || !code || error.substr(0, 1) != " ") {
+          (0, _core.print)("Test " + file + "::" + i + " is invalid, missing error or code");
+          _js.process.exit(1);
+        };
+        var result = buildString(code, file);
+        if (!result.error) {
+          (0, _core.print)("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
+          _js.process.exit(1);
+        };
+        if (result.error.message.indexOf(error.trim()) == -1) {
+          (0, _core.print)("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + result.error.message);
+          return _js.process.exit(1);
+        };
+      });
+    });
+    (0, _helpers.cmd)("diff -Nr test/baselines .tmp/cases");
+    (0, _core.print)("done");
+  })();
+} else {
+  if (command == "update-baselines") {
+    (0, _test.buildTestCompiler)();
+    (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
+    (0, _core.print)("done");
+  } else {
+    _js.console.error("Unknown command", command);
+    _js.process.exit(1);
+  };
+}

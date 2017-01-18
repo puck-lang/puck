@@ -1,87 +1,40 @@
 import 'puck:js' as {RegExp, console, process, require}
 import 'node:fs' as fs
-import '../lib/helpers.puck' as {cmd, walkSync}
+import 'node:path' as path
+import '../lib/compiler.puck' as {build}
+import '../lib/helpers.puck' as {walkSync}
 
 let argv: List<String> = process.argv
 let arguments = argv.skipUntil(|arg| arg.contains('puck')).skip(1)
 let command = arguments[0]
 
-fn buildAll(outFolder = 'dist', compiler = 'dist') {
-  cmd(
-    '$compiler/bin/puckc --out-dir $outFolder --skip-extension true bin/**/*.puck && ' +
-    '$compiler/bin/puckc --out-dir $outFolder lib/**/*.puck'
-  )
-}
+let puckPattern = RegExp('\\.puck$', 'i')
 
-fn buildTestCompiler() {
-  cmd('rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,node_modules} .tmp/{old,new}/lib/compiler .tmp/{old,new}/lib/stdlib/js')
-  buildAll('.tmp/old')
-  cmd('cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler && \
-    cp dist/lib/stdlib/js/js.js .tmp/old/lib/stdlib/js/ && \
-    cp dist/lib/compiler/{ast,emitter}.js .tmp/new/lib/compiler/ && \
-    cp dist/lib/stdlib/js/js.js .tmp/new/lib/stdlib/js/ && \
-    mkdir .tmp/{old,new}/node_modules/puck-lang && \
-    ln -s ../lib .tmp/lib && \
-    ln -s ../../../old .tmp/old/node_modules/puck-lang/dist && \
-    ln -s ../../../new .tmp/new/node_modules/puck-lang/dist\
-  ')
+fn normalizeBinName(file) {
+  let dirname = path.dirname(file)
+  let fileName = path.basename(file, '.puck').replace(RegExp('^_'), '')
+  path.join('dist', dirname, fileName)
 }
 
 if command == 'build' {
   let outDir = arguments[1]
 
-  buildAll(outDir)
-  print('done')
-}
-else if command == 'test' {
-  buildTestCompiler()
+  let binFiles = walkSync('bin')
+    .filter(|f| puckPattern.test(f))
+    .map(|file| {{
+      file
+      outFile: normalizeBinName(file)
+    }})
+  let libFiles = walkSync('lib')
+    .filter(|f| puckPattern.test(f))
+    .map(|file| {{
+      file
+      outFile: path.join('dist', file.replace(RegExp('\\.puck$'), '.js'))
+    }})
 
-  let failPattern = RegExp('\\.error\\.puck$', 'i')
-  let caseFiles = walkSync('test/cases')
-  let failCases = caseFiles.filter(|f| failPattern.test(f))
+  build(binFiles)
+  build(libFiles)
 
-  cmd('.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck')
-  let buildString = require('puck-lang/.tmp/old/lib/compiler').buildString
-  failCases.forEach(|file| {
-    fs.readFileSync(file, {encoding: 'utf-8'})
-      .split('/////')
-      .forEach(|test, i| {
-        let firstNewline = test.indexOf('\n')
-        let error = test.substr(0, firstNewline)
-        let code = test.substr(firstNewline)
-
-        if not error and not code then return false
-        if not error or not code or error.substr(0, 1) != ' ' {
-          print('Test $file::$i is invalid, missing error or code')
-          process.exit(1)
-        }
-
-        let result = buildString(code, file)
-
-        if not result.error {
-          print('error case did not error for $file::$i\nexpected error:$error')
-          process.exit(1)
-        }
-
-        if result.error.message.indexOf(error.trim()) == -1 {
-          print('expected error for $file::$i to include $error\n  but got\n' + result.error.message)
-          process.exit(1)
-        }
-      })
-  })
-
-  cmd('diff -Nr test/baselines .tmp/cases')
-  print('done')
-}
-else if command == 'update-baselines' {
-  buildTestCompiler()
-  cmd('.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck')
-  print('done')
-}
-else if command == 'self-test' {
-  buildTestCompiler()
-  buildAll('.tmp/new', '.tmp/old')
-  cmd('diff --exclude=node_modules -Nr .tmp/old .tmp/new')
   print('done')
 }
 else {
