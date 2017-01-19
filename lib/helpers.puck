@@ -33,6 +33,8 @@ export fn cmd(cmd) {
 
 /// Recursively and synchronously list all files in [directory]
 export fn walkSync(directory, mut filelist = []) {
+  if not fs.existsSync(directory) or not fs.statSync(directory).isDirectory()
+    then return []
   let mut files = fs.readdirSync(directory)
 
   files.forEach(|fileName| {

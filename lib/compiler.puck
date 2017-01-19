@@ -1,4 +1,4 @@
-import 'puck:js' as {Object, asResult, console, process, undefined, typeof}
+import 'puck:js' as {Object, asResult, console, process, require, undefined, typeof}
 import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
@@ -30,7 +30,7 @@ fn babelTransform(file) {
   babel
     .transform(file.js, {
       filename: file.absolutePath
-      presets: 'latest'
+      presets: require.resolve('babel-preset-latest')
       babelrc: false
     })
     .code

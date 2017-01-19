@@ -2,6 +2,10 @@
   "name": "puck-lang",
   "version": "0.1.0",
   "description": "",
+  "bin": {
+    "puck": "dist/bin/puck",
+    "puckc": "dist/bin/puckc"
+  },
   "scripts": {
     "postinstall": "ln -s .. node_modules/puck-lang",
     "build": "tsc",

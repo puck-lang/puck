@@ -64,7 +64,7 @@ function compile(context, file) {
 function babelTransform(file) {
   return babel.transform(file.js, {
     filename: file.absolutePath,
-    presets: "latest",
+    presets: _js.require.resolve("babel-preset-latest"),
     babelrc: false
   }).code;
 };

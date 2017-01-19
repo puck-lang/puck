@@ -63,6 +63,9 @@ function cmd(cmd) {
 function walkSync(directory) {
   var filelist = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
 
+  if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) {
+    return [];
+  };
   var files = fs.readdirSync(directory);
   files.forEach(function (fileName) {
     var file = path.join(directory, fileName);
