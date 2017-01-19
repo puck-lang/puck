@@ -33,7 +33,7 @@ import '../ast/ast.puck' as {
   MatchArm
   TypePathExpression
   UnaryExpression
-  WhileExpression
+  WhileLoop
 
   IndexAccess
   MemberAccess
@@ -559,10 +559,11 @@ export fn ScopeVisitor(context, file) {
              or e.operator.kind == SyntaxKind.PlusToken
           then e.scope.getTypeBinding('Num').type_
     }
-    visitWhileExpression: |mut self, mut e: WhileExpression| {
+    visitWhileLoop: |mut self, mut e: WhileLoop| {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
-      visit.walkWhileExpression(self, e)
+      visit.walkWhileLoop(self, e)
+      e.type_ = TypeTrait.empty()
       self.scope = self.scope.parent
     }
     visitIndexAccess: |self, mut a: IndexAccess| {

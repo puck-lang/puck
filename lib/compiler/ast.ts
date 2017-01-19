@@ -95,7 +95,7 @@ export enum SyntaxKind {
   MatchExpression,
   TypePathExpression,
   UnaryExpression,
-  WhileExpression,
+  WhileLoop,
 
   IndexAccess,
   MemberAccess,
@@ -471,7 +471,7 @@ export interface UnaryExpression extends Expression {
   rhs: Expression
 }
 
-export interface WhileExpression extends Token {
+export interface WhileLoop extends Token {
   condition: Expression,
   body: BlockNode,
 }

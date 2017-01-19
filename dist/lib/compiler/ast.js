@@ -90,7 +90,7 @@
     SyntaxKind[SyntaxKind["MatchExpression"] = 87] = "MatchExpression";
     SyntaxKind[SyntaxKind["TypePathExpression"] = 88] = "TypePathExpression";
     SyntaxKind[SyntaxKind["UnaryExpression"] = 89] = "UnaryExpression";
-    SyntaxKind[SyntaxKind["WhileExpression"] = 90] = "WhileExpression";
+    SyntaxKind[SyntaxKind["WhileLoop"] = 90] = "WhileLoop";
     SyntaxKind[SyntaxKind["IndexAccess"] = 91] = "IndexAccess";
     SyntaxKind[SyntaxKind["MemberAccess"] = 92] = "MemberAccess";
     SyntaxKind[SyntaxKind["TypePath"] = 93] = "TypePath";

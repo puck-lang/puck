@@ -776,11 +776,12 @@ function ScopeVisitor(context, file) {
       };
       return e.type_ = __PUCK__value__65;
     },
-    visitWhileExpression: function visitWhileExpression(e) {
+    visitWhileLoop: function visitWhileLoop(e) {
       var self = this;
       self.scope = (0, _scope.createScope)(context, file, self.scope);
       e.scope = self.scope;
-      visit.walkWhileExpression(self, e);
+      visit.walkWhileLoop(self, e);
+      e.type_ = _entities.TypeTrait.empty();
       return self.scope = self.scope.parent;
     },
     visitIndexAccess: function visitIndexAccess(a) {

@@ -52,6 +52,15 @@ export type Type {
 }
 
 export trait TypeTrait {
+  fn empty() -> Type {{
+    displayName: Some('')
+    displayName: None
+    kind: TypeKind::Struct({
+      implementations: []
+      kind: StructKind::Tuple({properties: []})
+    })
+  }}
+
   fn displayName(self: Type) -> String {
     if not self then return '??'
     if let Option::Some(name) = self.displayName {

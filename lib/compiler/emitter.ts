@@ -43,7 +43,7 @@ import {
   UnaryExpression,
   UnitPatternArm,
   VariableDeclaration,
-  WhileExpression,
+  WhileLoop,
   isBlock,
   isExport,
   isIdentifier,
@@ -145,8 +145,8 @@ export function Emitter() {
     return `'$${type.name}'`
   }
 
-  function emitExpressions(block: Expression[]) {
-    let wasInContext = context
+  function emitExpressions(block: Expression[], inContext = context) {
+    let wasInContext = inContext
     context = null
     let expressions: any[] = []
     let outerHoist = hoist
@@ -191,9 +191,9 @@ export function Emitter() {
     return preamble + expressions.join(';\n')
   }
 
-  function emitBlock(block: BlockNode) {
+  function emitBlock(block: BlockNode, inContext?) {
     level++
-    let expressions = emitExpressions(block.expressions)
+    let expressions = emitExpressions(block.expressions, inContext)
     let body
     let end = '}'
     if (expressions.length !== 0) {
@@ -222,7 +222,7 @@ export function Emitter() {
       case SyntaxKind.CallExpression: return emitCallExpression(expression);
       case SyntaxKind.TypePathExpression: return emitTypePath(expression.typePath);
       case SyntaxKind.UnaryExpression: return emitUnaryExpression(expression);
-      case SyntaxKind.WhileExpression: return emitWhileExpression(expression);
+      case SyntaxKind.WhileLoop: return emitWhileLoop(expression);
 
       case SyntaxKind.IndexAccess: return emitIndexAccess(expression);
       case SyntaxKind.MemberAccess: return emitMemberAccess(expression);
@@ -746,19 +746,10 @@ export function Emitter() {
     return withPrecedence(e.operator, () => `${tokenToJs[e.operator.kind]}${emitExpression(e.rhs)}`)
   }
 
-  function emitWhileExpression(e: WhileExpression) {
-    let body = () => emitBlock(e.body)
+  function emitWhileLoop(e: WhileLoop) {
+    let body = () => emitBlock(e.body, null)
 
-    if (!context) return `while (${emitExpression(e.condition)}) ${body()}`
-
-    let hoisted = ''
-    let hoist = code => hoisted += `\n${indent(code)};\n`
-
-    return `(() => {` +
-      `let __value__;` +
-      `while (${emitExpression(e.condition)}) {${hoisted}` +
-        `__value__ = ${withContext(Context.Value, body)}` +
-      `} return value})()`
+    return `while (${emitExpression(e.condition)}) ${body()}`
   }
 
   function emitIndexAccess(e: IndexAccess) {

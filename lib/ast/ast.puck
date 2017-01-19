@@ -216,7 +216,7 @@ export type UnaryExpression {
   rhs: Expression
 }
 
-export type WhileExpression {
+export type WhileLoop {
   condition: Expression,
   body: Block,
 }

@@ -36,7 +36,7 @@ import 'ast.puck' as {
   MatchArm
   TypePathExpression
   UnaryExpression
-  WhileExpression
+  WhileLoop
 
   IndexAccess
   MemberAccess
@@ -124,7 +124,7 @@ export let walkingVisitor = {
   visitMatchExpression: |self, e: MatchExpression| walkMatchExpression(self, e)
   visitMatchArm: |self, e: MatchArm| walkMatchArm(self, e)
   visitUnaryExpression: |self, e: UnaryExpression| walkUnaryExpression(self, e)
-  visitWhileExpression: |self, e: WhileExpression| walkWhileExpression(self, e)
+  visitWhileLoop: |self, e: WhileLoop| walkWhileLoop(self, e)
 
   visitIndexAccess: |self, a: IndexAccess| walkIndexAccess(self, a)
   visitMemberAccess: |self, a: MemberAccess| walkMemberAccess(self, a)
@@ -181,7 +181,7 @@ export let emptyVisitor = {
   visitMatchArm: || {}
   visitTypePathExpression: || {}
   visitUnaryExpression: || {}
-  visitWhileExpression: || {}
+  visitWhileLoop: || {}
 
   visitIndexAccess: || {}
   visitMemberAccess: || {}
@@ -228,7 +228,7 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.MatchExpression then visitor.visitMatchExpression(e)
   else if e.kind == SyntaxKind.TypePathExpression then visitor.visitTypePathExpression(e)
   else if e.kind == SyntaxKind.UnaryExpression then visitor.visitUnaryExpression(e)
-  else if e.kind == SyntaxKind.WhileExpression then visitor.visitWhileExpression(e)
+  else if e.kind == SyntaxKind.WhileLoop then visitor.visitWhileLoop(e)
 
   else if e.kind == SyntaxKind.IndexAccess then visitor.visitIndexAccess(e)
   else if e.kind == SyntaxKind.MemberAccess then visitor.visitMemberAccess(e)
@@ -409,7 +409,7 @@ export fn walkMatchArm(visitor: Visitor, e: MatchArm) {
 export fn walkUnaryExpression(visitor: Visitor, e: UnaryExpression) {
   visitor.visitExpression(e.rhs)
 }
-export fn walkWhileExpression(visitor: Visitor, e: WhileExpression) {
+export fn walkWhileLoop(visitor: Visitor, e: WhileLoop) {
   visitor.visitExpression(e.condition)
   visitor.visitBlock(e.body)
 }

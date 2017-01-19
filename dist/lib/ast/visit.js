@@ -43,7 +43,7 @@ exports.walkIfLetExpression = walkIfLetExpression;
 exports.walkMatchExpression = walkMatchExpression;
 exports.walkMatchArm = walkMatchArm;
 exports.walkUnaryExpression = walkUnaryExpression;
-exports.walkWhileExpression = walkWhileExpression;
+exports.walkWhileLoop = walkWhileLoop;
 exports.walkIndexAccess = walkIndexAccess;
 exports.walkMemberAccess = walkMemberAccess;
 exports.walkBreak = walkBreak;
@@ -201,9 +201,9 @@ var walkingVisitor = exports.walkingVisitor = {
     var self = this;
     return walkUnaryExpression(self, e);
   },
-  visitWhileExpression: function visitWhileExpression(e) {
+  visitWhileLoop: function visitWhileLoop(e) {
     var self = this;
-    return walkWhileExpression(self, e);
+    return walkWhileLoop(self, e);
   },
   visitIndexAccess: function visitIndexAccess(a) {
     var self = this;
@@ -289,7 +289,7 @@ var emptyVisitor = exports.emptyVisitor = {
   visitMatchArm: function visitMatchArm() {},
   visitTypePathExpression: function visitTypePathExpression() {},
   visitUnaryExpression: function visitUnaryExpression() {},
-  visitWhileExpression: function visitWhileExpression() {},
+  visitWhileLoop: function visitWhileLoop() {},
   visitIndexAccess: function visitIndexAccess() {},
   visitMemberAccess: function visitMemberAccess() {},
   visitBreak: function visitBreak() {},
@@ -383,8 +383,8 @@ function walkExpression(visitor, e) {
                                                       if (e.kind == _ast2.SyntaxKind.UnaryExpression) {
                                                         return visitor.visitUnaryExpression(e);
                                                       } else {
-                                                        if (e.kind == _ast2.SyntaxKind.WhileExpression) {
-                                                          return visitor.visitWhileExpression(e);
+                                                        if (e.kind == _ast2.SyntaxKind.WhileLoop) {
+                                                          return visitor.visitWhileLoop(e);
                                                         } else {
                                                           if (e.kind == _ast2.SyntaxKind.IndexAccess) {
                                                             return visitor.visitIndexAccess(e);
@@ -702,7 +702,7 @@ function walkMatchArm(visitor, e) {
 function walkUnaryExpression(visitor, e) {
   return visitor.visitExpression(e.rhs);
 };
-function walkWhileExpression(visitor, e) {
+function walkWhileLoop(visitor, e) {
   visitor.visitExpression(e.condition);
   return visitor.visitBlock(e.body);
 };

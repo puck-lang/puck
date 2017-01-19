@@ -83,8 +83,9 @@ function Emitter() {
         }
         return "'$" + type.name + "'";
     }
-    function emitExpressions(block) {
-        var wasInContext = context;
+    function emitExpressions(block, inContext) {
+        if (inContext === void 0) { inContext = context; }
+        var wasInContext = inContext;
         context = null;
         var expressions = [];
         var outerHoist = hoist;
@@ -119,9 +120,9 @@ function Emitter() {
             (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TraitDeclaration)); })));
         return preamble + expressions.join(';\n');
     }
-    function emitBlock(block) {
+    function emitBlock(block, inContext) {
         level++;
-        var expressions = emitExpressions(block.expressions);
+        var expressions = emitExpressions(block.expressions, inContext);
         var body;
         var end = '}';
         if (expressions.length !== 0) {
@@ -147,7 +148,7 @@ function Emitter() {
             case ast_1.SyntaxKind.CallExpression: return emitCallExpression(expression);
             case ast_1.SyntaxKind.TypePathExpression: return emitTypePath(expression.typePath);
             case ast_1.SyntaxKind.UnaryExpression: return emitUnaryExpression(expression);
-            case ast_1.SyntaxKind.WhileExpression: return emitWhileExpression(expression);
+            case ast_1.SyntaxKind.WhileLoop: return emitWhileLoop(expression);
             case ast_1.SyntaxKind.IndexAccess: return emitIndexAccess(expression);
             case ast_1.SyntaxKind.MemberAccess: return emitMemberAccess(expression);
             case ast_1.SyntaxKind.TypePath: return emitOldTypePath(expression);
@@ -614,17 +615,9 @@ function Emitter() {
     function emitUnaryExpression(e) {
         return withPrecedence(e.operator, function () { return ("" + tokenToJs[e.operator.kind] + emitExpression(e.rhs)); });
     }
-    function emitWhileExpression(e) {
-        var body = function () { return emitBlock(e.body); };
-        if (!context)
-            return "while (" + emitExpression(e.condition) + ") " + body();
-        var hoisted = '';
-        var hoist = function (code) { return hoisted += "\n" + indent(code) + ";\n"; };
-        return "(() => {" +
-            "let __value__;" +
-            ("while (" + emitExpression(e.condition) + ") {" + hoisted) +
-            ("__value__ = " + withContext(Context.Value, body)) +
-            "} return value})()";
+    function emitWhileLoop(e) {
+        var body = function () { return emitBlock(e.body, null); };
+        return "while (" + emitExpression(e.condition) + ") " + body();
     }
     function emitIndexAccess(e) {
         return emitExpression(e.object) + "[" + emitExpression(e.index, Context.Value) + "]";

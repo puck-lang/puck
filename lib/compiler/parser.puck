@@ -36,7 +36,7 @@ import '../ast/ast.puck' as {
   MatchExpression
   MatchArm
   UnaryExpression
-  WhileExpression
+  WhileLoop
 
   ListLiteral
   ObjectLiteral
@@ -772,14 +772,14 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseWhile() -> WhileExpression {
+  fn parseWhile() -> WhileLoop {
     skipKeyword(SyntaxKind.WhileKeyword)
 
     let condition = parseExpression()
     let body = parseBlock()
 
     {
-      kind: SyntaxKind.WhileExpression
+      kind: SyntaxKind.WhileLoop
       condition
       body
     }
@@ -841,7 +841,6 @@ export fn parse(input) { // : TokenStream
       else if isToken(SyntaxKind.BarToken) then parseLambda()
       else if isToken(SyntaxKind.IfKeyword) then parseIf()
       else if isToken(SyntaxKind.MatchKeyword) then parseMatch()
-      else if isToken(SyntaxKind.WhileKeyword) then parseWhile()
       else if isToken(SyntaxKind.FnKeyword) then parseFunctionDeclaration()
       else if isToken(SyntaxKind.LetKeyword) {
         input.next()
@@ -960,6 +959,11 @@ export fn parse(input) { // : TokenStream
     else if isToken(SyntaxKind.ImportKeyword) then parseImport()
     else if isToken(SyntaxKind.TraitKeyword) then parseTraitDeclaration()
     else if isToken(SyntaxKind.TypeKeyword) then parseTypeDeclaration()
+    else parseBlockLevelExpression()
+  }
+
+  fn parseBlockLevelExpression() {
+    if isToken(SyntaxKind.WhileKeyword) then parseWhile()
     else parseExpression()
   }
 
@@ -985,7 +989,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseBlock() -> Block {
-    let expressions = delimited('{', '}', ';', parseExpression)
+    let expressions = delimited('{', '}', ';', parseBlockLevelExpression)
     { kind: SyntaxKind.Block, expressions }
   }
 

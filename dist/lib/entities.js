@@ -19,7 +19,19 @@ var _ast = require("./ast/ast.js");
 
 var _range = require("./typeck/src/range.js");
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var TypeTrait = exports.TypeTrait = {
+  empty: function empty() {
+    var _ref;
+
+    return _ref = {
+      displayName: (0, _core.Some)("")
+    }, _defineProperty(_ref, "displayName", _core.None), _defineProperty(_ref, "kind", TypeKind.Struct({
+      implementations: [],
+      kind: StructKind.Tuple({ properties: [] })
+    })), _ref;
+  },
   displayName: function displayName() {
     var self = this;
     if (!self) {
@@ -138,6 +150,7 @@ var TypeClassTrait = exports.TypeClassTrait = {
   }
 };
 TypeTrait['$Type'] = {
+  empty: TypeTrait.empty,
   displayName: TypeTrait.displayName
 };
 var File = exports.File = function File(object) {
@@ -154,11 +167,11 @@ function getTupleTypeName(properties) {
   }).join(", ") + ")";
 };
 function getRecordTypeName(properties) {
-  return "{" + _core.Iterable['$List'].map.call(_core.ObjectMapTrait['$ObjectMap'].toList.call(properties), function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2);
+  return "{" + _core.Iterable['$List'].map.call(_core.ObjectMapTrait['$ObjectMap'].toList.call(properties), function (_ref2) {
+    var _ref3 = _slicedToArray(_ref2, 2);
 
-    var key = _ref2[0];
-    var type_ = _ref2[1];
+    var key = _ref3[0];
+    var type_ = _ref3[1];
 
     return "" + key + ": " + type_.displayName();
   }).join(", ") + "}";
