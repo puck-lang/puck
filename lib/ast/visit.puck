@@ -6,6 +6,7 @@ import 'ast.puck' as {
   FunctionDeclaration
   Identifier
   ImplDeclaration
+  ImplShorthandDeclaration
   Module
   ObjectDestructure
   TraitDeclaration
@@ -93,6 +94,7 @@ export let walkingVisitor = {
   visitFunctionDeclaration: |self, f: FunctionDeclaration| walkFunction(self, f)
   visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
   visitImplDeclaration: |self, i: ImplDeclaration| walkImplDeclaration(self, i)
+  visitImplShorthandDeclaration: |self, i: ImplShorthandDeclaration| walkImplShorthandDeclaration(self, i)
   visitModule: |self, m: Module| walkModule(self, m)
   visitObjectDestructure: |self, o: ObjectDestructure| walkObjectDestructure(self, o)
   visitTraitDeclaration: |self, t: TraitDeclaration| walkTraitDeclaration(self, t)
@@ -149,6 +151,7 @@ export let emptyVisitor = {
   visitFunctionDeclaration: || {}
   visitIdentifier: || {}
   visitImplDeclaration: || {}
+  visitImplShorthandDeclaration: || {}
   visitModule: || {}
   visitObjectDestructure: || {}
   visitTraitDeclaration: || {}
@@ -203,6 +206,7 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.Function then visitor.visitFunctionDeclaration(e)
   else if e.kind == SyntaxKind.Identifier then visitor.visitIdentifier(e)
   else if e.kind == SyntaxKind.ImplDeclaration then visitor.visitImplDeclaration(e)
+  else if e.kind == SyntaxKind.ImplShorthandDeclaration then visitor.visitImplShorthandDeclaration(e)
   else if e.kind == SyntaxKind.ObjectDestructure then visitor.visitObjectDestructure(e)
   else if e.kind == SyntaxKind.TraitDeclaration then visitor.visitTraitDeclaration(e)
   else if e.kind == SyntaxKind.FunctionTypeBound then visitor.visitFunctionTypeBound(e)
@@ -265,9 +269,13 @@ export fn walkFunction(visitor: Visitor, f: FunctionDeclaration) {
 }
 export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
 export fn walkImplDeclaration(visitor: Visitor, i: ImplDeclaration) {
-  if i.typeParameters
-    then i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
+  i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   visitor.visitTypeBound(i.trait_)
+  visitor.visitTypeBound(i.type_)
+  i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
+}
+export fn walkImplShorthandDeclaration(visitor: Visitor, i: ImplShorthandDeclaration) {
+  i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   visitor.visitTypeBound(i.type_)
   i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
 }

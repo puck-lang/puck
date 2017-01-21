@@ -4,6 +4,10 @@
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var D = function D(object) {
+  return object;
+};
+
 var a = void 0;
 a = {};
 a.b = [1, 2];
@@ -17,9 +21,6 @@ var b = 5;
 b = 6;
 function c(a) {
   return a = a * 2;
-};
-var D = function D(object) {
-  return object;
 };
 var d = { e: 42 };
 d.e = 5;

@@ -1,3 +1,3 @@
-export const TypeTrait: {
+export const Type: {
   displayName(): string
 }

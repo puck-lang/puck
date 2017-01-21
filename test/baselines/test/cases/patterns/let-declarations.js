@@ -6,6 +6,26 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var Tuple = function Tuple() {
+  for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
+    members[_key] = arguments[_key];
+  }
+
+  return members;
+};
+var Record = function Record(object) {
+  return object;
+};
+var Enum = {
+  A: function A() {
+    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      members[_key2] = arguments[_key2];
+    }
+
+    return { kind: 'A', value: members };
+  }
+};
+
 var a = 1;
 var b = 2;
 var c = 3;
@@ -45,26 +65,6 @@ var _a$b$b = _slicedToArray(_a$b.b, 2);
 
 var n = _a$b$b[0].n;
 var o = _a$b$b[1];
-
-var Tuple = function Tuple() {
-  for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
-    members[_key] = arguments[_key];
-  }
-
-  return members;
-};
-var Record = function Record(object) {
-  return object;
-};
-var Enum = {
-  A: function A() {
-    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      members[_key2] = arguments[_key2];
-    }
-
-    return { kind: 'A', value: members };
-  }
-};
 var p = 1;
 var q = 2;
 var _a$b2 = {

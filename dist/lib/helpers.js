@@ -77,7 +77,9 @@ function walkSync(directory) {
   });
   return filelist;
 };
-function flag(_arguments, name, defaultValue) {
+function flag(_arguments, name) {
+  var defaultValue = arguments.length <= 2 || arguments[2] === undefined ? "" : arguments[2];
+
   var index = _arguments.indexOf(name);
   if (index >= 0) {
     var value = _arguments[index + 1];

@@ -42,8 +42,18 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
+var PatternError = {
+  PatternMismatch: function PatternMismatch() {
+    for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
+      members[_key] = arguments[_key];
+    }
+
+    return { kind: 'PatternMismatch', value: members };
+  },
+  NotExhaustive: { kind: 'NotExhaustive', value: Symbol('NotExhaustive') }
+};
 function notAssignableError(to, subject) {
-  return _entities.TypeTrait['$Type'].displayName.call(subject) + " is not assignable to type " + _entities.TypeTrait['$Type'].displayName.call(to);
+  return _entities.Type.displayName.call(subject) + " is not assignable to type " + _entities.Type.displayName.call(to);
 };
 var structureVisitor = exports.structureVisitor = {
   visitEnumMember: visit.walkingVisitor.visitEnumMember,
@@ -139,7 +149,7 @@ var structureVisitor = exports.structureVisitor = {
 
         var _class = _PUCK__value__7$valu[0];
 
-        var __PUCK__value__8 = (0, _range.checkRange)(t.typeParameters, _class.parameterRange, "type parameters", _entities.TypeTrait['$Type'].displayName.call(type_));
+        var __PUCK__value__8 = (0, _range.checkRange)(t.typeParameters, _class.parameterRange, "type parameters", _entities.Type.displayName.call(type_));
         if (__PUCK__value__8.kind == "Err") {
           var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1);
 
@@ -149,7 +159,7 @@ var structureVisitor = exports.structureVisitor = {
         };
       } else {
         if (t.typeParameters.length > 0) {
-          self.reportError(t, "Type " + _entities.TypeTrait['$Type'].displayName.call(type_) + " is not generic");
+          self.reportError(t, "Type " + _entities.Type.displayName.call(type_) + " is not generic");
         };
       };
       visit.walkNamedTypeBound(self, t);
@@ -193,10 +203,10 @@ var structureVisitor = exports.structureVisitor = {
       t.type_ = {
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
-        kind: _entities.TypeKind.Parameter({ defaultValue: _core.MaybeTrait['$Option'].map.call(t.defaultValue, function (typeBound) {
+        kind: _entities.TypeKind.Parameter({ defaultValue: _core.Option.map.call(t.defaultValue, function (typeBound) {
             return (0, _types.getType)(t.scope, typeBound);
           }) }),
-        _class: _entities.TypeClassTrait.fromAstNode(t, self.reportError),
+        _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, self.reportError),
         instance: _core.None
       };
       return self.scope.defineType(t.type_, t);
@@ -221,7 +231,7 @@ var structureVisitor = exports.structureVisitor = {
       return _js._undefined;
     };
     d.scope = self.scope;
-    d.type_ = _core.MaybeTrait['$Option'].mapOr.call(d.typeBound, type_, function (bound) {
+    d.type_ = _core.Option.mapOr.call(d.typeBound, type_, function (bound) {
       self.visitTypeBound(bound);
       return (0, _types.getType)(d.scope, bound) || type_;
     });
@@ -344,16 +354,6 @@ var structureVisitor = exports.structureVisitor = {
     return _core.Iterable['$List'].forEach.call(l.expressions, self.visitLiteral.bind(self));
   }
 };
-var PatternError = {
-  PatternMismatch: function PatternMismatch() {
-    for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
-      members[_key] = arguments[_key];
-    }
-
-    return { kind: 'PatternMismatch', value: members };
-  },
-  NotExhaustive: { kind: 'NotExhaustive', value: Symbol('NotExhaustive') }
-};
 function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive) {
   var __PUCK__value__19 = p;
   var __PUCK__value__20 = __PUCK__value__19;
@@ -427,20 +427,20 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
             };
             __PUCK__value__23 = __PUCK__value__26;
           } else {
-            __PUCK__value__23 = _core.ObjectMapTrait._new();
+            __PUCK__value__23 = _core.ObjectMap._new.call(_core.ObjectMap);
           };
           var props = __PUCK__value__23;
           var properties = _core.Iterable['$List'].map.call(record.properties, function (p) {
             return declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive);
           }).reduce(function (acc, cur) {
-            return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
-              return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
+            return _core.Result.andThen.call(acc, function (props) {
+              return _core.Result.map.call(cur, function (prop) {
                 return props.concat(prop);
               });
             });
           }, (0, _core.Ok)([]));
           return {
-            v: _core.ResultTrait['$Result'].map.call(properties, function (__PUCK__value__38) {
+            v: _core.Result.map.call(properties, function (__PUCK__value__38) {
               return false;
             })
           };
@@ -533,14 +533,14 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
             var properties = _core.Iterable['$List'].map.call(record.properties, function (p) {
               return declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive);
             }).reduce(function (acc, cur) {
-              return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
-                return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
+              return _core.Result.andThen.call(acc, function (props) {
+                return _core.Result.map.call(cur, function (prop) {
                   return props.concat(prop);
                 });
               });
             }, (0, _core.Ok)([]));
             return {
-              v: _core.ResultTrait['$Result'].map.call(properties, function (__PUCK__value__61) {
+              v: _core.Result.map.call(properties, function (__PUCK__value__61) {
                 return p.value[0].type_;
               })
             };
@@ -614,14 +614,14 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
                 return declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive);
               }).reduce(function (acc, cur) {
-                return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
-                  return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
+                return _core.Result.andThen.call(acc, function (props) {
+                  return _core.Result.map.call(cur, function (prop) {
                     return props.concat(prop);
                   });
                 });
               }, (0, _core.Ok)([]));
               return {
-                v: _core.ResultTrait['$Result'].map.call(properties, function (properties) {
+                v: _core.Result.map.call(properties, function (properties) {
                   return {
                     displayName: _core.None,
                     name: _core.None,
@@ -735,14 +735,14 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
                   return declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive);
                 }).reduce(function (acc, cur) {
-                  return _core.ResultTrait['$Result'].andThen.call(acc, function (props) {
-                    return _core.ResultTrait['$Result'].map.call(cur, function (prop) {
+                  return _core.Result.andThen.call(acc, function (props) {
+                    return _core.Result.map.call(cur, function (prop) {
                       return props.concat(prop);
                     });
                   });
                 }, (0, _core.Ok)([]));
                 return {
-                  v: _core.ResultTrait['$Result'].andThen.call(properties, function (properties) {
+                  v: _core.Result.andThen.call(properties, function (properties) {
                     var type_ = {
                       displayName: _core.None,
                       name: _core.None,
@@ -759,7 +759,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
                       var enumType = _PUCK__value__101$va[0];
 
-                      if (!allowNotExhaustive && _core.ObjectMapTrait['$ObjectMap'].size.call(enumType.members) > 1) {
+                      if (!allowNotExhaustive && _core.ObjectMap.size.call(enumType.members) > 1) {
                         return (0, _core.Err)(PatternError.NotExhaustive);
                       } else {
                         var _member = (0, _enums.getEnumMember)(typePath);

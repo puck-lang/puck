@@ -4,12 +4,11 @@ import 'puck:js' as {Error, Object, console, null, undefined}
 export type Bool {}
 export type Num {}
 export type String {}
-export trait StringTrait {
+impl String {
   fn contains(self, subStr: String) -> Bool {
     self.indexOf(subStr) >= 0
   }
 }
-impl StringTrait for String {}
 
 export enum Result<T, E> {
   Ok(T)
@@ -17,7 +16,7 @@ export enum Result<T, E> {
 }
 export let Ok = Result::Ok
 export let Err = Result::Err
-export trait ResultTrait<T, E> {
+impl<T, E> Result<T, E> {
   fn isOk(self) -> Bool {self.kind == 'Ok'}
   fn isErr(self: Result<T, E>) -> Bool {not self.isOk()}
 
@@ -39,7 +38,6 @@ export trait ResultTrait<T, E> {
       else self
   }
 }
-impl<T, E> ResultTrait<T, E> for Result<T, E> {}
 
 export enum Option<T> {
   Some(T)
@@ -47,8 +45,7 @@ export enum Option<T> {
 }
 export let Some = Option::Some
 export let None = Option::None
-export trait MaybeTrait<T> {
-
+impl<T> Option<T> {
   fn isJust(self) -> Bool {self.kind == 'Some'}
   fn isNothing(self: Option<T>) -> Bool {not self.isJust()}
 
@@ -89,12 +86,11 @@ export trait MaybeTrait<T> {
       else default()
   }
 }
-impl<T> MaybeTrait<T> for Option<T> {}
 
 fn any(a) {a}
 
 export type List<E> {}
-export trait ListTrait<E> {
+impl<E> List<E> {
   fn zip<A, B>(a: List<A>, b: List<B>) -> List<(A, B)> {
     if a.length != b.length
       then throw Error('List a and b are not of the same length')
@@ -102,7 +98,6 @@ export trait ListTrait<E> {
     any(a).map(|a, i| (a, b[i]))
   }
 }
-impl<E> ListTrait<E> for List<E> {}
 export trait Iterable<E> {
   fn enumerate(self) -> List<(E, Num)>
 
@@ -202,15 +197,11 @@ export type Range<Idx=Num> {
   /// The upper bound of the range (exclusive).
   end: Idx
 }
-export trait RangeTrait<Idx> {
-  fn contains(self, item: Idx) -> Bool
-  fn isSubsetOf(self, other: Range<Idx>) -> Bool
-}
-impl RangeTrait<Num> for Range<Num> {
-  fn contains(self, item) -> Bool {
+impl<Idx> Range<Idx> {
+  fn contains(self, item: Idx) -> Bool {
     self.start <= item and item < self.end
   }
-  fn isSubsetOf(self, other) -> Bool {
+  fn isSubsetOf(self, other: Range<Idx>) -> Bool {
     self.start >= other.start and other.end >= self.end
   }
 }
@@ -220,7 +211,7 @@ export fn print(message, extra = []) {
 }
 
 export type ObjectMap<T> {}
-export trait ObjectMapTrait<T> {
+impl<T> ObjectMap<T> {
   fn new<T>() -> ObjectMap<T> {
     Object.create(null)
   }
@@ -264,7 +255,7 @@ export trait ObjectMapTrait<T> {
   }
 
   fn map<U>(self, mapper: (T) -> U) -> ObjectMap<U> {
-    let mut new = ObjectMapTrait.new()
+    let mut new = ObjectMap.new()
     Object.keys(self).forEach(|key| {
       new[key] = mapper(self[key])
     })
@@ -297,4 +288,3 @@ export trait ObjectMapTrait<T> {
     Object.keys(self).length
   }
 }
-impl<T> ObjectMapTrait<T> for ObjectMap<T> {}

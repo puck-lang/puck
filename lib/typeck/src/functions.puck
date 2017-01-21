@@ -1,5 +1,5 @@
 import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration, TypeParameter}
-import '../../entities.puck' as {Binding, Function, Scope, Type, TypeKind, TypeTrait}
+import '../../entities.puck' as {Binding, Function, Scope, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
 import 'types.puck' as {getType, isAssignable}
 

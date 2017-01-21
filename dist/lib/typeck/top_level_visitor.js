@@ -43,7 +43,7 @@ function TopLevelVisitor(context, file) {
           implementations: [],
           members: []
         }),
-        _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+        _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, reportError),
         instance: _core.None
       }, t);
     },
@@ -82,8 +82,8 @@ function TopLevelVisitor(context, file) {
       return scope.defineType({
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
-        kind: _entities.TypeKind.Trait({ functions: _core.ObjectMapTrait._new() }),
-        _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+        kind: _entities.TypeKind.Trait({ functions: _core.ObjectMap._new.call(_core.ObjectMap) }),
+        _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, reportError),
         instance: _core.None
       }, t);
     },
@@ -98,7 +98,7 @@ function TopLevelVisitor(context, file) {
 
         var __PUCK__value__4 = void 0;
         if (typeBound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
-          __PUCK__value__4 = _entities.StructKind.Record({ properties: _core.ObjectMapTrait._new() });
+          __PUCK__value__4 = _entities.StructKind.Record({ properties: _core.ObjectMap._new.call(_core.ObjectMap) });
         } else {
           var __PUCK__value__5 = void 0;
           if (typeBound.kind == _ast2.SyntaxKind.TupleTypeBound) {
@@ -118,7 +118,7 @@ function TopLevelVisitor(context, file) {
           implementations: [],
           kind: structKind
         }),
-        _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+        _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, reportError),
         instance: _core.None
       }, t);
     },
@@ -149,7 +149,7 @@ function TopLevelVisitor(context, file) {
     visitPattern: visit.walkingVisitor.visitPattern,
     visitIdentifierPattern: function visitIdentifierPattern(p) {
       var self = this;
-      return _core.MaybeTrait['$Option'].map.call(variableDeclaration, function (d) {
+      return _core.Option.map.call(variableDeclaration, function (d) {
         return scope.define({
           name: p.name,
           mutable: d.mutable,

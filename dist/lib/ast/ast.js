@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TupleLiteral = exports.StringLiteral = exports.StringLiteralPart = exports.ObjectLiteralMember = exports.ObjectLiteral = exports.NumberLiteral = exports.BooleanLiteral = exports.ListLiteral = exports.ReturnStatement = exports.BreakStatement = exports.Pattern = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.TypePath = exports.MemberAccess = exports.IndexAccess = exports.WhileLoop = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.IfLetExpression = exports.IfExpression = exports.ForExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.ImportDirective = exports.ExportDirective = exports.VariableDeclaration = exports.TypeProperty = exports.TypeParameter = exports.TypeDeclaration = exports.TupleTypeBound = exports.ObjectTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TypeBound = exports.TraitDeclaration = exports.SimpleIdentifier = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.Module = exports.ImplDeclaration = exports.Identifier = exports.FunctionDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Block = exports.CommentNode = exports.Expression = exports.Token = exports.SyntaxKind = undefined;
+exports.Pattern = exports.TypePath = exports.TupleLiteral = exports.StringLiteral = exports.StringLiteralPart = exports.ObjectLiteralMember = exports.ObjectLiteral = exports.NumberLiteral = exports.BooleanLiteral = exports.ListLiteral = exports.ReturnStatement = exports.BreakStatement = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.MemberAccess = exports.IndexAccess = exports.WhileLoop = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.IfLetExpression = exports.IfExpression = exports.ForExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.ImportDirective = exports.ExportDirective = exports.VariableDeclaration = exports.TypeProperty = exports.TypeParameter = exports.TypeDeclaration = exports.TupleTypeBound = exports.ObjectTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TypeBound = exports.TraitDeclaration = exports.SimpleIdentifier = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.Module = exports.ImplShorthandDeclaration = exports.ImplDeclaration = exports.Identifier = exports.FunctionDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Block = exports.CommentNode = exports.Expression = exports.Token = exports.SyntaxKind = undefined;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -39,6 +39,9 @@ var Identifier = exports.Identifier = function Identifier(object) {
   return object;
 };
 var ImplDeclaration = exports.ImplDeclaration = function ImplDeclaration(object) {
+  return object;
+};
+var ImplShorthandDeclaration = exports.ImplShorthandDeclaration = function ImplShorthandDeclaration(object) {
   return object;
 };
 var Module = exports.Module = function Module(object) {
@@ -128,6 +131,45 @@ var IndexAccess = exports.IndexAccess = function IndexAccess(object) {
 var MemberAccess = exports.MemberAccess = function MemberAccess(object) {
   return object;
 };
+var RecordPattern = exports.RecordPattern = function RecordPattern(object) {
+  return object;
+};
+var RecordPatternMember = exports.RecordPatternMember = function RecordPatternMember(object) {
+  return object;
+};
+var TuplePattern = exports.TuplePattern = function TuplePattern(object) {
+  return object;
+};
+var BreakStatement = exports.BreakStatement = function BreakStatement(object) {
+  return object;
+};
+var ReturnStatement = exports.ReturnStatement = function ReturnStatement(object) {
+  return object;
+};
+var ListLiteral = exports.ListLiteral = function ListLiteral(object) {
+  return object;
+};
+var BooleanLiteral = exports.BooleanLiteral = function BooleanLiteral(object) {
+  return object;
+};
+var NumberLiteral = exports.NumberLiteral = function NumberLiteral(object) {
+  return object;
+};
+var ObjectLiteral = exports.ObjectLiteral = function ObjectLiteral(object) {
+  return object;
+};
+var ObjectLiteralMember = exports.ObjectLiteralMember = function ObjectLiteralMember(object) {
+  return object;
+};
+var StringLiteralPart = exports.StringLiteralPart = function StringLiteralPart(object) {
+  return object;
+};
+var StringLiteral = exports.StringLiteral = function StringLiteral(object) {
+  return object;
+};
+var TupleLiteral = exports.TupleLiteral = function TupleLiteral(object) {
+  return object;
+};
 var TypePath = exports.TypePath = {
   _Object: function _Object() {
     for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
@@ -143,15 +185,6 @@ var TypePath = exports.TypePath = {
 
     return { kind: 'Member', value: members };
   }
-};
-var RecordPattern = exports.RecordPattern = function RecordPattern(object) {
-  return object;
-};
-var RecordPatternMember = exports.RecordPatternMember = function RecordPatternMember(object) {
-  return object;
-};
-var TuplePattern = exports.TuplePattern = function TuplePattern(object) {
-  return object;
 };
 var Pattern = exports.Pattern = {
   CatchAll: { kind: 'CatchAll', value: Symbol('CatchAll') },
@@ -197,34 +230,4 @@ var Pattern = exports.Pattern = {
 
     return { kind: 'UnitType', value: members };
   }
-};
-var BreakStatement = exports.BreakStatement = function BreakStatement(object) {
-  return object;
-};
-var ReturnStatement = exports.ReturnStatement = function ReturnStatement(object) {
-  return object;
-};
-var ListLiteral = exports.ListLiteral = function ListLiteral(object) {
-  return object;
-};
-var BooleanLiteral = exports.BooleanLiteral = function BooleanLiteral(object) {
-  return object;
-};
-var NumberLiteral = exports.NumberLiteral = function NumberLiteral(object) {
-  return object;
-};
-var ObjectLiteral = exports.ObjectLiteral = function ObjectLiteral(object) {
-  return object;
-};
-var ObjectLiteralMember = exports.ObjectLiteralMember = function ObjectLiteralMember(object) {
-  return object;
-};
-var StringLiteralPart = exports.StringLiteralPart = function StringLiteralPart(object) {
-  return object;
-};
-var StringLiteral = exports.StringLiteral = function StringLiteral(object) {
-  return object;
-};
-var TupleLiteral = exports.TupleLiteral = function TupleLiteral(object) {
-  return object;
 };

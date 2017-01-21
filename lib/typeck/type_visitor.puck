@@ -5,7 +5,6 @@ import '../ast/ast.puck' as {
   EnumMember
   FunctionDeclaration
   Identifier
-  ImplDeclaration
   Module
   ObjectDestructure
   TypeBound
@@ -23,7 +22,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../entities.puck' as {StructKind, TypeClassTrait, TypeKind}
+import '../entities.puck' as {StructKind, TypeClass, TypeKind}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {getType}
@@ -53,7 +52,7 @@ export fn TypeVisitor(context, file) {
             implementations: []
             members: []
           })
-          class: TypeClassTrait.fromAstNode(t, reportError)
+          class: TypeClass.fromAstNode(t, reportError)
           instance: None
         }
         self.scope.defineType(t.type_, t, true)
@@ -76,7 +75,7 @@ export fn TypeVisitor(context, file) {
         self.scope = t.scope
         t.members.forEach(|m| self.visitEnumMember(m))
 
-        let memberMap = ObjectMapTrait.fromList(
+        let memberMap = ObjectMap.fromList(
           t.members.map(|p: EnumMember| (
             p.name.name
             p.bound.mapOrElse(
@@ -96,7 +95,7 @@ export fn TypeVisitor(context, file) {
         )
 
         if t.members.size() != memberMap.size() {
-          let mut members = ObjectMapTrait.new()
+          let mut members = ObjectMap.new()
           t.members.forEach(|p| {
             if members[p.name.name] then reportError(p, 'Duplicate member ' + p.name.name)
             members[p.name.name] = p
@@ -150,14 +149,11 @@ export fn TypeVisitor(context, file) {
         if importDirective.module {
           let e = importDirective.module.exports[m.local.name]
           if e.expression.kind == SyntaxKind.EnumDeclaration
-          or e.expression.kind == SyntaxKind.TraitDeclaration {
+          or e.expression.kind == SyntaxKind.TraitDeclaration
+          or e.expression.kind == SyntaxKind.TypeDeclaration {
             let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
             self.scope.setTypeBinding(typeBinding)
             self.scope.define({name: m.local.name, mutable: false, token: m, type_: typeBinding.type_})
-          }
-          else if e.expression.kind == SyntaxKind.TypeDeclaration {
-            let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
-            self.scope.setTypeBinding(typeBinding)
             self.imports[m.local.name] = importDirective.file
           }
           else {
@@ -180,9 +176,9 @@ export fn TypeVisitor(context, file) {
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Trait({
-            functions: ObjectMapTrait.new()
+            functions: ObjectMap.new()
           })
-          class: TypeClassTrait.fromAstNode(t, reportError)
+          class: TypeClass.fromAstNode(t, reportError)
           instance: None
         }
         self.scope.defineType(t.type_, t, true)
@@ -210,7 +206,7 @@ export fn TypeVisitor(context, file) {
         t.members.forEach(|t| self.visitFunctionDeclaration(t))
 
         if let TypeKind::Trait(trait_) = t.type_.kind {
-          Object.assign(trait_.functions, ObjectMapTrait.fromList(
+          Object.assign(trait_.functions, ObjectMap.fromList(
             t.members.map(|m| (m.name.value[0].name, m.type_))
           ))
 
@@ -235,7 +231,7 @@ export fn TypeVisitor(context, file) {
         let structKind =
           if let Option::Some(typeBound) = t.bound {
             if typeBound.kind == SyntaxKind.ObjectTypeBound
-              then StructKind::Record({properties: ObjectMapTrait.new()})
+              then StructKind::Record({properties: ObjectMap.new()})
             else if typeBound.kind == SyntaxKind.TupleTypeBound
               then StructKind::Tuple({properties: []})
           }
@@ -248,10 +244,16 @@ export fn TypeVisitor(context, file) {
             implementations: []
             kind: structKind
           })
-          class: TypeClassTrait.fromAstNode(t, reportError)
+          class: TypeClass.fromAstNode(t, reportError)
           instance: None
         }
         self.scope.defineType(t.type_, t, true)
+        t.binding = self.scope.define({
+          name: t.name.name
+          mutable: false
+          token: t
+          type_: t.type_
+        })
         t.scope = createScope(context, file, self.scope)
         self.postHoist.push(t)
       }
@@ -273,7 +275,7 @@ export fn TypeVisitor(context, file) {
 
           match t.type_.kind {
             TypeKind::Struct({kind: StructKind::Record({properties})}) => {
-              Object.assign(properties, ObjectMapTrait.fromList(
+              Object.assign(properties, ObjectMap.fromList(
                 typeBound.properties.map(|p| (p.name.name, p.typeBound.type_))
               ))
             }

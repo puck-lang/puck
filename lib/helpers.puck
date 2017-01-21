@@ -47,7 +47,7 @@ export fn walkSync(directory, mut filelist = []) {
   filelist
 }
 
-export fn flag(arguments, name, defaultValue) {
+export fn flag(arguments, name, defaultValue = '') {
   let index = arguments.indexOf(name)
   if index >= 0 {
     let value = arguments[index + 1]

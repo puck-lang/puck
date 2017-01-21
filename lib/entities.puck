@@ -51,7 +51,7 @@ export type Type {
   instance: Option<TypeInstance>
 }
 
-export trait TypeTrait {
+impl Type {
   fn empty() -> Type {{
     displayName: Some('')
     displayName: None
@@ -83,8 +83,21 @@ export trait TypeTrait {
       TypeKind::Trait(_) => getGenericName(self.name.unwrap(), self, true)
     }
   }
+
+  fn getFunction(self: Type) -> Function {
+    match self.kind {
+      TypeKind::Function(function) => function
+      _ => throw 'Type is not a function'
+    }
+  }
+
+  fn getTrait(self: Type) -> Trait {
+    match self.kind {
+      TypeKind::Trait(trait_) => trait_
+      _ => throw 'Type is not a trait'
+    }
+  }
 }
-impl TypeTrait for Type {}
 
 export enum TypeKind {
   Enum(Enum)
@@ -115,6 +128,7 @@ export type Struct {
 }
 
 export type Trait {
+  isShorthand: Bool
   functions: ObjectMap<Function>
 }
 
@@ -143,8 +157,8 @@ export type TypeClass {
   typeParameters: List<Type>
   instances: List<Type>
 }
-export trait TypeClassTrait {
-  fn fromAstNode(astNode, reportError) -> TypeClassTrait { // : {typeParameters: List<TypeParameter>}
+impl TypeClass {
+  fn fromAstNode(astNode, reportError) -> TypeClass { // : {typeParameters: List<TypeParameter>}
     if astNode.typeParameters and astNode.typeParameters.length {
       let parameterRange = getRange(
         astNode.typeParameters

@@ -79,7 +79,7 @@ function Emitter() {
             type = type._class;
         }
         if (type && type.name && type.name.kind) {
-            return "'$" + entities_1.TypeTrait.displayName.call(type) + "'";
+            return "'$" + (entities_1.Type.displayName || entities_1.TypeTrait.displayName).call(type) + "'";
         }
         return "'$" + type.name + "'";
     }
@@ -105,19 +105,43 @@ function Emitter() {
     function emitModule(module) {
         var preamble = "#!/usr/bin/env node\n'use strict';\n";
         var expressions = module.expressions
+            .filter(function (e) { return e.kind === ast_1.SyntaxKind.TypeDeclaration ||
+            (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TypeDeclaration); })
+            .map(function (e) {
+            return ast_1.isExport(e)
+                ? emitExportDirective(e)
+                : emitTypeDeclaration(e);
+        });
+        expressions = expressions.concat(module.expressions
+            .filter(function (e) { return e.kind === ast_1.SyntaxKind.EnumDeclaration ||
+            (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.EnumDeclaration); })
+            .map(function (e) {
+            return ast_1.isExport(e)
+                ? emitExportDirective(e)
+                : emitEnumDeclaration(e);
+        }));
+        expressions = expressions.concat(module.expressions
             .filter(function (e) { return e.kind === ast_1.SyntaxKind.TraitDeclaration ||
             (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TraitDeclaration); })
             .map(function (e) {
             return ast_1.isExport(e)
                 ? emitExportDirective(e)
                 : emitTraitDeclaration(e);
-        });
+        }));
         expressions = expressions.concat(module.expressions
             .filter(function (e) { return e.kind === ast_1.SyntaxKind.ImplDeclaration; })
             .map(function (e) { return emitImplDeclaration(e); }));
-        expressions = expressions.concat(emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.ImplDeclaration ||
+        expressions = expressions.concat(module.expressions
+            .filter(function (e) { return e.kind === ast_1.SyntaxKind.ImplShorthandDeclaration; })
+            .map(function (e) { return emitImplShorthandDeclaration(e); }));
+        expressions = expressions.concat(emitExpressions(module.expressions.filter(function (e) { return !(e.kind === ast_1.SyntaxKind.EnumDeclaration ||
+            e.kind === ast_1.SyntaxKind.ImplDeclaration ||
+            e.kind === ast_1.SyntaxKind.ImplShorthandDeclaration ||
             e.kind === ast_1.SyntaxKind.TraitDeclaration ||
-            (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TraitDeclaration)); })));
+            e.kind === ast_1.SyntaxKind.TypeDeclaration ||
+            (ast_1.isExport(e) && (e.expression.kind === ast_1.SyntaxKind.EnumDeclaration ||
+                e.expression.kind === ast_1.SyntaxKind.TraitDeclaration ||
+                e.expression.kind === ast_1.SyntaxKind.TypeDeclaration))); })));
         return preamble + expressions.join(';\n');
     }
     function emitBlock(block, inContext) {
@@ -187,8 +211,6 @@ function Emitter() {
                 }
             }
             switch (expression.kind) {
-                case ast_1.SyntaxKind.EnumDeclaration: return emitEnumDeclaration(expression);
-                case ast_1.SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
                 case ast_1.SyntaxKind.IfExpression: return emitIfExpression(expression);
                 case ast_1.SyntaxKind.IfLetExpression: return emitIfLetExpression(expression);
                 case ast_1.SyntaxKind.MatchExpression: return emitMatchExpression(expression);
@@ -275,14 +297,21 @@ function Emitter() {
         return identifier.name;
     }
     function emitImplDeclaration(i) {
-        var functions = Object['assign']({}, i.trait_.type_.functions || i.trait_.type_.kind.value[0].functions);
+        var functions = Object['assign']({}, i.trait_.type_.kind.value[0].functions);
         i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m); });
-        return (i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)) + "[" + getTypeProp(i.type_.type_) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
+        return emitTypePath(i.trait_.path) + "[" + getTypeProp(i.type_.type_) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
             return (emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
-                : (i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)) + "." + emitIdentifier({ name: f })));
+                : emitTypePath(i.trait_.path) + "." + emitIdentifier({ name: f })));
         }))
             .join(',\n') + "\n}";
+    }
+    function emitImplShorthandDeclaration(i) {
+        return i.members
+            .map(function (m) {
+            return (emitTypePath(i.type_.path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m));
+        })
+            .join(',\n');
     }
     function emitTraitDeclaration(t) {
         return "var " + emitIdentifier(t.name) + " = {\n" + indent(t.members
@@ -347,9 +376,13 @@ function Emitter() {
         return kw + " " + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitExportDirective(e) {
-        return "export " + (e.expression.kind === ast_1.SyntaxKind.TraitDeclaration
-            ? emitTraitDeclaration(e.expression)
-            : emitExpression(e.expression));
+        return "export " + (e.expression.kind === ast_1.SyntaxKind.EnumDeclaration
+            ? emitEnumDeclaration(e.expression) :
+            e.expression.kind === ast_1.SyntaxKind.TraitDeclaration
+                ? emitTraitDeclaration(e.expression) :
+                e.expression.kind === ast_1.SyntaxKind.TypeDeclaration
+                    ? emitTypeDeclaration(e.expression)
+                    : emitExpression(e.expression));
     }
     function emitImportDirective(i) {
         var specifier = ast_1.isIdentifier(i.specifier)
@@ -435,7 +468,9 @@ function Emitter() {
         var fn = fn_;
         var functionName;
         if (fn.traitName) {
-            functionName = fn.traitName + "[" + getTypeProp(fn.implementationType) + "]." + emitIdentifier(fn.func.member) + ".call";
+            functionName = "" + fn.traitName + (fn.isShorthand
+                ? ""
+                : "[" + getTypeProp(fn.implementationType) + "]") + "." + emitIdentifier(fn.func.member) + ".call";
             fn.argumentList.unshift(fn.func.object);
         }
         else {

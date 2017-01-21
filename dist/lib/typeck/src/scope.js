@@ -29,6 +29,7 @@ function createScope(context, file) {
   var typeBindings = {};
   return {
     parent: parent,
+    bindings: bindings,
     createChild: function createChild() {
       var self = this;
       return createScope(context, file, self);
@@ -97,7 +98,7 @@ function createScope(context, file) {
       var allowRedeclare = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
       var self = this;
-      var name = _core.MaybeTrait['$Option'].unwrap.call(type_.name);
+      var name = _core.Option.unwrap.call(type_.name);
       if (!allowRedeclare && typeBindings[name]) {
         reportError(token, "Type " + name + " is already defined");
       };

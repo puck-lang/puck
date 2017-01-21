@@ -58,7 +58,7 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
         var _class = _PUCK__value__1$_cla[0];
 
         return createTypeInstance(type_, _class.typeParameters.map(function (p) {
-          return parameterMap[_core.MaybeTrait['$Option'].unwrap.call(p.name)] || p;
+          return parameterMap[_core.Option.unwrap.call(p.name)] || p;
         }));
       };
       var __PUCK__value__3 = type_;
@@ -72,7 +72,7 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
         var _class2 = _PUCK__value__3$_cla[0];
 
         return createTypeInstance(type_, _class2.typeParameters.map(function (p) {
-          return parameterMap[_core.MaybeTrait['$Option'].unwrap.call(p.name)] || p;
+          return parameterMap[_core.Option.unwrap.call(p.name)] || p;
         }));
       };
     };
@@ -99,7 +99,7 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
         var __PUCK__value__11 = void 0;
         if (__PUCK__value__10.kind == "Parameter") {
           var _undefined2 = __PUCK__value__10;
-          return _core.MaybeTrait['$Option'].unwrapOr.call(_core.ObjectMapTrait['$ObjectMap'].get.call(parameterMap, _core.MaybeTrait['$Option'].unwrap.call(type_.name)), type_);
+          return _core.Option.unwrapOr.call(_core.ObjectMap.get.call(parameterMap, _core.Option.unwrap.call(type_.name)), type_);
         } else {
           var __PUCK__value__12 = __PUCK__value__5;
           var __PUCK__value__13 = void 0;
@@ -131,7 +131,7 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
 function resolveTypeParametersEnum(parameterMap, e, depth) {
   return assign(e, {
     implementations: [],
-    members: _core.ObjectMapTrait['$ObjectMap'].map.call(e.members, resolveTypeParameters(parameterMap, true, depth + 1))
+    members: _core.ObjectMap.map.call(e.members, resolveTypeParameters(parameterMap, true, depth + 1))
   });
 };
 function resolveTypeParametersFn(parameterMap, func, depth) {
@@ -159,7 +159,7 @@ function resolveTypeParametersStruct(parameterMap, struct, depth) {
 
     var properties = _PUCK__value__20$val[0].properties;
 
-    __PUCK__value__21 = _entities.StructKind.Record({ properties: _core.ObjectMapTrait['$ObjectMap'].map.call(properties, resolveTypeParameters(parameterMap, true, depth + 1)) });
+    __PUCK__value__21 = _entities.StructKind.Record({ properties: _core.ObjectMap.map.call(properties, resolveTypeParameters(parameterMap, true, depth + 1)) });
   } else {
     var __PUCK__value__22 = __PUCK__value__19;
     var __PUCK__value__23 = void 0;
@@ -186,10 +186,10 @@ function resolveTypeParametersStruct(parameterMap, struct, depth) {
   });
 };
 function mapObject(object, mapper) {
-  return _core.ObjectMapTrait['$ObjectMap'].map.call(object, mapper);
+  return _core.ObjectMap.map.call(object, mapper);
 };
 function createTypeInstance(type_, typeParameters) {
-  var _class = _core.MaybeTrait['$Option'].unwrap.call(type_._class);
+  var _class = _core.Option.unwrap.call(type_._class);
   var __PUCK__value__26 = void 0;
   if (typeParameters.length < _class.parameterRange.end - 1) {
     __PUCK__value__26 = typeParameters.concat(_class.typeParameters.slice(typeParameters.length).map(function (p) {
@@ -199,7 +199,7 @@ function createTypeInstance(type_, typeParameters) {
 
         var _p = _PUCK__value__27$val[0];
 
-        return _core.MaybeTrait['$Option'].unwrap.call(_p.defaultValue);
+        return _core.Option.unwrap.call(_p.defaultValue);
       } else {
         throw "not a type parameter";
       };
@@ -209,8 +209,11 @@ function createTypeInstance(type_, typeParameters) {
   };
   typeParameters = __PUCK__value__26;
   var __PUCK__value__28 = _core.Iterable['$List'].find.call(_class.instances, function (a) {
-    var i = _core.MaybeTrait['$Option'].unwrap.call(a.instance);
+    var i = _core.Option.unwrap.call(a.instance);
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
+      if (!typeParameters[i]) {
+        (0, _core.print)(typeParameters, i, _entities.Type.displayName.call(type_));
+      };
       return isSameType(p, typeParameters[i]);
     });
   });
@@ -237,10 +240,10 @@ function createTypeInstance(type_, typeParameters) {
   })) {
     return type_;
   };
-  var parameterMap = _core.ObjectMapTrait.fromList(_core.Iterable['$List'].map.call(_core.ListTrait.zip(typeParameters, _class.typeParameters), function (p) {
+  var parameterMap = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(_core.List.zip.call(_core.List, typeParameters, _class.typeParameters), function (p) {
     var typeArgument = p[0];
     var typeParameter = p[1];
-    return [_core.MaybeTrait['$Option'].unwrap.call(typeParameter.name), typeArgument];
+    return [_core.Option.unwrap.call(typeParameter.name), typeArgument];
   }));
   var instance = {
     displayName: type_.displayName,
@@ -280,7 +283,7 @@ function getType(scope, t) {
     };
   } else {
     if (t.kind == _ast2.SyntaxKind.ObjectTypeBound) {
-      var properties = _core.ObjectMapTrait.fromList(t.properties.map(function (member) {
+      var properties = _core.ObjectMap.fromList.call(_core.ObjectMap, t.properties.map(function (member) {
         return [member.name.name, getType(scope, member.typeBound)];
       }));
       return {
@@ -326,7 +329,7 @@ function getType(scope, t) {
             returnType: returnType,
             isAbstract: false
           }),
-          _class: _entities.TypeClassTrait.fromAstNode(t, function () {}),
+          _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, function () {}),
           instance: _core.None
         };
       };
@@ -466,8 +469,8 @@ function isAssignable(to, subject) {
   };
 };
 function isEnumAssignable(to, subject) {
-  if (_core.ObjectMapTrait['$ObjectMap'].size.call(to.members) == _core.ObjectMapTrait['$ObjectMap'].size.call(subject.members)) {
-    return _core.Iterable['$List'].all.call(_core.ObjectMapTrait['$ObjectMap'].toList.call(to.members), function (_ref) {
+  if (_core.ObjectMap.size.call(to.members) == _core.ObjectMap.size.call(subject.members)) {
+    return _core.Iterable['$List'].all.call(_core.ObjectMap.toList.call(to.members), function (_ref) {
       var _ref2 = _slicedToArray(_ref, 2);
 
       var name = _ref2[0];
@@ -480,7 +483,7 @@ function isEnumAssignable(to, subject) {
   };
 };
 function isFunctionAssignable(to, subject) {
-  if (!_core.RangeTrait['$Range<Num>'].isSubsetOf.call(to.argumentRange, subject.argumentRange)) {
+  if (!_core.Range.isSubsetOf.call(to.argumentRange, subject.argumentRange)) {
     return false;
   };
   return _core.Iterable['$List'].all.call(_core.Iterable['$List'].enumerate.call(to._arguments), function (_ref3) {
@@ -506,7 +509,7 @@ function isStructAssignable(to, subject) {
       var subjectProps = _PUCK__value__63$1$v[0].properties;
 
       return {
-        v: _core.Iterable['$List'].all.call(_core.ObjectMapTrait['$ObjectMap'].toList.call(toProps), function (_ref5) {
+        v: _core.Iterable['$List'].all.call(_core.ObjectMap.toList.call(toProps), function (_ref5) {
           var _ref6 = _slicedToArray(_ref5, 2);
 
           var key = _ref6[0];
@@ -532,7 +535,7 @@ function isStructAssignable(to, subject) {
       if (_core.Iterable['$List'].size.call(_toProps) != _core.Iterable['$List'].size.call(_subjectProps)) {
         return false;
       };
-      return _core.Iterable['$List'].all.call(_core.ListTrait.zip(_toProps, _subjectProps), function (_ref7) {
+      return _core.Iterable['$List'].all.call(_core.List.zip.call(_core.List, _toProps, _subjectProps), function (_ref7) {
         var _ref8 = _slicedToArray(_ref7, 2);
 
         var toProp = _ref8[0];
@@ -555,8 +558,8 @@ function isStructAssignable(to, subject) {
   };
 };
 function isTraitAssignable(to, subject) {
-  if (_core.ObjectMapTrait['$ObjectMap'].size.call(to.functions) == _core.ObjectMapTrait['$ObjectMap'].size.call(subject.functions)) {
-    return _core.Iterable['$List'].all.call(_core.ObjectMapTrait['$ObjectMap'].toList.call(to.functions), function (_ref9) {
+  if (_core.ObjectMap.size.call(to.functions) == _core.ObjectMap.size.call(subject.functions)) {
+    return _core.Iterable['$List'].all.call(_core.ObjectMap.toList.call(to.functions), function (_ref9) {
       var _ref10 = _slicedToArray(_ref9, 2);
 
       var name = _ref10[0];

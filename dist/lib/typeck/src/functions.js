@@ -26,7 +26,7 @@ function createFunctionType(scope, f, reportError) {
   if (f.typeParameters && f.typeParameters.length) {
     __PUCK__value__1 = (0, _core.Some)({
       parameterRange: (0, _range.getRange)(f.typeParameters, function (p) {
-        return _core.MaybeTrait['$Option'].isJust.call(p.defaultValue);
+        return _core.Option.isJust.call(p.defaultValue);
       }, reportError, "type parameter"),
       instances: [],
       typeParameters: f.typeParameters
@@ -61,7 +61,7 @@ function createFunctionType(scope, f, reportError) {
   };
   var selfBinding = __PUCK__value__4;
   var __PUCK__value__5 = void 0;
-  if (_core.MaybeTrait['$Option'].isJust.call(selfBinding)) {
+  if (_core.Option.isJust.call(selfBinding)) {
     __PUCK__value__5 = _arguments.slice(1);
   } else {
     __PUCK__value__5 = _arguments;
@@ -71,7 +71,7 @@ function createFunctionType(scope, f, reportError) {
   if (f.parameterList) {
     __PUCK__value__6 = (0, _range.getRange)(_arguments, function (p) {
       var vd = p.token;
-      return _core.MaybeTrait['$Option'].isJust.call(vd.initializer);
+      return _core.Option.isJust.call(vd.initializer);
     }, reportError, "parameter");
   } else {
     __PUCK__value__6 = {
@@ -81,7 +81,7 @@ function createFunctionType(scope, f, reportError) {
   };
   return {
     displayName: _core.None,
-    name: _core.MaybeTrait['$Option'].map.call(f.name, function (ident) {
+    name: _core.Option.map.call(f.name, function (ident) {
       return ident.name;
     }),
     kind: _entities.TypeKind.Function({
@@ -113,7 +113,7 @@ function checkFunctionAssignability(functionName, to, subject) {
 
     var toArgument = to._arguments[i];
     if (!(0, _types.isAssignable)(toArgument.type_, subjectArgument.type_)) {
-      return errors.push("Types of parameter #" + i + " does not match. " + _entities.TypeTrait['$Type'].displayName.call(subjectArgument.type_) + " is not assignable to " + _entities.TypeTrait['$Type'].displayName.call(toArgument.type_));
+      return errors.push("Types of parameter #" + i + " does not match. " + _entities.Type.displayName.call(subjectArgument.type_) + " is not assignable to " + _entities.Type.displayName.call(toArgument.type_));
     } else {
       if (subjectArgument.mutable && !toArgument.mutable) {
         return errors.push("Parameter #" + i + " is required to be immutable");
@@ -124,7 +124,7 @@ function checkFunctionAssignability(functionName, to, subject) {
     return (0, _core.Err)(errors[0]);
   };
   if (!(0, _types.isAssignable)(to.returnType, subject.returnType)) {
-    return (0, _core.Err)("Return type " + _entities.TypeTrait['$Type'].displayName.call(subject.returnType) + " is not assignable to " + _entities.TypeTrait['$Type'].displayName.call(to.returnType));
+    return (0, _core.Err)("Return type " + _entities.Type.displayName.call(subject.returnType) + " is not assignable to " + _entities.Type.displayName.call(to.returnType));
   } else {
     return (0, _core.Ok)([]);
   };

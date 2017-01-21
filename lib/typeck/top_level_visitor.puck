@@ -6,7 +6,6 @@ import '../ast/ast.puck' as {
   EnumDeclaration
   FunctionDeclaration
   Identifier
-  ImplDeclaration
   Module
   ObjectDestructure
   TypeBound
@@ -39,7 +38,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../entities.puck' as {StructKind, TypeKind, TypeClassTrait}
+import '../entities.puck' as {StructKind, TypeClass, TypeKind}
 import 'src/scope.puck' as {createScope}
 
 /// Visits and declares top level bindings
@@ -62,7 +61,7 @@ export fn TopLevelVisitor(context, file) {
           implementations: []
           members: []
         })
-        class: TypeClassTrait.fromAstNode(t, reportError)
+        class: TypeClass.fromAstNode(t, reportError)
         instance: None
       }, t)
     }
@@ -88,9 +87,9 @@ export fn TopLevelVisitor(context, file) {
         displayName: None
         name: Some(t.name.name)
         kind: TypeKind::Trait({
-          functions: ObjectMapTrait.new()
+          functions: ObjectMap.new()
         })
-        class: TypeClassTrait.fromAstNode(t, reportError)
+        class: TypeClass.fromAstNode(t, reportError)
         instance: None
       }, t)
     }
@@ -98,7 +97,7 @@ export fn TopLevelVisitor(context, file) {
       let structKind =
         if let Option::Some(typeBound) = t.bound {
           if typeBound.kind == SyntaxKind.ObjectTypeBound
-            then StructKind::Record({properties: ObjectMapTrait.new()})
+            then StructKind::Record({properties: ObjectMap.new()})
           else if typeBound.kind == SyntaxKind.TupleTypeBound
             then StructKind::Tuple({properties: []})
         }
@@ -111,7 +110,7 @@ export fn TopLevelVisitor(context, file) {
           implementations: []
           kind: structKind
         })
-        class: TypeClassTrait.fromAstNode(t, reportError)
+        class: TypeClass.fromAstNode(t, reportError)
         instance: None
       }, t)
     }

@@ -1,0 +1,27 @@
+///// Trait functions must have a return type
+type Type {
+  value: Num
+}
+
+impl Type {
+  fn isAnswer(self) {
+    self.value == 42
+  }
+}
+
+///// Type has already been implemented
+type Type {
+  value: Num
+}
+
+impl Type {
+  fn isAnswer(self) -> Bool {
+    self.value == 42
+  }
+}
+
+impl Type {
+  fn isNegative(self) -> Bool {
+    self.value < 0
+  }
+}

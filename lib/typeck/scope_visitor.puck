@@ -7,6 +7,7 @@ import '../ast/ast.puck' as {
   FunctionDeclaration
   Identifier
   ImplDeclaration
+  ImplShorthandDeclaration
   Module
   ObjectDestructure
   TypeBound
@@ -65,7 +66,6 @@ import '../entities.puck' as {
   Type
   TypeInstance
   TypeKind
-  TypeTrait
 }
 
 fn asType(a) -> Type {a}
@@ -110,7 +110,7 @@ export fn ScopeVisitor(context, file) {
 
     let function: Function =
       if let Option::Some(class) = functionType.class {
-        let mut parameterMap = ObjectMapTrait.new()
+        let mut parameterMap = ObjectMap.new()
 
         function.arguments.enumerate().forEach(|(parameter, i): (Binding, Num)| {
           let argument: VariableDeclaration =
@@ -196,14 +196,16 @@ export fn ScopeVisitor(context, file) {
 
       visit.walkBlock(self, b)
 
-      if let Option::Some(last) = b.expressions.last() {
-        b.type_ = last.type_
-      }
+      b.type_ =
+        if let Option::Some(last) = b.expressions.last()
+          then last.type_
+          else Type.empty()
     }
     visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
       structureVisitor.visitFunctionDeclaration.call(self, f)
 
       if not f.hoisting or f.hoisted {
+        let selfScope = self.scope
         self.scope = f.scope
 
         f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
@@ -223,7 +225,7 @@ export fn ScopeVisitor(context, file) {
           }
         }
 
-        self.scope = self.scope.parent
+        self.scope = selfScope
       }
     }
     visitIdentifier: |self, mut i: Identifier| {
@@ -235,6 +237,9 @@ export fn ScopeVisitor(context, file) {
       visit.walkIdentifier(self, i)
     }
     visitImplDeclaration: |self, mut i: ImplDeclaration| {
+      i.members.forEach(self.visitFunctionDeclaration.bind(self))
+    }
+    visitImplShorthandDeclaration: |self, mut i: ImplShorthandDeclaration| {
       i.members.forEach(self.visitFunctionDeclaration.bind(self))
     }
     visitModule: |mut self, mut m: Module| {
@@ -311,18 +316,6 @@ export fn ScopeVisitor(context, file) {
             then throw 'direct trait calls for functions with self bindings are not implemented'
         }
         else {
-          fn getFunction(type_: Type) -> Function {
-            match type_.kind {
-              TypeKind::Function(func_) => func_
-              _ => throw 'Type is not a function'
-            }
-          }
-          fn getTrait(type_: Type) {
-            match type_.kind {
-              TypeKind::Trait(trait_) => trait_
-              _ => throw 'Type is not a trait'
-            }
-          }
           fn getImplementations(type_: Type) {
             let implementations =  match type_.kind {
               TypeKind::Enum(enum_) => enum_.implementations
@@ -332,7 +325,7 @@ export fn ScopeVisitor(context, file) {
             }
 
             let implementations = implementations
-              .filter(|i| getTrait(i.trait_).functions[name])
+              .filter(|i| asType(i.trait_).getTrait().functions[name])
 
             let implementations =
               if implementations.length > 1
@@ -345,7 +338,7 @@ export fn ScopeVisitor(context, file) {
             let implementations =
               if implementations.length > 1
                 then implementations
-                  .filter(|i| getFunction(getTrait(i.trait_).functions[name]).argumentRange
+                  .filter(|i| asType(asType(i.trait_).getTrait().functions[name]).getFunction().argumentRange
                     .contains(e.argumentList.length)
                   )
               else implementations
@@ -375,17 +368,19 @@ export fn ScopeVisitor(context, file) {
 
           if implementations.length == 1 {
             let implementation = implementations[0]
-            let traitName =
+            let trait_: Type =
               if let Option::Some(instance) = implementation.trait_.instance
-                then asType(instance.class).name.unwrap()
-                else asType(implementation.trait_).name.unwrap()
+                then instance.class
+                else implementation.trait_
+            let traitName = trait_.name.unwrap()
             if not e.scope.getTypeBinding(traitName)
               then reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
 
             e.traitName = traitName
+            e.isShorthand =  trait_.getTrait().isShorthand
             e.implementationType = implementation.type_
 
-            functionType = getTrait(implementation.trait_).functions[name]
+            functionType = asType(implementation.trait_).getTrait().functions[name]
 
             if let Option::Some(instance) = objectType.instance {
               functionType = resolveTypeParameters(instance.parameterMap)(functionType)
@@ -563,7 +558,7 @@ export fn ScopeVisitor(context, file) {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
       visit.walkWhileLoop(self, e)
-      e.type_ = TypeTrait.empty()
+      e.type_ = Type.empty()
       self.scope = self.scope.parent
     }
     visitIndexAccess: |self, mut a: IndexAccess| {

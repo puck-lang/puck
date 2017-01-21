@@ -69,6 +69,7 @@ export enum SyntaxKind {
   Function,
   Identifier,
   ImplDeclaration,
+  ImplShorthandDeclaration,
   Module,
   ObjectDestructure,
   ObjectDestructureMember,
@@ -293,6 +294,11 @@ export interface ImplDeclaration extends Token {
   members: Array<FunctionDeclaration>
 }
 
+export interface ImplShorthandDeclaration extends Token {
+  type_: TypeBound
+  members: Array<FunctionDeclaration>
+}
+
 export interface Module extends Token {
   fileName: string
   path: string
@@ -366,7 +372,7 @@ export interface VariableDeclaration extends Token {
 
 export interface ExportDirective extends Token {
   keyword: Token
-  expression: VariableDeclaration|FunctionDeclaration|TraitDeclaration|TypeDeclaration
+  expression: VariableDeclaration|FunctionDeclaration|TraitDeclaration|TypeDeclaration|EnumDeclaration
   identifier: Identifier
 }
 

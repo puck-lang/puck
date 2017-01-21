@@ -58,6 +58,17 @@ export type ImplDeclaration {
   closeBrace: Token
 }
 
+export type ImplShorthandDeclaration {
+  implKeyword: Token
+  typeParameters: List<TypeParameter>
+
+  type_: TypeBound
+
+  openBrace: Token
+  members: List<FunctionDeclaration>
+  closeBrace: Token
+}
+
 export type Module {
   fileName: String
   path: String

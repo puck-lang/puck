@@ -11,10 +11,8 @@ import '../../entities.puck' as {
   Trait
   Type
   TypeClass
-  TypeClassTrait
   TypeInstance
   TypeKind
-  TypeTrait
 }
 
 fn assign(a, b) {
@@ -102,11 +100,16 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
     }
     else typeParameters
 
-  if let Option::Some(cachedInstance) = class.instances
-    .find(|a: Type| {
+  if let Option::Some(cachedInstance) =
+    class.instances.find(|a: Type| {
       let i = a.instance.unwrap()
       i.typeParameters.length == typeParameters.length and
-      i.typeParameters.every(|p, i| isSameType(p, typeParameters[i]))
+      i.typeParameters.every(|p, i| {
+        if not typeParameters[i] {
+          print(typeParameters, i, type_.displayName())
+        }
+        isSameType(p, typeParameters[i])
+      })
     })
     then return cachedInstance
 
@@ -116,8 +119,8 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
   })
     then return type_
 
-  let parameterMap: ObjectMap<Type> = ObjectMapTrait.fromList(
-    ListTrait.zip(typeParameters, class.typeParameters)
+  let parameterMap: ObjectMap<Type> = ObjectMap.fromList(
+    List.zip(typeParameters, class.typeParameters)
       .map(|p| {
         let typeArgument = p[0]
         let typeParameter: Type = p[1]
@@ -153,7 +156,7 @@ export fn getType(scope: Scope, t) { // t: TypeBound
     else binding.type_
   }
   else if t.kind == SyntaxKind.ObjectTypeBound {
-    let properties = ObjectMapTrait.fromList(
+    let properties = ObjectMap.fromList(
       t.properties.map(|member| (
         member.name.name
         getType(scope, member.typeBound)
@@ -201,7 +204,7 @@ export fn getType(scope: Scope, t) { // t: TypeBound
         returnType
         isAbstract: false
       })
-      class: TypeClassTrait.fromAstNode(t, || {})
+      class: TypeClass.fromAstNode(t, || {})
       instance: None
     }
   }
@@ -269,7 +272,7 @@ fn isStructAssignable(to: Struct, subject: Struct) {
     }
     (StructKind::Tuple({properties: toProps}), StructKind::Tuple({properties: subjectProps})) => {
       if toProps.size() != subjectProps.size() then return false
-      ListTrait.zip(toProps, subjectProps)
+      List.zip(toProps, subjectProps)
         .all(|(toProp, subjectProp)| isAssignable(toProp, subjectProp))
     }
     (StructKind::Unit, StructKind::Unit) => to.kind.value == subject.kind.value

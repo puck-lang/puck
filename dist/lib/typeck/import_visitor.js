@@ -58,7 +58,7 @@ function ImportVisitor(context, file) {
       if (i.specifier.kind == _ast2.SyntaxKind.AsteriskToken) {
         return i.specifier = {
           kind: _ast2.SyntaxKind.ObjectDestructure,
-          members: _core.ObjectMapTrait['$ObjectMap'].keys.call(_module.exports).filter(function (e) {
+          members: _core.ObjectMap.keys.call(_module.exports).filter(function (e) {
             return !moduleScope.getBinding(e);
           }).map(function (e) {
             var property = _module.exports[e].identifier;
@@ -84,7 +84,7 @@ function ImportVisitor(context, file) {
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
-      if (_core.MaybeTrait['$Option'].isNothing.call(i.domain)) {
+      if (_core.Option.isNothing.call(i.domain)) {
         var _ret = function () {
           var importedFile = context.resolvePath(i.path, file);
           var path = importedFile.absolutePath;

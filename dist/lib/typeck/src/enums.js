@@ -292,9 +292,9 @@ function getSubPatterns(pattern) {
   };
 };
 function checkExhaustiveEnum(patterns, type_, enum_) {
-  var typeName = _entities.TypeTrait['$Type'].displayName.call(type_);
-  var exhaustiveMap = _core.ObjectMapTrait._new();
-  var enumArmsMap = _core.ObjectMapTrait._new();
+  var typeName = _entities.Type.displayName.call(type_);
+  var exhaustiveMap = _core.ObjectMap._new.call(_core.ObjectMap);
+  var enumArmsMap = _core.ObjectMap._new.call(_core.ObjectMap);
   var __PUCK__value__54 = _core.Iterable['$List'].find.call(patterns, function (pattern) {
     var __PUCK__value__55 = pattern;
     var __PUCK__value__56 = __PUCK__value__55;
@@ -393,7 +393,7 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
     return (0, _core.Ok)([]);
   };
   var innerErrors = [];
-  _core.ObjectMapTrait['$ObjectMap'].forEach.call(enumArmsMap, function (_ref) {
+  _core.ObjectMap.forEach.call(enumArmsMap, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2);
 
     var member = _ref2[0];
@@ -485,7 +485,7 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
 
       return checkExhaustiveEnum(subPatterns, type_, enum_);
     }).filter(function (result) {
-      return _core.ResultTrait['$Result'].isErr.call(result);
+      return _core.Result.isErr.call(result);
     });
     innerErrors = innerErrors.concat(errors);
     return exhaustiveMap[member] = errors.length == 0;
@@ -493,10 +493,10 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
   if (innerErrors.length > 0) {
     return innerErrors[0];
   };
-  var mapSize = _core.ObjectMapTrait['$ObjectMap'].size.call(exhaustiveMap);
-  var memberCount = _core.ObjectMapTrait['$ObjectMap'].size.call(enum_.members);
+  var mapSize = _core.ObjectMap.size.call(exhaustiveMap);
+  var memberCount = _core.ObjectMap.size.call(enum_.members);
   if (mapSize == memberCount - 1) {
-    var _MaybeTrait$$Option$u = _core.MaybeTrait['$Option'].unwrap.call(_core.ObjectMapTrait['$ObjectMap'].find.call(enum_.members, function (_ref9) {
+    var _Option$unwrap$call = _core.Option.unwrap.call(_core.ObjectMap.find.call(enum_.members, function (_ref9) {
       var _ref10 = _slicedToArray(_ref9, 2);
 
       var member = _ref10[0];
@@ -505,17 +505,17 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
       return !exhaustiveMap[member];
     }));
 
-    var _MaybeTrait$$Option$u2 = _slicedToArray(_MaybeTrait$$Option$u, 2);
+    var _Option$unwrap$call2 = _slicedToArray(_Option$unwrap$call, 2);
 
-    var missing = _MaybeTrait$$Option$u2[0];
-    var __PUCK__value__92 = _MaybeTrait$$Option$u2[1];
+    var missing = _Option$unwrap$call2[0];
+    var __PUCK__value__92 = _Option$unwrap$call2[1];
 
     return (0, _core.Err)("Match is not exhaustive. It is missing a case for " + typeName + "::" + missing + "");
   } else {
     if (mapSize < memberCount) {
       return (0, _core.Err)("Match is not exhaustive.");
     } else {
-      var __PUCK__value__93 = _core.ObjectMapTrait['$ObjectMap'].find.call(exhaustiveMap, function (_ref11) {
+      var __PUCK__value__93 = _core.ObjectMap.find.call(exhaustiveMap, function (_ref11) {
         var _ref12 = _slicedToArray(_ref11, 2);
 
         var __PUCK__value__94 = _ref12[0];

@@ -50,7 +50,7 @@ function TypeVisitor(context, file) {
             implementations: [],
             members: []
           }),
-          _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+          _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, reportError),
           instance: _core.None
         };
         self.scope.defineType(t.type_, t, true);
@@ -85,8 +85,8 @@ function TypeVisitor(context, file) {
           _core.Iterable['$List'].forEach.call(t.members, function (m) {
             return self.visitEnumMember(m);
           });
-          var memberMap = _core.ObjectMapTrait.fromList(_core.Iterable['$List'].map.call(t.members, function (p) {
-            return [p.name.name, _core.MaybeTrait['$Option'].mapOrElse.call(p.bound, function () {
+          var memberMap = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(t.members, function (p) {
+            return [p.name.name, _core.Option.mapOrElse.call(p.bound, function () {
               return {
                 displayName: _core.None,
                 name: (0, _core.Some)(p.name.name),
@@ -101,9 +101,9 @@ function TypeVisitor(context, file) {
               return bound.type_;
             })];
           }));
-          if (_core.Iterable['$List'].size.call(t.members) != _core.ObjectMapTrait['$ObjectMap'].size.call(memberMap)) {
+          if (_core.Iterable['$List'].size.call(t.members) != _core.ObjectMap.size.call(memberMap)) {
             (function () {
-              var members = _core.ObjectMapTrait._new();
+              var members = _core.ObjectMap._new.call(_core.ObjectMap);
               _core.Iterable['$List'].forEach.call(t.members, function (p) {
                 if (members[p.name.name]) {
                   reportError(p, "Duplicate member " + p.name.name);
@@ -160,30 +160,25 @@ function TypeVisitor(context, file) {
       return _core.Iterable['$List'].forEach.call(i.members, function (m) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
-          if (e.expression.kind == _ast2.SyntaxKind.EnumDeclaration || e.expression.kind == _ast2.SyntaxKind.TraitDeclaration) {
+          if (e.expression.kind == _ast2.SyntaxKind.EnumDeclaration || e.expression.kind == _ast2.SyntaxKind.TraitDeclaration || e.expression.kind == _ast2.SyntaxKind.TypeDeclaration) {
             var typeBinding = importDirective._module.scope.getTypeBinding(m.property.name);
             self.scope.setTypeBinding(typeBinding);
-            return self.scope.define({
+            self.scope.define({
               name: m.local.name,
               mutable: false,
               token: m,
               type_: typeBinding.type_
             });
+            return self.imports[m.local.name] = importDirective.file;
           } else {
-            if (e.expression.kind == _ast2.SyntaxKind.TypeDeclaration) {
-              var _typeBinding = importDirective._module.scope.getTypeBinding(m.property.name);
-              self.scope.setTypeBinding(_typeBinding);
-              return self.imports[m.local.name] = importDirective.file;
-            } else {
-              var binding = importDirective._module.scope.getBinding(m.property.name);
-              return self.scope.define({
-                name: m.local.name,
-                mutable: false,
-                token: m,
-                inherit: binding,
-                importedFrom: importDirective
-              });
-            };
+            var binding = importDirective._module.scope.getBinding(m.property.name);
+            return self.scope.define({
+              name: m.local.name,
+              mutable: false,
+              token: m,
+              inherit: binding,
+              importedFrom: importDirective
+            });
           };
         } else {
           return self.scope.define({
@@ -200,8 +195,8 @@ function TypeVisitor(context, file) {
         t.type_ = {
           displayName: _core.None,
           name: (0, _core.Some)(t.name.name),
-          kind: _entities.TypeKind.Trait({ functions: _core.ObjectMapTrait._new() }),
-          _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+          kind: _entities.TypeKind.Trait({ functions: _core.ObjectMap._new.call(_core.ObjectMap) }),
+          _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, reportError),
           instance: _core.None
         };
         self.scope.defineType(t.type_, t, true);
@@ -242,7 +237,7 @@ function TypeVisitor(context, file) {
 
               var trait_ = _PUCK__value__4$valu[0];
 
-              _js._Object.assign(trait_.functions, _core.ObjectMapTrait.fromList(_core.Iterable['$List'].map.call(t.members, function (m) {
+              _js._Object.assign(trait_.functions, _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(t.members, function (m) {
                 return [m.name.value[0].name, m.type_];
               })));
               var __PUCK__value__5 = t.type_._class;
@@ -284,7 +279,7 @@ function TypeVisitor(context, file) {
 
           var __PUCK__value__9 = void 0;
           if (typeBound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
-            __PUCK__value__9 = _entities.StructKind.Record({ properties: _core.ObjectMapTrait._new() });
+            __PUCK__value__9 = _entities.StructKind.Record({ properties: _core.ObjectMap._new.call(_core.ObjectMap) });
           } else {
             var __PUCK__value__10 = void 0;
             if (typeBound.kind == _ast2.SyntaxKind.TupleTypeBound) {
@@ -304,10 +299,16 @@ function TypeVisitor(context, file) {
             implementations: [],
             kind: structKind
           }),
-          _class: _entities.TypeClassTrait.fromAstNode(t, reportError),
+          _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, reportError),
           instance: _core.None
         };
         self.scope.defineType(t.type_, t, true);
+        t.binding = self.scope.define({
+          name: t.name.name,
+          mutable: false,
+          token: t,
+          type_: t.type_
+        });
         t.scope = (0, _scope.createScope)(context, file, self.scope);
         return self.postHoist.push(t);
       } else {
@@ -346,7 +347,7 @@ function TypeVisitor(context, file) {
 
               var properties = _PUCK__value__14$val$[0].properties;
 
-              _js._Object.assign(properties, _core.ObjectMapTrait.fromList(_typeBound.properties.map(function (p) {
+              _js._Object.assign(properties, _core.ObjectMap.fromList.call(_core.ObjectMap, _typeBound.properties.map(function (p) {
                 return [p.name.name, p.typeBound.type_];
               })));
             } else {

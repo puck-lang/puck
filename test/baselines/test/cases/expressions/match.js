@@ -8,6 +8,17 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 
+var Value = {
+  One: function One(object) {
+    return { kind: 'One', value: object };
+  },
+  Two: { kind: 'Two', value: Symbol('Two') },
+  Three: { kind: 'Three', value: Symbol('Three') }
+};
+var _Object = {
+  _Object: { kind: '_Object', value: Symbol('_Object') }
+};
+
 var __PUCK__value__1 = _core.Option.Some(5);
 var __PUCK__value__2 = __PUCK__value__1;
 var __PUCK__value__3 = void 0;
@@ -155,13 +166,6 @@ if (__PUCK__value__40.kind == "Some") {
     (0, _core.print)("Oh, nothing");
   };
 };
-var Value = {
-  One: function One(object) {
-    return { kind: 'One', value: object };
-  },
-  Two: { kind: 'Two', value: Symbol('Two') },
-  Three: { kind: 'Three', value: Symbol('Three') }
-};
 var __PUCK__value__42 = Value.One({ value: "World" });
 var __PUCK__value__43 = __PUCK__value__42;
 if (__PUCK__value__43.kind == "One") {
@@ -274,9 +278,6 @@ if (__PUCK__value__63.kind == "Some") {
     var _undefined10 = __PUCK__value__67;
     0;
   };
-};
-var _Object = {
-  _Object: { kind: '_Object', value: Symbol('_Object') }
 };
 var __PUCK__value__68 = _Object._Object;
 var __PUCK__value__69 = __PUCK__value__68;

@@ -37,97 +37,43 @@ var _entities = require('./../entities.js');
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function implementTrait(traitType, trait_, type_, implementable, i, reportError) {
-  var traitName = _entities.TypeTrait['$Type'].displayName.call(traitType);
-  if (implementable.implementations.some(function (imp) {
+  var traitName = _entities.Type.displayName.call(traitType);
+  if (_core.Iterable['$List'].any.call(implementable.implementations, function (imp) {
     return imp.trait_ == traitType;
   })) {
-    reportError(i, "" + traitName + " has already been implemented for " + _entities.TypeTrait['$Type'].displayName.call(type_));
+    reportError(i, "" + traitName + " has already been implemented for " + _entities.Type.displayName.call(type_));
   };
-  var functions = _core.ObjectMapTrait.fromList(_core.Iterable['$List'].map.call(i.members, function (member) {
-    return [_core.MaybeTrait['$Option'].unwrap.call(member.type_.name), member.type_];
+  var functions = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(i.members, function (functionDeclaration) {
+    return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
   }));
   var traitFunctions = trait_.functions;
-  _core.Iterable['$List'].forEach.call(_core.ObjectMapTrait['$ObjectMap'].keys.call(traitFunctions), function (name) {
+  _core.Iterable['$List'].forEach.call(_core.ObjectMap.keys.call(traitFunctions), function (name) {
     var traitFunctionType = traitFunctions[name];
-    var __PUCK__value__1 = traitFunctionType.kind;
-    var __PUCK__value__2 = __PUCK__value__1;
-    var __PUCK__value__3 = void 0;
-    if (__PUCK__value__2.kind == "Function") {
-      var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-      var func = _PUCK__value__2$valu[0];
-
-      __PUCK__value__3 = func;
-    } else {
-      var __PUCK__value__4 = __PUCK__value__1;
-      var __PUCK__value__5 = void 0;
-      if (true) {
-        var __PUCK__value__6 = __PUCK__value__4;
-        throw "trait function is not a function";
-      };
-      __PUCK__value__3 = __PUCK__value__5;
-    };
-    var traitFunction = __PUCK__value__3;
+    var traitFunction = _entities.Type.getFunction.call(traitFunctionType);
     if (traitFunction.isAbstract && !functions[name]) {
-      return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + _entities.TypeTrait['$Type'].displayName.call(type_));
+      return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + _entities.Type.displayName.call(type_));
     };
   });
   _core.Iterable['$List'].forEach.call(i.members, function (functionDeclaration) {
-    var functionName = _entities.TypeTrait['$Type'].displayName.call(functionDeclaration.type_);
-    var __PUCK__value__7 = functionDeclaration.type_.kind;
-    var __PUCK__value__8 = __PUCK__value__7;
-    var __PUCK__value__9 = void 0;
-    if (__PUCK__value__8.kind == "Function") {
-      var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1);
-
-      var func = _PUCK__value__8$valu[0];
-
-      __PUCK__value__9 = func;
-    } else {
-      var __PUCK__value__10 = __PUCK__value__7;
-      var __PUCK__value__11 = void 0;
-      if (true) {
-        var __PUCK__value__12 = __PUCK__value__10;
-        throw "impl function is not a function";
-      };
-      __PUCK__value__9 = __PUCK__value__11;
-    };
-    var _function = __PUCK__value__9;
-    var traitFunctionType = traitFunctions[_core.MaybeTrait['$Option'].unwrap.call(functionDeclaration.type_.name)];
+    var functionName = _entities.Type.displayName.call(functionDeclaration.type_);
+    var _function = _entities.Type.getFunction.call(functionDeclaration.type_);
+    var traitFunctionType = traitFunctions[_core.Option.unwrap.call(functionDeclaration.type_.name)];
     if (!traitFunctionType) {
       reportError(i, "Function " + functionName + " is not defined by " + traitName + "");
     };
-    var traitFunctionName = _entities.TypeTrait['$Type'].displayName.call(traitFunctionType);
-    var __PUCK__value__13 = traitFunctionType.kind;
-    var __PUCK__value__14 = __PUCK__value__13;
-    var __PUCK__value__15 = void 0;
-    if (__PUCK__value__14.kind == "Function") {
-      var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1);
+    var traitFunctionName = _entities.Type.displayName.call(traitFunctionType);
+    var traitFunction = _entities.Type.getFunction.call(traitFunctionType);
+    var __PUCK__value__1 = _function.selfBinding;
+    if (__PUCK__value__1.kind == "Some") {
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
 
-      var _func = _PUCK__value__14$val[0];
+      var implSelf = _PUCK__value__1$valu[0];
 
-      __PUCK__value__15 = _func;
-    } else {
-      var __PUCK__value__16 = __PUCK__value__13;
-      var __PUCK__value__17 = void 0;
-      if (true) {
-        var __PUCK__value__18 = __PUCK__value__16;
-        throw "trait function is not a function";
-      };
-      __PUCK__value__15 = __PUCK__value__17;
-    };
-    var traitFunction = __PUCK__value__15;
-    var __PUCK__value__19 = _function.selfBinding;
-    if (__PUCK__value__19.kind == "Some") {
-      var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
+      var __PUCK__value__2 = traitFunction.selfBinding;
+      if (__PUCK__value__2.kind == "Some") {
+        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
 
-      var implSelf = _PUCK__value__19$val[0];
-
-      var __PUCK__value__20 = traitFunction.selfBinding;
-      if (__PUCK__value__20.kind == "Some") {
-        var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1);
-
-        var traitSelf = _PUCK__value__20$val[0];
+        var traitSelf = _PUCK__value__2$valu[0];
 
         if (implSelf.mutable && !traitSelf.mutable) {
           reportError(functionDeclaration, "Function " + traitName + "::" + traitFunctionName + " requires an immutable self parameter");
@@ -136,20 +82,20 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
         reportError(_function, "Function " + traitName + "::" + traitFunctionName + " is static");
       };
     } else {
-      var __PUCK__value__21 = traitFunction.selfBinding;
-      if (__PUCK__value__21.kind == "Some") {
-        var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1);
+      var __PUCK__value__3 = traitFunction.selfBinding;
+      if (__PUCK__value__3.kind == "Some") {
+        var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
 
-        var __PUCK__value__22 = _PUCK__value__21$val[0];
+        var __PUCK__value__4 = _PUCK__value__3$valu[0];
 
         reportError(_function, "Function " + traitName + "::" + traitFunctionName + " requires a self parameter");
       };
     };
-    var __PUCK__value__23 = (0, _functions.checkFunctionAssignability)(functionName, traitFunction, _function);
-    if (__PUCK__value__23.kind == "Err") {
-      var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1);
+    var __PUCK__value__5 = (0, _functions.checkFunctionAssignability)(functionName, traitFunction, _function);
+    if (__PUCK__value__5.kind == "Err") {
+      var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
 
-      var error = _PUCK__value__23$val[0];
+      var error = _PUCK__value__5$valu[0];
 
       return reportError(_function, error);
     };
@@ -159,6 +105,30 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
     trait_: traitType
   });
 };
+function implementShorthand(type_, implementable, i, reportError) {
+  var typeName = _entities.Type.displayName.call(type_);
+  if (_core.Iterable['$List'].any.call(implementable.implementations, function (imp) {
+    return _entities.Type.getTrait.call(imp.trait_).isShorthand;
+  })) {
+    reportError(i, "" + typeName + " has already been implemented");
+  };
+  var functions = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(i.members, function (functionDeclaration) {
+    return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
+  }));
+  return implementable.implementations.push({
+    type_: type_,
+    trait_: {
+      displayName: type_.displayName,
+      name: type_.name,
+      kind: _entities.TypeKind.Trait({
+        isShorthand: true,
+        functions: functions
+      }),
+      _class: _core.None,
+      instance: _core.None
+    }
+  });
+};
 function ImplVisitor(context, file) {
   var importDirective = void 0;
   var reportError = context.reportError.bind(context, file);
@@ -166,43 +136,75 @@ function ImplVisitor(context, file) {
     reportError: reportError,
     visitImplDeclaration: function visitImplDeclaration(i) {
       var self = this;
-      self.scope = (0, _scope.createScope)(context, file, self.scope);
+      self.scope = self.scope.createChild();
       i.scope = self.scope;
       visit.walkImplDeclaration(self, i);
       var traitType = i.trait_.type_;
       var structType = i.type_.type_;
-      var __PUCK__value__24 = traitType.kind;
-      if (__PUCK__value__24.kind == "Trait") {
-        var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1);
+      var __PUCK__value__6 = traitType.kind;
+      if (__PUCK__value__6.kind == "Trait") {
+        var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
 
-        var trait_ = _PUCK__value__24$val[0];
+        var trait_ = _PUCK__value__6$valu[0];
 
-        var __PUCK__value__25 = structType.kind;
-        var __PUCK__value__26 = __PUCK__value__25;
-        if (__PUCK__value__26.kind == "Enum") {
-          var _PUCK__value__26$val = _slicedToArray(__PUCK__value__26.value, 1);
+        var __PUCK__value__7 = structType.kind;
+        var __PUCK__value__8 = __PUCK__value__7;
+        if (__PUCK__value__8.kind == "Enum") {
+          var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1);
 
-          var enum_ = _PUCK__value__26$val[0];
+          var enum_ = _PUCK__value__8$valu[0];
 
           implementTrait(traitType, trait_, structType, enum_, i, reportError);
         } else {
-          var __PUCK__value__27 = __PUCK__value__25;
-          if (__PUCK__value__27.kind == "Struct") {
-            var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1);
+          var __PUCK__value__9 = __PUCK__value__7;
+          if (__PUCK__value__9.kind == "Struct") {
+            var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
 
-            var struct = _PUCK__value__27$val[0];
+            var struct = _PUCK__value__9$valu[0];
 
             implementTrait(traitType, trait_, structType, struct, i, reportError);
           } else {
-            var __PUCK__value__28 = __PUCK__value__25;
+            var __PUCK__value__10 = __PUCK__value__7;
             if (true) {
-              var __PUCK__value__29 = __PUCK__value__28;
-              reportError(i.type_, _entities.TypeTrait['$Type'].displayName.call(structType) + " is not a struct or an enum");
+              var __PUCK__value__11 = __PUCK__value__10;
+              reportError(i.type_, _entities.Type.displayName.call(structType) + " is not a struct or an enum");
             };
           };
         };
       } else {
-        reportError(i.trait_, _entities.TypeTrait['$Type'].displayName.call(traitType) + " is not a trait");
+        reportError(i.trait_, _entities.Type.displayName.call(traitType) + " is not a trait");
+      };
+      return self.scope = self.scope.parent;
+    },
+    visitImplShorthandDeclaration: function visitImplShorthandDeclaration(i) {
+      var self = this;
+      self.scope = self.scope.createChild();
+      i.scope = self.scope;
+      visit.walkImplShorthandDeclaration(self, i);
+      var structType = i.type_.type_;
+      var __PUCK__value__12 = structType.kind;
+      var __PUCK__value__13 = __PUCK__value__12;
+      if (__PUCK__value__13.kind == "Enum") {
+        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1);
+
+        var enum_ = _PUCK__value__13$val[0];
+
+        implementShorthand(structType, enum_, i, reportError);
+      } else {
+        var __PUCK__value__14 = __PUCK__value__12;
+        if (__PUCK__value__14.kind == "Struct") {
+          var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1);
+
+          var struct = _PUCK__value__14$val[0];
+
+          implementShorthand(structType, struct, i, reportError);
+        } else {
+          var __PUCK__value__15 = __PUCK__value__12;
+          if (true) {
+            var __PUCK__value__16 = __PUCK__value__15;
+            reportError(i.type_, _entities.Type.displayName.call(structType) + " is not a struct or an enum");
+          };
+        };
       };
       return self.scope = self.scope.parent;
     },
@@ -210,7 +212,7 @@ function ImplVisitor(context, file) {
       var self = this;
       self.scope = m.scope;
       return m.expressions.filter(function (e) {
-        return e.kind == _ast2.SyntaxKind.ImportDirective || e.kind == _ast2.SyntaxKind.ImplDeclaration;
+        return e.kind == _ast2.SyntaxKind.ImportDirective || e.kind == _ast2.SyntaxKind.ImplDeclaration || e.kind == _ast2.SyntaxKind.ImplShorthandDeclaration;
       }).forEach(self.visitExpression.bind(self));
     },
     visitObjectDestructure: function visitObjectDestructure(i) {

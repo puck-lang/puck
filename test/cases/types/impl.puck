@@ -1,0 +1,13 @@
+type Type {
+  value: Num
+}
+
+impl Type {
+  fn isAnswer(self) -> Bool {
+    self.value == 42
+  }
+}
+
+let type_: Type = {value: 42}
+
+type_.isAnswer()

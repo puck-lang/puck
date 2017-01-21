@@ -18,7 +18,7 @@ var E = _js.Error;
 E.stackTraceLimit = 100;
 var argv = _js2.process.argv;
 var _arguments = _core.Iterable['$List'].skip.call(_core.Iterable['$List'].skipUntil.call(argv, function (arg) {
-  return _core.StringTrait['$String'].contains.call(arg, "puckc");
+  return _core.String.contains.call(arg, "puckc");
 }), 1);
 var outDir = (0, _helpers.flag)(_arguments, "--out-dir", "dist");
 var outFile = (0, _helpers.flag)(_arguments, "--out-file");

@@ -9,6 +9,7 @@ import '../ast/ast.puck' as {
   EnumMember
   FunctionDeclaration
   ImplDeclaration
+  ImplShorthandDeclaration
   ObjectDestructure
   ObjectDestructureMember
   TraitDeclaration
@@ -417,7 +418,7 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseImplDeclaration() -> ImplDeclaration {
+  fn parseImplDeclaration() {
     let implKeyword = consumeToken(SyntaxKind.ImplKeyword)
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
@@ -425,8 +426,16 @@ export fn parse(input) { // : TokenStream
       else []
 
     let trait_ = parseTypeBound()
-    let forKeyword = consumeToken(SyntaxKind.ForKeyword)
-    let type_ = parseTypeBound()
+    let {forKeyword, type_}: {forKeyword: Option<Token>, type_: Option<TypeBound>} =
+      if isToken(SyntaxKind.ForKeyword)
+        then {
+          forKeyword: Some(consumeToken(SyntaxKind.ForKeyword))
+          type_: Some(parseTypeBound())
+        }
+        else {{
+          forKeyword: None
+          type_: None
+        }}
 
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', parseFunctionDeclaration, false)
@@ -440,17 +449,27 @@ export fn parse(input) { // : TokenStream
       })
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
-    {
-      kind: SyntaxKind.ImplDeclaration
-      implKeyword
-      typeParameters
-      trait_
-      forKeyword
-      type_
-      openBrace
-      members
-      closeBrace
-    }
+    if let Option::Some(type_) = type_
+      then {
+        kind: SyntaxKind.ImplDeclaration
+        implKeyword
+        typeParameters
+        trait_
+        forKeyword: forKeyword.unwrap()
+        type_
+        openBrace
+        members
+        closeBrace
+      }
+      else {{
+        kind: SyntaxKind.ImplShorthandDeclaration
+        implKeyword
+        typeParameters
+        type_: trait_
+        openBrace
+        members
+        closeBrace
+      }}
   }
 
   fn parseFunctionTypeBound(tuple) -> FunctionTypeBound {

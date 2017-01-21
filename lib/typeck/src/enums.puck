@@ -3,7 +3,7 @@ import '../../ast/ast.puck' as {
   Pattern
   MatchExpression
 }
-import '../../entities.puck' as {Enum, Type, TypeKind, TypeTrait}
+import '../../entities.puck' as {Enum, Type, TypeKind}
 
 fn isIndividuallyExhaustive(p: Pattern) {
   match p {
@@ -68,8 +68,8 @@ fn getSubPatterns(pattern: Pattern) -> List<Pattern> {
 
 fn checkExhaustiveEnum(patterns: List<Pattern>, type_: Type, enum_: Enum) -> Result<(), String> {
   let typeName = type_.displayName()
-  let mut exhaustiveMap = ObjectMapTrait.new()
-  let mut enumArmsMap = ObjectMapTrait.new()
+  let mut exhaustiveMap = ObjectMap.new()
+  let mut enumArmsMap = ObjectMap.new()
 
   if let Option::Some(_) = patterns.find(|pattern| {
     let member = match pattern {

@@ -14,6 +14,7 @@ import {
   IfExpression,
   IfLetExpression,
   ImplDeclaration,
+  ImplShorthandDeclaration,
   ImportDirective,
   IndexAccess,
   ListLiteral,
@@ -52,7 +53,7 @@ import {
   textToToken,
   tokenToText,
 } from './ast'
-import {TypeTrait} from '../entities'
+import {Type, TypeTrait} from '../entities'
 import {isTypeScopeDeclaration} from '../helpers'
 
 const jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
@@ -139,7 +140,7 @@ export function Emitter() {
     }
 
     if (type && type.name && type.name.kind) {
-      return `'$${TypeTrait.displayName.call(type)}'`
+      return `'$${(Type.displayName || TypeTrait.displayName).call(type)}'`
     }
 
     return `'$${type.name}'`
@@ -168,6 +169,27 @@ export function Emitter() {
     let preamble = `#!/usr/bin/env node\n'use strict';\n`
     let expressions =
       module.expressions
+        .filter(e => e.kind === SyntaxKind.TypeDeclaration ||
+          (isExport(e) && e.expression.kind === SyntaxKind.TypeDeclaration)
+        )
+        .map(e =>
+          isExport(e)
+            ? emitExportDirective(e)
+            : emitTypeDeclaration(e as TypeDeclaration)
+        )
+    expressions = expressions.concat(
+      module.expressions
+        .filter(e => e.kind === SyntaxKind.EnumDeclaration ||
+          (isExport(e) && e.expression.kind === SyntaxKind.EnumDeclaration)
+        )
+        .map(e =>
+          isExport(e)
+            ? emitExportDirective(e)
+            : emitEnumDeclaration(e as EnumDeclaration)
+        )
+    )
+    expressions = expressions.concat(
+      module.expressions
         .filter(e => e.kind === SyntaxKind.TraitDeclaration ||
           (isExport(e) && e.expression.kind === SyntaxKind.TraitDeclaration)
         )
@@ -176,16 +198,29 @@ export function Emitter() {
             ? emitExportDirective(e)
             : emitTraitDeclaration(e as TraitDeclaration)
         )
+    )
     expressions = expressions.concat(
       module.expressions
         .filter(e => e.kind === SyntaxKind.ImplDeclaration)
         .map(e => emitImplDeclaration(e as ImplDeclaration))
     )
+    expressions = expressions.concat(
+      module.expressions
+        .filter(e => e.kind === SyntaxKind.ImplShorthandDeclaration)
+        .map(e => emitImplShorthandDeclaration(e as ImplShorthandDeclaration))
+    )
     expressions = expressions.concat(emitExpressions(
       module.expressions.filter(e => !(
+        e.kind === SyntaxKind.EnumDeclaration ||
         e.kind === SyntaxKind.ImplDeclaration ||
+        e.kind === SyntaxKind.ImplShorthandDeclaration ||
         e.kind === SyntaxKind.TraitDeclaration ||
-        (isExport(e) && e.expression.kind === SyntaxKind.TraitDeclaration)
+        e.kind === SyntaxKind.TypeDeclaration ||
+        (isExport(e) && (
+          e.expression.kind === SyntaxKind.EnumDeclaration ||
+          e.expression.kind === SyntaxKind.TraitDeclaration ||
+          e.expression.kind === SyntaxKind.TypeDeclaration
+        ))
       ))
     ))
     return preamble + expressions.join(';\n')
@@ -264,8 +299,6 @@ export function Emitter() {
         }
       }
       switch (expression.kind) {
-        case SyntaxKind.EnumDeclaration: return emitEnumDeclaration(expression);
-        case SyntaxKind.TypeDeclaration: return emitTypeDeclaration(expression);
         case SyntaxKind.IfExpression: return emitIfExpression(expression);
         case SyntaxKind.IfLetExpression: return emitIfLetExpression(expression);
         case SyntaxKind.MatchExpression: return emitMatchExpression(expression);
@@ -360,19 +393,27 @@ export function Emitter() {
   }
 
   function emitImplDeclaration(i: ImplDeclaration) {
-    let functions = Object['assign']({}, i.trait_.type_.functions || i.trait_.type_.kind.value[0].functions)
+    let functions = Object['assign']({}, i.trait_.type_.kind.value[0].functions)
     i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m))
-    return `${i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)}[${getTypeProp(i.type_.type_)}] = {\n${
+    return `${emitTypePath(i.trait_.path)}[${getTypeProp(i.type_.type_)}] = {\n${
       indent(
         Object.keys(functions).map(f =>
           `${emitIdentifier({name: f})}: ${
             typeof functions[f] === 'string'
               ? functions[f]
-              : `${i.trait_['name'] ? emitIdentifier(i.trait_['name']) : emitTypePath(i.trait_.path)}.${emitIdentifier({name: f})}`
+              : `${emitTypePath(i.trait_.path)}.${emitIdentifier({name: f})}`
           }`)
       )
       .join(',\n')
     }\n}`
+  }
+
+  function emitImplShorthandDeclaration(i: ImplShorthandDeclaration) {
+    return i.members
+      .map(m =>
+        `${emitTypePath(i.type_.path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m)}`
+      )
+      .join(',\n')
   }
 
   function emitTraitDeclaration(t: TraitDeclaration) {
@@ -450,9 +491,13 @@ export function Emitter() {
 
   function emitExportDirective(e: ExportDirective) {
     return `export ${
+      e.expression.kind === SyntaxKind.EnumDeclaration
+        ? emitEnumDeclaration(e.expression as EnumDeclaration) :
       e.expression.kind === SyntaxKind.TraitDeclaration
-        ? emitTraitDeclaration(e.expression as TraitDeclaration)
-        : emitExpression(e.expression)
+        ? emitTraitDeclaration(e.expression as TraitDeclaration) :
+      e.expression.kind === SyntaxKind.TypeDeclaration
+        ? emitTypeDeclaration(e.expression as TypeDeclaration)
+      : emitExpression(e.expression)
     }`
   }
 
@@ -537,11 +582,15 @@ export function Emitter() {
   }
 
   function emitCallExpression(fn_: CallExpression) {
-    let fn = fn_ as CallExpression & {traitName: any, implementationType: any}
+    let fn = fn_ as CallExpression & {traitName: string, implementationType: any, isShorthand: boolean}
     let functionName
 
     if (fn.traitName) {
-      functionName = `${fn.traitName}[${getTypeProp(fn.implementationType)}].${emitIdentifier((fn.func as MemberAccess).member)}.call`
+      functionName = `${fn.traitName}${
+        fn.isShorthand
+          ? ``
+          : `[${getTypeProp(fn.implementationType)}]`
+      }.${emitIdentifier((fn.func as MemberAccess).member)}.call`
       fn.argumentList.unshift((fn.func as MemberAccess).object)
     }
     else {

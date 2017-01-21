@@ -6,6 +6,7 @@ import '../ast/ast.puck' as {
   FunctionDeclaration
   Identifier
   ImplDeclaration
+  ImplShorthandDeclaration
   Module
   ObjectDestructure
   TypeBound
@@ -57,18 +58,17 @@ import '../entities.puck' as {
   Type
   TypeInstance
   TypeKind
-  TypeTrait
 }
 
 fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, i: ImplDeclaration, reportError) {
   let traitName = traitType.displayName()
 
-  if implementable.implementations.some(|imp| imp.trait_ == traitType)
+  if implementable.implementations.any(|imp| imp.trait_ == traitType)
     then reportError(i, '$traitName has already been implemented for ' + type_.displayName())
 
-  let functions = ObjectMapTrait.fromList(
-    i.members.map(|member| {
-      (member.type_.name.unwrap(), member.type_)
+  let functions = ObjectMap.fromList(
+    i.members.map(|functionDeclaration| {
+      (functionDeclaration.type_.name.unwrap(), functionDeclaration.type_)
     })
   )
 
@@ -76,28 +76,19 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
 
   traitFunctions.keys().forEach(|name| {
     let traitFunctionType: Type = traitFunctions[name]
-    let traitFunction = match traitFunctionType.kind {
-      TypeKind::Function(func) => func
-      _ => throw 'trait function is not a function'
-    }
+    let traitFunction = traitFunctionType.getFunction()
     if traitFunction.isAbstract and not functions[name]
       then reportError(i, 'Function $traitName::$name is not implemented for ' + type_.displayName())
   })
 
   i.members.forEach(|functionDeclaration| {
     let functionName = functionDeclaration.type_.displayName()
-    let function = match functionDeclaration.type_.kind {
-      TypeKind::Function(func) => func
-      _ => throw 'impl function is not a function'
-    }
+    let function = functionDeclaration.type_.getFunction()
     let traitFunctionType: Type = traitFunctions[functionDeclaration.type_.name.unwrap()]
     if not traitFunctionType
       then reportError(i, 'Function $functionName is not defined by $traitName')
     let traitFunctionName = traitFunctionType.displayName()
-    let traitFunction = match traitFunctionType.kind {
-      TypeKind::Function(func) => func
-      _ => throw 'trait function is not a function'
-    }
+    let traitFunction = traitFunctionType.getFunction()
 
     if let Option::Some(implSelf) = function.selfBinding {
       if let Option::Some(traitSelf) = traitFunction.selfBinding {
@@ -119,6 +110,33 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
   })
 }
 
+fn implementShorthand(type_: Type, implementable: {implementations: List<Implementation>}, i: ImplShorthandDeclaration, reportError) {
+  let typeName = type_.displayName()
+
+  if implementable.implementations.any(|imp| imp.trait_.getTrait().isShorthand)
+    then reportError(i, '$typeName has already been implemented')
+
+  let functions = ObjectMap.fromList(
+    i.members.map(|functionDeclaration|
+      (functionDeclaration.type_.name.unwrap(), functionDeclaration.type_)
+    )
+  )
+
+  implementable.implementations.push({
+    type_: type_
+    trait_: {
+      displayName: type_.displayName
+      name: type_.name
+      kind: TypeKind::Trait({
+        isShorthand: true
+        functions
+      })
+      class: None
+      instance: None
+    }
+  })
+}
+
 export fn ImplVisitor(context, file) {
   let mut importDirective: ImportDirective
   let reportError = context.reportError.bind(context, file)
@@ -127,7 +145,7 @@ export fn ImplVisitor(context, file) {
     reportError
 
     visitImplDeclaration: |mut self, mut i: ImplDeclaration| {
-      self.scope = createScope(context, file, self.scope)
+      self.scope = self.scope.createChild()
       i.scope = self.scope
       visit.walkImplDeclaration(self, i)
 
@@ -145,12 +163,28 @@ export fn ImplVisitor(context, file) {
 
       self.scope = self.scope.parent
     }
+    visitImplShorthandDeclaration: |mut self, mut i: ImplShorthandDeclaration| {
+      self.scope = self.scope.createChild()
+      i.scope = self.scope
+      visit.walkImplShorthandDeclaration(self, i)
+
+      let structType: Type = i.type_.type_
+
+      match structType.kind {
+        TypeKind::Enum(enum_) => implementShorthand(structType, enum_, i, reportError)
+        TypeKind::Struct(struct) => implementShorthand(structType, struct, i, reportError)
+        _ => reportError(i.type_, structType.displayName() + ' is not a struct or an enum')
+      }
+
+      self.scope = self.scope.parent
+    }
     visitModule: |mut self, mut m: Module| {
       self.scope = m.scope
       m.expressions
         .filter(|e|
           e.kind == SyntaxKind.ImportDirective or
-          e.kind == SyntaxKind.ImplDeclaration
+          e.kind == SyntaxKind.ImplDeclaration or
+          e.kind == SyntaxKind.ImplShorthandDeclaration
         )
         .forEach(self.visitExpression.bind(self))
     }

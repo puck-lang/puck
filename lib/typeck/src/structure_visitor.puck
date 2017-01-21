@@ -27,9 +27,8 @@ import '../../entities.puck' as {
   Scope
   StructKind
   Type
-  TypeClassTrait
+  TypeClass
   TypeKind
-  TypeTrait
 }
 import 'enums.puck' as {getEnumMember}
 import 'functions.puck' as {createFunctionType}
@@ -139,7 +138,7 @@ export let structureVisitor = {
         kind: TypeKind::Parameter({
           defaultValue: t.defaultValue.map(|typeBound| getType(t.scope, typeBound))
         })
-        class: TypeClassTrait.fromAstNode(t, self.reportError)
+        class: TypeClass.fromAstNode(t, self.reportError)
         instance: None
       }
       self.scope.defineType(t.type_, t)
@@ -261,7 +260,7 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
               throw 'abd type'
             }
           }
-          else ObjectMapTrait.new()
+          else ObjectMap.new()
 
       let properties: Result<ObjectMap<Type>, PatternError> = record.properties
         .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive))
