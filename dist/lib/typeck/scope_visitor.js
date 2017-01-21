@@ -188,21 +188,32 @@ function ScopeVisitor(context, file) {
       var i = _ref4[1];
 
       var parameter = _function._arguments[i];
+      var __PUCK__value__20 = void 0;
+      if (parameter.pattern) {
+        var __PUCK__value__21 = parameter.pattern;
+        var __PUCK__value__22 = void 0;
+        if (__PUCK__value__21.kind == "Identifier") {
+          var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1);
+
+          var _name = _PUCK__value__21$val[0].name;
+
+          __PUCK__value__22 = _name;
+        } else {
+          __PUCK__value__22 = i;
+        };
+        __PUCK__value__20 = __PUCK__value__22;
+      } else {
+        __PUCK__value__20 = i;
+      };
+      var parameterName = __PUCK__value__20;
       if (!(0, _types.isAssignable)(parameter.type_, argument.type_)) {
-        reportError(argument, (0, _structure_visitor.notAssignableError)(parameter.type_, argument.type_));
+        reportError(argument, (0, _structure_visitor.notAssignableError)(parameter.type_, argument.type_) + " in parameter " + parameterName + " of function " + name + "");
       };
       if (parameter.mutable && argument.kind == _ast2.SyntaxKind.Identifier) {
         var argumentName = argument.name;
         var argumentBinding = argument.scope.getBinding(argumentName);
         if (!argumentBinding.mutable) {
-          var __PUCK__value__20 = void 0;
-          if (parameter.pattern.kind == "Identifier") {
-            __PUCK__value__20 = parameter.pattern.value[0].name;
-          } else {
-            __PUCK__value__20 = i;
-          };
-          var parameterName = __PUCK__value__20;
-          return reportError(argument, "Parameter " + parameterName + " of " + name + " requires a mutable binding " + "but " + argumentName + " is declared as immutable.");
+          return reportError(argument, "Parameter " + parameterName + " of function " + name + " requires a mutable binding " + "but " + argumentName + " is declared as immutable.");
         };
       };
     });
@@ -229,18 +240,18 @@ function ScopeVisitor(context, file) {
       b.scope = self.scope;
       defineHoisted(b.expressions, self);
       visit.walkBlock(self, b);
-      var __PUCK__value__21 = _core.Iterable['$List'].last.call(b.expressions);
-      var __PUCK__value__22 = void 0;
-      if (__PUCK__value__21.kind == "Some") {
-        var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1);
+      var __PUCK__value__23 = _core.Iterable['$List'].last.call(b.expressions);
+      var __PUCK__value__24 = void 0;
+      if (__PUCK__value__23.kind == "Some") {
+        var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1);
 
-        var last = _PUCK__value__21$val[0];
+        var last = _PUCK__value__23$val[0];
 
-        __PUCK__value__22 = last.type_;
+        __PUCK__value__24 = last.type_;
       } else {
-        __PUCK__value__22 = _entities.Type.empty.call(_entities.Type);
+        __PUCK__value__24 = _entities.Type.empty.call(_entities.Type);
       };
-      return b.type_ = __PUCK__value__22;
+      return b.type_ = __PUCK__value__24;
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
@@ -253,11 +264,11 @@ function ScopeVisitor(context, file) {
         });
         if (f.body) {
           self.visitBlock(f.body);
-          var __PUCK__value__23 = f.type_.kind;
-          if (__PUCK__value__23.kind == "Function") {
-            var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1);
+          var __PUCK__value__25 = f.type_.kind;
+          if (__PUCK__value__25.kind == "Function") {
+            var _PUCK__value__25$val = _slicedToArray(__PUCK__value__25.value, 1);
 
-            var func = _PUCK__value__23$val[0];
+            var func = _PUCK__value__25$val[0];
 
             if (func.returnType) {
               if (!(0, _types.isAssignable)(func.returnType, f.body.type_)) {
@@ -308,18 +319,18 @@ function ScopeVisitor(context, file) {
       var allowNotExhaustive = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
       var self = this;
-      var __PUCK__value__24 = void 0;
+      var __PUCK__value__26 = void 0;
       if (visitInitializer) {
-        __PUCK__value__24 = visitInitializer;
+        __PUCK__value__26 = visitInitializer;
       } else {
-        __PUCK__value__24 = function __PUCK__value__24(e) {
+        __PUCK__value__26 = function __PUCK__value__26(e) {
           var parentAssignedTo = self.assignedTo;
           self.assignedTo = d;
           self.visitExpression(e);
           return self.assignedTo = parentAssignedTo;
         };
       };
-      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, __PUCK__value__24, type_, allowNotExhaustive);
+      return _structure_visitor.structureVisitor.visitVariableDeclaration.call(self, d, __PUCK__value__26, type_, allowNotExhaustive);
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -355,11 +366,11 @@ function ScopeVisitor(context, file) {
         (function () {
           var name = e.func.member.name;
           var objectType = e.func.object.type_;
-          var __PUCK__value__25 = objectType.kind;
-          if (__PUCK__value__25.kind == "Trait") {
-            var _PUCK__value__25$val = _slicedToArray(__PUCK__value__25.value, 1);
+          var __PUCK__value__27 = objectType.kind;
+          if (__PUCK__value__27.kind == "Trait") {
+            var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1);
 
-            var trait_ = _PUCK__value__25$val[0];
+            var trait_ = _PUCK__value__27$val[0];
 
             functionType = trait_.functions[name];
             if (!functionType) {
@@ -371,92 +382,92 @@ function ScopeVisitor(context, file) {
           } else {
             (function () {
               var getImplementations = function getImplementations(type_) {
-                var __PUCK__value__26 = type_.kind;
-                var __PUCK__value__27 = __PUCK__value__26;
-                var __PUCK__value__28 = void 0;
-                if (__PUCK__value__27.kind == "Enum") {
-                  var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1);
+                var __PUCK__value__28 = type_.kind;
+                var __PUCK__value__29 = __PUCK__value__28;
+                var __PUCK__value__30 = void 0;
+                if (__PUCK__value__29.kind == "Enum") {
+                  var _PUCK__value__29$val = _slicedToArray(__PUCK__value__29.value, 1);
 
-                  var enum_ = _PUCK__value__27$val[0];
+                  var enum_ = _PUCK__value__29$val[0];
 
-                  __PUCK__value__28 = enum_.implementations;
+                  __PUCK__value__30 = enum_.implementations;
                 } else {
-                  var __PUCK__value__29 = __PUCK__value__26;
-                  var __PUCK__value__30 = void 0;
-                  if (__PUCK__value__29.kind == "Struct") {
-                    var _PUCK__value__29$val = _slicedToArray(__PUCK__value__29.value, 1);
+                  var __PUCK__value__31 = __PUCK__value__28;
+                  var __PUCK__value__32 = void 0;
+                  if (__PUCK__value__31.kind == "Struct") {
+                    var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1);
 
-                    var struct = _PUCK__value__29$val[0];
+                    var struct = _PUCK__value__31$val[0];
 
-                    __PUCK__value__30 = struct.implementations;
+                    __PUCK__value__32 = struct.implementations;
                   } else {
-                    var __PUCK__value__31 = __PUCK__value__26;
-                    var __PUCK__value__32 = void 0;
-                    if (__PUCK__value__31.kind == "Parameter") {
-                      var _undefined3 = __PUCK__value__31;
-                      __PUCK__value__32 = [];
+                    var __PUCK__value__33 = __PUCK__value__28;
+                    var __PUCK__value__34 = void 0;
+                    if (__PUCK__value__33.kind == "Parameter") {
+                      var _undefined3 = __PUCK__value__33;
+                      __PUCK__value__34 = [];
                     } else {
-                      var __PUCK__value__33 = __PUCK__value__26;
-                      var __PUCK__value__34 = void 0;
+                      var __PUCK__value__35 = __PUCK__value__28;
+                      var __PUCK__value__36 = void 0;
                       if (true) {
-                        var __PUCK__value__35 = __PUCK__value__33;
+                        var __PUCK__value__37 = __PUCK__value__35;
                         throw "Not an enum or a struct";
                       };
-                      __PUCK__value__32 = __PUCK__value__34;
+                      __PUCK__value__34 = __PUCK__value__36;
                     };
-                    __PUCK__value__30 = __PUCK__value__32;
+                    __PUCK__value__32 = __PUCK__value__34;
                   };
-                  __PUCK__value__28 = __PUCK__value__30;
+                  __PUCK__value__30 = __PUCK__value__32;
                 };
-                var implementations = __PUCK__value__28;
+                var implementations = __PUCK__value__30;
                 implementations = implementations.filter(function (i) {
                   return _entities.Type.getTrait.call(asType(i.trait_)).functions[name];
                 });
-                var __PUCK__value__36 = void 0;
-                if (implementations.length > 1) {
-                  __PUCK__value__36 = implementations.filter(function (i) {
-                    return e.scope.getTypeBinding(_core.Option.unwrap.call(asType(i.trait_).name));
-                  });
-                } else {
-                  __PUCK__value__36 = implementations;
-                };
-                implementations = __PUCK__value__36;
-                var __PUCK__value__37 = void 0;
-                if (implementations.length > 1) {
-                  __PUCK__value__37 = implementations.filter(function (i) {
-                    return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType(i.trait_)).functions[name])).argumentRange, e.argumentList.length);
-                  });
-                } else {
-                  __PUCK__value__37 = implementations;
-                };
-                implementations = __PUCK__value__37;
                 var __PUCK__value__38 = void 0;
                 if (implementations.length > 1) {
-                  var hasInstance = _core.Iterable['$List'].find.call(implementations, function (i) {
-                    return _core.Option.isJust.call(i.trait_.instance);
+                  __PUCK__value__38 = implementations.filter(function (i) {
+                    return e.scope.getTypeBinding(_core.Option.unwrap.call(asType(i.trait_).name));
                   });
-                  var __PUCK__value__39 = void 0;
-                  if (_core.Option.isJust.call(hasInstance)) {
-                    __PUCK__value__39 = implementations.filter(function (i) {
-                      return _core.Option.isJust.call(i.trait_.instance);
-                    });
-                  } else {
-                    __PUCK__value__39 = implementations;
-                  };
-                  __PUCK__value__38 = __PUCK__value__39;
                 } else {
                   __PUCK__value__38 = implementations;
                 };
                 implementations = __PUCK__value__38;
+                var __PUCK__value__39 = void 0;
+                if (implementations.length > 1) {
+                  __PUCK__value__39 = implementations.filter(function (i) {
+                    return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType(i.trait_)).functions[name])).argumentRange, e.argumentList.length);
+                  });
+                } else {
+                  __PUCK__value__39 = implementations;
+                };
+                implementations = __PUCK__value__39;
+                var __PUCK__value__40 = void 0;
+                if (implementations.length > 1) {
+                  var hasInstance = _core.Iterable['$List'].find.call(implementations, function (i) {
+                    return _core.Option.isJust.call(i.trait_.instance);
+                  });
+                  var __PUCK__value__41 = void 0;
+                  if (_core.Option.isJust.call(hasInstance)) {
+                    __PUCK__value__41 = implementations.filter(function (i) {
+                      return _core.Option.isJust.call(i.trait_.instance);
+                    });
+                  } else {
+                    __PUCK__value__41 = implementations;
+                  };
+                  __PUCK__value__40 = __PUCK__value__41;
+                } else {
+                  __PUCK__value__40 = implementations;
+                };
+                implementations = __PUCK__value__40;
                 if (implementations.length > 1) {
                   reportError(e, "Ambiguous trait call");
                 };
                 if (implementations.length == 0) {
-                  var __PUCK__value__40 = type_.instance;
-                  if (__PUCK__value__40.kind == "Some") {
-                    var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1);
+                  var __PUCK__value__42 = type_.instance;
+                  if (__PUCK__value__42.kind == "Some") {
+                    var _PUCK__value__42$val = _slicedToArray(__PUCK__value__42.value, 1);
 
-                    var instance = _PUCK__value__40$val[0];
+                    var instance = _PUCK__value__42$val[0];
 
                     return getImplementations(instance._class);
                   } else {
@@ -471,18 +482,18 @@ function ScopeVisitor(context, file) {
               var implementations = getImplementations(objectType);
               if (implementations.length == 1) {
                 var implementation = implementations[0];
-                var __PUCK__value__41 = implementation.trait_.instance;
-                var __PUCK__value__42 = void 0;
-                if (__PUCK__value__41.kind == "Some") {
-                  var _PUCK__value__41$val = _slicedToArray(__PUCK__value__41.value, 1);
+                var __PUCK__value__43 = implementation.trait_.instance;
+                var __PUCK__value__44 = void 0;
+                if (__PUCK__value__43.kind == "Some") {
+                  var _PUCK__value__43$val = _slicedToArray(__PUCK__value__43.value, 1);
 
-                  var instance = _PUCK__value__41$val[0];
+                  var instance = _PUCK__value__43$val[0];
 
-                  __PUCK__value__42 = instance._class;
+                  __PUCK__value__44 = instance._class;
                 } else {
-                  __PUCK__value__42 = implementation.trait_;
+                  __PUCK__value__44 = implementation.trait_;
                 };
-                var _trait_ = __PUCK__value__42;
+                var _trait_ = __PUCK__value__44;
                 var traitName = _core.Option.unwrap.call(_trait_.name);
                 if (!e.scope.getTypeBinding(traitName)) {
                   reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
@@ -491,11 +502,11 @@ function ScopeVisitor(context, file) {
                 e.isShorthand = _entities.Type.getTrait.call(_trait_).isShorthand;
                 e.implementationType = implementation.type_;
                 functionType = _entities.Type.getTrait.call(asType(implementation.trait_)).functions[name];
-                var __PUCK__value__43 = objectType.instance;
-                if (__PUCK__value__43.kind == "Some") {
-                  var _PUCK__value__43$val = _slicedToArray(__PUCK__value__43.value, 1);
+                var __PUCK__value__45 = objectType.instance;
+                if (__PUCK__value__45.kind == "Some") {
+                  var _PUCK__value__45$val = _slicedToArray(__PUCK__value__45.value, 1);
 
-                  var _instance = _PUCK__value__43$val[0];
+                  var _instance = _PUCK__value__45$val[0];
 
                   functionType = (0, _types.resolveTypeParameters)(_instance.parameterMap)(functionType);
                 };
@@ -511,20 +522,20 @@ function ScopeVisitor(context, file) {
         var a = _ref6[0];
         var i = _ref6[1];
 
-        var __PUCK__value__44 = void 0;
+        var __PUCK__value__46 = void 0;
         if (functionType) {
-          var __PUCK__value__45 = functionType.kind;
-          var __PUCK__value__46 = void 0;
-          if (__PUCK__value__45.kind == "Function") {
-            var _PUCK__value__45$val = _slicedToArray(__PUCK__value__45.value, 1);
+          var __PUCK__value__47 = functionType.kind;
+          var __PUCK__value__48 = void 0;
+          if (__PUCK__value__47.kind == "Function") {
+            var _PUCK__value__47$val = _slicedToArray(__PUCK__value__47.value, 1);
 
-            var func = _PUCK__value__45$val[0];
+            var func = _PUCK__value__47$val[0];
 
-            __PUCK__value__46 = func._arguments[i];
+            __PUCK__value__48 = func._arguments[i];
           };
-          __PUCK__value__44 = __PUCK__value__46;
+          __PUCK__value__46 = __PUCK__value__48;
         };
-        self.assignedTo = __PUCK__value__44;
+        self.assignedTo = __PUCK__value__46;
         return self.visitExpression(a);
       });
       self.assignedTo = parentAssignedTo;
@@ -553,11 +564,11 @@ function ScopeVisitor(context, file) {
       e.scope = self.scope;
       self.visitVariableDeclaration(e.variableDeclaration, _js._undefined, _js._undefined, true);
       self.visitBlock(e.then_);
-      var __PUCK__value__47 = e.else_;
-      if (__PUCK__value__47.kind == "Some") {
-        var _PUCK__value__47$val = _slicedToArray(__PUCK__value__47.value, 1);
+      var __PUCK__value__49 = e.else_;
+      if (__PUCK__value__49.kind == "Some") {
+        var _PUCK__value__49$val = _slicedToArray(__PUCK__value__49.value, 1);
 
-        var else_ = _PUCK__value__47$val[0];
+        var else_ = _PUCK__value__49$val[0];
 
         self.visitBlock(else_);
       };
@@ -573,11 +584,11 @@ function ScopeVisitor(context, file) {
       _core.Iterable['$List'].forEach.call(e.patterns, function (a) {
         return self.visitMatchArm(a);
       });
-      var __PUCK__value__48 = (0, _enums.checkExhaustive)(e);
-      if (__PUCK__value__48.kind == "Err") {
-        var _PUCK__value__48$val = _slicedToArray(__PUCK__value__48.value, 1);
+      var __PUCK__value__50 = (0, _enums.checkExhaustive)(e);
+      if (__PUCK__value__50.kind == "Err") {
+        var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 1);
 
-        var error = _PUCK__value__48$val[0];
+        var error = _PUCK__value__50$val[0];
 
         self.reportError(e, error);
       };
@@ -622,12 +633,12 @@ function ScopeVisitor(context, file) {
         if (typePath.value[1].kind != "Member") {
           self.reportError(e, "Nested type paths are not supported");
         };
-        var __PUCK__value__49 = type_.kind;
-        if (__PUCK__value__49.kind == "Enum") {
+        var __PUCK__value__51 = type_.kind;
+        if (__PUCK__value__51.kind == "Enum") {
           var _ret4 = function () {
-            var _PUCK__value__49$val = _slicedToArray(__PUCK__value__49.value, 1);
+            var _PUCK__value__51$val = _slicedToArray(__PUCK__value__51.value, 1);
 
-            var enum_ = _PUCK__value__49$val[0];
+            var enum_ = _PUCK__value__51$val[0];
 
             var memberIdentifier = typePath.value[1].value[0];
             var member = enum_.members[memberIdentifier.name];
@@ -636,19 +647,19 @@ function ScopeVisitor(context, file) {
                 v: reportError(memberIdentifier, _entities.Type.displayName.call(type_) + " has no member named " + memberIdentifier.name)
               };
             } else {
-              var __PUCK__value__50 = member.kind;
-              var __PUCK__value__51 = __PUCK__value__50;
-              if (__PUCK__value__51.kind == "Struct") {
-                var _PUCK__value__51$val = _slicedToArray(__PUCK__value__51.value, 1);
+              var __PUCK__value__52 = member.kind;
+              var __PUCK__value__53 = __PUCK__value__52;
+              if (__PUCK__value__53.kind == "Struct") {
+                var _PUCK__value__53$val = _slicedToArray(__PUCK__value__53.value, 1);
 
-                var struct = _PUCK__value__51$val[0];
+                var struct = _PUCK__value__53$val[0];
 
-                var __PUCK__value__52 = struct.kind;
-                var __PUCK__value__53 = __PUCK__value__52;
-                if (__PUCK__value__53.kind == "Record") {
-                  var _PUCK__value__53$val = _slicedToArray(__PUCK__value__53.value, 1);
+                var __PUCK__value__54 = struct.kind;
+                var __PUCK__value__55 = __PUCK__value__54;
+                if (__PUCK__value__55.kind == "Record") {
+                  var _PUCK__value__55$val = _slicedToArray(__PUCK__value__55.value, 1);
 
-                  var record = _PUCK__value__53$val[0];
+                  var record = _PUCK__value__55$val[0];
 
                   return {
                     v: e.type_ = {
@@ -677,11 +688,11 @@ function ScopeVisitor(context, file) {
                     }
                   };
                 } else {
-                  var __PUCK__value__54 = __PUCK__value__52;
-                  if (__PUCK__value__54.kind == "Tuple") {
-                    var _PUCK__value__54$val = _slicedToArray(__PUCK__value__54.value, 1);
+                  var __PUCK__value__56 = __PUCK__value__54;
+                  if (__PUCK__value__56.kind == "Tuple") {
+                    var _PUCK__value__56$val = _slicedToArray(__PUCK__value__56.value, 1);
 
-                    var tuple = _PUCK__value__54$val[0];
+                    var tuple = _PUCK__value__56$val[0];
 
                     return {
                       v: e.type_ = {
@@ -717,9 +728,9 @@ function ScopeVisitor(context, file) {
                       }
                     };
                   } else {
-                    var __PUCK__value__55 = __PUCK__value__52;
-                    if (__PUCK__value__55.kind == "Unit") {
-                      var _undefined4 = __PUCK__value__55;
+                    var __PUCK__value__57 = __PUCK__value__54;
+                    if (__PUCK__value__57.kind == "Unit") {
+                      var _undefined4 = __PUCK__value__57;
                       return {
                         v: e.type_ = {
                           displayName: _core.Option.map.call(type_.name, function (name) {
@@ -735,9 +746,9 @@ function ScopeVisitor(context, file) {
                   };
                 };
               } else {
-                var __PUCK__value__56 = __PUCK__value__50;
+                var __PUCK__value__58 = __PUCK__value__52;
                 if (true) {
-                  var __PUCK__value__57 = __PUCK__value__56;
+                  var __PUCK__value__59 = __PUCK__value__58;
                   throw "enum arm is not a struct";
                 };
               };
@@ -752,17 +763,17 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
-      var __PUCK__value__58 = void 0;
+      var __PUCK__value__60 = void 0;
       if (e.operator.kind == _ast2.SyntaxKind.NotKeyword) {
-        __PUCK__value__58 = e.scope.getTypeBinding("Bool").type_;
+        __PUCK__value__60 = e.scope.getTypeBinding("Bool").type_;
       } else {
-        var __PUCK__value__59 = void 0;
+        var __PUCK__value__61 = void 0;
         if (e.operator.kind == _ast2.SyntaxKind.MinusToken || e.operator.kind == _ast2.SyntaxKind.PlusToken) {
-          __PUCK__value__59 = e.scope.getTypeBinding("Num").type_;
+          __PUCK__value__61 = e.scope.getTypeBinding("Num").type_;
         };
-        __PUCK__value__58 = __PUCK__value__59;
+        __PUCK__value__60 = __PUCK__value__61;
       };
-      return e.type_ = __PUCK__value__58;
+      return e.type_ = __PUCK__value__60;
     },
     visitWhileLoop: function visitWhileLoop(e) {
       var self = this;
@@ -782,13 +793,13 @@ function ScopeVisitor(context, file) {
       a.scope = self.scope;
       visit.walkExpression(self, a.object);
       if (a.object.type_) {
-        var __PUCK__value__60 = a.object.type_.kind;
-        if (__PUCK__value__60.kind == "Struct" && __PUCK__value__60.value[0].kind.kind == "Record") {
-          var _PUCK__value__60$val = _slicedToArray(__PUCK__value__60.value, 1);
+        var __PUCK__value__62 = a.object.type_.kind;
+        if (__PUCK__value__62.kind == "Struct" && __PUCK__value__62.value[0].kind.kind == "Record") {
+          var _PUCK__value__62$val = _slicedToArray(__PUCK__value__62.value, 1);
 
-          var _PUCK__value__60$val$ = _slicedToArray(_PUCK__value__60$val[0].kind.value, 1);
+          var _PUCK__value__62$val$ = _slicedToArray(_PUCK__value__62$val[0].kind.value, 1);
 
-          var record = _PUCK__value__60$val$[0];
+          var record = _PUCK__value__62$val$[0];
 
           return a.type_ = record.properties[a.member.name];
         } else {};

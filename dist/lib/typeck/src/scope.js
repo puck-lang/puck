@@ -25,17 +25,20 @@ function createScope(context, file) {
   var parent = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
   var reportError = context.reportError.bind(context, file);
-  var bindings = {};
-  var typeBindings = {};
+  var bindings = _core.ObjectMap._new.call(_core.ObjectMap);
+  var typeBindings = _core.ObjectMap._new.call(_core.ObjectMap);
   return {
     parent: parent,
-    bindings: bindings,
+    setSelfBinding: function setSelfBinding(selfType) {
+      var self = this;
+      return typeBindings["Self"] = self.getTypeBinding(selfType);
+    },
     createChild: function createChild() {
       var self = this;
       return createScope(context, file, self);
     },
     clearBindings: function clearBindings() {
-      return bindings = {};
+      return bindings = _core.ObjectMap._new.call(_core.ObjectMap);
     },
     setTypeBinding: function setTypeBinding(binding) {
       return typeBindings[binding.name] = binding;
@@ -99,6 +102,9 @@ function createScope(context, file) {
 
       var self = this;
       var name = _core.Option.unwrap.call(type_.name);
+      if (name == "Self") {
+        reportError(token, "Self is a reserved name");
+      };
       if (!allowRedeclare && typeBindings[name]) {
         reportError(token, "Type " + name + " is already defined");
       };

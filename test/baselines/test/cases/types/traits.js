@@ -40,7 +40,12 @@ var SelfAware = exports.SelfAware = {
   }
 };
 var Generic = exports.Generic = {};
-var GenericSelf = exports.GenericSelf = {};
+var GenericSelf = exports.GenericSelf = {
+  genericSelf2: function genericSelf2(a) {
+    var self = this;
+    return self.genericSelf(a);
+  }
+};
 Empty['$EmptyType'] = {};
 Functions['$EmptyType'] = {
   noBody: function noBody() {
@@ -66,7 +71,8 @@ GenericSelf['$GenericType<String>'] = {
   genericSelf: function genericSelf(a) {
     var self = this;
     return a;
-  }
+  },
+  genericSelf2: GenericSelf.genericSelf2
 };
 Generic['$GenericType<String>'] = {
   generic: function generic(a) {

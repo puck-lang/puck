@@ -86,6 +86,10 @@ var walkingVisitor = exports.walkingVisitor = {
     var self = this;
     return walkFunction(self, f);
   },
+  visitMethodDeclaration: function visitMethodDeclaration(f) {
+    var self = this;
+    return walkFunction(self, f);
+  },
   visitIdentifier: function visitIdentifier(i) {
     var self = this;
     return walkIdentifier(self, i);
@@ -260,6 +264,7 @@ var emptyVisitor = exports.emptyVisitor = {
   visitEnumDeclaration: function visitEnumDeclaration() {},
   visitEnumMember: function visitEnumMember() {},
   visitFunctionDeclaration: function visitFunctionDeclaration() {},
+  visitMethodDeclaration: function visitMethodDeclaration() {},
   visitIdentifier: function visitIdentifier() {},
   visitImplDeclaration: function visitImplDeclaration() {},
   visitImplShorthandDeclaration: function visitImplShorthandDeclaration() {},

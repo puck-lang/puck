@@ -61,7 +61,7 @@ var Iterable = exports.Iterable = {};
 Iterable['$List'] = {
   enumerate: function enumerate() {
     var self = this;
-    return self.map(function (element, index) {
+    return anyCast(self).map(function (element, index) {
       return [element, index];
     });
   },
@@ -118,19 +118,19 @@ Iterable['$List'] = {
   },
   forEach: function forEach(func) {
     var self = this;
-    return self.forEach(func);
+    return anyCast(self).forEach(func);
   },
   map: function map(func) {
     var self = this;
-    return self.map(func);
+    return anyCast(self).map(func);
   },
   skip: function skip(count) {
     var self = this;
     return self.slice(count);
   },
-  skipUntil: function skipUntil(test) {
+  skipUntil: function skipUntil(predicate) {
     var self = this;
-    var index = self.findIndex(test);
+    var index = self.findIndex(predicate);
     if (index == -1) {
       return [];
     } else {
@@ -145,10 +145,12 @@ String.contains = function contains(subStr) {
 Result.isOk = function isOk() {
   var self = this;
   return self.kind == "Ok";
-}, Result.isErr = function isErr() {
+};
+Result.isErr = function isErr() {
   var self = this;
   return !Result.isOk.call(self);
-}, Result.andThen = function andThen(op) {
+};
+Result.andThen = function andThen(op) {
   var self = this;
   var __PUCK__value__1 = self;
   if (__PUCK__value__1.kind == "Ok") {
@@ -160,7 +162,8 @@ Result.isOk = function isOk() {
   } else {
     return self;
   };
-}, Result.map = function map(op) {
+};
+Result.map = function map(op) {
   var self = this;
   var __PUCK__value__2 = self;
   if (__PUCK__value__2.kind == "Ok") {
@@ -176,10 +179,12 @@ Result.isOk = function isOk() {
 Option.isJust = function isJust() {
   var self = this;
   return self.kind == "Some";
-}, Option.isNothing = function isNothing() {
+};
+Option.isNothing = function isNothing() {
   var self = this;
   return !Option.isJust.call(self);
-}, Option.map = function map(f) {
+};
+Option.map = function map(f) {
   var self = this;
   var __PUCK__value__3 = self;
   if (__PUCK__value__3.kind == "Some") {
@@ -191,7 +196,8 @@ Option.isJust = function isJust() {
   } else {
     return self;
   };
-}, Option.mapOr = function mapOr(_default, f) {
+};
+Option.mapOr = function mapOr(_default, f) {
   var self = this;
   var __PUCK__value__4 = self;
   if (__PUCK__value__4.kind == "Some") {
@@ -203,7 +209,8 @@ Option.isJust = function isJust() {
   } else {
     return _default;
   };
-}, Option.mapOrElse = function mapOrElse(_default, f) {
+};
+Option.mapOrElse = function mapOrElse(_default, f) {
   var self = this;
   var __PUCK__value__5 = self;
   if (__PUCK__value__5.kind == "Some") {
@@ -215,13 +222,15 @@ Option.isJust = function isJust() {
   } else {
     return _default();
   };
-}, Option.unwrap = function unwrap() {
+};
+Option.unwrap = function unwrap() {
   var self = this;
   if (Option.isNothing.call(self)) {
-    throw (0, _js.Error)("Can not unwap empty maybe");
+    throw (0, _js.Error)("Can not unwrap empty Option");
   };
   return self.value[0];
-}, Option.unwrapOr = function unwrapOr(_default) {
+};
+Option.unwrapOr = function unwrapOr(_default) {
   var self = this;
   var __PUCK__value__6 = self;
   if (__PUCK__value__6.kind == "Some") {
@@ -233,7 +242,8 @@ Option.isJust = function isJust() {
   } else {
     return _default;
   };
-}, Option.unwrapOrElse = function unwrapOrElse(_default) {
+};
+Option.unwrapOrElse = function unwrapOrElse(_default) {
   var self = this;
   var __PUCK__value__7 = self;
   if (__PUCK__value__7.kind == "Some") {
@@ -250,39 +260,50 @@ List.zip = function zip(a, b) {
   if (a.length != b.length) {
     throw (0, _js.Error)("List a and b are not of the same length");
   };
-  return any(a).map(function (a, i) {
+  return Iterable['$List'].map.call(Iterable['$List'].enumerate.call(a), function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2);
+
+    var a = _ref2[0];
+    var i = _ref2[1];
+
     return [a, b[i]];
   });
 };
 Range.contains = function contains(item) {
   var self = this;
   return self.start <= item && item < self.end;
-}, Range.isSubsetOf = function isSubsetOf(other) {
+};
+Range.isSubsetOf = function isSubsetOf(other) {
   var self = this;
   return self.start >= other.start && other.end >= self.end;
 };
 ObjectMap._new = function _new() {
   return _js._Object.create(_js._null);
-}, ObjectMap.fromList = function fromList(list) {
+};
+ObjectMap.fromList = function fromList(list) {
   var object = _js._Object.create(_js._null);
   Iterable['$List'].forEach.call(list, function (item) {
     return object[item[0]] = item[1];
   });
   return object;
-}, ObjectMap.keys = function keys() {
+};
+ObjectMap.keys = function keys() {
   var self = this;
   return _js._Object.keys(self);
-}, ObjectMap.values = function values() {
+};
+ObjectMap.values = function values() {
   var self = this;
   return _js._Object.keys(self).map(function (key) {
     return self[key];
   });
-}, ObjectMap.toList = function toList() {
+};
+ObjectMap.toList = function toList() {
   var self = this;
   return _js._Object.keys(self).map(function (key) {
     return [key, self[key]];
   });
-}, ObjectMap.all = function all(predicate) {
+};
+ObjectMap.all = function all(predicate) {
   var self = this;
   var i = 0;
   var keys = _js._Object.keys(self);
@@ -293,7 +314,8 @@ ObjectMap._new = function _new() {
     i += 1;
   };
   return true;
-}, ObjectMap.any = function any(predicate) {
+};
+ObjectMap.any = function any(predicate) {
   var self = this;
   var i = 0;
   var keys = _js._Object.keys(self);
@@ -304,14 +326,16 @@ ObjectMap._new = function _new() {
     i += 1;
   };
   return false;
-}, ObjectMap.map = function map(mapper) {
+};
+ObjectMap.map = function map(mapper) {
   var self = this;
   var _new = ObjectMap._new.call(ObjectMap);
   _js._Object.keys(self).forEach(function (key) {
     return _new[key] = mapper(self[key]);
   });
   return _new;
-}, ObjectMap.find = function find(predicate) {
+};
+ObjectMap.find = function find(predicate) {
   var self = this;
   var key = _js._Object.keys(self).find(function (key) {
     return predicate([key, self[key]]);
@@ -321,13 +345,15 @@ ObjectMap._new = function _new() {
   } else {
     return None;
   };
-}, ObjectMap.forEach = function forEach(func) {
+};
+ObjectMap.forEach = function forEach(func) {
   var self = this;
   _js._Object.keys(self).forEach(function (key) {
     return func([key, self[key]]);
   });
   return [];
-}, ObjectMap.get = function get(key) {
+};
+ObjectMap.get = function get(key) {
   var self = this;
   var value = self[key];
   if (value == _js._undefined) {
@@ -335,7 +361,8 @@ ObjectMap._new = function _new() {
   } else {
     return Some(value);
   };
-}, ObjectMap.size = function size() {
+};
+ObjectMap.size = function size() {
   var self = this;
   return _js._Object.keys(self).length;
 };
@@ -343,7 +370,7 @@ var Ok = exports.Ok = Result.Ok;
 var Err = exports.Err = Result.Err;
 var Some = exports.Some = Option.Some;
 var None = exports.None = Option.None;
-function any(a) {
+function anyCast(a) {
   return a;
 };
 function print(message) {

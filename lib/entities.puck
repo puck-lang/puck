@@ -170,6 +170,7 @@ impl TypeClass {
       Some({
         parameterRange
         typeParameters: []
+        typeParameterBindings: astNode.typeParameters
         instances: []
       })
     }

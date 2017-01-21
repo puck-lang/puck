@@ -53,7 +53,7 @@ import {
   textToToken,
   tokenToText,
 } from './ast'
-import {Type, TypeTrait} from '../entities'
+import {Type} from '../entities'
 import {isTypeScopeDeclaration} from '../helpers'
 
 const jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
@@ -140,7 +140,7 @@ export function Emitter() {
     }
 
     if (type && type.name && type.name.kind) {
-      return `'$${(Type.displayName || TypeTrait.displayName).call(type)}'`
+      return `'$${Type.displayName.call(type)}'`
     }
 
     return `'$${type.name}'`
@@ -413,7 +413,7 @@ export function Emitter() {
       .map(m =>
         `${emitTypePath(i.type_.path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m)}`
       )
-      .join(',\n')
+      .join(';\n')
   }
 
   function emitTraitDeclaration(t: TraitDeclaration) {

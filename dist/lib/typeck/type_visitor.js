@@ -60,7 +60,7 @@ function TypeVisitor(context, file) {
           token: t,
           type_: t.type_
         });
-        t.scope = (0, _scope.createScope)(context, file, self.scope);
+        t.scope = self.scope.createChild();
         return self.postHoist.push(t);
       } else {
         if (!t.typeParametersAssigned) {
@@ -79,6 +79,7 @@ function TypeVisitor(context, file) {
             })();
           };
           t.typeParametersAssigned = true;
+          t.scope.setSelfBinding(t.name.name);
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
@@ -209,7 +210,7 @@ function TypeVisitor(context, file) {
         return self.postHoist.push(t);
       } else {
         if (!t.scope) {
-          self.scope = (0, _scope.createScope)(context, file, self.scope);
+          self.scope = self.scope.createChild();
           t.scope = self.scope;
           var __PUCK__value__3 = t.type_._class;
           if (__PUCK__value__3.kind == "Some") {
@@ -224,11 +225,12 @@ function TypeVisitor(context, file) {
               });
             })();
           };
+          t.scope.setSelfBinding(t.name.name);
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
           _core.Iterable['$List'].forEach.call(t.members, function (t) {
-            return self.visitFunctionDeclaration(t);
+            return self.visitMethodDeclaration(t);
           });
           var __PUCK__value__4 = t.type_.kind;
           if (__PUCK__value__4.kind == "Trait") {
@@ -309,7 +311,7 @@ function TypeVisitor(context, file) {
           token: t,
           type_: t.type_
         });
-        t.scope = (0, _scope.createScope)(context, file, self.scope);
+        t.scope = self.scope.createChild();
         return self.postHoist.push(t);
       } else {
         if (!t.typeParametersAssigned) {
@@ -328,6 +330,7 @@ function TypeVisitor(context, file) {
             })();
           };
           t.typeParametersAssigned = true;
+          t.scope.setSelfBinding(t.name.name);
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;

@@ -79,7 +79,7 @@ function Emitter() {
             type = type._class;
         }
         if (type && type.name && type.name.kind) {
-            return "'$" + (entities_1.Type.displayName || entities_1.TypeTrait.displayName).call(type) + "'";
+            return "'$" + entities_1.Type.displayName.call(type) + "'";
         }
         return "'$" + type.name + "'";
     }
@@ -311,7 +311,7 @@ function Emitter() {
             .map(function (m) {
             return (emitTypePath(i.type_.path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m));
         })
-            .join(',\n');
+            .join(';\n');
     }
     function emitTraitDeclaration(t) {
         return "var " + emitIdentifier(t.name) + " = {\n" + indent(t.members

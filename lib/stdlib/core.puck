@@ -69,7 +69,7 @@ impl<T> Option<T> {
 
   fn unwrap(self: Option<T>) -> T {
     if self.isNothing()
-      then throw Error('Can not unwap empty maybe')
+      then throw Error('Can not unwrap empty Option')
 
     self.value[0]
   }
@@ -87,7 +87,7 @@ impl<T> Option<T> {
   }
 }
 
-fn any(a) {a}
+fn anyCast(a) {a}
 
 export type List<E> {}
 impl<E> List<E> {
@@ -95,7 +95,7 @@ impl<E> List<E> {
     if a.length != b.length
       then throw Error('List a and b are not of the same length')
 
-    any(a).map(|a, i| (a, b[i]))
+    a.enumerate().map(|(a, i)| (a, b[i]))
   }
 }
 export trait Iterable<E> {
@@ -124,7 +124,7 @@ export trait Iterable<E> {
 impl<E> Iterable<E> for List<E> {
 
   fn enumerate(self) -> List<(E, Num)> {
-    self.map(|element, index| (element, index))
+    anyCast(self).map(|element, index| (element, index))
   }
 
   fn size(self) -> Num {
@@ -170,19 +170,19 @@ impl<E> Iterable<E> for List<E> {
   }
 
   fn forEach(self, func: (E) -> ()) -> () {
-    self.forEach(func)
+    anyCast(self).forEach(func)
   }
 
   fn map<U>(self, func: (E) -> U) -> List<U> {
-    self.map(func)
+    anyCast(self).map(func)
   }
 
-  fn skip(self, count) -> List<E> {
+  fn skip(self, count: Num) -> List<E> {
     self.slice(count)
   }
 
-  fn skipUntil(self, test) -> List<E> {
-    let index = self.findIndex(test)
+  fn skipUntil(self, predicate: (E) -> Bool) -> List<E> {
+    let index = self.findIndex(predicate)
     if index == -1
       then []
       else self.slice(index)

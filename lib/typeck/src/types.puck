@@ -29,7 +29,7 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, allowCreateIn
       then return createTypeInstance(type_, class.typeParameters.map(|p: Type| parameterMap[p.name.unwrap()] or p))
   }
 
-  let resolvedKind = match type_.kind {
+   let resolvedKind = match type_.kind {
     TypeKind::Enum(enum_) => TypeKind::Enum(resolveTypeParametersEnum(parameterMap, enum_, depth))
     TypeKind::Function(func) => TypeKind::Function(resolveTypeParametersFn(parameterMap, func, depth))
     TypeKind::Parameter => return parameterMap.get(type_.name.unwrap()).unwrapOr(type_)
@@ -128,10 +128,10 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
         (typeParameter.name.unwrap(), typeArgument)
       }))
 
-  let instance = {
+  let mut instance = {
     displayName: type_.displayName
     name: type_.name
-    kind: resolveTypeParameters(parameterMap, false)(type_).kind
+    kind: type_.kind
     class: None
     instance: Some({
       class: type_
@@ -140,6 +140,8 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
     })
   }
   class.instances.push(instance)
+
+  instance.kind = resolveTypeParameters(parameterMap, false)(type_).kind
 
   instance
 }

@@ -2,12 +2,14 @@ type Foo {
   bar: Generic<String>
   nested: Generic<String, Generic<Num>>
   number: Num
+  self: Self
   tuple: (Num, Bool)
 }
 
 type Generic<A, B=A> {
   a: A
   b: B
+  c: Self
 }
 
 export type A<B=Generic<Foo>> {

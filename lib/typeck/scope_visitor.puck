@@ -146,21 +146,26 @@ export fn ScopeVisitor(context, file) {
 
     c.argumentList.enumerate().forEach(|(argument, i)| {
       let parameter = function.arguments[i]
+      let parameterName =
+        if parameter.pattern
+          then if let Pattern::Identifier({name}) = parameter.pattern
+            then name
+            else i
+          else i
 
       if not isAssignable(parameter.type_, argument.type_)
-        then reportError(argument, notAssignableError(parameter.type_, argument.type_))
+        then reportError(argument
+          notAssignableError(parameter.type_, argument.type_) +
+          ' in parameter $parameterName of function $name'
+        )
 
       if parameter.mutable and argument.kind == SyntaxKind.Identifier {
         let argumentName = argument.name
         let argumentBinding = argument.scope.getBinding(argumentName)
 
         if not argumentBinding.mutable {
-          let parameterName =
-            if parameter.pattern.kind == 'Identifier'
-              then parameter.pattern.value[0].name
-              else i
           reportError(argument
-            'Parameter $parameterName of $name requires a mutable binding ' +
+            'Parameter $parameterName of function $name requires a mutable binding ' +
             'but $argumentName is declared as immutable.'
           )
         }

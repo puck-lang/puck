@@ -17,6 +17,9 @@ export trait Generic<T> {
 }
 export trait GenericSelf<T> {
   fn genericSelf(self, a: GenericSelf<T>) -> T
+  fn genericSelf2(self, a: Self) -> T {
+    self.genericSelf(a)
+  }
 }
 
 export type EmptyType {}

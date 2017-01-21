@@ -138,9 +138,15 @@ function ImplVisitor(context, file) {
       var self = this;
       self.scope = self.scope.createChild();
       i.scope = self.scope;
-      visit.walkImplDeclaration(self, i);
+      _core.Iterable['$List'].forEach.call(i.typeParameters, self.visitTypeParameter.bind(self));
+      self.visitTypeBound(i.trait_);
+      self.visitTypeBound(i.type_);
       var traitType = i.trait_.type_;
       var structType = i.type_.type_;
+      self.scope.setSelfBinding(_core.Option.unwrap.call(structType.name));
+      _core.Iterable['$List'].forEach.call(i.members, function (m) {
+        return self.visitMethodDeclaration(m);
+      });
       var __PUCK__value__6 = traitType.kind;
       if (__PUCK__value__6.kind == "Trait") {
         var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
@@ -180,8 +186,13 @@ function ImplVisitor(context, file) {
       var self = this;
       self.scope = self.scope.createChild();
       i.scope = self.scope;
-      visit.walkImplShorthandDeclaration(self, i);
+      _core.Iterable['$List'].forEach.call(i.typeParameters, self.visitTypeParameter.bind(self));
+      self.visitTypeBound(i.type_);
       var structType = i.type_.type_;
+      self.scope.setSelfBinding(_core.Option.unwrap.call(structType.name));
+      _core.Iterable['$List'].forEach.call(i.members, function (m) {
+        return self.visitMethodDeclaration(m);
+      });
       var __PUCK__value__12 = structType.kind;
       var __PUCK__value__13 = __PUCK__value__12;
       if (__PUCK__value__13.kind == "Enum") {

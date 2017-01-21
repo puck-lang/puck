@@ -1,0 +1,9 @@
+///// Self is a reserved name
+type Self {}
+
+///// Self is not generic
+type Generic<A, B=A> {
+  a: A
+  b: B
+  c: Self<A, B>
+}

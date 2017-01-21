@@ -132,7 +132,8 @@ Type.empty = function empty() {
     implementations: [],
     kind: StructKind.Tuple({ properties: [] })
   })), _ref;
-}, Type.displayName = function displayName() {
+};
+Type.displayName = function displayName() {
   var self = this;
   if (!self) {
     return "??";
@@ -231,7 +232,8 @@ Type.empty = function empty() {
       };
     };
   };
-}, Type.getFunction = function getFunction() {
+};
+Type.getFunction = function getFunction() {
   var self = this;
   var __PUCK__value__14 = self.kind;
   var __PUCK__value__15 = __PUCK__value__14;
@@ -248,7 +250,8 @@ Type.empty = function empty() {
       throw "Type is not a function";
     };
   };
-}, Type.getTrait = function getTrait() {
+};
+Type.getTrait = function getTrait() {
   var self = this;
   var __PUCK__value__18 = self.kind;
   var __PUCK__value__19 = __PUCK__value__18;
@@ -274,6 +277,7 @@ TypeClass.fromAstNode = function fromAstNode(astNode, reportError) {
     return (0, _core.Some)({
       parameterRange: parameterRange,
       typeParameters: [],
+      typeParameterBindings: astNode.typeParameters,
       instances: []
     });
   } else {

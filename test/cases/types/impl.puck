@@ -6,6 +6,14 @@ impl Type {
   fn isAnswer(self) -> Bool {
     self.value == 42
   }
+
+  fn isNegative(self: Self, other: Self) -> Self {
+    {value: self.value + other.value}
+  }
+
+  fn isAnswer2(self) -> Bool {
+    self.isAnswer()
+  }
 }
 
 let type_: Type = {value: 42}

@@ -248,7 +248,7 @@ function createTypeInstance(type_, typeParameters) {
   var instance = {
     displayName: type_.displayName,
     name: type_.name,
-    kind: resolveTypeParameters(parameterMap, false)(type_).kind,
+    kind: type_.kind,
     _class: _core.None,
     instance: (0, _core.Some)({
       _class: type_,
@@ -257,6 +257,7 @@ function createTypeInstance(type_, typeParameters) {
     })
   };
   _class.instances.push(instance);
+  instance.kind = resolveTypeParameters(parameterMap, false)(type_).kind;
   return instance;
 };
 function getType(scope, t) {

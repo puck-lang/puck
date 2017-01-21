@@ -11,6 +11,14 @@ Type.isAnswer = function isAnswer() {
   var self = this;
   return self.value == 42;
 };
+Type.isNegative = function isNegative(other) {
+  var self = this;
+  return { value: self.value + other.value };
+};
+Type.isAnswer2 = function isAnswer2() {
+  var self = this;
+  return Type.isAnswer.call(self);
+};
 
 var type_ = { value: 42 };
 Type.isAnswer.call(type_);

@@ -9,6 +9,7 @@ import '../../ast/ast.puck' as {
 
   Pattern
 
+  TypeBound
   FunctionTypeBound
   NamedTypeBound
   ObjectTypeBound
@@ -72,6 +73,24 @@ export let structureVisitor = {
       self.scope = f.scope.parent
     }
   }
+  visitMethodDeclaration: |self, mut f: FunctionDeclaration| {
+    if let Option::Some(first) = f.parameterList.first() {
+      if let Pattern::Identifier({name}) = first.pattern {
+        let type_: Option<TypeBound> = first.typeBound
+        if name == 'self' {
+          if type_.isNothing() {
+            f.parameterList[0].typeBound = Some({
+              kind: SyntaxKind.NamedTypeBound
+              path: TypePath::Member({name: 'Self'})
+              typeParameters: []
+            })
+          }
+        }
+      }
+    }
+
+    self.visitFunctionDeclaration(f)
+  }
   visitFunctionParameter: |self, mut v: VariableDeclaration, type_| {
     self.visitVariableDeclaration(v, self.visitLiteral.bind(self), type_)
   }
@@ -93,14 +112,35 @@ export let structureVisitor = {
       self.visitTypePath(t.path)
       let type_: Type = t.path.type_
 
-      if let Option::Some(class) = type_.class {
-        if let Result::Err(error) =
-          checkRange(t.typeParameters, class.parameterRange, 'type parameters', type_.displayName()) {
-          self.reportError(t, error)
+      let isSelf =
+        if let TypePath::Member({name}) = t.path {
+          if name == 'Self' {
+            if t.typeParameters.length > 0
+              then self.reportError(t, 'Self is not generic')
+
+            if let Option::Some(class) = type_.class {
+              t.typeParameters = class.typeParameterBindings.map(|{name}| {{
+                kind: SyntaxKind.NamedTypeBound
+                path: TypePath::Member(name)
+                typeParameters: []
+              }})
+            }
+            true
+          }
+          else false
         }
+        else false
+
+      if not isSelf {
+        if let Option::Some(class) = type_.class {
+          if let Result::Err(error) =
+            checkRange(t.typeParameters, class.parameterRange, 'type parameters', type_.displayName()) {
+            self.reportError(t, error)
+          }
+        }
+        else if t.typeParameters.length > 0
+          then self.reportError(t, 'Type ' + type_.displayName() + ' is not generic')
       }
-      else if t.typeParameters.length > 0
-        then self.reportError(t, 'Type ' + type_.displayName() + ' is not generic')
 
       visit.walkNamedTypeBound(self, t)
 

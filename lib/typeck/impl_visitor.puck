@@ -147,10 +147,14 @@ export fn ImplVisitor(context, file) {
     visitImplDeclaration: |mut self, mut i: ImplDeclaration| {
       self.scope = self.scope.createChild()
       i.scope = self.scope
-      visit.walkImplDeclaration(self, i)
+      i.typeParameters.forEach(self.visitTypeParameter.bind(self))
+      self.visitTypeBound(i.trait_)
+      self.visitTypeBound(i.type_)
 
       let traitType: Type = i.trait_.type_
       let structType: Type = i.type_.type_
+      self.scope.setSelfBinding(structType.name.unwrap())
+      i.members.forEach(|m| self.visitMethodDeclaration(m))
 
       if let TypeKind::Trait(trait_) = traitType.kind {
         match structType.kind {
@@ -166,9 +170,12 @@ export fn ImplVisitor(context, file) {
     visitImplShorthandDeclaration: |mut self, mut i: ImplShorthandDeclaration| {
       self.scope = self.scope.createChild()
       i.scope = self.scope
-      visit.walkImplShorthandDeclaration(self, i)
+      i.typeParameters.forEach(self.visitTypeParameter.bind(self))
+      self.visitTypeBound(i.type_)
 
       let structType: Type = i.type_.type_
+      self.scope.setSelfBinding(structType.name.unwrap())
+      i.members.forEach(|m| self.visitMethodDeclaration(m))
 
       match structType.kind {
         TypeKind::Enum(enum_) => implementShorthand(structType, enum_, i, reportError)

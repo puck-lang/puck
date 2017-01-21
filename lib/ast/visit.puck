@@ -92,6 +92,7 @@ export let walkingVisitor = {
   visitEnumDeclaration: |self, e: EnumDeclaration| walkEnumDeclaration(self, e)
   visitEnumMember: |self, e: EnumMember| walkEnumMember(self, e)
   visitFunctionDeclaration: |self, f: FunctionDeclaration| walkFunction(self, f)
+  visitMethodDeclaration: |self, f: FunctionDeclaration| walkFunction(self, f)
   visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
   visitImplDeclaration: |self, i: ImplDeclaration| walkImplDeclaration(self, i)
   visitImplShorthandDeclaration: |self, i: ImplShorthandDeclaration| walkImplShorthandDeclaration(self, i)
@@ -149,6 +150,7 @@ export let emptyVisitor = {
   visitEnumDeclaration: || {}
   visitEnumMember: || {}
   visitFunctionDeclaration: || {}
+  visitMethodDeclaration: || {}
   visitIdentifier: || {}
   visitImplDeclaration: || {}
   visitImplShorthandDeclaration: || {}

@@ -25,3 +25,14 @@ impl Type {
     self.value < 0
   }
 }
+
+///// Num is not assignable to type String
+type Type {
+  value: Num
+}
+
+impl Type {
+  fn getValue(self) -> String {
+    self.value
+  }
+}
