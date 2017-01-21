@@ -124,7 +124,12 @@ function ScopeVisitor(context, file) {
         var _class = _PUCK__value__10$val[0];
 
         var parameterMap = _core.ObjectMapTrait._new();
-        _function._arguments.forEach(function (parameter, i) {
+        _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(_function._arguments), function (_ref) {
+          var _ref2 = _slicedToArray(_ref, 2);
+
+          var parameter = _ref2[0];
+          var i = _ref2[1];
+
           var __PUCK__value__12 = void 0;
           if (i < c.argumentList.length) {
             __PUCK__value__12 = c.argumentList[i];
@@ -176,7 +181,12 @@ function ScopeVisitor(context, file) {
       __PUCK__value__11 = _function;
     };
     _function = __PUCK__value__11;
-    c.argumentList.forEach(function (argument, i) {
+    _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(c.argumentList), function (_ref3) {
+      var _ref4 = _slicedToArray(_ref3, 2);
+
+      var argument = _ref4[0];
+      var i = _ref4[1];
+
       var parameter = _function._arguments[i];
       if (!(0, _types.isAssignable)(parameter.type_, argument.type_)) {
         reportError(argument, (0, _structure_visitor.notAssignableError)(parameter.type_, argument.type_));
@@ -233,7 +243,7 @@ function ScopeVisitor(context, file) {
       _structure_visitor.structureVisitor.visitFunctionDeclaration.call(self, f);
       if (!f.hoisting || f.hoisted) {
         self.scope = f.scope;
-        f.parameterList.forEach(function (p) {
+        _core.Iterable['$List'].forEach.call(f.parameterList, function (p) {
           return self.visitVariableDeclaration(p);
         });
         if (f.body) {
@@ -269,7 +279,7 @@ function ScopeVisitor(context, file) {
     },
     visitImplDeclaration: function visitImplDeclaration(i) {
       var self = this;
-      return i.members.forEach(self.visitFunctionDeclaration.bind(self));
+      return _core.Iterable['$List'].forEach.call(i.members, self.visitFunctionDeclaration.bind(self));
     },
     visitModule: function visitModule(m) {
       var self = this;
@@ -522,7 +532,12 @@ function ScopeVisitor(context, file) {
         })();
       };
       var parentAssignedTo = self.assignedTo;
-      e.argumentList.forEach(function (a, i) {
+      _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(e.argumentList), function (_ref5) {
+        var _ref6 = _slicedToArray(_ref5, 2);
+
+        var a = _ref6[0];
+        var i = _ref6[1];
+
         var __PUCK__value__51 = void 0;
         if (functionType) {
           var __PUCK__value__52 = functionType.kind;
@@ -582,7 +597,7 @@ function ScopeVisitor(context, file) {
       matchExpression = (0, _core.Some)(e);
       self.visitExpression(e.expression);
       e.type_ = e.expression.type_;
-      e.patterns.forEach(function (a) {
+      _core.Iterable['$List'].forEach.call(e.patterns, function (a) {
         return self.visitMatchArm(a);
       });
       var __PUCK__value__55 = (0, _enums.checkExhaustive)(e);
@@ -703,11 +718,11 @@ function ScopeVisitor(context, file) {
                         name: type_.name,
                         kind: _entities.TypeKind.Function({
                           selfBinding: _core.None,
-                          _arguments: _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref) {
-                            var _ref2 = _slicedToArray(_ref, 2);
+                          _arguments: _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref7) {
+                            var _ref8 = _slicedToArray(_ref7, 2);
 
-                            var p = _ref2[0];
-                            var i = _ref2[1];
+                            var p = _ref8[0];
+                            var i = _ref8[1];
 
                             return {
                               name: i.toString(),
@@ -837,7 +852,7 @@ function ScopeVisitor(context, file) {
     visitObjectLiteral: function visitObjectLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      return l.members.forEach(function (m) {
+      return _core.Iterable['$List'].forEach.call(l.members, function (m) {
         return self.visitExpression(m.value);
       });
     },

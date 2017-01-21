@@ -108,11 +108,11 @@ export fn ScopeVisitor(context, file) {
     if let Result::Err(error) = checkRange(c.argumentList, function.argumentRange, 'arguments', name)
       then reportError(c, error)
 
-    let function =
+    let function: Function =
       if let Option::Some(class) = functionType.class {
         let mut parameterMap = ObjectMapTrait.new()
 
-        function.arguments.forEach(|parameter: Binding, i| {
+        function.arguments.enumerate().forEach(|(parameter, i): (Binding, Num)| {
           let argument: VariableDeclaration =
             if i < c.argumentList.length
               then c.argumentList[i]
@@ -144,7 +144,7 @@ export fn ScopeVisitor(context, file) {
       }
       else function
 
-    c.argumentList.forEach(|argument, i| {
+    c.argumentList.enumerate().forEach(|(argument, i)| {
       let parameter = function.arguments[i]
 
       if not isAssignable(parameter.type_, argument.type_)
@@ -394,7 +394,7 @@ export fn ScopeVisitor(context, file) {
         }
       }
       let parentAssignedTo = self.assignedTo
-      e.argumentList.forEach(|a, i| {
+      e.argumentList.enumerate().forEach(|(a, i)| {
         self.assignedTo = if functionType
           then if let TypeKind::Function(func) = functionType.kind then func.arguments[i]
         self.visitExpression(a)

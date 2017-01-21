@@ -72,7 +72,7 @@ function TypeVisitor(context, file) {
 
               var _class = _PUCK__value__1$valu[0];
 
-              t.typeParameters.forEach(function (p) {
+              _core.Iterable['$List'].forEach.call(t.typeParameters, function (p) {
                 self.visitTypeParameter(p);
                 return _class.typeParameters.push(p.type_);
               });
@@ -82,7 +82,7 @@ function TypeVisitor(context, file) {
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
-          t.members.forEach(function (m) {
+          _core.Iterable['$List'].forEach.call(t.members, function (m) {
             return self.visitEnumMember(m);
           });
           var memberMap = _core.ObjectMapTrait.fromList(_core.Iterable['$List'].map.call(t.members, function (p) {
@@ -104,7 +104,7 @@ function TypeVisitor(context, file) {
           if (_core.Iterable['$List'].size.call(t.members) != _core.ObjectMapTrait['$ObjectMap'].size.call(memberMap)) {
             (function () {
               var members = _core.ObjectMapTrait._new();
-              t.members.forEach(function (p) {
+              _core.Iterable['$List'].forEach.call(t.members, function (p) {
                 if (members[p.name.name]) {
                   reportError(p, "Duplicate member " + p.name.name);
                 };
@@ -157,7 +157,7 @@ function TypeVisitor(context, file) {
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
       i.scope = self.scope;
-      return i.members.forEach(function (m) {
+      return _core.Iterable['$List'].forEach.call(i.members, function (m) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
           if (e.expression.kind == _ast2.SyntaxKind.EnumDeclaration || e.expression.kind == _ast2.SyntaxKind.TraitDeclaration) {
@@ -223,7 +223,7 @@ function TypeVisitor(context, file) {
 
               var _class = _PUCK__value__3$valu[0];
 
-              t.typeParameters.forEach(function (p) {
+              _core.Iterable['$List'].forEach.call(t.typeParameters, function (p) {
                 self.visitTypeParameter(p);
                 return _class.typeParameters.push(p.type_);
               });
@@ -232,7 +232,7 @@ function TypeVisitor(context, file) {
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
-          t.members.forEach(function (t) {
+          _core.Iterable['$List'].forEach.call(t.members, function (t) {
             return self.visitFunctionDeclaration(t);
           });
           var __PUCK__value__4 = t.type_.kind;
@@ -320,7 +320,7 @@ function TypeVisitor(context, file) {
 
               var _class = _PUCK__value__11$val[0];
 
-              t.typeParameters.forEach(function (p) {
+              _core.Iterable['$List'].forEach.call(t.typeParameters, function (p) {
                 self.visitTypeParameter(p);
                 return _class.typeParameters.push(p.type_);
               });

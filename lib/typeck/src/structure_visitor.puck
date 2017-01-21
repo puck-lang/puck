@@ -54,7 +54,7 @@ export let structureVisitor = {
 
       if f.typeParameters
         then f.typeParameters.forEach(self.visitTypeParameter.bind(self))
-      f.parameterList.forEach(|p, i| {
+      f.parameterList.enumerate().forEach(|(p, i)| {
         let type_ =
           if assignedTo and assignedTo.arguments[i] then assignedTo.arguments[i].type_
         self.visitFunctionParameter(p, type_)
@@ -398,7 +398,7 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
       }
 
         if let TypeKind::Enum(enumType) = typePath.type_.kind {
-          if not allowNotExhaustive and Object.keys(enumType.members).length > 1
+          if not allowNotExhaustive and enumType.members.size() > 1
             then Err(PatternError::NotExhaustive)
             else {
               let member = getEnumMember(typePath)

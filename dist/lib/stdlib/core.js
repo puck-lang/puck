@@ -155,10 +155,20 @@ var ObjectMapTrait = exports.ObjectMapTrait = {
   },
   fromList: function fromList(list) {
     var object = _js._Object.create(_js._null);
-    list.forEach(function (item) {
+    Iterable['$List'].forEach.call(list, function (item) {
       return object[item[0]] = item[1];
     });
     return object;
+  },
+  keys: function keys() {
+    var self = this;
+    return _js._Object.keys(self);
+  },
+  values: function values() {
+    var self = this;
+    return _js._Object.keys(self).map(function (key) {
+      return self[key];
+    });
   },
   toList: function toList() {
     var self = this;
@@ -310,6 +320,10 @@ Iterable['$List'] = {
       return None;
     };
   },
+  forEach: function forEach(func) {
+    var self = this;
+    return self.forEach(func);
+  },
   map: function map(func) {
     var self = this;
     return self.map(func);
@@ -341,6 +355,8 @@ RangeTrait['$Range<Num>'] = {
 ObjectMapTrait['$ObjectMap'] = {
   _new: ObjectMapTrait._new,
   fromList: ObjectMapTrait.fromList,
+  keys: ObjectMapTrait.keys,
+  values: ObjectMapTrait.values,
   toList: ObjectMapTrait.toList,
   all: ObjectMapTrait.all,
   any: ObjectMapTrait.any,

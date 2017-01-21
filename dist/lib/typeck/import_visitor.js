@@ -58,7 +58,7 @@ function ImportVisitor(context, file) {
       if (i.specifier.kind == _ast2.SyntaxKind.AsteriskToken) {
         return i.specifier = {
           kind: _ast2.SyntaxKind.ObjectDestructure,
-          members: _js._Object.keys(_module.exports).filter(function (e) {
+          members: _core.ObjectMapTrait['$ObjectMap'].keys.call(_module.exports).filter(function (e) {
             return !moduleScope.getBinding(e);
           }).map(function (e) {
             var property = _module.exports[e].identifier;
@@ -76,7 +76,7 @@ function ImportVisitor(context, file) {
     visitModule: function visitModule(m) {
       var self = this;
       moduleScope = m.scope;
-      return m.expressions.forEach(function (e) {
+      return _core.Iterable['$List'].forEach.call(m.expressions, function (e) {
         if (e.kind == _ast2.SyntaxKind.ImportDirective) {
           return self.visitImportDirective(e);
         };

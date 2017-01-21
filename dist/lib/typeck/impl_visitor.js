@@ -43,13 +43,11 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
   })) {
     reportError(i, "" + traitName + " has already been implemented for " + _entities.TypeTrait['$Type'].displayName.call(type_));
   };
-  var functions = i.members.reduce(function (functions, member) {
-    var memberType = member.type_;
-    functions[_core.MaybeTrait['$Option'].unwrap.call(memberType.name)] = member.type_;
-    return functions;
-  }, {});
+  var functions = _core.ObjectMapTrait.fromList(_core.Iterable['$List'].map.call(i.members, function (member) {
+    return [_core.MaybeTrait['$Option'].unwrap.call(member.type_.name), member.type_];
+  }));
   var traitFunctions = trait_.functions;
-  _js._Object.keys(traitFunctions).forEach(function (name) {
+  _core.Iterable['$List'].forEach.call(_core.ObjectMapTrait['$ObjectMap'].keys.call(traitFunctions), function (name) {
     var traitFunctionType = traitFunctions[name];
     var __PUCK__value__1 = traitFunctionType.kind;
     var __PUCK__value__2 = __PUCK__value__1;
@@ -73,8 +71,8 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
     if (traitFunction.isAbstract && !functions[name]) {
       return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + _entities.TypeTrait['$Type'].displayName.call(type_));
     };
-  }, {});
-  i.members.forEach(function (functionDeclaration) {
+  });
+  _core.Iterable['$List'].forEach.call(i.members, function (functionDeclaration) {
     var functionName = _entities.TypeTrait['$Type'].displayName.call(functionDeclaration.type_);
     var __PUCK__value__7 = functionDeclaration.type_.kind;
     var __PUCK__value__8 = __PUCK__value__7;
@@ -217,7 +215,7 @@ function ImplVisitor(context, file) {
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
-      return i.members.forEach(function (m) {
+      return _core.Iterable['$List'].forEach.call(i.members, function (m) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
           if (e.expression.kind == _ast2.SyntaxKind.TraitDeclaration) {

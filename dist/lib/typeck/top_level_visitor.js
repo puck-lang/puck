@@ -69,7 +69,7 @@ function TopLevelVisitor(context, file) {
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
-      return i.members.forEach(function (m) {
+      return _core.Iterable['$List'].forEach.call(i.members, function (m) {
         return scope.define({
           name: m.local.name,
           mutable: false,

@@ -105,7 +105,12 @@ function checkFunctionAssignability(functionName, to, subject) {
     return (0, _core.Err)(error);
   };
   var errors = [];
-  subject._arguments.forEach(function (subjectArgument, i) {
+  _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(subject._arguments), function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2);
+
+    var subjectArgument = _ref2[0];
+    var i = _ref2[1];
+
     var toArgument = to._arguments[i];
     if (!(0, _types.isAssignable)(toArgument.type_, subjectArgument.type_)) {
       return errors.push("Types of parameter #" + i + " does not match. " + _entities.TypeTrait['$Type'].displayName.call(subjectArgument.type_) + " is not assignable to " + _entities.TypeTrait['$Type'].displayName.call(toArgument.type_));

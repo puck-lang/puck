@@ -69,7 +69,7 @@ function babelTransform(file) {
   }).code;
 };
 function dumpFiles(files, prop) {
-  return files.forEach(function (file) {
+  return _core.Iterable['$List'].forEach.call(files, function (file) {
     (0, _core.print)();
     (0, _core.print)(file.absolutePath);
     var data = file[prop];

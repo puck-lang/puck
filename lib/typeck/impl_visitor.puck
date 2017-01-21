@@ -60,21 +60,21 @@ import '../entities.puck' as {
   TypeTrait
 }
 
-fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, i, reportError) {
+fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, i: ImplDeclaration, reportError) {
   let traitName = traitType.displayName()
 
   if implementable.implementations.some(|imp| imp.trait_ == traitType)
     then reportError(i, '$traitName has already been implemented for ' + type_.displayName())
 
-  let functions = i.members.reduce(|mut functions, member| {
-    let memberType: Type = member.type_
-    functions[memberType.name.unwrap()] = member.type_
-    functions
-  }, {})
+  let functions = ObjectMapTrait.fromList(
+    i.members.map(|member| {
+      (member.type_.name.unwrap(), member.type_)
+    })
+  )
 
   let traitFunctions = trait_.functions
 
-  Object.keys(traitFunctions).forEach(|name| {
+  traitFunctions.keys().forEach(|name| {
     let traitFunctionType: Type = traitFunctions[name]
     let traitFunction = match traitFunctionType.kind {
       TypeKind::Function(func) => func
@@ -82,9 +82,9 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
     }
     if traitFunction.isAbstract and not functions[name]
       then reportError(i, 'Function $traitName::$name is not implemented for ' + type_.displayName())
-  }, {})
+  })
 
-  i.members.forEach(|functionDeclaration: FunctionDeclaration| {
+  i.members.forEach(|functionDeclaration| {
     let functionName = functionDeclaration.type_.displayName()
     let function = match functionDeclaration.type_.kind {
       TypeKind::Function(func) => func

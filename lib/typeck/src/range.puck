@@ -2,7 +2,7 @@ export fn getRange<T>(parameters: List<T>, isOptional: (T) -> Bool, reportError,
   let mut firstOptional = parameters.length
   let mut hasOptional = false
 
-  parameters.forEach(|parameter, i|
+  parameters.enumerate().forEach(|(parameter, i)|
     if isOptional(parameter) and not hasOptional {
       hasOptional = true
       firstOptional = i

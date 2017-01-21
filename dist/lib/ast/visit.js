@@ -455,13 +455,13 @@ function walkExpression(visitor, e) {
   };
 };
 function walkBlock(visitor, b) {
-  return b.expressions.forEach(visitor.visitExpression.bind(visitor));
+  return _core.Iterable['$List'].forEach.call(b.expressions, visitor.visitExpression.bind(visitor));
 };
 function walkEnumDeclaration(visitor, e) {
-  e.typeParameters.forEach(function (t) {
+  _core.Iterable['$List'].forEach.call(e.typeParameters, function (t) {
     return visitor.visitTypeParameter(t);
   });
-  return e.members.forEach(function (t) {
+  return _core.Iterable['$List'].forEach.call(e.members, function (t) {
     return visitor.visitEnumMember(t);
   });
 };
@@ -477,9 +477,9 @@ function walkEnumMember(visitor, e) {
 };
 function walkFunction(visitor, f) {
   if (f.typeParameters) {
-    f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor));
+    _core.Iterable['$List'].forEach.call(f.typeParameters, visitor.visitTypeParameter.bind(visitor));
   };
-  f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor));
+  _core.Iterable['$List'].forEach.call(f.parameterList, visitor.visitVariableDeclaration.bind(visitor));
   var __PUCK__value__2 = f.returnType;
   if (__PUCK__value__2.kind == "Some") {
     var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
@@ -500,26 +500,26 @@ function walkFunction(visitor, f) {
 function walkIdentifier(visitor, i) {};
 function walkImplDeclaration(visitor, i) {
   if (i.typeParameters) {
-    i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor));
+    _core.Iterable['$List'].forEach.call(i.typeParameters, visitor.visitTypeParameter.bind(visitor));
   };
   visitor.visitTypeBound(i.trait_);
   visitor.visitTypeBound(i.type_);
-  return i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor));
+  return _core.Iterable['$List'].forEach.call(i.members, visitor.visitFunctionDeclaration.bind(visitor));
 };
 function walkModule(visitor, m) {
-  return m.expressions.forEach(visitor.visitExpression.bind(visitor));
+  return _core.Iterable['$List'].forEach.call(m.expressions, visitor.visitExpression.bind(visitor));
 };
 function walkObjectDestructure(visitor, o) {
-  return o.members.forEach(function (m) {
+  return _core.Iterable['$List'].forEach.call(o.members, function (m) {
     visitor.visitIdentifier(m.property);
     return visitor.visitIdentifier(m.local);
   });
 };
 function walkTraitDeclaration(visitor, t) {
   if (t.typeParameters) {
-    t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor));
+    _core.Iterable['$List'].forEach.call(t.typeParameters, visitor.visitTypeParameter.bind(visitor));
   };
-  return t.members.forEach(function (t) {
+  return _core.Iterable['$List'].forEach.call(t.members, function (t) {
     return visitor.visitFunctionDeclaration(t);
   });
 };
@@ -543,23 +543,23 @@ function walkTypeBound(visitor, t) {
   };
 };
 function walkFunctionTypeBound(visitor, t) {
-  t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor));
+  _core.Iterable['$List'].forEach.call(t.typeParameters, visitor.visitTypeParameter.bind(visitor));
   visitor.visitTypeBound(t._arguments);
   return visitor.visitTypeBound(t.returnType);
 };
 function walkNamedTypeBound(visitor, t) {
-  return t.typeParameters.forEach(visitor.visitTypeBound.bind(visitor));
+  return _core.Iterable['$List'].forEach.call(t.typeParameters, visitor.visitTypeBound.bind(visitor));
 };
 function walkObjectTypeBound(visitor, t) {
-  return t.properties.forEach(function (t) {
+  return _core.Iterable['$List'].forEach.call(t.properties, function (t) {
     return visitor.visitTypeProperty(t);
   });
 };
 function walkTupleTypeBound(visitor, t) {
-  return t.properties.forEach(visitor.visitTypeBound.bind(visitor));
+  return _core.Iterable['$List'].forEach.call(t.properties, visitor.visitTypeBound.bind(visitor));
 };
 function walkTypeDeclaration(visitor, t) {
-  t.typeParameters.forEach(function (t) {
+  _core.Iterable['$List'].forEach.call(t.typeParameters, function (t) {
     return visitor.visitTypeParameter(t);
   });
   var __PUCK__value__4 = t.bound;
@@ -642,13 +642,13 @@ function walkIdentifierPattern(visitor, p) {
   return visitor.visitIdentifier(p);
 };
 function walkRecordPattern(visitor, p) {
-  return p.properties.forEach(function (p) {
+  return _core.Iterable['$List'].forEach.call(p.properties, function (p) {
     visitor.visitIdentifier(p.property);
     return visitor.visitPattern(p.local);
   });
 };
 function walkTuplePattern(visitor, p) {
-  return p.properties.forEach(function (p) {
+  return _core.Iterable['$List'].forEach.call(p.properties, function (p) {
     return visitor.visitPattern(p);
   });
 };
@@ -662,7 +662,7 @@ function walkBinaryExpression(visitor, e) {
 };
 function walkCallExpression(visitor, e) {
   visitor.visitExpression(e.func);
-  return e.argumentList.forEach(visitor.visitExpression.bind(visitor));
+  return _core.Iterable['$List'].forEach.call(e.argumentList, visitor.visitExpression.bind(visitor));
 };
 function walkForExpression(visitor, e) {};
 function walkIfExpression(visitor, e) {
@@ -691,7 +691,7 @@ function walkIfLetExpression(visitor, e) {
 };
 function walkMatchExpression(visitor, e) {
   visitor.visitExpression(e.expression);
-  return e.patterns.forEach(function (p) {
+  return _core.Iterable['$List'].forEach.call(e.patterns, function (p) {
     return visitor.visitMatchArm(p);
   });
 };
@@ -720,11 +720,11 @@ function walkReturn(visitor, r) {
 };
 function walkBooleanLiteral(visitor, l) {};
 function walkListLiteral(visitor, l) {
-  return l.members.forEach(visitor.visitExpression.bind(visitor));
+  return _core.Iterable['$List'].forEach.call(l.members, visitor.visitExpression.bind(visitor));
 };
 function walkNumberLiteral(visitor, l) {};
 function walkObjectLiteral(visitor, l) {
-  return l.members.forEach(function (m) {
+  return _core.Iterable['$List'].forEach.call(l.members, function (m) {
     visitor.visitIdentifier(m.name);
     return visitor.visitExpression(m.value);
   });
@@ -735,5 +735,5 @@ function walkStringLiteral(visitor, l) {
   }).forEach(visitor.visitIdentifier.bind(visitor));
 };
 function walkTupleLiteral(visitor, l) {
-  return l.expressions.forEach(visitor.visitExpression.bind(visitor));
+  return _core.Iterable['$List'].forEach.call(l.expressions, visitor.visitExpression.bind(visitor));
 }

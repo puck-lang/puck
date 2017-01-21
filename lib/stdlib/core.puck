@@ -114,6 +114,7 @@ export trait Iterable<E> {
   fn any(self, predicate: (E) -> Bool) -> Bool
   fn find(self, predicate: (E) -> Bool) -> Option<E>
 
+  fn forEach(self, func: (E) -> ()) -> ()
   fn map<U>(self, func: (E) -> U) -> List<U>
 
   /// Returns an [Iterable] that provides all but the first [count] elements.
@@ -173,6 +174,10 @@ impl<E> Iterable<E> for List<E> {
       else None
   }
 
+  fn forEach(self, func: (E) -> ()) -> () {
+    self.forEach(func)
+  }
+
   fn map<U>(self, func: (E) -> U) -> List<U> {
     self.map(func)
   }
@@ -226,7 +231,15 @@ export trait ObjectMapTrait<T> {
     object
   }
 
-  fn toList<T>(self) -> List<(String, T)> {
+  fn keys(self) -> List<String> {
+    Object.keys(self)
+  }
+
+  fn values(self) -> List<T> {
+    Object.keys(self).map(|key| self[key])
+  }
+
+  fn toList(self) -> List<(String, T)> {
     Object.keys(self).map(|key| (key, self[key]))
   }
 

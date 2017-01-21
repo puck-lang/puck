@@ -68,9 +68,14 @@ var structureVisitor = exports.structureVisitor = {
         };
         var assignedTo = __PUCK__value__1;
         if (f.typeParameters) {
-          f.typeParameters.forEach(self.visitTypeParameter.bind(self));
+          _core.Iterable['$List'].forEach.call(f.typeParameters, self.visitTypeParameter.bind(self));
         };
-        f.parameterList.forEach(function (p, i) {
+        _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(f.parameterList), function (_ref) {
+          var _ref2 = _slicedToArray(_ref, 2);
+
+          var p = _ref2[0];
+          var i = _ref2[1];
+
           var __PUCK__value__4 = void 0;
           if (assignedTo && assignedTo._arguments[i]) {
             __PUCK__value__4 = assignedTo._arguments[i].type_;
@@ -313,7 +318,7 @@ var structureVisitor = exports.structureVisitor = {
   },
   visitStrictListLiteral: function visitStrictListLiteral(l) {
     var self = this;
-    return l.members.forEach(self.visitLiteral.bind(self));
+    return _core.Iterable['$List'].forEach.call(l.members, self.visitLiteral.bind(self));
   },
   visitStrictNumberLiteral: function visitStrictNumberLiteral(l) {
     var self = this;
@@ -321,7 +326,7 @@ var structureVisitor = exports.structureVisitor = {
   },
   visitStrictObjectLiteral: function visitStrictObjectLiteral(l) {
     var self = this;
-    return l.members.forEach(function (m) {
+    return _core.Iterable['$List'].forEach.call(l.members, function (m) {
       return self.visitLiteral(m.value);
     });
   },
@@ -336,7 +341,7 @@ var structureVisitor = exports.structureVisitor = {
   },
   visitStrictTupleLiteral: function visitStrictTupleLiteral(l) {
     var self = this;
-    return l.expressions.forEach(self.visitLiteral.bind(self));
+    return _core.Iterable['$List'].forEach.call(l.expressions, self.visitLiteral.bind(self));
   }
 };
 var PatternError = {
@@ -601,11 +606,11 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                 __PUCK__value__63 = [];
               };
               var props = __PUCK__value__63;
-              var properties = _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref) {
-                var _ref2 = _slicedToArray(_ref, 2);
+              var properties = _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref3) {
+                var _ref4 = _slicedToArray(_ref3, 2);
 
-                var p = _ref2[0];
-                var i = _ref2[1];
+                var p = _ref4[0];
+                var i = _ref4[1];
 
                 return declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive);
               }).reduce(function (acc, cur) {
@@ -722,11 +727,11 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                   __PUCK__value__89 = __PUCK__value__97;
                 };
                 var props = __PUCK__value__89;
-                var properties = _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref3) {
-                  var _ref4 = _slicedToArray(_ref3, 2);
+                var properties = _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref5) {
+                  var _ref6 = _slicedToArray(_ref5, 2);
 
-                  var p = _ref4[0];
-                  var i = _ref4[1];
+                  var p = _ref6[0];
+                  var i = _ref6[1];
 
                   return declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive);
                 }).reduce(function (acc, cur) {
@@ -754,7 +759,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
                       var enumType = _PUCK__value__101$va[0];
 
-                      if (!allowNotExhaustive && _js._Object.keys(enumType.members).length > 1) {
+                      if (!allowNotExhaustive && _core.ObjectMapTrait['$ObjectMap'].size.call(enumType.members) > 1) {
                         return (0, _core.Err)(PatternError.NotExhaustive);
                       } else {
                         var _member = (0, _enums.getEnumMember)(typePath);

@@ -65,7 +65,7 @@ export fn checkFunctionAssignability(functionName: String, to: Function, subject
     then return Err(error)
 
   let mut errors = []
-  subject.arguments.forEach(|subjectArgument: Binding, i| {
+  subject.arguments.enumerate().forEach(|(subjectArgument, i): (Binding, Num)| {
     let toArgument: Binding = to.arguments[i]
 
     if not isAssignable(toArgument.type_, subjectArgument.type_)
