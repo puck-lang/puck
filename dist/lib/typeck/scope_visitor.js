@@ -16,25 +16,25 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _util = require('util');
 
-var _ast = require('./../ast/ast.js');
+var _ast = require('./../ast/ast');
 
-var _visit = require('./../ast/visit.js');
+var _visit = require('./../ast/visit');
 
 var visit = _interopRequireWildcard(_visit);
 
-var _ast2 = require('./../compiler/ast.js');
+var _ast2 = require('./../compiler/ast');
 
-var _enums = require('./src/enums.js');
+var _enums = require('./src/enums');
 
-var _range = require('./src/range.js');
+var _range = require('./src/range');
 
-var _scope = require('./src/scope.js');
+var _scope = require('./src/scope');
 
-var _structure_visitor = require('./src/structure_visitor.js');
+var _structure_visitor = require('./src/structure_visitor');
 
-var _types = require('./src/types.js');
+var _types = require('./src/types');
 
-var _entities = require('./../entities.js');
+var _entities = require('./../entities');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 

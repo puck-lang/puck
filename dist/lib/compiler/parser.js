@@ -12,9 +12,9 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-var _ast = require('./../ast/ast.js');
+var _ast = require('./../ast/ast');
 
-var _ast2 = require('./ast.js');
+var _ast2 = require('./ast');
 
 function parse(input) {
   function isToken(kind) {

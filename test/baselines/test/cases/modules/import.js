@@ -11,7 +11,7 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _module = require('module');
 
-var _export = require('./export.js');
+var _export = require('./export');
 
 var e = _interopRequireWildcard(_export);
 

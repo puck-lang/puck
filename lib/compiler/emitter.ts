@@ -520,7 +520,7 @@ export function Emitter() {
       } else {
         path = `./${i.path}`
       }
-      path = path.replace(/\.(puck|ts)$/, '.js')
+      path = path.replace(/\.(puck|ts)$/, '')
     } else if (i.domain.value[0] == 'node') {
       path = i.path
     } else if (i.domain.value[0] == 'puck') {

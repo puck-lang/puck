@@ -26,27 +26,27 @@ var path = _interopRequireWildcard(_path);
 
 var _util = require('util');
 
-var _emitter = require('./compiler/emitter.js');
+var _emitter = require('./compiler/emitter');
 
-var _input_stream = require('./compiler/input_stream.js');
+var _input_stream = require('./compiler/input_stream');
 
-var _parser = require('./compiler/parser.js');
+var _parser = require('./compiler/parser');
 
-var _token_stream = require('./compiler/token_stream.js');
+var _token_stream = require('./compiler/token_stream');
 
-var _helpers = require('./helpers.js');
+var _helpers = require('./helpers');
 
-var _impl_visitor = require('./typeck/impl_visitor.js');
+var _impl_visitor = require('./typeck/impl_visitor');
 
-var _import_visitor = require('./typeck/import_visitor.js');
+var _import_visitor = require('./typeck/import_visitor');
 
-var _scope_visitor = require('./typeck/scope_visitor.js');
+var _scope_visitor = require('./typeck/scope_visitor');
 
-var _top_level_visitor = require('./typeck/top_level_visitor.js');
+var _top_level_visitor = require('./typeck/top_level_visitor');
 
-var _type_visitor = require('./typeck/type_visitor.js');
+var _type_visitor = require('./typeck/type_visitor');
 
-var _entities = require('./entities.js');
+var _entities = require('./entities');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 

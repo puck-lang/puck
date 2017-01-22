@@ -25,9 +25,9 @@ var _path = require('path');
 
 var path = _interopRequireWildcard(_path);
 
-var _ast = require('./ast/ast.js');
+var _ast = require('./ast/ast');
 
-var _ast2 = require('./compiler/ast.js');
+var _ast2 = require('./compiler/ast');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 

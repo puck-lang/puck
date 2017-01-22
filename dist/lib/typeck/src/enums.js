@@ -11,9 +11,9 @@ exports.checkExhaustive = checkExhaustive;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-var _ast = require('./../../ast/ast.js');
+var _ast = require('./../../ast/ast');
 
-var _entities = require('./../../entities.js');
+var _entities = require('./../../entities');
 
 function isIndividuallyExhaustive(p) {
   var __PUCK__value__1 = p;

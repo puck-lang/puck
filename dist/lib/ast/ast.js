@@ -7,7 +7,7 @@ exports.Pattern = exports.TypePath = exports.TupleLiteral = exports.StringLitera
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-var _entities = require('./../entities.js');
+var _entities = require('./../entities');
 
 var SyntaxKind = exports.SyntaxKind = function SyntaxKind(object) {
   return object;

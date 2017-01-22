@@ -56,9 +56,9 @@ exports.walkTupleLiteral = walkTupleLiteral;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-var _ast = require('./ast.js');
+var _ast = require('./ast');
 
-var _ast2 = require('./../compiler/ast.js');
+var _ast2 = require('./../compiler/ast');
 
 var Visitor = exports.Visitor = function Visitor(object) {
   return object;

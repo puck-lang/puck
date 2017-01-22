@@ -13,9 +13,9 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-var _ast = require('./ast/ast.js');
+var _ast = require('./ast/ast');
 
-var _range = require('./typeck/src/range.js');
+var _range = require('./typeck/src/range');
 
 var UnparsedFile = exports.UnparsedFile = function UnparsedFile(object) {
   return object;

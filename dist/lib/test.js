@@ -8,7 +8,7 @@ exports.buildTestCompiler = buildTestCompiler;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-var _helpers = require('./../lib/helpers.js');
+var _helpers = require('./../lib/helpers');
 
 function buildAll() {
   var outFolder = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "dist";

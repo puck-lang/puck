@@ -9,7 +9,7 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-var _ast = require('./ast.js');
+var _ast = require('./ast');
 
 function TokenStream(input) {
   var current = _js._null;

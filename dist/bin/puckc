@@ -8,11 +8,11 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _path = require('path');
 
-var _helpers = require('./../lib/helpers.js');
+var _helpers = require('./../lib/helpers');
 
-var _compiler = require('./../lib/compiler.js');
+var _compiler = require('./../lib/compiler');
 
-var _js2 = require('./../lib/stdlib/js.js');
+var _js2 = require('./../lib/stdlib/js');
 
 var E = _js.Error;
 E.stackTraceLimit = 100;

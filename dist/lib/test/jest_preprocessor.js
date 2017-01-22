@@ -7,9 +7,9 @@ exports.process = process;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
-var _compiler = require('./../compiler.js');
+var _compiler = require('./../compiler');
 
-var _entities = require('./../entities.js');
+var _entities = require('./../entities');
 
 function process(src, path) {
   if (path.endsWith(".puck")) {

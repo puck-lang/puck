@@ -11,13 +11,13 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _util = require('util');
 
-var _ast = require('./../../ast/ast.js');
+var _ast = require('./../../ast/ast');
 
-var _ast2 = require('./../../compiler/ast.js');
+var _ast2 = require('./../../compiler/ast');
 
-var _entities = require('./../../entities.js');
+var _entities = require('./../../entities');
 
-var _types = require('./types.js');
+var _types = require('./types');
 
 function createScope(context, file) {
   var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
