@@ -232,8 +232,8 @@ function TypeVisitor(context, file) {
           return self.scope = self.scope.parent;
         } else {
           self.scope = t.scope;
-          _core.Iterable['$List'].forEach.call(t.members, function (t) {
-            return self.visitMethodDeclaration(t);
+          _core.Iterable['$List'].forEach.call(t.members, function (m) {
+            return self.visitMethodDeclaration(m, t.type_);
           });
           var __PUCK__value__4 = t.type_.kind;
           if (__PUCK__value__4.kind == "Trait") {

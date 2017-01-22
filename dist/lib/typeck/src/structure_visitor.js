@@ -80,9 +80,7 @@ var structureVisitor = exports.structureVisitor = {
           __PUCK__value__1 = __PUCK__value__3;
         };
         var assignedTo = __PUCK__value__1;
-        if (f.typeParameters) {
-          _core.Iterable['$List'].forEach.call(f.typeParameters, self.visitTypeParameter.bind(self));
-        };
+        _core.Iterable['$List'].forEach.call(f.typeParameters, self.visitTypeParameter.bind(self));
         _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(f.parameterList), function (_ref) {
           var _ref2 = _slicedToArray(_ref, 2);
 
@@ -126,33 +124,55 @@ var structureVisitor = exports.structureVisitor = {
       if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
     };
   },
-  visitMethodDeclaration: function visitMethodDeclaration(f) {
+  visitMethodDeclaration: function visitMethodDeclaration(f, selfType) {
     var self = this;
-    var __PUCK__value__7 = _core.Iterable['$List'].first.call(f.parameterList);
-    if (__PUCK__value__7.kind == "Some") {
-      var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
+    if (!f.scope) {
+      self.scope = self.scope.createChild();
+      f.scope = self.scope;
+      _core.Iterable['$List'].forEach.call(f.typeParameters, self.visitTypeParameter.bind(self));
+      var __PUCK__value__7 = _core.Iterable['$List'].first.call(f.parameterList);
+      if (__PUCK__value__7.kind == "Some") {
+        var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
 
-      var first = _PUCK__value__7$valu[0];
+        var first = _PUCK__value__7$valu[0];
 
-      var __PUCK__value__8 = first.pattern;
-      if (__PUCK__value__8.kind == "Identifier") {
-        var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1);
+        var __PUCK__value__8 = first.pattern;
+        if (__PUCK__value__8.kind == "Identifier") {
+          var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1);
 
-        var name = _PUCK__value__8$valu[0].name;
+          var name = _PUCK__value__8$valu[0].name;
 
-        var type_ = first.typeBound;
-        if (name == "self") {
-          if (_core.Option.isNothing.call(type_)) {
-            f.parameterList[0].typeBound = (0, _core.Some)({
-              kind: _ast2.SyntaxKind.NamedTypeBound,
-              path: _ast.TypePath.Member({ name: "Self" }),
-              typeParameters: []
-            });
+          var type_ = first.typeBound;
+          if (name == "self") {
+            if (_core.Option.isNothing.call(type_)) {
+              f.parameterList[0].typeBound = (0, _core.Some)({
+                kind: _ast2.SyntaxKind.NamedTypeBound,
+                path: _ast.TypePath.Member({ name: "Self" }),
+                typeParameters: []
+              });
+            } else {
+              self.visitFunctionParameter(first);
+              if (!(0, _types.isAssignable)(first.type_, selfType)) {
+                self.reportError(first, notAssignableError(first.type_, selfType));
+              };
+            };
           };
         };
       };
+      _core.Iterable['$List'].forEach.call(f.parameterList, function (p) {
+        return self.visitFunctionParameter(p);
+      });
+      var __PUCK__value__9 = f.returnType;
+      if (__PUCK__value__9.kind == "Some") {
+        var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
+
+        var returnType = _PUCK__value__9$valu[0];
+
+        self.visitTypeBound(returnType);
+      };
+      f.type_ = (0, _functions.createFunctionType)(f.scope, f, self.reportError);
+      return self.scope = f.scope.parent;
     };
-    return self.visitFunctionDeclaration(f);
   },
   visitFunctionParameter: function visitFunctionParameter(v, type_) {
     var self = this;
@@ -174,23 +194,23 @@ var structureVisitor = exports.structureVisitor = {
       t.scope = self.scope;
       self.visitTypePath(t.path);
       var type_ = t.path.type_;
-      var __PUCK__value__9 = t.path;
-      var __PUCK__value__10 = void 0;
-      if (__PUCK__value__9.kind == "Member") {
-        var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
+      var __PUCK__value__10 = t.path;
+      var __PUCK__value__11 = void 0;
+      if (__PUCK__value__10.kind == "Member") {
+        var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1);
 
-        var name = _PUCK__value__9$valu[0].name;
+        var name = _PUCK__value__10$val[0].name;
 
-        var __PUCK__value__11 = void 0;
+        var __PUCK__value__12 = void 0;
         if (name == "Self") {
           if (t.typeParameters.length > 0) {
             self.reportError(t, "Self is not generic");
           };
-          var __PUCK__value__12 = type_._class;
-          if (__PUCK__value__12.kind == "Some") {
-            var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1);
+          var __PUCK__value__13 = type_._class;
+          if (__PUCK__value__13.kind == "Some") {
+            var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1);
 
-            var _class = _PUCK__value__12$val[0];
+            var _class = _PUCK__value__13$val[0];
 
             t.typeParameters = _class.typeParameterBindings.map(function (_ref3) {
               var name = _ref3.name;
@@ -202,27 +222,27 @@ var structureVisitor = exports.structureVisitor = {
               };
             });
           };
-          __PUCK__value__11 = true;
+          __PUCK__value__12 = true;
         } else {
-          __PUCK__value__11 = false;
+          __PUCK__value__12 = false;
         };
-        __PUCK__value__10 = __PUCK__value__11;
+        __PUCK__value__11 = __PUCK__value__12;
       } else {
-        __PUCK__value__10 = false;
+        __PUCK__value__11 = false;
       };
-      var isSelf = __PUCK__value__10;
+      var isSelf = __PUCK__value__11;
       if (!isSelf) {
-        var __PUCK__value__13 = type_._class;
-        if (__PUCK__value__13.kind == "Some") {
-          var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1);
+        var __PUCK__value__14 = type_._class;
+        if (__PUCK__value__14.kind == "Some") {
+          var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1);
 
-          var _class2 = _PUCK__value__13$val[0];
+          var _class2 = _PUCK__value__14$val[0];
 
-          var __PUCK__value__14 = (0, _range.checkRange)(t.typeParameters, _class2.parameterRange, "type parameters", _entities.Type.displayName.call(type_));
-          if (__PUCK__value__14.kind == "Err") {
-            var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1);
+          var __PUCK__value__15 = (0, _range.checkRange)(t.typeParameters, _class2.parameterRange, "type parameters", _entities.Type.displayName.call(type_));
+          if (__PUCK__value__15.kind == "Err") {
+            var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1);
 
-            var error = _PUCK__value__14$val[0];
+            var error = _PUCK__value__15$val[0];
 
             self.reportError(t, error);
           };
@@ -233,20 +253,20 @@ var structureVisitor = exports.structureVisitor = {
         };
       };
       visit.walkNamedTypeBound(self, t);
-      var __PUCK__value__15 = type_._class;
-      var __PUCK__value__16 = void 0;
-      if (__PUCK__value__15.kind == "Some") {
-        var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1);
+      var __PUCK__value__16 = type_._class;
+      var __PUCK__value__17 = void 0;
+      if (__PUCK__value__16.kind == "Some") {
+        var _PUCK__value__16$val = _slicedToArray(__PUCK__value__16.value, 1);
 
-        var __PUCK__value__17 = _PUCK__value__15$val[0];
+        var __PUCK__value__18 = _PUCK__value__16$val[0];
 
-        __PUCK__value__16 = (0, _types.createTypeInstance)(type_, _core.Iterable['$List'].map.call(t.typeParameters, function (p) {
+        __PUCK__value__17 = (0, _types.createTypeInstance)(type_, _core.Iterable['$List'].map.call(t.typeParameters, function (p) {
           return p.type_;
         }));
       } else {
-        __PUCK__value__16 = type_;
+        __PUCK__value__17 = type_;
       };
-      return t.type_ = __PUCK__value__16;
+      return t.type_ = __PUCK__value__17;
     };
   },
   visitObjectTypeBound: function visitObjectTypeBound(t) {
@@ -306,43 +326,43 @@ var structureVisitor = exports.structureVisitor = {
       return (0, _types.getType)(d.scope, bound) || type_;
     });
     var patternType = _core.None;
-    var __PUCK__value__18 = declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive);
-    var __PUCK__value__19 = __PUCK__value__18;
-    if (__PUCK__value__19.kind == "Ok") {
-      var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
+    var __PUCK__value__19 = declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive);
+    var __PUCK__value__20 = __PUCK__value__19;
+    if (__PUCK__value__20.kind == "Ok") {
+      var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1);
 
-      var patternTy = _PUCK__value__19$val[0];
+      var patternTy = _PUCK__value__20$val[0];
 
       patternType = (0, _core.Some)(patternTy);
       if (!(0, _types.isAssignable)(patternTy, d.type_)) {
         self.reportError(d, notAssignableError(patternTy, d.type_));
       };
     } else {
-      var __PUCK__value__20 = __PUCK__value__18;
-      if (__PUCK__value__20.kind == "Err" && __PUCK__value__20.value[0].kind == "PatternMismatch") {
-        var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1);
+      var __PUCK__value__21 = __PUCK__value__19;
+      if (__PUCK__value__21.kind == "Err" && __PUCK__value__21.value[0].kind == "PatternMismatch") {
+        var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1);
 
-        var _PUCK__value__20$val$ = _slicedToArray(_PUCK__value__20$val[0].value, 3);
+        var _PUCK__value__21$val$ = _slicedToArray(_PUCK__value__21$val[0].value, 3);
 
-        var __PUCK__value__21 = _PUCK__value__20$val$[0];
-        var to = _PUCK__value__20$val$[1];
-        var subject = _PUCK__value__20$val$[2];
+        var __PUCK__value__22 = _PUCK__value__21$val$[0];
+        var to = _PUCK__value__21$val$[1];
+        var subject = _PUCK__value__21$val$[2];
 
         self.reportError(d, notAssignableError(to, subject));
       } else {
-        var __PUCK__value__22 = __PUCK__value__18;
-        if (__PUCK__value__22.kind == "Err" && __PUCK__value__22.value[0].kind == "NotExhaustive") {
-          var _PUCK__value__22$val = _toArray(__PUCK__value__22.value);
+        var __PUCK__value__23 = __PUCK__value__19;
+        if (__PUCK__value__23.kind == "Err" && __PUCK__value__23.value[0].kind == "NotExhaustive") {
+          var _PUCK__value__23$val = _toArray(__PUCK__value__23.value);
 
           self.reportError(d, "non exhaustive pattern");
         };
       };
     };
-    var __PUCK__value__23 = d.initializer;
-    if (__PUCK__value__23.kind == "Some") {
-      var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1);
+    var __PUCK__value__24 = d.initializer;
+    if (__PUCK__value__24.kind == "Some") {
+      var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1);
 
-      var initializer = _PUCK__value__23$val[0];
+      var initializer = _PUCK__value__24$val[0];
 
       visitInitializer(initializer);
       if (!d.type_ && d.pattern.binding) {
@@ -352,11 +372,11 @@ var structureVisitor = exports.structureVisitor = {
         if (!(0, _types.isAssignable)(d.type_, initializer.type_)) {
           return self.reportError(d, notAssignableError(d.type_, initializer.type_));
         } else {
-          var __PUCK__value__24 = patternType;
-          if (__PUCK__value__24.kind == "Some") {
-            var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1);
+          var __PUCK__value__25 = patternType;
+          if (__PUCK__value__25.kind == "Some") {
+            var _PUCK__value__25$val = _slicedToArray(__PUCK__value__25.value, 1);
 
-            var _patternTy = _PUCK__value__24$val[0];
+            var _patternTy = _PUCK__value__25$val[0];
 
             _patternTy = _patternTy;
             if (!(0, _types.isAssignable)(_patternTy, initializer.type_)) {
@@ -425,15 +445,15 @@ var structureVisitor = exports.structureVisitor = {
   }
 };
 function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive) {
-  var __PUCK__value__25 = p;
-  var __PUCK__value__26 = __PUCK__value__25;
-  if (__PUCK__value__26.kind == "CatchAll") {
-    var _undefined2 = __PUCK__value__26;
+  var __PUCK__value__26 = p;
+  var __PUCK__value__27 = __PUCK__value__26;
+  if (__PUCK__value__27.kind == "CatchAll") {
+    var _undefined2 = __PUCK__value__27;
     return (0, _core.Ok)(false);
   } else {
-    var __PUCK__value__27 = __PUCK__value__25;
-    if (__PUCK__value__27.kind == "Identifier") {
-      var _undefined3 = __PUCK__value__27;
+    var __PUCK__value__28 = __PUCK__value__26;
+    if (__PUCK__value__28.kind == "Identifier") {
+      var _undefined3 = __PUCK__value__28;
       p.binding = scope.define({
         name: p.value[0].name,
         mutable: mutable,
@@ -442,64 +462,64 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
       }, true);
       return (0, _core.Ok)(false);
     } else {
-      var __PUCK__value__28 = __PUCK__value__25;
-      if (__PUCK__value__28.kind == "Record") {
+      var __PUCK__value__29 = __PUCK__value__26;
+      if (__PUCK__value__29.kind == "Record") {
         var _ret2 = function () {
-          var _PUCK__value__28$val = _slicedToArray(__PUCK__value__28.value, 1);
+          var _PUCK__value__29$val = _slicedToArray(__PUCK__value__29.value, 1);
 
-          var record = _PUCK__value__28$val[0];
+          var record = _PUCK__value__29$val[0];
 
-          var __PUCK__value__29 = void 0;
+          var __PUCK__value__30 = void 0;
           if (type_) {
-            var __PUCK__value__30 = type_.kind;
-            var __PUCK__value__31 = __PUCK__value__30;
-            var __PUCK__value__32 = void 0;
-            if (__PUCK__value__31.kind == "Struct") {
-              var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1);
+            var __PUCK__value__31 = type_.kind;
+            var __PUCK__value__32 = __PUCK__value__31;
+            var __PUCK__value__33 = void 0;
+            if (__PUCK__value__32.kind == "Struct") {
+              var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1);
 
-              var struct = _PUCK__value__31$val[0];
+              var struct = _PUCK__value__32$val[0];
 
-              var __PUCK__value__33 = struct.kind;
-              var __PUCK__value__34 = __PUCK__value__33;
-              var __PUCK__value__35 = void 0;
-              if (__PUCK__value__34.kind == "Record") {
-                var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1);
+              var __PUCK__value__34 = struct.kind;
+              var __PUCK__value__35 = __PUCK__value__34;
+              var __PUCK__value__36 = void 0;
+              if (__PUCK__value__35.kind == "Record") {
+                var _PUCK__value__35$val = _slicedToArray(__PUCK__value__35.value, 1);
 
-                var _record = _PUCK__value__34$val[0];
+                var _record = _PUCK__value__35$val[0];
 
-                __PUCK__value__35 = _record.properties;
+                __PUCK__value__36 = _record.properties;
               } else {
-                var __PUCK__value__36 = __PUCK__value__33;
-                var __PUCK__value__37 = void 0;
+                var __PUCK__value__37 = __PUCK__value__34;
+                var __PUCK__value__38 = void 0;
                 if (true) {
-                  var __PUCK__value__38 = __PUCK__value__36;
+                  var __PUCK__value__39 = __PUCK__value__37;
                   throw "bad type";
                 };
-                __PUCK__value__35 = __PUCK__value__37;
+                __PUCK__value__36 = __PUCK__value__38;
               };
-              __PUCK__value__32 = __PUCK__value__35;
+              __PUCK__value__33 = __PUCK__value__36;
             } else {
-              var __PUCK__value__39 = __PUCK__value__30;
-              var __PUCK__value__40 = void 0;
-              if (__PUCK__value__39.kind == "Parameter") {
-                var _undefined4 = __PUCK__value__39;
-                __PUCK__value__40 = {};
+              var __PUCK__value__40 = __PUCK__value__31;
+              var __PUCK__value__41 = void 0;
+              if (__PUCK__value__40.kind == "Parameter") {
+                var _undefined4 = __PUCK__value__40;
+                __PUCK__value__41 = {};
               } else {
-                var __PUCK__value__41 = __PUCK__value__30;
-                var __PUCK__value__42 = void 0;
+                var __PUCK__value__42 = __PUCK__value__31;
+                var __PUCK__value__43 = void 0;
                 if (true) {
-                  var __PUCK__value__43 = __PUCK__value__41;
+                  var __PUCK__value__44 = __PUCK__value__42;
                   throw "abd type";
                 };
-                __PUCK__value__40 = __PUCK__value__42;
+                __PUCK__value__41 = __PUCK__value__43;
               };
-              __PUCK__value__32 = __PUCK__value__40;
+              __PUCK__value__33 = __PUCK__value__41;
             };
-            __PUCK__value__29 = __PUCK__value__32;
+            __PUCK__value__30 = __PUCK__value__33;
           } else {
-            __PUCK__value__29 = _core.ObjectMap._new.call(_core.ObjectMap);
+            __PUCK__value__30 = _core.ObjectMap._new.call(_core.ObjectMap);
           };
-          var props = __PUCK__value__29;
+          var props = __PUCK__value__30;
           var properties = _core.Iterable['$List'].map.call(record.properties, function (p) {
             return declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive);
           }).reduce(function (acc, cur) {
@@ -510,7 +530,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
             });
           }, (0, _core.Ok)([]));
           return {
-            v: _core.Result.map.call(properties, function (__PUCK__value__44) {
+            v: _core.Result.map.call(properties, function (__PUCK__value__45) {
               return false;
             })
           };
@@ -518,88 +538,88 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
         if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
       } else {
-        var __PUCK__value__45 = __PUCK__value__25;
-        if (__PUCK__value__45.kind == "RecordType") {
+        var __PUCK__value__46 = __PUCK__value__26;
+        if (__PUCK__value__46.kind == "RecordType") {
           var _ret3 = function () {
-            var _PUCK__value__45$val = _slicedToArray(__PUCK__value__45.value, 2);
+            var _PUCK__value__46$val = _slicedToArray(__PUCK__value__46.value, 2);
 
-            var typePath = _PUCK__value__45$val[0];
-            var record = _PUCK__value__45$val[1];
+            var typePath = _PUCK__value__46$val[0];
+            var record = _PUCK__value__46$val[1];
 
             visitor.visitTypePath(typePath);
-            var __PUCK__value__46 = void 0;
+            var __PUCK__value__47 = void 0;
             if (type_) {
-              __PUCK__value__46 = type_;
+              __PUCK__value__47 = type_;
             } else {
-              __PUCK__value__46 = typePath.type_;
+              __PUCK__value__47 = typePath.type_;
             };
-            var recordType = __PUCK__value__46;
-            var __PUCK__value__47 = recordType.kind;
-            var __PUCK__value__48 = __PUCK__value__47;
-            var __PUCK__value__49 = void 0;
-            if (__PUCK__value__48.kind == "Enum") {
-              var _PUCK__value__48$val = _slicedToArray(__PUCK__value__48.value, 1);
+            var recordType = __PUCK__value__47;
+            var __PUCK__value__48 = recordType.kind;
+            var __PUCK__value__49 = __PUCK__value__48;
+            var __PUCK__value__50 = void 0;
+            if (__PUCK__value__49.kind == "Enum") {
+              var _PUCK__value__49$val = _slicedToArray(__PUCK__value__49.value, 1);
 
-              var enum_ = _PUCK__value__48$val[0];
+              var enum_ = _PUCK__value__49$val[0];
 
               var member = (0, _enums.getEnumMember)(typePath);
               var enumArmType = enum_.members[member];
-              __PUCK__value__49 = enumArmType;
+              __PUCK__value__50 = enumArmType;
             } else {
-              var __PUCK__value__50 = __PUCK__value__47;
-              var __PUCK__value__51 = void 0;
+              var __PUCK__value__51 = __PUCK__value__48;
+              var __PUCK__value__52 = void 0;
               if (true) {
-                var __PUCK__value__52 = __PUCK__value__50;
-                __PUCK__value__51 = recordType;
+                var __PUCK__value__53 = __PUCK__value__51;
+                __PUCK__value__52 = recordType;
               };
-              __PUCK__value__49 = __PUCK__value__51;
+              __PUCK__value__50 = __PUCK__value__52;
             };
-            recordType = __PUCK__value__49;
-            var __PUCK__value__53 = recordType.kind;
-            var __PUCK__value__54 = __PUCK__value__53;
-            var __PUCK__value__55 = void 0;
-            if (__PUCK__value__54.kind == "Struct") {
-              var _PUCK__value__54$val = _slicedToArray(__PUCK__value__54.value, 1);
+            recordType = __PUCK__value__50;
+            var __PUCK__value__54 = recordType.kind;
+            var __PUCK__value__55 = __PUCK__value__54;
+            var __PUCK__value__56 = void 0;
+            if (__PUCK__value__55.kind == "Struct") {
+              var _PUCK__value__55$val = _slicedToArray(__PUCK__value__55.value, 1);
 
-              var struct = _PUCK__value__54$val[0];
+              var struct = _PUCK__value__55$val[0];
 
-              var __PUCK__value__56 = struct.kind;
-              var __PUCK__value__57 = __PUCK__value__56;
-              var __PUCK__value__58 = void 0;
-              if (__PUCK__value__57.kind == "Record") {
-                var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1);
+              var __PUCK__value__57 = struct.kind;
+              var __PUCK__value__58 = __PUCK__value__57;
+              var __PUCK__value__59 = void 0;
+              if (__PUCK__value__58.kind == "Record") {
+                var _PUCK__value__58$val = _slicedToArray(__PUCK__value__58.value, 1);
 
-                var _record2 = _PUCK__value__57$val[0];
+                var _record2 = _PUCK__value__58$val[0];
 
-                __PUCK__value__58 = _record2.properties;
+                __PUCK__value__59 = _record2.properties;
               } else {
-                var __PUCK__value__59 = __PUCK__value__56;
-                var __PUCK__value__60 = void 0;
+                var __PUCK__value__60 = __PUCK__value__57;
+                var __PUCK__value__61 = void 0;
                 if (true) {
-                  var __PUCK__value__61 = __PUCK__value__59;
+                  var __PUCK__value__62 = __PUCK__value__60;
                   throw "bad type";
                 };
-                __PUCK__value__58 = __PUCK__value__60;
+                __PUCK__value__59 = __PUCK__value__61;
               };
-              __PUCK__value__55 = __PUCK__value__58;
+              __PUCK__value__56 = __PUCK__value__59;
             } else {
-              var __PUCK__value__62 = __PUCK__value__53;
-              var __PUCK__value__63 = void 0;
-              if (__PUCK__value__62.kind == "Parameter") {
-                var _undefined5 = __PUCK__value__62;
-                __PUCK__value__63 = {};
+              var __PUCK__value__63 = __PUCK__value__54;
+              var __PUCK__value__64 = void 0;
+              if (__PUCK__value__63.kind == "Parameter") {
+                var _undefined5 = __PUCK__value__63;
+                __PUCK__value__64 = {};
               } else {
-                var __PUCK__value__64 = __PUCK__value__53;
-                var __PUCK__value__65 = void 0;
+                var __PUCK__value__65 = __PUCK__value__54;
+                var __PUCK__value__66 = void 0;
                 if (true) {
-                  var __PUCK__value__66 = __PUCK__value__64;
+                  var __PUCK__value__67 = __PUCK__value__65;
                   throw "abd type";
                 };
-                __PUCK__value__63 = __PUCK__value__65;
+                __PUCK__value__64 = __PUCK__value__66;
               };
-              __PUCK__value__55 = __PUCK__value__63;
+              __PUCK__value__56 = __PUCK__value__64;
             };
-            var props = __PUCK__value__55;
+            var props = __PUCK__value__56;
             var properties = _core.Iterable['$List'].map.call(record.properties, function (p) {
               return declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive);
             }).reduce(function (acc, cur) {
@@ -610,7 +630,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
               });
             }, (0, _core.Ok)([]));
             return {
-              v: _core.Result.map.call(properties, function (__PUCK__value__67) {
+              v: _core.Result.map.call(properties, function (__PUCK__value__68) {
                 return p.value[0].type_;
               })
             };
@@ -618,64 +638,64 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
           if ((typeof _ret3 === 'undefined' ? 'undefined' : _typeof(_ret3)) === "object") return _ret3.v;
         } else {
-          var __PUCK__value__68 = __PUCK__value__25;
-          if (__PUCK__value__68.kind == "Tuple") {
+          var __PUCK__value__69 = __PUCK__value__26;
+          if (__PUCK__value__69.kind == "Tuple") {
             var _ret4 = function () {
-              var _PUCK__value__68$val = _slicedToArray(__PUCK__value__68.value, 1);
+              var _PUCK__value__69$val = _slicedToArray(__PUCK__value__69.value, 1);
 
-              var tuple = _PUCK__value__68$val[0];
+              var tuple = _PUCK__value__69$val[0];
 
-              var __PUCK__value__69 = void 0;
+              var __PUCK__value__70 = void 0;
               if (type_) {
-                var __PUCK__value__70 = type_.kind;
-                var __PUCK__value__71 = __PUCK__value__70;
-                var __PUCK__value__72 = void 0;
-                if (__PUCK__value__71.kind == "Struct") {
-                  var _PUCK__value__71$val = _slicedToArray(__PUCK__value__71.value, 1);
+                var __PUCK__value__71 = type_.kind;
+                var __PUCK__value__72 = __PUCK__value__71;
+                var __PUCK__value__73 = void 0;
+                if (__PUCK__value__72.kind == "Struct") {
+                  var _PUCK__value__72$val = _slicedToArray(__PUCK__value__72.value, 1);
 
-                  var struct = _PUCK__value__71$val[0];
+                  var struct = _PUCK__value__72$val[0];
 
-                  var __PUCK__value__73 = struct.kind;
-                  var __PUCK__value__74 = __PUCK__value__73;
-                  var __PUCK__value__75 = void 0;
-                  if (__PUCK__value__74.kind == "Tuple") {
-                    var _PUCK__value__74$val = _slicedToArray(__PUCK__value__74.value, 1);
+                  var __PUCK__value__74 = struct.kind;
+                  var __PUCK__value__75 = __PUCK__value__74;
+                  var __PUCK__value__76 = void 0;
+                  if (__PUCK__value__75.kind == "Tuple") {
+                    var _PUCK__value__75$val = _slicedToArray(__PUCK__value__75.value, 1);
 
-                    var _tuple = _PUCK__value__74$val[0];
+                    var _tuple = _PUCK__value__75$val[0];
 
-                    __PUCK__value__75 = _tuple.properties;
+                    __PUCK__value__76 = _tuple.properties;
                   } else {
-                    var __PUCK__value__76 = __PUCK__value__73;
-                    var __PUCK__value__77 = void 0;
+                    var __PUCK__value__77 = __PUCK__value__74;
+                    var __PUCK__value__78 = void 0;
                     if (true) {
-                      var __PUCK__value__78 = __PUCK__value__76;
+                      var __PUCK__value__79 = __PUCK__value__77;
                       throw "bad type t";
                     };
-                    __PUCK__value__75 = __PUCK__value__77;
+                    __PUCK__value__76 = __PUCK__value__78;
                   };
-                  __PUCK__value__72 = __PUCK__value__75;
+                  __PUCK__value__73 = __PUCK__value__76;
                 } else {
-                  var __PUCK__value__79 = __PUCK__value__70;
-                  var __PUCK__value__80 = void 0;
-                  if (__PUCK__value__79.kind == "Parameter") {
-                    var _undefined6 = __PUCK__value__79;
-                    __PUCK__value__80 = [];
+                  var __PUCK__value__80 = __PUCK__value__71;
+                  var __PUCK__value__81 = void 0;
+                  if (__PUCK__value__80.kind == "Parameter") {
+                    var _undefined6 = __PUCK__value__80;
+                    __PUCK__value__81 = [];
                   } else {
-                    var __PUCK__value__81 = __PUCK__value__70;
-                    var __PUCK__value__82 = void 0;
+                    var __PUCK__value__82 = __PUCK__value__71;
+                    var __PUCK__value__83 = void 0;
                     if (true) {
-                      var __PUCK__value__83 = __PUCK__value__81;
+                      var __PUCK__value__84 = __PUCK__value__82;
                       throw "abd type t";
                     };
-                    __PUCK__value__80 = __PUCK__value__82;
+                    __PUCK__value__81 = __PUCK__value__83;
                   };
-                  __PUCK__value__72 = __PUCK__value__80;
+                  __PUCK__value__73 = __PUCK__value__81;
                 };
-                __PUCK__value__69 = __PUCK__value__72;
+                __PUCK__value__70 = __PUCK__value__73;
               } else {
-                __PUCK__value__69 = [];
+                __PUCK__value__70 = [];
               };
-              var props = __PUCK__value__69;
+              var props = __PUCK__value__70;
               var properties = _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref4) {
                 var _ref5 = _slicedToArray(_ref4, 2);
 
@@ -708,95 +728,95 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
             if ((typeof _ret4 === 'undefined' ? 'undefined' : _typeof(_ret4)) === "object") return _ret4.v;
           } else {
-            var __PUCK__value__84 = __PUCK__value__25;
-            if (__PUCK__value__84.kind == "TupleType") {
+            var __PUCK__value__85 = __PUCK__value__26;
+            if (__PUCK__value__85.kind == "TupleType") {
               var _ret5 = function () {
-                var _PUCK__value__84$val = _slicedToArray(__PUCK__value__84.value, 2);
+                var _PUCK__value__85$val = _slicedToArray(__PUCK__value__85.value, 2);
 
-                var typePath = _PUCK__value__84$val[0];
-                var tuple = _PUCK__value__84$val[1];
+                var typePath = _PUCK__value__85$val[0];
+                var tuple = _PUCK__value__85$val[1];
 
                 visitor.visitTypePath(typePath);
-                var __PUCK__value__85 = void 0;
-                if (type_) {
-                  __PUCK__value__85 = type_;
-                } else {
-                  __PUCK__value__85 = typePath.type_;
-                };
-                var tupleType = __PUCK__value__85;
                 var __PUCK__value__86 = void 0;
-                if ((0, _types.isAssignable)(typePath.type_, tupleType)) {
-                  __PUCK__value__86 = tupleType;
+                if (type_) {
+                  __PUCK__value__86 = type_;
                 } else {
                   __PUCK__value__86 = typePath.type_;
                 };
-                var typePathType = __PUCK__value__86;
-                var __PUCK__value__87 = typePathType.kind;
-                var __PUCK__value__88 = __PUCK__value__87;
-                var __PUCK__value__89 = void 0;
-                if (__PUCK__value__88.kind == "Enum") {
-                  var _PUCK__value__88$val = _slicedToArray(__PUCK__value__88.value, 1);
+                var tupleType = __PUCK__value__86;
+                var __PUCK__value__87 = void 0;
+                if ((0, _types.isAssignable)(typePath.type_, tupleType)) {
+                  __PUCK__value__87 = tupleType;
+                } else {
+                  __PUCK__value__87 = typePath.type_;
+                };
+                var typePathType = __PUCK__value__87;
+                var __PUCK__value__88 = typePathType.kind;
+                var __PUCK__value__89 = __PUCK__value__88;
+                var __PUCK__value__90 = void 0;
+                if (__PUCK__value__89.kind == "Enum") {
+                  var _PUCK__value__89$val = _slicedToArray(__PUCK__value__89.value, 1);
 
-                  var enum_ = _PUCK__value__88$val[0];
+                  var enum_ = _PUCK__value__89$val[0];
 
                   var member = (0, _enums.getEnumMember)(typePath);
                   var enumArmType = enum_.members[member];
-                  __PUCK__value__89 = enumArmType;
+                  __PUCK__value__90 = enumArmType;
                 } else {
-                  var __PUCK__value__90 = __PUCK__value__87;
-                  var __PUCK__value__91 = void 0;
+                  var __PUCK__value__91 = __PUCK__value__88;
+                  var __PUCK__value__92 = void 0;
                   if (true) {
-                    var __PUCK__value__92 = __PUCK__value__90;
-                    __PUCK__value__91 = tupleType;
+                    var __PUCK__value__93 = __PUCK__value__91;
+                    __PUCK__value__92 = tupleType;
                   };
-                  __PUCK__value__89 = __PUCK__value__91;
+                  __PUCK__value__90 = __PUCK__value__92;
                 };
-                tupleType = __PUCK__value__89;
-                var __PUCK__value__93 = tupleType.kind;
-                var __PUCK__value__94 = __PUCK__value__93;
-                var __PUCK__value__95 = void 0;
-                if (__PUCK__value__94.kind == "Struct") {
-                  var _PUCK__value__94$val = _slicedToArray(__PUCK__value__94.value, 1);
+                tupleType = __PUCK__value__90;
+                var __PUCK__value__94 = tupleType.kind;
+                var __PUCK__value__95 = __PUCK__value__94;
+                var __PUCK__value__96 = void 0;
+                if (__PUCK__value__95.kind == "Struct") {
+                  var _PUCK__value__95$val = _slicedToArray(__PUCK__value__95.value, 1);
 
-                  var struct = _PUCK__value__94$val[0];
+                  var struct = _PUCK__value__95$val[0];
 
-                  var __PUCK__value__96 = struct.kind;
-                  var __PUCK__value__97 = __PUCK__value__96;
-                  var __PUCK__value__98 = void 0;
-                  if (__PUCK__value__97.kind == "Tuple") {
-                    var _PUCK__value__97$val = _slicedToArray(__PUCK__value__97.value, 1);
+                  var __PUCK__value__97 = struct.kind;
+                  var __PUCK__value__98 = __PUCK__value__97;
+                  var __PUCK__value__99 = void 0;
+                  if (__PUCK__value__98.kind == "Tuple") {
+                    var _PUCK__value__98$val = _slicedToArray(__PUCK__value__98.value, 1);
 
-                    var _tuple2 = _PUCK__value__97$val[0];
+                    var _tuple2 = _PUCK__value__98$val[0];
 
-                    __PUCK__value__98 = _tuple2.properties;
+                    __PUCK__value__99 = _tuple2.properties;
                   } else {
-                    var __PUCK__value__99 = __PUCK__value__96;
-                    var __PUCK__value__100 = void 0;
+                    var __PUCK__value__100 = __PUCK__value__97;
+                    var __PUCK__value__101 = void 0;
                     if (true) {
-                      var __PUCK__value__101 = __PUCK__value__99;
+                      var __PUCK__value__102 = __PUCK__value__100;
                       throw "bad type t";
                     };
-                    __PUCK__value__98 = __PUCK__value__100;
+                    __PUCK__value__99 = __PUCK__value__101;
                   };
-                  __PUCK__value__95 = __PUCK__value__98;
+                  __PUCK__value__96 = __PUCK__value__99;
                 } else {
-                  var __PUCK__value__102 = __PUCK__value__93;
-                  var __PUCK__value__103 = void 0;
-                  if (__PUCK__value__102.kind == "Parameter") {
-                    var _undefined7 = __PUCK__value__102;
-                    __PUCK__value__103 = [];
+                  var __PUCK__value__103 = __PUCK__value__94;
+                  var __PUCK__value__104 = void 0;
+                  if (__PUCK__value__103.kind == "Parameter") {
+                    var _undefined7 = __PUCK__value__103;
+                    __PUCK__value__104 = [];
                   } else {
-                    var __PUCK__value__104 = __PUCK__value__93;
-                    var __PUCK__value__105 = void 0;
+                    var __PUCK__value__105 = __PUCK__value__94;
+                    var __PUCK__value__106 = void 0;
                     if (true) {
-                      var __PUCK__value__106 = __PUCK__value__104;
+                      var __PUCK__value__107 = __PUCK__value__105;
                       throw "abd type t";
                     };
-                    __PUCK__value__103 = __PUCK__value__105;
+                    __PUCK__value__104 = __PUCK__value__106;
                   };
-                  __PUCK__value__95 = __PUCK__value__103;
+                  __PUCK__value__96 = __PUCK__value__104;
                 };
-                var props = __PUCK__value__95;
+                var props = __PUCK__value__96;
                 var properties = _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref6) {
                   var _ref7 = _slicedToArray(_ref6, 2);
 
@@ -823,11 +843,11 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                       _class: _core.None,
                       instance: _core.None
                     };
-                    var __PUCK__value__107 = typePath.type_.kind;
-                    if (__PUCK__value__107.kind == "Enum") {
-                      var _PUCK__value__107$va = _slicedToArray(__PUCK__value__107.value, 1);
+                    var __PUCK__value__108 = typePath.type_.kind;
+                    if (__PUCK__value__108.kind == "Enum") {
+                      var _PUCK__value__108$va = _slicedToArray(__PUCK__value__108.value, 1);
 
-                      var enumType = _PUCK__value__107$va[0];
+                      var enumType = _PUCK__value__108$va[0];
 
                       if (!allowNotExhaustive && _core.ObjectMap.size.call(enumType.members) > 1) {
                         return (0, _core.Err)(PatternError.NotExhaustive);
@@ -853,11 +873,11 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
               if ((typeof _ret5 === 'undefined' ? 'undefined' : _typeof(_ret5)) === "object") return _ret5.v;
             } else {
-              var __PUCK__value__108 = __PUCK__value__25;
-              if (__PUCK__value__108.kind == "UnitType") {
-                var _PUCK__value__108$va = _slicedToArray(__PUCK__value__108.value, 1);
+              var __PUCK__value__109 = __PUCK__value__26;
+              if (__PUCK__value__109.kind == "UnitType") {
+                var _PUCK__value__109$va = _slicedToArray(__PUCK__value__109.value, 1);
 
-                var _typePath = _PUCK__value__108$va[0];
+                var _typePath = _PUCK__value__109$va[0];
 
                 visitor.visitTypePath(_typePath);
                 return (0, _core.Ok)(false);

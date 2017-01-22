@@ -149,3 +149,20 @@ genericNum.generic(5)
 import 'traits.puck' as {Generic, GenericType}
 let genericNum: GenericType<Num> = {}
 genericNum.generic(true)
+
+
+///// Use of undefined variable b
+trait Trait {
+  fn a(self) -> String {
+    b()
+  }
+
+  fn b(self) -> String {
+    a()
+  }
+}
+
+///// Trait is not assignable to type Num
+trait Trait {
+  fn a(self: Num) -> () {}
+}

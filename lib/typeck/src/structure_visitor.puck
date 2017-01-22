@@ -1,4 +1,4 @@
-import 'puck:js' as {Object, undefined}
+import 'puck:js' as {Error, Object, undefined}
 import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {
   FunctionDeclaration
@@ -54,8 +54,7 @@ export let structureVisitor = {
           if let TypeKind::Function(func) = self.assignedTo.type_.kind
             then func
 
-      if f.typeParameters
-        then f.typeParameters.forEach(self.visitTypeParameter.bind(self))
+      f.typeParameters.forEach(self.visitTypeParameter.bind(self))
       f.parameterList.enumerate().forEach(|(p, i)| {
         let type_ =
           if assignedTo and assignedTo.arguments[i] then assignedTo.arguments[i].type_
@@ -75,23 +74,40 @@ export let structureVisitor = {
       self.scope = f.scope.parent
     }
   }
-  visitMethodDeclaration: |self, mut f: FunctionDeclaration| {
-    if let Option::Some(first) = f.parameterList.first() {
-      if let Pattern::Identifier({name}) = first.pattern {
-        let type_: Option<TypeBound> = first.typeBound
-        if name == 'self' {
-          if type_.isNothing() {
-            f.parameterList[0].typeBound = Some({
-              kind: SyntaxKind.NamedTypeBound
-              path: TypePath::Member({name: 'Self'})
-              typeParameters: []
-            })
+  visitMethodDeclaration: |mut self, mut f: FunctionDeclaration, selfType: Type| {
+    if not f.scope {
+      self.scope = self.scope.createChild()
+      f.scope = self.scope
+
+      f.typeParameters.forEach(self.visitTypeParameter.bind(self))
+
+      if let Option::Some(first) = f.parameterList.first() {
+        if let Pattern::Identifier({name}) = first.pattern {
+          let type_: Option<TypeBound> = first.typeBound
+          if name == 'self' {
+            if type_.isNothing() {
+              f.parameterList[0].typeBound = Some({
+                kind: SyntaxKind.NamedTypeBound
+                path: TypePath::Member({name: 'Self'})
+                typeParameters: []
+              })
+            }
+            else {
+              self.visitFunctionParameter(first)
+              if not isAssignable(first.type_, selfType)
+                then self.reportError(first, notAssignableError(first.type_, selfType))
+            }
           }
         }
       }
-    }
 
-    self.visitFunctionDeclaration(f)
+      f.parameterList.forEach(|p| self.visitFunctionParameter(p))
+      if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
+
+      f.type_ = createFunctionType(f.scope, f, self.reportError)
+
+      self.scope = f.scope.parent
+    }
   }
   visitFunctionParameter: |self, mut v: VariableDeclaration, type_| {
     self.visitVariableDeclaration(v, self.visitLiteral.bind(self), type_)

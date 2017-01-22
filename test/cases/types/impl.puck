@@ -19,3 +19,11 @@ impl Type {
 let type_: Type = {value: 42}
 
 type_.isAnswer()
+
+trait Trait {
+  fn a(self) -> () {}
+}
+
+impl Trait for Type {
+  fn a(self: {value: Num}) -> () {}
+}

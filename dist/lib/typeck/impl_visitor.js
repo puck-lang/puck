@@ -149,7 +149,7 @@ function ImplVisitor(context, file) {
       var structType = i.type_.type_;
       self.scope.setSelfBinding(_core.Option.unwrap.call(structType.name));
       _core.Iterable['$List'].forEach.call(i.members, function (m) {
-        return self.visitMethodDeclaration(m);
+        return self.visitMethodDeclaration(m, structType);
       });
       var __PUCK__value__6 = traitType.kind;
       if (__PUCK__value__6.kind == "Trait") {
@@ -195,7 +195,7 @@ function ImplVisitor(context, file) {
       var structType = i.type_.type_;
       self.scope.setSelfBinding(_core.Option.unwrap.call(structType.name));
       _core.Iterable['$List'].forEach.call(i.members, function (m) {
-        return self.visitMethodDeclaration(m);
+        return self.visitMethodDeclaration(m, structType);
       });
       var __PUCK__value__12 = structType.kind;
       var __PUCK__value__13 = __PUCK__value__12;

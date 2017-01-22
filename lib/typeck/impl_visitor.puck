@@ -160,7 +160,7 @@ export fn ImplVisitor(context, file) {
       let traitType: Type = i.trait_.type_
       let structType: Type = i.type_.type_
       self.scope.setSelfBinding(structType.name.unwrap())
-      i.members.forEach(|m| self.visitMethodDeclaration(m))
+      i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
 
       if let TypeKind::Trait(trait_) = traitType.kind {
         match structType.kind {
@@ -181,7 +181,7 @@ export fn ImplVisitor(context, file) {
 
       let structType: Type = i.type_.type_
       self.scope.setSelfBinding(structType.name.unwrap())
-      i.members.forEach(|m| self.visitMethodDeclaration(m))
+      i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
 
       match structType.kind {
         TypeKind::Enum(enum_) => implementShorthand(structType, enum_, i, reportError)

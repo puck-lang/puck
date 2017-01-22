@@ -7,6 +7,12 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 var Type = function Type(object) {
   return object;
 };
+var Trait = {
+  a: function a() {}
+};
+Trait['$Type'] = {
+  a: function a() {}
+};
 Type.isAnswer = function isAnswer() {
   var self = this;
   return self.value == 42;

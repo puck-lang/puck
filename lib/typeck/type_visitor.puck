@@ -206,7 +206,7 @@ export fn TypeVisitor(context, file) {
       }
       else {
         self.scope = t.scope
-        t.members.forEach(|t| self.visitMethodDeclaration(t))
+        t.members.forEach(|m| self.visitMethodDeclaration(m, t.type_))
 
         if let TypeKind::Trait(trait_) = t.type_.kind {
           Object.assign(trait_.functions, ObjectMap.fromList(
