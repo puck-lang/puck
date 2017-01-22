@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 exports.ImportVisitor = ImportVisitor;
 
@@ -34,7 +34,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 var domains = ["node", "puck"];
 var puckFile = (0, _js.RegExp)("\\.puck$", "i");
-var puckModules = ["core", "js"];
+var puckModules = ["core", "js", "test"];
 function ImportVisitor(context, file) {
   var reportError = context.reportError.bind(context, file);
   var moduleScope = void 0;
@@ -91,11 +91,24 @@ function ImportVisitor(context, file) {
           var result = (0, _js.asResult)(function () {
             return (0, _fs.statSync)(path);
           });
-          if (result.error) {
-            reportError(i, "Imported file " + path + " not found");
-          } else {
-            if (!result.result.isFile()) {
+          var __PUCK__value__1 = result;
+          var __PUCK__value__2 = __PUCK__value__1;
+          if (__PUCK__value__2.kind == "Ok") {
+            var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
+
+            var stat = _PUCK__value__2$valu[0];
+
+            if (!stat.isFile()) {
               reportError(i, "Imported file " + path + " is not a file");
+            };
+          } else {
+            var __PUCK__value__3 = __PUCK__value__1;
+            if (__PUCK__value__3.kind == "Err") {
+              var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
+
+              var error = _PUCK__value__3$valu[0];
+
+              reportError(i, "Imported file " + path + " not found");
             };
           };
           if (puckFile.test(path)) {

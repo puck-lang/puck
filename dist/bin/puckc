@@ -31,6 +31,7 @@ if ((0, _helpers.flag)(_arguments, "--skip-extension")) {
 };
 var extension = __PUCK__value__1;
 var ignoreErrors = (0, _helpers.flag)(_arguments, "--ignore-errors");
+var isBinary = (0, _helpers.flag)(_arguments, "--is-binary");
 if (_arguments.length > 1 && outFile) {
   _js2.console.error("Can't specify --out-file with more than one input file");
   _js2.process.exit(1);
@@ -41,6 +42,7 @@ if (_arguments.length == 0) {
 } else {
   var files = _core.Iterable['$List'].map.call(_arguments, function (file) {
     return {
+      isBin: isBinary,
       file: file,
       outFile: outFile || (0, _path.join)(outDir, file.replace((0, _js2.RegExp)("\\.puck$"), extension))
     };

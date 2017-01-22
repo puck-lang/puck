@@ -1,11 +1,10 @@
-#!/usr/bin/env node
-
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.wrapAsResult = exports.asResult = exports._typeof = exports._new = exports.require = exports.process = exports._module = exports.console = exports.String = exports.RegExp = exports._Object = exports.Number = exports.Error = exports.Date = exports.Boolean = exports.Array = exports._self = exports.window = exports.global = exports._undefined = exports._null = undefined;
+exports.wrapAsResult = exports._typeof = exports._new = exports.require = exports.process = exports._module = exports.console = exports.String = exports.RegExp = exports._Object = exports.Number = exports.Error = exports.Date = exports.Boolean = exports.Array = exports._self = exports.window = exports.global = exports._undefined = exports._null = undefined;
+exports.asResult = asResult;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -35,5 +34,12 @@ var _require = js._require;
 exports.require = _require;
 var _new = exports._new = js._new;
 var _typeof = exports._typeof = js._typeof;
-var asResult = exports.asResult = js.asResult;
+function asResult(func) {
+  var result = js.asResult(func);
+  if (result.error) {
+    return (0, _core.Err)(result.value);
+  } else {
+    return (0, _core.Ok)(result.value);
+  };
+};
 var wrapAsResult = exports.wrapAsResult = js.wrapAsResult;

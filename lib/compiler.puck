@@ -23,7 +23,7 @@ export fn parseString(context, file: UnparsedFile) {
 }
 
 export fn compile(context, file: File) {
-  Emitter(context, file).emitModule(file.ast)
+  Emitter(context, file).emitModule(file.ast, file.isBin)
 }
 
 fn babelTransform(file) {
@@ -129,10 +129,11 @@ fn createContext(ignoreErrors = false) {
   }
 }
 
-export fn buildString(code: String, filePath: String) {
+export fn buildString(code: String, filePath: String) -> Result<File, {}> {
   asResult(|| {
     let mut context = createContext()
     let mut file = context.importFile({
+      isBin: false
       fileName: path.basename(filePath)
       absolutePath: path.resolve(path.normalize(filePath))
       puck: code
@@ -148,7 +149,7 @@ export fn buildString(code: String, filePath: String) {
   })
 }
 
-export fn build(files: List<File>, options = {}) {
+export fn build(files: List<UnparsedFile>, options = {}) {
   let dump = options.dump
   let mut context = createContext(options.ignoreErrors)
 
@@ -158,7 +159,7 @@ export fn build(files: List<File>, options = {}) {
     let outFile = path.normalize(f.outFile)
     let outDir = path.dirname(outFile)
 
-    {absolutePath, outFile, outDir}
+    {isBin: f.isBin, absolutePath, outFile, outDir}
   })
 
   let files = files.map(|mut f| context.importFile(f))

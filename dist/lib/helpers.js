@@ -1,10 +1,11 @@
-#!/usr/bin/env node
-
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (_js.Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.cmd = cmd;
 exports.walkSync = walkSync;
 exports.flag = flag;
@@ -41,22 +42,35 @@ function cmd(cmd) {
       }
     });
   });
-  if (result.error) {
-    var stdout = result.error.stdout.toString();
-    var stderr = result.error.stderr.toString();
-    if (stdout) {
-      _js.console.log(stdout.trim());
+  var __PUCK__value__1 = result;
+  var __PUCK__value__2 = __PUCK__value__1;
+  if (__PUCK__value__2.kind == "Ok") {
+    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
+
+    var output = _PUCK__value__2$valu[0];
+
+    if (output.toString()) {
+      return _js.console.log(output.toString().trim());
     };
-    if (stderr) {
-      _js.console.error(stderr.trim());
-    };
-    if (result.error.stack) {
-      _js.console.error(result.error.stack);
-    };
-    return _js.process.exit(1);
   } else {
-    if (result.result.toString()) {
-      return _js.console.log(result.result.toString().trim());
+    var __PUCK__value__3 = __PUCK__value__1;
+    if (__PUCK__value__3.kind == "Err") {
+      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
+
+      var error = _PUCK__value__3$valu[0];
+
+      var stdout = error.stdout.toString();
+      var stderr = error.stderr.toString();
+      if (stdout) {
+        _js.console.log(stdout.trim());
+      };
+      if (stderr) {
+        _js.console.error(stderr.trim());
+      };
+      if (error.stack) {
+        _js.console.error(error.stack);
+      };
+      return _js.process.exit(1);
     };
   };
 };

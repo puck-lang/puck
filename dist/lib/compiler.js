@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -59,7 +57,7 @@ function parseString(context, file) {
   return ast;
 };
 function compile(context, file) {
-  return (0, _emitter.Emitter)(context, file).emitModule(file.ast);
+  return (0, _emitter.Emitter)(context, file).emitModule(file.ast, file.isBin);
 };
 function babelTransform(file) {
   return babel.transform(file.js, {
@@ -184,6 +182,7 @@ function buildString(code, filePath) {
   return (0, _js.asResult)(function () {
     var context = createContext();
     var file = context.importFile({
+      isBin: false,
       fileName: path.basename(filePath),
       absolutePath: path.resolve(path.normalize(filePath)),
       puck: code
@@ -207,6 +206,7 @@ function build(files) {
     var outFile = path.normalize(f.outFile);
     var outDir = path.dirname(outFile);
     return {
+      isBin: f.isBin,
       absolutePath: absolutePath,
       outFile: outFile,
       outDir: outDir

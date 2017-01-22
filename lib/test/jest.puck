@@ -1,0 +1,32 @@
+import 'puck:js' as {global, require}
+import 'node:jest' as {run}
+import 'node:path' as path
+
+export fn jest(watch: Bool, rootDir: String) {
+  let mut moduleNameMapper = ObjectMap.new()
+  moduleNameMapper['^puck-lang/dist/lib/stdlib(.*)\$'] = path.resolve(require.resolve('../core'), '..') + '\$1'
+  let mut transform = ObjectMap.new()
+  transform['.*'] = require.resolve('../../test/jest_preprocessor')
+
+  let config = {
+    moduleFileExtensions: ['puck', 'js']
+    moduleNameMapper
+    rootDir
+    transform
+    setupFiles: []
+    testEnvironment: 'node'
+    testRegex: '(/__tests__/.*|\\.(test))\\.puck$'
+  }
+
+  let mut jestArgs = [
+    '--config'
+    global.JSON.stringify(config)
+  ]
+
+  // Watch unless on CI
+  if watch {
+    jestArgs.add('--watch')
+  }
+
+  run(jestArgs)
+}

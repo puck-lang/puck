@@ -7,12 +7,14 @@ import 'ast/ast.puck' as {
 import 'typeck/src/range.puck' as {getRange}
 
 export type UnparsedFile {
+  isBin: Bool
   fileName: String
   absolutePath: String
   puck: String
 }
 
 export type File {
+  isBin: Bool
   fileName: String
   projectPath: String
   absolutePath: String

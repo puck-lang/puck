@@ -1,4 +1,5 @@
 "use strict";
+var SyntaxKind;
 (function (SyntaxKind) {
     SyntaxKind[SyntaxKind["AndKeyword"] = 0] = "AndKeyword";
     SyntaxKind[SyntaxKind["AsKeyword"] = 1] = "AsKeyword";
@@ -106,8 +107,7 @@
     SyntaxKind[SyntaxKind["EnumMember"] = 103] = "EnumMember";
     SyntaxKind[SyntaxKind["ObjectLiteralMember"] = 104] = "ObjectLiteralMember";
     SyntaxKind[SyntaxKind["StringLiteralPart"] = 105] = "StringLiteralPart";
-})(exports.SyntaxKind || (exports.SyntaxKind = {}));
-var SyntaxKind = exports.SyntaxKind;
+})(SyntaxKind = exports.SyntaxKind || (exports.SyntaxKind = {}));
 exports.textToToken = Object['assign'](Object.create(null), {
     'and': SyntaxKind.AndKeyword,
     'break': SyntaxKind.BreakKeyword,
@@ -205,14 +205,12 @@ exports.precedence = (_a = {},
     _a[SyntaxKind.SlashToken] = 20,
     _a[SyntaxKind.PercentToken] = 20,
     _a[SyntaxKind.AsteriskAsteriskToken] = 25,
-    _a
-);
+    _a);
 exports.tokenToText = Object['assign'](reverse(exports.textToToken), (_b = {},
     _b[SyntaxKind.Identifier] = function (i) { return (i && i.name)
         ? "identifier: " + i.name
         : 'identifier'; },
-    _b
-));
+    _b));
 function isBlock(token) {
     return token.kind === SyntaxKind.Block;
 }

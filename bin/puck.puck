@@ -1,5 +1,6 @@
 import 'puck:js' as {RegExp, console, process, require}
 import 'node:fs' as fs
+import '../lib/test/jest.puck' as {jest}
 import 'node:path' as path
 import '../lib/compiler.puck' as {build}
 import '../lib/helpers.puck' as {walkSync}
@@ -22,6 +23,7 @@ if command == 'build' {
   let binFiles = walkSync('bin')
     .filter(|f| puckPattern.test(f))
     .map(|file| {{
+      isBin: true
       file
       outFile: normalizeBinName(file)
     }})
@@ -36,6 +38,14 @@ if command == 'build' {
   build(libFiles)
 
   print('done')
+}
+else if command == 'test' {
+
+  // Watch unless on CI
+  let watch = not process.env.CI
+  let rootDir = path.resolve('lib')
+
+  jest(watch, rootDir)
 }
 else {
   console.error('Unknown command', command)

@@ -18,17 +18,17 @@ exports._require = typeof require === 'function' && require;
 exports._new = function (constructor) { return function () {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i - 0] = arguments[_i];
+        args[_i] = arguments[_i];
     }
     return new (constructor.bind.apply(constructor, [void 0].concat(args)))();
 }; };
 exports._typeof = function (object) { return typeof object; };
 function asResult(fn) {
     try {
-        return { result: fn() };
+        return { value: fn(), error: false };
     }
     catch (error) {
-        return { error: error };
+        return { value: error, error: true };
     }
 }
 exports.asResult = asResult;
@@ -36,13 +36,13 @@ function wrapAsResult(fn) {
     return function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
-            args[_i - 0] = arguments[_i];
+            args[_i] = arguments[_i];
         }
         try {
-            return { result: fn.apply(void 0, args) };
+            return { value: fn.apply(void 0, args), error: false };
         }
         catch (error) {
-            return { error: error };
+            return { value: error, error: true };
         }
     };
 }

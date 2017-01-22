@@ -1,0 +1,23 @@
+import 'puck:test' as *
+
+describe('core', || {
+  describe('String', || {
+    describe('contains', || {
+      it('should return true if the string contains the substring', || {
+        expect('abcdefg'.contains('abc')).toBe(true)
+        expect('abcdefg'.contains('efg')).toBe(true)
+        expect('abcdefg'.contains('cde')).toBe(true)
+        expect('abcdefg'.contains('c')).toBe(true)
+        expect('abcdefg'.contains('abcdefg')).toBe(true)
+      })
+
+      it('should return false if the string does not contain the substring', || {
+        expect('abcdefg'.contains('cba')).toBe(false)
+        expect('abcdefg'.contains('efgh')).toBe(false)
+        expect('abcdefg'.contains('ced')).toBe(false)
+        expect('abcdefg'.contains('h')).toBe(false)
+        expect('abcdefg'.contains('abcdefgh')).toBe(false)
+      })
+    })
+  })
+})

@@ -10,6 +10,8 @@ var _fs = require('fs');
 
 var fs = _interopRequireWildcard(_fs);
 
+var _jest = require('./../lib/test/jest.js');
+
 var _path = require('path');
 
 var path = _interopRequireWildcard(_path);
@@ -37,6 +39,7 @@ if (command == "build") {
     return puckPattern.test(f);
   }).map(function (file) {
     return {
+      isBin: true,
       file: file,
       outFile: normalizeBinName(file)
     };
@@ -53,6 +56,12 @@ if (command == "build") {
   (0, _compiler.build)(libFiles);
   (0, _core.print)("done");
 } else {
-  _js.console.error("Unknown command", command);
-  _js.process.exit(1);
+  if (command == "test") {
+    var watch = !_js.process.env.CI;
+    var rootDir = path.resolve("lib");
+    (0, _jest.jest)(watch, rootDir);
+  } else {
+    _js.console.error("Unknown command", command);
+    _js.process.exit(1);
+  };
 }

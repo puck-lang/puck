@@ -39,5 +39,10 @@ export let require = js._require
 export let new = js._new
 export let typeof = js._typeof
 
-export let asResult: <R, E>(() -> R) -> Result<R, E> = js.asResult
+export fn asResult<R, E>(func: () -> R) -> Result<R, E> {
+  let result = js.asResult(func)
+  if result.error
+    then Err(result.value)
+    else Ok(result.value)
+}
 export let wrapAsResult = js.wrapAsResult

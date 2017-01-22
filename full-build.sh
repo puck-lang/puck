@@ -2,13 +2,15 @@
 
 set -e
 
-printf "puck test: "
+printf "test: "
 dist/bin/test
-printf "puck self-test: "
+printf "self-test: "
 dist/bin/self-test
 printf "puck build: "
 dist/bin/puck build
-printf "puck test: "
+printf "test: "
 dist/bin/test
-printf "puck self-test: "
+printf "self-test: "
 dist/bin/self-test
+printf "puck test: "
+CI=true dist/bin/puck test

@@ -30,16 +30,19 @@ if command == undefined {
           process.exit(1)
         }
 
-        let result = buildString(code, file)
+        let result: Result<{}, {message: String}> = buildString(code, file)
 
-        if not result.error {
-          print('error case did not error for $file::$i\nexpected error:$error')
-          process.exit(1)
-        }
-
-        if result.error.message.indexOf(error.trim()) == -1 {
-          print('expected error for $file::$i to include $error\n  but got\n' + result.error.message)
-          process.exit(1)
+        match result {
+          Result::Ok(_) => {
+            print('error case did not error for $file::$i\nexpected error:$error')
+            process.exit(1)
+          }
+          Result::Err({message}) => {
+            if not message.contains(error.trim()) {
+              print('expected error for $file::$i to include $error\n  but got\n$message')
+              process.exit(1)
+            }
+          }
         }
       })
   })

@@ -165,8 +165,8 @@ export function Emitter() {
     return expressions
   }
 
-  function emitModule(module: Module) {
-    let preamble = `#!/usr/bin/env node\n'use strict';\n`
+  function emitModule(module: Module, isBin: boolean) {
+    let preamble = `${isBin ? '#!/usr/bin/env node\n' : ''}'use strict';\n`
     let expressions =
       module.expressions
         .filter(e => e.kind === SyntaxKind.TypeDeclaration ||

@@ -1,13 +1,12 @@
 "use strict";
-var ast_1 = require('./ast');
-var entities_1 = require('../entities');
+var ast_1 = require("./ast");
+var entities_1 = require("../entities");
 var jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined'];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
     _a[ast_1.SyntaxKind.OrKeyword] = '||',
     _a[ast_1.SyntaxKind.NotKeyword] = '!',
-    _a
-));
+    _a));
 var Context;
 (function (Context) {
     Context[Context["Return"] = 1] = "Return";
@@ -102,8 +101,8 @@ function Emitter() {
         hoist = outerHoist;
         return expressions;
     }
-    function emitModule(module) {
-        var preamble = "#!/usr/bin/env node\n'use strict';\n";
+    function emitModule(module, isBin) {
+        var preamble = (isBin ? '#!/usr/bin/env node\n' : '') + "'use strict';\n";
         var expressions = module.expressions
             .filter(function (e) { return e.kind === ast_1.SyntaxKind.TypeDeclaration ||
             (ast_1.isExport(e) && e.expression.kind === ast_1.SyntaxKind.TypeDeclaration); })
@@ -271,14 +270,14 @@ function Emitter() {
             if (body.expressions.length > 0) {
                 body = Object['assign']({}, body, {
                     expressions: [Object['assign'](fn.parameterList[0], {
-                        initializer: {
-                            kind: 'Some',
-                            value: [{
-                                    kind: ast_1.SyntaxKind.Identifier,
-                                    name: 'this',
-                                }]
-                        }
-                    })].concat(body.expressions)
+                            initializer: {
+                                kind: 'Some',
+                                value: [{
+                                        kind: ast_1.SyntaxKind.Identifier,
+                                        name: 'this',
+                                    }]
+                            }
+                        })].concat(body.expressions)
                 });
             }
         }
@@ -302,23 +301,23 @@ function Emitter() {
         var functions = Object['assign']({}, i.trait_.type_.kind.value[0].functions);
         i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m); });
         return emitTypePath(i.trait_.path) + "[" + getTypeProp(i.type_.type_) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
-            return (emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
+            return emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
-                : emitTypePath(i.trait_.path) + "." + emitIdentifier({ name: f })));
+                : emitTypePath(i.trait_.path) + "." + emitIdentifier({ name: f }));
         }))
             .join(',\n') + "\n}";
     }
     function emitImplShorthandDeclaration(i) {
         return i.members
             .map(function (m) {
-            return (emitTypePath(i.type_.path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m));
+            return emitTypePath(i.type_.path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m);
         })
             .join(';\n');
     }
     function emitTraitDeclaration(t) {
         return "var " + emitIdentifier(t.name) + " = {\n" + indent(t.members
             .filter(function (m) { return m.body.kind === 'Some'; })
-            .map(function (m) { return (emitIdentifier(m.name.value[0]) + ": " + emitFunctionDeclaration(m)); }))
+            .map(function (m) { return emitIdentifier(m.name.value[0]) + ": " + emitFunctionDeclaration(m); }))
             .join(',\n') + "\n}";
     }
     function emitTypeDeclaration(t) {
@@ -429,13 +428,13 @@ function Emitter() {
         else if (p.kind === 'Record') {
             return "{" + p.value[0].properties.map(function (_a) {
                 var property = _a.property, pattern = _a.pattern;
-                return (emitIdentifier(property) + ": " + emitPatternDestructuring(pattern));
+                return emitIdentifier(property) + ": " + emitPatternDestructuring(pattern);
             }).join(', ') + "}";
         }
         else if (p.kind === 'RecordType') {
             var destructure = "{" + p.value[1].properties.map(function (_a) {
                 var property = _a.property, pattern = _a.pattern;
-                return (emitIdentifier(property) + ": " + emitPatternDestructuring(pattern));
+                return emitIdentifier(property) + ": " + emitPatternDestructuring(pattern);
             }).join(', ') + "}";
             if (isEnum) {
                 destructure = "{value: " + destructure + "}";
@@ -463,7 +462,7 @@ function Emitter() {
     }
     function emitBinaryExpression(e) {
         return withPrecedence(e.operator, function () {
-            return (emitExpression(e.lhs) + " " + tokenToJs[e.operator.kind] + " " + emitExpression(e.rhs));
+            return emitExpression(e.lhs) + " " + tokenToJs[e.operator.kind] + " " + emitExpression(e.rhs);
         });
     }
     function emitCallExpression(fn_) {
@@ -650,7 +649,7 @@ function Emitter() {
         return emitIfLetExpression(ifLet);
     }
     function emitUnaryExpression(e) {
-        return withPrecedence(e.operator, function () { return ("" + tokenToJs[e.operator.kind] + emitExpression(e.rhs)); });
+        return withPrecedence(e.operator, function () { return "" + tokenToJs[e.operator.kind] + emitExpression(e.rhs); });
     }
     function emitWhileLoop(e) {
         var body = function () { return emitBlock(e.body, null); };
@@ -714,7 +713,7 @@ function Emitter() {
         return "" + l.value;
     }
     function emitObjectLiteral(l) {
-        var members = l.members.map(function (member) { return (emitIdentifier(member.name) + ": " + emitExpression(member.value, Context.Value)); });
+        var members = l.members.map(function (member) { return emitIdentifier(member.name) + ": " + emitExpression(member.value, Context.Value); });
         var body;
         if (members.length == 0) {
             body = '}';

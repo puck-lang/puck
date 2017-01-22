@@ -37,6 +37,13 @@ impl<T, E> Result<T, E> {
       then Ok(op(value))
       else self
   }
+
+  fn unwrap(self) -> T {
+    if self.isErr()
+      then throw Error(self.value[0])
+
+    self.value[0]
+  }
 }
 
 export enum Option<T> {
@@ -47,40 +54,40 @@ export let Some = Option::Some
 export let None = Option::None
 impl<T> Option<T> {
   fn isJust(self) -> Bool {self.kind == 'Some'}
-  fn isNothing(self: Option<T>) -> Bool {not self.isJust()}
+  fn isNothing(self) -> Bool {not self.isJust()}
 
-  fn map<U>(self: Option<T>, f: (T) -> U) -> Option<U> {
+  fn map<U>(self, f: (T) -> U) -> Option<U> {
     if let Option::Some(value) = self
       then Some(f(value))
       else self
   }
 
-  fn mapOr<U>(self: Option<T>, default: U, f: (T) -> U) -> U {
+  fn mapOr<U>(self, default: U, f: (T) -> U) -> U {
     if let Option::Some(value) = self
       then f(value)
       else default
   }
 
-  fn mapOrElse<U>(self: Option<T>, default: () -> U, f: (T) -> U) -> U {
+  fn mapOrElse<U>(self, default: () -> U, f: (T) -> U) -> U {
     if let Option::Some(value) = self
       then f(value)
       else default()
   }
 
-  fn unwrap(self: Option<T>) -> T {
+  fn unwrap(self) -> T {
     if self.isNothing()
       then throw Error('Can not unwrap empty Option')
 
     self.value[0]
   }
 
-  fn unwrapOr(self: Option<T>, default: T) -> T {
+  fn unwrapOr(self, default: T) -> T {
     if let Option::Some(value) = self
       then value
       else default
   }
 
-  fn unwrapOrElse(self: Option<T>, default: () -> T) -> T {
+  fn unwrapOrElse(self, default: () -> T) -> T {
     if let Option::Some(value) = self
       then value
       else default()
@@ -96,6 +103,10 @@ impl<E> List<E> {
       then throw Error('List a and b are not of the same length')
 
     a.enumerate().map(|(a, i)| (a, b[i]))
+  }
+
+  fn add(mut self, element: E) -> () {
+    self.push(element)
   }
 }
 export trait Iterable<E> {

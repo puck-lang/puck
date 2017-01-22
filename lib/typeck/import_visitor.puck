@@ -11,7 +11,7 @@ import '../compiler/ast.ts' as {SyntaxKind}
 
 let domains = ['node', 'puck']
 let puckFile = RegExp('\\.puck$', 'i')
-let puckModules = ['core', 'js']
+let puckModules = ['core', 'js', 'test']
 
 export fn ImportVisitor(context, file: UnparsedFile) {
   let reportError = context.reportError.bind(context, file)
@@ -62,11 +62,14 @@ export fn ImportVisitor(context, file: UnparsedFile) {
       if i.domain.isNothing() {
         let importedFile = context.resolvePath(i.path, file)
         let path = importedFile.absolutePath
-        let result = asResult(|| statSync(path))
-        if result.error
-          then reportError(i, 'Imported file $path not found')
-        else if not result.result.isFile()
-          then reportError(i, 'Imported file $path is not a file')
+        let result: Result<{}, {}> = asResult(|| statSync(path))
+        match result {
+          Result::Ok(stat) => {
+            if not stat.isFile()
+              then reportError(i, 'Imported file $path is not a file')
+          }
+          Result::Err(error) => reportError(i, 'Imported file $path not found')
+        }
 
         if puckFile.test(path) then importModule(i, importedFile)
       }

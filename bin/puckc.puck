@@ -15,6 +15,7 @@ let outFile = flag(arguments, '--out-file')
 let dump = flag(arguments, '--dump')
 let extension = if flag(arguments, '--skip-extension') then '' else '.js'
 let ignoreErrors = flag(arguments, '--ignore-errors')
+let isBinary = flag(arguments, '--is-binary')
 
 if arguments.length > 1 and outFile {
   console.error("Can't specify --out-file with more than one input file")
@@ -28,6 +29,7 @@ if arguments.length == 0 {
   process.exit(1)
 } else {
   let files = arguments.map(|file| {{
+    isBin: isBinary
     file
     outFile: outFile or join(outDir, file.replace(RegExp('\\.puck$'), extension))
   }})

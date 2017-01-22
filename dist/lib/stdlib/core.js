@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -176,6 +174,13 @@ Result.map = function map(op) {
     return self;
   };
 };
+Result.unwrap = function unwrap() {
+  var self = this;
+  if (Result.isErr.call(self)) {
+    throw (0, _js.Error)(self.value[0]);
+  };
+  return self.value[0];
+};
 Option.isJust = function isJust() {
   var self = this;
   return self.kind == "Some";
@@ -268,6 +273,10 @@ List.zip = function zip(a, b) {
 
     return [a, b[i]];
   });
+};
+List.add = function add(element) {
+  var self = this;
+  return self.push(element);
 };
 Range.contains = function contains(item) {
   var self = this;

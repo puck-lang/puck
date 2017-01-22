@@ -1,0 +1,10 @@
+import '../compiler.puck' as {buildString}
+import '../entities.puck' as {File}
+
+export fn process(src: String, path: String) -> String {
+  if path.endsWith('.puck') {
+    let r: Result<File, {}> = buildString(src, path)
+    r.unwrap().babel
+  }
+  else src
+}

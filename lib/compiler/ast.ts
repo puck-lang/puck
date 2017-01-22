@@ -408,6 +408,10 @@ export interface UnitPatternArm {
   kind: 'UnitType'
   value: [TypePath]
 }
+export interface CatchAllPatternArm {
+  kind: 'CatchAll'
+  value: [undefined]
+}
 export type Pattern
   = IdentifierPatternArm
   | RecordPatternArm
@@ -415,6 +419,7 @@ export type Pattern
   | TuplePatternArm
   | TupleTypePatternArm
   | UnitPatternArm
+  | CatchAllPatternArm
 
 export interface RecordPattern extends Token {
   properties: Array<{property: Identifier, pattern: Pattern}>

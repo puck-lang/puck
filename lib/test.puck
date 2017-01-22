@@ -2,7 +2,7 @@ import '../lib/helpers.puck' as {cmd}
 
 export fn buildAll(outFolder = 'dist', compiler = 'dist') {
   cmd(
-    '$compiler/bin/puckc --out-dir $outFolder --skip-extension true bin/**/*.puck && ' +
+    '$compiler/bin/puckc --out-dir $outFolder --skip-extension true --is-binary true bin/**/*.puck && ' +
     '$compiler/bin/puckc --out-dir $outFolder lib/**/*.puck'
   )
 }
