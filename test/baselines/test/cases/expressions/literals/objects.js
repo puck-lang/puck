@@ -27,3 +27,15 @@ var b = {
 };
 var _arguments = [];
 var c = { _arguments: _arguments };
+a.a = 2;
+var d = { a: 42 };
+d = { a: 5 };
+d = {
+  a: 5,
+  b: 10
+};
+d = {
+  a: 5,
+  b: 10
+};
+a.b = d.b;

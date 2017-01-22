@@ -6,18 +6,18 @@ import '../ast/ast.puck' as {
   ImportDirective
 }
 import '../ast/visit.puck' as visit
-import '../entities.puck' as {File}
+import '../entities.puck' as {UnparsedFile}
 import '../compiler/ast.ts' as {SyntaxKind}
 
 let domains = ['node', 'puck']
 let puckFile = RegExp('\\.puck$', 'i')
 let puckModules = ['core', 'js']
 
-export fn ImportVisitor(context, file: File) {
+export fn ImportVisitor(context, file: UnparsedFile) {
   let reportError = context.reportError.bind(context, file)
   let mut moduleScope
 
-  fn importModule(mut i: ImportDirective, importedFile: File) {
+  fn importModule(mut i: ImportDirective, importedFile: UnparsedFile) {
     let contextFile = context.importFile(importedFile)
     let module: Module = contextFile.ast
     if not module then return context.defer(importedFile, || importModule(i, importedFile))

@@ -113,6 +113,10 @@ function implementShorthand(type_, implementable, i, reportError) {
     reportError(i, "" + typeName + " has already been implemented");
   };
   var functions = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(i.members, function (functionDeclaration) {
+    if (_core.Option.isNothing.call(functionDeclaration.type_.name)) {
+      (0, _core.print)("functionDeclaration.type_", functionDeclaration.type_);
+      (0, _core.print)("functionDeclaration.name", functionDeclaration.name);
+    };
     return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
   }));
   return implementable.implementations.push({

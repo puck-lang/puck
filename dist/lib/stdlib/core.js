@@ -353,13 +353,16 @@ ObjectMap.forEach = function forEach(func) {
   });
   return [];
 };
+ObjectMap.has = function has(key) {
+  var self = this;
+  return _js._Object.prototype.hasOwnProperty.call(self, key);
+};
 ObjectMap.get = function get(key) {
   var self = this;
-  var value = self[key];
-  if (value == _js._undefined) {
-    return None;
+  if (ObjectMap.has.call(self, key)) {
+    return Some(self[key]);
   } else {
-    return Some(value);
+    return None;
   };
 };
 ObjectMap.size = function size() {

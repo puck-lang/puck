@@ -244,6 +244,7 @@ function parse(input) {
     var closeBrace = consumeToken(_ast2.SyntaxKind.CloseBraceToken);
     return {
       kind: _ast2.SyntaxKind.EnumDeclaration,
+      keyword: keyword,
       name: name,
       typeParameters: typeParameters,
       openBrace: openBrace,
@@ -599,9 +600,11 @@ function parse(input) {
     var bound = __PUCK__value__15;
     return {
       kind: _ast2.SyntaxKind.TypeDeclaration,
+      keyword: keyword,
       name: name,
       typeParameters: typeParameters,
-      bound: bound
+      bound: bound,
+      type_: _js._undefined
     };
   };
   function parseVariableDeclaration() {
@@ -646,7 +649,9 @@ function parse(input) {
     var returnType = __PUCK__value__20;
     var __PUCK__value__21 = void 0;
     if (isToken(_ast2.SyntaxKind.OpenBraceToken) || !optionalBody) {
-      __PUCK__value__21 = parseBlock();
+      __PUCK__value__21 = (0, _core.Some)(parseBlock());
+    } else {
+      __PUCK__value__21 = _core.None;
     };
     var body = __PUCK__value__21;
     return {
@@ -655,27 +660,30 @@ function parse(input) {
       typeParameters: typeParameters,
       parameterList: parameterList,
       returnType: returnType,
-      body: body
+      body: body,
+      type_: _js._undefined
     };
   };
   function parseLambda() {
     var parameterList = delimited("|", "|", ",", parseVariableDeclaration);
     var __PUCK__value__22 = void 0;
     if (isToken(_ast2.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__22 = parseBlock();
+      __PUCK__value__22 = (0, _core.Some)(parseBlock());
     } else {
-      __PUCK__value__22 = {
+      __PUCK__value__22 = (0, _core.Some)({
         kind: _ast2.SyntaxKind.Block,
         expressions: [parseExpression()]
-      };
+      });
     };
     var body = __PUCK__value__22;
     return {
       kind: _ast2.SyntaxKind.Function,
       name: _core.None,
+      typeParameters: [],
       parameterList: parameterList,
       returnType: _core.None,
-      body: body
+      body: body,
+      type_: _js._undefined
     };
   };
   function parseIfLet(ifKeyword) {
@@ -712,6 +720,7 @@ function parse(input) {
     };
     return {
       kind: _ast2.SyntaxKind.IfLetExpression,
+      ifKeyword: ifKeyword,
       letKeyword: letKeyword,
       variableDeclaration: {
         kind: _ast2.SyntaxKind.VariableDeclaration,
@@ -755,6 +764,7 @@ function parse(input) {
     };
     return {
       kind: _ast2.SyntaxKind.IfExpression,
+      ifKeyword: ifKeyword,
       condition: condition,
       then_: then_,
       else_: __PUCK__value__27

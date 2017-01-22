@@ -59,7 +59,7 @@ export fn TopLevelVisitor(context, file) {
         name: Some(t.name.name)
         kind: TypeKind::Enum({
           implementations: []
-          members: []
+          members: ObjectMap.new()
         })
         class: TypeClass.fromAstNode(t, reportError)
         instance: None
@@ -87,6 +87,7 @@ export fn TopLevelVisitor(context, file) {
         displayName: None
         name: Some(t.name.name)
         kind: TypeKind::Trait({
+          isShorthand: false
           functions: ObjectMap.new()
         })
         class: TypeClass.fromAstNode(t, reportError)

@@ -1,0 +1,19 @@
+///// String is not assignable to type Num
+let a = {b: '42'}
+let b: Num = a.b
+
+///// Num is not assignable to type String
+let mut a = {b: '42'}
+a.b = 42
+
+///// {b: String} is not assignable to type {b: Num}
+let mut a = {b: 42}
+a = {b: '42'}
+
+///// {} is not assignable to type {b: Num}
+let mut a = {b: 42}
+a = {}
+
+///// {b: Num} is not assignable to type {b: Num, c: String}
+let mut a = {b: 42, c: '42'}
+a = {b: 42}

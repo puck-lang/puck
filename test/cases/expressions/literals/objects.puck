@@ -1,4 +1,4 @@
-let a = {a: 1, b: 2
+let mut a = {a: 1, b: 2
   c: 4
   d: if false then 3
   e: if true then 3 else 1
@@ -7,3 +7,12 @@ let a = {a: 1, b: 2
 let b = {a, b: a}
 let arguments = []
 let c = {arguments}
+
+a.a = 2
+
+let mut d = {a: 42}
+d = {a: 5}
+d = {a: 5, b: 10}
+
+let d = {a: 5, b: 10}
+a.b = d.b

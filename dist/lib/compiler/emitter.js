@@ -262,11 +262,13 @@ function Emitter() {
         });
         var name = fn.name.kind == 'Some' ? emitIdentifier(fn.name.value[0]) : '';
         var parameterList = fn.parameterList;
-        var body = fn.body;
+        if (fn.body.kind == 'None')
+            throw 'Function without body';
+        var body = fn.body.value[0];
         var firstParameter = parameterList.length > 0 && parameterList[0];
         if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value[0].name == 'self') {
             parameterList = fn.parameterList.slice(1);
-            if (fn.body.expressions.length > 0) {
+            if (body.expressions.length > 0) {
                 body = Object['assign']({}, body, {
                     expressions: [Object['assign'](fn.parameterList[0], {
                         initializer: {
@@ -315,7 +317,7 @@ function Emitter() {
     }
     function emitTraitDeclaration(t) {
         return "var " + emitIdentifier(t.name) + " = {\n" + indent(t.members
-            .filter(function (m) { return m.body; })
+            .filter(function (m) { return m.body.kind === 'Some'; })
             .map(function (m) { return (emitIdentifier(m.name.value[0]) + ": " + emitFunctionDeclaration(m)); }))
             .join(',\n') + "\n}";
     }

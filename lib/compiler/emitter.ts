@@ -354,11 +354,12 @@ export function Emitter() {
     })
     let name = fn.name.kind == 'Some' ? emitIdentifier(fn.name.value[0]) : ''
     let parameterList = fn.parameterList
-    let body = fn.body
+    if (fn.body.kind == 'None') throw 'Function without body'
+    let body = fn.body.value[0]
     const firstParameter = parameterList.length > 0 && parameterList[0]
     if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value[0].name == 'self') {
       parameterList = fn.parameterList.slice(1)
-      if (fn.body.expressions.length > 0) {
+      if (body.expressions.length > 0) {
         body = Object['assign']({}, body, {
           expressions: [Object['assign'](fn.parameterList[0], {
             initializer: {
@@ -420,7 +421,7 @@ export function Emitter() {
     return `var ${emitIdentifier(t.name)} = {\n${
       indent(
         t.members
-          .filter(m => m.body)
+          .filter(m => m.body.kind === 'Some')
           .map(m => `${emitIdentifier((m.name as any).value[0])}: ${emitFunctionDeclaration(m)}`)
       )
       .join(',\n')

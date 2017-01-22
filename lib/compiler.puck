@@ -13,9 +13,9 @@ import 'typeck/import_visitor.puck' as {ImportVisitor}
 import 'typeck/scope_visitor.puck' as {ScopeVisitor}
 import 'typeck/top_level_visitor.puck' as {TopLevelVisitor}
 import 'typeck/type_visitor.puck' as {TypeVisitor}
-import 'entities.puck' as {File}
+import 'entities.puck' as {File, UnparsedFile}
 
-export fn parseString(context, file: File) {
+export fn parseString(context, file: UnparsedFile) {
   let mut ast = parse(TokenStream(InputStream(file)))
   TopLevelVisitor(context, file).visitModule(ast)
   ImportVisitor(context, file).visitModule(ast)
@@ -93,7 +93,7 @@ fn createContext(ignoreErrors = false) {
     defer: fn (mut self, file, func) {
       self.deferred[file.absolutePath] = func
     }
-    resolvePath: fn (file, relativeTo) -> File {
+    resolvePath: fn (file, relativeTo) {
       let filePath =
         if file.substring(0, 1) == '/'
           then file
@@ -103,7 +103,7 @@ fn createContext(ignoreErrors = false) {
 
       {absolutePath, fileName}
     }
-    importFile: fn (mut self, mut file: File) {
+    importFile: fn (mut self, mut file: UnparsedFile) {
       if self.files[file.absolutePath] and file.outDir and file.outFile {
         self.files[file.absolutePath].outDir = file.outDir
         self.files[file.absolutePath].outFile = file.outFile
@@ -131,7 +131,7 @@ fn createContext(ignoreErrors = false) {
 
 export fn buildString(code: String, filePath: String) {
   asResult(|| {
-    let context = createContext()
+    let mut context = createContext()
     let mut file = context.importFile({
       fileName: path.basename(filePath)
       absolutePath: path.resolve(path.normalize(filePath))
@@ -150,9 +150,9 @@ export fn buildString(code: String, filePath: String) {
 
 export fn build(files: List<File>, options = {}) {
   let dump = options.dump
-  let context = createContext(options.ignoreErrors)
+  let mut context = createContext(options.ignoreErrors)
 
-  let files = files.map(|f| {
+  let mut files = files.map(|f| {
     let fileName = path.basename(f.file)
     let absolutePath = path.resolve(path.normalize(f.file))
     let outFile = path.normalize(f.outFile)
@@ -161,7 +161,7 @@ export fn build(files: List<File>, options = {}) {
     {absolutePath, outFile, outDir}
   })
 
-  let files = files.map(|f| context.importFile(f))
+  let files = files.map(|mut f| context.importFile(f))
 
   if dump == 'ast' {
     dumpFiles(files, 'ast')

@@ -281,7 +281,7 @@ export interface FunctionDeclaration extends Token {
   name: Option<Identifier>
   parameterList: Array<VariableDeclaration>
   returnType: Option<TypeBound>
-  body: BlockNode
+  body: Option<BlockNode>
 }
 
 export interface Identifier extends SimpleIdentifier, Expression {

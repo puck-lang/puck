@@ -282,6 +282,7 @@ export fn parse(input) { // : TokenStream
 
     {
       kind: SyntaxKind.EnumDeclaration
+      keyword
       name
       typeParameters
       openBrace
@@ -596,9 +597,11 @@ export fn parse(input) { // : TokenStream
 
     {
       kind: SyntaxKind.TypeDeclaration
+      keyword
       name
       typeParameters
       bound
+      type_: undefined
     }
   }
 
@@ -633,9 +636,10 @@ export fn parse(input) { // : TokenStream
       }
       else None
 
-    let body: Block =
+    let body =
       if isToken(SyntaxKind.OpenBraceToken) or not optionalBody
-        then parseBlock()
+        then Some(parseBlock())
+        else None
 
     {
       kind: SyntaxKind.Function
@@ -644,26 +648,29 @@ export fn parse(input) { // : TokenStream
       parameterList
       returnType
       body
+      type_: undefined
     }
   }
 
   fn parseLambda() -> FunctionDeclaration {
-    let mut parameterList = delimited('|', '|', ',', parseVariableDeclaration)
+    let parameterList = delimited('|', '|', ',', parseVariableDeclaration)
 
-    let mut body: Block =
+    let body =
       if isToken(SyntaxKind.OpenBraceToken)
-        then parseBlock()
-        else {{
-          kind: SyntaxKind.Block,
-          expressions: [parseExpression()],
-        }}
+        then Some(parseBlock())
+        else Some({
+          kind: SyntaxKind.Block
+          expressions: [parseExpression()]
+        })
 
     {
       kind: SyntaxKind.Function
       name: None
+      typeParameters: []
       parameterList
       returnType: None
       body
+      type_: undefined
     }
   }
 
@@ -673,7 +680,7 @@ export fn parse(input) { // : TokenStream
     let equalsToken = consumeToken(SyntaxKind.EqualsToken)
     let expression = parseExpression()
 
-    let mut then_: Block =
+    let then_: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {
@@ -686,6 +693,7 @@ export fn parse(input) { // : TokenStream
 
     {
       kind: SyntaxKind.IfLetExpression
+      ifKeyword
       letKeyword
       variableDeclaration: {
         kind: SyntaxKind.VariableDeclaration
@@ -714,7 +722,7 @@ export fn parse(input) { // : TokenStream
   fn parseIfCondition(ifKeyword: Token) -> IfExpression {
     let condition = parseExpression()
 
-    let mut then_: Block =
+    let then_: Block =
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {
@@ -727,6 +735,7 @@ export fn parse(input) { // : TokenStream
 
     {
       kind: SyntaxKind.IfExpression
+      ifKeyword
       condition
       then_
       else_:

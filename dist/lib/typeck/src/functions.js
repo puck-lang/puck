@@ -21,9 +21,12 @@ var _range = require('./range.js');
 
 var _types = require('./types.js');
 
+function any(a) {
+  return a;
+};
 function createFunctionType(scope, f, reportError) {
   var __PUCK__value__1 = void 0;
-  if (f.typeParameters && f.typeParameters.length) {
+  if (f.typeParameters.length) {
     __PUCK__value__1 = (0, _core.Some)({
       parameterRange: (0, _range.getRange)(f.typeParameters, function (p) {
         return _core.Option.isJust.call(p.defaultValue);
@@ -81,15 +84,15 @@ function createFunctionType(scope, f, reportError) {
   };
   return {
     displayName: _core.None,
-    name: _core.Option.map.call(f.name, function (ident) {
-      return ident.name;
-    }),
+    name: any(_core.Option.map.call(f.name, function (identifier) {
+      return identifier.name;
+    })),
     kind: _entities.TypeKind.Function({
       selfBinding: selfBinding,
       _arguments: _arguments,
       argumentRange: __PUCK__value__6,
       returnType: returnType,
-      isAbstract: !f.body
+      isAbstract: _core.Option.isNothing.call(f.body)
     }),
     _class: _class,
     instance: _core.None

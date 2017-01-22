@@ -277,11 +277,18 @@ impl<T> ObjectMap<T> {
     (())
   }
 
+  fn has(self, key: String) -> Bool {
+    Object.prototype.hasOwnProperty.call(self, key)
+  }
+
   fn get(self, key: String) -> Option<T> {
-    let value = self[key]
-    if value == undefined
-      then None
-      else Some(value)
+    // let value = self[key]
+    // if value == undefined
+    //   then None
+    //   else Some(value)
+    if self.has(key)
+      then Some(self[key])
+      else None
   }
 
   fn size(self) -> Num {

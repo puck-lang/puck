@@ -6,6 +6,12 @@ import 'ast/ast.puck' as {
 }
 import 'typeck/src/range.puck' as {getRange}
 
+export type UnparsedFile {
+  fileName: String
+  absolutePath: String
+  puck: String
+}
+
 export type File {
   fileName: String
   projectPath: String
@@ -28,7 +34,7 @@ fn getTupleTypeName(properties: List<Type>) {
 }
 
 fn getRecordTypeName(properties: ObjectMap<Type>) {
-  '{' + properties.toList().map(|(key, type_)| '$key: ' + type_.displayName()).join(', ') + '}'
+  '{' + properties.toList().map(|(key, type_): (String, Type)| '$key: ' + type_.displayName()).join(', ') + '}'
 }
 
 fn getGenericName(name: String, type_: Type, showClassParameters = false) {
@@ -54,11 +60,13 @@ export type Type {
 impl Type {
   fn empty() -> Type {{
     displayName: Some('')
-    displayName: None
+    name: None
     kind: TypeKind::Struct({
       implementations: []
       kind: StructKind::Tuple({properties: []})
     })
+    class: None
+    instance: None
   }}
 
   fn displayName(self: Type) -> String {
@@ -158,7 +166,7 @@ export type TypeClass {
   instances: List<Type>
 }
 impl TypeClass {
-  fn fromAstNode(astNode, reportError) -> TypeClass { // : {typeParameters: List<TypeParameter>}
+  fn fromAstNode(astNode, reportError) -> Option<TypeClass> { // : {typeParameters: List<TypeParameter>}
     if astNode.typeParameters and astNode.typeParameters.length {
       let parameterRange = getRange(
         astNode.typeParameters
@@ -190,11 +198,11 @@ export type TypeParameter {
 
 export type Binding {
   name: String
-  token: Token
+  // token: Token
   mutable: Bool
   type_: Type
-  redefined: Bool
-  previous: Option<Binding>
+  // redefined: Bool
+  // previous: Option<Binding>
 }
 
 export type TypeBinding {

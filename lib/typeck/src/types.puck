@@ -270,7 +270,9 @@ fn isFunctionAssignable(to: Function, subject: Function) {
 fn isStructAssignable(to: Struct, subject: Struct) {
   match (to.kind, subject.kind) {
     (StructKind::Record({properties: toProps}), StructKind::Record({properties: subjectProps})) => {
-      toProps.toList().all(|(key, toProp)| isAssignable(toProp, subjectProps[key]))
+      toProps.toList().all(|(key, toProp)| {
+        subjectProps.has(key) and isAssignable(toProp, subjectProps[key])
+      })
     }
     (StructKind::Tuple({properties: toProps}), StructKind::Tuple({properties: subjectProps})) => {
       if toProps.size() != subjectProps.size() then return false

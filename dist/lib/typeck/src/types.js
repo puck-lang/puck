@@ -516,7 +516,7 @@ function isStructAssignable(to, subject) {
           var key = _ref6[0];
           var toProp = _ref6[1];
 
-          return isAssignable(toProp, subjectProps[key]);
+          return _core.ObjectMap.has.call(subjectProps, key) && isAssignable(toProp, subjectProps[key]);
         })
       };
     }();

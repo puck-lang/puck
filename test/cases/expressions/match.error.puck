@@ -44,6 +44,15 @@ fn sayHello(name: String) {print('Hello, $name')}
 
 enum Value { One {num: Num} }
 
+match Value::One({num: 5}) {
+  Value::One {num} => sayHello(num)
+}
+
+///// {value: String} is not assignable to type {num: Num} in parameter 0 of function Value::One
+fn sayHello(name: String) {print('Hello, $name')}
+
+enum Value { One {num: Num} }
+
 match Value::One({value: 'World'}) {
   Value::One {num} => sayHello(num)
 }

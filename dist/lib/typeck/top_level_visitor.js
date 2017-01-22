@@ -41,7 +41,7 @@ function TopLevelVisitor(context, file) {
         name: (0, _core.Some)(t.name.name),
         kind: _entities.TypeKind.Enum({
           implementations: [],
-          members: []
+          members: _core.ObjectMap._new.call(_core.ObjectMap)
         }),
         _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, reportError),
         instance: _core.None
@@ -82,7 +82,10 @@ function TopLevelVisitor(context, file) {
       return scope.defineType({
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
-        kind: _entities.TypeKind.Trait({ functions: _core.ObjectMap._new.call(_core.ObjectMap) }),
+        kind: _entities.TypeKind.Trait({
+          isShorthand: false,
+          functions: _core.ObjectMap._new.call(_core.ObjectMap)
+        }),
         _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, reportError),
         instance: _core.None
       }, t);

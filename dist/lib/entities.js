@@ -5,7 +5,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StructKind = exports.TypeKind = exports.ScopeAware = exports.Scope = exports.TypeBinding = exports.Binding = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Tuple = exports.Record = exports.Trait = exports.Struct = exports.Function = exports.Enum = exports.Type = exports.File = undefined;
+exports.StructKind = exports.TypeKind = exports.ScopeAware = exports.Scope = exports.TypeBinding = exports.Binding = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Tuple = exports.Record = exports.Trait = exports.Struct = exports.Function = exports.Enum = exports.Type = exports.File = exports.UnparsedFile = undefined;
 
 var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
@@ -19,8 +19,9 @@ var _ast = require('./ast/ast.js');
 
 var _range = require('./typeck/src/range.js');
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+var UnparsedFile = exports.UnparsedFile = function UnparsedFile(object) {
+  return object;
+};
 var File = exports.File = function File(object) {
   return object;
 };
@@ -124,14 +125,16 @@ var StructKind = exports.StructKind = {
   Unit: { kind: 'Unit', value: Symbol('Unit') }
 };
 Type.empty = function empty() {
-  var _ref;
-
-  return _ref = {
-    displayName: (0, _core.Some)("")
-  }, _defineProperty(_ref, 'displayName', _core.None), _defineProperty(_ref, 'kind', TypeKind.Struct({
-    implementations: [],
-    kind: StructKind.Tuple({ properties: [] })
-  })), _ref;
+  return {
+    displayName: (0, _core.Some)(""),
+    name: _core.None,
+    kind: TypeKind.Struct({
+      implementations: [],
+      kind: StructKind.Tuple({ properties: [] })
+    }),
+    _class: _core.None,
+    instance: _core.None
+  };
 };
 Type.displayName = function displayName() {
   var self = this;
@@ -296,13 +299,13 @@ function getTupleTypeName(properties) {
   }).join(", ") + ")";
 };
 function getRecordTypeName(properties) {
-  return "{" + _core.Iterable['$List'].map.call(_core.ObjectMap.toList.call(properties), function (_ref2) {
-    var _ref3 = _slicedToArray(_ref2, 2);
+  return "{" + _core.Iterable['$List'].map.call(_core.ObjectMap.toList.call(properties), function (_ref) {
+    var _ref2 = _slicedToArray(_ref, 2);
 
-    var key = _ref3[0];
-    var type_ = _ref3[1];
+    var key = _ref2[0];
+    var type_ = _ref2[1];
 
-    return "" + key + ": " + type_.displayName();
+    return "" + key + ": " + Type.displayName.call(type_);
   }).join(", ") + "}";
 };
 function getGenericName(name, type_) {

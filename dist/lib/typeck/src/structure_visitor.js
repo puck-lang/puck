@@ -55,6 +55,9 @@ var PatternError = {
 function notAssignableError(to, subject) {
   return _entities.Type.displayName.call(subject) + " is not assignable to type " + _entities.Type.displayName.call(to);
 };
+function any(a) {
+  return a;
+};
 var structureVisitor = exports.structureVisitor = {
   visitEnumMember: visit.walkingVisitor.visitEnumMember,
   visitFunctionDeclaration: function visitFunctionDeclaration(f) {
@@ -270,9 +273,9 @@ var structureVisitor = exports.structureVisitor = {
       t.type_ = {
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
-        kind: _entities.TypeKind.Parameter({ defaultValue: _core.Option.map.call(t.defaultValue, function (typeBound) {
+        kind: _entities.TypeKind.Parameter({ defaultValue: any(_core.Option.map.call(t.defaultValue, function (typeBound) {
             return (0, _types.getType)(t.scope, typeBound);
-          }) }),
+          })) }),
         _class: _entities.TypeClass.fromAstNode.call(_entities.TypeClass, t, self.reportError),
         instance: _core.None
       };

@@ -1,7 +1,7 @@
 import 'puck:js' as {console, process, typeof}
-import '../entities.puck' as {File}
+import '../entities.puck' as {UnparsedFile}
 
-export fn InputStream(file: File) {
+export fn InputStream(file: UnparsedFile) {
   let code =
     if file.puck.substring(0, 13) == '//#![no_core]'
       then file.puck.slice(13)
