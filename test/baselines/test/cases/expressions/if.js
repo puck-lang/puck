@@ -4,10 +4,10 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var z = 5;
 function a() {
-  var z = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+  var z = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 };
 function b() {
-  var z = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+  var z = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 };
 if (z) {
   a();

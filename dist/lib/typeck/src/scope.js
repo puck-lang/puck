@@ -20,7 +20,7 @@ var _entities = require('./../../entities.js');
 var _types = require('./types.js');
 
 function createScope(context, file) {
-  var parent = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+  var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
   var reportError = context.reportError.bind(context, file);
   var bindings = _core.ObjectMap._new.call(_core.ObjectMap);
@@ -77,7 +77,7 @@ function createScope(context, file) {
       };
     },
     define: function define(binding) {
-      var allowRedeclare = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+      var allowRedeclare = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
       var self = this;
       var name = binding.name;
@@ -96,7 +96,7 @@ function createScope(context, file) {
       return bindings[name] = binding;
     },
     defineType: function defineType(type_, token) {
-      var allowRedeclare = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+      var allowRedeclare = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
       var self = this;
       var name = _core.Option.unwrap.call(type_.name);

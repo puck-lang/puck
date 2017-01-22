@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.StructKind = exports.TypeKind = exports.ScopeAware = exports.Scope = exports.TypeBinding = exports.Binding = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Tuple = exports.Record = exports.Trait = exports.Struct = exports.Function = exports.Enum = exports.Type = exports.File = exports.UnparsedFile = undefined;
 
-var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (_js.Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -141,27 +141,24 @@ Type.displayName = function displayName() {
   };
   var __PUCK__value__1 = self.displayName;
   if (__PUCK__value__1.kind == "Some") {
-    var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
-
-    var name = _PUCK__value__1$valu[0];
+    var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+        name = _PUCK__value__1$valu[0];
 
     return name;
   };
   var __PUCK__value__2 = self.kind;
   var __PUCK__value__3 = __PUCK__value__2;
   if (__PUCK__value__3.kind == "Enum") {
-    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
-
-    var enum_ = _PUCK__value__3$valu[0];
+    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+        enum_ = _PUCK__value__3$valu[0];
 
     return getGenericName(_core.Option.unwrap.call(self.name), self);
   } else {
     var __PUCK__value__4 = __PUCK__value__2;
     if (__PUCK__value__4.kind == "Function") {
       var _ret = function () {
-        var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
-
-        var _function = _PUCK__value__4$valu[0];
+        var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+            _function = _PUCK__value__4$valu[0];
 
         return {
           v: _core.Option.unwrapOrElse.call(self.name, function () {
@@ -174,35 +171,31 @@ Type.displayName = function displayName() {
     } else {
       var __PUCK__value__5 = __PUCK__value__2;
       if (__PUCK__value__5.kind == "Parameter") {
-        var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
-
-        var __PUCK__value__6 = _PUCK__value__5$valu[0];
+        var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+            __PUCK__value__6 = _PUCK__value__5$valu[0];
 
         return _core.Option.unwrap.call(self.name);
       } else {
         var __PUCK__value__7 = __PUCK__value__2;
         if (__PUCK__value__7.kind == "Struct") {
           var _ret2 = function () {
-            var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
-
-            var struct = _PUCK__value__7$valu[0];
+            var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+                struct = _PUCK__value__7$valu[0];
 
             return {
               v: _core.Option.mapOrElse.call(self.name, function () {
                 var __PUCK__value__8 = struct.kind;
                 var __PUCK__value__9 = __PUCK__value__8;
                 if (__PUCK__value__9.kind == "Record") {
-                  var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
-
-                  var properties = _PUCK__value__9$valu[0].properties;
+                  var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+                      properties = _PUCK__value__9$valu[0].properties;
 
                   return getRecordTypeName(properties);
                 } else {
                   var __PUCK__value__10 = __PUCK__value__8;
                   if (__PUCK__value__10.kind == "Tuple") {
-                    var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1);
-
-                    var _properties = _PUCK__value__10$val[0].properties;
+                    var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1),
+                        _properties = _PUCK__value__10$val[0].properties;
 
                     return getTupleTypeName(_properties);
                   } else {
@@ -223,9 +216,8 @@ Type.displayName = function displayName() {
         } else {
           var __PUCK__value__12 = __PUCK__value__2;
           if (__PUCK__value__12.kind == "Trait") {
-            var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1);
-
-            var __PUCK__value__13 = _PUCK__value__12$val[0];
+            var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
+                __PUCK__value__13 = _PUCK__value__12$val[0];
 
             return getGenericName(_core.Option.unwrap.call(self.name), self, true);
           };
@@ -239,9 +231,8 @@ Type.getFunction = function getFunction() {
   var __PUCK__value__14 = self.kind;
   var __PUCK__value__15 = __PUCK__value__14;
   if (__PUCK__value__15.kind == "Function") {
-    var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1);
-
-    var _function = _PUCK__value__15$val[0];
+    var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
+        _function = _PUCK__value__15$val[0];
 
     return _function;
   } else {
@@ -257,9 +248,8 @@ Type.getTrait = function getTrait() {
   var __PUCK__value__18 = self.kind;
   var __PUCK__value__19 = __PUCK__value__18;
   if (__PUCK__value__19.kind == "Trait") {
-    var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
-
-    var trait_ = _PUCK__value__19$val[0];
+    var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
+        trait_ = _PUCK__value__19$val[0];
 
     return trait_;
   } else {
@@ -298,22 +288,20 @@ function getTupleTypeName(properties) {
 };
 function getRecordTypeName(properties) {
   return "{" + _core.Iterable['$List'].map.call(_core.ObjectMap.toList.call(properties), function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2);
-
-    var key = _ref2[0];
-    var type_ = _ref2[1];
+    var _ref2 = _slicedToArray(_ref, 2),
+        key = _ref2[0],
+        type_ = _ref2[1];
 
     return "" + key + ": " + Type.displayName.call(type_);
   }).join(", ") + "}";
 };
 function getGenericName(name, type_) {
-  var showClassParameters = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+  var showClassParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
   var __PUCK__value__22 = type_.instance;
   if (__PUCK__value__22.kind == "Some") {
-    var _PUCK__value__22$val = _slicedToArray(__PUCK__value__22.value, 1);
-
-    var instance = _PUCK__value__22$val[0];
+    var _PUCK__value__22$val = _slicedToArray(__PUCK__value__22.value, 1),
+        instance = _PUCK__value__22$val[0];
 
     return name + "<" + instance.typeParameters.map(function (p) {
       return Type.displayName.call(p);
@@ -322,9 +310,8 @@ function getGenericName(name, type_) {
     if (showClassParameters) {
       var __PUCK__value__23 = type_._class;
       if (__PUCK__value__23.kind == "Some") {
-        var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1);
-
-        var _class = _PUCK__value__23$val[0];
+        var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1),
+            _class = _PUCK__value__23$val[0];
 
         return name + "<" + _class.typeParameters.map(function (p) {
           return Type.displayName.call(p);

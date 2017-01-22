@@ -6,9 +6,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var __PUCK__value__1 = _core.Option.Some(5);
 if (__PUCK__value__1.kind == "Some") {
-  var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
-
-  var value = _PUCK__value__1$valu[0];
+  var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+      value = _PUCK__value__1$valu[0];
 
   (0, _core.print)(value);
 } else {

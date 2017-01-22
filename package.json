@@ -17,8 +17,8 @@
   "author": "Rasmus Eneman <rasmus@eneman.eu>",
   "license": "MIT",
   "dependencies": {
-    "babel-core": "6.14.0",
-    "babel-preset-latest": "6.14.0",
+    "babel-core": "^6.22.1",
+    "babel-preset-latest": "^6.22.0",
     "jest": "^18.1.0"
   },
   "devDependencies": {

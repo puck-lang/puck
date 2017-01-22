@@ -34,7 +34,7 @@ function InputStream(file) {
     return ch;
   };
   function peek() {
-    var distance = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+    var distance = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
     return code.charAt(pos + distance);
   };

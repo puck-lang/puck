@@ -21,9 +21,8 @@ var __PUCK__value__1 = _core.Option.Some(5);
 var __PUCK__value__2 = __PUCK__value__1;
 var __PUCK__value__3 = void 0;
 if (__PUCK__value__2.kind == "Some") {
-  var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-  var num = _PUCK__value__2$valu[0];
+  var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+      num = _PUCK__value__2$valu[0];
 
   __PUCK__value__3 = "" + num + "";
 } else {
@@ -40,18 +39,16 @@ var __PUCK__value__6 = _core.Result.Ok(5);
 var __PUCK__value__7 = __PUCK__value__6;
 var __PUCK__value__8 = void 0;
 if (__PUCK__value__7.kind == "Ok") {
-  var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
-
-  var _num = _PUCK__value__7$valu[0];
+  var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+      _num = _PUCK__value__7$valu[0];
 
   __PUCK__value__8 = "" + _num + "";
 } else {
   var __PUCK__value__9 = __PUCK__value__6;
   var __PUCK__value__10 = void 0;
   if (__PUCK__value__9.kind == "Err") {
-    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
-
-    var __PUCK__value__11 = _PUCK__value__9$valu[0];
+    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+        __PUCK__value__11 = _PUCK__value__9$valu[0];
 
     __PUCK__value__10 = "error";
   };
@@ -62,9 +59,8 @@ var __PUCK__value__12 = _core.Result.Ok(5);
 var __PUCK__value__13 = __PUCK__value__12;
 var __PUCK__value__14 = void 0;
 if (__PUCK__value__13.kind == "Ok") {
-  var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1);
-
-  var _num2 = _PUCK__value__13$val[0];
+  var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
+      _num2 = _PUCK__value__13$val[0];
 
   __PUCK__value__14 = "" + _num2 + "";
 } else {
@@ -81,9 +77,8 @@ var __PUCK__value__18 = _core.Option.Some(5);
 var __PUCK__value__19 = __PUCK__value__18;
 var __PUCK__value__20 = void 0;
 if (__PUCK__value__19.kind == "Some") {
-  var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1);
-
-  var _num3 = _PUCK__value__19$val[0];
+  var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
+      _num3 = _PUCK__value__19$val[0];
 
   __PUCK__value__20 = _num3;
 } else {
@@ -100,9 +95,8 @@ var __PUCK__value__23 = _core.Option.None;
 var __PUCK__value__24 = __PUCK__value__23;
 var __PUCK__value__25 = void 0;
 if (__PUCK__value__24.kind == "Some") {
-  var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1);
-
-  var __PUCK__value__26 = _PUCK__value__24$val[0];
+  var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1),
+      __PUCK__value__26 = _PUCK__value__24$val[0];
 
   __PUCK__value__25 = "someting";
 } else {
@@ -127,18 +121,16 @@ var __PUCK__value__33 = _core.Result.Err(5);
 var __PUCK__value__34 = __PUCK__value__33;
 var __PUCK__value__35 = void 0;
 if (__PUCK__value__34.kind == "Ok") {
-  var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1);
-
-  var __PUCK__value__36 = _PUCK__value__34$val[0];
+  var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1),
+      __PUCK__value__36 = _PUCK__value__34$val[0];
 
   __PUCK__value__35 = "ok";
 } else {
   var __PUCK__value__37 = __PUCK__value__33;
   var __PUCK__value__38 = void 0;
   if (__PUCK__value__37.kind == "Err") {
-    var _PUCK__value__37$val = _slicedToArray(__PUCK__value__37.value, 1);
-
-    var err = _PUCK__value__37$val[0];
+    var _PUCK__value__37$val = _slicedToArray(__PUCK__value__37.value, 1),
+        err = _PUCK__value__37$val[0];
 
     __PUCK__value__38 = "error: " + err + "";
   };
@@ -151,9 +143,8 @@ function sayHello(name) {
 var __PUCK__value__39 = _core.Option.Some("World");
 var __PUCK__value__40 = __PUCK__value__39;
 if (__PUCK__value__40.kind == "Some") {
-  var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1);
-
-  var name = _PUCK__value__40$val[0];
+  var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1),
+      name = _PUCK__value__40$val[0];
 
   name = name.toUpperCase();
   sayHello(name);
@@ -219,17 +210,15 @@ function func() {
 var __PUCK__value__56 = func();
 var __PUCK__value__57 = __PUCK__value__56;
 if (__PUCK__value__57.kind == "Ok") {
-  var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1);
-
-  var __PUCK__value__58 = _PUCK__value__57$val[0];
+  var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1),
+      __PUCK__value__58 = _PUCK__value__57$val[0];
 
   (0, _core.print)("ok");
 } else {
   var __PUCK__value__59 = __PUCK__value__56;
   if (__PUCK__value__59.kind == "Err" && __PUCK__value__59.value[0].kind == "One") {
-    var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 1);
-
-    var _value = _PUCK__value__59$val[0].value.value;
+    var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 1),
+        _value = _PUCK__value__59$val[0].value.value;
 
     sayHello(_value);
   } else {
@@ -251,16 +240,14 @@ if (__PUCK__value__57.kind == "Ok") {
 var __PUCK__value__62 = _core.Option.Some(_core.Option.Some(5));
 var __PUCK__value__63 = __PUCK__value__62;
 if (__PUCK__value__63.kind == "Some") {
-  var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1);
-
-  var inner = _PUCK__value__63$val[0];
+  var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1),
+      inner = _PUCK__value__63$val[0];
 
   var __PUCK__value__64 = inner;
   var __PUCK__value__65 = __PUCK__value__64;
   if (__PUCK__value__65.kind == "Some") {
-    var _PUCK__value__65$val = _slicedToArray(__PUCK__value__65.value, 1);
-
-    var _value2 = _PUCK__value__65$val[0];
+    var _PUCK__value__65$val = _slicedToArray(__PUCK__value__65.value, 1),
+        _value2 = _PUCK__value__65$val[0];
 
     _value2;
   } else {

@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -94,9 +94,8 @@ function ImportVisitor(context, file) {
           var __PUCK__value__1 = result;
           var __PUCK__value__2 = __PUCK__value__1;
           if (__PUCK__value__2.kind == "Ok") {
-            var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-            var stat = _PUCK__value__2$valu[0];
+            var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+                stat = _PUCK__value__2$valu[0];
 
             if (!stat.isFile()) {
               reportError(i, "Imported file " + path + " is not a file");
@@ -104,9 +103,8 @@ function ImportVisitor(context, file) {
           } else {
             var __PUCK__value__3 = __PUCK__value__1;
             if (__PUCK__value__3.kind == "Err") {
-              var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
-
-              var error = _PUCK__value__3$valu[0];
+              var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+                  error = _PUCK__value__3$valu[0];
 
               reportError(i, "Imported file " + path + " not found");
             };
@@ -124,8 +122,8 @@ function ImportVisitor(context, file) {
           if (puckModules.indexOf(i.path) == -1) {
             reportError(i, "Invalid puck module " + i.path);
           };
-          var _importedFile = context.resolvePath(path.join(path.dirname(_js.require.resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
-          return importModule(i, _importedFile);
+          var importedFile = context.resolvePath(path.join(path.dirname(_js.require.resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
+          return importModule(i, importedFile);
         } else {
           if (domains.indexOf(i.domain.value[0]) == -1) {
             return reportError(i, "Invalid import domain " + i.domain.value[0]);

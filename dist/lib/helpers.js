@@ -45,9 +45,8 @@ function cmd(cmd) {
   var __PUCK__value__1 = result;
   var __PUCK__value__2 = __PUCK__value__1;
   if (__PUCK__value__2.kind == "Ok") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-    var output = _PUCK__value__2$valu[0];
+    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+        output = _PUCK__value__2$valu[0];
 
     if (output.toString()) {
       return _js.console.log(output.toString().trim());
@@ -55,9 +54,8 @@ function cmd(cmd) {
   } else {
     var __PUCK__value__3 = __PUCK__value__1;
     if (__PUCK__value__3.kind == "Err") {
-      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
-
-      var error = _PUCK__value__3$valu[0];
+      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+          error = _PUCK__value__3$valu[0];
 
       var stdout = error.stdout.toString();
       var stderr = error.stderr.toString();
@@ -75,7 +73,7 @@ function cmd(cmd) {
   };
 };
 function walkSync(directory) {
-  var filelist = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+  var filelist = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
   if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) {
     return [];
@@ -92,7 +90,7 @@ function walkSync(directory) {
   return filelist;
 };
 function flag(_arguments, name) {
-  var defaultValue = arguments.length <= 2 || arguments[2] === undefined ? "" : arguments[2];
+  var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
 
   var index = _arguments.indexOf(name);
   if (index >= 0) {

@@ -49,18 +49,16 @@ if (command == _js._undefined) {
         var __PUCK__value__1 = result;
         var __PUCK__value__2 = __PUCK__value__1;
         if (__PUCK__value__2.kind == "Ok") {
-          var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-          var __PUCK__value__3 = _PUCK__value__2$valu[0];
+          var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+              __PUCK__value__3 = _PUCK__value__2$valu[0];
 
           (0, _core.print)("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
           return _js.process.exit(1);
         } else {
           var __PUCK__value__4 = __PUCK__value__1;
           if (__PUCK__value__4.kind == "Err") {
-            var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
-
-            var message = _PUCK__value__4$valu[0].message;
+            var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+                message = _PUCK__value__4$valu[0].message;
 
             if (!_core.String.contains.call(message, error.trim())) {
               (0, _core.print)("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + message + "");

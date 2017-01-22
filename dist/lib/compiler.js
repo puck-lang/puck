@@ -83,7 +83,7 @@ function dumpFiles(files, prop) {
   });
 };
 function createContext() {
-  var ignoreErrors = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+  var ignoreErrors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
   return {
     files: {},
@@ -196,7 +196,7 @@ function buildString(code, filePath) {
   });
 };
 function build(files) {
-  var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   var dump = options.dump;
   var context = createContext(options.ignoreErrors);

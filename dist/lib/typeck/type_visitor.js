@@ -66,9 +66,8 @@ function TypeVisitor(context, file) {
           var __PUCK__value__1 = t.type_._class;
           if (__PUCK__value__1.kind == "Some") {
             (function () {
-              var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
-
-              var _class = _PUCK__value__1$valu[0];
+              var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+                  _class = _PUCK__value__1$valu[0];
 
               _core.Iterable['$List'].forEach.call(t.typeParameters, function (p) {
                 self.visitTypeParameter(p);
@@ -113,9 +112,8 @@ function TypeVisitor(context, file) {
           };
           var __PUCK__value__2 = t.type_.kind;
           if (__PUCK__value__2.kind == "Enum") {
-            var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-            var enum_ = _PUCK__value__2$valu[0];
+            var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+                enum_ = _PUCK__value__2$valu[0];
 
             _js._Object.assign(enum_.members, memberMap);
           } else {
@@ -216,9 +214,8 @@ function TypeVisitor(context, file) {
           var __PUCK__value__3 = t.type_._class;
           if (__PUCK__value__3.kind == "Some") {
             (function () {
-              var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
-
-              var _class = _PUCK__value__3$valu[0];
+              var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+                  _class = _PUCK__value__3$valu[0];
 
               _core.Iterable['$List'].forEach.call(t.typeParameters, function (p) {
                 self.visitTypeParameter(p);
@@ -236,25 +233,22 @@ function TypeVisitor(context, file) {
           var __PUCK__value__4 = t.type_.kind;
           if (__PUCK__value__4.kind == "Trait") {
             (function () {
-              var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
-
-              var trait_ = _PUCK__value__4$valu[0];
+              var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+                  trait_ = _PUCK__value__4$valu[0];
 
               _js._Object.assign(trait_.functions, _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(t.members, function (m) {
                 return [m.name.value[0].name, m.type_];
               })));
               var __PUCK__value__5 = t.type_._class;
               if (__PUCK__value__5.kind == "Some") {
-                var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
+                var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+                    _class = _PUCK__value__5$valu[0];
 
-                var _class2 = _PUCK__value__5$valu[0];
-
-                _class2.instances.forEach(function (instance) {
+                _class.instances.forEach(function (instance) {
                   var __PUCK__value__6 = instance.kind;
                   if (__PUCK__value__6.kind == "Trait") {
-                    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
-
-                    var instanceTrait = _PUCK__value__6$valu[0];
+                    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+                        instanceTrait = _PUCK__value__6$valu[0];
 
                     return _js._Object.assign(instanceTrait, { functions: trait_.functions });
                   } else {
@@ -276,9 +270,8 @@ function TypeVisitor(context, file) {
         var __PUCK__value__7 = t.bound;
         var __PUCK__value__8 = void 0;
         if (__PUCK__value__7.kind == "Some") {
-          var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
-
-          var typeBound = _PUCK__value__7$valu[0];
+          var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+              typeBound = _PUCK__value__7$valu[0];
 
           var __PUCK__value__9 = void 0;
           if (typeBound.kind == _ast2.SyntaxKind.ObjectTypeBound) {
@@ -320,9 +313,8 @@ function TypeVisitor(context, file) {
           var __PUCK__value__11 = t.type_._class;
           if (__PUCK__value__11.kind == "Some") {
             (function () {
-              var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1);
-
-              var _class = _PUCK__value__11$val[0];
+              var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1),
+                  _class = _PUCK__value__11$val[0];
 
               _core.Iterable['$List'].forEach.call(t.typeParameters, function (p) {
                 self.visitTypeParameter(p);
@@ -337,19 +329,16 @@ function TypeVisitor(context, file) {
           self.scope = t.scope;
           var __PUCK__value__12 = t.bound;
           if (__PUCK__value__12.kind == "Some") {
-            var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1);
-
-            var _typeBound = _PUCK__value__12$val[0];
+            var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
+                _typeBound = _PUCK__value__12$val[0];
 
             self.visitTypeBound(_typeBound);
             var __PUCK__value__13 = t.type_.kind;
             var __PUCK__value__14 = __PUCK__value__13;
             if (__PUCK__value__14.kind == "Struct" && __PUCK__value__14.value[0].kind.kind == "Record") {
-              var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1);
-
-              var _PUCK__value__14$val$ = _slicedToArray(_PUCK__value__14$val[0].kind.value, 1);
-
-              var properties = _PUCK__value__14$val$[0].properties;
+              var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
+                  _PUCK__value__14$val$ = _slicedToArray(_PUCK__value__14$val[0].kind.value, 1),
+                  properties = _PUCK__value__14$val$[0].properties;
 
               _js._Object.assign(properties, _core.ObjectMap.fromList.call(_core.ObjectMap, _typeBound.properties.map(function (p) {
                 return [p.name.name, p.typeBound.type_];
@@ -357,11 +346,9 @@ function TypeVisitor(context, file) {
             } else {
               var __PUCK__value__15 = __PUCK__value__13;
               if (__PUCK__value__15.kind == "Struct" && __PUCK__value__15.value[0].kind.kind == "Tuple") {
-                var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1);
-
-                var _PUCK__value__15$val$ = _slicedToArray(_PUCK__value__15$val[0].kind.value, 1);
-
-                var tuple = _PUCK__value__15$val$[0];
+                var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
+                    _PUCK__value__15$val$ = _slicedToArray(_PUCK__value__15$val[0].kind.value, 1),
+                    tuple = _PUCK__value__15$val$[0];
 
                 _js._Object.assign(tuple, { properties: _typeBound.properties.map(function (p) {
                     return p.type_;

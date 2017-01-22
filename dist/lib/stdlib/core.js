@@ -152,9 +152,8 @@ Result.andThen = function andThen(op) {
   var self = this;
   var __PUCK__value__1 = self;
   if (__PUCK__value__1.kind == "Ok") {
-    var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
-
-    var value = _PUCK__value__1$valu[0];
+    var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+        value = _PUCK__value__1$valu[0];
 
     return op(value);
   } else {
@@ -165,9 +164,8 @@ Result.map = function map(op) {
   var self = this;
   var __PUCK__value__2 = self;
   if (__PUCK__value__2.kind == "Ok") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-    var value = _PUCK__value__2$valu[0];
+    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+        value = _PUCK__value__2$valu[0];
 
     return Ok(op(value));
   } else {
@@ -193,9 +191,8 @@ Option.map = function map(f) {
   var self = this;
   var __PUCK__value__3 = self;
   if (__PUCK__value__3.kind == "Some") {
-    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
-
-    var value = _PUCK__value__3$valu[0];
+    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+        value = _PUCK__value__3$valu[0];
 
     return Some(f(value));
   } else {
@@ -206,9 +203,8 @@ Option.mapOr = function mapOr(_default, f) {
   var self = this;
   var __PUCK__value__4 = self;
   if (__PUCK__value__4.kind == "Some") {
-    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
-
-    var value = _PUCK__value__4$valu[0];
+    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+        value = _PUCK__value__4$valu[0];
 
     return f(value);
   } else {
@@ -219,9 +215,8 @@ Option.mapOrElse = function mapOrElse(_default, f) {
   var self = this;
   var __PUCK__value__5 = self;
   if (__PUCK__value__5.kind == "Some") {
-    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
-
-    var value = _PUCK__value__5$valu[0];
+    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+        value = _PUCK__value__5$valu[0];
 
     return f(value);
   } else {
@@ -239,9 +234,8 @@ Option.unwrapOr = function unwrapOr(_default) {
   var self = this;
   var __PUCK__value__6 = self;
   if (__PUCK__value__6.kind == "Some") {
-    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
-
-    var value = _PUCK__value__6$valu[0];
+    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+        value = _PUCK__value__6$valu[0];
 
     return value;
   } else {
@@ -252,9 +246,8 @@ Option.unwrapOrElse = function unwrapOrElse(_default) {
   var self = this;
   var __PUCK__value__7 = self;
   if (__PUCK__value__7.kind == "Some") {
-    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
-
-    var value = _PUCK__value__7$valu[0];
+    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+        value = _PUCK__value__7$valu[0];
 
     return value;
   } else {
@@ -266,10 +259,9 @@ List.zip = function zip(a, b) {
     throw (0, _js.Error)("List a and b are not of the same length");
   };
   return Iterable['$List'].map.call(Iterable['$List'].enumerate.call(a), function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2);
-
-    var a = _ref2[0];
-    var i = _ref2[1];
+    var _ref2 = _slicedToArray(_ref, 2),
+        a = _ref2[0],
+        i = _ref2[1];
 
     return [a, b[i]];
   });
@@ -386,7 +378,7 @@ function anyCast(a) {
   return a;
 };
 function print(message) {
-  var extra = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+  var extra = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
   return _js.console.log.apply(_js.console, [message].concat(extra));
 }

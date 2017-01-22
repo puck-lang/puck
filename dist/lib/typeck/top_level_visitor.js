@@ -49,9 +49,8 @@ function TopLevelVisitor(context, file) {
       var self = this;
       var __PUCK__value__1 = f.name;
       if (__PUCK__value__1.kind == "Some") {
-        var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
-
-        var name = _PUCK__value__1$valu[0];
+        var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+            name = _PUCK__value__1$valu[0];
 
         return scope.define({
           name: name.name,
@@ -93,9 +92,8 @@ function TopLevelVisitor(context, file) {
       var __PUCK__value__2 = t.bound;
       var __PUCK__value__3 = void 0;
       if (__PUCK__value__2.kind == "Some") {
-        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-        var typeBound = _PUCK__value__2$valu[0];
+        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+            typeBound = _PUCK__value__2$valu[0];
 
         var __PUCK__value__4 = void 0;
         if (typeBound.kind == _ast2.SyntaxKind.ObjectTypeBound) {

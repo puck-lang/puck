@@ -18,7 +18,7 @@ var _ast2 = require('./ast.js');
 
 function parse(input) {
   function isToken(kind) {
-    var withDummy = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+    var withDummy = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
     var token = input.peek(withDummy);
     return token && token.kind == kind;
@@ -35,7 +35,7 @@ function parse(input) {
     };
   };
   function expect(expect) {
-    var name = arguments.length <= 1 || arguments[1] === undefined ? "token" : arguments[1];
+    var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "token";
 
     if (!isToken(expect)) {
       var token = input.peek();
@@ -53,7 +53,7 @@ function parse(input) {
     };
   };
   function consumeToken(token) {
-    var name = arguments.length <= 1 || arguments[1] === undefined ? "token" : arguments[1];
+    var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "token";
 
     if (token) {
       expect(token, name);
@@ -61,7 +61,7 @@ function parse(input) {
     return input.next();
   };
   function maybeConsumeToken(token) {
-    var name = arguments.length <= 1 || arguments[1] === undefined ? "token" : arguments[1];
+    var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "token";
 
     if (isToken(token)) {
       return (0, _core.Some)(consumeToken(token, name));
@@ -184,7 +184,7 @@ function parse(input) {
     return maybeIndexAccess(maybeMemberAccess(token));
   };
   function delimited(start, stop, separator, parser) {
-    var consumeStop = arguments.length <= 4 || arguments[4] === undefined ? true : arguments[4];
+    var consumeStop = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
 
     if ((0, _js._typeof)(start) == "string") {
       start = _ast2.textToToken[start];
@@ -416,9 +416,9 @@ function parse(input) {
         type_: _core.None
       };
     };
-    var _PUCK__value__ = __PUCK__value__9;
-    var forKeyword = _PUCK__value__.forKeyword;
-    var type_ = _PUCK__value__.type_;
+    var _PUCK__value__ = __PUCK__value__9,
+        forKeyword = _PUCK__value__.forKeyword,
+        type_ = _PUCK__value__.type_;
 
     var openBrace = expect(_ast2.SyntaxKind.OpenBraceToken);
     var members = _core.Iterable['$List'].map.call(delimited("{", "}", ";", parseFunctionDeclaration, false), function (f) {
@@ -433,9 +433,8 @@ function parse(input) {
     var closeBrace = consumeToken(_ast2.SyntaxKind.CloseBraceToken);
     var __PUCK__value__10 = type_;
     if (__PUCK__value__10.kind == "Some") {
-      var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1);
-
-      var _type_ = _PUCK__value__10$val[0];
+      var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1),
+          _type_ = _PUCK__value__10$val[0];
 
       return {
         kind: _ast2.SyntaxKind.ImplDeclaration,
@@ -621,7 +620,7 @@ function parse(input) {
     };
   };
   function parseFunctionDeclaration() {
-    var optionalBody = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+    var optionalBody = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
     consumeToken(_ast2.SyntaxKind.FnKeyword);
     var name = maybeConsumeToken(_ast2.SyntaxKind.Identifier, "identifier");
@@ -875,7 +874,7 @@ function parse(input) {
     };
   };
   function parseAtom() {
-    var forceTuple = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+    var forceTuple = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
     return maybeCall(function innerParseAtom() {
       if (isToken(_ast2.SyntaxKind.OpenParenToken)) {
@@ -973,9 +972,8 @@ function parse(input) {
         var func = expression;
         var __PUCK__value__31 = func.name;
         if (__PUCK__value__31.kind == "Some") {
-          var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1);
-
-          var name = _PUCK__value__31$val[0];
+          var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1),
+              name = _PUCK__value__31$val[0];
 
           identifier = name;
         } else {
@@ -987,9 +985,8 @@ function parse(input) {
           expression = parseVariableDeclaration();
           var __PUCK__value__32 = expression.pattern;
           if (__PUCK__value__32.kind == "Identifier") {
-            var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1);
-
-            var _name = _PUCK__value__32$val[0];
+            var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1),
+                _name = _PUCK__value__32$val[0];
 
             identifier = _name;
           } else {
@@ -1129,8 +1126,8 @@ function parse(input) {
     };
   };
   function parseExpression() {
-    var precedence = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
-    var forceTuple = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+    var precedence = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    var forceTuple = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
     return maybeCall(maybeAccess(maybeBinary(parseAtom(forceTuple), precedence)));
   };

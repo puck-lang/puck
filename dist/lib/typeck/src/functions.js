@@ -47,9 +47,8 @@ function createFunctionType(scope, f, reportError) {
   var __PUCK__value__2 = f.returnType;
   var __PUCK__value__3 = void 0;
   if (__PUCK__value__2.kind == "Some") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-    var _returnType = _PUCK__value__2$valu[0];
+    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+        _returnType = _PUCK__value__2$valu[0];
 
     __PUCK__value__3 = (0, _types.getType)(scope, _returnType);
   };
@@ -99,18 +98,16 @@ function createFunctionType(scope, f, reportError) {
 function checkFunctionAssignability(functionName, to, subject) {
   var __PUCK__value__7 = (0, _range.checkRange)(subject._arguments, to.argumentRange, "arguments", functionName);
   if (__PUCK__value__7.kind == "Err") {
-    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
-
-    var error = _PUCK__value__7$valu[0];
+    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+        error = _PUCK__value__7$valu[0];
 
     return (0, _core.Err)(error);
   };
   var errors = [];
   _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(subject._arguments), function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2);
-
-    var subjectArgument = _ref2[0];
-    var i = _ref2[1];
+    var _ref2 = _slicedToArray(_ref, 2),
+        subjectArgument = _ref2[0],
+        i = _ref2[1];
 
     var toArgument = to._arguments[i];
     if (!(0, _types.isAssignable)(toArgument.type_, subjectArgument.type_)) {

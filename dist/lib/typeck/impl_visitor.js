@@ -63,15 +63,13 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
     var traitFunction = _entities.Type.getFunction.call(traitFunctionType);
     var __PUCK__value__1 = _function.selfBinding;
     if (__PUCK__value__1.kind == "Some") {
-      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
-
-      var implSelf = _PUCK__value__1$valu[0];
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+          implSelf = _PUCK__value__1$valu[0];
 
       var __PUCK__value__2 = traitFunction.selfBinding;
       if (__PUCK__value__2.kind == "Some") {
-        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-        var traitSelf = _PUCK__value__2$valu[0];
+        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+            traitSelf = _PUCK__value__2$valu[0];
 
         if (implSelf.mutable && !traitSelf.mutable) {
           reportError(functionDeclaration, "Function " + traitName + "::" + traitFunctionName + " requires an immutable self parameter");
@@ -82,18 +80,16 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
     } else {
       var __PUCK__value__3 = traitFunction.selfBinding;
       if (__PUCK__value__3.kind == "Some") {
-        var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
-
-        var __PUCK__value__4 = _PUCK__value__3$valu[0];
+        var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+            __PUCK__value__4 = _PUCK__value__3$valu[0];
 
         reportError(_function, "Function " + traitName + "::" + traitFunctionName + " requires a self parameter");
       };
     };
     var __PUCK__value__5 = (0, _functions.checkFunctionAssignability)(functionName, traitFunction, _function);
     if (__PUCK__value__5.kind == "Err") {
-      var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
-
-      var error = _PUCK__value__5$valu[0];
+      var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+          error = _PUCK__value__5$valu[0];
 
       return reportError(_function, error);
     };
@@ -151,24 +147,21 @@ function ImplVisitor(context, file) {
       });
       var __PUCK__value__6 = traitType.kind;
       if (__PUCK__value__6.kind == "Trait") {
-        var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
-
-        var trait_ = _PUCK__value__6$valu[0];
+        var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+            trait_ = _PUCK__value__6$valu[0];
 
         var __PUCK__value__7 = structType.kind;
         var __PUCK__value__8 = __PUCK__value__7;
         if (__PUCK__value__8.kind == "Enum") {
-          var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1);
-
-          var enum_ = _PUCK__value__8$valu[0];
+          var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
+              enum_ = _PUCK__value__8$valu[0];
 
           implementTrait(traitType, trait_, structType, enum_, i, reportError);
         } else {
           var __PUCK__value__9 = __PUCK__value__7;
           if (__PUCK__value__9.kind == "Struct") {
-            var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
-
-            var struct = _PUCK__value__9$valu[0];
+            var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+                struct = _PUCK__value__9$valu[0];
 
             implementTrait(traitType, trait_, structType, struct, i, reportError);
           } else {
@@ -198,17 +191,15 @@ function ImplVisitor(context, file) {
       var __PUCK__value__12 = structType.kind;
       var __PUCK__value__13 = __PUCK__value__12;
       if (__PUCK__value__13.kind == "Enum") {
-        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1);
-
-        var enum_ = _PUCK__value__13$val[0];
+        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
+            enum_ = _PUCK__value__13$val[0];
 
         implementShorthand(structType, enum_, i, reportError);
       } else {
         var __PUCK__value__14 = __PUCK__value__12;
         if (__PUCK__value__14.kind == "Struct") {
-          var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1);
-
-          var struct = _PUCK__value__14$val[0];
+          var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
+              struct = _PUCK__value__14$val[0];
 
           implementShorthand(structType, struct, i, reportError);
         } else {

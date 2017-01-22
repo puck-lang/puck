@@ -481,9 +481,8 @@ function walkEnumDeclaration(visitor, e) {
 function walkEnumMember(visitor, e) {
   var __PUCK__value__1 = e.bound;
   if (__PUCK__value__1.kind == "Some") {
-    var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1);
-
-    var typeBound = _PUCK__value__1$valu[0];
+    var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+        typeBound = _PUCK__value__1$valu[0];
 
     return visitor.visitTypeBound(typeBound);
   };
@@ -495,17 +494,15 @@ function walkFunction(visitor, f) {
   _core.Iterable['$List'].forEach.call(f.parameterList, visitor.visitVariableDeclaration.bind(visitor));
   var __PUCK__value__2 = f.returnType;
   if (__PUCK__value__2.kind == "Some") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1);
-
-    var returnType = _PUCK__value__2$valu[0];
+    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+        returnType = _PUCK__value__2$valu[0];
 
     visitor.visitTypeBound(returnType);
   };
   var __PUCK__value__3 = f.body;
   if (__PUCK__value__3.kind == "Some") {
-    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1);
-
-    var body = _PUCK__value__3$valu[0];
+    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+        body = _PUCK__value__3$valu[0];
 
     return visitor.visitBlock(body);
   };
@@ -580,9 +577,8 @@ function walkTypeDeclaration(visitor, t) {
   });
   var __PUCK__value__4 = t.bound;
   if (__PUCK__value__4.kind == "Some") {
-    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1);
-
-    var typeBound = _PUCK__value__4$valu[0];
+    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+        typeBound = _PUCK__value__4$valu[0];
 
     return visitor.visitTypeBound(typeBound);
   };
@@ -590,9 +586,8 @@ function walkTypeDeclaration(visitor, t) {
 function walkTypeParameter(visitor, t) {
   var __PUCK__value__5 = t.defaultValue;
   if (__PUCK__value__5.kind == "Some") {
-    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1);
-
-    var defaultValue = _PUCK__value__5$valu[0];
+    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+        defaultValue = _PUCK__value__5$valu[0];
 
     return visitor.visitTypeBound(defaultValue);
   };
@@ -604,17 +599,15 @@ function walkVariableDeclaration(visitor, d) {
   visitor.visitPattern(d.pattern);
   var __PUCK__value__6 = d.typeBound;
   if (__PUCK__value__6.kind == "Some") {
-    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1);
-
-    var typeBound = _PUCK__value__6$valu[0];
+    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+        typeBound = _PUCK__value__6$valu[0];
 
     visitor.visitTypeBound(typeBound);
   };
   var __PUCK__value__7 = d.initializer;
   if (__PUCK__value__7.kind == "Some") {
-    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1);
-
-    var initializer = _PUCK__value__7$valu[0];
+    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+        initializer = _PUCK__value__7$valu[0];
 
     return visitor.visitExpression(initializer);
   };
@@ -686,9 +679,8 @@ function walkIfExpression(visitor, e) {
   visitor.visitBlock(e.then_);
   var __PUCK__value__8 = e.else_;
   if (__PUCK__value__8.kind == "Some") {
-    var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1);
-
-    var else_ = _PUCK__value__8$valu[0];
+    var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
+        else_ = _PUCK__value__8$valu[0];
 
     return visitor.visitBlock(else_);
   };
@@ -698,9 +690,8 @@ function walkIfLetExpression(visitor, e) {
   visitor.visitBlock(e.then_);
   var __PUCK__value__9 = e.else_;
   if (__PUCK__value__9.kind == "Some") {
-    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1);
-
-    var else_ = _PUCK__value__9$valu[0];
+    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+        else_ = _PUCK__value__9$valu[0];
 
     return visitor.visitBlock(else_);
   };

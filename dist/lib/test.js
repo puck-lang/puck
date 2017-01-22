@@ -11,8 +11,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 var _helpers = require('./../lib/helpers.js');
 
 function buildAll() {
-  var outFolder = arguments.length <= 0 || arguments[0] === undefined ? "dist" : arguments[0];
-  var compiler = arguments.length <= 1 || arguments[1] === undefined ? "dist" : arguments[1];
+  var outFolder = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "dist";
+  var compiler = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "dist";
 
   return (0, _helpers.cmd)("" + compiler + "/bin/puckc --out-dir " + outFolder + " --skip-extension true --is-binary true bin/**/*.puck && " + "" + compiler + "/bin/puckc --out-dir " + outFolder + " lib/**/*.puck");
 };

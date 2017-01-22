@@ -5,7 +5,7 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 function a() {};
 function b(a) {};
 function c() {
-  var a = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+  var a = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 
   return a;
 };

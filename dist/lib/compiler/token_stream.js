@@ -240,7 +240,7 @@ function TokenStream(input) {
     return token.kind == _ast.SyntaxKind.NewlineToken || token.kind == _ast.SyntaxKind.Comment;
   };
   function peek() {
-    var returnDummy = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+    var returnDummy = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
     if (returnDummy && currentDummy) {
       return currentDummy;
