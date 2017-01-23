@@ -7,7 +7,7 @@ type User {
 
 let user: Option<User> = Option::Some({name: 'Anna'})
 let name: Option<String> = user.map(|user| user.name)
-let user2: Option<User> = Option::Some({name: 'Anna'})
+let user2 = Option::Some({name: 'Anna'})
 let name2 = user2.map(|user| user.name)
 let name3 = name2.unwrapOr('Guest')
 let containsGuest = name3.contains('Guest')
