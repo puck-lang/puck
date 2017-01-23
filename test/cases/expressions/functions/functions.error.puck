@@ -47,6 +47,6 @@ fn ident(a: String) -> String {5}
 // fn addFive(num: Num) {num}
 // let list: List<String> = [].map(addFive)
 
-//// String is not assignable to type Num
-// fn addFive(num: Num) {num}
-// [].map(|_| 'five').map(addFive)
+///// addFive is not assignable to type (String) -> Num in parameter func of function map
+fn addFive(num: Num) {num}
+[].map(|_| 'five').map(addFive)

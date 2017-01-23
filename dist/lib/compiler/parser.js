@@ -372,7 +372,7 @@ function parse(input) {
     };
     var typeParameters = __PUCK__value__7;
     var openBrace = expect(_ast2.SyntaxKind.OpenBraceToken);
-    var members = _core.Iterable['$List'].map.call(delimited("{", "}", ";", function () {
+    var members = _core.Iterable['$List<E>'].map.call(delimited("{", "}", ";", function () {
       return parseFunctionDeclaration(true);
     }, false), function (f) {
       if (_core.Option.isNothing.call(f.name)) {
@@ -421,7 +421,7 @@ function parse(input) {
         type_ = _PUCK__value__.type_;
 
     var openBrace = expect(_ast2.SyntaxKind.OpenBraceToken);
-    var members = _core.Iterable['$List'].map.call(delimited("{", "}", ";", parseFunctionDeclaration, false), function (f) {
+    var members = _core.Iterable['$List<E>'].map.call(delimited("{", "}", ";", parseFunctionDeclaration, false), function (f) {
       if (_core.Option.isNothing.call(f.name)) {
         input.croak("Trait functions must have a name");
       };

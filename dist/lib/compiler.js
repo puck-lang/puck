@@ -50,6 +50,10 @@ var _entities = require('./entities');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+function fileInspect(depth, opts) {
+  var self = this;
+  return (0, _util.inspect)({ absolutePath: self.absolutePath }, _js._Object.assign({}, opts, { depth: opts.depth - depth }));
+};
 function parseString(context, file) {
   var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(file)));
   (0, _top_level_visitor.TopLevelVisitor)(context, file).visitModule(ast);
@@ -67,7 +71,7 @@ function babelTransform(file) {
   }).code;
 };
 function dumpFiles(files, prop) {
-  return _core.Iterable['$List'].forEach.call(files, function (file) {
+  return _core.Iterable['$List<E>'].forEach.call(files, function (file) {
     (0, _core.print)();
     (0, _core.print)(file.absolutePath);
     var data = file[prop];
@@ -149,7 +153,8 @@ function createContext() {
       var fileName = path.basename(absolutePath);
       return {
         absolutePath: absolutePath,
-        fileName: fileName
+        fileName: fileName,
+        inspect: fileInspect
       };
     },
     importFile: function importFile(file) {
@@ -209,7 +214,8 @@ function build(files) {
       isBin: f.isBin,
       absolutePath: absolutePath,
       outFile: outFile,
-      outDir: outDir
+      outDir: outDir,
+      inspect: fileInspect
     };
   });
   files = files.map(function (f) {

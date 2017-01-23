@@ -231,7 +231,7 @@ function checkExhaustive(e) {
     var _PUCK__value__46$val = _slicedToArray(__PUCK__value__46.value, 1),
         enum_ = _PUCK__value__46$val[0];
 
-    return checkExhaustiveEnum(_core.Iterable['$List'].map.call(e.patterns, function (a) {
+    return checkExhaustiveEnum(_core.Iterable['$List<E>'].map.call(e.patterns, function (a) {
       return a.pattern;
     }), e.type_, enum_);
   } else {
@@ -246,7 +246,7 @@ function getSubPatterns(pattern) {
         __PUCK__value__49 = _PUCK__value__48$val[0],
         record = _PUCK__value__48$val[1];
 
-    return _core.Iterable['$List'].map.call(record.properties, function (p) {
+    return _core.Iterable['$List<E>'].map.call(record.properties, function (p) {
       return p.pattern;
     });
   } else {
@@ -270,7 +270,7 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
   var typeName = _entities.Type.displayName.call(type_);
   var exhaustiveMap = _core.ObjectMap._new.call(_core.ObjectMap);
   var enumArmsMap = _core.ObjectMap._new.call(_core.ObjectMap);
-  var __PUCK__value__54 = _core.Iterable['$List'].find.call(patterns, function (pattern) {
+  var __PUCK__value__54 = _core.Iterable['$List<E>'].find.call(patterns, function (pattern) {
     var __PUCK__value__55 = pattern;
     var __PUCK__value__56 = __PUCK__value__55;
     var __PUCK__value__57 = void 0;
@@ -366,7 +366,7 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
         member = _ref2[0],
         patterns = _ref2[1];
 
-    var enumPatterns = _core.Iterable['$List'].enumerate.call(getSubPatterns(patterns[0])).filter(function (_ref3) {
+    var enumPatterns = _core.Iterable['$List<E>'].enumerate.call(getSubPatterns(patterns[0])).filter(function (_ref3) {
       var _ref4 = _slicedToArray(_ref3, 2),
           pattern = _ref4[0],
           __PUCK__value__76 = _ref4[1];

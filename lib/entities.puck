@@ -1,4 +1,4 @@
-import 'puck:js' as {Array, typeof}
+import 'puck:js' as {Array, Error, typeof}
 import 'ast/ast.puck' as {
   Token
   Identifier
@@ -40,15 +40,20 @@ fn getRecordTypeName(properties: ObjectMap<Type>) {
 }
 
 fn getGenericName(name: String, type_: Type, showClassParameters = false) {
-  if let Option::Some(instance) = type_.instance {
-    name + '<' + instance.typeParameters.map(|p: Type| p.displayName()).join(', ') + '>'
-  }
-  else if showClassParameters
-    then if let Option::Some(class) = type_.class {
-      name + '<' + class.typeParameters.map(|p: Type| p.displayName()).join(', ') + '>'
+  let parameters =
+    if let Option::Some(instance) = type_.instance {
+      '<' + instance.typeParameters.map(|p: Type| p.displayName()).join(', ') + '>'
     }
-    else name
-  else name
+    else if showClassParameters
+      then if let Option::Some(class) = type_.class {
+        '<' + class.typeParameters.map(|p: Type| p.displayName()).join(', ') + '>'
+      }
+      else ''
+    else ''
+
+  if type_.isFunction()
+    then parameters + name
+    else name + parameters
 }
 
 export type Type {
@@ -71,7 +76,7 @@ impl Type {
     instance: None
   }}
 
-  fn displayName(self: Type) -> String {
+  fn displayName(self) -> String {
     if not self then return '??'
     if let Option::Some(name) = self.displayName {
       return name
@@ -86,9 +91,26 @@ impl Type {
             || match struct.kind {
               StructKind::Record({properties}) => getRecordTypeName(properties)
               StructKind::Tuple({properties}) => getTupleTypeName(properties)
-              StructKind::Unit => 'unit'
+              StructKind::Unit => self.name.unwrap()
             }
             |name| getGenericName(name, self))
+      }
+      TypeKind::Trait(_) => getGenericName(self.name.unwrap(), self, true)
+    }
+  }
+
+  fn verboseName(self) -> String {
+    if not self then return '??'
+    match self.kind {
+      TypeKind::Enum(enum_) => getGenericName(self.name.unwrap(), self, true)
+      TypeKind::Function(function) => getGenericName(getFunctionTypeName(function), self, true)
+      TypeKind::Parameter(_) => self.name.unwrap()
+      TypeKind::Struct(struct) => {
+        match struct.kind {
+          StructKind::Record({properties}) => getRecordTypeName(properties)
+          StructKind::Tuple({properties}) => getTupleTypeName(properties)
+          StructKind::Unit => self.name.unwrap()
+        }
       }
       TypeKind::Trait(_) => getGenericName(self.name.unwrap(), self, true)
     }
@@ -97,14 +119,34 @@ impl Type {
   fn getFunction(self: Type) -> Function {
     match self.kind {
       TypeKind::Function(function) => function
-      _ => throw 'Type is not a function'
+      _ => {
+        let name = self.displayName()
+        throw Error('Type $name is not a function')
+      }
     }
   }
 
   fn getTrait(self: Type) -> Trait {
     match self.kind {
       TypeKind::Trait(trait_) => trait_
-      _ => throw 'Type is not a trait'
+      _ => {
+        let name = self.displayName()
+        throw Error('Type $name is not a trait')
+      }
+    }
+  }
+
+  fn isFunction(self) -> Bool {
+    match self.kind {
+      TypeKind::Function(_) => true
+      _ => false
+    }
+  }
+
+  fn isParameter(self) -> Bool {
+    match self.kind {
+      TypeKind::Parameter(_) => true
+      _ => false
     }
   }
 }

@@ -15,6 +15,10 @@ import 'typeck/top_level_visitor.puck' as {TopLevelVisitor}
 import 'typeck/type_visitor.puck' as {TypeVisitor}
 import 'entities.puck' as {File, UnparsedFile}
 
+fn fileInspect(self, depth, opts) {
+  inspect({absolutePath: self.absolutePath}, Object.assign({}, opts, {depth: opts.depth - depth}))
+}
+
 export fn parseString(context, file: UnparsedFile) {
   let mut ast = parse(TokenStream(InputStream(file)))
   TopLevelVisitor(context, file).visitModule(ast)
@@ -101,7 +105,7 @@ fn createContext(ignoreErrors = false) {
       let absolutePath = path.resolve(path.normalize(filePath))
       let fileName = path.basename(absolutePath)
 
-      {absolutePath, fileName}
+      {absolutePath, fileName, inspect: fileInspect}
     }
     importFile: fn (mut self, mut file: UnparsedFile) {
       if self.files[file.absolutePath] and file.outDir and file.outFile {
@@ -159,7 +163,7 @@ export fn build(files: List<UnparsedFile>, options = {}) {
     let outFile = path.normalize(f.outFile)
     let outDir = path.dirname(outFile)
 
-    {isBin: f.isBin, absolutePath, outFile, outDir}
+    {isBin: f.isBin, absolutePath, outFile, outDir, inspect: fileInspect}
   })
 
   let files = files.map(|mut f| context.importFile(f))

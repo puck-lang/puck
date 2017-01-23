@@ -60,7 +60,7 @@ Functions['$FunctionsType'] = {
     return self.name;
   }
 };
-Generic['$GenericType'] = {
+Generic['$GenericType<T>'] = {
   generic: function generic(a) {
     return a;
   }
@@ -89,6 +89,6 @@ Functions['$FunctionsType'].withBody.call(func, "body");
 var mutFunc = func;
 SelfAware['$FunctionsType'].withMutableSelf.call(mutFunc);
 var genericNum = {};
-Generic['$GenericType'].generic.call(genericNum, 5);
+Generic['$GenericType<T>'].generic.call(genericNum, 5);
 var genericString = {};
 Generic['$GenericType<String>'].generic.call(genericString, "hello");

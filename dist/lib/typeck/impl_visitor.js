@@ -36,23 +36,23 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function implementTrait(traitType, trait_, type_, implementable, i, reportError) {
   var traitName = _entities.Type.displayName.call(traitType);
-  if (_core.Iterable['$List'].any.call(implementable.implementations, function (imp) {
+  if (_core.Iterable['$List<E>'].any.call(implementable.implementations, function (imp) {
     return imp.trait_ == traitType;
   })) {
     reportError(i, "" + traitName + " has already been implemented for " + _entities.Type.displayName.call(type_));
   };
-  var functions = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(i.members, function (functionDeclaration) {
+  var functions = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List<E>'].map.call(i.members, function (functionDeclaration) {
     return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
   }));
   var traitFunctions = trait_.functions;
-  _core.Iterable['$List'].forEach.call(_core.ObjectMap.keys.call(traitFunctions), function (name) {
+  _core.Iterable['$List<E>'].forEach.call(_core.ObjectMap.keys.call(traitFunctions), function (name) {
     var traitFunctionType = traitFunctions[name];
     var traitFunction = _entities.Type.getFunction.call(traitFunctionType);
     if (traitFunction.isAbstract && !functions[name]) {
       return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + _entities.Type.displayName.call(type_));
     };
   });
-  _core.Iterable['$List'].forEach.call(i.members, function (functionDeclaration) {
+  _core.Iterable['$List<E>'].forEach.call(i.members, function (functionDeclaration) {
     var functionName = _entities.Type.displayName.call(functionDeclaration.type_);
     var _function = _entities.Type.getFunction.call(functionDeclaration.type_);
     var traitFunctionType = traitFunctions[_core.Option.unwrap.call(functionDeclaration.type_.name)];
@@ -101,16 +101,12 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
 };
 function implementShorthand(type_, implementable, i, reportError) {
   var typeName = _entities.Type.displayName.call(type_);
-  if (_core.Iterable['$List'].any.call(implementable.implementations, function (imp) {
+  if (_core.Iterable['$List<E>'].any.call(implementable.implementations, function (imp) {
     return _entities.Type.getTrait.call(imp.trait_).isShorthand;
   })) {
     reportError(i, "" + typeName + " has already been implemented");
   };
-  var functions = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(i.members, function (functionDeclaration) {
-    if (_core.Option.isNothing.call(functionDeclaration.type_.name)) {
-      (0, _core.print)("functionDeclaration.type_", functionDeclaration.type_);
-      (0, _core.print)("functionDeclaration.name", functionDeclaration.name);
-    };
+  var functions = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List<E>'].map.call(i.members, function (functionDeclaration) {
     return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
   }));
   return implementable.implementations.push({
@@ -136,13 +132,13 @@ function ImplVisitor(context, file) {
       var self = this;
       self.scope = self.scope.createChild();
       i.scope = self.scope;
-      _core.Iterable['$List'].forEach.call(i.typeParameters, self.visitTypeParameter.bind(self));
+      _core.Iterable['$List<E>'].forEach.call(i.typeParameters, self.visitTypeParameter.bind(self));
       self.visitTypeBound(i.trait_);
       self.visitTypeBound(i.type_);
       var traitType = i.trait_.type_;
       var structType = i.type_.type_;
       self.scope.setSelfBinding(_core.Option.unwrap.call(structType.name));
-      _core.Iterable['$List'].forEach.call(i.members, function (m) {
+      _core.Iterable['$List<E>'].forEach.call(i.members, function (m) {
         return self.visitMethodDeclaration(m, structType);
       });
       var __PUCK__value__6 = traitType.kind;
@@ -181,11 +177,11 @@ function ImplVisitor(context, file) {
       var self = this;
       self.scope = self.scope.createChild();
       i.scope = self.scope;
-      _core.Iterable['$List'].forEach.call(i.typeParameters, self.visitTypeParameter.bind(self));
+      _core.Iterable['$List<E>'].forEach.call(i.typeParameters, self.visitTypeParameter.bind(self));
       self.visitTypeBound(i.type_);
       var structType = i.type_.type_;
       self.scope.setSelfBinding(_core.Option.unwrap.call(structType.name));
-      _core.Iterable['$List'].forEach.call(i.members, function (m) {
+      _core.Iterable['$List<E>'].forEach.call(i.members, function (m) {
         return self.visitMethodDeclaration(m, structType);
       });
       var __PUCK__value__12 = structType.kind;
@@ -221,7 +217,7 @@ function ImplVisitor(context, file) {
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
-      return _core.Iterable['$List'].forEach.call(i.members, function (m) {
+      return _core.Iterable['$List<E>'].forEach.call(i.members, function (m) {
         if (importDirective._module) {
           var e = importDirective._module.exports[m.local.name];
           if (e.expression.kind == _ast2.SyntaxKind.TraitDeclaration) {

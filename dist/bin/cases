@@ -19,7 +19,7 @@ var _test = require('./../lib/test');
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var argv = _js.process.argv;
-var _arguments = _core.Iterable['$List'].skip.call(_core.Iterable['$List'].skipUntil.call(argv, function (arg) {
+var _arguments = _core.Iterable['$List<E>'].skip.call(_core.Iterable['$List<E>'].skipUntil.call(argv, function (arg) {
   return _core.String.contains.call(arg, "cases");
 }), 1);
 var command = _arguments[0];

@@ -46,8 +46,7 @@ let Tuple(a, b, c) = (1, 2, 3)
 type Tuple(Num, Num)
 let Tuple(a, b, c) = (1, 2)
 
-// TODO: Make this error
-//// (??, ??, ??) is not assignable to type Tuple
+///// {c: Num} is not assignable to type Record
 type Record {a: Num, b: Num}
 let Record {c} = {c: 5}
 

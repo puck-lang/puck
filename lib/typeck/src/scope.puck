@@ -111,13 +111,14 @@ export fn createScope(context, file, parent = false) {
       }
     }
     inspect: |depth, opts| {
-      let mut scope = {}
-      if parent then scope['[parent]'] = parent.inspect()
-      Object.assign(scope, bindings)
+      '[Scope]'
+      // let mut scope = {}
+      // if parent then scope['[parent]'] = parent.inspect()
+      // Object.assign(scope, bindings)
 
-      if not depth and not opts
-        then scope
-        else inspect(scope, Object.assign({}, opts, {depth}))
+      // if not depth and not opts
+      //   then scope
+      //   else inspect(scope, Object.assign({}, opts, {depth}))
     }
   }
 }

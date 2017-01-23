@@ -113,6 +113,8 @@ export trait Iterable<E> {
   fn enumerate(self) -> List<(E, Num)>
 
   fn size(self) -> Num
+  fn isEmpty(self) -> Bool
+  fn isNotEmpty(self) -> Bool
   fn first(self) -> Option<E>
   fn last(self) -> Option<E>
 
@@ -140,6 +142,14 @@ impl<E> Iterable<E> for List<E> {
 
   fn size(self) -> Num {
     self.length
+  }
+
+  fn isEmpty(self) -> Bool {
+    self.length == 0
+  }
+
+  fn isNotEmpty(self) -> Bool {
+    self.length > 0
   }
 
   fn first(self) -> Option<E> {
@@ -293,10 +303,6 @@ impl<T> ObjectMap<T> {
   }
 
   fn get(self, key: String) -> Option<T> {
-    // let value = self[key]
-    // if value == undefined
-    //   then None
-    //   else Some(value)
     if self.has(key)
       then Some(self[key])
       else None

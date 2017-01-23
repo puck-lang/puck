@@ -40,8 +40,6 @@ export fn notAssignableError(to: Type, subject: Type) {
   subject.displayName() + ' is not assignable to type ' + to.displayName()
 }
 
-fn any(a) {a}
-
 export let structureVisitor = {
   visitEnumMember: visit.walkingVisitor.visitEnumMember
   visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
@@ -163,7 +161,7 @@ export let structureVisitor = {
       visit.walkNamedTypeBound(self, t)
 
       t.type_ =
-        if let Option::Some(_) = type_.class
+        if type_.class.isJust()
           then createTypeInstance(type_, t.typeParameters.map(|p| p.type_))
           else type_
     }
@@ -194,7 +192,7 @@ export let structureVisitor = {
         displayName: None
         name: Some(t.name.name)
         kind: TypeKind::Parameter({
-          defaultValue: any(t.defaultValue.map(|typeBound| getType(t.scope, typeBound)))
+          defaultValue: t.defaultValue.map(|typeBound| getType(t.scope, typeBound))
         })
         class: TypeClass.fromAstNode(t, self.reportError)
         instance: None

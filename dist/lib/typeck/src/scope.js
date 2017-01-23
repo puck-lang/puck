@@ -118,16 +118,7 @@ function createScope(context, file) {
       };
     },
     inspect: function inspect(depth, opts) {
-      var scope = {};
-      if (parent) {
-        scope["[parent]"] = parent.inspect();
-      };
-      _js._Object.assign(scope, bindings);
-      if (!depth && !opts) {
-        return scope;
-      } else {
-        return (0, _util.inspect)(scope, _js._Object.assign({}, opts, { depth: depth }));
-      };
+      return "[Scope]";
     }
   };
 }

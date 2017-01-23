@@ -117,14 +117,8 @@ fn implementShorthand(type_: Type, implementable: {implementations: List<Impleme
     then reportError(i, '$typeName has already been implemented')
 
   let functions = ObjectMap.fromList(
-    i.members.map(|functionDeclaration| {
-      if functionDeclaration.type_.name.isNothing() {
-        print('functionDeclaration.type_', functionDeclaration.type_)
-        print('functionDeclaration.name', functionDeclaration.name)
-
-      }
+    i.members.map(|functionDeclaration|
       (functionDeclaration.type_.name.unwrap(), functionDeclaration.type_)
-    }
     )
   )
 

@@ -12,6 +12,8 @@ exports.ScopeVisitor = ScopeVisitor;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var core = _interopRequireWildcard(_core);
+
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _util = require('util');
@@ -118,7 +120,7 @@ function ScopeVisitor(context, file) {
             _class = _PUCK__value__10$val[0];
 
         var parameterMap = _core.ObjectMap._new.call(_core.ObjectMap);
-        _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(_function._arguments), function (_ref) {
+        _core.Iterable['$List<E>'].forEach.call(_core.Iterable['$List<E>'].enumerate.call(_function._arguments), function (_ref) {
           var _ref2 = _slicedToArray(_ref, 2),
               parameter = _ref2[0],
               i = _ref2[1];
@@ -173,7 +175,7 @@ function ScopeVisitor(context, file) {
       __PUCK__value__11 = _function;
     };
     _function = __PUCK__value__11;
-    _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(c.argumentList), function (_ref3) {
+    _core.Iterable['$List<E>'].forEach.call(_core.Iterable['$List<E>'].enumerate.call(c.argumentList), function (_ref3) {
       var _ref4 = _slicedToArray(_ref3, 2),
           argument = _ref4[0],
           i = _ref4[1];
@@ -230,7 +232,7 @@ function ScopeVisitor(context, file) {
       b.scope = self.scope;
       defineHoisted(b.expressions, self);
       visit.walkBlock(self, b);
-      var __PUCK__value__23 = _core.Iterable['$List'].last.call(b.expressions);
+      var __PUCK__value__23 = _core.Iterable['$List<E>'].last.call(b.expressions);
       var __PUCK__value__24 = void 0;
       if (__PUCK__value__23.kind == "Some") {
         var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1),
@@ -248,7 +250,7 @@ function ScopeVisitor(context, file) {
       if (!f.hoisting || f.hoisted) {
         var selfScope = self.scope;
         self.scope = f.scope;
-        _core.Iterable['$List'].forEach.call(f.parameterList, function (p) {
+        _core.Iterable['$List<E>'].forEach.call(f.parameterList, function (p) {
           return self.visitVariableDeclaration(p);
         });
         var __PUCK__value__25 = f.body;
@@ -287,11 +289,11 @@ function ScopeVisitor(context, file) {
     },
     visitImplDeclaration: function visitImplDeclaration(i) {
       var self = this;
-      return _core.Iterable['$List'].forEach.call(i.members, self.visitFunctionDeclaration.bind(self));
+      return _core.Iterable['$List<E>'].forEach.call(i.members, self.visitFunctionDeclaration.bind(self));
     },
     visitImplShorthandDeclaration: function visitImplShorthandDeclaration(i) {
       var self = this;
-      return _core.Iterable['$List'].forEach.call(i.members, self.visitFunctionDeclaration.bind(self));
+      return _core.Iterable['$List<E>'].forEach.call(i.members, self.visitFunctionDeclaration.bind(self));
     },
     visitModule: function visitModule(m) {
       var self = this;
@@ -371,158 +373,199 @@ function ScopeVisitor(context, file) {
               throw "direct trait calls for functions with self bindings are not implemented";
             };
           } else {
-            (function () {
-              var getImplementations = function getImplementations(type_) {
-                var __PUCK__value__29 = type_.kind;
-                var __PUCK__value__30 = __PUCK__value__29;
-                var __PUCK__value__31 = void 0;
-                if (__PUCK__value__30.kind == "Enum") {
-                  var _PUCK__value__30$val = _slicedToArray(__PUCK__value__30.value, 1),
-                      enum_ = _PUCK__value__30$val[0];
+            var getImplementation = function getImplementation(type_) {
+              var __PUCK__value__29 = type_.kind;
+              var __PUCK__value__30 = __PUCK__value__29;
+              var __PUCK__value__31 = void 0;
+              if (__PUCK__value__30.kind == "Enum") {
+                var _PUCK__value__30$val = _slicedToArray(__PUCK__value__30.value, 1),
+                    enum_ = _PUCK__value__30$val[0];
 
-                  __PUCK__value__31 = enum_.implementations;
+                __PUCK__value__31 = enum_.implementations;
+              } else {
+                var __PUCK__value__32 = __PUCK__value__29;
+                var __PUCK__value__33 = void 0;
+                if (__PUCK__value__32.kind == "Struct") {
+                  var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1),
+                      struct = _PUCK__value__32$val[0];
+
+                  __PUCK__value__33 = struct.implementations;
                 } else {
-                  var __PUCK__value__32 = __PUCK__value__29;
-                  var __PUCK__value__33 = void 0;
-                  if (__PUCK__value__32.kind == "Struct") {
-                    var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1),
-                        struct = _PUCK__value__32$val[0];
-
-                    __PUCK__value__33 = struct.implementations;
+                  var __PUCK__value__34 = __PUCK__value__29;
+                  var __PUCK__value__35 = void 0;
+                  if (__PUCK__value__34.kind == "Parameter") {
+                    var _undefined3 = __PUCK__value__34;
+                    __PUCK__value__35 = [];
                   } else {
-                    var __PUCK__value__34 = __PUCK__value__29;
-                    var __PUCK__value__35 = void 0;
-                    if (__PUCK__value__34.kind == "Parameter") {
-                      var _undefined3 = __PUCK__value__34;
-                      __PUCK__value__35 = [];
-                    } else {
-                      var __PUCK__value__36 = __PUCK__value__29;
-                      var __PUCK__value__37 = void 0;
-                      if (true) {
-                        var __PUCK__value__38 = __PUCK__value__36;
-                        throw "Not an enum or a struct";
-                      };
-                      __PUCK__value__35 = __PUCK__value__37;
+                    var __PUCK__value__36 = __PUCK__value__29;
+                    var __PUCK__value__37 = void 0;
+                    if (true) {
+                      var __PUCK__value__38 = __PUCK__value__36;
+                      throw "Not an enum or a struct";
                     };
-                    __PUCK__value__33 = __PUCK__value__35;
+                    __PUCK__value__35 = __PUCK__value__37;
                   };
-                  __PUCK__value__31 = __PUCK__value__33;
+                  __PUCK__value__33 = __PUCK__value__35;
                 };
-                var implementations = __PUCK__value__31;
-                implementations = implementations.filter(function (i) {
-                  return _entities.Type.getTrait.call(asType(i.trait_)).functions[name];
-                });
-                var __PUCK__value__39 = void 0;
-                if (implementations.length > 1) {
-                  __PUCK__value__39 = implementations.filter(function (i) {
-                    return e.scope.getTypeBinding(_core.Option.unwrap.call(asType(i.trait_).name));
-                  });
-                } else {
-                  __PUCK__value__39 = implementations;
-                };
-                implementations = __PUCK__value__39;
-                var __PUCK__value__40 = void 0;
-                if (implementations.length > 1) {
-                  __PUCK__value__40 = implementations.filter(function (i) {
-                    return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType(i.trait_)).functions[name])).argumentRange, e.argumentList.length);
-                  });
-                } else {
-                  __PUCK__value__40 = implementations;
-                };
-                implementations = __PUCK__value__40;
+                __PUCK__value__31 = __PUCK__value__33;
+              };
+              var implementations = __PUCK__value__31;
+              var __PUCK__value__39 = void 0;
+              if (implementations.length > 1) {
+                var __PUCK__value__40 = objectType.instance;
                 var __PUCK__value__41 = void 0;
-                if (implementations.length > 1) {
-                  var hasInstance = _core.Iterable['$List'].find.call(implementations, function (i) {
-                    return _core.Option.isJust.call(i.trait_.instance);
-                  });
-                  var __PUCK__value__42 = void 0;
-                  if (_core.Option.isJust.call(hasInstance)) {
-                    __PUCK__value__42 = implementations.filter(function (i) {
-                      return _core.Option.isJust.call(i.trait_.instance);
+                if (__PUCK__value__40.kind == "Some") {
+                  (function () {
+                    var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1),
+                        objectInstance = _PUCK__value__40$val[0];
+
+                    __PUCK__value__41 = implementations.filter(function (i) {
+                      var implementationInstance = _core.Option.unwrap.call(i.type_.instance);
+                      return _core.Iterable['$List<E>'].all.call(_core.List.zip.call(_core.List, objectInstance.typeParameters, implementationInstance.typeParameters), function (_ref5) {
+                        var _ref6 = _slicedToArray(_ref5, 2),
+                            objectP = _ref6[0],
+                            implP = _ref6[1];
+
+                        return (0, _types.isAssignable)(implP, objectP);
+                      });
                     });
-                  } else {
-                    __PUCK__value__42 = implementations;
-                  };
-                  __PUCK__value__41 = __PUCK__value__42;
+                  })();
                 } else {
                   __PUCK__value__41 = implementations;
                 };
-                implementations = __PUCK__value__41;
-                if (implementations.length > 1) {
-                  reportError(e, "Ambiguous trait call");
-                };
-                if (implementations.length == 0) {
-                  var __PUCK__value__43 = type_.instance;
-                  if (__PUCK__value__43.kind == "Some") {
-                    var _PUCK__value__43$val = _slicedToArray(__PUCK__value__43.value, 1),
-                        instance = _PUCK__value__43$val[0];
-
-                    return getImplementations(instance._class);
-                  } else {
-                    return implementations;
-                  };
-                } else {
-                  return implementations;
-                };
+                __PUCK__value__39 = __PUCK__value__41;
+              } else {
+                __PUCK__value__39 = implementations;
               };
-
-              ;
-              var implementations = getImplementations(objectType);
-              if (implementations.length == 1) {
-                var implementation = implementations[0];
-                var __PUCK__value__44 = implementation.trait_.instance;
-                var __PUCK__value__45 = void 0;
-                if (__PUCK__value__44.kind == "Some") {
-                  var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
-                      instance = _PUCK__value__44$val[0];
-
-                  __PUCK__value__45 = instance._class;
-                } else {
-                  __PUCK__value__45 = implementation.trait_;
-                };
-                var _trait_ = __PUCK__value__45;
-                var traitName = _core.Option.unwrap.call(_trait_.name);
-                if (!e.scope.getTypeBinding(traitName)) {
-                  reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
-                };
-                e.traitName = traitName;
-                e.isShorthand = _entities.Type.getTrait.call(_trait_).isShorthand;
-                e.implementationType = implementation.type_;
-                functionType = _entities.Type.getTrait.call(asType(implementation.trait_)).functions[name];
-                var __PUCK__value__46 = objectType.instance;
-                if (__PUCK__value__46.kind == "Some") {
-                  var _PUCK__value__46$val = _slicedToArray(__PUCK__value__46.value, 1),
-                      _instance = _PUCK__value__46$val[0];
-
-                  functionType = (0, _types.resolveTypeParameters)(_instance.parameterMap)(functionType);
-                };
+              implementations = __PUCK__value__39;
+              implementations = implementations.filter(function (i) {
+                return _entities.Type.getTrait.call(asType(i.trait_)).functions[name];
+              });
+              var __PUCK__value__42 = void 0;
+              if (implementations.length > 1) {
+                __PUCK__value__42 = implementations.filter(function (i) {
+                  return e.scope.getTypeBinding(_core.Option.unwrap.call(asType(i.trait_).name));
+                });
+              } else {
+                __PUCK__value__42 = implementations;
               };
-            })();
+              implementations = __PUCK__value__42;
+              var __PUCK__value__43 = void 0;
+              if (implementations.length > 1) {
+                __PUCK__value__43 = implementations.filter(function (i) {
+                  return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType(i.trait_)).functions[name])).argumentRange, e.argumentList.length);
+                });
+              } else {
+                __PUCK__value__43 = implementations;
+              };
+              implementations = __PUCK__value__43;
+              var __PUCK__value__44 = void 0;
+              if (implementations.length > 1 && _core.Option.isJust.call(objectType.instance)) {
+                var __PUCK__value__45 = objectType.instance;
+                var __PUCK__value__46 = void 0;
+                if (__PUCK__value__45.kind == "Some") {
+                  (function () {
+                    var _PUCK__value__45$val = _slicedToArray(__PUCK__value__45.value, 1),
+                        objectInstance = _PUCK__value__45$val[0];
+
+                    var maxSpecificity = 0;
+                    __PUCK__value__46 = _core.Iterable['$List<E>'].map.call(implementations, function (i) {
+                      var specificity = getTypeSpecificity(i.type_);
+                      maxSpecificity = _js.global.Math.max(maxSpecificity, specificity);
+                      return [i, specificity];
+                    }).filter(function (_ref7) {
+                      var _ref8 = _slicedToArray(_ref7, 2),
+                          __PUCK__value__47 = _ref8[0],
+                          specificity = _ref8[1];
+
+                      return specificity == maxSpecificity;
+                    }).map(function (_ref9) {
+                      var _ref10 = _slicedToArray(_ref9, 2),
+                          i = _ref10[0],
+                          __PUCK__value__48 = _ref10[1];
+
+                      return i;
+                    });
+                  })();
+                } else {
+                  __PUCK__value__46 = implementations;
+                };
+                __PUCK__value__44 = __PUCK__value__46;
+              } else {
+                __PUCK__value__44 = implementations;
+              };
+              implementations = __PUCK__value__44;
+              if (implementations.length > 1) {
+                return reportError(e, "Ambiguous trait call");
+              } else {
+                return _core.Iterable['$List<E>'].first.call(implementations);
+              };
+            };
+
+            ;
+            var __PUCK__value__49 = getImplementation(objectType);
+            if (__PUCK__value__49.kind == "Some") {
+              var _PUCK__value__49$val = _slicedToArray(__PUCK__value__49.value, 1),
+                  implementation = _PUCK__value__49$val[0];
+
+              var __PUCK__value__50 = implementation.trait_.instance;
+              var __PUCK__value__51 = void 0;
+              if (__PUCK__value__50.kind == "Some") {
+                var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 1),
+                    instance = _PUCK__value__50$val[0];
+
+                __PUCK__value__51 = instance._class;
+              } else {
+                __PUCK__value__51 = implementation.trait_;
+              };
+              var _trait_ = __PUCK__value__51;
+              var traitName = _core.Option.unwrap.call(_trait_.name);
+              if (!e.scope.getTypeBinding(traitName)) {
+                reportError(e, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
+              };
+              e.traitName = traitName;
+              e.isShorthand = _entities.Type.getTrait.call(_trait_).isShorthand;
+              e.implementationType = implementation.type_;
+              functionType = _entities.Type.getTrait.call(asType(implementation.trait_)).functions[name];
+              var __PUCK__value__52 = objectType.instance;
+              if (__PUCK__value__52.kind == "Some") {
+                var _PUCK__value__52$val = _slicedToArray(__PUCK__value__52.value, 1),
+                    _instance = _PUCK__value__52$val[0];
+
+                functionType = (0, _types.resolveTypeParameters)(_instance.parameterMap)(functionType);
+              };
+            };
           };
         })();
       };
-      var parentAssignedTo = self.assignedTo;
-      _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(e.argumentList), function (_ref5) {
-        var _ref6 = _slicedToArray(_ref5, 2),
-            a = _ref6[0],
-            i = _ref6[1];
+      if (functionType && _entities.Type.isFunction.call(functionType)) {
+        (function () {
+          var callTypeParameters = _core.Option.unwrapOr.call(_core.Option.map.call(functionType._class, function (_class) {
+            return _class.typeParameters;
+          }), []);
+          var callParameterMap = _core.ObjectMap._new.call(_core.ObjectMap);
+          var parentAssignedTo = self.assignedTo;
+          _core.Iterable['$List<E>'].forEach.call(_core.Iterable['$List<E>'].enumerate.call(e.argumentList), function (_ref11) {
+            var _ref12 = _slicedToArray(_ref11, 2),
+                a = _ref12[0],
+                i = _ref12[1];
 
-        var __PUCK__value__47 = void 0;
-        if (functionType) {
-          var __PUCK__value__48 = functionType.kind;
-          var __PUCK__value__49 = void 0;
-          if (__PUCK__value__48.kind == "Function") {
-            var _PUCK__value__48$val = _slicedToArray(__PUCK__value__48.value, 1),
-                func = _PUCK__value__48$val[0];
-
-            __PUCK__value__49 = func._arguments[i];
+            self.assignedTo = _entities.Type.getFunction.call(functionType)._arguments[i];
+            self.visitExpression(a);
+            if (_core.Iterable['$List<E>'].isNotEmpty.call(callTypeParameters) && _entities.Type.getFunction.call(functionType)._arguments[i].type_ && a.type_) {
+              return resolveFunctionTypeParameters(callParameterMap, callTypeParameters, _entities.Type.getFunction.call(functionType)._arguments[i].type_, a.type_);
+            };
+          });
+          if (_core.Iterable['$List<E>'].isNotEmpty.call(callTypeParameters)) {
+            functionType = (0, _types.resolveTypeParameters)(callParameterMap)(functionType);
           };
-          __PUCK__value__47 = __PUCK__value__49;
-        };
-        self.assignedTo = __PUCK__value__47;
-        return self.visitExpression(a);
-      });
-      self.assignedTo = parentAssignedTo;
+          self.assignedTo = parentAssignedTo;
+        })();
+      } else {
+        _core.Iterable['$List<E>'].forEach.call(e.argumentList, function (a) {
+          return self.visitExpression(a);
+        });
+      };
       if (functionType) {
         var _function = checkFunctionCall(functionType, e);
         return e.type_ = _function.returnType;
@@ -548,10 +591,10 @@ function ScopeVisitor(context, file) {
       e.scope = self.scope;
       self.visitVariableDeclaration(e.variableDeclaration, _js._undefined, _js._undefined, true);
       self.visitBlock(e.then_);
-      var __PUCK__value__50 = e.else_;
-      if (__PUCK__value__50.kind == "Some") {
-        var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 1),
-            else_ = _PUCK__value__50$val[0];
+      var __PUCK__value__53 = e.else_;
+      if (__PUCK__value__53.kind == "Some") {
+        var _PUCK__value__53$val = _slicedToArray(__PUCK__value__53.value, 1),
+            else_ = _PUCK__value__53$val[0];
 
         self.visitBlock(else_);
       };
@@ -564,13 +607,13 @@ function ScopeVisitor(context, file) {
       matchExpression = (0, _core.Some)(e);
       self.visitExpression(e.expression);
       e.type_ = e.expression.type_;
-      _core.Iterable['$List'].forEach.call(e.patterns, function (a) {
+      _core.Iterable['$List<E>'].forEach.call(e.patterns, function (a) {
         return self.visitMatchArm(a);
       });
-      var __PUCK__value__51 = (0, _enums.checkExhaustive)(e);
-      if (__PUCK__value__51.kind == "Err") {
-        var _PUCK__value__51$val = _slicedToArray(__PUCK__value__51.value, 1),
-            error = _PUCK__value__51$val[0];
+      var __PUCK__value__54 = (0, _enums.checkExhaustive)(e);
+      if (__PUCK__value__54.kind == "Err") {
+        var _PUCK__value__54$val = _slicedToArray(__PUCK__value__54.value, 1),
+            error = _PUCK__value__54$val[0];
 
         self.reportError(e, error);
       };
@@ -614,11 +657,11 @@ function ScopeVisitor(context, file) {
         if (typePath.value[1].kind != "Member") {
           self.reportError(e, "Nested type paths are not supported");
         };
-        var __PUCK__value__52 = type_.kind;
-        if (__PUCK__value__52.kind == "Enum") {
-          var _ret4 = function () {
-            var _PUCK__value__52$val = _slicedToArray(__PUCK__value__52.value, 1),
-                enum_ = _PUCK__value__52$val[0];
+        var __PUCK__value__55 = type_.kind;
+        if (__PUCK__value__55.kind == "Enum") {
+          var _ret6 = function () {
+            var _PUCK__value__55$val = _slicedToArray(__PUCK__value__55.value, 1),
+                enum_ = _PUCK__value__55$val[0];
 
             var memberIdentifier = typePath.value[1].value[0];
             var member = enum_.members[memberIdentifier.name];
@@ -627,18 +670,28 @@ function ScopeVisitor(context, file) {
                 v: reportError(memberIdentifier, _entities.Type.displayName.call(type_) + " has no member named " + memberIdentifier.name)
               };
             } else {
-              var __PUCK__value__53 = member.kind;
-              var __PUCK__value__54 = __PUCK__value__53;
-              if (__PUCK__value__54.kind == "Struct") {
-                var _PUCK__value__54$val = _slicedToArray(__PUCK__value__54.value, 1),
-                    struct = _PUCK__value__54$val[0];
+              var __PUCK__value__56 = member.kind;
+              var __PUCK__value__57 = __PUCK__value__56;
+              if (__PUCK__value__57.kind == "Struct") {
+                var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1),
+                    struct = _PUCK__value__57$val[0];
 
-                var __PUCK__value__55 = struct.kind;
-                var __PUCK__value__56 = __PUCK__value__55;
-                if (__PUCK__value__56.kind == "Record") {
-                  var _PUCK__value__56$val = _slicedToArray(__PUCK__value__56.value, 1),
-                      record = _PUCK__value__56$val[0];
+                var __PUCK__value__58 = struct.kind;
+                var __PUCK__value__59 = __PUCK__value__58;
+                if (__PUCK__value__59.kind == "Record") {
+                  var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 1),
+                      record = _PUCK__value__59$val[0];
 
+                  var __PUCK__value__60 = type_._class;
+                  var __PUCK__value__61 = void 0;
+                  if (__PUCK__value__60.kind == "Some") {
+                    var _PUCK__value__60$val = _slicedToArray(__PUCK__value__60.value, 1),
+                        _class = _PUCK__value__60$val[0];
+
+                    __PUCK__value__61 = (0, _types.createTypeInstance)(type_, _class.typeParameters);
+                  } else {
+                    __PUCK__value__61 = type_;
+                  };
                   return {
                     v: e.type_ = {
                       displayName: _core.Option.map.call(type_.name, function (name) {
@@ -658,19 +711,31 @@ function ScopeVisitor(context, file) {
                           start: 1,
                           end: 2
                         },
-                        returnType: type_,
+                        returnType: __PUCK__value__61,
                         isAbstract: false
                       }),
-                      _class: type_._class,
+                      _class: _core.Option.map.call(type_._class, function (_class) {
+                        return _js._Object.assign({}, _class, { instances: [] });
+                      }),
                       instance: type_.instance
                     }
                   };
                 } else {
-                  var __PUCK__value__57 = __PUCK__value__55;
-                  if (__PUCK__value__57.kind == "Tuple") {
-                    var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1),
-                        tuple = _PUCK__value__57$val[0];
+                  var __PUCK__value__62 = __PUCK__value__58;
+                  if (__PUCK__value__62.kind == "Tuple") {
+                    var _PUCK__value__62$val = _slicedToArray(__PUCK__value__62.value, 1),
+                        tuple = _PUCK__value__62$val[0];
 
+                    var __PUCK__value__63 = type_._class;
+                    var __PUCK__value__64 = void 0;
+                    if (__PUCK__value__63.kind == "Some") {
+                      var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1),
+                          _class2 = _PUCK__value__63$val[0];
+
+                      __PUCK__value__64 = (0, _types.createTypeInstance)(type_, _class2.typeParameters);
+                    } else {
+                      __PUCK__value__64 = type_;
+                    };
                     return {
                       v: e.type_ = {
                         displayName: _core.Option.map.call(type_.name, function (name) {
@@ -679,10 +744,10 @@ function ScopeVisitor(context, file) {
                         name: type_.name,
                         kind: _entities.TypeKind.Function({
                           selfBinding: _core.None,
-                          _arguments: _core.Iterable['$List'].map.call(_core.Iterable['$List'].enumerate.call(tuple.properties), function (_ref7) {
-                            var _ref8 = _slicedToArray(_ref7, 2),
-                                p = _ref8[0],
-                                i = _ref8[1];
+                          _arguments: _core.Iterable['$List<E>'].map.call(_core.Iterable['$List<E>'].enumerate.call(tuple.properties), function (_ref13) {
+                            var _ref14 = _slicedToArray(_ref13, 2),
+                                p = _ref14[0],
+                                i = _ref14[1];
 
                             return {
                               name: i.toString(),
@@ -696,17 +761,19 @@ function ScopeVisitor(context, file) {
                             start: tuple.properties.length,
                             end: tuple.properties.length + 1
                           },
-                          returnType: type_,
+                          returnType: __PUCK__value__64,
                           isAbstract: false
                         }),
-                        _class: type_._class,
+                        _class: _core.Option.map.call(type_._class, function (_class) {
+                          return _js._Object.assign({}, _class, { instances: [] });
+                        }),
                         instance: type_.instance
                       }
                     };
                   } else {
-                    var __PUCK__value__58 = __PUCK__value__55;
-                    if (__PUCK__value__58.kind == "Unit") {
-                      var _undefined4 = __PUCK__value__58;
+                    var __PUCK__value__65 = __PUCK__value__58;
+                    if (__PUCK__value__65.kind == "Unit") {
+                      var _undefined4 = __PUCK__value__65;
                       return {
                         v: e.type_ = {
                           displayName: _core.Option.map.call(type_.name, function (name) {
@@ -722,16 +789,16 @@ function ScopeVisitor(context, file) {
                   };
                 };
               } else {
-                var __PUCK__value__59 = __PUCK__value__53;
+                var __PUCK__value__66 = __PUCK__value__56;
                 if (true) {
-                  var __PUCK__value__60 = __PUCK__value__59;
+                  var __PUCK__value__67 = __PUCK__value__66;
                   throw "enum arm is not a struct";
                 };
               };
             };
           }();
 
-          if ((typeof _ret4 === 'undefined' ? 'undefined' : _typeof(_ret4)) === "object") return _ret4.v;
+          if ((typeof _ret6 === 'undefined' ? 'undefined' : _typeof(_ret6)) === "object") return _ret6.v;
         };
       };
     },
@@ -739,17 +806,17 @@ function ScopeVisitor(context, file) {
       var self = this;
       e.scope = self.scope;
       visit.walkUnaryExpression(self, e);
-      var __PUCK__value__61 = void 0;
+      var __PUCK__value__68 = void 0;
       if (e.operator.kind == _ast2.SyntaxKind.NotKeyword) {
-        __PUCK__value__61 = e.scope.getTypeBinding("Bool").type_;
+        __PUCK__value__68 = e.scope.getTypeBinding("Bool").type_;
       } else {
-        var __PUCK__value__62 = void 0;
+        var __PUCK__value__69 = void 0;
         if (e.operator.kind == _ast2.SyntaxKind.MinusToken || e.operator.kind == _ast2.SyntaxKind.PlusToken) {
-          __PUCK__value__62 = e.scope.getTypeBinding("Num").type_;
+          __PUCK__value__69 = e.scope.getTypeBinding("Num").type_;
         };
-        __PUCK__value__61 = __PUCK__value__62;
+        __PUCK__value__68 = __PUCK__value__69;
       };
-      return e.type_ = __PUCK__value__61;
+      return e.type_ = __PUCK__value__68;
     },
     visitWhileLoop: function visitWhileLoop(e) {
       var self = this;
@@ -769,11 +836,11 @@ function ScopeVisitor(context, file) {
       a.scope = self.scope;
       visit.walkExpression(self, a.object);
       if (a.object.type_) {
-        var __PUCK__value__63 = a.object.type_.kind;
-        if (__PUCK__value__63.kind == "Struct" && __PUCK__value__63.value[0].kind.kind == "Record") {
-          var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1),
-              _PUCK__value__63$val$ = _slicedToArray(_PUCK__value__63$val[0].kind.value, 1),
-              record = _PUCK__value__63$val$[0];
+        var __PUCK__value__70 = a.object.type_.kind;
+        if (__PUCK__value__70.kind == "Struct" && __PUCK__value__70.value[0].kind.kind == "Record") {
+          var _PUCK__value__70$val = _slicedToArray(__PUCK__value__70.value, 1),
+              _PUCK__value__70$val$ = _slicedToArray(_PUCK__value__70$val[0].kind.value, 1),
+              record = _PUCK__value__70$val$[0];
 
           return a.type_ = record.properties[a.member.name];
         } else {};
@@ -810,7 +877,7 @@ function ScopeVisitor(context, file) {
     visitObjectLiteral: function visitObjectLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      _core.Iterable['$List'].forEach.call(l.members, function (m) {
+      _core.Iterable['$List<E>'].forEach.call(l.members, function (m) {
         return self.visitExpression(m.value);
       });
       return l.type_ = {
@@ -818,7 +885,7 @@ function ScopeVisitor(context, file) {
         name: _core.None,
         kind: _entities.TypeKind.Struct({
           implementations: [],
-          kind: _entities.StructKind.Record({ properties: _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(l.members, function (m) {
+          kind: _entities.StructKind.Record({ properties: _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List<E>'].map.call(l.members, function (m) {
               return [m.name.name, m.value.type_];
             })) })
         }),
@@ -836,7 +903,7 @@ function ScopeVisitor(context, file) {
       var self = this;
       l.scope = self.scope;
       visit.walkTupleLiteral(self, l);
-      var properties = _core.Iterable['$List'].map.call(l.expressions, function (e) {
+      var properties = _core.Iterable['$List<E>'].map.call(l.expressions, function (e) {
         return e.type_;
       });
       return l.type_ = {
@@ -851,4 +918,76 @@ function ScopeVisitor(context, file) {
       };
     }
   });
+};
+function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType) {
+  var __PUCK__value__71 = parameterType.kind;
+  var __PUCK__value__72 = __PUCK__value__71;
+  if (__PUCK__value__72.kind == "Parameter") {
+    var _ret7 = function () {
+      var _PUCK__value__72$val = _slicedToArray(__PUCK__value__72.value, 1),
+          __PUCK__value__73 = _PUCK__value__72$val[0];
+
+      var name = _core.Option.unwrap.call(parameterType.name);
+      if (_core.Iterable['$List<E>'].any.call(typeParameters, function (p) {
+        return _core.Option.unwrap.call(p.name) == name;
+      })) {
+        if (!_core.ObjectMap.has.call(parameterMap, name)) {
+          return {
+            v: parameterMap[name] = argumentType
+          };
+        };
+      };
+    }();
+
+    if ((typeof _ret7 === 'undefined' ? 'undefined' : _typeof(_ret7)) === "object") return _ret7.v;
+  } else {
+    var __PUCK__value__74 = __PUCK__value__71;
+    if (__PUCK__value__74.kind == "Function") {
+      var _PUCK__value__74$val = _slicedToArray(__PUCK__value__74.value, 1),
+          parameterFunction = _PUCK__value__74$val[0];
+
+      if (parameterFunction.returnType) {
+        var __PUCK__value__75 = argumentType.kind;
+        if (__PUCK__value__75.kind == "Function") {
+          var _PUCK__value__75$val = _slicedToArray(__PUCK__value__75.value, 1),
+              argumentFunction = _PUCK__value__75$val[0];
+
+          if (argumentFunction.returnType) {
+            return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterFunction.returnType, argumentFunction.returnType);
+          };
+        };
+      };
+    } else {
+      var __PUCK__value__76 = __PUCK__value__71;
+      if (true) {
+        var __PUCK__value__77 = __PUCK__value__76;
+        return [];
+      };
+    };
+  };
+};
+function getTypeSpecificity(type_) {
+  var __PUCK__value__78 = type_.kind;
+  if (__PUCK__value__78.kind == "Parameter") {
+    var _PUCK__value__78$val = _slicedToArray(__PUCK__value__78.value, 1),
+        __PUCK__value__79 = _PUCK__value__78$val[0];
+
+    return 0;
+  };
+  var __PUCK__value__80 = type_.instance;
+  var __PUCK__value__81 = __PUCK__value__80;
+  if (__PUCK__value__81.kind == "Some") {
+    var _PUCK__value__81$val = _slicedToArray(__PUCK__value__81.value, 1),
+        instance = _PUCK__value__81$val[0];
+
+    return instance.typeParameters.reduce(function (sum, type_) {
+      return sum + getTypeSpecificity(type_);
+    }, 1);
+  } else {
+    var __PUCK__value__82 = __PUCK__value__80;
+    if (__PUCK__value__82.kind == "None") {
+      var _undefined5 = __PUCK__value__82;
+      return 1;
+    };
+  };
 }

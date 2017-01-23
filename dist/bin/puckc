@@ -17,7 +17,7 @@ var _js2 = require('./../lib/stdlib/js');
 var E = _js.Error;
 E.stackTraceLimit = 100;
 var argv = _js2.process.argv;
-var _arguments = _core.Iterable['$List'].skip.call(_core.Iterable['$List'].skipUntil.call(argv, function (arg) {
+var _arguments = _core.Iterable['$List<E>'].skip.call(_core.Iterable['$List<E>'].skipUntil.call(argv, function (arg) {
   return _core.String.contains.call(arg, "puckc");
 }), 1);
 var outDir = (0, _helpers.flag)(_arguments, "--out-dir", "dist");
@@ -40,7 +40,7 @@ if (_arguments.length == 0) {
   (0, _core.print)("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] ...files\n");
   _js2.process.exit(1);
 } else {
-  var files = _core.Iterable['$List'].map.call(_arguments, function (file) {
+  var files = _core.Iterable['$List<E>'].map.call(_arguments, function (file) {
     return {
       isBin: isBinary,
       file: file,

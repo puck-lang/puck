@@ -14,7 +14,7 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 function getRange(parameters, isOptional, reportError, name) {
   var firstOptional = parameters.length;
   var hasOptional = false;
-  _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(parameters), function (_ref) {
+  _core.Iterable['$List<E>'].forEach.call(_core.Iterable['$List<E>'].enumerate.call(parameters), function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         parameter = _ref2[0],
         i = _ref2[1];

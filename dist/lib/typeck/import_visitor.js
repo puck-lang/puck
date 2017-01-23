@@ -76,7 +76,7 @@ function ImportVisitor(context, file) {
     visitModule: function visitModule(m) {
       var self = this;
       moduleScope = m.scope;
-      return _core.Iterable['$List'].forEach.call(m.expressions, function (e) {
+      return _core.Iterable['$List<E>'].forEach.call(m.expressions, function (e) {
         if (e.kind == _ast2.SyntaxKind.ImportDirective) {
           return self.visitImportDirective(e);
         };

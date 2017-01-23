@@ -19,9 +19,6 @@ var _range = require('./range');
 
 var _types = require('./types');
 
-function any(a) {
-  return a;
-};
 function createFunctionType(scope, f, reportError) {
   var __PUCK__value__1 = void 0;
   if (f.typeParameters.length) {
@@ -30,13 +27,15 @@ function createFunctionType(scope, f, reportError) {
         return _core.Option.isJust.call(p.defaultValue);
       }, reportError, "type parameter"),
       instances: [],
-      typeParameters: f.typeParameters
+      typeParameters: _core.Iterable['$List<E>'].map.call(f.typeParameters, function (p) {
+        return p.type_;
+      })
     });
   } else {
     __PUCK__value__1 = _core.None;
   };
   var _class = __PUCK__value__1;
-  var _arguments = _core.Iterable['$List'].map.call(f.parameterList, function (p) {
+  var _arguments = _core.Iterable['$List<E>'].map.call(f.parameterList, function (p) {
     return {
       pattern: p.pattern,
       mutable: p.mutable,
@@ -50,7 +49,7 @@ function createFunctionType(scope, f, reportError) {
     var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
         _returnType = _PUCK__value__2$valu[0];
 
-    __PUCK__value__3 = (0, _types.getType)(scope, _returnType);
+    __PUCK__value__3 = _returnType.type_;
   };
   var returnType = __PUCK__value__3;
   var __PUCK__value__4 = void 0;
@@ -81,9 +80,9 @@ function createFunctionType(scope, f, reportError) {
   };
   return {
     displayName: _core.None,
-    name: any(_core.Option.map.call(f.name, function (identifier) {
+    name: _core.Option.map.call(f.name, function (identifier) {
       return identifier.name;
-    })),
+    }),
     kind: _entities.TypeKind.Function({
       selfBinding: selfBinding,
       _arguments: _arguments,
@@ -104,7 +103,7 @@ function checkFunctionAssignability(functionName, to, subject) {
     return (0, _core.Err)(error);
   };
   var errors = [];
-  _core.Iterable['$List'].forEach.call(_core.Iterable['$List'].enumerate.call(subject._arguments), function (_ref) {
+  _core.Iterable['$List<E>'].forEach.call(_core.Iterable['$List<E>'].enumerate.call(subject._arguments), function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         subjectArgument = _ref2[0],
         i = _ref2[1];

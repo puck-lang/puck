@@ -19,22 +19,34 @@ fn assign(a, b) {
   Object.assign({}, a, b)
 }
 
-export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, allowCreateInstance = true, depth = 0| fn resolveTypeParametersInner(mut type_: Type) {
+export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = true| fn resolveTypeParametersInner(mut type_: Type) {
   if not type_ then return type_
-  if depth > 10 then return type_
-  if allowCreateInstance {
-    if let {kind: TypeKind::Enum(_), class: Option::Some(class)} = type_
-      then return createTypeInstance(type_, class.typeParameters.map(|p: Type| parameterMap[p.name.unwrap()] or p))
-    if let {kind: TypeKind::Struct(_), class: Option::Some(class)} = type_
-      then return createTypeInstance(type_, class.typeParameters.map(|p: Type| parameterMap[p.name.unwrap()] or p))
+
+  if let Option::Some(instance) = type_.instance {
+    let typeParameters: List<Type> = instance.typeParameters
+    if typeParameters.any(|parameter| parameter.isParameter()) {
+      return createTypeInstance(
+        instance.class
+        typeParameters
+          .map(|p|
+            if p.isParameter()
+              then parameterMap.get(p.name.unwrap()).unwrapOr(p)
+              else p
+          )
+      )
+    }
   }
 
+  if not enterNamed and not type_.isParameter()
+     and (type_.name.isJust() or type_.displayName.isJust())
+    then return type_
+
    let resolvedKind = match type_.kind {
-    TypeKind::Enum(enum_) => TypeKind::Enum(resolveTypeParametersEnum(parameterMap, enum_, depth))
-    TypeKind::Function(func) => TypeKind::Function(resolveTypeParametersFn(parameterMap, func, depth))
+    TypeKind::Enum(enum_) => TypeKind::Enum(resolveTypeParametersEnum(parameterMap, enum_))
+    TypeKind::Function(func) => TypeKind::Function(resolveTypeParametersFn(parameterMap, func))
     TypeKind::Parameter => return parameterMap.get(type_.name.unwrap()).unwrapOr(type_)
-    TypeKind::Struct(struct) => TypeKind::Struct(resolveTypeParametersStruct(parameterMap, struct, depth))
-    _ => type_.kind
+    TypeKind::Struct(struct) => TypeKind::Struct(resolveTypeParametersStruct(parameterMap, struct))
+    _ => return type_
   }
 
   assign(type_, {
@@ -42,36 +54,34 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, allowCreateIn
   })
 }
 
-fn resolveTypeParametersEnum(parameterMap: ObjectMap<Type>, e: Enum, depth: Num) {
+fn resolveTypeParametersEnum(parameterMap: ObjectMap<Type>, e: Enum) {
   assign(e, {
-    implementations: []
-    members: e.members.map(resolveTypeParameters(parameterMap, true, depth + 1))
+    members: e.members.map(resolveTypeParameters(parameterMap))
   })
 }
 
-fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, func: Function, depth: Num) {
+fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, func: Function) {
   assign(func, {
     arguments: func.arguments.map(|binding| assign(binding, {
       type_:
         if binding.type_
-          then resolveTypeParameters(parameterMap, true, depth + 1)(binding.type_)
+          then resolveTypeParameters(parameterMap, false)(binding.type_)
     }))
     returnType:
       if func.returnType
-        then resolveTypeParameters(parameterMap, true, depth + 1)(func.returnType)
+        then resolveTypeParameters(parameterMap, false)(func.returnType)
   })
 }
 
-fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct, depth: Num) -> Struct {
+fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct) -> Struct {
   assign(struct, {
-    implementations: []
     kind: match struct.kind {
       StructKind::Record({properties}) => StructKind::Record({
-        properties: properties.map(resolveTypeParameters(parameterMap, true, depth + 1))
+        properties: properties.map(resolveTypeParameters(parameterMap, false))
       })
 
       StructKind::Tuple({properties}) => StructKind::Tuple({
-        properties: properties.map(resolveTypeParameters(parameterMap, true, depth + 1))
+        properties: properties.map(resolveTypeParameters(parameterMap, false))
       })
 
       StructKind::Unit => struct.kind
@@ -100,24 +110,13 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
     }
     else typeParameters
 
-  if let Option::Some(cachedInstance) =
-    class.instances.find(|a: Type| {
+  if let Option::Some(cachedInstance) = class.instances.find(|a: Type| {
       let i = a.instance.unwrap()
       i.typeParameters.length == typeParameters.length and
-      i.typeParameters.every(|p, i| {
-        if not typeParameters[i] {
-          print(typeParameters, i, type_.displayName())
-        }
-        isSameType(p, typeParameters[i])
-      })
+      i.typeParameters.every(|p, i| isSameType(p, typeParameters[i]))
     })
     then return cachedInstance
 
-  if typeParameters.all(|p| match p.kind {
-    TypeKind::Parameter => true
-    _ => false
-  })
-    then return type_
 
   let parameterMap: ObjectMap<Type> = ObjectMap.fromList(
     List.zip(typeParameters, class.typeParameters)
@@ -141,7 +140,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
   }
   class.instances.push(instance)
 
-  instance.kind = resolveTypeParameters(parameterMap, false)(type_).kind
+  instance.kind = resolveTypeParameters(parameterMap)(type_).kind
 
   instance
 }

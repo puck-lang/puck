@@ -56,7 +56,7 @@ var Option = exports.Option = {
   None: { kind: 'None', value: Symbol('None') }
 };
 var Iterable = exports.Iterable = {};
-Iterable['$List'] = {
+Iterable['$List<E>'] = {
   enumerate: function enumerate() {
     var self = this;
     return anyCast(self).map(function (element, index) {
@@ -66,6 +66,14 @@ Iterable['$List'] = {
   size: function size() {
     var self = this;
     return self.length;
+  },
+  isEmpty: function isEmpty() {
+    var self = this;
+    return self.length == 0;
+  },
+  isNotEmpty: function isNotEmpty() {
+    var self = this;
+    return self.length > 0;
   },
   first: function first() {
     var self = this;
@@ -258,7 +266,7 @@ List.zip = function zip(a, b) {
   if (a.length != b.length) {
     throw (0, _js.Error)("List a and b are not of the same length");
   };
-  return Iterable['$List'].map.call(Iterable['$List'].enumerate.call(a), function (_ref) {
+  return Iterable['$List<E>'].map.call(Iterable['$List<E>'].enumerate.call(a), function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         a = _ref2[0],
         i = _ref2[1];
@@ -283,7 +291,7 @@ ObjectMap._new = function _new() {
 };
 ObjectMap.fromList = function fromList(list) {
   var object = _js._Object.create(_js._null);
-  Iterable['$List'].forEach.call(list, function (item) {
+  Iterable['$List<E>'].forEach.call(list, function (item) {
     return object[item[0]] = item[1];
   });
   return object;

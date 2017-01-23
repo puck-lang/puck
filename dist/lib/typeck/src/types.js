@@ -34,156 +34,143 @@ function assign(a, b) {
   return _js._Object.assign({}, a, b);
 };
 var resolveTypeParameters = exports.resolveTypeParameters = function resolveTypeParameters(parameterMap) {
-  var allowCreateInstance = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  var depth = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+  var enterNamed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
   return function resolveTypeParametersInner(type_) {
     if (!type_) {
       return type_;
     };
-    if (depth > 10) {
+    var __PUCK__value__1 = type_.instance;
+    if (__PUCK__value__1.kind == "Some") {
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+          instance = _PUCK__value__1$valu[0];
+
+      var typeParameters = instance.typeParameters;
+      if (_core.Iterable['$List<E>'].any.call(typeParameters, function (parameter) {
+        return _entities.Type.isParameter.call(parameter);
+      })) {
+        return createTypeInstance(instance._class, _core.Iterable['$List<E>'].map.call(typeParameters, function (p) {
+          if (_entities.Type.isParameter.call(p)) {
+            return _core.Option.unwrapOr.call(_core.ObjectMap.get.call(parameterMap, _core.Option.unwrap.call(p.name)), p);
+          } else {
+            return p;
+          };
+        }));
+      };
+    };
+    if (!enterNamed && !_entities.Type.isParameter.call(type_) && (_core.Option.isJust.call(type_.name) || _core.Option.isJust.call(type_.displayName))) {
       return type_;
     };
-    if (allowCreateInstance) {
-      var __PUCK__value__1 = type_;
-      if (__PUCK__value__1.kind.kind == "Enum" && __PUCK__value__1._class.kind == "Some") {
-        var _PUCK__value__1$kind = _slicedToArray(__PUCK__value__1.kind.value, 1),
-            __PUCK__value__2 = _PUCK__value__1$kind[0],
-            _PUCK__value__1$_cla = _slicedToArray(__PUCK__value__1._class.value, 1),
-            _class = _PUCK__value__1$_cla[0];
+    var __PUCK__value__2 = type_.kind;
+    var __PUCK__value__3 = __PUCK__value__2;
+    var __PUCK__value__4 = void 0;
+    if (__PUCK__value__3.kind == "Enum") {
+      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+          enum_ = _PUCK__value__3$valu[0];
 
-        return createTypeInstance(type_, _class.typeParameters.map(function (p) {
-          return parameterMap[_core.Option.unwrap.call(p.name)] || p;
-        }));
-      };
-      var __PUCK__value__3 = type_;
-      if (__PUCK__value__3.kind.kind == "Struct" && __PUCK__value__3._class.kind == "Some") {
-        var _PUCK__value__3$kind = _slicedToArray(__PUCK__value__3.kind.value, 1),
-            __PUCK__value__4 = _PUCK__value__3$kind[0],
-            _PUCK__value__3$_cla = _slicedToArray(__PUCK__value__3._class.value, 1),
-            _class2 = _PUCK__value__3$_cla[0];
-
-        return createTypeInstance(type_, _class2.typeParameters.map(function (p) {
-          return parameterMap[_core.Option.unwrap.call(p.name)] || p;
-        }));
-      };
-    };
-    var __PUCK__value__5 = type_.kind;
-    var __PUCK__value__6 = __PUCK__value__5;
-    var __PUCK__value__7 = void 0;
-    if (__PUCK__value__6.kind == "Enum") {
-      var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
-          enum_ = _PUCK__value__6$valu[0];
-
-      __PUCK__value__7 = _entities.TypeKind.Enum(resolveTypeParametersEnum(parameterMap, enum_, depth));
+      __PUCK__value__4 = _entities.TypeKind.Enum(resolveTypeParametersEnum(parameterMap, enum_));
     } else {
-      var __PUCK__value__8 = __PUCK__value__5;
-      var __PUCK__value__9 = void 0;
-      if (__PUCK__value__8.kind == "Function") {
-        var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
-            func = _PUCK__value__8$valu[0];
+      var __PUCK__value__5 = __PUCK__value__2;
+      var __PUCK__value__6 = void 0;
+      if (__PUCK__value__5.kind == "Function") {
+        var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+            func = _PUCK__value__5$valu[0];
 
-        __PUCK__value__9 = _entities.TypeKind.Function(resolveTypeParametersFn(parameterMap, func, depth));
+        __PUCK__value__6 = _entities.TypeKind.Function(resolveTypeParametersFn(parameterMap, func));
       } else {
-        var __PUCK__value__10 = __PUCK__value__5;
-        var __PUCK__value__11 = void 0;
-        if (__PUCK__value__10.kind == "Parameter") {
-          var _undefined2 = __PUCK__value__10;
+        var __PUCK__value__7 = __PUCK__value__2;
+        var __PUCK__value__8 = void 0;
+        if (__PUCK__value__7.kind == "Parameter") {
+          var _undefined2 = __PUCK__value__7;
           return _core.Option.unwrapOr.call(_core.ObjectMap.get.call(parameterMap, _core.Option.unwrap.call(type_.name)), type_);
         } else {
-          var __PUCK__value__12 = __PUCK__value__5;
-          var __PUCK__value__13 = void 0;
-          if (__PUCK__value__12.kind == "Struct") {
-            var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
-                struct = _PUCK__value__12$val[0];
+          var __PUCK__value__9 = __PUCK__value__2;
+          var __PUCK__value__10 = void 0;
+          if (__PUCK__value__9.kind == "Struct") {
+            var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+                struct = _PUCK__value__9$valu[0];
 
-            __PUCK__value__13 = _entities.TypeKind.Struct(resolveTypeParametersStruct(parameterMap, struct, depth));
+            __PUCK__value__10 = _entities.TypeKind.Struct(resolveTypeParametersStruct(parameterMap, struct));
           } else {
-            var __PUCK__value__14 = __PUCK__value__5;
-            var __PUCK__value__15 = void 0;
+            var __PUCK__value__11 = __PUCK__value__2;
+            var __PUCK__value__12 = void 0;
             if (true) {
-              var __PUCK__value__16 = __PUCK__value__14;
-              __PUCK__value__15 = type_.kind;
+              var __PUCK__value__13 = __PUCK__value__11;
+              return type_;
             };
-            __PUCK__value__13 = __PUCK__value__15;
+            __PUCK__value__10 = __PUCK__value__12;
           };
-          __PUCK__value__11 = __PUCK__value__13;
+          __PUCK__value__8 = __PUCK__value__10;
         };
-        __PUCK__value__9 = __PUCK__value__11;
+        __PUCK__value__6 = __PUCK__value__8;
       };
-      __PUCK__value__7 = __PUCK__value__9;
+      __PUCK__value__4 = __PUCK__value__6;
     };
-    var resolvedKind = __PUCK__value__7;
+    var resolvedKind = __PUCK__value__4;
     return assign(type_, { kind: resolvedKind });
   };
 };
-function resolveTypeParametersEnum(parameterMap, e, depth) {
-  return assign(e, {
-    implementations: [],
-    members: _core.ObjectMap.map.call(e.members, resolveTypeParameters(parameterMap, true, depth + 1))
-  });
+function resolveTypeParametersEnum(parameterMap, e) {
+  return assign(e, { members: _core.ObjectMap.map.call(e.members, resolveTypeParameters(parameterMap)) });
 };
-function resolveTypeParametersFn(parameterMap, func, depth) {
-  var __PUCK__value__18 = void 0;
+function resolveTypeParametersFn(parameterMap, func) {
+  var __PUCK__value__15 = void 0;
   if (func.returnType) {
-    __PUCK__value__18 = resolveTypeParameters(parameterMap, true, depth + 1)(func.returnType);
+    __PUCK__value__15 = resolveTypeParameters(parameterMap, false)(func.returnType);
   };
   return assign(func, {
-    _arguments: _core.Iterable['$List'].map.call(func._arguments, function (binding) {
-      var __PUCK__value__17 = void 0;
+    _arguments: _core.Iterable['$List<E>'].map.call(func._arguments, function (binding) {
+      var __PUCK__value__14 = void 0;
       if (binding.type_) {
-        __PUCK__value__17 = resolveTypeParameters(parameterMap, true, depth + 1)(binding.type_);
+        __PUCK__value__14 = resolveTypeParameters(parameterMap, false)(binding.type_);
       };
-      return assign(binding, { type_: __PUCK__value__17 });
+      return assign(binding, { type_: __PUCK__value__14 });
     }),
-    returnType: __PUCK__value__18
+    returnType: __PUCK__value__15
   });
 };
-function resolveTypeParametersStruct(parameterMap, struct, depth) {
-  var __PUCK__value__19 = struct.kind;
-  var __PUCK__value__20 = __PUCK__value__19;
-  var __PUCK__value__21 = void 0;
-  if (__PUCK__value__20.kind == "Record") {
-    var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1),
-        properties = _PUCK__value__20$val[0].properties;
+function resolveTypeParametersStruct(parameterMap, struct) {
+  var __PUCK__value__16 = struct.kind;
+  var __PUCK__value__17 = __PUCK__value__16;
+  var __PUCK__value__18 = void 0;
+  if (__PUCK__value__17.kind == "Record") {
+    var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
+        properties = _PUCK__value__17$val[0].properties;
 
-    __PUCK__value__21 = _entities.StructKind.Record({ properties: _core.ObjectMap.map.call(properties, resolveTypeParameters(parameterMap, true, depth + 1)) });
+    __PUCK__value__18 = _entities.StructKind.Record({ properties: _core.ObjectMap.map.call(properties, resolveTypeParameters(parameterMap, false)) });
   } else {
-    var __PUCK__value__22 = __PUCK__value__19;
-    var __PUCK__value__23 = void 0;
-    if (__PUCK__value__22.kind == "Tuple") {
-      var _PUCK__value__22$val = _slicedToArray(__PUCK__value__22.value, 1),
-          _properties = _PUCK__value__22$val[0].properties;
+    var __PUCK__value__19 = __PUCK__value__16;
+    var __PUCK__value__20 = void 0;
+    if (__PUCK__value__19.kind == "Tuple") {
+      var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
+          _properties = _PUCK__value__19$val[0].properties;
 
-      __PUCK__value__23 = _entities.StructKind.Tuple({ properties: _core.Iterable['$List'].map.call(_properties, resolveTypeParameters(parameterMap, true, depth + 1)) });
+      __PUCK__value__20 = _entities.StructKind.Tuple({ properties: _core.Iterable['$List<E>'].map.call(_properties, resolveTypeParameters(parameterMap, false)) });
     } else {
-      var __PUCK__value__24 = __PUCK__value__19;
-      var __PUCK__value__25 = void 0;
-      if (__PUCK__value__24.kind == "Unit") {
-        var _undefined3 = __PUCK__value__24;
-        __PUCK__value__25 = struct.kind;
+      var __PUCK__value__21 = __PUCK__value__16;
+      var __PUCK__value__22 = void 0;
+      if (__PUCK__value__21.kind == "Unit") {
+        var _undefined3 = __PUCK__value__21;
+        __PUCK__value__22 = struct.kind;
       };
-      __PUCK__value__23 = __PUCK__value__25;
+      __PUCK__value__20 = __PUCK__value__22;
     };
-    __PUCK__value__21 = __PUCK__value__23;
+    __PUCK__value__18 = __PUCK__value__20;
   };
-  return assign(struct, {
-    implementations: [],
-    kind: __PUCK__value__21
-  });
+  return assign(struct, { kind: __PUCK__value__18 });
 };
 function mapObject(object, mapper) {
   return _core.ObjectMap.map.call(object, mapper);
 };
 function createTypeInstance(type_, typeParameters) {
   var _class = _core.Option.unwrap.call(type_._class);
-  var __PUCK__value__26 = void 0;
+  var __PUCK__value__23 = void 0;
   if (typeParameters.length < _class.parameterRange.end - 1) {
-    __PUCK__value__26 = typeParameters.concat(_class.typeParameters.slice(typeParameters.length).map(function (p) {
-      var __PUCK__value__27 = p.kind;
-      if (__PUCK__value__27.kind == "Parameter") {
-        var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1),
-            _p = _PUCK__value__27$val[0];
+    __PUCK__value__23 = typeParameters.concat(_class.typeParameters.slice(typeParameters.length).map(function (p) {
+      var __PUCK__value__24 = p.kind;
+      if (__PUCK__value__24.kind == "Parameter") {
+        var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1),
+            _p = _PUCK__value__24$val[0];
 
         return _core.Option.unwrap.call(_p.defaultValue);
       } else {
@@ -191,41 +178,22 @@ function createTypeInstance(type_, typeParameters) {
       };
     }));
   } else {
-    __PUCK__value__26 = typeParameters;
+    __PUCK__value__23 = typeParameters;
   };
-  typeParameters = __PUCK__value__26;
-  var __PUCK__value__28 = _core.Iterable['$List'].find.call(_class.instances, function (a) {
+  typeParameters = __PUCK__value__23;
+  var __PUCK__value__25 = _core.Iterable['$List<E>'].find.call(_class.instances, function (a) {
     var i = _core.Option.unwrap.call(a.instance);
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
-      if (!typeParameters[i]) {
-        (0, _core.print)(typeParameters, i, _entities.Type.displayName.call(type_));
-      };
       return isSameType(p, typeParameters[i]);
     });
   });
-  if (__PUCK__value__28.kind == "Some") {
-    var _PUCK__value__28$val = _slicedToArray(__PUCK__value__28.value, 1),
-        cachedInstance = _PUCK__value__28$val[0];
+  if (__PUCK__value__25.kind == "Some") {
+    var _PUCK__value__25$val = _slicedToArray(__PUCK__value__25.value, 1),
+        cachedInstance = _PUCK__value__25$val[0];
 
     return cachedInstance;
   };
-  if (_core.Iterable['$List'].all.call(typeParameters, function (p) {
-    var __PUCK__value__29 = p.kind;
-    var __PUCK__value__30 = __PUCK__value__29;
-    if (__PUCK__value__30.kind == "Parameter") {
-      var _undefined4 = __PUCK__value__30;
-      return true;
-    } else {
-      var __PUCK__value__31 = __PUCK__value__29;
-      if (true) {
-        var __PUCK__value__32 = __PUCK__value__31;
-        return false;
-      };
-    };
-  })) {
-    return type_;
-  };
-  var parameterMap = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List'].map.call(_core.List.zip.call(_core.List, typeParameters, _class.typeParameters), function (p) {
+  var parameterMap = _core.ObjectMap.fromList.call(_core.ObjectMap, _core.Iterable['$List<E>'].map.call(_core.List.zip.call(_core.List, typeParameters, _class.typeParameters), function (p) {
     var typeArgument = p[0];
     var typeParameter = p[1];
     return [_core.Option.unwrap.call(typeParameter.name), typeArgument];
@@ -242,7 +210,7 @@ function createTypeInstance(type_, typeParameters) {
     })
   };
   _class.instances.push(instance);
-  instance.kind = resolveTypeParameters(parameterMap, false)(type_).kind;
+  instance.kind = resolveTypeParameters(parameterMap)(type_).kind;
   return instance;
 };
 function getType(scope, t) {
@@ -254,10 +222,10 @@ function getType(scope, t) {
     if (!binding) {
       return binding;
     } else {
-      var __PUCK__value__33 = binding.type_._class;
-      if (__PUCK__value__33.kind == "Some") {
-        var _PUCK__value__33$val = _slicedToArray(__PUCK__value__33.value, 1),
-            __PUCK__value__34 = _PUCK__value__33$val[0];
+      var __PUCK__value__26 = binding.type_._class;
+      if (__PUCK__value__26.kind == "Some") {
+        var _PUCK__value__26$val = _slicedToArray(__PUCK__value__26.value, 1),
+            __PUCK__value__27 = _PUCK__value__26$val[0];
 
         return createTypeInstance(binding.type_, t.typeParameters.map(function (p) {
           return p.type_;
@@ -322,19 +290,19 @@ function getType(scope, t) {
   };
 };
 function isSameName(to, subject) {
-  var __PUCK__value__35 = [to.name, subject.name];
-  var __PUCK__value__36 = __PUCK__value__35;
-  if (__PUCK__value__36[0].kind == "Some" && __PUCK__value__36[1].kind == "Some") {
-    var _PUCK__value__36$0$v = _slicedToArray(__PUCK__value__36[0].value, 1),
-        toName = _PUCK__value__36$0$v[0],
-        _PUCK__value__36$1$v = _slicedToArray(__PUCK__value__36[1].value, 1),
-        subjectName = _PUCK__value__36$1$v[0];
+  var __PUCK__value__28 = [to.name, subject.name];
+  var __PUCK__value__29 = __PUCK__value__28;
+  if (__PUCK__value__29[0].kind == "Some" && __PUCK__value__29[1].kind == "Some") {
+    var _PUCK__value__29$0$v = _slicedToArray(__PUCK__value__29[0].value, 1),
+        toName = _PUCK__value__29$0$v[0],
+        _PUCK__value__29$1$v = _slicedToArray(__PUCK__value__29[1].value, 1),
+        subjectName = _PUCK__value__29$1$v[0];
 
     return toName == subjectName;
   } else {
-    var __PUCK__value__37 = __PUCK__value__35;
+    var __PUCK__value__30 = __PUCK__value__28;
     if (true) {
-      var __PUCK__value__38 = __PUCK__value__37;
+      var __PUCK__value__31 = __PUCK__value__30;
       return true;
     };
   };
@@ -346,93 +314,93 @@ function isAssignable(to, subject) {
   if (to == subject) {
     return true;
   };
-  var __PUCK__value__39 = subject.kind;
-  if (__PUCK__value__39.kind == "Parameter") {
-    var _undefined5 = __PUCK__value__39;
+  var __PUCK__value__32 = subject.kind;
+  if (__PUCK__value__32.kind == "Parameter") {
+    var _undefined4 = __PUCK__value__32;
     return true;
   };
-  var __PUCK__value__40 = to.kind;
-  var __PUCK__value__41 = __PUCK__value__40;
-  if (__PUCK__value__41.kind == "Enum") {
-    var _PUCK__value__41$val = _slicedToArray(__PUCK__value__41.value, 1),
-        toEnum = _PUCK__value__41$val[0];
+  var __PUCK__value__33 = to.kind;
+  var __PUCK__value__34 = __PUCK__value__33;
+  if (__PUCK__value__34.kind == "Enum") {
+    var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1),
+        toEnum = _PUCK__value__34$val[0];
 
-    var __PUCK__value__42 = subject.kind;
-    var __PUCK__value__43 = __PUCK__value__42;
-    if (__PUCK__value__43.kind == "Enum") {
-      var _PUCK__value__43$val = _slicedToArray(__PUCK__value__43.value, 1),
-          subjectEnum = _PUCK__value__43$val[0];
+    var __PUCK__value__35 = subject.kind;
+    var __PUCK__value__36 = __PUCK__value__35;
+    if (__PUCK__value__36.kind == "Enum") {
+      var _PUCK__value__36$val = _slicedToArray(__PUCK__value__36.value, 1),
+          subjectEnum = _PUCK__value__36$val[0];
 
       return isSameName(to, subject) && isEnumAssignable(toEnum, subjectEnum);
     } else {
-      var __PUCK__value__44 = __PUCK__value__42;
+      var __PUCK__value__37 = __PUCK__value__35;
       if (true) {
-        var __PUCK__value__45 = __PUCK__value__44;
+        var __PUCK__value__38 = __PUCK__value__37;
         return false;
       };
     };
   } else {
-    var __PUCK__value__46 = __PUCK__value__40;
-    if (__PUCK__value__46.kind == "Function") {
-      var _PUCK__value__46$val = _slicedToArray(__PUCK__value__46.value, 1),
-          toFunc = _PUCK__value__46$val[0];
+    var __PUCK__value__39 = __PUCK__value__33;
+    if (__PUCK__value__39.kind == "Function") {
+      var _PUCK__value__39$val = _slicedToArray(__PUCK__value__39.value, 1),
+          toFunc = _PUCK__value__39$val[0];
 
-      var __PUCK__value__47 = subject.kind;
-      var __PUCK__value__48 = __PUCK__value__47;
-      if (__PUCK__value__48.kind == "Function") {
-        var _PUCK__value__48$val = _slicedToArray(__PUCK__value__48.value, 1),
-            subjectFunc = _PUCK__value__48$val[0];
+      var __PUCK__value__40 = subject.kind;
+      var __PUCK__value__41 = __PUCK__value__40;
+      if (__PUCK__value__41.kind == "Function") {
+        var _PUCK__value__41$val = _slicedToArray(__PUCK__value__41.value, 1),
+            subjectFunc = _PUCK__value__41$val[0];
 
         return isFunctionAssignable(toFunc, subjectFunc);
       } else {
-        var __PUCK__value__49 = __PUCK__value__47;
+        var __PUCK__value__42 = __PUCK__value__40;
         if (true) {
-          var __PUCK__value__50 = __PUCK__value__49;
+          var __PUCK__value__43 = __PUCK__value__42;
           return false;
         };
       };
     } else {
-      var __PUCK__value__51 = __PUCK__value__40;
-      if (__PUCK__value__51.kind == "Parameter") {
-        var _undefined6 = __PUCK__value__51;
+      var __PUCK__value__44 = __PUCK__value__33;
+      if (__PUCK__value__44.kind == "Parameter") {
+        var _undefined5 = __PUCK__value__44;
         return true;
       } else {
-        var __PUCK__value__52 = __PUCK__value__40;
-        if (__PUCK__value__52.kind == "Struct") {
-          var _PUCK__value__52$val = _slicedToArray(__PUCK__value__52.value, 1),
-              toStruct = _PUCK__value__52$val[0];
+        var __PUCK__value__45 = __PUCK__value__33;
+        if (__PUCK__value__45.kind == "Struct") {
+          var _PUCK__value__45$val = _slicedToArray(__PUCK__value__45.value, 1),
+              toStruct = _PUCK__value__45$val[0];
 
-          var __PUCK__value__53 = subject.kind;
-          var __PUCK__value__54 = __PUCK__value__53;
-          if (__PUCK__value__54.kind == "Struct") {
-            var _PUCK__value__54$val = _slicedToArray(__PUCK__value__54.value, 1),
-                subjectStruct = _PUCK__value__54$val[0];
+          var __PUCK__value__46 = subject.kind;
+          var __PUCK__value__47 = __PUCK__value__46;
+          if (__PUCK__value__47.kind == "Struct") {
+            var _PUCK__value__47$val = _slicedToArray(__PUCK__value__47.value, 1),
+                subjectStruct = _PUCK__value__47$val[0];
 
             return isSameName(to, subject) && isStructAssignable(toStruct, subjectStruct);
           } else {
-            var __PUCK__value__55 = __PUCK__value__53;
+            var __PUCK__value__48 = __PUCK__value__46;
             if (true) {
-              var __PUCK__value__56 = __PUCK__value__55;
+              var __PUCK__value__49 = __PUCK__value__48;
               return false;
             };
           };
         } else {
-          var __PUCK__value__57 = __PUCK__value__40;
-          if (__PUCK__value__57.kind == "Trait") {
-            var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1),
-                toTrait = _PUCK__value__57$val[0];
+          var __PUCK__value__50 = __PUCK__value__33;
+          if (__PUCK__value__50.kind == "Trait") {
+            var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 1),
+                toTrait = _PUCK__value__50$val[0];
 
-            var __PUCK__value__58 = subject.kind;
-            var __PUCK__value__59 = __PUCK__value__58;
-            if (__PUCK__value__59.kind == "Trait") {
-              var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 1),
-                  subjectTrait = _PUCK__value__59$val[0];
+            var __PUCK__value__51 = subject.kind;
+            var __PUCK__value__52 = __PUCK__value__51;
+            if (__PUCK__value__52.kind == "Trait") {
+              var _PUCK__value__52$val = _slicedToArray(__PUCK__value__52.value, 1),
+                  subjectTrait = _PUCK__value__52$val[0];
 
               return isTraitAssignable(toTrait, subjectTrait);
             } else {
-              var __PUCK__value__60 = __PUCK__value__58;
+              var __PUCK__value__53 = __PUCK__value__51;
               if (true) {
-                var __PUCK__value__61 = __PUCK__value__60;
+                var __PUCK__value__54 = __PUCK__value__53;
                 return false;
               };
             };
@@ -444,7 +412,7 @@ function isAssignable(to, subject) {
 };
 function isEnumAssignable(to, subject) {
   if (_core.ObjectMap.size.call(to.members) == _core.ObjectMap.size.call(subject.members)) {
-    return _core.Iterable['$List'].all.call(_core.ObjectMap.toList.call(to.members), function (_ref) {
+    return _core.Iterable['$List<E>'].all.call(_core.ObjectMap.toList.call(to.members), function (_ref) {
       var _ref2 = _slicedToArray(_ref, 2),
           name = _ref2[0],
           toMember = _ref2[1];
@@ -459,7 +427,7 @@ function isFunctionAssignable(to, subject) {
   if (!_core.Range.isSubsetOf.call(to.argumentRange, subject.argumentRange)) {
     return false;
   };
-  return _core.Iterable['$List'].all.call(_core.Iterable['$List'].enumerate.call(to._arguments), function (_ref3) {
+  return _core.Iterable['$List<E>'].all.call(_core.Iterable['$List<E>'].enumerate.call(to._arguments), function (_ref3) {
     var _ref4 = _slicedToArray(_ref3, 2),
         toArg = _ref4[0],
         i = _ref4[1];
@@ -468,17 +436,17 @@ function isFunctionAssignable(to, subject) {
   });
 };
 function isStructAssignable(to, subject) {
-  var __PUCK__value__62 = [to.kind, subject.kind];
-  var __PUCK__value__63 = __PUCK__value__62;
-  if (__PUCK__value__63[0].kind == "Record" && __PUCK__value__63[1].kind == "Record") {
+  var __PUCK__value__55 = [to.kind, subject.kind];
+  var __PUCK__value__56 = __PUCK__value__55;
+  if (__PUCK__value__56[0].kind == "Record" && __PUCK__value__56[1].kind == "Record") {
     var _ret = function () {
-      var _PUCK__value__63$0$v = _slicedToArray(__PUCK__value__63[0].value, 1),
-          toProps = _PUCK__value__63$0$v[0].properties,
-          _PUCK__value__63$1$v = _slicedToArray(__PUCK__value__63[1].value, 1),
-          subjectProps = _PUCK__value__63$1$v[0].properties;
+      var _PUCK__value__56$0$v = _slicedToArray(__PUCK__value__56[0].value, 1),
+          toProps = _PUCK__value__56$0$v[0].properties,
+          _PUCK__value__56$1$v = _slicedToArray(__PUCK__value__56[1].value, 1),
+          subjectProps = _PUCK__value__56$1$v[0].properties;
 
       return {
-        v: _core.Iterable['$List'].all.call(_core.ObjectMap.toList.call(toProps), function (_ref5) {
+        v: _core.Iterable['$List<E>'].all.call(_core.ObjectMap.toList.call(toProps), function (_ref5) {
           var _ref6 = _slicedToArray(_ref5, 2),
               key = _ref6[0],
               toProp = _ref6[1];
@@ -490,17 +458,17 @@ function isStructAssignable(to, subject) {
 
     if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
   } else {
-    var __PUCK__value__64 = __PUCK__value__62;
-    if (__PUCK__value__64[0].kind == "Tuple" && __PUCK__value__64[1].kind == "Tuple") {
-      var _PUCK__value__64$0$v = _slicedToArray(__PUCK__value__64[0].value, 1),
-          toProps = _PUCK__value__64$0$v[0].properties,
-          _PUCK__value__64$1$v = _slicedToArray(__PUCK__value__64[1].value, 1),
-          subjectProps = _PUCK__value__64$1$v[0].properties;
+    var __PUCK__value__57 = __PUCK__value__55;
+    if (__PUCK__value__57[0].kind == "Tuple" && __PUCK__value__57[1].kind == "Tuple") {
+      var _PUCK__value__57$0$v = _slicedToArray(__PUCK__value__57[0].value, 1),
+          toProps = _PUCK__value__57$0$v[0].properties,
+          _PUCK__value__57$1$v = _slicedToArray(__PUCK__value__57[1].value, 1),
+          subjectProps = _PUCK__value__57$1$v[0].properties;
 
-      if (_core.Iterable['$List'].size.call(toProps) != _core.Iterable['$List'].size.call(subjectProps)) {
+      if (_core.Iterable['$List<E>'].size.call(toProps) != _core.Iterable['$List<E>'].size.call(subjectProps)) {
         return false;
       };
-      return _core.Iterable['$List'].all.call(_core.List.zip.call(_core.List, toProps, subjectProps), function (_ref7) {
+      return _core.Iterable['$List<E>'].all.call(_core.List.zip.call(_core.List, toProps, subjectProps), function (_ref7) {
         var _ref8 = _slicedToArray(_ref7, 2),
             toProp = _ref8[0],
             subjectProp = _ref8[1];
@@ -508,13 +476,13 @@ function isStructAssignable(to, subject) {
         return isAssignable(toProp, subjectProp);
       });
     } else {
-      var __PUCK__value__65 = __PUCK__value__62;
-      if (__PUCK__value__65[0].kind == "Unit" && __PUCK__value__65[1].kind == "Unit") {
+      var __PUCK__value__58 = __PUCK__value__55;
+      if (__PUCK__value__58[0].kind == "Unit" && __PUCK__value__58[1].kind == "Unit") {
         return to.kind.value == subject.kind.value;
       } else {
-        var __PUCK__value__66 = __PUCK__value__62;
+        var __PUCK__value__59 = __PUCK__value__55;
         if (true) {
-          var __PUCK__value__67 = __PUCK__value__66;
+          var __PUCK__value__60 = __PUCK__value__59;
           return to.kind == subject.kind;
         };
       };
@@ -523,7 +491,7 @@ function isStructAssignable(to, subject) {
 };
 function isTraitAssignable(to, subject) {
   if (_core.ObjectMap.size.call(to.functions) == _core.ObjectMap.size.call(subject.functions)) {
-    return _core.Iterable['$List'].all.call(_core.ObjectMap.toList.call(to.functions), function (_ref9) {
+    return _core.Iterable['$List<E>'].all.call(_core.ObjectMap.toList.call(to.functions), function (_ref9) {
       var _ref10 = _slicedToArray(_ref9, 2),
           name = _ref10[0],
           toFunction = _ref10[1];
@@ -535,12 +503,12 @@ function isTraitAssignable(to, subject) {
   };
 };
 function isSameType(a, b) {
-  var __PUCK__value__68 = [a.name, b.name];
-  if (__PUCK__value__68[0].kind == "Some" && __PUCK__value__68[1].kind == "Some") {
-    var _PUCK__value__68$0$v = _slicedToArray(__PUCK__value__68[0].value, 1),
-        aName = _PUCK__value__68$0$v[0],
-        _PUCK__value__68$1$v = _slicedToArray(__PUCK__value__68[1].value, 1),
-        bName = _PUCK__value__68$1$v[0];
+  var __PUCK__value__61 = [a.name, b.name];
+  if (__PUCK__value__61[0].kind == "Some" && __PUCK__value__61[1].kind == "Some") {
+    var _PUCK__value__61$0$v = _slicedToArray(__PUCK__value__61[0].value, 1),
+        aName = _PUCK__value__61$0$v[0],
+        _PUCK__value__61$1$v = _slicedToArray(__PUCK__value__61[1].value, 1),
+        bName = _PUCK__value__61$1$v[0];
 
     return aName == bName;
   } else {

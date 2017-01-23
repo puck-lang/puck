@@ -1,4 +1,5 @@
-import 'puck:js' as {Object, undefined}
+import 'puck:core' as core
+import 'puck:js' as {Object, global, undefined}
 import 'node:util' as {inspect}
 import '../ast/ast.puck' as {
   Expression
@@ -305,7 +306,7 @@ export fn ScopeVisitor(context, file) {
       e.scope = self.scope
       self.visitExpression(e.func)
 
-      let mut functionType = e.func.type_
+      let mut functionType: Type = e.func.type_
 
       if e.func.kind == SyntaxKind.MemberAccess and e.func.object.type_ {
         let name = e.func.member.name
@@ -321,7 +322,7 @@ export fn ScopeVisitor(context, file) {
             then throw 'direct trait calls for functions with self bindings are not implemented'
         }
         else {
-          fn getImplementations(type_: Type) {
+          fn getImplementation(type_: Type) {
             let implementations =  match type_.kind {
               TypeKind::Enum(enum_) => enum_.implementations
               TypeKind::Struct(struct) => struct.implementations
@@ -329,50 +330,67 @@ export fn ScopeVisitor(context, file) {
               _ => throw 'Not an enum or a struct'
             }
 
+            // Implementations implemented for the correct type instance (generics)
+            let implementations: List<Implementation> =
+              if implementations.length > 1
+                then if let Option::Some(objectInstance) = objectType.instance
+                  then implementations
+                    .filter(|i: Implementation| {
+                      let implementationInstance = i.type_.instance.unwrap()
+
+                      List.zip(objectInstance.typeParameters, implementationInstance.typeParameters)
+                        .all(|(objectP, implP)| isAssignable(implP, objectP))
+                    })
+                  else implementations
+                else implementations
+
+            // Implementations that implements the called function
             let implementations = implementations
               .filter(|i| asType(i.trait_).getTrait().functions[name])
 
+            // Implementations that are in scope
             let implementations =
               if implementations.length > 1
                 then implementations
                   .filter(|i| e.scope.getTypeBinding(
                     asType(i.trait_).name.unwrap()
                   ))
-              else implementations
+                else implementations
 
-            let implementations =
+            // Implementations that accept the correct number of arguments
+            let implementations: List<Implementation> =
               if implementations.length > 1
                 then implementations
                   .filter(|i| asType(asType(i.trait_).getTrait().functions[name]).getFunction().argumentRange
                     .contains(e.argumentList.length)
                   )
-              else implementations
+                else implementations
 
+            // Implementations that are more specific (only for generics)
+            // For example an impl for List<String> is more specific than one for List<T>
             let implementations: List<Implementation> =
-              if implementations.length > 1 {
-                let hasInstance = implementations.find(|i: Implementation| i.trait_.instance.isJust())
-                if hasInstance.isJust()
-                  then implementations
-                    .filter(|i: Implementation| i.trait_.instance.isJust())
-                  else implementations
-              }
+              if implementations.length > 1 and objectType.instance.isJust()
+                then if let Option::Some(objectInstance) = objectType.instance {
+                  let mut maxSpecificity = 0
+
+                  implementations
+                    .map(|i| {
+                      let specificity = getTypeSpecificity(i.type_)
+                      maxSpecificity = global.Math.max(maxSpecificity, specificity)
+                      (i, specificity)
+                    })
+                    .filter(|(_, specificity)| specificity == maxSpecificity)
+                    .map(|(i, _)| i)
+                }
+                else implementations
               else implementations
 
-            if implementations.length > 1 then reportError(e, 'Ambiguous trait call')
-
-            if implementations.length == 0 {
-              if let Option::Some(instance) = type_.instance {
-                getImplementations(instance.class)
-              }
-              else implementations
-            }
-            else implementations
+            if implementations.length > 1
+              then reportError(e, 'Ambiguous trait call')
+              else implementations.first()
           }
 
-          let implementations = getImplementations(objectType)
-
-          if implementations.length == 1 {
-            let implementation = implementations[0]
+          if let Option::Some(implementation) = getImplementation(objectType) {
             let trait_: Type =
               if let Option::Some(instance) = implementation.trait_.instance
                 then instance.class
@@ -393,14 +411,29 @@ export fn ScopeVisitor(context, file) {
           }
         }
       }
-      let parentAssignedTo = self.assignedTo
-      e.argumentList.enumerate().forEach(|(a, i)| {
-        self.assignedTo = if functionType
-          then if let TypeKind::Function(func) = functionType.kind then func.arguments[i]
-        self.visitExpression(a)
-      })
-      self.assignedTo = parentAssignedTo
-
+      if functionType and functionType.isFunction() {
+        let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
+        let mut callParameterMap = ObjectMap.new()
+        let parentAssignedTo = self.assignedTo
+        e.argumentList.enumerate().forEach(|(a, i)| {
+          self.assignedTo = functionType.getFunction().arguments[i]
+          self.visitExpression(a)
+          if callTypeParameters.isNotEmpty() and functionType.getFunction().arguments[i].type_ and a.type_ {
+            resolveFunctionTypeParameters(
+              callParameterMap
+              callTypeParameters
+              functionType.getFunction().arguments[i].type_
+              a.type_
+            )
+          }
+        })
+        if callTypeParameters.isNotEmpty() {
+          functionType = resolveTypeParameters(callParameterMap)(functionType)
+        }
+        self.assignedTo = parentAssignedTo
+      } else {
+        e.argumentList.forEach(|a| self.visitExpression(a))
+      }
       if functionType {
         let function = checkFunctionCall(functionType, e)
         e.type_ = function.returnType
@@ -501,10 +534,13 @@ export fn ScopeVisitor(context, file) {
                       redefined: false
                     }]
                     argumentRange: {start: 1, end: 2}
-                    returnType: type_
+                    returnType:
+                      if let Option::Some(class) = type_.class
+                        then createTypeInstance(type_, class.typeParameters)
+                        else type_
                     isAbstract: false
                   })
-                  class: type_.class
+                  class: type_.class.map(|class| Object.assign({}, class, {instances: []}))
                   instance: type_.instance
                 }
               }
@@ -523,10 +559,13 @@ export fn ScopeVisitor(context, file) {
                       redefined: false
                     }})
                     argumentRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
-                    returnType: type_
+                    returnType:
+                      if let Option::Some(class) = type_.class
+                        then createTypeInstance(type_, class.typeParameters)
+                        else type_
                     isAbstract: false
                   })
-                  class: type_.class
+                  class: type_.class.map(|class| Object.assign({}, class, {instances: []}))
                   instance: type_.instance
                 }
               }
@@ -648,4 +687,39 @@ export fn ScopeVisitor(context, file) {
       }
     }
   })
+}
+
+fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeParameters: List<Type>, parameterType: Type, argumentType: Type) {
+  match parameterType.kind {
+    TypeKind::Parameter(_) => {
+      let name = parameterType.name.unwrap()
+      if typeParameters.any(|p| p.name.unwrap() == name) {
+        if not parameterMap.has(name) {
+          parameterMap[name] = argumentType
+        }
+      }
+    }
+    TypeKind::Function(parameterFunction) => {
+      if parameterFunction.returnType {
+        if let TypeKind::Function(argumentFunction) = argumentType.kind {
+          if argumentFunction.returnType {
+            resolveFunctionTypeParameters(parameterMap, typeParameters, parameterFunction.returnType, argumentFunction.returnType)
+          }
+        }
+      }
+    }
+    _ => ()
+  }
+}
+
+fn getTypeSpecificity(type_: Type) -> Num {
+  if let TypeKind::Parameter(_) = type_.kind
+    then return 0
+
+  match type_.instance {
+    Option::Some(instance) => {
+      instance.typeParameters.reduce(|sum, type_| sum + getTypeSpecificity(type_), 1)
+    }
+    Option::None => 1
+  }
 }

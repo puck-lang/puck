@@ -11,10 +11,9 @@ enum Enum { A, B, A }
 enum Enum { A(Num) }
 let five = Enum::A('five')
 
-//// String is not assignable to type Num
-// TODO: Make this error
-// enum Enum = A {b: Num}
-// let five = Enum.A({b: 'five'})
+///// {b: String} is not assignable to type {b: Num} in parameter 0 of function Enum::A
+enum Enum { A {b: Num} }
+let five = Enum::A({b: 'five'})
 
 ///// Option::None is not callable
 let five = Option::None('five')

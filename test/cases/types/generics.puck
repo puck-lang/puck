@@ -1,2 +1,13 @@
 let argv: List<String> = []
 let arguments = argv.skipUntil(|arg| arg.contains('puck')).skip(1)
+
+type User {
+  name: String
+}
+
+let user: Option<User> = Option::Some({name: 'Anna'})
+let name: Option<String> = user.map(|user| user.name)
+let user2: Option<User> = Option::Some({name: 'Anna'})
+let name2 = user2.map(|user| user.name)
+let name3 = name2.unwrapOr('Guest')
+let containsGuest = name3.contains('Guest')
