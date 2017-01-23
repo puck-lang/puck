@@ -1,7 +1,10 @@
 "use strict";
 var ast_1 = require("./ast");
 var entities_1 = require("../entities");
-var jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined'];
+var jsKeywords = [
+    'arguments', 'case', 'class', 'default', 'function', 'module', 'new', 'null',
+    'static', 'Object', 'typeof', 'undefined',
+];
 var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
     _a[ast_1.SyntaxKind.AndKeyword] = '&&',
     _a[ast_1.SyntaxKind.OrKeyword] = '||',

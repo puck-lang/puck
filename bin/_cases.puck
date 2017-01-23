@@ -4,7 +4,7 @@ import '../lib/helpers.puck' as {cmd, walkSync}
 import '../lib/test.puck' as {buildTestCompiler}
 
 let argv: List<String> = process.argv
-let arguments = argv.skipUntil(|arg| arg.contains('test')).skip(1)
+let arguments = argv.skipUntil(|arg| arg.contains('cases')).skip(1)
 let command = arguments[0]
 
 if command == undefined {
@@ -48,6 +48,16 @@ if command == undefined {
   })
 
   cmd('diff -Nr test/baselines .tmp/cases')
+  print('done')
+}
+else if command == 'file' {
+  let file = arguments[1]
+  let built = file.replace(RegExp('\\.puck$'), '.js')
+  buildTestCompiler()
+
+  cmd('.tmp/old/bin/puckc --out-dir .tmp/cases $file')
+
+  cmd('diff -Nr test/baselines/$built .tmp/cases/$built')
   print('done')
 }
 else if command == 'update-baselines' {

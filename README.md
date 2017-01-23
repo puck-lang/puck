@@ -46,14 +46,11 @@ the following commands with `dist/bin/`.
 Run `puckc some/file some/other/file` to build the specified file(s).  
 Run `puck build` to build the project.  
 Run `puck test` to run the testsuite.  
-Run `puck update-baselines` to update the baselines (accept the current behaviour) for the testsuite.  
-Run `puck self-test` to run a self test of the compiler, which consists of:  
-
-1. Build the full compiler to .tmp/old
-2. Build the full compiler to .tmp/new using the version in .tmp/old
-3. diff .tmp/new and .tmp/old to make sure the output is exactly the same
+Run `cases` to run compilation tests.  
+Run `cases update-baselines` to update the baselines (accept the current behaviour) for the compilation tests.  
+Run `self-test` to run a self test of the compiler that validates that the compiler can reproduce itself.
 
 ## Editors
-There are avalible plugins for Atom and Visual Studio Code, as well as a textmate grammar
+There are plugins avalible for Atom and Visual Studio Code, as well as a Textmate grammar
 that can be used to create plugins for most editors. 
 See [puck-lang/editors](https://github.com/puck-lang/editors) for details.

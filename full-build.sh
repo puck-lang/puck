@@ -2,14 +2,14 @@
 
 set -e
 
-printf "test: "
-dist/bin/test
+printf "cases: "
+dist/bin/cases
 printf "self-test: "
 dist/bin/self-test
 printf "puck build: "
 dist/bin/puck build
-printf "test: "
-dist/bin/test
+printf "cases: "
+dist/bin/cases
 printf "self-test: "
 dist/bin/self-test
 printf "puck test: "

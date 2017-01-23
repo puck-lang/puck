@@ -56,10 +56,13 @@ import {
 import {Type} from '../entities'
 import {isTypeScopeDeclaration} from '../helpers'
 
-const jsKeywords = ['arguments', 'class', 'default', 'function', 'module', 'new', 'null', 'static', 'Object', 'typeof', 'undefined']
+const jsKeywords = [
+  'arguments', 'case', 'class', 'default', 'function', 'module', 'new', 'null',
+  'static', 'Object', 'typeof', 'undefined',
+]
 const tokenToJs = Object['assign'](tokenToText, {
   [SyntaxKind.AndKeyword]: '&&',
-  [SyntaxKind.OrKeyword]: '||',
+  [SyntaxKind.OrKeyword]:  '||',
   [SyntaxKind.NotKeyword]: '!',
 })
 
