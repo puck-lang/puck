@@ -24,23 +24,23 @@ describe('core', || {
   })
 
   describe('Option', || {
-    describe('isJust', || {
+    describe('isSome', || {
       it('should return true if Some(value)', || {
-        expect(Some(1).isJust()).toBe(true)
+        expect(Some(1).isSome()).toBe(true)
       })
 
       it('should return false if None', || {
-        expect(None.isJust()).toBe(false)
+        expect(None.isSome()).toBe(false)
       })
     })
 
-    describe('isNothing', || {
+    describe('isNone', || {
       it('should return false if Some(value)', || {
-        expect(Some(1).isNothing()).toBe(false)
+        expect(Some(1).isNone()).toBe(false)
       })
 
       it('should return true if None', || {
-        expect(None.isNothing()).toBe(true)
+        expect(None.isNone()).toBe(true)
       })
     })
 

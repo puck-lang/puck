@@ -460,7 +460,7 @@ function ScopeVisitor(context, file) {
               };
               implementations = __PUCK__value__43;
               var __PUCK__value__44 = void 0;
-              if (implementations.length > 1 && _core.Option.isJust.call(objectType.instance)) {
+              if (implementations.length > 1 && _core.Option.isSome.call(objectType.instance)) {
                 var __PUCK__value__45 = objectType.instance;
                 var __PUCK__value__46 = void 0;
                 if (__PUCK__value__45.kind == "Some") {

@@ -366,7 +366,7 @@ Type.isParameter = function isParameter() {
 TypeClass.fromAstNode = function fromAstNode(astNode, reportError) {
   if (astNode.typeParameters && astNode.typeParameters.length) {
     var parameterRange = (0, _range.getRange)(astNode.typeParameters, function (p) {
-      return _core.Option.isJust.call(p.defaultValue);
+      return _core.Option.isSome.call(p.defaultValue);
     }, reportError, "type parameter");
     return (0, _core.Some)({
       parameterRange: parameterRange,

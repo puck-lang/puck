@@ -214,7 +214,7 @@ impl TypeClass {
     if astNode.typeParameters and astNode.typeParameters.length {
       let parameterRange = getRange(
         astNode.typeParameters
-        |p: TypeParameter| p.defaultValue.isJust()
+        |p: TypeParameter| p.defaultValue.isSome()
         reportError
         'type parameter'
       )

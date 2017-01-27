@@ -301,7 +301,7 @@ function parse(input) {
   function parseRecordPatternMember() {
     var property = consumeToken(_ast2.SyntaxKind.Identifier, "identifier");
     var __PUCK__value__6 = void 0;
-    if (_core.Option.isJust.call(maybeConsumeToken(_ast2.SyntaxKind.ColonToken))) {
+    if (_core.Option.isSome.call(maybeConsumeToken(_ast2.SyntaxKind.ColonToken))) {
       __PUCK__value__6 = parsePattern();
     } else {
       __PUCK__value__6 = _ast.Pattern.Identifier(property);
@@ -333,7 +333,7 @@ function parse(input) {
     };
   };
   function parsePattern() {
-    if (_core.Option.isJust.call(maybeConsumeToken(_ast2.SyntaxKind.UnderscoreToken))) {
+    if (_core.Option.isSome.call(maybeConsumeToken(_ast2.SyntaxKind.UnderscoreToken))) {
       return _ast.Pattern.CatchAll;
     } else {
       if (isToken(_ast2.SyntaxKind.OpenParenToken)) {
@@ -375,10 +375,10 @@ function parse(input) {
     var members = _core.Iterable['$List<E>'].map.call(delimited("{", "}", ";", function () {
       return parseFunctionDeclaration(true);
     }, false), function (f) {
-      if (_core.Option.isNothing.call(f.name)) {
+      if (_core.Option.isNone.call(f.name)) {
         input.croak("Trait functions must have a name");
       };
-      if (_core.Option.isNothing.call(f.returnType)) {
+      if (_core.Option.isNone.call(f.returnType)) {
         input.croak("Trait functions must have a return type");
       };
       return f;
@@ -422,10 +422,10 @@ function parse(input) {
 
     var openBrace = expect(_ast2.SyntaxKind.OpenBraceToken);
     var members = _core.Iterable['$List<E>'].map.call(delimited("{", "}", ";", parseFunctionDeclaration, false), function (f) {
-      if (_core.Option.isNothing.call(f.name)) {
+      if (_core.Option.isNone.call(f.name)) {
         input.croak("Trait functions must have a name");
       };
-      if (_core.Option.isNothing.call(f.returnType)) {
+      if (_core.Option.isNone.call(f.returnType)) {
         input.croak("Trait functions must have a return type");
       };
       return f;
@@ -556,7 +556,7 @@ function parse(input) {
     var i = _core.Option.unwrapOrElse.call(identifier, function () {
       return consumeToken(_ast2.SyntaxKind.Identifier, "identifier");
     });
-    if (_core.Option.isJust.call(maybeConsumeToken(_ast2.SyntaxKind.ColonColonToken))) {
+    if (_core.Option.isSome.call(maybeConsumeToken(_ast2.SyntaxKind.ColonColonToken))) {
       return _ast.TypePath._Object(i, parseTypePath(_core.None));
     } else {
       return _ast.TypePath.Member(i);
@@ -605,7 +605,7 @@ function parse(input) {
     };
   };
   function parseVariableDeclaration() {
-    var mutable = _core.Option.isJust.call(maybeConsumeToken(_ast2.SyntaxKind.MutKeyword));
+    var mutable = _core.Option.isSome.call(maybeConsumeToken(_ast2.SyntaxKind.MutKeyword));
     var pattern = parsePattern();
     return {
       kind: _ast2.SyntaxKind.VariableDeclaration,
@@ -638,7 +638,7 @@ function parse(input) {
     var typeParameters = __PUCK__value__19;
     var parameterList = delimited("(", ")", ",", parseVariableDeclaration);
     var __PUCK__value__20 = void 0;
-    if (_core.Option.isJust.call(maybeConsumeToken(_ast2.SyntaxKind.MinusGreaterThanToken))) {
+    if (_core.Option.isSome.call(maybeConsumeToken(_ast2.SyntaxKind.MinusGreaterThanToken))) {
       __PUCK__value__20 = (0, _core.Some)(parseTypeBound());
     } else {
       __PUCK__value__20 = _core.None;

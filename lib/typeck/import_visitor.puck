@@ -59,7 +59,7 @@ export fn ImportVisitor(context, file: UnparsedFile) {
     }
 
     visitImportDirective: |self, mut i: ImportDirective| {
-      if i.domain.isNothing() {
+      if i.domain.isNone() {
         let importedFile = context.resolvePath(i.path, file)
         let path = importedFile.absolutePath
         let result: Result<{}, {}> = asResult(|| statSync(path))

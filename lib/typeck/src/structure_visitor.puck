@@ -83,7 +83,7 @@ export let structureVisitor = {
         if let Pattern::Identifier({name}) = first.pattern {
           let type_: Option<TypeBound> = first.typeBound
           if name == 'self' {
-            if type_.isNothing() {
+            if type_.isNone() {
               f.parameterList[0].typeBound = Some({
                 kind: SyntaxKind.NamedTypeBound
                 path: TypePath::Member({name: 'Self'})
@@ -161,7 +161,7 @@ export let structureVisitor = {
       visit.walkNamedTypeBound(self, t)
 
       t.type_ =
-        if type_.class.isJust()
+        if type_.class.isSome()
           then createTypeInstance(type_, t.typeParameters.map(|p| p.type_))
           else type_
     }

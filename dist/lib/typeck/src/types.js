@@ -58,7 +58,7 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
         }));
       };
     };
-    if (!enterNamed && !_entities.Type.isParameter.call(type_) && (_core.Option.isJust.call(type_.name) || _core.Option.isJust.call(type_.displayName))) {
+    if (!enterNamed && !_entities.Type.isParameter.call(type_) && (_core.Option.isSome.call(type_.name) || _core.Option.isSome.call(type_.displayName))) {
       return type_;
     };
     var __PUCK__value__2 = type_.kind;

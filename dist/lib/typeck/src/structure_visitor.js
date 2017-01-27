@@ -133,7 +133,7 @@ var structureVisitor = exports.structureVisitor = {
 
           var type_ = first.typeBound;
           if (name == "self") {
-            if (_core.Option.isNothing.call(type_)) {
+            if (_core.Option.isNone.call(type_)) {
               f.parameterList[0].typeBound = (0, _core.Some)({
                 kind: _ast2.SyntaxKind.NamedTypeBound,
                 path: _ast.TypePath.Member({ name: "Self" }),
@@ -238,7 +238,7 @@ var structureVisitor = exports.structureVisitor = {
       };
       visit.walkNamedTypeBound(self, t);
       var __PUCK__value__16 = void 0;
-      if (_core.Option.isJust.call(type_._class)) {
+      if (_core.Option.isSome.call(type_._class)) {
         __PUCK__value__16 = (0, _types.createTypeInstance)(type_, _core.Iterable['$List<E>'].map.call(t.typeParameters, function (p) {
           return p.type_;
         }));

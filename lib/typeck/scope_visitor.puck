@@ -369,7 +369,7 @@ export fn ScopeVisitor(context, file) {
             // Implementations that are more specific (only for generics)
             // For example an impl for List<String> is more specific than one for List<T>
             let implementations: List<Implementation> =
-              if implementations.length > 1 and objectType.instance.isJust()
+              if implementations.length > 1 and objectType.instance.isSome()
                 then if let Option::Some(objectInstance) = objectType.instance {
                   let mut maxSpecificity = 0
 

@@ -24,7 +24,7 @@ function createFunctionType(scope, f, reportError) {
   if (f.typeParameters.length) {
     __PUCK__value__1 = (0, _core.Some)({
       parameterRange: (0, _range.getRange)(f.typeParameters, function (p) {
-        return _core.Option.isJust.call(p.defaultValue);
+        return _core.Option.isSome.call(p.defaultValue);
       }, reportError, "type parameter"),
       instances: [],
       typeParameters: _core.Iterable['$List<E>'].map.call(f.typeParameters, function (p) {
@@ -60,7 +60,7 @@ function createFunctionType(scope, f, reportError) {
   };
   var selfBinding = __PUCK__value__4;
   var __PUCK__value__5 = void 0;
-  if (_core.Option.isJust.call(selfBinding)) {
+  if (_core.Option.isSome.call(selfBinding)) {
     __PUCK__value__5 = _arguments.slice(1);
   } else {
     __PUCK__value__5 = _arguments;
@@ -70,7 +70,7 @@ function createFunctionType(scope, f, reportError) {
   if (f.parameterList) {
     __PUCK__value__6 = (0, _range.getRange)(_arguments, function (p) {
       var vd = p.token;
-      return _core.Option.isJust.call(vd.initializer);
+      return _core.Option.isSome.call(vd.initializer);
     }, reportError, "parameter");
   } else {
     __PUCK__value__6 = {
@@ -88,7 +88,7 @@ function createFunctionType(scope, f, reportError) {
       _arguments: _arguments,
       argumentRange: __PUCK__value__6,
       returnType: returnType,
-      isAbstract: _core.Option.isNothing.call(f.body)
+      isAbstract: _core.Option.isNone.call(f.body)
     }),
     _class: _class,
     instance: _core.None

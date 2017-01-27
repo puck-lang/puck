@@ -340,7 +340,7 @@ export fn parse(input) { // : TokenStream
   fn parseRecordPatternMember() -> RecordPatternMember {
     let property = consumeToken(SyntaxKind.Identifier, 'identifier')
     let pattern =
-      if maybeConsumeToken(SyntaxKind.ColonToken).isJust()
+      if maybeConsumeToken(SyntaxKind.ColonToken).isSome()
         then parsePattern()
         else Pattern.Identifier(property)
 
@@ -364,7 +364,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parsePattern() -> Pattern {
-    if maybeConsumeToken(SyntaxKind.UnderscoreToken).isJust()
+    if maybeConsumeToken(SyntaxKind.UnderscoreToken).isSome()
       then Pattern.CatchAll
     else if isToken(SyntaxKind.OpenParenToken)
       then Pattern.Tuple(parseTuplePattern())
@@ -399,9 +399,9 @@ export fn parse(input) { // : TokenStream
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', || parseFunctionDeclaration(true), false)
       .map(|f: FunctionDeclaration| {
-        if f.name.isNothing()
+        if f.name.isNone()
           then input.croak('Trait functions must have a name')
-        if f.returnType.isNothing()
+        if f.returnType.isNone()
           then input.croak('Trait functions must have a return type')
 
         f
@@ -441,9 +441,9 @@ export fn parse(input) { // : TokenStream
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', parseFunctionDeclaration, false)
       .map(|f: FunctionDeclaration| {
-        if f.name.isNothing()
+        if f.name.isNone()
           then input.croak('Trait functions must have a name')
-        if f.returnType.isNothing()
+        if f.returnType.isNone()
           then input.croak('Trait functions must have a return type')
 
         f
@@ -564,7 +564,7 @@ export fn parse(input) { // : TokenStream
   fn parseTypePath(identifier: Option<Identifier>) -> TypePath {
     let i = identifier.unwrapOrElse(|| consumeToken(SyntaxKind.Identifier, 'identifier'))
 
-    if maybeConsumeToken(SyntaxKind.ColonColonToken).isJust()
+    if maybeConsumeToken(SyntaxKind.ColonColonToken).isSome()
       then TypePath::Object(i, parseTypePath(None))
       else TypePath::Member(i)
   }
@@ -606,7 +606,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseVariableDeclaration() -> VariableDeclaration {
-    let mutable = maybeConsumeToken(SyntaxKind.MutKeyword).isJust()
+    let mutable = maybeConsumeToken(SyntaxKind.MutKeyword).isSome()
     let pattern = parsePattern()
 
     {
@@ -631,7 +631,7 @@ export fn parse(input) { // : TokenStream
     let parameterList = delimited('(', ')', ',', parseVariableDeclaration)
 
     let returnType =
-      if maybeConsumeToken(SyntaxKind.MinusGreaterThanToken).isJust() {
+      if maybeConsumeToken(SyntaxKind.MinusGreaterThanToken).isSome() {
         Some(parseTypeBound())
       }
       else None

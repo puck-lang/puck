@@ -67,8 +67,8 @@ export enum Option<T> {
 export let Some = Option::Some
 export let None = Option::None
 impl<T> Option<T> {
-  fn isJust(self) -> Bool {self.kind == 'Some'}
-  fn isNothing(self) -> Bool {not self.isJust()}
+  fn isSome(self) -> Bool {self.kind == 'Some'}
+  fn isNone(self) -> Bool {not self.isSome()}
 
   fn andThen<U>(self, op: (T) -> Option<U>) -> Option<U> {
     if let Option::Some(value) = self
@@ -95,7 +95,7 @@ impl<T> Option<T> {
   }
 
   fn unwrap(self) -> T {
-    if self.isNothing()
+    if self.isNone()
       then throw Error('Can not unwrap empty Option')
 
     self.value[0]

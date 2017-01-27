@@ -38,7 +38,7 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = 
   }
 
   if not enterNamed and not type_.isParameter()
-     and (type_.name.isJust() or type_.displayName.isJust())
+     and (type_.name.isSome() or type_.displayName.isSome())
     then return type_
 
    let resolvedKind = match type_.kind {

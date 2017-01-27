@@ -206,13 +206,13 @@ Result.unwrapErr = function unwrapErr() {
   };
   return self.value[0];
 };
-Option.isJust = function isJust() {
+Option.isSome = function isSome() {
   var self = this;
   return self.kind == "Some";
 };
-Option.isNothing = function isNothing() {
+Option.isNone = function isNone() {
   var self = this;
-  return !Option.isJust.call(self);
+  return !Option.isSome.call(self);
 };
 Option.andThen = function andThen(op) {
   var self = this;
@@ -264,7 +264,7 @@ Option.mapOrElse = function mapOrElse(_default, f) {
 };
 Option.unwrap = function unwrap() {
   var self = this;
-  if (Option.isNothing.call(self)) {
+  if (Option.isNone.call(self)) {
     throw (0, _js.Error)("Can not unwrap empty Option");
   };
   return self.value[0];

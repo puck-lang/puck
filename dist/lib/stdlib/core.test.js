@@ -27,20 +27,20 @@ function any(a) {
     });
   });
   (0, _test.describe)("Option", function () {
-    (0, _test.describe)("isJust", function () {
+    (0, _test.describe)("isSome", function () {
       (0, _test.it)("should return true if Some(value)", function () {
-        return (0, _test.expect)((0, _core.Some)(1).isJust()).toBe(true);
+        return (0, _test.expect)((0, _core.Some)(1).isSome()).toBe(true);
       });
       return (0, _test.it)("should return false if None", function () {
-        return (0, _test.expect)(_core.None.isJust()).toBe(false);
+        return (0, _test.expect)(_core.None.isSome()).toBe(false);
       });
     });
-    (0, _test.describe)("isNothing", function () {
+    (0, _test.describe)("isNone", function () {
       (0, _test.it)("should return false if Some(value)", function () {
-        return (0, _test.expect)((0, _core.Some)(1).isNothing()).toBe(false);
+        return (0, _test.expect)((0, _core.Some)(1).isNone()).toBe(false);
       });
       return (0, _test.it)("should return true if None", function () {
-        return (0, _test.expect)(_core.None.isNothing()).toBe(true);
+        return (0, _test.expect)(_core.None.isNone()).toBe(true);
       });
     });
     (0, _test.describe)("andThen", function () {
@@ -51,7 +51,7 @@ function any(a) {
       });
       (0, _test.it)("should not call the map function if None", function () {
         return (0, _test.expect)(any(_core.None.andThen(function (value) {
-          return (0, _test.expect)("map").toBe("not called");
+          return (0, _test.expect)("andThen").toBe("not called");
         }))).toEqual(any(_core.None));
       });
       return (0, _test.it)("should return None if Some(value) and returns None", function () {
@@ -159,7 +159,7 @@ function any(a) {
       });
       (0, _test.it)("should not call the map function if Err(err)", function () {
         return (0, _test.expect)(any((0, _core.Err)(2).andThen(function (value) {
-          return (0, _test.expect)("map").toBe("not called");
+          return (0, _test.expect)("andThen").toBe("not called");
         }))).toEqual(any((0, _core.Err)(2)));
       });
       return (0, _test.it)("should return the error if Ok(value) and returns Err(error)", function () {
