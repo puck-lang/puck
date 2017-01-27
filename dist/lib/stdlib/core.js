@@ -180,9 +180,28 @@ Result.map = function map(op) {
     return self;
   };
 };
+Result.mapErr = function mapErr(op) {
+  var self = this;
+  var __PUCK__value__3 = self;
+  if (__PUCK__value__3.kind == "Err") {
+    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+        value = _PUCK__value__3$valu[0];
+
+    return Err(op(value));
+  } else {
+    return self;
+  };
+};
 Result.unwrap = function unwrap() {
   var self = this;
   if (Result.isErr.call(self)) {
+    throw (0, _js.Error)(self.value[0]);
+  };
+  return self.value[0];
+};
+Result.unwrapErr = function unwrapErr() {
+  var self = this;
+  if (Result.isOk.call(self)) {
     throw (0, _js.Error)(self.value[0]);
   };
   return self.value[0];
@@ -195,12 +214,24 @@ Option.isNothing = function isNothing() {
   var self = this;
   return !Option.isJust.call(self);
 };
+Option.andThen = function andThen(op) {
+  var self = this;
+  var __PUCK__value__4 = self;
+  if (__PUCK__value__4.kind == "Some") {
+    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+        value = _PUCK__value__4$valu[0];
+
+    return op(value);
+  } else {
+    return self;
+  };
+};
 Option.map = function map(f) {
   var self = this;
-  var __PUCK__value__3 = self;
-  if (__PUCK__value__3.kind == "Some") {
-    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-        value = _PUCK__value__3$valu[0];
+  var __PUCK__value__5 = self;
+  if (__PUCK__value__5.kind == "Some") {
+    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+        value = _PUCK__value__5$valu[0];
 
     return Some(f(value));
   } else {
@@ -209,10 +240,10 @@ Option.map = function map(f) {
 };
 Option.mapOr = function mapOr(_default, f) {
   var self = this;
-  var __PUCK__value__4 = self;
-  if (__PUCK__value__4.kind == "Some") {
-    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-        value = _PUCK__value__4$valu[0];
+  var __PUCK__value__6 = self;
+  if (__PUCK__value__6.kind == "Some") {
+    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+        value = _PUCK__value__6$valu[0];
 
     return f(value);
   } else {
@@ -221,10 +252,10 @@ Option.mapOr = function mapOr(_default, f) {
 };
 Option.mapOrElse = function mapOrElse(_default, f) {
   var self = this;
-  var __PUCK__value__5 = self;
-  if (__PUCK__value__5.kind == "Some") {
-    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-        value = _PUCK__value__5$valu[0];
+  var __PUCK__value__7 = self;
+  if (__PUCK__value__7.kind == "Some") {
+    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+        value = _PUCK__value__7$valu[0];
 
     return f(value);
   } else {
@@ -240,10 +271,10 @@ Option.unwrap = function unwrap() {
 };
 Option.unwrapOr = function unwrapOr(_default) {
   var self = this;
-  var __PUCK__value__6 = self;
-  if (__PUCK__value__6.kind == "Some") {
-    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
-        value = _PUCK__value__6$valu[0];
+  var __PUCK__value__8 = self;
+  if (__PUCK__value__8.kind == "Some") {
+    var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
+        value = _PUCK__value__8$valu[0];
 
     return value;
   } else {
@@ -252,10 +283,10 @@ Option.unwrapOr = function unwrapOr(_default) {
 };
 Option.unwrapOrElse = function unwrapOrElse(_default) {
   var self = this;
-  var __PUCK__value__7 = self;
-  if (__PUCK__value__7.kind == "Some") {
-    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-        value = _PUCK__value__7$valu[0];
+  var __PUCK__value__9 = self;
+  if (__PUCK__value__9.kind == "Some") {
+    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+        value = _PUCK__value__9$valu[0];
 
     return value;
   } else {

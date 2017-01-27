@@ -38,8 +38,22 @@ impl<T, E> Result<T, E> {
       else self
   }
 
+  /// Maps a Result<T, E> to Result<T, F> by applying a function to a contained Err value, leaving an Ok value untouched.
+  fn mapErr<F>(self: Result<T, E>, op: (E) -> F) -> Result<T, F> {
+    if let Result::Err(value) = self
+      then Err(op(value))
+      else self
+  }
+
   fn unwrap(self) -> T {
     if self.isErr()
+      then throw Error(self.value[0])
+
+    self.value[0]
+  }
+
+  fn unwrapErr(self) -> E {
+    if self.isOk()
       then throw Error(self.value[0])
 
     self.value[0]
@@ -55,6 +69,12 @@ export let None = Option::None
 impl<T> Option<T> {
   fn isJust(self) -> Bool {self.kind == 'Some'}
   fn isNothing(self) -> Bool {not self.isJust()}
+
+  fn andThen<U>(self, op: (T) -> Option<U>) -> Option<U> {
+    if let Option::Some(value) = self
+      then op(value)
+      else self
+  }
 
   fn map<U>(self, f: (T) -> U) -> Option<U> {
     if let Option::Some(value) = self
