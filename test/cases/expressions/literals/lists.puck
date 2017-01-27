@@ -1,23 +1,19 @@
-let a = ['a', 1, true, [
-  'b',
-  'c',
+let a = ['a', '1', 'true']
+let b = [[1], [2, 3]]
+let c = [[
   [[[[[[[[[[[[[]]]]]]]]]]]]],
-  fn (a) {3}
-  if true then 5
 ]]
-let b = [
+let d = [
   a
-  'b'
-  3,
-  [
-    1,
-    []
-    {
-      a
-      b: 'b'
-    }
-  ]
+  a
+]
+let e = [
+  if true then d else []
+  if false then d else [a, a, a]
 ]
 
 b.size()
 [].size()
+[Some(5), Some(5), None]
+['b'].map(|e| e.contains('a'))
+[Ok(5), Err('hi')]

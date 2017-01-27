@@ -13,6 +13,7 @@ exports.createTypeInstance = createTypeInstance;
 exports.getType = getType;
 exports.isAssignable = isAssignable;
 exports.isSameType = isSameType;
+exports.findCommonType = findCommonType;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -514,4 +515,26 @@ function isSameType(a, b) {
   } else {
     return false;
   };
+};
+function findCommonType(types) {
+  var index = 0;
+
+  var _loop = function _loop() {
+    var type_ = types[index];
+    if (_core.Iterable['$List<E>'].all.call(types, function (t) {
+      return isAssignable(type_, t);
+    })) {
+      return {
+        v: (0, _core.Ok)(type_)
+      };
+    };
+    index += 1;
+  };
+
+  while (index < types.length) {
+    var _ret2 = _loop();
+
+    if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+  };
+  return (0, _core.Err)([]);
 }

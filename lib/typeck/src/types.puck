@@ -296,3 +296,18 @@ export fn isSameType(a, b) {
     then aName == bName
     else false
 }
+
+export fn findCommonType(types: List<Type>) -> Result<Type, ()> {
+  let mut index = 0
+
+  while index < types.length {
+    let mut type_ = types[index]
+
+    if types.all(|t| isAssignable(type_, t)) {
+      return Ok(type_)
+    }
+    index += 1
+  }
+
+  Err(())
+}

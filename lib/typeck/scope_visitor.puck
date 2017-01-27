@@ -56,7 +56,14 @@ import 'src/enums.puck' as {checkExhaustive}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {declarePatternVariables, notAssignableError, structureVisitor}
-import 'src/types.puck' as {createTypeInstance, getType, isAssignable, isSameType, resolveTypeParameters}
+import 'src/types.puck' as {
+  createTypeInstance
+  findCommonType
+  getType
+  isAssignable
+  isSameType
+  resolveTypeParameters
+}
 import '../entities.puck' as {
   Binding
   Function
@@ -633,8 +640,24 @@ export fn ScopeVisitor(context, file) {
 
     visitListLiteral: |self, mut l: ListLiteral| {
       l.scope = self.scope
-      l.type_ = self.scope.getTypeBinding('List').type_
       visit.walkListLiteral(self, l)
+      if l.members.length >= 1 {
+        let types = l.members.map(|m| m.type_)
+        let result: Result<Type, ()> = findCommonType(types)
+        match result {
+          Result::Ok(type_) => {
+            if not type_ {
+              l.type_ = self.scope.getTypeBinding('List').type_
+            } else {
+              l.type_ = createTypeInstance(self.scope.getTypeBinding('List').type_, [type_])
+            }
+          }
+          Result::Err(_) => reportError(l, 'List contains mixed types')
+        }
+      }
+      else {
+        l.type_ = self.scope.getTypeBinding('List').type_
+      }
     }
     visitBooleanLiteral: |self, mut l: BooleanLiteral| {
       l.scope = self.scope

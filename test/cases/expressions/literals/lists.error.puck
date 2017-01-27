@@ -1,0 +1,12 @@
+///// List contains mixed types
+[5, 'hi']
+
+///// List contains mixed types
+[Ok(5), Ok('hi')]
+
+// TODO: Make these error
+//// List contains mixed types
+// [Ok(5), Err('hi'), Ok('five')]
+
+//// List contains mixed types
+// [Ok(5), Err('hi'), Err(0)]

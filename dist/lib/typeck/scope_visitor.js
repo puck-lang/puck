@@ -859,8 +859,35 @@ function ScopeVisitor(context, file) {
     visitListLiteral: function visitListLiteral(l) {
       var self = this;
       l.scope = self.scope;
-      l.type_ = self.scope.getTypeBinding("List").type_;
-      return visit.walkListLiteral(self, l);
+      visit.walkListLiteral(self, l);
+      if (l.members.length >= 1) {
+        var types = _core.Iterable['$List<E>'].map.call(l.members, function (m) {
+          return m.type_;
+        });
+        var result = (0, _types.findCommonType)(types);
+        var __PUCK__value__71 = result;
+        var __PUCK__value__72 = __PUCK__value__71;
+        if (__PUCK__value__72.kind == "Ok") {
+          var _PUCK__value__72$val = _slicedToArray(__PUCK__value__72.value, 1),
+              type_ = _PUCK__value__72$val[0];
+
+          if (!type_) {
+            return l.type_ = self.scope.getTypeBinding("List").type_;
+          } else {
+            return l.type_ = (0, _types.createTypeInstance)(self.scope.getTypeBinding("List").type_, [type_]);
+          };
+        } else {
+          var __PUCK__value__73 = __PUCK__value__71;
+          if (__PUCK__value__73.kind == "Err") {
+            var _PUCK__value__73$val = _slicedToArray(__PUCK__value__73.value, 1),
+                __PUCK__value__74 = _PUCK__value__73$val[0];
+
+            return reportError(l, "List contains mixed types");
+          };
+        };
+      } else {
+        return l.type_ = self.scope.getTypeBinding("List").type_;
+      };
     },
     visitBooleanLiteral: function visitBooleanLiteral(l) {
       var self = this;
@@ -920,12 +947,12 @@ function ScopeVisitor(context, file) {
   });
 };
 function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType) {
-  var __PUCK__value__71 = parameterType.kind;
-  var __PUCK__value__72 = __PUCK__value__71;
-  if (__PUCK__value__72.kind == "Parameter") {
+  var __PUCK__value__75 = parameterType.kind;
+  var __PUCK__value__76 = __PUCK__value__75;
+  if (__PUCK__value__76.kind == "Parameter") {
     var _ret7 = function () {
-      var _PUCK__value__72$val = _slicedToArray(__PUCK__value__72.value, 1),
-          __PUCK__value__73 = _PUCK__value__72$val[0];
+      var _PUCK__value__76$val = _slicedToArray(__PUCK__value__76.value, 1),
+          __PUCK__value__77 = _PUCK__value__76$val[0];
 
       var name = _core.Option.unwrap.call(parameterType.name);
       if (_core.Iterable['$List<E>'].any.call(typeParameters, function (p) {
@@ -941,16 +968,16 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
 
     if ((typeof _ret7 === 'undefined' ? 'undefined' : _typeof(_ret7)) === "object") return _ret7.v;
   } else {
-    var __PUCK__value__74 = __PUCK__value__71;
-    if (__PUCK__value__74.kind == "Function") {
-      var _PUCK__value__74$val = _slicedToArray(__PUCK__value__74.value, 1),
-          parameterFunction = _PUCK__value__74$val[0];
+    var __PUCK__value__78 = __PUCK__value__75;
+    if (__PUCK__value__78.kind == "Function") {
+      var _PUCK__value__78$val = _slicedToArray(__PUCK__value__78.value, 1),
+          parameterFunction = _PUCK__value__78$val[0];
 
       if (parameterFunction.returnType) {
-        var __PUCK__value__75 = argumentType.kind;
-        if (__PUCK__value__75.kind == "Function") {
-          var _PUCK__value__75$val = _slicedToArray(__PUCK__value__75.value, 1),
-              argumentFunction = _PUCK__value__75$val[0];
+        var __PUCK__value__79 = argumentType.kind;
+        if (__PUCK__value__79.kind == "Function") {
+          var _PUCK__value__79$val = _slicedToArray(__PUCK__value__79.value, 1),
+              argumentFunction = _PUCK__value__79$val[0];
 
           if (argumentFunction.returnType) {
             return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterFunction.returnType, argumentFunction.returnType);
@@ -958,35 +985,35 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
         };
       };
     } else {
-      var __PUCK__value__76 = __PUCK__value__71;
+      var __PUCK__value__80 = __PUCK__value__75;
       if (true) {
-        var __PUCK__value__77 = __PUCK__value__76;
+        var __PUCK__value__81 = __PUCK__value__80;
         return [];
       };
     };
   };
 };
 function getTypeSpecificity(type_) {
-  var __PUCK__value__78 = type_.kind;
-  if (__PUCK__value__78.kind == "Parameter") {
-    var _PUCK__value__78$val = _slicedToArray(__PUCK__value__78.value, 1),
-        __PUCK__value__79 = _PUCK__value__78$val[0];
+  var __PUCK__value__82 = type_.kind;
+  if (__PUCK__value__82.kind == "Parameter") {
+    var _PUCK__value__82$val = _slicedToArray(__PUCK__value__82.value, 1),
+        __PUCK__value__83 = _PUCK__value__82$val[0];
 
     return 0;
   };
-  var __PUCK__value__80 = type_.instance;
-  var __PUCK__value__81 = __PUCK__value__80;
-  if (__PUCK__value__81.kind == "Some") {
-    var _PUCK__value__81$val = _slicedToArray(__PUCK__value__81.value, 1),
-        instance = _PUCK__value__81$val[0];
+  var __PUCK__value__84 = type_.instance;
+  var __PUCK__value__85 = __PUCK__value__84;
+  if (__PUCK__value__85.kind == "Some") {
+    var _PUCK__value__85$val = _slicedToArray(__PUCK__value__85.value, 1),
+        instance = _PUCK__value__85$val[0];
 
     return instance.typeParameters.reduce(function (sum, type_) {
       return sum + getTypeSpecificity(type_);
     }, 1);
   } else {
-    var __PUCK__value__82 = __PUCK__value__80;
-    if (__PUCK__value__82.kind == "None") {
-      var _undefined5 = __PUCK__value__82;
+    var __PUCK__value__86 = __PUCK__value__84;
+    if (__PUCK__value__86.kind == "None") {
+      var _undefined5 = __PUCK__value__86;
       return 1;
     };
   };
