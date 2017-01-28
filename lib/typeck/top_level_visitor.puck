@@ -101,6 +101,7 @@ export fn TopLevelVisitor(context, file) {
             then StructKind::Record({properties: ObjectMap.new()})
           else if typeBound.kind == SyntaxKind.TupleTypeBound
             then StructKind::Tuple({properties: []})
+          else throw 'Unreachable'
         }
         else StructKind::Unit
 

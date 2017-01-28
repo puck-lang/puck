@@ -407,26 +407,16 @@ function Emitter() {
         return "var " + emitIdentifier(t.name) + " = " + value;
     }
     function emitVariableDeclaration(vd) {
-        if (vd['identifier']) {
-            vd.pattern = {
-                kind: 'Identifier',
-                value: [vd['identifier']],
-            };
-        }
         var willBeRedefined = true;
         var binding;
         if (vd.pattern.kind === 'Identifier') {
+            if (!vd.scope) {
+                console.log('vasdas', vd);
+            }
             binding = vd.scope.getBinding(vd.pattern.value[0].name);
             willBeRedefined = binding.redefined;
-            if (vd['identifier']) {
-                while (binding && (binding.token !== vd)) {
-                    binding = binding.previous;
-                }
-            }
-            else {
-                while (binding && (binding.token !== vd.pattern)) {
-                    binding = binding.previous;
-                }
+            while (binding && (binding.token !== vd.pattern)) {
+                binding = binding.previous;
             }
         }
         var initializer = vd.initializer.kind == 'Some'
@@ -683,8 +673,8 @@ function Emitter() {
     function emitIfLetExpression(e) {
         var outerValueVariable = valueVariable;
         valueVariable = newValueVariable();
-        hoist("let " + valueVariable + " = " + emitExpression(e.variableDeclaration.initializer.value[0]));
-        var condition = emitPatternComparison(e.variableDeclaration.pattern, {
+        hoist("let " + valueVariable + " = " + emitExpression(e.expression));
+        var condition = emitPatternComparison(e.pattern, {
             kind: ast_1.SyntaxKind.Identifier,
             name: valueVariable,
         });
@@ -692,10 +682,10 @@ function Emitter() {
             kind: e.then_.kind,
             expressions: [
                 {
-                    scope: e.variableDeclaration.scope,
+                    scope: e.scope,
                     kind: ast_1.SyntaxKind.VariableDeclaration,
                     mutable: false,
-                    pattern: e.variableDeclaration.pattern,
+                    pattern: e.pattern,
                     typeBound: { kind: 'None' },
                     initializer: {
                         kind: 'Some',
@@ -726,15 +716,9 @@ function Emitter() {
             var arm = e.patterns[i];
             ifLet = {
                 kind: ast_1.SyntaxKind.IfLetExpression,
-                variableDeclaration: {
-                    kind: ast_1.SyntaxKind.VariableDeclaration,
-                    mutable: false,
-                    typeBound: null,
-                    pattern: arm.pattern,
-                    initializer: { kind: 'Some', value: [
-                            { kind: ast_1.SyntaxKind.Identifier, name: valueVariable }
-                        ] },
-                },
+                pattern: arm.pattern,
+                expression: { kind: ast_1.SyntaxKind.Identifier, name: valueVariable },
+                scope: e.scope,
                 then_: arm.block,
                 else_: ifLet
                     ? { kind: 'Some', value: [{

@@ -52,15 +52,15 @@ fn isEnumArm(p: Pattern) {
 }
 
 export fn checkExhaustive(e: MatchExpression) -> Result<(), String> {
-  if let TypeKind::Enum(enum_) = e.type_.kind {
-    checkExhaustiveEnum(e.patterns.map(|a| a.pattern), e.type_, enum_)
+  if let TypeKind::Enum(enum_) = e.expression.type_.kind {
+    checkExhaustiveEnum(e.patterns.map(|a| a.pattern), e.expression.type_, enum_)
   }
   else Ok(())
 }
 
 fn getSubPatterns(pattern: Pattern) -> List<Pattern> {
   match pattern {
-    Pattern::RecordType(_, record) => record.properties.map(|p| p.pattern)
+    Pattern::RecordType(_, record) => record.properties.map(|p| p.pattern).toList()
     Pattern::TupleType(_, tuple) => tuple.properties
     _ => []
   }

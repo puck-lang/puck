@@ -69,7 +69,7 @@ function getImplementationsForInstance(type_) {
     __PUCK__value__3 = __PUCK__value__5;
   };
   var implementations = __PUCK__value__3;
-  if ($unwrapTraitObject(implementations).length > 1) {
+  if (implementations.length > 1) {
     var __PUCK__value__11 = type_.instance;
     if ($unwrapTraitObject(__PUCK__value__11).kind == "Some") {
       var _ret = function () {
@@ -77,8 +77,8 @@ function getImplementationsForInstance(type_) {
             objectInstance = _PUCK__value__11$val[0];
 
         return {
-          v: $unwrapTraitObject(implementations).filter(function (i) {
-            var objectInstance_ = $unwrapTraitObject(objectInstance);
+          v: implementations.filter(function (i) {
+            var objectInstance_ = objectInstance;
             var implementationInstance = _core.Option.unwrap.call(i.type_.instance);
             return _core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: _core.List.zip({ type: '$List<E>', value: objectInstance_.typeParameters, $isTraitObject: true }, { type: '$List<E>', value: implementationInstance.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref) {
               var _ref2 = _slicedToArray(_ref, 2),
@@ -153,8 +153,8 @@ function getImplementation(functionName, type_, e, reportError) {
   };
   implementations = __PUCK__value__15;
   var __PUCK__value__16 = void 0;
-  if (implementations.length > 1) {
-    __PUCK__value__16 = implementations.filter(function (i) {
+  if ($unwrapTraitObject(implementations).length > 1) {
+    __PUCK__value__16 = $unwrapTraitObject(implementations).filter(function (i) {
       return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions[functionName])).argumentRange, e.argumentList.length);
     });
   } else {
@@ -162,7 +162,7 @@ function getImplementation(functionName, type_, e, reportError) {
   };
   implementations = __PUCK__value__16;
   var __PUCK__value__17 = void 0;
-  if (implementations.length > 1 && _core.Option.isSome.call(type_.instance)) {
+  if ($unwrapTraitObject(implementations).length > 1 && _core.Option.isSome.call(type_.instance)) {
     __PUCK__value__17 = getMostSpecificImplementations(type_, implementations);
   } else {
     __PUCK__value__17 = implementations;

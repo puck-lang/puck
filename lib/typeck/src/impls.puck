@@ -87,7 +87,7 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
       else implementations
 
   // Implementations that accept the correct number of arguments
-  let implementations: List<Implementation> =
+  let implementations =
     if implementations.length > 1
       then implementations
         .filter(|i| asType(asType(i.trait_).getTrait().functions[functionName]).getFunction().argumentRange
@@ -97,7 +97,7 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
 
   // Implementations that are more specific (only for generics)
   // For example an impl for List<String> is more specific than one for List<T>
-  let implementations: List<Implementation> =
+  let implementations =
     if implementations.length > 1 and type_.instance.isSome()
       then getMostSpecificImplementations(type_, implementations)
       else implementations

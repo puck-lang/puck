@@ -526,25 +526,13 @@ export function Emitter() {
   }
 
   function emitVariableDeclaration(vd: VariableDeclaration & {scope: any}) {
-    if (vd['identifier']) {
-      vd.pattern = {
-        kind: 'Identifier',
-        value: [vd['identifier']],
-      }
-    }
     let willBeRedefined = true
     let binding
     if (vd.pattern.kind === 'Identifier') {
       binding = vd.scope.getBinding(vd.pattern.value[0].name)
       willBeRedefined = binding.redefined
-      if (vd['identifier']) {
-        while (binding && (binding.token !== vd)) {
-          binding = binding.previous
-        }
-      } else {
-        while (binding && (binding.token !== vd.pattern)) {
-          binding = binding.previous
-        }
+      while (binding && (binding.token !== vd.pattern)) {
+        binding = binding.previous
       }
     }
 
@@ -824,9 +812,10 @@ export function Emitter() {
   function emitIfLetExpression(e: IfLetExpression) {
     let outerValueVariable = valueVariable
     valueVariable = newValueVariable()
-    hoist(`let ${valueVariable} = ${emitExpression((e.variableDeclaration.initializer as any).value[0])}`)
 
-    let condition = emitPatternComparison(e.variableDeclaration.pattern, {
+    hoist(`let ${valueVariable} = ${emitExpression(e.expression)}`)
+
+    let condition = emitPatternComparison(e.pattern, {
       kind: SyntaxKind.Identifier,
       name: valueVariable,
     } as Identifier)
@@ -835,10 +824,10 @@ export function Emitter() {
       kind: e.then_.kind,
       expressions: [
         {
-          scope: (e as any).variableDeclaration.scope,
+          scope: e.scope,
           kind: SyntaxKind.VariableDeclaration,
           mutable: false,
-          pattern: e.variableDeclaration.pattern,
+          pattern: e.pattern,
           typeBound: {kind: 'None'},
           initializer: {
             kind: 'Some',
@@ -874,15 +863,9 @@ export function Emitter() {
       let arm = e.patterns[i]
       ifLet = {
         kind: SyntaxKind.IfLetExpression,
-        variableDeclaration: {
-          kind: SyntaxKind.VariableDeclaration,
-          mutable: false,
-          typeBound: null,
-          pattern: arm.pattern,
-          initializer: {kind: 'Some', value: [
-            {kind: SyntaxKind.Identifier, name: valueVariable} as Identifier
-          ]},
-        },
+        pattern: arm.pattern,
+        expression: {kind: SyntaxKind.Identifier, name: valueVariable} as Identifier,
+        scope: e.scope,
         then_: arm.block,
         else_: ifLet
           ? {kind: 'Some', value: [{

@@ -628,35 +628,69 @@ function walkImportDirective(visitor, i) {
   };
 };
 function walkPattern(visitor, p) {
-  if (p.kind == "Identifier") {
-    return visitor.visitIdentifierPattern($unwrapTraitObject(p.value)[0]);
+  var __PUCK__value__8 = p;
+  var __PUCK__value__9 = __PUCK__value__8;
+  if ($unwrapTraitObject(__PUCK__value__9).kind == "CatchAll") {
+    var _undefined = void 0;;
+    return _undefined = __PUCK__value__9;
   } else {
-    if (p.kind == "Record") {
-      return visitor.visitRecordPattern($unwrapTraitObject(p.value)[0]);
+    var __PUCK__value__11 = __PUCK__value__8;
+    if ($unwrapTraitObject(__PUCK__value__11).kind == "Identifier") {
+      var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1),
+          identifier = _PUCK__value__11$val[0];
+
+      return visitor.visitIdentifierPattern(identifier);
     } else {
-      if (p.kind == "RecordType") {
-        visitor.visitTypePath($unwrapTraitObject(p.value)[0]);
-        return visitor.visitRecordPattern($unwrapTraitObject(p.value)[1]);
+      var __PUCK__value__12 = __PUCK__value__8;
+      if ($unwrapTraitObject(__PUCK__value__12).kind == "Record") {
+        var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
+            record = _PUCK__value__12$val[0];
+
+        return visitor.visitRecordPattern(record);
       } else {
-        if (p.kind == "Tuple") {
-          return visitor.visitTuplePattern($unwrapTraitObject(p.value)[0]);
+        var __PUCK__value__13 = __PUCK__value__8;
+        if ($unwrapTraitObject(__PUCK__value__13).kind == "RecordType") {
+          var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 2),
+              typePath = _PUCK__value__13$val[0],
+              _record = _PUCK__value__13$val[1];
+
+          visitor.visitTypePath(typePath);
+          return visitor.visitRecordPattern(_record);
         } else {
-          if (p.kind == "TupleType") {
-            visitor.visitTypePath($unwrapTraitObject(p.value)[0]);
-            return visitor.visitTuplePattern($unwrapTraitObject(p.value)[1]);
+          var __PUCK__value__14 = __PUCK__value__8;
+          if ($unwrapTraitObject(__PUCK__value__14).kind == "Tuple") {
+            var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
+                tuple = _PUCK__value__14$val[0];
+
+            return visitor.visitTuplePattern(tuple);
+          } else {
+            var __PUCK__value__15 = __PUCK__value__8;
+            if ($unwrapTraitObject(__PUCK__value__15).kind == "TupleType") {
+              var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 2),
+                  _typePath = _PUCK__value__15$val[0],
+                  _tuple = _PUCK__value__15$val[1];
+
+              visitor.visitTypePath(_typePath);
+              return visitor.visitTuplePattern(_tuple);
+            } else {
+              var __PUCK__value__16 = __PUCK__value__8;
+              if ($unwrapTraitObject(__PUCK__value__16).kind == "UnitType") {
+                var _undefined2 = void 0;;
+                return _undefined2 = __PUCK__value__16;
+              };
+            };
           };
         };
       };
     };
   };
 };
-function walkIdentifierPattern(visitor, p) {
-  return visitor.visitIdentifier(p);
-};
+function walkIdentifierPattern(visitor, p) {};
 function walkRecordPattern(visitor, p) {
   return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: p.properties, $isTraitObject: true }, function (p) {
-    visitor.visitIdentifier(p.property);
-    return visitor.visitPattern(p.local);
+    if (p.local) {
+      return visitor.visitPattern(p.local);
+    };
   });
 };
 function walkTuplePattern(visitor, p) {
@@ -680,21 +714,22 @@ function walkForExpression(visitor, e) {};
 function walkIfExpression(visitor, e) {
   visitor.visitExpression(e.condition);
   visitor.visitBlock(e.then_);
-  var __PUCK__value__8 = e.else_;
-  if ($unwrapTraitObject(__PUCK__value__8).kind == "Some") {
-    var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
-        else_ = _PUCK__value__8$valu[0];
+  var __PUCK__value__18 = e.else_;
+  if ($unwrapTraitObject(__PUCK__value__18).kind == "Some") {
+    var _PUCK__value__18$val = _slicedToArray(__PUCK__value__18.value, 1),
+        else_ = _PUCK__value__18$val[0];
 
     return visitor.visitBlock(else_);
   };
 };
 function walkIfLetExpression(visitor, e) {
-  visitor.visitVariableDeclaration(e.variableDeclaration);
+  visitor.visitPattern(e.pattern);
+  visitor.visitExpression(e.expression);
   visitor.visitBlock(e.then_);
-  var __PUCK__value__9 = e.else_;
-  if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
-    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-        else_ = _PUCK__value__9$valu[0];
+  var __PUCK__value__19 = e.else_;
+  if ($unwrapTraitObject(__PUCK__value__19).kind == "Some") {
+    var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
+        else_ = _PUCK__value__19$val[0];
 
     return visitor.visitBlock(else_);
   };

@@ -230,14 +230,14 @@ function isEnumArm(p) {
   };
 };
 function checkExhaustive(e) {
-  var __PUCK__value__46 = $unwrapTraitObject(e.type_).kind;
+  var __PUCK__value__46 = $unwrapTraitObject(e.expression.type_).kind;
   if ($unwrapTraitObject(__PUCK__value__46).kind == "Enum") {
     var _PUCK__value__46$val = _slicedToArray(__PUCK__value__46.value, 1),
         enum_ = _PUCK__value__46$val[0];
 
     return checkExhaustiveEnum(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: e.patterns, $isTraitObject: true }, function (a) {
       return a.pattern;
-    }), e.type_, enum_);
+    }), e.expression.type_, enum_);
   } else {
     return (0, _core.Ok)([]);
   };
@@ -250,21 +250,22 @@ function getSubPatterns(pattern) {
         __PUCK__value__49 = _PUCK__value__48$val[0],
         record = _PUCK__value__48$val[1];
 
-    return _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: record.properties, $isTraitObject: true }, function (p) {
+    var __PUCK__value__50 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: record.properties, $isTraitObject: true }, function (p) {
       return p.pattern;
     });
+    return _core.Iterable[__PUCK__value__50.type].toList.call(__PUCK__value__50);
   } else {
-    var __PUCK__value__50 = __PUCK__value__47;
-    if ($unwrapTraitObject(__PUCK__value__50).kind == "TupleType") {
-      var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 2),
-          __PUCK__value__51 = _PUCK__value__50$val[0],
-          tuple = _PUCK__value__50$val[1];
+    var __PUCK__value__51 = __PUCK__value__47;
+    if ($unwrapTraitObject(__PUCK__value__51).kind == "TupleType") {
+      var _PUCK__value__51$val = _slicedToArray(__PUCK__value__51.value, 2),
+          __PUCK__value__52 = _PUCK__value__51$val[0],
+          tuple = _PUCK__value__51$val[1];
 
       return tuple.properties;
     } else {
-      var __PUCK__value__52 = __PUCK__value__47;
+      var __PUCK__value__53 = __PUCK__value__47;
       if (true) {
-        var __PUCK__value__53 = __PUCK__value__52;
+        var __PUCK__value__54 = __PUCK__value__53;
         return [];
       };
     };
@@ -274,77 +275,77 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
   var typeName = _entities.Type.displayName.call(type_);
   var exhaustiveMap = _core.ObjectMap._new();
   var enumArmsMap = _core.ObjectMap._new();
-  var __PUCK__value__54 = _core.Iterable[patterns.type].find.call(patterns, function (pattern) {
-    var __PUCK__value__55 = pattern;
-    var __PUCK__value__56 = __PUCK__value__55;
-    var __PUCK__value__57 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__56).kind == "CatchAll") {
-      var _undefined4 = __PUCK__value__56;
+  var __PUCK__value__55 = _core.Iterable[patterns.type].find.call(patterns, function (pattern) {
+    var __PUCK__value__56 = pattern;
+    var __PUCK__value__57 = __PUCK__value__56;
+    var __PUCK__value__58 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__57).kind == "CatchAll") {
+      var _undefined4 = __PUCK__value__57;
       return true;
     } else {
-      var __PUCK__value__58 = __PUCK__value__55;
-      var __PUCK__value__59 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__58).kind == "Identifier") {
-        var _PUCK__value__58$val = _slicedToArray(__PUCK__value__58.value, 1),
-            __PUCK__value__60 = _PUCK__value__58$val[0];
+      var __PUCK__value__59 = __PUCK__value__56;
+      var __PUCK__value__60 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__59).kind == "Identifier") {
+        var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 1),
+            __PUCK__value__61 = _PUCK__value__59$val[0];
 
         return true;
       } else {
-        var __PUCK__value__61 = __PUCK__value__55;
-        var __PUCK__value__62 = void 0;
-        if ($unwrapTraitObject(__PUCK__value__61).kind == "Record") {
-          var _PUCK__value__61$val = _slicedToArray(__PUCK__value__61.value, 1),
-              __PUCK__value__63 = _PUCK__value__61$val[0];
+        var __PUCK__value__62 = __PUCK__value__56;
+        var __PUCK__value__63 = void 0;
+        if ($unwrapTraitObject(__PUCK__value__62).kind == "Record") {
+          var _PUCK__value__62$val = _slicedToArray(__PUCK__value__62.value, 1),
+              __PUCK__value__64 = _PUCK__value__62$val[0];
 
           throw "Invalid pattern";
         } else {
-          var __PUCK__value__64 = __PUCK__value__55;
-          var __PUCK__value__65 = void 0;
-          if ($unwrapTraitObject(__PUCK__value__64).kind == "RecordType") {
-            var _PUCK__value__64$val = _slicedToArray(__PUCK__value__64.value, 2),
-                typePath = _PUCK__value__64$val[0],
-                __PUCK__value__66 = _PUCK__value__64$val[1];
+          var __PUCK__value__65 = __PUCK__value__56;
+          var __PUCK__value__66 = void 0;
+          if ($unwrapTraitObject(__PUCK__value__65).kind == "RecordType") {
+            var _PUCK__value__65$val = _slicedToArray(__PUCK__value__65.value, 2),
+                typePath = _PUCK__value__65$val[0],
+                __PUCK__value__67 = _PUCK__value__65$val[1];
 
-            __PUCK__value__65 = getEnumMember(typePath);
+            __PUCK__value__66 = getEnumMember(typePath);
           } else {
-            var __PUCK__value__67 = __PUCK__value__55;
-            var __PUCK__value__68 = void 0;
-            if ($unwrapTraitObject(__PUCK__value__67).kind == "Tuple") {
-              var _PUCK__value__67$val = _slicedToArray(__PUCK__value__67.value, 1),
-                  __PUCK__value__69 = _PUCK__value__67$val[0];
+            var __PUCK__value__68 = __PUCK__value__56;
+            var __PUCK__value__69 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__68).kind == "Tuple") {
+              var _PUCK__value__68$val = _slicedToArray(__PUCK__value__68.value, 1),
+                  __PUCK__value__70 = _PUCK__value__68$val[0];
 
               throw "Invalid pattern";
             } else {
-              var __PUCK__value__70 = __PUCK__value__55;
-              var __PUCK__value__71 = void 0;
-              if ($unwrapTraitObject(__PUCK__value__70).kind == "TupleType") {
-                var _PUCK__value__70$val = _slicedToArray(__PUCK__value__70.value, 2),
-                    _typePath2 = _PUCK__value__70$val[0],
-                    __PUCK__value__72 = _PUCK__value__70$val[1];
+              var __PUCK__value__71 = __PUCK__value__56;
+              var __PUCK__value__72 = void 0;
+              if ($unwrapTraitObject(__PUCK__value__71).kind == "TupleType") {
+                var _PUCK__value__71$val = _slicedToArray(__PUCK__value__71.value, 2),
+                    _typePath2 = _PUCK__value__71$val[0],
+                    __PUCK__value__73 = _PUCK__value__71$val[1];
 
-                __PUCK__value__71 = getEnumMember(_typePath2);
+                __PUCK__value__72 = getEnumMember(_typePath2);
               } else {
-                var __PUCK__value__73 = __PUCK__value__55;
-                var __PUCK__value__74 = void 0;
-                if ($unwrapTraitObject(__PUCK__value__73).kind == "UnitType") {
-                  var _PUCK__value__73$val = _slicedToArray(__PUCK__value__73.value, 1),
-                      _typePath3 = _PUCK__value__73$val[0];
+                var __PUCK__value__74 = __PUCK__value__56;
+                var __PUCK__value__75 = void 0;
+                if ($unwrapTraitObject(__PUCK__value__74).kind == "UnitType") {
+                  var _PUCK__value__74$val = _slicedToArray(__PUCK__value__74.value, 1),
+                      _typePath3 = _PUCK__value__74$val[0];
 
-                  __PUCK__value__74 = getEnumMember(_typePath3);
+                  __PUCK__value__75 = getEnumMember(_typePath3);
                 };
-                __PUCK__value__71 = __PUCK__value__74;
+                __PUCK__value__72 = __PUCK__value__75;
               };
-              __PUCK__value__68 = __PUCK__value__71;
+              __PUCK__value__69 = __PUCK__value__72;
             };
-            __PUCK__value__65 = __PUCK__value__68;
+            __PUCK__value__66 = __PUCK__value__69;
           };
-          __PUCK__value__62 = __PUCK__value__65;
+          __PUCK__value__63 = __PUCK__value__66;
         };
-        __PUCK__value__59 = __PUCK__value__62;
+        __PUCK__value__60 = __PUCK__value__63;
       };
-      __PUCK__value__57 = __PUCK__value__59;
+      __PUCK__value__58 = __PUCK__value__60;
     };
-    var member = __PUCK__value__57;
+    var member = __PUCK__value__58;
     if (!exhaustiveMap[$unwrapTraitObject(member)]) {
       var individuallyExhaustive = isIndividuallyExhaustive(pattern);
       var isEnum = isEnumArm(pattern);
@@ -358,9 +359,9 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
     };
     return false;
   });
-  if ($unwrapTraitObject(__PUCK__value__54).kind == "Some") {
-    var _PUCK__value__54$val = _slicedToArray(__PUCK__value__54.value, 1),
-        __PUCK__value__75 = _PUCK__value__54$val[0];
+  if ($unwrapTraitObject(__PUCK__value__55).kind == "Some") {
+    var _PUCK__value__55$val = _slicedToArray(__PUCK__value__55.value, 1),
+        __PUCK__value__76 = _PUCK__value__55$val[0];
 
     return (0, _core.Ok)([]);
   };
@@ -373,7 +374,7 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
     var enumPatterns = $unwrapTraitObject(_core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: getSubPatterns($unwrapTraitObject(patterns)[0]), $isTraitObject: true }).value.filter(function (_ref3) {
       var _ref4 = _slicedToArray(_ref3, 2),
           pattern = _ref4[0],
-          __PUCK__value__76 = _ref4[1];
+          __PUCK__value__77 = _ref4[1];
 
       return isEnumPattern(pattern);
     })).map(function (_ref5) {
@@ -382,60 +383,60 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
           index = _ref6[1];
 
       var p = pattern;
-      var __PUCK__value__77 = p;
-      var __PUCK__value__78 = __PUCK__value__77;
-      var __PUCK__value__79 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__78).kind == "RecordType") {
-        var _PUCK__value__78$val = _slicedToArray(__PUCK__value__78.value, 2),
-            typePath = _PUCK__value__78$val[0],
-            __PUCK__value__80 = _PUCK__value__78$val[1];
+      var __PUCK__value__78 = p;
+      var __PUCK__value__79 = __PUCK__value__78;
+      var __PUCK__value__80 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__79).kind == "RecordType") {
+        var _PUCK__value__79$val = _slicedToArray(__PUCK__value__79.value, 2),
+            typePath = _PUCK__value__79$val[0],
+            __PUCK__value__81 = _PUCK__value__79$val[1];
 
-        __PUCK__value__79 = typePath.type_;
+        __PUCK__value__80 = typePath.type_;
       } else {
-        var __PUCK__value__81 = __PUCK__value__77;
-        var __PUCK__value__82 = void 0;
-        if ($unwrapTraitObject(__PUCK__value__81).kind == "TupleType") {
-          var _PUCK__value__81$val = _slicedToArray(__PUCK__value__81.value, 2),
-              _typePath4 = _PUCK__value__81$val[0],
-              __PUCK__value__83 = _PUCK__value__81$val[1];
+        var __PUCK__value__82 = __PUCK__value__78;
+        var __PUCK__value__83 = void 0;
+        if ($unwrapTraitObject(__PUCK__value__82).kind == "TupleType") {
+          var _PUCK__value__82$val = _slicedToArray(__PUCK__value__82.value, 2),
+              _typePath4 = _PUCK__value__82$val[0],
+              __PUCK__value__84 = _PUCK__value__82$val[1];
 
-          __PUCK__value__82 = _typePath4.type_;
+          __PUCK__value__83 = _typePath4.type_;
         } else {
-          var __PUCK__value__84 = __PUCK__value__77;
-          var __PUCK__value__85 = void 0;
-          if ($unwrapTraitObject(__PUCK__value__84).kind == "UnitType") {
-            var _PUCK__value__84$val = _slicedToArray(__PUCK__value__84.value, 1),
-                _typePath5 = _PUCK__value__84$val[0];
+          var __PUCK__value__85 = __PUCK__value__78;
+          var __PUCK__value__86 = void 0;
+          if ($unwrapTraitObject(__PUCK__value__85).kind == "UnitType") {
+            var _PUCK__value__85$val = _slicedToArray(__PUCK__value__85.value, 1),
+                _typePath5 = _PUCK__value__85$val[0];
 
-            __PUCK__value__85 = _typePath5.type_;
+            __PUCK__value__86 = _typePath5.type_;
           } else {
-            var __PUCK__value__86 = __PUCK__value__77;
-            var __PUCK__value__87 = void 0;
+            var __PUCK__value__87 = __PUCK__value__78;
+            var __PUCK__value__88 = void 0;
             if (true) {
-              var __PUCK__value__88 = __PUCK__value__86;
+              var __PUCK__value__89 = __PUCK__value__87;
               throw "Invalid pattern";
             };
-            __PUCK__value__85 = __PUCK__value__87;
+            __PUCK__value__86 = __PUCK__value__88;
           };
-          __PUCK__value__82 = __PUCK__value__85;
+          __PUCK__value__83 = __PUCK__value__86;
         };
-        __PUCK__value__79 = __PUCK__value__82;
+        __PUCK__value__80 = __PUCK__value__83;
       };
-      var type_ = __PUCK__value__79;
+      var type_ = __PUCK__value__80;
       if (!type_) {
         throw "no type";
       };
-      var __PUCK__value__89 = type_.kind;
-      var __PUCK__value__90 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__89).kind == "Enum") {
-        var _PUCK__value__89$val = _slicedToArray(__PUCK__value__89.value, 1),
-            _enum_ = _PUCK__value__89$val[0];
+      var __PUCK__value__90 = type_.kind;
+      var __PUCK__value__91 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__90).kind == "Enum") {
+        var _PUCK__value__90$val = _slicedToArray(__PUCK__value__90.value, 1),
+            _enum_ = _PUCK__value__90$val[0];
 
-        __PUCK__value__90 = _enum_;
+        __PUCK__value__91 = _enum_;
       } else {
         throw "Not an enum";
       };
-      var enum_ = __PUCK__value__90;
+      var enum_ = __PUCK__value__91;
       var subPatterns = $unwrapTraitObject($unwrapTraitObject(patterns).map(getSubPatterns)).map(function (subPatterns) {
         return $unwrapTraitObject(subPatterns)[$unwrapTraitObject(index)];
       });
@@ -463,31 +464,31 @@ function checkExhaustiveEnum(patterns, type_, enum_) {
     var _Option$unwrap$call = _core.Option.unwrap.call(_core.ObjectMap.find.call(enum_.members, function (_ref9) {
       var _ref10 = _slicedToArray(_ref9, 2),
           member = _ref10[0],
-          __PUCK__value__91 = _ref10[1];
+          __PUCK__value__92 = _ref10[1];
 
       return !exhaustiveMap[member];
     })),
         _Option$unwrap$call2 = _slicedToArray(_Option$unwrap$call, 2),
         missing = _Option$unwrap$call2[0],
-        __PUCK__value__92 = _Option$unwrap$call2[1];
+        __PUCK__value__93 = _Option$unwrap$call2[1];
 
     return (0, _core.Err)("Match is not exhaustive. It is missing a case for " + typeName + "::" + missing + "");
   } else {
     if (mapSize < memberCount) {
       return (0, _core.Err)("Match is not exhaustive.");
     } else {
-      var __PUCK__value__93 = _core.ObjectMap.find.call(exhaustiveMap, function (_ref11) {
+      var __PUCK__value__94 = _core.ObjectMap.find.call(exhaustiveMap, function (_ref11) {
         var _ref12 = _slicedToArray(_ref11, 2),
-            __PUCK__value__94 = _ref12[0],
+            __PUCK__value__95 = _ref12[0],
             exhaustive = _ref12[1];
 
         return !exhaustive;
       });
-      if ($unwrapTraitObject(__PUCK__value__93).kind == "Some") {
-        var _PUCK__value__93$val = _slicedToArray(__PUCK__value__93.value, 1),
-            _PUCK__value__93$val$ = _slicedToArray(_PUCK__value__93$val[0], 2),
-            member = _PUCK__value__93$val$[0],
-            a = _PUCK__value__93$val$[1];
+      if ($unwrapTraitObject(__PUCK__value__94).kind == "Some") {
+        var _PUCK__value__94$val = _slicedToArray(__PUCK__value__94.value, 1),
+            _PUCK__value__94$val$ = _slicedToArray(_PUCK__value__94$val[0], 2),
+            member = _PUCK__value__94$val$[0],
+            a = _PUCK__value__94$val$[1];
 
         return (0, _core.Err)("Match is not exhaustive. " + typeName + "::" + member + " is not exhaustive. " + a + "");
       };

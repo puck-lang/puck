@@ -277,12 +277,14 @@ function TypeVisitor(context, file) {
               typeBound = _PUCK__value__7$valu[0];
 
           var __PUCK__value__9 = void 0;
-          if ($unwrapTraitObject(typeBound).kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectTypeBound) {
+          if (typeBound.kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectTypeBound) {
             __PUCK__value__9 = _entities.StructKind.Record({ properties: _core.ObjectMap._new() });
           } else {
             var __PUCK__value__10 = void 0;
-            if ($unwrapTraitObject(typeBound).kind == $unwrapTraitObject(_ast2.SyntaxKind).TupleTypeBound) {
+            if (typeBound.kind == $unwrapTraitObject(_ast2.SyntaxKind).TupleTypeBound) {
               __PUCK__value__10 = _entities.StructKind.Tuple({ properties: [] });
+            } else {
+              throw "Unreachable";
             };
             __PUCK__value__9 = __PUCK__value__10;
           };
@@ -321,7 +323,7 @@ function TypeVisitor(context, file) {
 
               _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.typeParameters, $isTraitObject: true }, function (p) {
                 $unwrapTraitObject(self).visitTypeParameter(p);
-                return $unwrapTraitObject($unwrapTraitObject(_class).typeParameters).push(p.type_);
+                return _class.typeParameters.push(p.type_);
               });
             })();
           };
@@ -343,7 +345,7 @@ function TypeVisitor(context, file) {
                   _PUCK__value__14$val$ = _slicedToArray(_PUCK__value__14$val[0].kind.value, 1),
                   properties = _PUCK__value__14$val$[0].properties;
 
-              var propertyList = $unwrapTraitObject($unwrapTraitObject(_typeBound).properties).map(function (p) {
+              var propertyList = $unwrapTraitObject(_typeBound.properties).map(function (p) {
                 return [$unwrapTraitObject($unwrapTraitObject(p).name).name, $unwrapTraitObject($unwrapTraitObject(p).typeBound).type_];
               });
               $unwrapTraitObject(_js._Object).assign(properties, _core.ObjectMap.fromIter({ type: '$List<E>', value: propertyList, $isTraitObject: true }));
@@ -354,7 +356,7 @@ function TypeVisitor(context, file) {
                     _PUCK__value__15$val$ = _slicedToArray(_PUCK__value__15$val[0].kind.value, 1),
                     tuple = _PUCK__value__15$val$[0];
 
-                $unwrapTraitObject(_js._Object).assign(tuple, { properties: $unwrapTraitObject($unwrapTraitObject(_typeBound).properties).map(function (p) {
+                $unwrapTraitObject(_js._Object).assign(tuple, { properties: $unwrapTraitObject(_typeBound.properties).map(function (p) {
                     return $unwrapTraitObject(p).type_;
                   }) });
               } else {

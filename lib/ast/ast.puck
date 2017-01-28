@@ -14,6 +14,7 @@ export type CommentNode {
 
 export type Block {
   expressions: List<Expression>
+  type_: Type
 }
 
 export type EnumDeclaration {
@@ -199,7 +200,8 @@ export type IfExpression {
 export type IfLetExpression {
   ifKeyword: Token
   letKeyword: Token
-  variableDeclaration: VariableDeclaration
+  pattern: Pattern
+  expression: Expression
   then_: Block
   else_: Option<Block>
 }

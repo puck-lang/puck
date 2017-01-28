@@ -24,6 +24,8 @@ import '../ast/ast.puck' as {
   ImportDirective
 
   Pattern
+  RecordPattern
+  TuplePattern
 
   AssignmentExpression
   BinaryExpression
@@ -57,7 +59,12 @@ import 'src/functions.puck' as {resolveFunctionTypeParameters}
 import 'src/impls.puck' as {getImplementation}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
-import 'src/structure_visitor.puck' as {declarePatternVariables, notAssignableError, structureVisitor}
+import 'src/structure_visitor.puck' as {
+  PatternError
+  declarePatternVariables
+  notAssignableError
+  structureVisitor
+}
 import 'src/types.puck' as {
   createTypeInstance
   findCommonType
@@ -161,8 +168,8 @@ export fn ScopeVisitor(context, file) {
         if parameter.pattern
           then if let Pattern::Identifier({name}) = parameter.pattern
             then name
-            else i
-          else i
+            else '$i'
+          else '$i'
 
       if not isAssignable(parameter.type_, argument.type_)
         then reportError(argument
@@ -205,12 +212,20 @@ export fn ScopeVisitor(context, file) {
   Object.assign({}, visit.walkingVisitor, structureVisitor, {
     reportError
 
-    visitBlock: |self, mut b: Block| {
+    visitExpression: |mut self, e: Expression, isUsed = true| {
+      self.isUsed = isUsed
+      visit.walkingVisitor.visitExpression.call(self, e)
+    }
+
+    visitBlock: |self, mut b: Block, isBlockUsed = true| {
       b.scope = self.scope
 
       defineHoisted(b.expressions, self)
 
-      visit.walkBlock(self, b)
+      b.expressions.enumerate().forEach(|(e, i)| {
+        let isUsed = isBlockUsed and i + 1 == b.expressions.size()
+        self.visitExpression(e, isUsed)
+      })
 
       b.type_ =
         if let Option::Some(last) = b.expressions.last()
@@ -262,8 +277,9 @@ export fn ScopeVisitor(context, file) {
       self.scope = m.scope
 
       defineHoisted(m.expressions, self)
-
-      visit.walkModule(self, m)
+      m.expressions.forEach(|e| {
+        self.visitExpression(e, false)
+      })
     }
     visitObjectDestructure: |self, mut i: ObjectDestructure| {}
     visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
@@ -293,6 +309,52 @@ export fn ScopeVisitor(context, file) {
       visit.walkExportDirective(self, e)
     }
     visitImportDirective: |self, mut i: ImportDirective| {}
+
+    visitPattern: |self, mut p: Pattern| {
+      p.scope = self.scope
+      visit.walkPattern(self, p)
+      p.type_ =
+        match p {
+          Pattern::CatchAll => undefined
+          Pattern::Identifier(identifier) => undefined
+          Pattern::Record(record) => record.type_
+          Pattern::RecordType(typePath, record) => typePath.type_
+          Pattern::Tuple(tuple) => tuple.type_
+          Pattern::TupleType(typePath, tuple) => typePath.type_
+          Pattern::UnitType => Type.empty()
+        }
+    }
+
+    visitRecordPattern: |self, mut p: RecordPattern| {
+      p.scope = self.scope
+      visit.walkRecordPattern(self, p)
+      p.type_ = {
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Record({properties: ObjectMap.fromIter(
+            p.properties.map(|p| (p.property, p.local and p.local.type_))
+          )})
+        })
+        instance: None
+        class: None
+      }
+    }
+    visitTuplePattern: |self, mut p: TuplePattern| {
+      p.scope = self.scope
+      visit.walkTuplePattern(self, p)
+      p.type_ = {
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Tuple({properties: p.properties.map(|p| p.type_).toList()})
+        })
+        instance: None
+        class: None
+      }
+    }
 
     visitAssignmentExpression: |self, mut e: AssignmentExpression| {
       e.scope = self.scope
@@ -395,15 +457,75 @@ export fn ScopeVisitor(context, file) {
     visitIfExpression: |mut self, mut e: IfExpression| {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
-      visit.walkIfExpression(self, e)
+      let isUsed = self.isUsed
+      self.visitExpression(e.condition)
+      self.visitBlock(e.then_, isUsed)
+      if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
+      if isUsed {
+        e.type_ =
+          if let Option::Some(else_) = e.else_ {
+            let result: Result<Type, ()> = findCommonType([e.then_.type_, else_.type_])
+            match result {
+              Result::Ok(type_) => type_
+              Result::Err(_) => reportError(e
+                'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
+              )
+            }
+          }
+          else {{
+            displayName: None
+            name: None
+            kind: TypeKind::Struct({
+              implementations: []
+              kind: StructKind::Tuple({properties: []})
+            })
+            class: None
+            instance: None
+          }}
+      }
       self.scope = self.scope.parent
     }
     visitIfLetExpression: |mut self, mut e: IfLetExpression| {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
-      self.visitVariableDeclaration(e.variableDeclaration, undefined, undefined, true)
-      self.visitBlock(e.then_)
-      if let Option::Some(else_) = e.else_ then self.visitBlock(else_)
+      let isUsed = self.isUsed
+      self.visitPattern(e.pattern)
+      self.visitExpression(e.expression)
+      let result: Result<(), ()> = declarePatternVariables(e.scope, self, e.pattern, false, e.expression.type_, true)
+      match result {
+        Result::Ok(patternTy) => {
+          if not isAssignable(e.expression.type_, patternTy)
+            then self.reportError(e.expression, notAssignableError(patternTy, e.expression.type_))
+        }
+        Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
+          self.reportError(e.expression, notAssignableError(to, subject))
+        }
+        _ => {}
+      }
+      self.visitBlock(e.then_, isUsed)
+      if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
+      if isUsed {
+        e.type_ =
+          if let Option::Some(else_) = e.else_ {
+            let result: Result<Type, ()> = findCommonType([e.then_.type_, else_.type_])
+            match result {
+              Result::Ok(type_) => type_
+              Result::Err(_) => reportError(e
+                'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
+              )
+            }
+          }
+          else {{
+            displayName: None
+            name: None
+            kind: TypeKind::Struct({
+              implementations: []
+              kind: StructKind::Tuple({properties: []})
+            })
+            class: None
+            instance: None
+          }}
+      }
       self.scope = self.scope.parent
     }
     visitMatchExpression: |mut self, mut e: MatchExpression| {
@@ -411,39 +533,58 @@ export fn ScopeVisitor(context, file) {
       let oldMatchExpression = matchExpression
       matchExpression = Some(e)
 
-      self.visitExpression(e.expression)
-      e.type_ = e.expression.type_
+      let isUsed = self.isUsed
 
-      e.patterns.forEach(|a| self.visitMatchArm(a))
+      self.visitExpression(e.expression)
+
+      e.patterns.forEach(|a| self.visitMatchArm(a, isUsed))
 
       if let Result::Err(error) = checkExhaustive(e) {
         self.reportError(e, error)
       }
-      e.type_ = undefined
+      if isUsed {
+        e.type_ =
+          if e.patterns.isNotEmpty() {
+            let result: Result<Type, ()> = findCommonType(e.patterns.map(|arm| arm.type_).toList())
+            match result {
+              Result::Ok(type_) => type_
+              Result::Err(_) => reportError(e, 'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm.type_).displayName()).join(', '))
+            }
+          }
+          else {{
+            displayName: None
+            name: None
+            kind: TypeKind::Struct({
+              implementations: []
+              kind: StructKind::Tuple({properties: []})
+            })
+            class: None
+            instance: None
+          }}
+      }
 
       matchExpression = oldMatchExpression
     }
-    visitMatchArm: |mut self, mut a: MatchArm| {
+    visitMatchArm: |mut self, mut a: MatchArm, isUsed| {
       self.scope = createScope(context, file, self.scope)
       a.scope = self.scope
 
       let m = matchExpression.unwrap()
 
-      let result: Result<(), ()> = declarePatternVariables(a.scope, self, a.pattern, false, m.type_, true)
-      if result.isOk() {
-        let patternTy = result.value[0]
-
-        if not isAssignable(m.type_, patternTy)
-          then self.reportError(a, notAssignableError(m.type_, patternTy))
-      }
-      else {
-        if result.value[0].kind == 'PatternMismatch' {
-          let (pattern, to, subject) = result.value[0].value
+      let result: Result<(), ()> = declarePatternVariables(a.scope, self, a.pattern, false, m.expression.type_, true)
+      match result {
+        Result::Ok(patternTy) => {
+          if not isAssignable(m.expression.type_, patternTy)
+            then self.reportError(a, notAssignableError(m.expression.type_, patternTy))
+        }
+        Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
           self.reportError(a, notAssignableError(to, subject))
         }
+        _ => {}
       }
 
-      self.visitBlock(a.block)
+      self.visitBlock(a.block, isUsed)
+      a.type_ = a.block.type_
 
       self.scope = self.scope.parent
     }
@@ -548,7 +689,8 @@ export fn ScopeVisitor(context, file) {
     visitWhileLoop: |mut self, mut e: WhileLoop| {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
-      visit.walkWhileLoop(self, e)
+      self.visitExpression(e.condition)
+      self.visitBlock(e.body, false)
       e.type_ = Type.empty()
       self.scope = self.scope.parent
     }

@@ -50,11 +50,11 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
       var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
           instance = _PUCK__value__1$valu[0];
 
-      var typeParameters = $unwrapTraitObject(instance).typeParameters;
+      var typeParameters = instance.typeParameters;
       if (_core.Iterable['$List<E>'].any.call({ type: '$List<E>', value: typeParameters, $isTraitObject: true }, function (parameter) {
         return _entities.Type.isParameter.call(parameter);
       })) {
-        return createTypeInstance($unwrapTraitObject(instance)._class, _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: typeParameters, $isTraitObject: true }, function (p) {
+        return createTypeInstance(instance._class, _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: typeParameters, $isTraitObject: true }, function (p) {
           if (_entities.Type.isParameter.call(p)) {
             return _core.Option.unwrapOr.call(_core.ObjectMap.get.call(parameterMap, _core.Option.unwrap.call(p.name)), p);
           } else {
@@ -187,7 +187,7 @@ function createTypeInstance(type_, typeParameters_) {
   var __PUCK__value__27 = void 0;
   if (typeParameters_.value.length < _class.parameterRange.end - 1) {
     __PUCK__value__27 = typeParameters_.value.concat($unwrapTraitObject(_class.typeParameters.slice(typeParameters_.value.length)).map(function (p) {
-      var __PUCK__value__28 = p.kind;
+      var __PUCK__value__28 = $unwrapTraitObject(p).kind;
       if ($unwrapTraitObject(__PUCK__value__28).kind == "Parameter") {
         var _PUCK__value__28$val = _slicedToArray(__PUCK__value__28.value, 1),
             _p = _PUCK__value__28$val[0];

@@ -16,4 +16,13 @@ if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
   (0, _core.print)(value);
 } else {
   (0, _core.print)("None");
+};
+var __PUCK__value__2 = _core.Option.Some(3);
+if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
+  var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+      number = _PUCK__value__2$valu[0];
+
+  number;
+} else {
+  "string";
 }
