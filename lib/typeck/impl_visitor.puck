@@ -66,7 +66,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
   if implementable.implementations.any(|imp| imp.trait_ == traitType)
     then reportError(i, '$traitName has already been implemented for ' + type_.displayName())
 
-  let functions = ObjectMap.fromList(
+  let functions = ObjectMap.fromIter(
     i.members.map(|functionDeclaration| {
       (functionDeclaration.type_.name.unwrap(), functionDeclaration.type_)
     })
@@ -99,14 +99,24 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
     }
     else if let Option::Some(_) = traitFunction.selfBinding
       then reportError(function, 'Function $traitName::$traitFunctionName requires a self parameter')
+  })
+
+  let implementation = {
+    type_: type_
+    trait_: traitType
+  }
+
+  implementable.implementations.push(implementation)
+
+  i.members.forEach(|mut functionDeclaration| {
+    let functionName = functionDeclaration.type_.displayName()
+    let traitFunctionType: Type = traitFunctions[functionDeclaration.type_.name.unwrap()]
+    let traitFunction = traitFunctionType.getFunction()
+    let function = functionDeclaration.type_.getFunction()
+    functionDeclaration.traitFunctionType = traitFunctionType
 
     if let Result::Err(error) = checkFunctionAssignability(functionName, traitFunction, function)
       then reportError(function, error)
-  })
-
-  implementable.implementations.push({
-    type_: type_
-    trait_: traitType
   })
 }
 
@@ -116,7 +126,7 @@ fn implementShorthand(type_: Type, implementable: {implementations: List<Impleme
   if implementable.implementations.any(|imp| imp.trait_.getTrait().isShorthand)
     then reportError(i, '$typeName has already been implemented')
 
-  let functions = ObjectMap.fromList(
+  let functions = ObjectMap.fromIter(
     i.members.map(|functionDeclaration|
       (functionDeclaration.type_.name.unwrap(), functionDeclaration.type_)
     )

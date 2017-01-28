@@ -11,6 +11,9 @@ exports.print = print;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
 var Bool = exports.Bool = function Bool(object) {
   return object;
 };
@@ -59,34 +62,34 @@ var Iterable = exports.Iterable = {};
 Iterable['$List<E>'] = {
   enumerate: function enumerate() {
     var self = this;
-    return anyCast(self).map(function (element, index) {
-      return [element, index];
-    });
+    return { type: '$List<E>', value: asList($unwrapTraitObject(anyCast(self)).map(function (element, index) {
+        return [element, index];
+      })), $isTraitObject: true };
   },
   size: function size() {
     var self = this;
-    return self.length;
+    return self.value.length;
   },
   isEmpty: function isEmpty() {
     var self = this;
-    return self.length == 0;
+    return self.value.length == 0;
   },
   isNotEmpty: function isNotEmpty() {
     var self = this;
-    return self.length > 0;
+    return self.value.length > 0;
   },
   first: function first() {
     var self = this;
-    if (self.length > 0) {
-      return Some(self[0]);
+    if (self.value.length > 0) {
+      return Some(self.value[0]);
     } else {
       return None;
     };
   },
   last: function last() {
     var self = this;
-    if (self.length > 0) {
-      return Some(self[self.length - 1]);
+    if (self.value.length > 0) {
+      return Some(self.value[$unwrapTraitObject(self.value.length - 1)]);
     } else {
       return None;
     };
@@ -94,8 +97,8 @@ Iterable['$List<E>'] = {
   all: function all(predicate) {
     var self = this;
     var i = 0;
-    while (i < self.length) {
-      if (!predicate(self[i])) {
+    while (i < self.value.length) {
+      if (!predicate(self.value[i])) {
         return false;
       };
       i += 1;
@@ -105,8 +108,8 @@ Iterable['$List<E>'] = {
   any: function any(predicate) {
     var self = this;
     var i = 0;
-    while (i < self.length) {
-      if (predicate(self[i])) {
+    while (i < self.value.length) {
+      if (predicate(self.value[i])) {
         return true;
       };
       i += 1;
@@ -115,33 +118,39 @@ Iterable['$List<E>'] = {
   },
   find: function find(predicate) {
     var self = this;
-    var index = self.findIndex(predicate);
+    var index = self.value.findIndex(predicate);
     if (index >= 0) {
-      return Some(self[index]);
+      return Some(self.value[$unwrapTraitObject(index)]);
     } else {
       return None;
     };
   },
   forEach: function forEach(func) {
     var self = this;
-    return anyCast(self).forEach(func);
+    return $unwrapTraitObject(anyCast(self)).forEach(func);
   },
   map: function map(func) {
     var self = this;
-    return anyCast(self).map(func);
+    return { type: '$List<E>', value: asList($unwrapTraitObject(anyCast(self)).map(func)), $isTraitObject: true };
   },
   skip: function skip(count) {
     var self = this;
-    return self.slice(count);
+    return { type: '$List<E>', value: asList(self.value.slice(count)), $isTraitObject: true };
   },
   skipUntil: function skipUntil(predicate) {
     var self = this;
-    var index = self.findIndex(predicate);
+    var index = self.value.findIndex(predicate);
+    var __PUCK__value__1 = void 0;
     if (index == -1) {
-      return [];
+      __PUCK__value__1 = [];
     } else {
-      return self.slice(index);
+      __PUCK__value__1 = self.value.slice(index);
     };
+    return { type: '$List<E>', value: asList(__PUCK__value__1), $isTraitObject: true };
+  },
+  toList: function toList() {
+    var self = this;
+    return self.value;
   }
 };
 String.contains = function contains(subStr) {
@@ -158,36 +167,36 @@ Result.isErr = function isErr() {
 };
 Result.andThen = function andThen(op) {
   var self = this;
-  var __PUCK__value__1 = self;
-  if (__PUCK__value__1.kind == "Ok") {
-    var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
-        value = _PUCK__value__1$valu[0];
+  var __PUCK__value__2 = self;
+  if ($unwrapTraitObject(__PUCK__value__2).kind == "Ok") {
+    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+        value = _PUCK__value__2$valu[0];
 
-    return op(value);
+    return op($unwrapTraitObject(value));
   } else {
     return self;
   };
 };
 Result.map = function map(op) {
   var self = this;
-  var __PUCK__value__2 = self;
-  if (__PUCK__value__2.kind == "Ok") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-        value = _PUCK__value__2$valu[0];
+  var __PUCK__value__3 = self;
+  if ($unwrapTraitObject(__PUCK__value__3).kind == "Ok") {
+    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+        value = _PUCK__value__3$valu[0];
 
-    return Ok(op(value));
+    return Ok($unwrapTraitObject(op($unwrapTraitObject(value))));
   } else {
     return self;
   };
 };
 Result.mapErr = function mapErr(op) {
   var self = this;
-  var __PUCK__value__3 = self;
-  if (__PUCK__value__3.kind == "Err") {
-    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-        value = _PUCK__value__3$valu[0];
+  var __PUCK__value__4 = self;
+  if ($unwrapTraitObject(__PUCK__value__4).kind == "Err") {
+    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+        value = _PUCK__value__4$valu[0];
 
-    return Err(op(value));
+    return Err($unwrapTraitObject(op($unwrapTraitObject(value))));
   } else {
     return self;
   };
@@ -195,16 +204,16 @@ Result.mapErr = function mapErr(op) {
 Result.unwrap = function unwrap() {
   var self = this;
   if (Result.isErr.call(self)) {
-    throw (0, _js.Error)(self.value[0]);
+    throw (0, _js.Error)($unwrapTraitObject($unwrapTraitObject(self).value)[$unwrapTraitObject(0)]);
   };
-  return self.value[0];
+  return $unwrapTraitObject(self.value)[0];
 };
 Result.unwrapErr = function unwrapErr() {
   var self = this;
   if (Result.isOk.call(self)) {
-    throw (0, _js.Error)(self.value[0]);
+    throw (0, _js.Error)($unwrapTraitObject($unwrapTraitObject(self).value)[$unwrapTraitObject(0)]);
   };
-  return self.value[0];
+  return $unwrapTraitObject(self.value)[0];
 };
 Option.isSome = function isSome() {
   var self = this;
@@ -216,48 +225,48 @@ Option.isNone = function isNone() {
 };
 Option.andThen = function andThen(op) {
   var self = this;
-  var __PUCK__value__4 = self;
-  if (__PUCK__value__4.kind == "Some") {
-    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-        value = _PUCK__value__4$valu[0];
+  var __PUCK__value__5 = self;
+  if ($unwrapTraitObject(__PUCK__value__5).kind == "Some") {
+    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+        value = _PUCK__value__5$valu[0];
 
-    return op(value);
+    return op($unwrapTraitObject(value));
   } else {
     return self;
   };
 };
 Option.map = function map(f) {
   var self = this;
-  var __PUCK__value__5 = self;
-  if (__PUCK__value__5.kind == "Some") {
-    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-        value = _PUCK__value__5$valu[0];
+  var __PUCK__value__6 = self;
+  if ($unwrapTraitObject(__PUCK__value__6).kind == "Some") {
+    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+        value = _PUCK__value__6$valu[0];
 
-    return Some(f(value));
+    return Some($unwrapTraitObject(f($unwrapTraitObject(value))));
   } else {
     return self;
   };
 };
 Option.mapOr = function mapOr(_default, f) {
   var self = this;
-  var __PUCK__value__6 = self;
-  if (__PUCK__value__6.kind == "Some") {
-    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
-        value = _PUCK__value__6$valu[0];
+  var __PUCK__value__7 = self;
+  if ($unwrapTraitObject(__PUCK__value__7).kind == "Some") {
+    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+        value = _PUCK__value__7$valu[0];
 
-    return f(value);
+    return f($unwrapTraitObject(value));
   } else {
     return _default;
   };
 };
 Option.mapOrElse = function mapOrElse(_default, f) {
   var self = this;
-  var __PUCK__value__7 = self;
-  if (__PUCK__value__7.kind == "Some") {
-    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-        value = _PUCK__value__7$valu[0];
+  var __PUCK__value__8 = self;
+  if ($unwrapTraitObject(__PUCK__value__8).kind == "Some") {
+    var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
+        value = _PUCK__value__8$valu[0];
 
-    return f(value);
+    return f($unwrapTraitObject(value));
   } else {
     return _default();
   };
@@ -267,14 +276,14 @@ Option.unwrap = function unwrap() {
   if (Option.isNone.call(self)) {
     throw (0, _js.Error)("Can not unwrap empty Option");
   };
-  return self.value[0];
+  return $unwrapTraitObject(self.value)[0];
 };
 Option.unwrapOr = function unwrapOr(_default) {
   var self = this;
-  var __PUCK__value__8 = self;
-  if (__PUCK__value__8.kind == "Some") {
-    var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
-        value = _PUCK__value__8$valu[0];
+  var __PUCK__value__9 = self;
+  if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
+    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+        value = _PUCK__value__9$valu[0];
 
     return value;
   } else {
@@ -283,10 +292,10 @@ Option.unwrapOr = function unwrapOr(_default) {
 };
 Option.unwrapOrElse = function unwrapOrElse(_default) {
   var self = this;
-  var __PUCK__value__9 = self;
-  if (__PUCK__value__9.kind == "Some") {
-    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-        value = _PUCK__value__9$valu[0];
+  var __PUCK__value__10 = self;
+  if ($unwrapTraitObject(__PUCK__value__10).kind == "Some") {
+    var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1),
+        value = _PUCK__value__10$val[0];
 
     return value;
   } else {
@@ -294,16 +303,18 @@ Option.unwrapOrElse = function unwrapOrElse(_default) {
   };
 };
 List.zip = function zip(a, b) {
-  if (a.length != b.length) {
-    throw (0, _js.Error)("List a and b are not of the same length");
+  if (Iterable[a.type].size.call(a) != Iterable[b.type].size.call(b)) {
+    throw (0, _js.Error)("Iterable a and b are not of the same length");
   };
-  return Iterable['$List<E>'].map.call(Iterable['$List<E>'].enumerate.call(a), function (_ref) {
+  var __PUCK__value__12 = Iterable[a.type].enumerate.call(a);
+  var __PUCK__value__11 = Iterable[__PUCK__value__12.type].map.call(__PUCK__value__12, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         a = _ref2[0],
         i = _ref2[1];
 
-    return [a, b[i]];
+    return [a, b.value[i]];
   });
+  return Iterable[__PUCK__value__11.type].toList.call(__PUCK__value__11);
 };
 List.add = function add(element) {
   var self = this;
@@ -318,37 +329,37 @@ Range.isSubsetOf = function isSubsetOf(other) {
   return self.start >= other.start && other.end >= self.end;
 };
 ObjectMap._new = function _new() {
-  return _js._Object.create(_js._null);
+  return $unwrapTraitObject(_js._Object).create(_js._null);
 };
-ObjectMap.fromList = function fromList(list) {
-  var object = _js._Object.create(_js._null);
-  Iterable['$List<E>'].forEach.call(list, function (item) {
-    return object[item[0]] = item[1];
+ObjectMap.fromIter = function fromIter(list) {
+  var object = $unwrapTraitObject(_js._Object).create(_js._null);
+  Iterable[list.type].forEach.call(list, function (item) {
+    return $unwrapTraitObject(object)[$unwrapTraitObject(item[0])] = item[1];
   });
   return object;
 };
 ObjectMap.keys = function keys() {
   var self = this;
-  return _js._Object.keys(self);
+  return $unwrapTraitObject(_js._Object).keys(self);
 };
 ObjectMap.values = function values() {
   var self = this;
-  return _js._Object.keys(self).map(function (key) {
-    return self[key];
+  return $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).map(function (key) {
+    return self[$unwrapTraitObject(key)];
   });
 };
 ObjectMap.toList = function toList() {
   var self = this;
-  return _js._Object.keys(self).map(function (key) {
-    return [key, self[key]];
+  return $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).map(function (key) {
+    return [key, self[$unwrapTraitObject(key)]];
   });
 };
 ObjectMap.all = function all(predicate) {
   var self = this;
   var i = 0;
-  var keys = _js._Object.keys(self);
-  while (i < keys.length) {
-    if (!predicate(self[keys[i]])) {
+  var keys = $unwrapTraitObject(_js._Object).keys(self);
+  while (i < $unwrapTraitObject(keys).length) {
+    if (!predicate(self[$unwrapTraitObject($unwrapTraitObject(keys)[i])])) {
       return false;
     };
     i += 1;
@@ -358,9 +369,9 @@ ObjectMap.all = function all(predicate) {
 ObjectMap.any = function any(predicate) {
   var self = this;
   var i = 0;
-  var keys = _js._Object.keys(self);
-  while (i < keys.length) {
-    if (predicate(self[keys[i]])) {
+  var keys = $unwrapTraitObject(_js._Object).keys(self);
+  while (i < $unwrapTraitObject(keys).length) {
+    if (predicate(self[$unwrapTraitObject($unwrapTraitObject(keys)[i])])) {
       return true;
     };
     i += 1;
@@ -369,33 +380,33 @@ ObjectMap.any = function any(predicate) {
 };
 ObjectMap.map = function map(mapper) {
   var self = this;
-  var _new = ObjectMap._new.call(ObjectMap);
-  _js._Object.keys(self).forEach(function (key) {
-    return _new[key] = mapper(self[key]);
+  var _new = ObjectMap._new();
+  $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).forEach(function (key) {
+    return _new[$unwrapTraitObject(key)] = mapper(self[$unwrapTraitObject(key)]);
   });
   return _new;
 };
 ObjectMap.find = function find(predicate) {
   var self = this;
-  var key = _js._Object.keys(self).find(function (key) {
-    return predicate([key, self[key]]);
+  var key = $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).find(function (key) {
+    return predicate([key, self[$unwrapTraitObject(key)]]);
   });
   if (key) {
-    return Some([key, self[key]]);
+    return Some([key, self[$unwrapTraitObject(key)]]);
   } else {
     return None;
   };
 };
 ObjectMap.forEach = function forEach(func) {
   var self = this;
-  _js._Object.keys(self).forEach(function (key) {
-    return func([key, self[key]]);
+  $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).forEach(function (key) {
+    return func([key, self[$unwrapTraitObject(key)]]);
   });
   return [];
 };
 ObjectMap.has = function has(key) {
   var self = this;
-  return _js._Object.prototype.hasOwnProperty.call(self, key);
+  return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_js._Object).prototype).hasOwnProperty).call(self, key);
 };
 ObjectMap.get = function get(key) {
   var self = this;
@@ -407,7 +418,7 @@ ObjectMap.get = function get(key) {
 };
 ObjectMap.size = function size() {
   var self = this;
-  return _js._Object.keys(self).length;
+  return $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).length;
 };
 var Ok = exports.Ok = Result.Ok;
 var Err = exports.Err = Result.Err;
@@ -416,8 +427,11 @@ var None = exports.None = Option.None;
 function anyCast(a) {
   return a;
 };
+function asList(a) {
+  return a;
+};
 function print(message) {
   var extra = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-  return _js.console.log.apply(_js.console, [message].concat(extra));
+  return $unwrapTraitObject($unwrapTraitObject(_js.console).log).apply(_js.console, [message].concat(extra));
 }

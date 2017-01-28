@@ -11,13 +11,16 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _ast = require('./ast');
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
 function TokenStream(input) {
   var current = _js._null;
   var currentDummy = _js._null;
   var inImport = false;
-  var longestOperator = _ast.operators.reduce(function (longest, curr) {
-    if (curr.length > longest) {
-      return curr.length;
+  var longestOperator = $unwrapTraitObject(_ast.operators).reduce(function (longest, curr) {
+    if ($unwrapTraitObject(curr).length > longest) {
+      return $unwrapTraitObject(curr).length;
     } else {
       return longest;
     };
@@ -27,18 +30,18 @@ function TokenStream(input) {
     var searchString = "";
     var found = void 0;
     while (length < longestOperator) {
-      var ch = input.peek(length);
+      var ch = $unwrapTraitObject(input).peek(length);
       if (isWhitespaceOrNewline(ch)) {
         break;
       };
       searchString += ch;
-      var hasMatches = _ast.operators.filter(function (token) {
-        if (token.length < length) {
+      var hasMatches = $unwrapTraitObject($unwrapTraitObject(_ast.operators).filter(function (token) {
+        if ($unwrapTraitObject(token).length < length) {
           return false;
         } else {
-          return token.substr(0, length + 1) == searchString;
+          return $unwrapTraitObject(token).substr(0, length + 1) == searchString;
         };
-      }).length > 0;
+      })).length > 0;
       if (hasMatches) {
         length += 1;
         found = searchString;
@@ -46,20 +49,20 @@ function TokenStream(input) {
         break;
       };
     };
-    if (_ast.textToToken[found]) {
+    if ($unwrapTraitObject(_ast.textToToken)[$unwrapTraitObject(found)]) {
       var i = 0;
       while (i < length) {
-        input.next();
+        $unwrapTraitObject(input).next();
         i += 1;
       };
-      return { kind: _ast.textToToken[found] };
+      return { kind: $unwrapTraitObject(_ast.textToToken)[$unwrapTraitObject(found)] };
     };
   };
   function isDigit(ch) {
-    return (0, _js.RegExp)("[0-9]").test(ch);
+    return $unwrapTraitObject((0, _js.RegExp)("[0-9]")).test(ch);
   };
   function isIdStart(ch) {
-    return (0, _js.RegExp)("[a-z_]", "i").test(ch);
+    return $unwrapTraitObject((0, _js.RegExp)("[a-z_]", "i")).test(ch);
   };
   function isId(ch) {
     return isIdStart(ch) || isDigit(ch);
@@ -75,8 +78,8 @@ function TokenStream(input) {
   };
   function readWhile(predicate) {
     var str = "";
-    while (!input.eof() && predicate(input.peek())) {
-      str += input.next();
+    while (!$unwrapTraitObject(input).eof() && predicate($unwrapTraitObject(input).peek())) {
+      str += $unwrapTraitObject(input).next();
     };
     return str;
   };
@@ -84,7 +87,7 @@ function TokenStream(input) {
     var hasDot = false;
     var number = readWhile(function (ch) {
       if (ch == ".") {
-        if (hasDot || !isDigit(input.peek(1))) {
+        if (hasDot || !isDigit($unwrapTraitObject(input).peek(1))) {
           return false;
         } else {
           hasDot = true;
@@ -95,25 +98,25 @@ function TokenStream(input) {
       };
     });
     return {
-      kind: _ast.SyntaxKind.NumberLiteral,
-      value: _js.global.parseFloat(number)
+      kind: $unwrapTraitObject(_ast.SyntaxKind).NumberLiteral,
+      value: $unwrapTraitObject(_js.global).parseFloat(number)
     };
   };
   function readIdent() {
     var id = readWhile(isId);
     if (id == "import") {
       inImport = true;
-      return { kind: _ast.SyntaxKind.ImportKeyword };
+      return { kind: $unwrapTraitObject(_ast.SyntaxKind).ImportKeyword };
     } else {
       if (id == "as") {
         inImport = false;
-        return { kind: _ast.SyntaxKind.AsKeyword };
+        return { kind: $unwrapTraitObject(_ast.SyntaxKind).AsKeyword };
       } else {
-        if (_ast.textToToken[id] != _js._undefined) {
-          return { kind: _ast.textToToken[id] };
+        if ($unwrapTraitObject(_ast.textToToken)[id] != _js._undefined) {
+          return { kind: $unwrapTraitObject(_ast.textToToken)[id] };
         } else {
           return {
-            kind: _ast.SyntaxKind.Identifier,
+            kind: $unwrapTraitObject(_ast.SyntaxKind).Identifier,
             name: id
           };
         };
@@ -124,9 +127,9 @@ function TokenStream(input) {
     var escaped = false;
     var parts = [];
     var str = "";
-    var delimiter = input.next();
-    while (!input.eof()) {
-      var ch = input.next();
+    var delimiter = $unwrapTraitObject(input).next();
+    while (!$unwrapTraitObject(input).eof()) {
+      var ch = $unwrapTraitObject(input).next();
       if (escaped) {
         if (ch == "$") {
           str += "$";
@@ -152,7 +155,7 @@ function TokenStream(input) {
                       if (ch == "\n") {
                         _js._null;
                       } else {
-                        input.croak("Invalid escape character " + ch + "");
+                        $unwrapTraitObject(input).croak("Invalid escape character " + ch + "");
                       };
                     };
                   };
@@ -166,9 +169,9 @@ function TokenStream(input) {
         if (ch == "\\") {
           escaped = true;
         } else {
-          if (ch == "$" && isIdStart(input.peek()) && !inImport) {
+          if (ch == "$" && isIdStart($unwrapTraitObject(input).peek()) && !inImport) {
             parts.push({
-              kind: _ast.SyntaxKind.StringLiteralPart,
+              kind: $unwrapTraitObject(_ast.SyntaxKind).StringLiteralPart,
               value: str
             });
             parts.push(readIdent());
@@ -184,38 +187,38 @@ function TokenStream(input) {
       };
     };
     parts.push({
-      kind: _ast.SyntaxKind.StringLiteralPart,
+      kind: $unwrapTraitObject(_ast.SyntaxKind).StringLiteralPart,
       value: str
     });
     return {
-      kind: _ast.SyntaxKind.StringLiteral,
+      kind: $unwrapTraitObject(_ast.SyntaxKind).StringLiteral,
       parts: parts
     };
   };
   function readComment() {
-    input.next();
-    input.next();
+    $unwrapTraitObject(input).next();
+    $unwrapTraitObject(input).next();
     readWhile(isWhitespace);
     var comment = readWhile(function (ch) {
       return ch != "\n";
     });
-    input.next();
+    $unwrapTraitObject(input).next();
     return {
-      kind: _ast.SyntaxKind.Comment,
+      kind: $unwrapTraitObject(_ast.SyntaxKind).Comment,
       text: comment
     };
   };
   function readNext() {
     readWhile(isWhitespace);
-    if (input.eof()) {
+    if ($unwrapTraitObject(input).eof()) {
       return _js._null;
     };
-    var ch = input.peek();
+    var ch = $unwrapTraitObject(input).peek();
     if (isNewline(ch)) {
-      input.next();
-      return { kind: _ast.SyntaxKind.NewlineToken };
+      $unwrapTraitObject(input).next();
+      return { kind: $unwrapTraitObject(_ast.SyntaxKind).NewlineToken };
     };
-    if (ch == "/" && input.peek(1) == "/") {
+    if (ch == "/" && $unwrapTraitObject(input).peek(1) == "/") {
       return readComment();
     };
     if (ch == "'" || ch == "\"") {
@@ -229,7 +232,7 @@ function TokenStream(input) {
     };
     var operator = tryParseOperator();
     if (!operator) {
-      input.croak("Unexpected token: " + ch + "");
+      $unwrapTraitObject(input).croak("Unexpected token: " + ch + "");
     };
     return operator;
   };
@@ -237,7 +240,7 @@ function TokenStream(input) {
     if (!token) {
       return false;
     };
-    return token.kind == _ast.SyntaxKind.NewlineToken || token.kind == _ast.SyntaxKind.Comment;
+    return $unwrapTraitObject(token).kind == $unwrapTraitObject(_ast.SyntaxKind).NewlineToken || $unwrapTraitObject(token).kind == $unwrapTraitObject(_ast.SyntaxKind).Comment;
   };
   function peek() {
     var returnDummy = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
@@ -283,7 +286,7 @@ function TokenStream(input) {
     next: next,
     peek: peek,
     eof: eof,
-    croak: input.croak,
-    file: input.file
+    croak: $unwrapTraitObject(input).croak,
+    file: $unwrapTraitObject(input).file
   };
 }

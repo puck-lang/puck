@@ -2,8 +2,10 @@
 .tmp/
 node_modules/
 old/
-src/
+lib/typeck/src/infer.puck
+dist/lib/typeck/src/infer.js
 vscode/
+/src/
 
 !dist/bin/puck
 !dist/lib/input_stream.js

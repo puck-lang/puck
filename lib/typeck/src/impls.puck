@@ -1,0 +1,120 @@
+import 'puck:js' as {global}
+import 'node:util' as {inspect}
+import '../../ast/ast.puck' as {
+  Expression
+
+  Block
+  FunctionDeclaration
+  Identifier
+  ObjectDestructure
+  TypeBound
+  FunctionTypeBound
+  NamedTypeBound
+  TypeParameter
+  TypePath
+  VariableDeclaration
+
+  CallExpression
+}
+import '../../entities.puck' as {
+  Implementation
+  Type
+  TypeInstance
+  TypeKind
+}
+import 'types.puck' as {isAssignable}
+
+fn asType(a) -> Type {a}
+
+export fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
+  let implementations =  match type_.kind {
+    TypeKind::Enum(enum_) => enum_.implementations
+    TypeKind::Struct(struct) => struct.implementations
+    TypeKind::Parameter => []
+    _ => throw 'Not an enum or a struct'
+  }
+
+  if implementations.length > 1
+    then if let Option::Some(objectInstance) = type_.instance
+      then implementations
+        .filter(|i: Implementation| {
+          let objectInstance_: TypeInstance = objectInstance
+          let implementationInstance = i.type_.instance.unwrap()
+
+          List.zip(objectInstance_.typeParameters, implementationInstance.typeParameters)
+            .all(|(objectP, implP)| isAssignable(implP, objectP))
+        })
+      else implementations
+    else implementations
+}
+
+export fn getImplementationsForTrait(type_: Type, trait_: Type, implementations: List<Implementation>) -> List<Implementation> {
+  implementations
+    .filter(|i| isAssignable(trait_, i.trait_))
+}
+
+export fn getMostSpecificImplementations(type_: Type, implementations: List<Implementation>) -> List<Implementation> {
+  if let Option::Some(objectInstance) = type_.instance {
+    let mut maxSpecificity = 0
+
+    implementations
+      .map(|i| {
+        let specificity = getTypeSpecificity(i.type_)
+        maxSpecificity = global.Math.max(maxSpecificity, specificity)
+        (i, specificity)
+      })
+      .filter(|(_, specificity)| specificity == maxSpecificity)
+      .map(|(i, _)| i)
+  }
+  else implementations
+}
+
+export fn getImplementation(functionName: String, type_: Type, e: CallExpression, reportError) -> Option<Implementation> {
+  // Implementations implemented for the correct type instance (generics)
+  let implementations = getImplementationsForInstance(type_)
+
+  // Implementations that implements the called function
+  let implementations = implementations
+    .filter(|i| asType(i.trait_).getTrait().functions[functionName])
+
+  // Implementations that are in scope
+  let implementations =
+    if implementations.length > 1
+      then implementations
+        .filter(|i| e.scope.getTypeBinding(
+          asType(i.trait_).name.unwrap()
+        ))
+      else implementations
+
+  // Implementations that accept the correct number of arguments
+  let implementations: List<Implementation> =
+    if implementations.length > 1
+      then implementations
+        .filter(|i| asType(asType(i.trait_).getTrait().functions[functionName]).getFunction().argumentRange
+          .contains(e.argumentList.length)
+        )
+      else implementations
+
+  // Implementations that are more specific (only for generics)
+  // For example an impl for List<String> is more specific than one for List<T>
+  let implementations: List<Implementation> =
+    if implementations.length > 1 and type_.instance.isSome()
+      then getMostSpecificImplementations(type_, implementations)
+      else implementations
+
+  if implementations.length > 1
+    then reportError(e, 'Ambiguous trait call')
+    else implementations.first()
+}
+
+fn getTypeSpecificity(type_: Type) -> Num {
+  if let TypeKind::Parameter(_) = type_.kind
+    then return 0
+
+  match type_.instance {
+    Option::Some(instance) => {
+      instance.typeParameters.reduce(|sum, type_| sum + getTypeSpecificity(type_), 1)
+    }
+    Option::None => 1
+  }
+}

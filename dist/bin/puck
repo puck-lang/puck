@@ -22,34 +22,39 @@ var _helpers = require('./../lib/helpers');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var argv = _js.process.argv;
-var _arguments = _core.Iterable['$List<E>'].skip.call(_core.Iterable['$List<E>'].skipUntil.call(argv, function (arg) {
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
+
+var argv = $unwrapTraitObject(_js.process).argv;
+var __PUCK__value__1 = _core.Iterable['$List<E>'].skipUntil.call({ type: '$List<E>', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "puck");
-}), 1);
-var command = _arguments[0];
+});
+var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__1, 1);
+var command = _arguments.value[0];
 var puckPattern = (0, _js.RegExp)("\\.puck$", "i");
 function normalizeBinName(file) {
-  var dirname = path.dirname(file);
-  var fileName = path.basename(file, ".puck").replace((0, _js.RegExp)("^_"), "");
-  return path.join("dist", dirname, fileName);
+  var dirname = $unwrapTraitObject(path).dirname(file);
+  var fileName = $unwrapTraitObject($unwrapTraitObject(path).basename(file, ".puck")).replace((0, _js.RegExp)("^_"), "");
+  return $unwrapTraitObject(path).join("dist", dirname, fileName);
 };
 if (command == "build") {
-  var outDir = _arguments[1];
-  var binFiles = (0, _helpers.walkSync)("bin").filter(function (f) {
-    return puckPattern.test(f);
-  }).map(function (file) {
+  var outDir = _arguments.value[1];
+  var binFiles = $unwrapTraitObject($unwrapTraitObject((0, _helpers.walkSync)("bin")).filter(function (f) {
+    return $unwrapTraitObject(puckPattern).test(f);
+  })).map(function (file) {
     return {
       isBin: true,
       file: file,
       outFile: normalizeBinName(file)
     };
   });
-  var libFiles = (0, _helpers.walkSync)("lib").filter(function (f) {
-    return puckPattern.test(f);
-  }).map(function (file) {
+  var libFiles = $unwrapTraitObject($unwrapTraitObject((0, _helpers.walkSync)("lib")).filter(function (f) {
+    return $unwrapTraitObject(puckPattern).test(f);
+  })).map(function (file) {
     return {
       file: file,
-      outFile: path.join("dist", file.replace((0, _js.RegExp)("\\.puck$"), ".js"))
+      outFile: $unwrapTraitObject(path).join("dist", $unwrapTraitObject(file).replace((0, _js.RegExp)("\\.puck$"), ".js"))
     };
   });
   (0, _compiler.build)(binFiles);
@@ -57,11 +62,11 @@ if (command == "build") {
   (0, _core.print)("done");
 } else {
   if (command == "test") {
-    var watch = !_js.process.env.CI;
-    var rootDir = path.resolve("lib");
+    var watch = !$unwrapTraitObject($unwrapTraitObject(_js.process).env).CI;
+    var rootDir = $unwrapTraitObject(path).resolve("lib");
     (0, _jest.jest)(watch, rootDir);
   } else {
-    _js.console.error("Unknown command", command);
-    _js.process.exit(1);
+    $unwrapTraitObject(_js.console).error("Unknown command", command);
+    $unwrapTraitObject(_js.process).exit(1);
   };
 }

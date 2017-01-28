@@ -22,7 +22,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../entities.puck' as {StructKind, TypeClass, TypeKind}
+import '../entities.puck' as {StructKind, Type, TypeClass, TypeKind}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {getType}
@@ -76,7 +76,7 @@ export fn TypeVisitor(context, file) {
         self.scope = t.scope
         t.members.forEach(|m| self.visitEnumMember(m))
 
-        let memberMap = ObjectMap.fromList(
+        let memberMap = ObjectMap.fromIter(
           t.members.map(|p: EnumMember| (
             p.name.name
             p.bound.mapOrElse(
@@ -209,7 +209,7 @@ export fn TypeVisitor(context, file) {
         t.members.forEach(|m| self.visitMethodDeclaration(m, t.type_))
 
         if let TypeKind::Trait(trait_) = t.type_.kind {
-          Object.assign(trait_.functions, ObjectMap.fromList(
+          Object.assign(trait_.functions, ObjectMap.fromIter(
             t.members.map(|m| (m.name.value[0].name, m.type_))
           ))
 
@@ -279,9 +279,8 @@ export fn TypeVisitor(context, file) {
 
           match t.type_.kind {
             TypeKind::Struct({kind: StructKind::Record({properties})}) => {
-              Object.assign(properties, ObjectMap.fromList(
-                typeBound.properties.map(|p| (p.name.name, p.typeBound.type_))
-              ))
+              let propertyList: List<(String, Type)> = typeBound.properties.map(|p| (p.name.name, p.typeBound.type_))
+              Object.assign(properties, ObjectMap.fromIter(propertyList))
             }
             TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
               Object.assign(tuple, {

@@ -7,9 +7,10 @@ var User = function User(object) {
 };
 
 var argv = [];
-var _arguments = _core.Iterable['$List<E>'].skip.call(_core.Iterable['$List<E>'].skipUntil.call(argv, function (arg) {
+var __PUCK__value__1 = _core.Iterable['$List<E>'].skipUntil.call({ type: '$List<E>', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "puck");
-}), 1);
+});
+var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__1, 1);
 var user = _core.Option.Some({ name: "Anna" });
 var name = _core.Option.map.call(user, function (user) {
   return user.name;

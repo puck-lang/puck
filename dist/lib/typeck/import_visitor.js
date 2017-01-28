@@ -32,38 +32,42 @@ var _ast2 = require('./../compiler/ast');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
+
 var domains = ["node", "puck"];
 var puckFile = (0, _js.RegExp)("\\.puck$", "i");
 var puckModules = ["core", "js", "test"];
 function ImportVisitor(context, file) {
-  var reportError = context.reportError.bind(context, file);
+  var reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
   var moduleScope = void 0;
   function importModule(i, importedFile) {
-    var contextFile = context.importFile(importedFile);
-    var _module = contextFile.ast;
+    var contextFile = $unwrapTraitObject(context).importFile(importedFile);
+    var _module = $unwrapTraitObject(contextFile).ast;
     if (!_module) {
-      return context.defer(importedFile, function () {
+      return $unwrapTraitObject(context).defer(importedFile, function () {
         return importModule(i, importedFile);
       });
     };
     i.file = contextFile;
     i._module = _module;
-    if (i.specifier.kind == _ast2.SyntaxKind.ObjectDestructure) {
-      return i.specifier.members.forEach(function (m) {
-        if (!_module.exports[m.property.name]) {
-          return reportError(m, importedFile.fileName + " has no export named " + m.property.name);
+    if ($unwrapTraitObject(i.specifier).kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectDestructure) {
+      return $unwrapTraitObject($unwrapTraitObject(i.specifier).members).forEach(function (m) {
+        if (!_module.exports[$unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(m).property).name)]) {
+          return reportError(m, importedFile.fileName + " has no export named " + $unwrapTraitObject($unwrapTraitObject(m).property).name);
         };
       });
     } else {
-      if (i.specifier.kind == _ast2.SyntaxKind.AsteriskToken) {
+      if ($unwrapTraitObject(i.specifier).kind == $unwrapTraitObject(_ast2.SyntaxKind).AsteriskToken) {
         return i.specifier = {
-          kind: _ast2.SyntaxKind.ObjectDestructure,
-          members: _core.ObjectMap.keys.call(_module.exports).filter(function (e) {
-            return !moduleScope.getBinding(e);
-          }).map(function (e) {
-            var property = _module.exports[e].identifier;
+          kind: $unwrapTraitObject(_ast2.SyntaxKind).ObjectDestructure,
+          members: $unwrapTraitObject(_core.ObjectMap.keys.call(_module.exports).filter(function (e) {
+            return !$unwrapTraitObject(moduleScope).getBinding(e);
+          })).map(function (e) {
+            var property = $unwrapTraitObject(_module.exports[$unwrapTraitObject(e)]).identifier;
             return {
-              kind: _ast2.SyntaxKind.ObjectDestructureMember,
+              kind: $unwrapTraitObject(_ast2.SyntaxKind).ObjectDestructureMember,
               property: property,
               local: property
             };
@@ -72,13 +76,13 @@ function ImportVisitor(context, file) {
       };
     };
   };
-  return _js._Object.assign({}, visit.emptyVisitor, {
+  return $unwrapTraitObject(_js._Object).assign({}, $unwrapTraitObject(visit).emptyVisitor, {
     visitModule: function visitModule(m) {
       var self = this;
       moduleScope = m.scope;
-      return _core.Iterable['$List<E>'].forEach.call(m.expressions, function (e) {
-        if (e.kind == _ast2.SyntaxKind.ImportDirective) {
-          return self.visitImportDirective(e);
+      return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: m.expressions, $isTraitObject: true }, function (e) {
+        if (e.kind == $unwrapTraitObject(_ast2.SyntaxKind).ImportDirective) {
+          return $unwrapTraitObject(self).visitImportDirective(e);
         };
       });
     },
@@ -86,14 +90,14 @@ function ImportVisitor(context, file) {
       var self = this;
       if (_core.Option.isNone.call(i.domain)) {
         var _ret = function () {
-          var importedFile = context.resolvePath(i.path, file);
-          var path = importedFile.absolutePath;
+          var importedFile = $unwrapTraitObject(context).resolvePath(i.path, file);
+          var path = $unwrapTraitObject(importedFile).absolutePath;
           var result = (0, _js.asResult)(function () {
             return (0, _fs.statSync)(path);
           });
           var __PUCK__value__1 = result;
           var __PUCK__value__2 = __PUCK__value__1;
-          if (__PUCK__value__2.kind == "Ok") {
+          if ($unwrapTraitObject(__PUCK__value__2).kind == "Ok") {
             var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
                 stat = _PUCK__value__2$valu[0];
 
@@ -102,14 +106,14 @@ function ImportVisitor(context, file) {
             };
           } else {
             var __PUCK__value__3 = __PUCK__value__1;
-            if (__PUCK__value__3.kind == "Err") {
+            if ($unwrapTraitObject(__PUCK__value__3).kind == "Err") {
               var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
                   error = _PUCK__value__3$valu[0];
 
               reportError(i, "Imported file " + path + " not found");
             };
           };
-          if (puckFile.test(path)) {
+          if ($unwrapTraitObject(puckFile).test(path)) {
             return {
               v: importModule(i, importedFile)
             };
@@ -118,15 +122,15 @@ function ImportVisitor(context, file) {
 
         if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
       } else {
-        if (i.domain.value[0] == "puck") {
+        if ($unwrapTraitObject(i.domain.value)[0] == "puck") {
           if (puckModules.indexOf(i.path) == -1) {
             reportError(i, "Invalid puck module " + i.path);
           };
-          var importedFile = context.resolvePath(path.join(path.dirname(_js.require.resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
+          var importedFile = $unwrapTraitObject(context).resolvePath($unwrapTraitObject(path).join($unwrapTraitObject(path).dirname($unwrapTraitObject(_js.require).resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
           return importModule(i, importedFile);
         } else {
-          if (domains.indexOf(i.domain.value[0]) == -1) {
-            return reportError(i, "Invalid import domain " + i.domain.value[0]);
+          if (domains.indexOf($unwrapTraitObject(i.domain.value)[0]) == -1) {
+            return reportError(i, "Invalid import domain " + $unwrapTraitObject(i.domain.value)[0]);
           };
         };
       };

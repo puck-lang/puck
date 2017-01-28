@@ -11,19 +11,23 @@ exports.checkRange = checkRange;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
 function getRange(parameters, isOptional, reportError, name) {
   var firstOptional = parameters.length;
   var hasOptional = false;
-  _core.Iterable['$List<E>'].forEach.call(_core.Iterable['$List<E>'].enumerate.call(parameters), function (_ref) {
+  var __PUCK__value__1 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: parameters, $isTraitObject: true });
+  _core.Iterable[__PUCK__value__1.type].forEach.call(__PUCK__value__1, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         parameter = _ref2[0],
         i = _ref2[1];
 
-    if (isOptional(parameter) && !hasOptional) {
+    if (isOptional($unwrapTraitObject(parameter)) && !hasOptional) {
       hasOptional = true;
       return firstOptional = i;
     } else {
-      if (!isOptional(parameter) && hasOptional) {
+      if (!isOptional($unwrapTraitObject(parameter)) && hasOptional) {
         return reportError(parameter, "An optional " + name + " can't be followed by a required " + name + "");
       };
     };
@@ -37,25 +41,25 @@ function checkRange(_arguments, range, argumentName, subjectName) {
   var argumentCount = _arguments.length;
   var max = range.end - 1;
   var min = range.start;
-  var __PUCK__value__1 = void 0;
+  var __PUCK__value__2 = void 0;
   if (argumentCount < min) {
-    __PUCK__value__1 = "few";
+    __PUCK__value__2 = "few";
   } else {
-    var __PUCK__value__2 = void 0;
-    if (argumentCount > max) {
-      __PUCK__value__2 = "many";
-    };
-    __PUCK__value__1 = __PUCK__value__2;
-  };
-  var error = __PUCK__value__1;
-  if (error) {
     var __PUCK__value__3 = void 0;
-    if (min == max) {
-      __PUCK__value__3 = min;
-    } else {
-      __PUCK__value__3 = "" + min + " to " + max + "";
+    if (argumentCount > max) {
+      __PUCK__value__3 = "many";
     };
-    var required = __PUCK__value__3;
+    __PUCK__value__2 = __PUCK__value__3;
+  };
+  var error = __PUCK__value__2;
+  if (error) {
+    var __PUCK__value__4 = void 0;
+    if (min == max) {
+      __PUCK__value__4 = min;
+    } else {
+      __PUCK__value__4 = "" + min + " to " + max + "";
+    };
+    var required = __PUCK__value__4;
     return (0, _core.Err)("Too " + error + " " + argumentName + " given to " + subjectName + ", " + required + " required, " + argumentCount + " given");
   } else {
     return (0, _core.Ok)([]);

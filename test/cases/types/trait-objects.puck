@@ -1,0 +1,102 @@
+type Apple {}
+type Banana {}
+
+trait Food {
+  fn eat(self) -> () {
+    print(self.name + ' is some kind of food')
+  }
+  fn passThrough(self) -> Self {
+    self
+  }
+  fn asFood(self) -> Food {
+    self
+  }
+}
+
+impl Food for Apple {}
+impl Food for Banana {
+  fn eat(self) -> () {
+    print(self.name + ' is a banana')
+  }
+  fn passThrough(self) -> Self {
+    self
+  }
+  fn asFood(self) -> Food {
+    self
+  }
+}
+
+let apple: Apple = {name: 'apple'}
+let banana: Banana = {name: 'banana'}
+let apple2: Food = apple
+let banana2: Food = banana
+
+apple.eat()
+banana.eat()
+apple2.eat()
+banana2.eat()
+
+apple.passThrough().eat()
+banana.passThrough().eat()
+apple2.passThrough().eat()
+banana2.passThrough().eat()
+
+apple.asFood().eat()
+banana.asFood().eat()
+apple2.asFood().eat()
+banana2.asFood().eat()
+
+let fruitSallad: {
+  apple: Apple
+  banana: Banana
+  appleFood: Food
+  bananaFood: Food
+  apple2: Food
+  banana2: Food
+} = {
+  apple
+  banana
+  appleFood: apple
+  bananaFood: banana
+  apple2
+  banana2
+}
+
+print(fruitSallad.apple.name)
+print(fruitSallad.banana.name)
+print(fruitSallad.appleFood.name)
+print(fruitSallad.bananaFood.name)
+print(fruitSallad.apple2.name)
+print(fruitSallad.banana2.name)
+
+let fruits: List<Food> = [apple, banana, apple2, banana2]
+let fruits2: List<Food> = [banana]
+fruits.forEach(|fruit| fruit.eat())
+fruits2.forEach(|fruit| fruit.eat())
+
+let (apple3, banana3, apple4, banana4, apple5, banana5): (Apple, Banana, Food, Food, Food, Food) =
+  (apple, banana, apple, banana, apple2, banana2)
+
+print(apple3.name)
+print(banana3.name)
+print(apple4.name)
+print(banana4.name)
+print(apple5.name)
+print(banana5.name)
+
+fn passThroughBanana(banana: Banana) {banana}
+fn passThroughFood(food: Food) {food}
+fn bananaToFood(banana: Banana) -> Food {banana}
+
+fruitSallad.apple.eat()
+fruitSallad.banana.eat()
+fruitSallad.appleFood.eat()
+fruitSallad.bananaFood.eat()
+fruitSallad.apple2.eat()
+fruitSallad.banana2.eat()
+
+passThroughBanana(banana).eat()
+passThroughFood(banana).eat()
+passThroughFood(apple).eat()
+passThroughFood(banana2).eat()
+bananaToFood(banana).eat()

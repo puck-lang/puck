@@ -1,3 +1,4 @@
+import {Type} from '../entities'
 export enum SyntaxKind {
   AndKeyword,
   AsKeyword,
@@ -260,7 +261,9 @@ export interface Token {
   kind: SyntaxKind
 }
 
-export interface Expression extends Token {}
+export interface Expression extends Token {
+  type_?: Type
+}
 
 export interface CommentNode extends Token {
   text: string
@@ -277,11 +280,13 @@ export interface EnumDeclaration extends Token {
   members: Array<TypeDeclaration>
 }
 
-export interface FunctionDeclaration extends Token {
+export interface FunctionDeclaration extends Expression {
   name: Option<Identifier>
   parameterList: Array<VariableDeclaration>
   returnType: Option<TypeBound>
   body: Option<BlockNode>
+
+  traitFunctionType: Type
 }
 
 export interface Identifier extends SimpleIdentifier, Expression {
@@ -329,7 +334,7 @@ export interface TraitDeclaration extends Token {
 export interface TypeBound extends Token {
   path: TypePath
   typeParameters: Array<TypeBound>
-  type_: any
+  type_: Type
 }
 
 export interface TypeDeclaration extends Token {
@@ -368,6 +373,7 @@ export interface VariableDeclaration extends Token {
   mutable: boolean
   typeBound: Option<TypeBound>
   initializer: Option<Expression>
+  type_?: Type
 }
 
 export interface ExportDirective extends Token {
@@ -445,6 +451,9 @@ export interface CallExpression extends Expression {
   openParen: Token
   argumentList: Array<Expression>
   closeParen: Token
+
+  // The resolved trait function (if is trait call)
+  functionType: Type
 }
 
 export interface ForExpression extends Token {

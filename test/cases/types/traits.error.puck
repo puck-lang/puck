@@ -112,9 +112,10 @@ impl SelfAware for EmptyType {
 trait A {}
 let A = true
 
-///// Functions has no function named missing
-import 'traits.puck' as {Functions}
-Functions.missing()
+// TODO: Reenable this when possible (no unknown property access)
+//// Functions has no function named missing
+// import 'traits.puck' as {Functions}
+// Functions.missing()
 
 ///// withMutableSelf can only be called on a mutable binding
 import 'traits.puck' as {SelfAware, FunctionsType}

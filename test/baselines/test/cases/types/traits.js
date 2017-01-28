@@ -7,6 +7,9 @@ exports.GenericSelf = exports.Generic = exports.SelfAware = exports.Functions = 
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
 var EmptyType = exports.EmptyType = function EmptyType(object) {
   return object;
 };
@@ -41,7 +44,7 @@ var Generic = exports.Generic = {};
 var GenericSelf = exports.GenericSelf = {
   genericSelf2: function genericSelf2(a) {
     var self = this;
-    return self.genericSelf(a);
+    return $unwrapTraitObject(GenericSelf[self.type].genericSelf.call(self, a));
   }
 };
 Empty['$EmptyType'] = {};
@@ -57,18 +60,18 @@ Functions['$FunctionsType'] = {
   },
   withBody: function withBody(a) {
     var self = this;
-    return self.name;
+    return self.value.name;
   }
 };
 Generic['$GenericType<T>'] = {
   generic: function generic(a) {
-    return a;
+    return $unwrapTraitObject(a);
   }
 };
 GenericSelf['$GenericType<String>'] = {
   genericSelf: function genericSelf(a) {
     var self = this;
-    return a;
+    return a.value;
   },
   genericSelf2: GenericSelf.genericSelf2
 };
@@ -83,12 +86,12 @@ SelfAware['$FunctionsType'] = {
   withMutableSelf: SelfAware.withMutableSelf
 };
 
-Functions.noBody();
+Functions.value.noBody();
 var func = { name: "func" };
-Functions['$FunctionsType'].withBody.call(func, "body");
+Functions['$FunctionsType'].withBody.call({ type: '$FunctionsType', value: func, $isTraitObject: true }, "body");
 var mutFunc = func;
-SelfAware['$FunctionsType'].withMutableSelf.call(mutFunc);
+SelfAware['$FunctionsType'].withMutableSelf.call({ type: '$FunctionsType', value: mutFunc, $isTraitObject: true });
 var genericNum = {};
-Generic['$GenericType<T>'].generic.call(genericNum, 5);
+Generic['$GenericType<T>'].generic(5);
 var genericString = {};
-Generic['$GenericType<String>'].generic.call(genericString, "hello");
+Generic['$GenericType<String>'].generic("hello");
