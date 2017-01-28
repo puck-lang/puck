@@ -1,5 +1,5 @@
 import 'puck:js' as {Object, null, undefined}
-import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound, ObjectTypeBound, TupleTypeBound}
+import '../../ast/ast.puck' as {TypeBound}
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
@@ -151,71 +151,25 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
   instance
 }
 
-export fn getType(scope: Scope, t_) { // t: TypeBound
-  if not t_ then return undefined
-  if t_.path {
-    let tn: NamedTypeBound = t_
-    let binding = scope.getTypePath(tn.path)
+export fn getType(scope: Scope, t: TypeBound) {
+  if not t then return undefined
+  match t {
+    TypeBound::FunctionTypeBound(t) => {
 
-    if not binding
-      then binding
-    else if let Option::Some(_) = binding.type_.class {
-      createTypeInstance(binding.type_, tn.typeParameters.map(|p| p.type_).toList())
     }
-    else binding.type_
-  }
-  else if t_.kind == SyntaxKind.ObjectTypeBound {
-    let to: ObjectTypeBound = t_
-    let properties = ObjectMap.fromIter(to.properties.map(|member| (
-      member.name.name
-      getType(scope, member.typeBound)
-    )))
+    TypeBound::NamedTypeBound(t) => {
+      let binding = scope.getTypePath(t.path)
 
-    {
-      displayName: None
-      name: None
-      kind: TypeKind::Struct({
-        implementations: []
-        kind: StructKind::Record({
-          properties
-        })
-      })
-      class: None
-      instance: None
+      if not binding
+        then binding
+      else if let Option::Some(_) = binding.type_.class {
+        createTypeInstance(binding.type_, t.typeParameters.map(|p| p.type_).toList())
+      }
+      else binding.type_
     }
-  }
-  else if t_.kind == SyntaxKind.TupleTypeBound {
-    let tt: TupleTypeBound = t_
-    let properties = tt.properties.map(|p| getType(scope, p)).toList()
-
-    {
-      displayName: None
-      name: None
-      kind: TypeKind::Struct({
-        implementations: []
-        kind: StructKind::Tuple({properties})
-      })
-      class: None
-      instance: None
+    TypeBound::RecordTypeBound(t) => {
     }
-  }
-  else {
-    let tf: FunctionTypeBound = t_
-    let arguments = tf.arguments.properties.map(|p| {{type_: getType(scope, p)}}).toList()
-    let returnType = getType(scope, tf.returnType)
-
-    {
-      displayName: None
-      name: None
-      kind: TypeKind::Function({
-        selfBinding: None
-        arguments
-        argumentRange: {start: arguments.length, end: arguments.length + 1}
-        returnType
-        isAbstract: false
-      })
-      class: TypeClass.fromAstNode(tf, || {})
-      instance: None
+    TypeBound::TupleTypeBound(t) => {
     }
   }
 }
@@ -310,7 +264,7 @@ fn isTraitAssignable(to: Trait, subject: Trait) {
     else return false
 }
 
-export fn isSameType(a, b) {
+export fn isSameType(a: Type, b: Type) {
   if let (Option::Some(aName), Option::Some(bName)) = (a.name, b.name)
     then aName == bName
     else false

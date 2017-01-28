@@ -12,7 +12,7 @@ import '../../ast/ast.puck' as {
   TypeBound
   FunctionTypeBound
   NamedTypeBound
-  ObjectTypeBound
+  RecordTypeBound
   TupleTypeBound
 
   BooleanLiteral
@@ -84,11 +84,11 @@ export let structureVisitor = {
           let type_: Option<TypeBound> = first.typeBound
           if name == 'self' {
             if type_.isNone() {
-              f.parameterList[0].typeBound = Some({
+              f.parameterList[0].typeBound = Some(TypeBound::NamedTypeBound({
                 kind: SyntaxKind.NamedTypeBound
                 path: TypePath::Member({name: 'Self'})
                 typeParameters: []
-              })
+              }))
             }
             else {
               self.visitFunctionParameter(first)
@@ -110,13 +110,39 @@ export let structureVisitor = {
   visitFunctionParameter: |self, mut v: VariableDeclaration, type_| {
     self.visitVariableDeclaration(v, self.visitLiteral.bind(self), type_)
   }
+  visitTypeBound: |self, mut t_: TypeBound| {
+    if not t_.scope {
+      t_.scope = self.scope
+      visit.walkTypeBound(self, t_)
+      match t_ {
+        TypeBound::FunctionTypeBound(t) => t_.type_ = t.type_
+        TypeBound::NamedTypeBound(t) => t_.type_ = t.type_
+        TypeBound::RecordTypeBound(t) => t_.type_ = t.type_
+        TypeBound::TupleTypeBound(t) => t_.type_ = t.type_
+      }
+    }
+  }
   visitFunctionTypeBound: |mut self, mut t: FunctionTypeBound| {
     if not t.scope {
       self.scope = self.scope.createChild()
       t.scope = self.scope
 
       visit.walkFunctionTypeBound(self, t)
-      t.type_ = getType(t.scope, t)
+      let arguments = t.arguments.properties
+
+      t.type_ = {
+        displayName: None
+        name: None
+        kind: TypeKind::Function({
+          selfBinding: None
+          arguments
+          argumentRange: {start: arguments.length, end: arguments.length + 1}
+          returnType: t.returnType.type_
+          isAbstract: false
+        })
+        class: TypeClass.fromAstNode(t, || {})
+        instance: None
+      }
 
       self.scope = self.scope.parent
     }
@@ -135,11 +161,11 @@ export let structureVisitor = {
               then self.reportError(t, 'Self is not generic')
 
             if let Option::Some(class) = type_.class {
-              t.typeParameters = class.typeParameterBindings.map(|{name}| {{
+              t.typeParameters = class.typeParameterBindings.map(|{name}| TypeBound::NamedTypeBound({
                 kind: SyntaxKind.NamedTypeBound
                 path: TypePath::Member(name)
                 typeParameters: []
-              }})
+              }))
             }
             true
           }
@@ -166,13 +192,27 @@ export let structureVisitor = {
           else type_
     }
   }
-  visitObjectTypeBound: |self, mut t: ObjectTypeBound| {
+  visitRecordTypeBound: |self, mut t: RecordTypeBound| {
     if not t.scope {
       t.scope = self.scope
 
-      visit.walkObjectTypeBound(self, t)
+      visit.walkRecordTypeBound(self, t)
 
-      t.type_ = getType(t.scope, t)
+      t.type_ = {
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Record({
+            properties: ObjectMap.fromIter(t.properties.map(|member| (
+              member.name.name
+              member.typeBound.type_
+            )))
+          })
+        })
+        class: None
+        instance: None
+      }
     }
   }
   visitTupleTypeBound: |self, mut t: TupleTypeBound| {
@@ -181,7 +221,16 @@ export let structureVisitor = {
 
       visit.walkTupleTypeBound(self, t)
 
-      t.type_ = getType(t.scope, t)
+      t.type_ = {
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Tuple({properties: t.properties.map(|p| p.type_).toList()})
+        })
+        class: None
+        instance: None
+      }
     }
   }
   visitTypeParameter: |self, mut t: TypeParameter| {
@@ -192,7 +241,7 @@ export let structureVisitor = {
         displayName: None
         name: Some(t.name.name)
         kind: TypeKind::Parameter({
-          defaultValue: t.defaultValue.map(|typeBound| getType(t.scope, typeBound))
+          defaultValue: t.defaultValue.map(|typeBound| typeBound.type_)
         })
         class: TypeClass.fromAstNode(t, self.reportError)
         instance: None
@@ -214,7 +263,7 @@ export let structureVisitor = {
     d.scope = self.scope
     d.type_ = d.typeBound.mapOr(type_, |bound| {
       self.visitTypeBound(bound)
-      getType(d.scope, bound) or type_
+      bound.type_ or type_
     })
 
     let mut patternType = None
@@ -225,10 +274,12 @@ export let structureVisitor = {
         if not isAssignable(patternTy, d.type_)
           then self.reportError(d, notAssignableError(patternTy, d.type_))
       }
-      Result::Err(PatternError::PatternMismatch(_, to, subject)) =>
+      Result::Err(PatternError::PatternMismatch(_, to, subject)) => {
         self.reportError(d, notAssignableError(to, subject))
-      Result::Err(PatternError::NotExhaustive) =>
+      }
+      Result::Err(PatternError::NotExhaustive) => {
         self.reportError(d, 'non exhaustive pattern')
+      }
     }
 
     if let Option::Some(initializer) = d.initializer {
@@ -358,7 +409,7 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
           acc.andThen(|props| cur.map(|prop| props.concat(prop)))
         }, Ok([]))
 
-      properties.map(|_| p.value[0].type_)
+      properties.map(|_| typePath.type_)
     }
     Pattern::Tuple(tuple) => {
       let props =
@@ -378,6 +429,7 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
       let properties: Result<List<Type>, PatternError> = tuple.properties
         .enumerate()
         .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
+        .toList()
         .reduce(|acc: Result<List<Type>, PatternError>, cur: Result<Type, PatternError>| {
           acc.andThen(|props| cur.map(|prop| props.concat(prop)))
         }, Ok([]))
@@ -430,6 +482,7 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
       let properties: Result<List<Type>, PatternError> = tuple.properties
         .enumerate()
         .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
+        .toList()
         .reduce(|acc: Result<List<Type>, PatternError>, cur: Result<Type, PatternError>| {
           acc.andThen(|props| cur.map(|prop| props.concat(prop)))
         }, Ok([]))

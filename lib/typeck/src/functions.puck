@@ -2,7 +2,7 @@ import 'puck:js' as {undefined}
 import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration, TypeParameter}
 import '../../entities.puck' as {Binding, Function, Scope, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
-import 'types.puck' as {getType, isAssignable}
+import 'types.puck' as {isAssignable}
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) -> Type {
   let class =

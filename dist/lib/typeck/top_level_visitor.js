@@ -98,19 +98,34 @@ function TopLevelVisitor(context, file) {
         var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
             typeBound = _PUCK__value__2$valu[0];
 
-        var __PUCK__value__4 = void 0;
-        if (typeBound.kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectTypeBound) {
-          __PUCK__value__4 = _entities.StructKind.Record({ properties: _core.ObjectMap._new() });
+        var __PUCK__value__4 = typeBound;
+        var __PUCK__value__5 = __PUCK__value__4;
+        var __PUCK__value__6 = void 0;
+        if ($unwrapTraitObject(__PUCK__value__5).kind == "RecordTypeBound") {
+          var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+              record = _PUCK__value__5$valu[0];
+
+          __PUCK__value__6 = _entities.StructKind.Record({ properties: _core.ObjectMap._new() });
         } else {
-          var __PUCK__value__5 = void 0;
-          if (typeBound.kind == $unwrapTraitObject(_ast2.SyntaxKind).TupleTypeBound) {
-            __PUCK__value__5 = _entities.StructKind.Tuple({ properties: [] });
+          var __PUCK__value__7 = __PUCK__value__4;
+          var __PUCK__value__8 = void 0;
+          if ($unwrapTraitObject(__PUCK__value__7).kind == "TupleTypeBound") {
+            var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+                tuple = _PUCK__value__7$valu[0];
+
+            __PUCK__value__8 = _entities.StructKind.Tuple({ properties: [] });
           } else {
-            throw "Unreachable";
+            var __PUCK__value__9 = __PUCK__value__4;
+            var __PUCK__value__10 = void 0;
+            if (true) {
+              var __PUCK__value__11 = __PUCK__value__9;
+              throw "Unreachable";
+            };
+            __PUCK__value__8 = __PUCK__value__10;
           };
-          __PUCK__value__4 = __PUCK__value__5;
+          __PUCK__value__6 = __PUCK__value__8;
         };
-        __PUCK__value__3 = __PUCK__value__4;
+        __PUCK__value__3 = __PUCK__value__6;
       } else {
         __PUCK__value__3 = _entities.StructKind.Unit;
       };

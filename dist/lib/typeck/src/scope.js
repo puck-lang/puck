@@ -17,8 +17,6 @@ var _ast2 = require('./../../compiler/ast');
 
 var _entities = require('./../../entities');
 
-var _types = require('./types');
-
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };

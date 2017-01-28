@@ -28,8 +28,7 @@ export type EnumDeclaration {
 
 export type EnumMember {
   name: Identifier
-  //bound: Option<ObjectTypeBound | TupleTypeBound>
-  bound: Option<Expression>
+  bound: Option<TypeBound>
 }
 
 export type FunctionDeclaration {
@@ -101,7 +100,28 @@ export type TraitDeclaration {
   closeBrace: Token
 }
 
-export type TypeBound {}
+export enum TypeBound {
+  FunctionTypeBound(FunctionTypeBound)
+  NamedTypeBound(NamedTypeBound)
+  RecordTypeBound(RecordTypeBound)
+  TupleTypeBound(TupleTypeBound)
+}
+
+impl TypeBound {
+  fn getRecordTypeBound(self) -> RecordTypeBound {
+    match self {
+      TypeBound::RecordTypeBound(record) => record
+      _ => throw 'TypeBound is not a RecordTypeBound'
+    }
+  }
+
+  fn getTupleTypeBound(self) -> TupleTypeBound {
+    match self {
+      TypeBound::TupleTypeBound(tuple) => tuple
+      _ => throw 'TypeBound is not a TupleTypeBound'
+    }
+  }
+}
 
 export type FunctionTypeBound {
   typeParameters: List<TypeParameter>
@@ -114,7 +134,7 @@ export type NamedTypeBound {
   typeParameters: List<TypeBound>
 }
 
-export type ObjectTypeBound {
+export type RecordTypeBound {
   openBrace: Token
   properties: List<TypeProperty>
   closeBrace: Token
@@ -130,8 +150,7 @@ export type TypeDeclaration {
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
-  //bound: Option<ObjectTypeBound | TupleTypeBound>
-  bound: Option<Expression>
+  bound: Option<TypeBound>
 
   type_: Type
 }

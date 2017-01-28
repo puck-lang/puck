@@ -331,9 +331,12 @@ export interface TraitDeclaration extends Token {
   members: Array<FunctionDeclaration>
 }
 
-export interface TypeBound extends Token {
-  path: TypePath
-  typeParameters: Array<TypeBound>
+export interface TypeBound {
+  kind: string
+  value: [{
+    path: TypePath
+    typeParameters: Array<TypeBound>
+  }]
   type_: Type
 }
 

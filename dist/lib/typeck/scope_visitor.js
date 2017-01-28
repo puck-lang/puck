@@ -1124,13 +1124,12 @@ function ScopeVisitor(context, file) {
       var __PUCK__value__113 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: l.expressions, $isTraitObject: true }, function (e) {
         return e.type_;
       });
-      var properties = _core.Iterable[__PUCK__value__113.type].toList.call(__PUCK__value__113);
       return l.type_ = {
         displayName: _core.None,
         name: _core.None,
         kind: _entities.TypeKind.Struct({
           implementations: [],
-          kind: _entities.StructKind.Tuple({ properties: properties })
+          kind: _entities.StructKind.Tuple({ properties: _core.Iterable[__PUCK__value__113.type].toList.call(__PUCK__value__113) })
         }),
         _class: _core.None,
         instance: _core.None

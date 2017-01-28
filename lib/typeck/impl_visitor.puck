@@ -47,7 +47,6 @@ import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {
-  getType
   isAssignable
   isSameType
 }
