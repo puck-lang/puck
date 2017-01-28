@@ -283,6 +283,8 @@ function TypeVisitor(context, file) {
             var __PUCK__value__10 = void 0;
             if ($unwrapTraitObject(typeBound).kind == $unwrapTraitObject(_ast2.SyntaxKind).TupleTypeBound) {
               __PUCK__value__10 = _entities.StructKind.Tuple({ properties: [] });
+            } else {
+              throw "Unreachable";
             };
             __PUCK__value__9 = __PUCK__value__10;
           };

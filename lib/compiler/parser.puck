@@ -53,6 +53,8 @@ import 'ast.ts' as {
   tokenToText
 }
 
+fn any(a) {a}
+
 export fn parse(input) { // : TokenStream
 
   fn isToken(kind, withDummy = false) { // kind: SyntaxKind
@@ -67,8 +69,8 @@ export fn parse(input) { // : TokenStream
   }
 
   fn expect(expect, name = 'token') { // kind: SyntaxKind
+    let token = input.peek()
     if not isToken(expect) {
-      let token = input.peek()
       let expectedText = ': "' + tokenName({kind: expect}) + '"'
 
       let but =
@@ -81,6 +83,7 @@ export fn parse(input) { // : TokenStream
       console.error(token)
       input.croak('Expected $name$expectedText, but $but')
     }
+    token
   }
 
   // fn consumeToken(token: SyntaxKind = undefined, name = undefined) {
@@ -175,6 +178,7 @@ export fn parse(input) { // : TokenStream
               rhs: innerExpression,
             }
             e = a
+            ()
           }
           else {
             input.croak('Can only assign to an identifier')
@@ -188,6 +192,7 @@ export fn parse(input) { // : TokenStream
             rhs: innerExpression,
           }
           e = b
+          ()
         }
         return maybeBinary(e, myPrecedence)
       }
@@ -536,16 +541,16 @@ export fn parse(input) { // : TokenStream
 
   fn parseTypeBound() -> TypeBound {
     if isToken(SyntaxKind.LessThanToken)
-      then parseFunctionTypeBound(undefined)
+      then any(parseFunctionTypeBound(undefined))
     else if isToken(SyntaxKind.OpenParenToken) {
       let tuple = parseTupleTypeBound()
       if isToken(SyntaxKind.MinusGreaterThanToken)
-        then parseFunctionTypeBound(tuple)
-        else tuple
+        then any(parseFunctionTypeBound(tuple))
+        else any(tuple)
     }
     else if isToken(SyntaxKind.OpenBraceToken)
-      then parseObjectTypeBound()
-    else parseNamedTypeBound()
+      then any(parseObjectTypeBound())
+    else any(parseNamedTypeBound())
   }
 
   fn parseTypeParameter() -> TypeParameter {
@@ -663,6 +668,7 @@ export fn parse(input) { // : TokenStream
         else Some({
           kind: SyntaxKind.Block
           expressions: [parseExpression()]
+          type_: undefined
         })
 
     {
@@ -688,8 +694,9 @@ export fn parse(input) { // : TokenStream
         else {
           skipKeyword(SyntaxKind.ThenKeyword)
           {
-            kind: SyntaxKind.Block,
-            expressions: [parseExpression()],
+            kind: SyntaxKind.Block
+            expressions: [parseExpression()]
+            type_: undefined
           }
         }
 
@@ -712,8 +719,9 @@ export fn parse(input) { // : TokenStream
             if isToken(SyntaxKind.OpenBraceToken)
               then parseBlock()
               else ({
-                kind: SyntaxKind.Block,
-                expressions: [parseExpression()],
+                kind: SyntaxKind.Block
+                expressions: [parseExpression()]
+                type_: undefined
               })
           )
         }
@@ -730,8 +738,9 @@ export fn parse(input) { // : TokenStream
         else {
           skipKeyword(SyntaxKind.ThenKeyword)
           {
-            kind: SyntaxKind.Block,
-            expressions: [parseExpression()],
+            kind: SyntaxKind.Block
+            expressions: [parseExpression()]
+            type_: undefined
           }
         }
 
@@ -747,8 +756,9 @@ export fn parse(input) { // : TokenStream
             if isToken(SyntaxKind.OpenBraceToken)
               then parseBlock()
               else ({
-                kind: SyntaxKind.Block,
-                expressions: [parseExpression()],
+                kind: SyntaxKind.Block
+                expressions: [parseExpression()]
+                type_: undefined
               })
           )
         }
@@ -760,7 +770,7 @@ export fn parse(input) { // : TokenStream
     let ifKeyword = skipKeyword(SyntaxKind.IfKeyword)
 
     if isToken(SyntaxKind.LetKeyword)
-      then parseIfLet(ifKeyword)
+      then any(parseIfLet(ifKeyword))
       else parseIfCondition(ifKeyword)
   }
 
@@ -784,6 +794,7 @@ export fn parse(input) { // : TokenStream
         else {{
           kind: SyntaxKind.Block
           expressions: [parseExpression()]
+          type_: undefined
         }}
     {
       pattern
@@ -866,47 +877,47 @@ export fn parse(input) { // : TokenStream
   fn parseAtom(forceTuple = false) {
     maybeCall((fn innerParseAtom() {
       if isToken(SyntaxKind.OpenParenToken) then parseTupleOrExpression(forceTuple)
-      else if isToken(SyntaxKind.OpenBracketToken) then parseListLiteral()
-      else if isToken(SyntaxKind.OpenBraceToken) then parseObjectLiteral()
-      else if isToken(SyntaxKind.BarToken) then parseLambda()
-      else if isToken(SyntaxKind.IfKeyword) then parseIf()
-      else if isToken(SyntaxKind.MatchKeyword) then parseMatch()
-      else if isToken(SyntaxKind.FnKeyword) then parseFunctionDeclaration()
+      else if isToken(SyntaxKind.OpenBracketToken) then any(parseListLiteral())
+      else if isToken(SyntaxKind.OpenBraceToken) then any(parseObjectLiteral())
+      else if isToken(SyntaxKind.BarToken) then any(parseLambda())
+      else if isToken(SyntaxKind.IfKeyword) then any(parseIf())
+      else if isToken(SyntaxKind.MatchKeyword) then any(parseMatch())
+      else if isToken(SyntaxKind.FnKeyword) then any(parseFunctionDeclaration())
       else if isToken(SyntaxKind.LetKeyword) {
         input.next()
-        parseVariableDeclaration()
+        any(parseVariableDeclaration())
       }
       else if isToken(SyntaxKind.NotKeyword)
            or isToken(SyntaxKind.MinusToken)
            or isToken(SyntaxKind.PlusToken)
-        then parseUnaryExpression()
+        then any(parseUnaryExpression())
       else if isToken(SyntaxKind.BreakKeyword) then input.next()
-      else if isToken(SyntaxKind.ReturnKeyword) then {
+      else if isToken(SyntaxKind.ReturnKeyword) then any({
         kind: SyntaxKind.ReturnStatement
         keyword: input.next()
         expression: parseExpression()
-      }
-      else if isToken(SyntaxKind.ThrowKeyword) then {
+      })
+      else if isToken(SyntaxKind.ThrowKeyword) then any({
         kind: input.next().kind
         expression: parseExpression()
-      }
+      })
       else if isToken(SyntaxKind.TrueKeyword)
            or isToken(SyntaxKind.FalseKeyword)
         then
-          maybeAccess({
+          any(maybeAccess({
             kind: SyntaxKind.BooleanLiteral
             value: input.next().kind == SyntaxKind.TrueKeyword
-          })
+          }))
       else if isToken(SyntaxKind.NumberLiteral)
            or isToken(SyntaxKind.StringLiteral)
-        then maybeAccess(input.next())
+        then any(maybeAccess(input.next()))
       else if isToken(SyntaxKind.Identifier) {
         let identifier = input.next()
         if isToken(SyntaxKind.ColonColonToken)
-          then {
+          then any({
             kind: SyntaxKind.TypePathExpression
             typePath: parseTypePath(Some(identifier))
-          }
+          })
           else maybeAccess(identifier)
       }
       else unexpected()
@@ -920,6 +931,7 @@ export fn parse(input) { // : TokenStream
     if isToken(SyntaxKind.EnumKeyword) {
       expression = parseEnumDeclaration()
       identifier = expression.name
+      ()
     }
     else if isToken(SyntaxKind.FnKeyword) {
       expression = parseFunctionDeclaration()
@@ -928,6 +940,7 @@ export fn parse(input) { // : TokenStream
         identifier = name
       }
       else input.croak('Can not export function without a name')
+      ()
     }
     else if isToken(SyntaxKind.LetKeyword) {
       input.next()
@@ -936,14 +949,17 @@ export fn parse(input) { // : TokenStream
         identifier = name
       }
       else input.croak('Can not export a let declaration without a identifier pattern')
+      ()
     }
     else if isToken(SyntaxKind.TraitKeyword) {
       expression = parseTraitDeclaration()
       identifier = expression.name
+      ()
     }
     else if isToken(SyntaxKind.TypeKeyword) {
       expression = parseTypeDeclaration()
       identifier = expression.name
+      ()
     }
     else input.croak('Expected trait, type, function or variable declaration after export')
     {
@@ -983,17 +999,17 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseTopLevelExpression() {
-    if isToken(SyntaxKind.EnumKeyword) then parseEnumDeclaration()
-    else if isToken(SyntaxKind.ExportKeyword) then parseExport()
-    else if isToken(SyntaxKind.ImplKeyword) then parseImplDeclaration()
-    else if isToken(SyntaxKind.ImportKeyword) then parseImport()
-    else if isToken(SyntaxKind.TraitKeyword) then parseTraitDeclaration()
-    else if isToken(SyntaxKind.TypeKeyword) then parseTypeDeclaration()
-    else parseBlockLevelExpression()
+    if isToken(SyntaxKind.EnumKeyword) then any(parseEnumDeclaration())
+    else if isToken(SyntaxKind.ExportKeyword) then any(parseExport())
+    else if isToken(SyntaxKind.ImplKeyword) then any(parseImplDeclaration())
+    else if isToken(SyntaxKind.ImportKeyword) then any(parseImport())
+    else if isToken(SyntaxKind.TraitKeyword) then any(parseTraitDeclaration())
+    else if isToken(SyntaxKind.TypeKeyword) then any(parseTypeDeclaration())
+    else any(parseBlockLevelExpression())
   }
 
   fn parseBlockLevelExpression() {
-    if isToken(SyntaxKind.WhileKeyword) then parseWhile()
+    if isToken(SyntaxKind.WhileKeyword) then any(parseWhile())
     else parseExpression()
   }
 
@@ -1020,7 +1036,7 @@ export fn parse(input) { // : TokenStream
 
   fn parseBlock() -> Block {
     let expressions = delimited('{', '}', ';', parseBlockLevelExpression)
-    { kind: SyntaxKind.Block, expressions }
+    { kind: SyntaxKind.Block, expressions, type_: undefined }
   }
 
   fn parseExpression(precedence = 0, forceTuple = false) -> Expression {

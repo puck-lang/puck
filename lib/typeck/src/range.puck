@@ -6,10 +6,13 @@ export fn getRange<T>(parameters: List<T>, isOptional: (T) -> Bool, reportError,
     if isOptional(parameter) and not hasOptional {
       hasOptional = true
       firstOptional = i
+      ()
     }
-    else if not isOptional(parameter) and hasOptional then reportError(parameter
-      "An optional $name can't be followed by a required $name"
-    )
+    else if not isOptional(parameter) and hasOptional {
+      reportError(parameter
+        "An optional $name can't be followed by a required $name"
+      )
+    }
   )
 
   {
@@ -22,19 +25,19 @@ export fn checkRange<T>(arguments: List<T>, range: Range, argumentName: String, 
   let argumentCount = arguments.length
   let max = range.end - 1
   let min = range.start
-  let error =
+  let error: Result<(), String> =
     if argumentCount < min
-      then 'few'
+      then Err('few')
     else if argumentCount > max
-      then 'many'
+      then Err('many')
+    else Ok(())
 
-  if error {
+  error.mapErr(|error| {
     let required =
       if min == max
-        then min
+        then '$min'
         else '$min to $max'
 
-    Err('Too $error $argumentName given to $subjectName, $required required, $argumentCount given')
-  }
-  else Ok(())
+    'Too $error $argumentName given to $subjectName, $required required, $argumentCount given'
+  })
 }

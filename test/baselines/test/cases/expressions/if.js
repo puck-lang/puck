@@ -258,4 +258,16 @@ function h() {
       };
     };
   };
-}
+};
+if (2 > 3) {
+  5;
+} else {
+  "string";
+};
+var __PUCK__value__23 = void 0;
+if (2 > 3) {
+  __PUCK__value__23 = "five";
+} else {
+  __PUCK__value__23 = "string";
+};
+var value = __PUCK__value__23;

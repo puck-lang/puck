@@ -14,6 +14,8 @@ exports.resolveFunctionTypeParameters = resolveFunctionTypeParameters;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var _js = require('puck-lang/dist/lib/stdlib/js');
+
 var _ast = require('./../../ast/ast');
 
 var _entities = require('./../../entities');
@@ -58,6 +60,8 @@ function createFunctionType(scope, f, reportError) {
         _returnType = _PUCK__value__4$valu[0];
 
     __PUCK__value__5 = $unwrapTraitObject(_returnType).type_;
+  } else {
+    __PUCK__value__5 = _js._undefined;
   };
   var returnType = __PUCK__value__5;
   var __PUCK__value__6 = void 0;

@@ -1,3 +1,4 @@
+import 'puck:js' as {undefined}
 import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration, TypeParameter}
 import '../../entities.puck' as {Binding, Function, Scope, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
@@ -29,6 +30,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
     if let Option::Some(returnType) = f.returnType {
       returnType.type_
     }
+    else undefined
   let selfBinding: Option<Binding> =
     if arguments.length > 0 and arguments[0].pattern.kind == 'Identifier' and arguments[0].pattern.value[0].name == 'self'
       then Some(arguments[0].pattern.binding)

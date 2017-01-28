@@ -85,8 +85,8 @@ var structureVisitor = exports.structureVisitor = {
               i = _ref2[1];
 
           var __PUCK__value__5 = void 0;
-          if (assignedTo && $unwrapTraitObject($unwrapTraitObject(assignedTo)._arguments)[i]) {
-            __PUCK__value__5 = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(assignedTo)._arguments)[i]).type_;
+          if (assignedTo && $unwrapTraitObject(assignedTo._arguments)[i]) {
+            __PUCK__value__5 = $unwrapTraitObject($unwrapTraitObject(assignedTo._arguments)[i]).type_;
           };
           var type_ = __PUCK__value__5;
           return $unwrapTraitObject(self).visitFunctionParameter(p, type_);

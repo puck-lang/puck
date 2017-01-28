@@ -105,6 +105,8 @@ function TopLevelVisitor(context, file) {
           var __PUCK__value__5 = void 0;
           if ($unwrapTraitObject(typeBound).kind == $unwrapTraitObject(_ast2.SyntaxKind).TupleTypeBound) {
             __PUCK__value__5 = _entities.StructKind.Tuple({ properties: [] });
+          } else {
+            throw "Unreachable";
           };
           __PUCK__value__4 = __PUCK__value__5;
         };

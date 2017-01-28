@@ -161,8 +161,8 @@ export fn ScopeVisitor(context, file) {
         if parameter.pattern
           then if let Pattern::Identifier({name}) = parameter.pattern
             then name
-            else i
-          else i
+            else '$i'
+          else '$i'
 
       if not isAssignable(parameter.type_, argument.type_)
         then reportError(argument
@@ -205,12 +205,20 @@ export fn ScopeVisitor(context, file) {
   Object.assign({}, visit.walkingVisitor, structureVisitor, {
     reportError
 
-    visitBlock: |self, mut b: Block| {
+    visitExpression: |mut self, e: Expression, isUsed = true| {
+      self.isUsed = isUsed
+      visit.walkingVisitor.visitExpression.call(self, e)
+    }
+
+    visitBlock: |self, mut b: Block, isBlockUsed = true| {
       b.scope = self.scope
 
       defineHoisted(b.expressions, self)
 
-      visit.walkBlock(self, b)
+      b.expressions.enumerate().forEach(|(e, i)| {
+        let isUsed = isBlockUsed and i + 1 == b.expressions.size()
+        self.visitExpression(e, isUsed)
+      })
 
       b.type_ =
         if let Option::Some(last) = b.expressions.last()
@@ -262,8 +270,9 @@ export fn ScopeVisitor(context, file) {
       self.scope = m.scope
 
       defineHoisted(m.expressions, self)
-
-      visit.walkModule(self, m)
+      m.expressions.forEach(|e| {
+        self.visitExpression(e, false)
+      })
     }
     visitObjectDestructure: |self, mut i: ObjectDestructure| {}
     visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
@@ -395,15 +404,63 @@ export fn ScopeVisitor(context, file) {
     visitIfExpression: |mut self, mut e: IfExpression| {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
-      visit.walkIfExpression(self, e)
+      let isUsed = self.isUsed
+      self.visitExpression(e.condition)
+      self.visitBlock(e.then_, isUsed)
+      if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
+      if isUsed {
+        e.type_ =
+          if let Option::Some(else_) = e.else_ {
+            let result: Result<Type, ()> = findCommonType([e.then_.type_, else_.type_])
+            match result {
+              Result::Ok(type_) => type_
+              Result::Err(_) => reportError(e
+                'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
+              )
+            }
+          }
+          else {{
+            displayName: None
+            name: None
+            kind: TypeKind::Struct({
+              implementations: []
+              kind: StructKind::Tuple({properties: []})
+            })
+            class: None
+            instance: None
+          }}
+      }
       self.scope = self.scope.parent
     }
     visitIfLetExpression: |mut self, mut e: IfLetExpression| {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
+      let isUsed = self.isUsed
       self.visitVariableDeclaration(e.variableDeclaration, undefined, undefined, true)
-      self.visitBlock(e.then_)
-      if let Option::Some(else_) = e.else_ then self.visitBlock(else_)
+      self.visitBlock(e.then_, isUsed)
+      if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
+      if isUsed {
+        e.type_ =
+          if let Option::Some(else_) = e.else_ {
+            let result: Result<Type, ()> = findCommonType([e.then_.type_, else_.type_])
+            match result {
+              Result::Ok(type_) => type_
+              Result::Err(_) => reportError(e
+                'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
+              )
+            }
+          }
+          else {{
+            displayName: None
+            name: None
+            kind: TypeKind::Struct({
+              implementations: []
+              kind: StructKind::Tuple({properties: []})
+            })
+            class: None
+            instance: None
+          }}
+      }
       self.scope = self.scope.parent
     }
     visitMatchExpression: |mut self, mut e: MatchExpression| {
@@ -548,7 +605,8 @@ export fn ScopeVisitor(context, file) {
     visitWhileLoop: |mut self, mut e: WhileLoop| {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
-      visit.walkWhileLoop(self, e)
+      self.visitExpression(e.condition)
+      self.visitBlock(e.body, false)
       e.type_ = Type.empty()
       self.scope = self.scope.parent
     }

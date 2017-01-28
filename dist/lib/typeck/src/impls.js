@@ -153,8 +153,8 @@ function getImplementation(functionName, type_, e, reportError) {
   };
   implementations = __PUCK__value__15;
   var __PUCK__value__16 = void 0;
-  if (implementations.length > 1) {
-    __PUCK__value__16 = implementations.filter(function (i) {
+  if ($unwrapTraitObject(implementations).length > 1) {
+    __PUCK__value__16 = $unwrapTraitObject(implementations).filter(function (i) {
       return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions[functionName])).argumentRange, e.argumentList.length);
     });
   } else {
@@ -162,7 +162,7 @@ function getImplementation(functionName, type_, e, reportError) {
   };
   implementations = __PUCK__value__16;
   var __PUCK__value__17 = void 0;
-  if (implementations.length > 1 && _core.Option.isSome.call(type_.instance)) {
+  if ($unwrapTraitObject(implementations).length > 1 && _core.Option.isSome.call(type_.instance)) {
     __PUCK__value__17 = getMostSpecificImplementations(type_, implementations);
   } else {
     __PUCK__value__17 = implementations;

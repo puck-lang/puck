@@ -25,7 +25,8 @@ function getRange(parameters, isOptional, reportError, name) {
 
     if (isOptional($unwrapTraitObject(parameter)) && !hasOptional) {
       hasOptional = true;
-      return firstOptional = i;
+      firstOptional = i;
+      return [];
     } else {
       if (!isOptional($unwrapTraitObject(parameter)) && hasOptional) {
         return reportError(parameter, "An optional " + name + " can't be followed by a required " + name + "");
@@ -43,25 +44,25 @@ function checkRange(_arguments, range, argumentName, subjectName) {
   var min = range.start;
   var __PUCK__value__2 = void 0;
   if (argumentCount < min) {
-    __PUCK__value__2 = "few";
+    __PUCK__value__2 = (0, _core.Err)("few");
   } else {
     var __PUCK__value__3 = void 0;
     if (argumentCount > max) {
-      __PUCK__value__3 = "many";
+      __PUCK__value__3 = (0, _core.Err)("many");
+    } else {
+      __PUCK__value__3 = (0, _core.Ok)([]);
     };
     __PUCK__value__2 = __PUCK__value__3;
   };
   var error = __PUCK__value__2;
-  if (error) {
+  return _core.Result.mapErr.call(error, function (error) {
     var __PUCK__value__4 = void 0;
     if (min == max) {
-      __PUCK__value__4 = min;
+      __PUCK__value__4 = "" + min + "";
     } else {
       __PUCK__value__4 = "" + min + " to " + max + "";
     };
     var required = __PUCK__value__4;
-    return (0, _core.Err)("Too " + error + " " + argumentName + " given to " + subjectName + ", " + required + " required, " + argumentCount + " given");
-  } else {
-    return (0, _core.Ok)([]);
-  };
+    return "Too " + error + " " + argumentName + " given to " + subjectName + ", " + required + " required, " + argumentCount + " given";
+  });
 }

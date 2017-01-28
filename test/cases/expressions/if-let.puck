@@ -12,3 +12,8 @@ if let Option::Some(value) = Option::Some(5) {
 else {
   print('None')
 }
+
+// This is okay as the value is not used
+if let Option::Some(number) = Option::Some(3)
+  then number
+  else 'string'

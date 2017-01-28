@@ -1,0 +1,5 @@
+///// Type Num and String is not compatible
+let value =
+  if 2 > 3
+    then 5
+    else 'string'

@@ -99,3 +99,13 @@ fn h() {
     }
   }
 }
+
+// This is okay as the value is not used
+if 2 > 3
+  then 5
+  else 'string'
+
+let value =
+  if 2 > 3
+    then 'five'
+    else 'string'

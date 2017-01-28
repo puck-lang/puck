@@ -19,6 +19,10 @@ var _ast2 = require('./ast');
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
+
+function any(a) {
+  return a;
+};
 function parse(input) {
   function isToken(kind) {
     var withDummy = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
@@ -40,8 +44,8 @@ function parse(input) {
   function expect(expect) {
     var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "token";
 
+    var token = $unwrapTraitObject(input).peek();
     if (!isToken(expect)) {
-      var token = $unwrapTraitObject(input).peek();
       var expectedText = ": \"" + tokenName({ kind: expect }) + "\"";
       var __PUCK__value__1 = void 0;
       if (token) {
@@ -52,8 +56,9 @@ function parse(input) {
       };
       var but = __PUCK__value__1;
       $unwrapTraitObject(_js.console).error(token);
-      return $unwrapTraitObject(input).croak("Expected " + name + "" + expectedText + ", but " + but + "");
+      $unwrapTraitObject(input).croak("Expected " + name + "" + expectedText + ", but " + but + "");
     };
+    return token;
   };
   function consumeToken(token) {
     var name = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "token";
@@ -127,6 +132,7 @@ function parse(input) {
               rhs: innerExpression
             };
             e = a;
+            [];
           } else {
             $unwrapTraitObject(input).croak("Can only assign to an identifier");
           };
@@ -138,6 +144,7 @@ function parse(input) {
             rhs: innerExpression
           };
           e = b;
+          [];
         };
         return maybeBinary(e, myPrecedence);
       };
@@ -523,20 +530,20 @@ function parse(input) {
   };
   function parseTypeBound() {
     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).LessThanToken)) {
-      return parseFunctionTypeBound(_js._undefined);
+      return any(parseFunctionTypeBound(_js._undefined));
     } else {
       if (isToken($unwrapTraitObject(_ast2.SyntaxKind).OpenParenToken)) {
         var tuple = parseTupleTypeBound();
         if (isToken($unwrapTraitObject(_ast2.SyntaxKind).MinusGreaterThanToken)) {
-          return parseFunctionTypeBound(tuple);
+          return any(parseFunctionTypeBound(tuple));
         } else {
-          return tuple;
+          return any(tuple);
         };
       } else {
         if (isToken($unwrapTraitObject(_ast2.SyntaxKind).OpenBraceToken)) {
-          return parseObjectTypeBound();
+          return any(parseObjectTypeBound());
         } else {
-          return parseNamedTypeBound();
+          return any(parseNamedTypeBound());
         };
       };
     };
@@ -674,7 +681,8 @@ function parse(input) {
     } else {
       __PUCK__value__24 = (0, _core.Some)({
         kind: $unwrapTraitObject(_ast2.SyntaxKind).Block,
-        expressions: [parseExpression()]
+        expressions: [parseExpression()],
+        type_: _js._undefined
       });
     };
     var body = __PUCK__value__24;
@@ -700,7 +708,8 @@ function parse(input) {
       skipKeyword($unwrapTraitObject(_ast2.SyntaxKind).ThenKeyword);
       __PUCK__value__25 = {
         kind: $unwrapTraitObject(_ast2.SyntaxKind).Block,
-        expressions: [parseExpression()]
+        expressions: [parseExpression()],
+        type_: _js._undefined
       };
     };
     var then_ = __PUCK__value__25;
@@ -713,7 +722,8 @@ function parse(input) {
       } else {
         __PUCK__value__27 = {
           kind: $unwrapTraitObject(_ast2.SyntaxKind).Block,
-          expressions: [parseExpression()]
+          expressions: [parseExpression()],
+          type_: _js._undefined
         };
       };
       __PUCK__value__26 = (0, _core.Some)(__PUCK__value__27);
@@ -744,7 +754,8 @@ function parse(input) {
       skipKeyword($unwrapTraitObject(_ast2.SyntaxKind).ThenKeyword);
       __PUCK__value__28 = {
         kind: $unwrapTraitObject(_ast2.SyntaxKind).Block,
-        expressions: [parseExpression()]
+        expressions: [parseExpression()],
+        type_: _js._undefined
       };
     };
     var then_ = __PUCK__value__28;
@@ -757,7 +768,8 @@ function parse(input) {
       } else {
         __PUCK__value__30 = {
           kind: $unwrapTraitObject(_ast2.SyntaxKind).Block,
-          expressions: [parseExpression()]
+          expressions: [parseExpression()],
+          type_: _js._undefined
         };
       };
       __PUCK__value__29 = (0, _core.Some)(__PUCK__value__30);
@@ -775,7 +787,7 @@ function parse(input) {
   function parseIf() {
     var ifKeyword = skipKeyword($unwrapTraitObject(_ast2.SyntaxKind).IfKeyword);
     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).LetKeyword)) {
-      return parseIfLet(ifKeyword);
+      return any(parseIfLet(ifKeyword));
     } else {
       return parseIfCondition(ifKeyword);
     };
@@ -799,7 +811,8 @@ function parse(input) {
     } else {
       __PUCK__value__31 = {
         kind: $unwrapTraitObject(_ast2.SyntaxKind).Block,
-        expressions: [parseExpression()]
+        expressions: [parseExpression()],
+        type_: _js._undefined
       };
     };
     var block = __PUCK__value__31;
@@ -886,62 +899,62 @@ function parse(input) {
         return parseTupleOrExpression(forceTuple);
       } else {
         if (isToken($unwrapTraitObject(_ast2.SyntaxKind).OpenBracketToken)) {
-          return parseListLiteral();
+          return any(parseListLiteral());
         } else {
           if (isToken($unwrapTraitObject(_ast2.SyntaxKind).OpenBraceToken)) {
-            return parseObjectLiteral();
+            return any(parseObjectLiteral());
           } else {
             if (isToken($unwrapTraitObject(_ast2.SyntaxKind).BarToken)) {
-              return parseLambda();
+              return any(parseLambda());
             } else {
               if (isToken($unwrapTraitObject(_ast2.SyntaxKind).IfKeyword)) {
-                return parseIf();
+                return any(parseIf());
               } else {
                 if (isToken($unwrapTraitObject(_ast2.SyntaxKind).MatchKeyword)) {
-                  return parseMatch();
+                  return any(parseMatch());
                 } else {
                   if (isToken($unwrapTraitObject(_ast2.SyntaxKind).FnKeyword)) {
-                    return parseFunctionDeclaration();
+                    return any(parseFunctionDeclaration());
                   } else {
                     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).LetKeyword)) {
                       $unwrapTraitObject(input).next();
-                      return parseVariableDeclaration();
+                      return any(parseVariableDeclaration());
                     } else {
                       if (isToken($unwrapTraitObject(_ast2.SyntaxKind).NotKeyword) || isToken($unwrapTraitObject(_ast2.SyntaxKind).MinusToken) || isToken($unwrapTraitObject(_ast2.SyntaxKind).PlusToken)) {
-                        return parseUnaryExpression();
+                        return any(parseUnaryExpression());
                       } else {
                         if (isToken($unwrapTraitObject(_ast2.SyntaxKind).BreakKeyword)) {
                           return $unwrapTraitObject(input).next();
                         } else {
                           if (isToken($unwrapTraitObject(_ast2.SyntaxKind).ReturnKeyword)) {
-                            return {
+                            return any({
                               kind: $unwrapTraitObject(_ast2.SyntaxKind).ReturnStatement,
                               keyword: $unwrapTraitObject(input).next(),
                               expression: parseExpression()
-                            };
+                            });
                           } else {
                             if (isToken($unwrapTraitObject(_ast2.SyntaxKind).ThrowKeyword)) {
-                              return {
+                              return any({
                                 kind: $unwrapTraitObject($unwrapTraitObject(input).next()).kind,
                                 expression: parseExpression()
-                              };
+                              });
                             } else {
                               if (isToken($unwrapTraitObject(_ast2.SyntaxKind).TrueKeyword) || isToken($unwrapTraitObject(_ast2.SyntaxKind).FalseKeyword)) {
-                                return maybeAccess({
+                                return any(maybeAccess({
                                   kind: $unwrapTraitObject(_ast2.SyntaxKind).BooleanLiteral,
                                   value: $unwrapTraitObject($unwrapTraitObject(input).next()).kind == $unwrapTraitObject(_ast2.SyntaxKind).TrueKeyword
-                                });
+                                }));
                               } else {
                                 if (isToken($unwrapTraitObject(_ast2.SyntaxKind).NumberLiteral) || isToken($unwrapTraitObject(_ast2.SyntaxKind).StringLiteral)) {
-                                  return maybeAccess($unwrapTraitObject(input).next());
+                                  return any(maybeAccess($unwrapTraitObject(input).next()));
                                 } else {
                                   if (isToken($unwrapTraitObject(_ast2.SyntaxKind).Identifier)) {
                                     var identifier = $unwrapTraitObject(input).next();
                                     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).ColonColonToken)) {
-                                      return {
+                                      return any({
                                         kind: $unwrapTraitObject(_ast2.SyntaxKind).TypePathExpression,
                                         typePath: parseTypePath((0, _core.Some)(identifier))
-                                      };
+                                      });
                                     } else {
                                       return maybeAccess(identifier);
                                     };
@@ -971,6 +984,7 @@ function parse(input) {
     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).EnumKeyword)) {
       expression = parseEnumDeclaration();
       identifier = $unwrapTraitObject(expression).name;
+      [];
     } else {
       if (isToken($unwrapTraitObject(_ast2.SyntaxKind).FnKeyword)) {
         expression = parseFunctionDeclaration();
@@ -984,6 +998,7 @@ function parse(input) {
         } else {
           $unwrapTraitObject(input).croak("Can not export function without a name");
         };
+        [];
       } else {
         if (isToken($unwrapTraitObject(_ast2.SyntaxKind).LetKeyword)) {
           $unwrapTraitObject(input).next();
@@ -997,14 +1012,17 @@ function parse(input) {
           } else {
             $unwrapTraitObject(input).croak("Can not export a let declaration without a identifier pattern");
           };
+          [];
         } else {
           if (isToken($unwrapTraitObject(_ast2.SyntaxKind).TraitKeyword)) {
             expression = parseTraitDeclaration();
             identifier = $unwrapTraitObject(expression).name;
+            [];
           } else {
             if (isToken($unwrapTraitObject(_ast2.SyntaxKind).TypeKeyword)) {
               expression = parseTypeDeclaration();
               identifier = $unwrapTraitObject(expression).name;
+              [];
             } else {
               $unwrapTraitObject(input).croak("Expected trait, type, function or variable declaration after export");
             };
@@ -1068,24 +1086,24 @@ function parse(input) {
   };
   function parseTopLevelExpression() {
     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).EnumKeyword)) {
-      return parseEnumDeclaration();
+      return any(parseEnumDeclaration());
     } else {
       if (isToken($unwrapTraitObject(_ast2.SyntaxKind).ExportKeyword)) {
-        return parseExport();
+        return any(parseExport());
       } else {
         if (isToken($unwrapTraitObject(_ast2.SyntaxKind).ImplKeyword)) {
-          return parseImplDeclaration();
+          return any(parseImplDeclaration());
         } else {
           if (isToken($unwrapTraitObject(_ast2.SyntaxKind).ImportKeyword)) {
-            return parseImport();
+            return any(parseImport());
           } else {
             if (isToken($unwrapTraitObject(_ast2.SyntaxKind).TraitKeyword)) {
-              return parseTraitDeclaration();
+              return any(parseTraitDeclaration());
             } else {
               if (isToken($unwrapTraitObject(_ast2.SyntaxKind).TypeKeyword)) {
-                return parseTypeDeclaration();
+                return any(parseTypeDeclaration());
               } else {
-                return parseBlockLevelExpression();
+                return any(parseBlockLevelExpression());
               };
             };
           };
@@ -1095,7 +1113,7 @@ function parse(input) {
   };
   function parseBlockLevelExpression() {
     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).WhileKeyword)) {
-      return parseWhile();
+      return any(parseWhile());
     } else {
       return parseExpression();
     };
@@ -1127,7 +1145,8 @@ function parse(input) {
     var expressions = delimited("{", "}", ";", parseBlockLevelExpression);
     return {
       kind: $unwrapTraitObject(_ast2.SyntaxKind).Block,
-      expressions: expressions
+      expressions: expressions,
+      type_: _js._undefined
     };
   };
   function parseExpression() {

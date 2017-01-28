@@ -87,7 +87,8 @@ export fn TokenStream(input) {
             hasDot = true
             true
           }
-      } else isDigit(ch)
+      }
+      else isDigit(ch)
     })
 
     {kind: SyntaxKind.NumberLiteral, value: global.parseFloat(number)}

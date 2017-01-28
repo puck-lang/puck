@@ -124,7 +124,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
     })
     then return cachedInstance
 
-  let parameterMap: ObjectMap<Type> = ObjectMap.fromIter(
+  let parameterMap = ObjectMap.fromIter(
     List.zip(typeParameters, class.typeParameters)
       .map(|p| {
         let typeArgument = p[0]
