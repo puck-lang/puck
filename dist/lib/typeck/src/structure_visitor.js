@@ -496,7 +496,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
           };
           var props = __PUCK__value__29;
           var properties = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: record.properties, $isTraitObject: true }, function (p) {
-            return declarePatternVariables(scope, visitor, p.pattern, mutable, $unwrapTraitObject(props)[p.property.name], allowNotExhaustive);
+            return declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive);
           }).value.reduce(function (acc, cur) {
             return _core.Result.andThen.call(acc, function (props) {
               return _core.Result.map.call(cur, function (prop) {
@@ -536,7 +536,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                   enum_ = _PUCK__value__48$val[0];
 
               var member = (0, _enums.getEnumMember)(typePath);
-              var enumArmType = enum_.members[$unwrapTraitObject(member)];
+              var enumArmType = enum_.members[member];
               __PUCK__value__49 = enumArmType;
             } else {
               var __PUCK__value__50 = __PUCK__value__47;
@@ -592,7 +592,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
             };
             var props = __PUCK__value__55;
             var properties = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: record.properties, $isTraitObject: true }, function (p) {
-              return declarePatternVariables(scope, visitor, p.pattern, mutable, $unwrapTraitObject(props)[p.property.name], allowNotExhaustive);
+              return declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive);
             }).value.reduce(function (acc, cur) {
               return _core.Result.andThen.call(acc, function (props) {
                 return _core.Result.map.call(cur, function (prop) {
@@ -670,7 +670,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                     p = _ref5[0],
                     i = _ref5[1];
 
-                return declarePatternVariables(scope, visitor, $unwrapTraitObject(p), mutable, $unwrapTraitObject(props)[i], allowNotExhaustive);
+                return declarePatternVariables(scope, visitor, $unwrapTraitObject(p), mutable, props[i], allowNotExhaustive);
               }).value.reduce(function (acc, cur) {
                 return _core.Result.andThen.call(acc, function (props) {
                   return _core.Result.map.call(cur, function (prop) {
@@ -726,7 +726,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                       enum_ = _PUCK__value__89$val[0];
 
                   var member = (0, _enums.getEnumMember)(typePath);
-                  var enumArmType = enum_.members[$unwrapTraitObject(member)];
+                  var enumArmType = enum_.members[member];
                   __PUCK__value__90 = enumArmType;
                 } else {
                   var __PUCK__value__91 = __PUCK__value__88;
@@ -787,7 +787,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                       p = _ref7[0],
                       i = _ref7[1];
 
-                  return declarePatternVariables(scope, visitor, $unwrapTraitObject(p), mutable, $unwrapTraitObject(props)[i], allowNotExhaustive);
+                  return declarePatternVariables(scope, visitor, $unwrapTraitObject(p), mutable, props[i], allowNotExhaustive);
                 }).value.reduce(function (acc, cur) {
                   return _core.Result.andThen.call(acc, function (props) {
                     return _core.Result.map.call(cur, function (prop) {
@@ -816,7 +816,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                         return (0, _core.Err)(PatternError.NotExhaustive);
                       } else {
                         var _member = (0, _enums.getEnumMember)(typePath);
-                        var _enumArmType = enumType.members[$unwrapTraitObject(_member)];
+                        var _enumArmType = enumType.members[_member];
                         if ((0, _types.isAssignable)(_enumArmType, type_)) {
                           return (0, _core.Ok)(typePath.type_);
                         } else {

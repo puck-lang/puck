@@ -19,6 +19,11 @@ print(
   }
 )
 
+match Result::Ok(5) {
+  Result::Ok(num) => num
+  _ => 'error'
+}
+
 print(match Option::Some(5) { Option::Some(num) => num, Option::None => 0 })
 
 print(

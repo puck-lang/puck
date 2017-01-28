@@ -69,7 +69,7 @@ function getImplementationsForInstance(type_) {
     __PUCK__value__3 = __PUCK__value__5;
   };
   var implementations = __PUCK__value__3;
-  if ($unwrapTraitObject(implementations).length > 1) {
+  if (implementations.length > 1) {
     var __PUCK__value__11 = type_.instance;
     if ($unwrapTraitObject(__PUCK__value__11).kind == "Some") {
       var _ret = function () {
@@ -77,7 +77,7 @@ function getImplementationsForInstance(type_) {
             objectInstance = _PUCK__value__11$val[0];
 
         return {
-          v: $unwrapTraitObject(implementations).filter(function (i) {
+          v: implementations.filter(function (i) {
             var objectInstance_ = $unwrapTraitObject(objectInstance);
             var implementationInstance = _core.Option.unwrap.call(i.type_.instance);
             return _core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: _core.List.zip({ type: '$List<E>', value: objectInstance_.typeParameters, $isTraitObject: true }, { type: '$List<E>', value: implementationInstance.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref) {

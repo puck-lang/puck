@@ -76,133 +76,147 @@ if ($unwrapTraitObject(__PUCK__value__13).kind == "Ok") {
   __PUCK__value__14 = __PUCK__value__16;
 };
 (0, _core.print)(__PUCK__value__14);
-var __PUCK__value__18 = _core.Option.Some(5);
+var __PUCK__value__18 = _core.Result.Ok(5);
 var __PUCK__value__19 = __PUCK__value__18;
-var __PUCK__value__20 = void 0;
-if ($unwrapTraitObject(__PUCK__value__19).kind == "Some") {
+if ($unwrapTraitObject(__PUCK__value__19).kind == "Ok") {
   var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
       _num3 = _PUCK__value__19$val[0];
 
-  __PUCK__value__20 = _num3;
+  _num3;
 } else {
-  var __PUCK__value__21 = __PUCK__value__18;
-  var __PUCK__value__22 = void 0;
-  if ($unwrapTraitObject(__PUCK__value__21).kind == "None") {
-    var _undefined2 = __PUCK__value__21;
-    __PUCK__value__22 = 0;
+  var __PUCK__value__20 = __PUCK__value__18;
+  if (true) {
+    var __PUCK__value__21 = __PUCK__value__20;
+    "error";
   };
-  __PUCK__value__20 = __PUCK__value__22;
 };
-(0, _core.print)(__PUCK__value__20);
-var __PUCK__value__23 = _core.Option.None;
-var __PUCK__value__24 = __PUCK__value__23;
-var __PUCK__value__25 = void 0;
-if ($unwrapTraitObject(__PUCK__value__24).kind == "Some") {
-  var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1),
-      __PUCK__value__26 = _PUCK__value__24$val[0];
+var __PUCK__value__22 = _core.Option.Some(5);
+var __PUCK__value__23 = __PUCK__value__22;
+var __PUCK__value__24 = void 0;
+if ($unwrapTraitObject(__PUCK__value__23).kind == "Some") {
+  var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1),
+      _num4 = _PUCK__value__23$val[0];
 
-  __PUCK__value__25 = "someting";
+  __PUCK__value__24 = _num4;
 } else {
-  var __PUCK__value__27 = __PUCK__value__23;
-  var __PUCK__value__28 = void 0;
-  if ($unwrapTraitObject(__PUCK__value__27).kind == "None") {
-    var _undefined3 = __PUCK__value__27;
-    __PUCK__value__28 = "nothing";
+  var __PUCK__value__25 = __PUCK__value__22;
+  var __PUCK__value__26 = void 0;
+  if ($unwrapTraitObject(__PUCK__value__25).kind == "None") {
+    var _undefined2 = __PUCK__value__25;
+    __PUCK__value__26 = 0;
   };
-  __PUCK__value__25 = __PUCK__value__28;
+  __PUCK__value__24 = __PUCK__value__26;
 };
-(0, _core.print)(__PUCK__value__25);
-var __PUCK__value__29 = _core.Option.None;
-var __PUCK__value__30 = __PUCK__value__29;
-var __PUCK__value__31 = void 0;
-if (true) {
-  var __PUCK__value__32 = __PUCK__value__30;
-  __PUCK__value__31 = "whatever";
+(0, _core.print)(__PUCK__value__24);
+var __PUCK__value__27 = _core.Option.None;
+var __PUCK__value__28 = __PUCK__value__27;
+var __PUCK__value__29 = void 0;
+if ($unwrapTraitObject(__PUCK__value__28).kind == "Some") {
+  var _PUCK__value__28$val = _slicedToArray(__PUCK__value__28.value, 1),
+      __PUCK__value__30 = _PUCK__value__28$val[0];
+
+  __PUCK__value__29 = "someting";
+} else {
+  var __PUCK__value__31 = __PUCK__value__27;
+  var __PUCK__value__32 = void 0;
+  if ($unwrapTraitObject(__PUCK__value__31).kind == "None") {
+    var _undefined3 = __PUCK__value__31;
+    __PUCK__value__32 = "nothing";
+  };
+  __PUCK__value__29 = __PUCK__value__32;
 };
-(0, _core.print)(__PUCK__value__31);
-var __PUCK__value__33 = _core.Result.Err(5);
+(0, _core.print)(__PUCK__value__29);
+var __PUCK__value__33 = _core.Option.None;
 var __PUCK__value__34 = __PUCK__value__33;
 var __PUCK__value__35 = void 0;
-if ($unwrapTraitObject(__PUCK__value__34).kind == "Ok") {
-  var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1),
-      __PUCK__value__36 = _PUCK__value__34$val[0];
-
-  __PUCK__value__35 = "ok";
-} else {
-  var __PUCK__value__37 = __PUCK__value__33;
-  var __PUCK__value__38 = void 0;
-  if ($unwrapTraitObject(__PUCK__value__37).kind == "Err") {
-    var _PUCK__value__37$val = _slicedToArray(__PUCK__value__37.value, 1),
-        err = _PUCK__value__37$val[0];
-
-    __PUCK__value__38 = "error: " + err + "";
-  };
-  __PUCK__value__35 = __PUCK__value__38;
+if (true) {
+  var __PUCK__value__36 = __PUCK__value__34;
+  __PUCK__value__35 = "whatever";
 };
 (0, _core.print)(__PUCK__value__35);
+var __PUCK__value__37 = _core.Result.Err(5);
+var __PUCK__value__38 = __PUCK__value__37;
+var __PUCK__value__39 = void 0;
+if ($unwrapTraitObject(__PUCK__value__38).kind == "Ok") {
+  var _PUCK__value__38$val = _slicedToArray(__PUCK__value__38.value, 1),
+      __PUCK__value__40 = _PUCK__value__38$val[0];
+
+  __PUCK__value__39 = "ok";
+} else {
+  var __PUCK__value__41 = __PUCK__value__37;
+  var __PUCK__value__42 = void 0;
+  if ($unwrapTraitObject(__PUCK__value__41).kind == "Err") {
+    var _PUCK__value__41$val = _slicedToArray(__PUCK__value__41.value, 1),
+        err = _PUCK__value__41$val[0];
+
+    __PUCK__value__42 = "error: " + err + "";
+  };
+  __PUCK__value__39 = __PUCK__value__42;
+};
+(0, _core.print)(__PUCK__value__39);
 function sayHello(name) {
   return (0, _core.print)("Hello, " + name + "");
 };
-var __PUCK__value__39 = _core.Option.Some("World");
-var __PUCK__value__40 = __PUCK__value__39;
-if ($unwrapTraitObject(__PUCK__value__40).kind == "Some") {
-  var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1),
-      name = _PUCK__value__40$val[0];
+var __PUCK__value__43 = _core.Option.Some("World");
+var __PUCK__value__44 = __PUCK__value__43;
+if ($unwrapTraitObject(__PUCK__value__44).kind == "Some") {
+  var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
+      name = _PUCK__value__44$val[0];
 
   name = $unwrapTraitObject(name).toUpperCase();
   sayHello(name);
 } else {
-  var __PUCK__value__41 = __PUCK__value__39;
-  if ($unwrapTraitObject(__PUCK__value__41).kind == "None") {
-    var _undefined4 = __PUCK__value__41;
+  var __PUCK__value__45 = __PUCK__value__43;
+  if ($unwrapTraitObject(__PUCK__value__45).kind == "None") {
+    var _undefined4 = __PUCK__value__45;
     (0, _core.print)("Oh, nothing");
   };
 };
-var __PUCK__value__42 = Value.One({ value: "World" });
-var __PUCK__value__43 = __PUCK__value__42;
-if ($unwrapTraitObject(__PUCK__value__43).kind == "One") {
-  var value = __PUCK__value__43.value.value;
+var __PUCK__value__46 = Value.One({ value: "World" });
+var __PUCK__value__47 = __PUCK__value__46;
+if ($unwrapTraitObject(__PUCK__value__47).kind == "One") {
+  var value = __PUCK__value__47.value.value;
 
   sayHello(value);
 } else {
-  var __PUCK__value__44 = __PUCK__value__42;
+  var __PUCK__value__48 = __PUCK__value__46;
   if (true) {
-    var __PUCK__value__45 = __PUCK__value__44;
+    var __PUCK__value__49 = __PUCK__value__48;
     (0, _core.print)("Sorry");
   };
 };
-var __PUCK__value__46 = Value.Two;
-var __PUCK__value__47 = __PUCK__value__46;
-if ($unwrapTraitObject(__PUCK__value__47).kind == "Two") {
-  var _undefined5 = __PUCK__value__47;
+var __PUCK__value__50 = Value.Two;
+var __PUCK__value__51 = __PUCK__value__50;
+if ($unwrapTraitObject(__PUCK__value__51).kind == "Two") {
+  var _undefined5 = __PUCK__value__51;
   (0, _core.print)("two");
 } else {
-  var __PUCK__value__48 = __PUCK__value__46;
-  if ($unwrapTraitObject(__PUCK__value__48).kind == "Three") {
-    var _undefined6 = __PUCK__value__48;
+  var __PUCK__value__52 = __PUCK__value__50;
+  if ($unwrapTraitObject(__PUCK__value__52).kind == "Three") {
+    var _undefined6 = __PUCK__value__52;
     (0, _core.print)("three");
   } else {
-    var __PUCK__value__49 = __PUCK__value__46;
+    var __PUCK__value__53 = __PUCK__value__50;
     if (true) {
-      var __PUCK__value__50 = __PUCK__value__49;
+      var __PUCK__value__54 = __PUCK__value__53;
       (0, _core.print)("Sorry");
     };
   };
 };
-var __PUCK__value__51 = Value.Three;
-var __PUCK__value__52 = __PUCK__value__51;
-if ($unwrapTraitObject(__PUCK__value__52).kind == "Two") {
-  var _undefined7 = __PUCK__value__52;
+var __PUCK__value__55 = Value.Three;
+var __PUCK__value__56 = __PUCK__value__55;
+if ($unwrapTraitObject(__PUCK__value__56).kind == "Two") {
+  var _undefined7 = __PUCK__value__56;
   (0, _core.print)("two");
 } else {
-  var __PUCK__value__53 = __PUCK__value__51;
-  if ($unwrapTraitObject(__PUCK__value__53).kind == "Three") {
-    var _undefined8 = __PUCK__value__53;
+  var __PUCK__value__57 = __PUCK__value__55;
+  if ($unwrapTraitObject(__PUCK__value__57).kind == "Three") {
+    var _undefined8 = __PUCK__value__57;
     (0, _core.print)("three");
   } else {
-    var __PUCK__value__54 = __PUCK__value__51;
+    var __PUCK__value__58 = __PUCK__value__55;
     if (true) {
-      var __PUCK__value__55 = __PUCK__value__54;
+      var __PUCK__value__59 = __PUCK__value__58;
       (0, _core.print)("Sorry");
     };
   };
@@ -210,66 +224,66 @@ if ($unwrapTraitObject(__PUCK__value__52).kind == "Two") {
 function func() {
   return (0, _core.Err)(Value.Two);
 };
-var __PUCK__value__56 = func();
-var __PUCK__value__57 = __PUCK__value__56;
-if ($unwrapTraitObject(__PUCK__value__57).kind == "Ok") {
-  var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1),
-      __PUCK__value__58 = _PUCK__value__57$val[0];
+var __PUCK__value__60 = func();
+var __PUCK__value__61 = __PUCK__value__60;
+if ($unwrapTraitObject(__PUCK__value__61).kind == "Ok") {
+  var _PUCK__value__61$val = _slicedToArray(__PUCK__value__61.value, 1),
+      __PUCK__value__62 = _PUCK__value__61$val[0];
 
   (0, _core.print)("ok");
 } else {
-  var __PUCK__value__59 = __PUCK__value__56;
-  if ($unwrapTraitObject(__PUCK__value__59).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__59).value)[$unwrapTraitObject(0)]).kind == "One") {
-    var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 1),
-        _value = _PUCK__value__59$val[0].value.value;
+  var __PUCK__value__63 = __PUCK__value__60;
+  if ($unwrapTraitObject(__PUCK__value__63).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__63).value)[$unwrapTraitObject(0)]).kind == "One") {
+    var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1),
+        _value = _PUCK__value__63$val[0].value.value;
 
     sayHello(_value);
   } else {
-    var __PUCK__value__60 = __PUCK__value__56;
-    if ($unwrapTraitObject(__PUCK__value__60).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__60).value)[$unwrapTraitObject(0)]).kind == "Two") {
-      var _PUCK__value__60$val = _toArray(__PUCK__value__60.value);
+    var __PUCK__value__64 = __PUCK__value__60;
+    if ($unwrapTraitObject(__PUCK__value__64).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__64).value)[$unwrapTraitObject(0)]).kind == "Two") {
+      var _PUCK__value__64$val = _toArray(__PUCK__value__64.value);
 
       (0, _core.print)("two");
     } else {
-      var __PUCK__value__61 = __PUCK__value__56;
-      if ($unwrapTraitObject(__PUCK__value__61).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__61).value)[$unwrapTraitObject(0)]).kind == "Three") {
-        var _PUCK__value__61$val = _toArray(__PUCK__value__61.value);
+      var __PUCK__value__65 = __PUCK__value__60;
+      if ($unwrapTraitObject(__PUCK__value__65).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__65).value)[$unwrapTraitObject(0)]).kind == "Three") {
+        var _PUCK__value__65$val = _toArray(__PUCK__value__65.value);
 
         (0, _core.print)("three");
       };
     };
   };
 };
-var __PUCK__value__62 = _core.Option.Some(_core.Option.Some(5));
-var __PUCK__value__63 = __PUCK__value__62;
-if ($unwrapTraitObject(__PUCK__value__63).kind == "Some") {
-  var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1),
-      inner = _PUCK__value__63$val[0];
+var __PUCK__value__66 = _core.Option.Some(_core.Option.Some(5));
+var __PUCK__value__67 = __PUCK__value__66;
+if ($unwrapTraitObject(__PUCK__value__67).kind == "Some") {
+  var _PUCK__value__67$val = _slicedToArray(__PUCK__value__67.value, 1),
+      inner = _PUCK__value__67$val[0];
 
-  var __PUCK__value__64 = inner;
-  var __PUCK__value__65 = __PUCK__value__64;
-  if ($unwrapTraitObject(__PUCK__value__65).kind == "Some") {
-    var _PUCK__value__65$val = _slicedToArray(__PUCK__value__65.value, 1),
-        _value2 = _PUCK__value__65$val[0];
+  var __PUCK__value__68 = inner;
+  var __PUCK__value__69 = __PUCK__value__68;
+  if ($unwrapTraitObject(__PUCK__value__69).kind == "Some") {
+    var _PUCK__value__69$val = _slicedToArray(__PUCK__value__69.value, 1),
+        _value2 = _PUCK__value__69$val[0];
 
     _value2;
   } else {
-    var __PUCK__value__66 = __PUCK__value__64;
-    if ($unwrapTraitObject(__PUCK__value__66).kind == "None") {
-      var _undefined9 = __PUCK__value__66;
+    var __PUCK__value__70 = __PUCK__value__68;
+    if ($unwrapTraitObject(__PUCK__value__70).kind == "None") {
+      var _undefined9 = __PUCK__value__70;
       0;
     };
   };
 } else {
-  var __PUCK__value__67 = __PUCK__value__62;
-  if ($unwrapTraitObject(__PUCK__value__67).kind == "None") {
-    var _undefined10 = __PUCK__value__67;
+  var __PUCK__value__71 = __PUCK__value__66;
+  if ($unwrapTraitObject(__PUCK__value__71).kind == "None") {
+    var _undefined10 = __PUCK__value__71;
     0;
   };
 };
-var __PUCK__value__68 = _Object._Object;
-var __PUCK__value__69 = __PUCK__value__68;
-if ($unwrapTraitObject(__PUCK__value__69).kind == "_Object") {
-  var _undefined11 = __PUCK__value__69;
+var __PUCK__value__72 = _Object._Object;
+var __PUCK__value__73 = __PUCK__value__72;
+if ($unwrapTraitObject(__PUCK__value__73).kind == "_Object") {
+  var _undefined11 = __PUCK__value__73;
   "Object";
 }

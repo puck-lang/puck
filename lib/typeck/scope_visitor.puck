@@ -468,30 +468,50 @@ export fn ScopeVisitor(context, file) {
       let oldMatchExpression = matchExpression
       matchExpression = Some(e)
 
-      self.visitExpression(e.expression)
-      e.type_ = e.expression.type_
+      let isUsed = self.isUsed
 
-      e.patterns.forEach(|a| self.visitMatchArm(a))
+      self.visitExpression(e.expression)
+
+      e.patterns.forEach(|a| self.visitMatchArm(a, isUsed))
 
       if let Result::Err(error) = checkExhaustive(e) {
         self.reportError(e, error)
       }
-      e.type_ = undefined
+      if isUsed {
+        e.type_ =
+          if e.patterns.isNotEmpty() {
+            let result: Result<Type, ()> = findCommonType(e.patterns.map(|arm| arm.type_).toList())
+            match result {
+              Result::Ok(type_) => type_
+              Result::Err(_) => reportError(e, 'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm.type_).displayName()).join(', '))
+            }
+          }
+          else {{
+            displayName: None
+            name: None
+            kind: TypeKind::Struct({
+              implementations: []
+              kind: StructKind::Tuple({properties: []})
+            })
+            class: None
+            instance: None
+          }}
+      }
 
       matchExpression = oldMatchExpression
     }
-    visitMatchArm: |mut self, mut a: MatchArm| {
+    visitMatchArm: |mut self, mut a: MatchArm, isUsed| {
       self.scope = createScope(context, file, self.scope)
       a.scope = self.scope
 
       let m = matchExpression.unwrap()
 
-      let result: Result<(), ()> = declarePatternVariables(a.scope, self, a.pattern, false, m.type_, true)
+      let result: Result<(), ()> = declarePatternVariables(a.scope, self, a.pattern, false, m.expression.type_, true)
       if result.isOk() {
         let patternTy = result.value[0]
 
-        if not isAssignable(m.type_, patternTy)
-          then self.reportError(a, notAssignableError(m.type_, patternTy))
+        if not isAssignable(m.expression.type_, patternTy)
+          then self.reportError(a, notAssignableError(m.expression.type_, patternTy))
       }
       else {
         if result.value[0].kind == 'PatternMismatch' {
@@ -500,7 +520,8 @@ export fn ScopeVisitor(context, file) {
         }
       }
 
-      self.visitBlock(a.block)
+      self.visitBlock(a.block, isUsed)
+      a.type_ = a.block.type_
 
       self.scope = self.scope.parent
     }

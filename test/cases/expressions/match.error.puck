@@ -88,9 +88,10 @@ match func() {
   Option::None => print('no value')
 }
 
-// TODO: Make this error
-//// 123
-match Result::Ok(5) {
-  Result::Ok(num) => num
-  _ => 'something'
-}
+///// Match arms return mixed types
+print(
+  match Result::Ok(5) {
+    Result::Ok(num) => num
+    _ => 'something'
+  }
+)
