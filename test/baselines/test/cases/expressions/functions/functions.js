@@ -2,6 +2,10 @@
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
+
 function a() {};
 function b(a) {};
 function c() {
@@ -53,15 +57,15 @@ function m(a, b) {
 };
 function n() {
   var self = this;
-  return self.toString();
+  return $unwrapTraitObject(self).toString();
 };
 function o() {
   var self = this;
-  return self.toString();
+  return $unwrapTraitObject(self).toString();
 };
 function p(a) {
   var self = this;
-  return self.toString();
+  return $unwrapTraitObject(self).toString();
 };
 a();
 b(1);

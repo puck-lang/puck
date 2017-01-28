@@ -14,7 +14,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
           'type parameter'
         )
         instances: []
-        typeParameters: f.typeParameters.map(|p| p.type_)
+        typeParameters: f.typeParameters.map(|p| p.type_).toList()
       })
     }
     else None
@@ -24,7 +24,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError) 
     mutable: p.mutable
     type_: p.type_
     token: p
-  }})
+  }}).toList()
   let returnType: Type =
     if let Option::Some(returnType) = f.returnType {
       returnType.type_
@@ -87,4 +87,27 @@ export fn checkFunctionAssignability(functionName: String, to: Function, subject
   if not isAssignable(to.returnType, subject.returnType)
     then Err('Return type ' + subject.returnType.displayName() + ' is not assignable to ' + to.returnType.displayName())
     else Ok(())
+}
+
+export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeParameters: List<Type>, parameterType: Type, argumentType: Type) {
+  match parameterType.kind {
+    TypeKind::Parameter(_) => {
+      let name = parameterType.name.unwrap()
+      if typeParameters.any(|p| p.name.unwrap() == name) {
+        if not parameterMap.has(name) {
+          parameterMap[name] = argumentType
+        }
+      }
+    }
+    TypeKind::Function(parameterFunction) => {
+      if parameterFunction.returnType {
+        if let TypeKind::Function(argumentFunction) = argumentType.kind {
+          if argumentFunction.returnType {
+            resolveFunctionTypeParameters(parameterMap, typeParameters, parameterFunction.returnType, argumentFunction.returnType)
+          }
+        }
+      }
+    }
+    _ => ()
+  }
 }

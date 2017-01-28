@@ -18,51 +18,56 @@ var _test = require('./../lib/test');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var argv = _js.process.argv;
-var _arguments = _core.Iterable['$List<E>'].skip.call(_core.Iterable['$List<E>'].skipUntil.call(argv, function (arg) {
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
+
+var argv = $unwrapTraitObject(_js.process).argv;
+var __PUCK__value__1 = _core.Iterable['$List<E>'].skipUntil.call({ type: '$List<E>', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "cases");
-}), 1);
-var command = _arguments[0];
+});
+var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__1, 1);
+var command = _arguments.value[0];
 if (command == _js._undefined) {
   (function () {
     (0, _test.buildTestCompiler)();
     var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
     var caseFiles = (0, _helpers.walkSync)("test/cases");
-    var failCases = caseFiles.filter(function (f) {
-      return failPattern.test(f);
+    var failCases = $unwrapTraitObject(caseFiles).filter(function (f) {
+      return $unwrapTraitObject(failPattern).test(f);
     });
     (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
-    var buildString = (0, _js.require)("puck-lang/.tmp/old/lib/compiler").buildString;
-    failCases.forEach(function (file) {
-      return fs.readFileSync(file, { encoding: "utf-8" }).split("/////").forEach(function (test, i) {
-        var firstNewline = test.indexOf("\n");
-        var error = test.substr(0, firstNewline);
-        var code = test.substr(firstNewline);
+    var buildString = $unwrapTraitObject((0, _js.require)("puck-lang/.tmp/old/lib/compiler")).buildString;
+    $unwrapTraitObject(failCases).forEach(function (file) {
+      return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(fs).readFileSync(file, { encoding: "utf-8" })).split("/////")).forEach(function (test, i) {
+        var firstNewline = $unwrapTraitObject(test).indexOf("\n");
+        var error = $unwrapTraitObject(test).substr(0, firstNewline);
+        var code = $unwrapTraitObject(test).substr(firstNewline);
         if (!error && !code) {
           return false;
         };
-        if (!error || !code || error.substr(0, 1) != " ") {
+        if (!error || !code || $unwrapTraitObject(error).substr(0, 1) != " ") {
           (0, _core.print)("Test " + file + "::" + i + " is invalid, missing error or code");
-          _js.process.exit(1);
+          $unwrapTraitObject(_js.process).exit(1);
         };
         var result = buildString(code, file);
-        var __PUCK__value__1 = result;
-        var __PUCK__value__2 = __PUCK__value__1;
-        if (__PUCK__value__2.kind == "Ok") {
-          var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-              __PUCK__value__3 = _PUCK__value__2$valu[0];
+        var __PUCK__value__2 = result;
+        var __PUCK__value__3 = __PUCK__value__2;
+        if ($unwrapTraitObject(__PUCK__value__3).kind == "Ok") {
+          var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+              __PUCK__value__4 = _PUCK__value__3$valu[0];
 
           (0, _core.print)("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
-          return _js.process.exit(1);
+          return $unwrapTraitObject(_js.process).exit(1);
         } else {
-          var __PUCK__value__4 = __PUCK__value__1;
-          if (__PUCK__value__4.kind == "Err") {
-            var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-                message = _PUCK__value__4$valu[0].message;
+          var __PUCK__value__5 = __PUCK__value__2;
+          if ($unwrapTraitObject(__PUCK__value__5).kind == "Err") {
+            var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+                message = _PUCK__value__5$valu[0].message;
 
-            if (!_core.String.contains.call(message, error.trim())) {
+            if (!_core.String.contains.call(message, $unwrapTraitObject(error).trim())) {
               (0, _core.print)("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + message + "");
-              return _js.process.exit(1);
+              return $unwrapTraitObject(_js.process).exit(1);
             };
           };
         };
@@ -73,8 +78,8 @@ if (command == _js._undefined) {
   })();
 } else {
   if (command == "file") {
-    var file = _arguments[1];
-    var built = file.replace((0, _js.RegExp)("\\.puck$"), ".js");
+    var file = _arguments.value[1];
+    var built = $unwrapTraitObject(file).replace((0, _js.RegExp)("\\.puck$"), ".js");
     (0, _test.buildTestCompiler)();
     (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases " + file + "");
     (0, _helpers.cmd)("diff -Nr test/baselines/" + built + " .tmp/cases/" + built + "");
@@ -85,8 +90,8 @@ if (command == _js._undefined) {
       (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
       (0, _core.print)("done");
     } else {
-      _js.console.error("Unknown command", command);
-      _js.process.exit(1);
+      $unwrapTraitObject(_js.console).error("Unknown command", command);
+      $unwrapTraitObject(_js.process).exit(1);
     };
   };
 }

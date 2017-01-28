@@ -118,11 +118,11 @@ fn anyCast(a) {a}
 
 export type List<E> {}
 impl<E> List<E> {
-  fn zip<A, B>(a: List<A>, b: List<B>) -> List<(A, B)> {
-    if a.length != b.length
-      then throw Error('List a and b are not of the same length')
+  fn zip<A, B>(a: Iterable<A>, b: Iterable<B>) -> List<(A, B)> {
+    if a.size() != b.size()
+      then throw Error('Iterable a and b are not of the same length')
 
-    a.enumerate().map(|(a, i)| (a, b[i]))
+    a.enumerate().map(|(a, i)| (a, b[i])).toList()
   }
 
   fn add(mut self, element: E) -> () {
@@ -130,7 +130,7 @@ impl<E> List<E> {
   }
 }
 export trait Iterable<E> {
-  fn enumerate(self) -> List<(E, Num)>
+  fn enumerate(self) -> Iterable<(E, Num)>
 
   fn size(self) -> Num
   fn isEmpty(self) -> Bool
@@ -143,21 +143,23 @@ export trait Iterable<E> {
   fn find(self, predicate: (E) -> Bool) -> Option<E>
 
   fn forEach(self, func: (E) -> ()) -> ()
-  fn map<U>(self, func: (E) -> U) -> List<U>
+  fn map<U>(self, func: (E) -> U) -> Iterable<U>
 
   /// Returns an [Iterable] that provides all but the first [count] elements.
-  // fn skip(self, count: Num) -> Iterable<E>
-  fn skip(self, count: Num) -> List<E>
+  fn skip(self, count: Num) -> Iterable<E>
 
   /// Returns an [Iterable] that skips leading elements until [test] is satisfied.
-  // fn skipUntil(self, test: (E) -> Bool) -> Iterable<E>
-  fn skipUntil(self, test: (E) -> Bool) -> List<E>
+  fn skipUntil(self, test: (E) -> Bool) -> Iterable<E>
+
+  fn toList(self) -> List<E>
 }
+
+fn asList<E>(a) -> List<E> {a}
 
 impl<E> Iterable<E> for List<E> {
 
-  fn enumerate(self) -> List<(E, Num)> {
-    anyCast(self).map(|element, index| (element, index))
+  fn enumerate(self) -> Iterable<(E, Num)> {
+    asList(anyCast(self).map(|element, index| (element, index)))
   }
 
   fn size(self) -> Num {
@@ -214,19 +216,25 @@ impl<E> Iterable<E> for List<E> {
     anyCast(self).forEach(func)
   }
 
-  fn map<U>(self, func: (E) -> U) -> List<U> {
-    anyCast(self).map(func)
+  fn map<U>(self, func: (E) -> U) -> Iterable<U> {
+    asList(anyCast(self).map(func))
   }
 
-  fn skip(self, count: Num) -> List<E> {
-    self.slice(count)
+  fn skip(self, count: Num) -> Iterable<E> {
+    asList(self.slice(count))
   }
 
-  fn skipUntil(self, predicate: (E) -> Bool) -> List<E> {
+  fn skipUntil(self, predicate: (E) -> Bool) -> Iterable<E> {
     let index = self.findIndex(predicate)
-    if index == -1
-      then []
-      else self.slice(index)
+    asList(
+      if index == -1
+        then []
+        else self.slice(index)
+    )
+  }
+
+  fn toList(self) -> List<E> {
+    self
   }
 }
 
@@ -257,7 +265,7 @@ impl<T> ObjectMap<T> {
     Object.create(null)
   }
 
-  fn fromList<T>(list: List<(String, T)>) -> ObjectMap<T> {
+  fn fromIter<T>(list: Iterable<(String, T)>) -> ObjectMap<T> {
     let mut object = Object.create(null)
     list.forEach(|item| object[item[0]] = item[1])
     object

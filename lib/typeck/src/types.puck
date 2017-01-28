@@ -1,5 +1,5 @@
 import 'puck:js' as {Object, null, undefined}
-import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound}
+import '../../ast/ast.puck' as {FunctionTypeBound, NamedTypeBound, ObjectTypeBound, TupleTypeBound}
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
@@ -46,6 +46,7 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = 
     TypeKind::Function(func) => TypeKind::Function(resolveTypeParametersFn(parameterMap, func))
     TypeKind::Parameter => return parameterMap.get(type_.name.unwrap()).unwrapOr(type_)
     TypeKind::Struct(struct) => TypeKind::Struct(resolveTypeParametersStruct(parameterMap, struct))
+    TypeKind::Trait(trait_) => TypeKind::Trait(resolveTypeParametersTrait(parameterMap, trait_))
     _ => return type_
   }
 
@@ -66,7 +67,7 @@ fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, func: Function) {
       type_:
         if binding.type_
           then resolveTypeParameters(parameterMap, false)(binding.type_)
-    }))
+    })).toList()
     returnType:
       if func.returnType
         then resolveTypeParameters(parameterMap, false)(func.returnType)
@@ -81,7 +82,7 @@ fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct) ->
       })
 
       StructKind::Tuple({properties}) => StructKind::Tuple({
-        properties: properties.map(resolveTypeParameters(parameterMap, false))
+        properties: properties.map(resolveTypeParameters(parameterMap, false)).toList()
       })
 
       StructKind::Unit => struct.kind
@@ -89,17 +90,23 @@ fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct) ->
   })
 }
 
+fn resolveTypeParametersTrait(parameterMap: ObjectMap<Type>, t: Trait) {
+  assign(t, {
+    functions: t.functions.map(resolveTypeParameters(parameterMap, false))
+  })
+}
+
 fn mapObject<T>(object: ObjectMap<T>, mapper) {
   object.map(mapper)
 }
 
-export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
-  let mut class = type_.class.unwrap()
+export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
+  let mut class: TypeClass = type_.class.unwrap()
   let typeParameters: List<Type> =
-    if typeParameters.length < class.parameterRange.end - 1 {
-      typeParameters.concat(
+    if typeParameters_.length < class.parameterRange.end - 1 {
+      typeParameters_.concat(
         class.typeParameters
-          .slice(typeParameters.length)
+          .slice(typeParameters_.length)
           .map(|p| {
             if let TypeKind::Parameter(p) = p.kind {
               p.defaultValue.unwrap()
@@ -108,7 +115,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
           })
       )
     }
-    else typeParameters
+    else typeParameters_.toList()
 
   if let Option::Some(cachedInstance) = class.instances.find(|a: Type| {
       let i = a.instance.unwrap()
@@ -117,8 +124,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
     })
     then return cachedInstance
 
-
-  let parameterMap: ObjectMap<Type> = ObjectMap.fromList(
+  let parameterMap: ObjectMap<Type> = ObjectMap.fromIter(
     List.zip(typeParameters, class.typeParameters)
       .map(|p| {
         let typeArgument = p[0]
@@ -145,24 +151,25 @@ export fn createTypeInstance(mut type_: Type, typeParameters: List<Type>) {
   instance
 }
 
-export fn getType(scope: Scope, t) { // t: TypeBound
-  if not t then return undefined
-  if t.path {
-    let binding = scope.getTypePath(t.path)
+export fn getType(scope: Scope, t_) { // t: TypeBound
+  if not t_ then return undefined
+  if t_.path {
+    let tn: NamedTypeBound = t_
+    let binding = scope.getTypePath(tn.path)
 
     if not binding
       then binding
-    else if let Option::Some(_) = binding.type_.class
-      then createTypeInstance(binding.type_, t.typeParameters.map(|p| p.type_))
+    else if let Option::Some(_) = binding.type_.class {
+      createTypeInstance(binding.type_, tn.typeParameters.map(|p| p.type_).toList())
+    }
     else binding.type_
   }
-  else if t.kind == SyntaxKind.ObjectTypeBound {
-    let properties = ObjectMap.fromList(
-      t.properties.map(|member| (
-        member.name.name
-        getType(scope, member.typeBound)
-      ))
-    )
+  else if t_.kind == SyntaxKind.ObjectTypeBound {
+    let to: ObjectTypeBound = t_
+    let properties = ObjectMap.fromIter(to.properties.map(|member| (
+      member.name.name
+      getType(scope, member.typeBound)
+    )))
 
     {
       displayName: None
@@ -177,8 +184,9 @@ export fn getType(scope: Scope, t) { // t: TypeBound
       instance: None
     }
   }
-  else if t.kind == SyntaxKind.TupleTypeBound {
-    let properties = t.properties.map(|p| getType(scope, p))
+  else if t_.kind == SyntaxKind.TupleTypeBound {
+    let tt: TupleTypeBound = t_
+    let properties = tt.properties.map(|p| getType(scope, p)).toList()
 
     {
       displayName: None
@@ -192,8 +200,9 @@ export fn getType(scope: Scope, t) { // t: TypeBound
     }
   }
   else {
-    let arguments = t.arguments.properties.map(|p| {{type_: getType(scope, p)}})
-    let returnType = getType(scope, t.returnType)
+    let tf: FunctionTypeBound = t_
+    let arguments = tf.arguments.properties.map(|p| {{type_: getType(scope, p)}}).toList()
+    let returnType = getType(scope, tf.returnType)
 
     {
       displayName: None
@@ -205,7 +214,7 @@ export fn getType(scope: Scope, t) { // t: TypeBound
         returnType
         isAbstract: false
       })
-      class: TypeClass.fromAstNode(t, || {})
+      class: TypeClass.fromAstNode(tf, || {})
       instance: None
     }
   }
@@ -244,6 +253,16 @@ export fn isAssignable(to: Type, subject: Type) {
     }
     TypeKind::Trait(toTrait) => match subject.kind {
       TypeKind::Trait(subjectTrait) => isTraitAssignable(toTrait, subjectTrait)
+      TypeKind::Enum(subjectEnum) => {
+        subjectEnum.implementations.any(|implementation|
+          isAssignable(to, implementation.trait_)
+        )
+      }
+      TypeKind::Struct(subjectStruct) => {
+        subjectStruct.implementations.any(|implementation|
+          isAssignable(to, implementation.trait_)
+        )
+      }
       _ => false
     }
   }

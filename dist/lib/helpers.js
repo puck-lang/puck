@@ -31,60 +31,63 @@ var _ast2 = require('./compiler/ast');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
 function cmd(cmd) {
   var result = (0, _js.asResult)(function () {
     return (0, _child_process.execSync)(cmd, {
-      cwd: _js.process.cwd(),
+      cwd: $unwrapTraitObject(_js.process).cwd(),
       shell: "/bin/bash",
       env: {
         BASHOPTS: "globstar:extglob",
-        PATH: _js.process.env.PATH
+        PATH: $unwrapTraitObject($unwrapTraitObject(_js.process).env).PATH
       }
     });
   });
   var __PUCK__value__1 = result;
   var __PUCK__value__2 = __PUCK__value__1;
-  if (__PUCK__value__2.kind == "Ok") {
+  if ($unwrapTraitObject(__PUCK__value__2).kind == "Ok") {
     var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
         output = _PUCK__value__2$valu[0];
 
     if (output.toString()) {
-      return _js.console.log(output.toString().trim());
+      return $unwrapTraitObject(_js.console).log($unwrapTraitObject(output.toString()).trim());
     };
   } else {
     var __PUCK__value__3 = __PUCK__value__1;
-    if (__PUCK__value__3.kind == "Err") {
+    if ($unwrapTraitObject(__PUCK__value__3).kind == "Err") {
       var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
           error = _PUCK__value__3$valu[0];
 
-      var stdout = error.stdout.toString();
-      var stderr = error.stderr.toString();
+      var stdout = $unwrapTraitObject(error.stdout).toString();
+      var stderr = $unwrapTraitObject(error.stderr).toString();
       if (stdout) {
-        _js.console.log(stdout.trim());
+        $unwrapTraitObject(_js.console).log($unwrapTraitObject(stdout).trim());
       };
       if (stderr) {
-        _js.console.error(stderr.trim());
+        $unwrapTraitObject(_js.console).error($unwrapTraitObject(stderr).trim());
       };
       if (error.stack) {
-        _js.console.error(error.stack);
+        $unwrapTraitObject(_js.console).error(error.stack);
       };
-      return _js.process.exit(1);
+      return $unwrapTraitObject(_js.process).exit(1);
     };
   };
 };
 function walkSync(directory) {
   var filelist = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-  if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) {
+  if (!$unwrapTraitObject(fs).existsSync(directory) || !$unwrapTraitObject($unwrapTraitObject(fs).statSync(directory)).isDirectory()) {
     return [];
   };
-  var files = fs.readdirSync(directory);
-  files.forEach(function (fileName) {
-    var file = path.join(directory, fileName);
-    if (fs.statSync(file).isDirectory()) {
+  var files = $unwrapTraitObject(fs).readdirSync(directory);
+  $unwrapTraitObject(files).forEach(function (fileName) {
+    var file = $unwrapTraitObject(path).join(directory, fileName);
+    if ($unwrapTraitObject($unwrapTraitObject(fs).statSync(file)).isDirectory()) {
       return walkSync(file, filelist);
     } else {
-      return filelist.push(file);
+      return $unwrapTraitObject(filelist).push(file);
     };
   });
   return filelist;
@@ -92,15 +95,15 @@ function walkSync(directory) {
 function flag(_arguments, name) {
   var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
 
-  var index = _arguments.indexOf(name);
+  var index = $unwrapTraitObject(_arguments).indexOf(name);
   if (index >= 0) {
-    var value = _arguments[index + 1];
-    _arguments.splice(index, 2);
+    var value = $unwrapTraitObject(_arguments)[$unwrapTraitObject(index + 1)];
+    $unwrapTraitObject(_arguments).splice(index, 2);
     return value;
   } else {
     return defaultValue;
   };
 };
 function isTypeScopeDeclaration(t) {
-  return t.kind == _ast2.SyntaxKind.TraitDeclaration || t.kind == _ast2.SyntaxKind.TypeDeclaration;
+  return t.kind == $unwrapTraitObject(_ast2.SyntaxKind).TraitDeclaration || t.kind == $unwrapTraitObject(_ast2.SyntaxKind).TypeDeclaration;
 }

@@ -406,6 +406,7 @@ export fn parse(input) { // : TokenStream
 
         f
       })
+      .toList()
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
     {
@@ -448,6 +449,7 @@ export fn parse(input) { // : TokenStream
 
         f
       })
+      .toList()
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
     if let Option::Some(type_) = type_

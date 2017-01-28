@@ -31,7 +31,7 @@ fn getFunctionTypeName(function: Function) {
     (function.returnType and function.returnType.displayName())
 }
 
-fn getTupleTypeName(properties: List<Type>) {
+fn getTupleTypeName(properties: Iterable<Type>) {
   '(' + properties.map(|type_| type_.displayName()).join(', ') + ')'
 }
 
@@ -181,7 +181,7 @@ export type Struct {
 
 export type Trait {
   isShorthand: Bool
-  functions: ObjectMap<Function>
+  functions: ObjectMap<Type>
 }
 
 export enum StructKind {

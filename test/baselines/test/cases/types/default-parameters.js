@@ -13,4 +13,4 @@ DefaultTrait['$Default<Num>'] = {
 };
 
 var a = { value: 5 };
-DefaultTrait['$Default<Num>'].method.call(a);
+DefaultTrait['$Default<Num>'].method.call({ type: '$Default<Num>', value: a, $isTraitObject: true });

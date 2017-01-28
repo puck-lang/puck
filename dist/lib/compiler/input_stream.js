@@ -11,6 +11,9 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _entities = require('./../entities');
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
 function InputStream(file) {
   var __PUCK__value__1 = void 0;
   if (file.puck.substring(0, 13) == "//#![no_core]") {
@@ -23,7 +26,7 @@ function InputStream(file) {
   var line = 0;
   var col = 1;
   function next() {
-    var ch = code.charAt(pos);
+    var ch = $unwrapTraitObject(code).charAt(pos);
     pos = pos + 1;
     if (ch == "\n") {
       line = line + 1;
@@ -36,15 +39,15 @@ function InputStream(file) {
   function peek() {
     var distance = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-    return code.charAt(pos + distance);
+    return $unwrapTraitObject(code).charAt(pos + distance);
   };
   function eof() {
     return peek() == "";
   };
   function croak(msg) {
-    throw Error("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
-    _js.console.error("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
-    return _js.process.exit(1);
+    throw Error("" + msg + "\n    at " + $unwrapTraitObject(file).absolutePath + "  (" + line + ":" + col + ")\n\n");
+    $unwrapTraitObject(_js.console).error("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
+    return $unwrapTraitObject(_js.process).exit(1);
   };
   return {
     next: next,
