@@ -75,7 +75,7 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
         var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
             traitSelf = _PUCK__value__2$valu[0];
 
-        if ($unwrapTraitObject(implSelf).mutable && !$unwrapTraitObject(traitSelf).mutable) {
+        if (implSelf.mutable && !traitSelf.mutable) {
           return reportError(functionDeclaration, "Function " + traitName + "::" + traitFunctionName + " requires an immutable self parameter");
         };
       } else {

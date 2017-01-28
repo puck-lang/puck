@@ -734,13 +734,8 @@ function parse(input) {
       kind: $unwrapTraitObject(_ast2.SyntaxKind).IfLetExpression,
       ifKeyword: ifKeyword,
       letKeyword: letKeyword,
-      variableDeclaration: {
-        kind: $unwrapTraitObject(_ast2.SyntaxKind).VariableDeclaration,
-        pattern: pattern,
-        mutable: false,
-        typeBound: _core.None,
-        initializer: (0, _core.Some)(expression)
-      },
+      pattern: pattern,
+      expression: expression,
       then_: then_,
       else_: __PUCK__value__26
     };

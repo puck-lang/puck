@@ -410,9 +410,9 @@ function getGenericName(name, type_) {
     var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
         instance = _PUCK__value__44$val[0];
 
-    __PUCK__value__45 = "<" + $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(instance).typeParameters).map(function (p) {
+    __PUCK__value__45 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: instance.typeParameters, $isTraitObject: true }, function (p) {
       return Type.displayName.call(p);
-    })).join(", ") + ">";
+    }).value.join(", ") + ">";
   } else {
     var __PUCK__value__46 = void 0;
     if (showClassParameters) {
@@ -422,9 +422,9 @@ function getGenericName(name, type_) {
         var _PUCK__value__47$val = _slicedToArray(__PUCK__value__47.value, 1),
             _class = _PUCK__value__47$val[0];
 
-        __PUCK__value__48 = "<" + $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_class).typeParameters).map(function (p) {
+        __PUCK__value__48 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _class.typeParameters, $isTraitObject: true }, function (p) {
           return Type.displayName.call(p);
-        })).join(", ") + ">";
+        }).value.join(", ") + ">";
       } else {
         __PUCK__value__48 = "";
       };

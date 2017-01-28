@@ -200,7 +200,8 @@ export type IfExpression {
 export type IfLetExpression {
   ifKeyword: Token
   letKeyword: Token
-  variableDeclaration: VariableDeclaration
+  pattern: Pattern
+  expression: Expression
   then_: Block
   else_: Option<Block>
 }

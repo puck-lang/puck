@@ -59,7 +59,7 @@ function createFunctionType(scope, f, reportError) {
     var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
         _returnType = _PUCK__value__4$valu[0];
 
-    __PUCK__value__5 = $unwrapTraitObject(_returnType).type_;
+    __PUCK__value__5 = _returnType.type_;
   } else {
     __PUCK__value__5 = _js._undefined;
   };

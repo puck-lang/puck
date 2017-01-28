@@ -56,7 +56,7 @@ function TopLevelVisitor(context, file) {
             name = _PUCK__value__1$valu[0];
 
         return $unwrapTraitObject(scope).define({
-          name: $unwrapTraitObject(name).name,
+          name: name.name,
           token: f,
           mutable: false
         });
@@ -99,11 +99,11 @@ function TopLevelVisitor(context, file) {
             typeBound = _PUCK__value__2$valu[0];
 
         var __PUCK__value__4 = void 0;
-        if ($unwrapTraitObject(typeBound).kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectTypeBound) {
+        if (typeBound.kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectTypeBound) {
           __PUCK__value__4 = _entities.StructKind.Record({ properties: _core.ObjectMap._new() });
         } else {
           var __PUCK__value__5 = void 0;
-          if ($unwrapTraitObject(typeBound).kind == $unwrapTraitObject(_ast2.SyntaxKind).TupleTypeBound) {
+          if (typeBound.kind == $unwrapTraitObject(_ast2.SyntaxKind).TupleTypeBound) {
             __PUCK__value__5 = _entities.StructKind.Tuple({ properties: [] });
           } else {
             throw "Unreachable";

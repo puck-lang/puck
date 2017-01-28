@@ -24,9 +24,8 @@ let value =
     then 5
     else 'string'
 
-// TODO: Enable this when resolving generics is done
-//// Type Num and String is not compatible
-// let value =
-//   if let Option::Some(number) = Option::Some(3)
-//     then number
-//     else 'string'
+///// Type Num and String is not compatible
+let value =
+  if let Option::Some(number) = Option::Some(3)
+    then number
+    else 'string'

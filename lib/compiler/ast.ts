@@ -467,14 +467,19 @@ export interface IfExpression extends Token {
 }
 
 export interface IfLetExpression extends Token {
-  variableDeclaration: VariableDeclaration
+  pattern: Pattern
+  expression: Expression
   then_: BlockNode
   else_: Option<BlockNode>
+
+  scope: any
 }
 
 export interface MatchExpression extends Token {
   expression: Expression
   patterns: Array<MatchArm>
+
+  scope: any
 }
 
 export interface MatchArm {

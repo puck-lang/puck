@@ -24,6 +24,8 @@ import '../ast/ast.puck' as {
   ImportDirective
 
   Pattern
+  RecordPattern
+  TuplePattern
 
   AssignmentExpression
   BinaryExpression
@@ -57,7 +59,12 @@ import 'src/functions.puck' as {resolveFunctionTypeParameters}
 import 'src/impls.puck' as {getImplementation}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {createScope}
-import 'src/structure_visitor.puck' as {declarePatternVariables, notAssignableError, structureVisitor}
+import 'src/structure_visitor.puck' as {
+  PatternError
+  declarePatternVariables
+  notAssignableError
+  structureVisitor
+}
 import 'src/types.puck' as {
   createTypeInstance
   findCommonType
@@ -303,6 +310,52 @@ export fn ScopeVisitor(context, file) {
     }
     visitImportDirective: |self, mut i: ImportDirective| {}
 
+    visitPattern: |self, mut p: Pattern| {
+      p.scope = self.scope
+      visit.walkPattern(self, p)
+      p.type_ =
+        match p {
+          Pattern::CatchAll => undefined
+          Pattern::Identifier(identifier) => undefined
+          Pattern::Record(record) => record.type_
+          Pattern::RecordType(typePath, record) => typePath.type_
+          Pattern::Tuple(tuple) => tuple.type_
+          Pattern::TupleType(typePath, tuple) => typePath.type_
+          Pattern::UnitType => Type.empty()
+        }
+    }
+
+    visitRecordPattern: |self, mut p: RecordPattern| {
+      p.scope = self.scope
+      visit.walkRecordPattern(self, p)
+      p.type_ = {
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Record({properties: ObjectMap.fromIter(
+            p.properties.map(|p| (p.property, p.local and p.local.type_))
+          )})
+        })
+        instance: None
+        class: None
+      }
+    }
+    visitTuplePattern: |self, mut p: TuplePattern| {
+      p.scope = self.scope
+      visit.walkTuplePattern(self, p)
+      p.type_ = {
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Tuple({properties: p.properties.map(|p| p.type_).toList()})
+        })
+        instance: None
+        class: None
+      }
+    }
+
     visitAssignmentExpression: |self, mut e: AssignmentExpression| {
       e.scope = self.scope
       visit.walkAssignmentExpression(self, e)
@@ -436,7 +489,19 @@ export fn ScopeVisitor(context, file) {
       self.scope = createScope(context, file, self.scope)
       e.scope = self.scope
       let isUsed = self.isUsed
-      self.visitVariableDeclaration(e.variableDeclaration, undefined, undefined, true)
+      self.visitPattern(e.pattern)
+      self.visitExpression(e.expression)
+      let result: Result<(), ()> = declarePatternVariables(e.scope, self, e.pattern, false, e.expression.type_, true)
+      match result {
+        Result::Ok(patternTy) => {
+          if not isAssignable(e.expression.type_, patternTy)
+            then self.reportError(e.expression, notAssignableError(patternTy, e.expression.type_))
+        }
+        Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
+          self.reportError(e.expression, notAssignableError(to, subject))
+        }
+        _ => {}
+      }
       self.visitBlock(e.then_, isUsed)
       if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
       if isUsed {
@@ -507,17 +572,15 @@ export fn ScopeVisitor(context, file) {
       let m = matchExpression.unwrap()
 
       let result: Result<(), ()> = declarePatternVariables(a.scope, self, a.pattern, false, m.expression.type_, true)
-      if result.isOk() {
-        let patternTy = result.value[0]
-
-        if not isAssignable(m.expression.type_, patternTy)
-          then self.reportError(a, notAssignableError(m.expression.type_, patternTy))
-      }
-      else {
-        if result.value[0].kind == 'PatternMismatch' {
-          let (pattern, to, subject) = result.value[0].value
+      match result {
+        Result::Ok(patternTy) => {
+          if not isAssignable(m.expression.type_, patternTy)
+            then self.reportError(a, notAssignableError(m.expression.type_, patternTy))
+        }
+        Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
           self.reportError(a, notAssignableError(to, subject))
         }
+        _ => {}
       }
 
       self.visitBlock(a.block, isUsed)

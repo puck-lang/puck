@@ -704,13 +704,8 @@ export fn parse(input) { // : TokenStream
       kind: SyntaxKind.IfLetExpression
       ifKeyword
       letKeyword
-      variableDeclaration: {
-        kind: SyntaxKind.VariableDeclaration
-        pattern
-        mutable: false
-        typeBound: None
-        initializer: Some(expression)
-      }
+      pattern
+      expression
       then_
       else_:
         if isToken(SyntaxKind.ElseKeyword) {

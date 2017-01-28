@@ -285,7 +285,7 @@ export let structureVisitor = {
   }
 }
 
-enum PatternError {
+export enum PatternError {
   PatternMismatch(Pattern, Type, Type)
   NotExhaustive
 }
@@ -371,9 +371,7 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
               }
             }
             TypeKind::Parameter => []
-            _ => {
-              throw 'abd type t'
-            }
+            _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
           }
           else []
 
@@ -426,9 +424,7 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
           }
         }
         TypeKind::Parameter => []
-        _ => {
-          throw 'abd type t'
-        }
+        _ => return Err(PatternError::PatternMismatch(p, p.type_, tupleType))
       }
 
       let properties: Result<List<Type>, PatternError> = tuple.properties
@@ -440,17 +436,17 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
 
       properties.andThen(|properties| {
         let type_ = {
-        displayName: None
-        name: None
-        kind: TypeKind::Struct({
-          implementations: []
-          kind: StructKind::Tuple({
-            properties
+          displayName: None
+          name: None
+          kind: TypeKind::Struct({
+            implementations: []
+            kind: StructKind::Tuple({
+              properties
+            })
           })
-        })
-        class: None
-        instance: None
-      }
+          class: None
+          instance: None
+        }
 
         if let TypeKind::Enum(enumType) = typePath.type_.kind {
           if not allowNotExhaustive and enumType.members.size() > 1

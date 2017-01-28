@@ -78,7 +78,7 @@ function getImplementationsForInstance(type_) {
 
         return {
           v: implementations.filter(function (i) {
-            var objectInstance_ = $unwrapTraitObject(objectInstance);
+            var objectInstance_ = objectInstance;
             var implementationInstance = _core.Option.unwrap.call(i.type_.instance);
             return _core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: _core.List.zip({ type: '$List<E>', value: objectInstance_.typeParameters, $isTraitObject: true }, { type: '$List<E>', value: implementationInstance.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref) {
               var _ref2 = _slicedToArray(_ref, 2),
