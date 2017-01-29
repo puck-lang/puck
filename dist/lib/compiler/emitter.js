@@ -289,10 +289,10 @@ function Emitter() {
         var value;
         if (t.bound.kind == 'Some') {
             var bound = t.bound.value[0];
-            if (bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
+            if (bound.kind === 'RecordTypeBound') {
                 value = "(object) => ({kind: '" + emitIdentifier(t.name) + "', value: object})";
             }
-            else if (bound.kind === ast_1.SyntaxKind.TupleTypeBound) {
+            else if (bound.kind === 'TupleTypeBound') {
                 value = "(...members) => ({kind: '" + emitIdentifier(t.name) + "', value: members})";
             }
             else {
@@ -367,17 +367,17 @@ function Emitter() {
     function emitImplDeclaration(i) {
         var functions = Object['assign']({}, i.trait_.type_.kind.value[0].functions);
         i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m); });
-        return emitTypePath(i.trait_.path) + "[" + getTypeProp(i.type_.type_) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
+        return emitTypePath(i.trait_.value[0].path) + "[" + getTypeProp(i.type_.type_) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
             return emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
-                : emitTypePath(i.trait_.path) + "." + emitIdentifier({ name: f }));
+                : emitTypePath(i.trait_.value[0].path) + "." + emitIdentifier({ name: f }));
         }))
             .join(',\n') + "\n}";
     }
     function emitImplShorthandDeclaration(i) {
         return i.members
             .map(function (m) {
-            return emitTypePath(i.type_.path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m);
+            return emitTypePath(i.type_.value[0].path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m);
         })
             .join(';\n');
     }
@@ -391,10 +391,10 @@ function Emitter() {
         var value;
         if (t.bound.kind == 'Some') {
             var bound = t.bound.value[0];
-            if (bound.kind === ast_1.SyntaxKind.ObjectTypeBound) {
+            if (bound.kind === 'RecordTypeBound') {
                 value = "(object) => object";
             }
-            else if (bound.kind === ast_1.SyntaxKind.TupleTypeBound) {
+            else if (bound.kind === 'TupleTypeBound') {
                 value = '(...members) => members';
             }
             else {
@@ -410,9 +410,6 @@ function Emitter() {
         var willBeRedefined = true;
         var binding;
         if (vd.pattern.kind === 'Identifier') {
-            if (!vd.scope) {
-                console.log('vasdas', vd);
-            }
             binding = vd.scope.getBinding(vd.pattern.value[0].name);
             willBeRedefined = binding.redefined;
             while (binding && (binding.token !== vd.pattern)) {
@@ -427,8 +424,9 @@ function Emitter() {
         }
         if (context) {
             var valueVariable_1 = newValueVariable();
-            hoist("let " + emitPatternDestructuring(vd.pattern) + ";");
-            return "" + emitPatternDestructuring(vd.pattern) + initializer;
+            hoist("let " + valueVariable_1 + initializer + ";");
+            hoist("let " + emitPatternDestructuring(vd.pattern) + " = " + valueVariable_1 + ";");
+            return valueVariable_1;
         }
         var kw = (vd.mutable || willBeRedefined) ? 'let' : 'const';
         return kw + " " + emitPatternDestructuring(vd.pattern) + initializer;

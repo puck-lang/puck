@@ -13,7 +13,7 @@ import 'ast.puck' as {
   TypeBound
   FunctionTypeBound
   NamedTypeBound
-  ObjectTypeBound
+  RecordTypeBound
   TupleTypeBound
   TypeDeclaration
   TypeParameter
@@ -102,7 +102,7 @@ export let walkingVisitor = {
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitFunctionTypeBound: |self, t: FunctionTypeBound| walkFunctionTypeBound(self, t)
   visitNamedTypeBound: |self, t: NamedTypeBound| walkNamedTypeBound(self, t)
-  visitObjectTypeBound: |self, t: ObjectTypeBound| walkObjectTypeBound(self, t)
+  visitRecordTypeBound: |self, t: RecordTypeBound| walkRecordTypeBound(self, t)
   visitTupleTypeBound: |self, t: TupleTypeBound| walkTupleTypeBound(self, t)
   visitTypeDeclaration: |self, t: TypeDeclaration| walkTypeDeclaration(self, t)
   visitTypeParameter: |self, t: TypeParameter| walkTypeParameter(self, t)
@@ -160,7 +160,7 @@ export let emptyVisitor = {
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitFunctionTypeBound: || {}
   visitNamedTypeBound: || {}
-  visitObjectTypeBound: || {}
+  visitRecordTypeBound: || {}
   visitTupleTypeBound: || {}
   visitTypeDeclaration: || {}
   visitTypeParameter: || {}
@@ -211,10 +211,7 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   else if e.kind == SyntaxKind.ImplShorthandDeclaration then visitor.visitImplShorthandDeclaration(e)
   else if e.kind == SyntaxKind.ObjectDestructure then visitor.visitObjectDestructure(e)
   else if e.kind == SyntaxKind.TraitDeclaration then visitor.visitTraitDeclaration(e)
-  else if e.kind == SyntaxKind.FunctionTypeBound then visitor.visitFunctionTypeBound(e)
-  else if e.kind == SyntaxKind.NamedTypeBound then visitor.visitNamedTypeBound(e)
-  else if e.kind == SyntaxKind.ObjectTypeBound then visitor.visitObjectTypeBound(e)
-  else if e.kind == SyntaxKind.TupleTypeBound then visitor.visitTupleTypeBound(e)
+  else if e.kind == SyntaxKind.TypeBound then visitor.visitTypeBound(e)
   else if e.kind == SyntaxKind.TypeDeclaration then visitor.visitTypeDeclaration(e)
   else if e.kind == SyntaxKind.TypeParameter then visitor.visitTypeParameter(e)
   else if e.kind == SyntaxKind.TypeProperty then visitor.visitTypeProperty(e)
@@ -296,27 +293,22 @@ export fn walkTraitDeclaration(visitor: Visitor, t: TraitDeclaration) {
   t.members.forEach(|t| visitor.visitFunctionDeclaration(t))
 }
 export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
-  if t.kind == SyntaxKind.FunctionTypeBound
-    then visitor.visitFunctionTypeBound(t)
-  else if t.kind == SyntaxKind.NamedTypeBound
-    then visitor.visitNamedTypeBound(t)
-  else if t.kind == SyntaxKind.ObjectTypeBound
-    then visitor.visitObjectTypeBound(t)
-  else if t.kind == SyntaxKind.TupleTypeBound
-    then visitor.visitTupleTypeBound(t)
-  else {
-    throw Error('Unknown typebound ' + SyntaxKind[t.kind])
+  match t {
+    TypeBound::FunctionTypeBound(t) => visitor.visitFunctionTypeBound(t)
+    TypeBound::NamedTypeBound(t) => visitor.visitNamedTypeBound(t)
+    TypeBound::RecordTypeBound(t) => visitor.visitRecordTypeBound(t)
+    TypeBound::TupleTypeBound(t) => visitor.visitTupleTypeBound(t)
   }
 }
 export fn walkFunctionTypeBound(visitor: Visitor, t: FunctionTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
-  visitor.visitTypeBound(t.arguments)
+  visitor.visitTupleTypeBound(t.arguments)
   visitor.visitTypeBound(t.returnType)
 }
 export fn walkNamedTypeBound(visitor: Visitor, t: NamedTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeBound.bind(visitor))
 }
-export fn walkObjectTypeBound(visitor: Visitor, t: ObjectTypeBound) {
+export fn walkRecordTypeBound(visitor: Visitor, t: RecordTypeBound) {
   t.properties.forEach(|t| visitor.visitTypeProperty(t))
 }
 export fn walkTupleTypeBound(visitor: Visitor, t: TupleTypeBound) {

@@ -97,11 +97,11 @@ export fn TopLevelVisitor(context, file) {
     visitTypeDeclaration: |self, t: TypeDeclaration| {
       let structKind =
         if let Option::Some(typeBound) = t.bound {
-          if typeBound.kind == SyntaxKind.ObjectTypeBound
-            then StructKind::Record({properties: ObjectMap.new()})
-          else if typeBound.kind == SyntaxKind.TupleTypeBound
-            then StructKind::Tuple({properties: []})
-          else throw 'Unreachable'
+          match typeBound {
+            TypeBound::RecordTypeBound(record) => StructKind::Record({properties: ObjectMap.new()})
+            TypeBound::TupleTypeBound(tuple) => StructKind::Tuple({properties: []})
+            _ => throw 'Unreachable'
+          }
         }
         else StructKind::Unit
 

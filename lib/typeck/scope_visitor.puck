@@ -68,7 +68,6 @@ import 'src/structure_visitor.puck' as {
 import 'src/types.puck' as {
   createTypeInstance
   findCommonType
-  getType
   isAssignable
   isSameType
   resolveTypeParameters
@@ -777,14 +776,13 @@ export fn ScopeVisitor(context, file) {
     visitTupleLiteral: |self, mut l: TupleLiteral| {
       l.scope = self.scope
       visit.walkTupleLiteral(self, l)
-      let properties = l.expressions.map(|e| e.type_).toList()
       l.type_ = {
         displayName: None
         name: None
         kind: TypeKind::Struct({
           implementations: []
           kind: StructKind::Tuple({
-            properties
+            properties: l.expressions.map(|e| e.type_).toList()
           })
         })
         class: None

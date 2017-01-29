@@ -16,7 +16,7 @@ import '../ast/ast.puck' as {
   TypeBound
   FunctionTypeBound
   NamedTypeBound
-  ObjectTypeBound
+  RecordTypeBound
   TupleTypeBound
   TypeDeclaration
   TypeParameter
@@ -301,7 +301,7 @@ export fn parse(input) { // : TokenStream
 
     let bound =
       if isToken(SyntaxKind.OpenBraceToken)
-        then Some(parseObjectTypeBound())
+        then Some(parseRecordTypeBound())
       else if isToken(SyntaxKind.OpenParenToken)
         then Some(parseTupleTypeBound())
       else None
@@ -480,77 +480,80 @@ export fn parse(input) { // : TokenStream
       }}
   }
 
-  fn parseFunctionTypeBound(tuple) -> FunctionTypeBound {
-    let typeParameters =
-      if not tuple and isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeParameter)
-      else []
+  fn asTypeBound(a) -> TypeBound {a}
 
-    let arguments = tuple or parseTupleTypeBound()
+  fn parseFunctionTypeBound(tuple: Option<TypeBound>) -> TypeBound {
+    let typeParameters =
+      if tuple.isNone() and isToken(SyntaxKind.LessThanToken)
+        then delimited('<', '>', ',', parseTypeParameter)
+        else []
+
+    let arguments = tuple.unwrapOrElse(parseTupleTypeBound).getTupleTypeBound()
     consumeToken(SyntaxKind.MinusGreaterThanToken)
     let returnType = parseTypeBound()
 
-    {
+    TypeBound::FunctionTypeBound({
       kind: SyntaxKind.FunctionTypeBound
       typeParameters
       arguments
       returnType
-    }
+    })
   }
 
-  fn parseNamedTypeBound() -> NamedTypeBound {
+  fn parseNamedTypeBound() -> TypeBound {
     let path = parseTypePath(None)
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeBound)
-      else []
+        else []
 
-    {
+    TypeBound::NamedTypeBound({
       kind: SyntaxKind.NamedTypeBound
       path
       typeParameters
-    }
+    })
   }
 
-  fn parseObjectTypeBound() -> ObjectTypeBound {
+  fn parseRecordTypeBound() -> TypeBound {
     expect(SyntaxKind.OpenBraceToken)
     let openBrace = input.peek()
     let properties = delimited('{', '}', ',', parseTypeProperty, false)
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
-    {
-      kind: SyntaxKind.ObjectTypeBound
+    TypeBound::RecordTypeBound({
+      kind: SyntaxKind.RecordTypeBound
       openBrace
       properties
       closeBrace
-    }
+    })
   }
 
-  fn parseTupleTypeBound() -> TupleTypeBound {
+  fn parseTupleTypeBound() -> TypeBound {
     expect(SyntaxKind.OpenParenToken)
     let openParen = input.peek()
     let properties = delimited('(', ')', ',', parseTypeBound, false)
     let closeParen = consumeToken(SyntaxKind.CloseParenToken)
-    {
+
+    TypeBound::TupleTypeBound({
       kind: SyntaxKind.TupleTypeBound
       openParen
       properties
       closeParen
-    }
+    })
   }
 
   fn parseTypeBound() -> TypeBound {
     if isToken(SyntaxKind.LessThanToken)
-      then any(parseFunctionTypeBound(undefined))
+      then parseFunctionTypeBound(None)
     else if isToken(SyntaxKind.OpenParenToken) {
       let tuple = parseTupleTypeBound()
       if isToken(SyntaxKind.MinusGreaterThanToken)
-        then any(parseFunctionTypeBound(tuple))
-        else any(tuple)
+        then parseFunctionTypeBound(Some(tuple))
+        else tuple
     }
     else if isToken(SyntaxKind.OpenBraceToken)
-      then any(parseObjectTypeBound())
-    else any(parseNamedTypeBound())
+      then parseRecordTypeBound()
+    else parseNamedTypeBound()
   }
 
   fn parseTypeParameter() -> TypeParameter {
@@ -593,11 +596,11 @@ export fn parse(input) { // : TokenStream
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
-      else []
+        else []
 
     let bound =
       if isToken(SyntaxKind.OpenBraceToken)
-        then Some(parseObjectTypeBound())
+        then Some(parseRecordTypeBound())
       else if isToken(SyntaxKind.OpenParenToken)
         then Some(parseTupleTypeBound())
       else None
@@ -634,14 +637,13 @@ export fn parse(input) { // : TokenStream
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter)
-      else []
+        else []
     let parameterList = delimited('(', ')', ',', parseVariableDeclaration)
 
     let returnType =
-      if maybeConsumeToken(SyntaxKind.MinusGreaterThanToken).isSome() {
-        Some(parseTypeBound())
-      }
-      else None
+      if maybeConsumeToken(SyntaxKind.MinusGreaterThanToken).isSome()
+        then Some(parseTypeBound())
+        else None
 
     let body =
       if isToken(SyntaxKind.OpenBraceToken) or not optionalBody

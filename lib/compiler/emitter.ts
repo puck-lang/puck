@@ -385,10 +385,10 @@ export function Emitter() {
     let value
     if (t.bound.kind == 'Some') {
       let bound = t.bound.value[0]
-      if (bound.kind === SyntaxKind.ObjectTypeBound) {
+      if (bound.kind === 'RecordTypeBound') {
         value = `(object) => ({kind: '${emitIdentifier(t.name)}', value: object})`
       }
-      else if (bound.kind === SyntaxKind.TupleTypeBound) {
+      else if (bound.kind === 'TupleTypeBound') {
         value = `(...members) => ({kind: '${emitIdentifier(t.name)}', value: members})`
       }
       else {
@@ -473,13 +473,13 @@ export function Emitter() {
   function emitImplDeclaration(i: ImplDeclaration) {
     let functions = Object['assign']({}, i.trait_.type_.kind.value[0].functions)
     i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m))
-    return `${emitTypePath(i.trait_.path)}[${getTypeProp(i.type_.type_)}] = {\n${
+    return `${emitTypePath(i.trait_.value[0].path)}[${getTypeProp(i.type_.type_)}] = {\n${
       indent(
         Object.keys(functions).map(f =>
           `${emitIdentifier({name: f})}: ${
             typeof functions[f] === 'string'
               ? functions[f]
-              : `${emitTypePath(i.trait_.path)}.${emitIdentifier({name: f})}`
+              : `${emitTypePath(i.trait_.value[0].path)}.${emitIdentifier({name: f})}`
           }`)
       )
       .join(',\n')
@@ -489,7 +489,7 @@ export function Emitter() {
   function emitImplShorthandDeclaration(i: ImplShorthandDeclaration) {
     return i.members
       .map(m =>
-        `${emitTypePath(i.type_.path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m)}`
+        `${emitTypePath(i.type_.value[0].path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m)}`
       )
       .join(';\n')
   }
@@ -509,10 +509,10 @@ export function Emitter() {
     let value
     if (t.bound.kind == 'Some') {
       let bound = t.bound.value[0]
-      if (bound.kind === SyntaxKind.ObjectTypeBound) {
+      if (bound.kind === 'RecordTypeBound') {
         value = `(object) => object`
       }
-      else if (bound.kind === SyntaxKind.TupleTypeBound) {
+      else if (bound.kind === 'TupleTypeBound') {
         value = '(...members) => members'
       }
       else {
@@ -546,9 +546,10 @@ export function Emitter() {
 
     if (context) {
       let valueVariable = newValueVariable()
-      hoist(`let ${emitPatternDestructuring(vd.pattern)};`)
+      hoist(`let ${valueVariable}${initializer};`)
+      hoist(`let ${emitPatternDestructuring(vd.pattern)} = ${valueVariable};`)
 
-      return `${emitPatternDestructuring(vd.pattern)}${initializer}`
+      return valueVariable
     }
 
     let kw = (vd.mutable || willBeRedefined) ? 'let' : 'const'

@@ -25,7 +25,6 @@ import '../compiler/ast.ts' as {SyntaxKind}
 import '../entities.puck' as {StructKind, Type, TypeClass, TypeKind}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
-import 'src/types.puck' as {getType}
 
 /// Visits and declares Traits, Types and toplevel function frames[1]
 ///
@@ -233,11 +232,11 @@ export fn TypeVisitor(context, file) {
       if not t.type_ {
         let structKind =
           if let Option::Some(typeBound) = t.bound {
-            if typeBound.kind == SyntaxKind.ObjectTypeBound
-              then StructKind::Record({properties: ObjectMap.new()})
-            else if typeBound.kind == SyntaxKind.TupleTypeBound
-              then StructKind::Tuple({properties: []})
-            else throw 'Unreachable'
+            match typeBound {
+              TypeBound::RecordTypeBound(record) => StructKind::Record({properties: ObjectMap.new()})
+              TypeBound::TupleTypeBound(tuple) => StructKind::Tuple({properties: []})
+              _ => throw 'Unreachable'
+            }
           }
           else StructKind::Unit
 
@@ -280,12 +279,13 @@ export fn TypeVisitor(context, file) {
 
           match t.type_.kind {
             TypeKind::Struct({kind: StructKind::Record({properties})}) => {
-              let propertyList: List<(String, Type)> = typeBound.properties.map(|p| (p.name.name, p.typeBound.type_))
-              Object.assign(properties, ObjectMap.fromIter(propertyList))
+              Object.assign(properties, ObjectMap.fromIter(
+                typeBound.getRecordTypeBound().properties.map(|p| (p.name.name, p.typeBound.type_))
+              ))
             }
             TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
               Object.assign(tuple, {
-                properties: typeBound.properties.map(|p| p.type_)
+                properties: typeBound.getTupleTypeBound().properties.map(|p| p.type_).toList()
               })
             }
             _ => {}

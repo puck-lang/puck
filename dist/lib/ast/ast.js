@@ -3,12 +3,17 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Pattern = exports.TypePath = exports.TupleLiteral = exports.StringLiteral = exports.StringLiteralPart = exports.ObjectLiteralMember = exports.ObjectLiteral = exports.NumberLiteral = exports.BooleanLiteral = exports.ListLiteral = exports.ReturnStatement = exports.BreakStatement = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.MemberAccess = exports.IndexAccess = exports.WhileLoop = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.IfLetExpression = exports.IfExpression = exports.ForExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.ImportDirective = exports.ExportDirective = exports.VariableDeclaration = exports.TypeProperty = exports.TypeParameter = exports.TypeDeclaration = exports.TupleTypeBound = exports.ObjectTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TypeBound = exports.TraitDeclaration = exports.SimpleIdentifier = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.Module = exports.ImplShorthandDeclaration = exports.ImplDeclaration = exports.Identifier = exports.FunctionDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Block = exports.CommentNode = exports.Expression = exports.Token = exports.SyntaxKind = undefined;
+exports.Pattern = exports.TypePath = exports.TypeBound = exports.TupleLiteral = exports.StringLiteral = exports.StringLiteralPart = exports.ObjectLiteralMember = exports.ObjectLiteral = exports.NumberLiteral = exports.BooleanLiteral = exports.ListLiteral = exports.ReturnStatement = exports.BreakStatement = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.MemberAccess = exports.IndexAccess = exports.WhileLoop = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.IfLetExpression = exports.IfExpression = exports.ForExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.ImportDirective = exports.ExportDirective = exports.VariableDeclaration = exports.TypeProperty = exports.TypeParameter = exports.TypeDeclaration = exports.TupleTypeBound = exports.RecordTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TraitDeclaration = exports.SimpleIdentifier = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.Module = exports.ImplShorthandDeclaration = exports.ImplDeclaration = exports.Identifier = exports.FunctionDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Block = exports.CommentNode = exports.Expression = exports.Token = exports.SyntaxKind = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _entities = require('./../entities');
 
+var $unwrapTraitObject = function $unwrapTraitObject(obj) {
+  return obj && (obj.$isTraitObject ? obj.value : obj);
+};
 var SyntaxKind = exports.SyntaxKind = function SyntaxKind(object) {
   return object;
 };
@@ -57,16 +62,13 @@ var SimpleIdentifier = exports.SimpleIdentifier = function SimpleIdentifier(obje
 var TraitDeclaration = exports.TraitDeclaration = function TraitDeclaration(object) {
   return object;
 };
-var TypeBound = exports.TypeBound = function TypeBound(object) {
-  return object;
-};
 var FunctionTypeBound = exports.FunctionTypeBound = function FunctionTypeBound(object) {
   return object;
 };
 var NamedTypeBound = exports.NamedTypeBound = function NamedTypeBound(object) {
   return object;
 };
-var ObjectTypeBound = exports.ObjectTypeBound = function ObjectTypeBound(object) {
+var RecordTypeBound = exports.RecordTypeBound = function RecordTypeBound(object) {
   return object;
 };
 var TupleTypeBound = exports.TupleTypeBound = function TupleTypeBound(object) {
@@ -168,17 +170,47 @@ var StringLiteral = exports.StringLiteral = function StringLiteral(object) {
 var TupleLiteral = exports.TupleLiteral = function TupleLiteral(object) {
   return object;
 };
-var TypePath = exports.TypePath = {
-  _Object: function _Object() {
+var TypeBound = exports.TypeBound = {
+  FunctionTypeBound: function FunctionTypeBound() {
     for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
       members[_key] = arguments[_key];
+    }
+
+    return { kind: 'FunctionTypeBound', value: members };
+  },
+  NamedTypeBound: function NamedTypeBound() {
+    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      members[_key2] = arguments[_key2];
+    }
+
+    return { kind: 'NamedTypeBound', value: members };
+  },
+  RecordTypeBound: function RecordTypeBound() {
+    for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      members[_key3] = arguments[_key3];
+    }
+
+    return { kind: 'RecordTypeBound', value: members };
+  },
+  TupleTypeBound: function TupleTypeBound() {
+    for (var _len4 = arguments.length, members = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      members[_key4] = arguments[_key4];
+    }
+
+    return { kind: 'TupleTypeBound', value: members };
+  }
+};
+var TypePath = exports.TypePath = {
+  _Object: function _Object() {
+    for (var _len5 = arguments.length, members = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      members[_key5] = arguments[_key5];
     }
 
     return { kind: '_Object', value: members };
   },
   Member: function Member() {
-    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-      members[_key2] = arguments[_key2];
+    for (var _len6 = arguments.length, members = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+      members[_key6] = arguments[_key6];
     }
 
     return { kind: 'Member', value: members };
@@ -187,45 +219,79 @@ var TypePath = exports.TypePath = {
 var Pattern = exports.Pattern = {
   CatchAll: { kind: 'CatchAll', value: Symbol('CatchAll') },
   Identifier: function Identifier() {
-    for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      members[_key3] = arguments[_key3];
+    for (var _len7 = arguments.length, members = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
+      members[_key7] = arguments[_key7];
     }
 
     return { kind: 'Identifier', value: members };
   },
   Record: function Record() {
-    for (var _len4 = arguments.length, members = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-      members[_key4] = arguments[_key4];
+    for (var _len8 = arguments.length, members = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
+      members[_key8] = arguments[_key8];
     }
 
     return { kind: 'Record', value: members };
   },
   Tuple: function Tuple() {
-    for (var _len5 = arguments.length, members = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-      members[_key5] = arguments[_key5];
+    for (var _len9 = arguments.length, members = Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
+      members[_key9] = arguments[_key9];
     }
 
     return { kind: 'Tuple', value: members };
   },
   RecordType: function RecordType() {
-    for (var _len6 = arguments.length, members = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-      members[_key6] = arguments[_key6];
+    for (var _len10 = arguments.length, members = Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
+      members[_key10] = arguments[_key10];
     }
 
     return { kind: 'RecordType', value: members };
   },
   TupleType: function TupleType() {
-    for (var _len7 = arguments.length, members = Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
-      members[_key7] = arguments[_key7];
+    for (var _len11 = arguments.length, members = Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
+      members[_key11] = arguments[_key11];
     }
 
     return { kind: 'TupleType', value: members };
   },
   UnitType: function UnitType() {
-    for (var _len8 = arguments.length, members = Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
-      members[_key8] = arguments[_key8];
+    for (var _len12 = arguments.length, members = Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
+      members[_key12] = arguments[_key12];
     }
 
     return { kind: 'UnitType', value: members };
   }
+};
+TypeBound.getRecordTypeBound = function getRecordTypeBound() {
+  var self = this;
+  var __PUCK__value__1 = self;
+  var __PUCK__value__2 = __PUCK__value__1;
+  if ($unwrapTraitObject(__PUCK__value__2).kind == "RecordTypeBound") {
+    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+        record = _PUCK__value__2$valu[0];
+
+    return record;
+  } else {
+    var __PUCK__value__3 = __PUCK__value__1;
+    if (true) {
+      var __PUCK__value__4 = __PUCK__value__3;
+      throw "TypeBound is not a RecordTypeBound";
+    };
+  };
+};
+TypeBound.getTupleTypeBound = function getTupleTypeBound() {
+  var self = this;
+  var __PUCK__value__5 = self;
+  var __PUCK__value__6 = __PUCK__value__5;
+  if ($unwrapTraitObject(__PUCK__value__6).kind == "TupleTypeBound") {
+    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+        tuple = _PUCK__value__6$valu[0];
+
+    return tuple;
+  } else {
+    var __PUCK__value__7 = __PUCK__value__5;
+    if (true) {
+      var __PUCK__value__8 = __PUCK__value__7;
+      throw "TypeBound is not a TupleTypeBound";
+    };
+  };
 };

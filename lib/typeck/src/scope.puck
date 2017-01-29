@@ -3,7 +3,6 @@ import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {TypeDeclaration, TypeParameter, TypePath}
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {Binding, Type}
-import 'types.puck' as {getType}
 
 export fn createScope(context, file, parent = false) {
   let reportError = context.reportError.bind(context, file)
