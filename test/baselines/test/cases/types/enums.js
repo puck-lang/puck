@@ -10,6 +10,7 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
+
 var Enum = {
   A: function A(object) {
     return { kind: 'A', value: object };
@@ -24,7 +25,6 @@ var EnumTrait = exports.EnumTrait = {
 EnumTrait['$Enum'] = {
   getB: EnumTrait.getB
 };
-
 var five = (0, _core.Some)(5);
 var nothing = _core.None;
 var maybeFive = _core.Option.Some(5);

@@ -52,35 +52,35 @@ function createFunctionType(scope, f, reportError) {
       token: p
     };
   });
-  var _arguments = _core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3);
+  var parameters = _core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3);
   var __PUCK__value__4 = f.returnType;
   var __PUCK__value__5 = void 0;
   if ($unwrapTraitObject(__PUCK__value__4).kind == "Some") {
     var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
         _returnType = _PUCK__value__4$valu[0];
 
-    __PUCK__value__5 = _returnType.type_;
+    __PUCK__value__5 = _ast.TypeBound.getType.call(_returnType);
   } else {
     __PUCK__value__5 = _js._undefined;
   };
   var returnType = __PUCK__value__5;
   var __PUCK__value__6 = void 0;
-  if (_arguments.length > 0 && $unwrapTraitObject($unwrapTraitObject(_arguments[0]).pattern).kind == "Identifier" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_arguments[0]).pattern).value)[0]).name == "self") {
-    __PUCK__value__6 = (0, _core.Some)($unwrapTraitObject($unwrapTraitObject(_arguments[0]).pattern).binding);
+  if (parameters.length > 0 && $unwrapTraitObject($unwrapTraitObject(parameters[0]).pattern).kind == "Identifier" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(parameters[0]).pattern).value)[0]).name == "self") {
+    __PUCK__value__6 = (0, _core.Some)($unwrapTraitObject($unwrapTraitObject(parameters[0]).pattern).binding);
   } else {
     __PUCK__value__6 = _core.None;
   };
   var selfBinding = __PUCK__value__6;
   var __PUCK__value__7 = void 0;
   if (_core.Option.isSome.call(selfBinding)) {
-    __PUCK__value__7 = $unwrapTraitObject(_arguments).slice(1);
+    __PUCK__value__7 = $unwrapTraitObject(parameters).slice(1);
   } else {
-    __PUCK__value__7 = _arguments;
+    __PUCK__value__7 = parameters;
   };
-  _arguments = __PUCK__value__7;
+  parameters = __PUCK__value__7;
   var __PUCK__value__8 = void 0;
   if (f.parameterList) {
-    __PUCK__value__8 = (0, _range.getRange)(_arguments, function (p) {
+    __PUCK__value__8 = (0, _range.getRange)(parameters, function (p) {
       var vd = $unwrapTraitObject(p).token;
       return _core.Option.isSome.call(vd.initializer);
     }, reportError, "parameter");
@@ -97,8 +97,8 @@ function createFunctionType(scope, f, reportError) {
     }),
     kind: _entities.TypeKind.Function({
       selfBinding: selfBinding,
-      _arguments: _arguments,
-      argumentRange: __PUCK__value__8,
+      parameters: parameters,
+      parameterRange: __PUCK__value__8,
       returnType: returnType,
       isAbstract: _core.Option.isNone.call(f.body)
     }),
@@ -107,7 +107,7 @@ function createFunctionType(scope, f, reportError) {
   };
 };
 function checkFunctionAssignability(functionName, to, subject) {
-  var __PUCK__value__9 = (0, _range.checkRange)(subject._arguments, to.argumentRange, "arguments", functionName);
+  var __PUCK__value__9 = (0, _range.checkRange)(subject.parameters, to.parameterRange, "arguments", functionName);
   if ($unwrapTraitObject(__PUCK__value__9).kind == "Err") {
     var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
         error = _PUCK__value__9$valu[0];
@@ -115,17 +115,17 @@ function checkFunctionAssignability(functionName, to, subject) {
     return (0, _core.Err)(error);
   };
   var errors = [];
-  var __PUCK__value__10 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: subject._arguments, $isTraitObject: true });
+  var __PUCK__value__10 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: subject.parameters, $isTraitObject: true });
   _core.Iterable[__PUCK__value__10.type].forEach.call(__PUCK__value__10, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
-        subjectArgument = _ref2[0],
+        subjectParameter = _ref2[0],
         i = _ref2[1];
 
-    var toArgument = to._arguments[i];
-    if (!(0, _types.isAssignable)(toArgument.type_, subjectArgument.type_)) {
-      return errors.push("Types of parameter #" + i + " does not match. " + _entities.Type.displayName.call(subjectArgument.type_) + " is not assignable to " + _entities.Type.displayName.call(toArgument.type_));
+    var toParameter = to.parameters[i];
+    if (!(0, _types.isAssignable)(toParameter.type_, subjectParameter.type_)) {
+      return errors.push("Types of parameter #" + i + " does not match. " + _entities.Type.displayName.call(subjectParameter.type_) + " is not assignable to " + _entities.Type.displayName.call(toParameter.type_));
     } else {
-      if (subjectArgument.mutable && !toArgument.mutable) {
+      if (subjectParameter.mutable && !toParameter.mutable) {
         return errors.push("Parameter #" + i + " is required to be immutable");
       };
     };

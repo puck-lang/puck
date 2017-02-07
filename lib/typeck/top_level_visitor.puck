@@ -1,40 +1,24 @@
 import 'puck:js' as {Object}
 import '../ast/ast.puck' as {
+  Module
   Expression
 
   Block
+
   EnumDeclaration
-  FunctionDeclaration
-  Identifier
-  Module
-  ObjectDestructure
-  TypeBound
   TraitDeclaration
   TypeDeclaration
-  VariableDeclaration
 
   ExportDirective
   ImportDirective
+  ImportSpecifier
+  ObjectDestructure
 
-  AssignmentExpression
-  BinaryExpression
-  CallExpression
-  ForExpression
-  IfExpression
-  UnaryExpression
-  WhileLoop
+  Identifier
+  FunctionDeclaration
+  VariableDeclaration
 
-  IndexAccess
-  MemberAccess
-
-  Token
-  ReturnStatement
-
-  ListLiteral
-  BooleanLiteral
-  NumberLiteral
-  ObjectLiteral
-  StringLiteral
+  TypeBound
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
@@ -52,7 +36,10 @@ export fn TopLevelVisitor(context, file) {
 
   Object.assign({}, visit.emptyVisitor, {
 
-    visitBlock: |self, b: Block| {}
+    visitModule: |self, mut m: Module| {
+      m.scope = scope
+      visit.walkModule(self, m)
+    }
     visitEnumDeclaration: |self, t: EnumDeclaration| {
       scope.defineType({
         displayName: None
@@ -64,23 +51,6 @@ export fn TopLevelVisitor(context, file) {
         class: TypeClass.fromAstNode(t, reportError)
         instance: None
       }, t)
-    }
-    visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
-      if let Option::Some(name) = f.name then
-        scope.define({
-          name: name.name
-          token: f
-          mutable: false
-        })
-    }
-    visitModule: |self, mut m: Module| {
-      m.scope = scope
-      visit.walkModule(self, m)
-    }
-    visitObjectDestructure: |self, i: ObjectDestructure| {
-      // Allow redeclaration in this pass as we don't yet know if the type or variable scope
-      // should be used for the imported identifiers.
-      i.members.forEach(|m| scope.define({name: m.local.name, mutable: false, token: m}, true))
     }
     visitTraitDeclaration: |self, t: TraitDeclaration| {
       scope.defineType({
@@ -116,20 +86,39 @@ export fn TopLevelVisitor(context, file) {
         instance: None
       }, t)
     }
-    visitVariableDeclaration: |self, d: VariableDeclaration| {
-      variableDeclaration = Some(d)
-      visit.walkVariableDeclaration(self, d)
-      variableDeclaration = None
-    }
 
     visitExportDirective: |self, e: ExportDirective| {
       visit.walkExportDirective(self, e)
     }
     visitImportDirective: |self, i: ImportDirective| {
-      if i.specifier.kind == SyntaxKind.Identifier
-        then scope.define({name: i.specifier.name, mutable: false, token: i})
-      else if i.specifier.kind == SyntaxKind.ObjectDestructure
-        then visit.walkImportDirective(self, i)
+      match i.specifier {
+        ImportSpecifier::Identifier(identifier) => {
+          scope.define({name: identifier.name, mutable: false, token: identifier})
+        }
+        ImportSpecifier::ObjectDestructure(d) => {
+          self.visitObjectDestructure(d)
+        }
+        ImportSpecifier::Asterisk(_) => {}
+      }
+    }
+    visitObjectDestructure: |self, i: ObjectDestructure| {
+      // Allow redeclaration in this pass as we don't yet know if the type or variable scope
+      // should be used for the imported identifiers.
+      i.members.forEach(|m| scope.define({name: m.local.name, mutable: false, token: m}, true))
+    }
+
+    visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
+      if let Option::Some(name) = f.name then
+        scope.define({
+          name: name.name
+          token: f
+          mutable: false
+        })
+    }
+    visitVariableDeclaration: |self, d: VariableDeclaration| {
+      variableDeclaration = Some(d)
+      visit.walkVariableDeclaration(self, d)
+      variableDeclaration = None
     }
 
     visitPattern: visit.walkingVisitor.visitPattern

@@ -48,7 +48,15 @@ let Tuple(a, b, c) = (1, 2)
 
 ///// {c: Num} is not assignable to type Record
 type Record {a: Num, b: Num}
-let Record {c} = {c: 5}
+let Record {a, b} = {c: 5}
+
+// TODO: Make this error
+// type Record {a: Num, b: Num}
+// let Record {a, b, c} = {a: 5, b: 5, c: 5}
+
+///// {c: ??} is not assignable to type Record
+type Record {a: Num, b: Num}
+let Record {c} = {a: 5, b: 5}
 
 ///// non exhaustive pattern
 let Option::Some(value) = Option::Some(5)

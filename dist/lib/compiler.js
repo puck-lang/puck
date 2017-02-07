@@ -82,7 +82,7 @@ function dumpFiles(files, prop) {
     if ((0, _js._typeof)(data) != "string") {
       data = (0, _util.inspect)(data, {
         colors: false,
-        depth: 10
+        depth: 25
       });
     };
     return (0, _core.print)($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(data).split("\n")).map(function (line) {
@@ -182,7 +182,7 @@ function createContext() {
     reportError: function reportError(file, token, message) {
       var self = this;
       if (!ignoreErrors) {
-        throw Error("" + message + "\n  in " + $unwrapTraitObject(file).absolutePath);
+        throw (0, _js.Error)("" + message + "\n  in " + file.absolutePath);
       };
     }
   };
@@ -207,8 +207,8 @@ function buildString(code, filePath) {
 function build(files) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-  var dump = $unwrapTraitObject(options).dump;
-  var context = createContext($unwrapTraitObject(options).ignoreErrors);
+  var dump = options.dump;
+  var context = createContext(options.ignoreErrors);
   files = $unwrapTraitObject(files).map(function (f) {
     var fileName = $unwrapTraitObject(path).basename($unwrapTraitObject(f).file);
     var absolutePath = $unwrapTraitObject(path).resolve($unwrapTraitObject(path).normalize($unwrapTraitObject(f).file));

@@ -3,6 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.createScope = createScope;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -62,18 +65,50 @@ function createScope(context, file) {
     },
     getTypePath: function getTypePath(typePath) {
       var self = this;
-      if (typePath.kind == "Member") {
-        return $unwrapTraitObject(self).getTypeBinding($unwrapTraitObject($unwrapTraitObject(typePath.value)[0]).name);
+      var __PUCK__value__1 = typePath;
+      var __PUCK__value__2 = __PUCK__value__1;
+      if ($unwrapTraitObject(__PUCK__value__2).kind == "Member") {
+        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+            name = _PUCK__value__2$valu[0].name;
+
+        return $unwrapTraitObject(self).getTypeBinding(name);
       } else {
-        var type_ = $unwrapTraitObject($unwrapTraitObject(self).getTypeBinding($unwrapTraitObject($unwrapTraitObject(typePath.value)[0]).name)).type_;
-        var path = $unwrapTraitObject(typePath.value)[1];
-        while ($unwrapTraitObject(path).kind == "Object") {
-          type_ = $unwrapTraitObject($unwrapTraitObject(type_).members)[$unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(path).value)[0]).name)];
-          path = $unwrapTraitObject($unwrapTraitObject(path).value)[1];
-        };
-        return {
-          name: $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(path).value)[0]).name,
-          type_: $unwrapTraitObject($unwrapTraitObject(type_).members)[$unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(path).value)[0]).name)]
+        var __PUCK__value__3 = __PUCK__value__1;
+        if ($unwrapTraitObject(__PUCK__value__3).kind == "_Object") {
+          var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 2),
+              _name = _PUCK__value__3$valu[0].name,
+              path = _PUCK__value__3$valu[1];
+
+          var name_ = _name;
+          var path_ = path;
+          var type_ = $unwrapTraitObject($unwrapTraitObject(self).getTypeBinding(_name)).type_;
+          while (true) {
+            var __PUCK__value__4 = path_;
+            var __PUCK__value__5 = __PUCK__value__4;
+            if ($unwrapTraitObject(__PUCK__value__5).kind == "Member") {
+              var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
+                  _name2 = _PUCK__value__5$valu[0].name;
+
+              name_ = _name2;
+              type_ = _entities.Type.getEnum.call(type_).members[_name2];
+              break;
+            } else {
+              var __PUCK__value__6 = __PUCK__value__4;
+              if ($unwrapTraitObject(__PUCK__value__6).kind == "_Object") {
+                var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 2),
+                    _name3 = _PUCK__value__6$valu[0].name,
+                    _path = _PUCK__value__6$valu[1];
+
+                name_ = _name3;
+                path_ = _path;
+                type_ = _entities.Type.getEnum.call(type_).members[_name3];
+              };
+            };
+          };
+          return {
+            name: name_,
+            type_: type_
+          };
         };
       };
     },

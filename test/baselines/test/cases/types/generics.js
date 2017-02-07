@@ -5,7 +5,6 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 var User = function User(object) {
   return object;
 };
-
 var argv = [];
 var __PUCK__value__1 = _core.Iterable['$List<E>'].skipUntil.call({ type: '$List<E>', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "puck");

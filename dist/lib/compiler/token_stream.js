@@ -9,7 +9,9 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
-var _ast = require('./ast');
+var _ast = require('./../ast/ast');
+
+var _ast2 = require('./ast');
 
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
@@ -18,7 +20,7 @@ function TokenStream(input) {
   var current = _js._null;
   var currentDummy = _js._null;
   var inImport = false;
-  var longestOperator = $unwrapTraitObject(_ast.operators).reduce(function (longest, curr) {
+  var longestOperator = $unwrapTraitObject(_ast2.operators).reduce(function (longest, curr) {
     if ($unwrapTraitObject(curr).length > longest) {
       return $unwrapTraitObject(curr).length;
     } else {
@@ -35,7 +37,7 @@ function TokenStream(input) {
         break;
       };
       searchString += ch;
-      var hasMatches = $unwrapTraitObject($unwrapTraitObject(_ast.operators).filter(function (token) {
+      var hasMatches = $unwrapTraitObject($unwrapTraitObject(_ast2.operators).filter(function (token) {
         if ($unwrapTraitObject(token).length < length) {
           return false;
         } else {
@@ -49,13 +51,13 @@ function TokenStream(input) {
         break;
       };
     };
-    if ($unwrapTraitObject(_ast.textToToken)[$unwrapTraitObject(found)]) {
+    if ($unwrapTraitObject(_ast2.textToToken)[$unwrapTraitObject(found)]) {
       var i = 0;
       while (i < length) {
         $unwrapTraitObject(input).next();
         i += 1;
       };
-      return { kind: $unwrapTraitObject(_ast.textToToken)[$unwrapTraitObject(found)] };
+      return { kind: $unwrapTraitObject(_ast2.textToToken)[$unwrapTraitObject(found)] };
     };
   };
   function isDigit(ch) {
@@ -98,7 +100,7 @@ function TokenStream(input) {
       };
     });
     return {
-      kind: $unwrapTraitObject(_ast.SyntaxKind).NumberLiteral,
+      kind: $unwrapTraitObject(_ast2.SyntaxKind).NumberLiteral,
       value: $unwrapTraitObject(_js.global).parseFloat(number)
     };
   };
@@ -106,17 +108,17 @@ function TokenStream(input) {
     var id = readWhile(isId);
     if (id == "import") {
       inImport = true;
-      return { kind: $unwrapTraitObject(_ast.SyntaxKind).ImportKeyword };
+      return { kind: $unwrapTraitObject(_ast2.SyntaxKind).ImportKeyword };
     } else {
       if (id == "as") {
         inImport = false;
-        return { kind: $unwrapTraitObject(_ast.SyntaxKind).AsKeyword };
+        return { kind: $unwrapTraitObject(_ast2.SyntaxKind).AsKeyword };
       } else {
-        if ($unwrapTraitObject(_ast.textToToken)[id] != _js._undefined) {
-          return { kind: $unwrapTraitObject(_ast.textToToken)[id] };
+        if ($unwrapTraitObject(_ast2.textToToken)[id] != _js._undefined) {
+          return { kind: $unwrapTraitObject(_ast2.textToToken)[id] };
         } else {
           return {
-            kind: $unwrapTraitObject(_ast.SyntaxKind).Identifier,
+            kind: $unwrapTraitObject(_ast2.SyntaxKind).Identifier,
             name: id
           };
         };
@@ -171,7 +173,7 @@ function TokenStream(input) {
         } else {
           if (ch == "$" && isIdStart($unwrapTraitObject(input).peek()) && !inImport) {
             parts.push({
-              kind: $unwrapTraitObject(_ast.SyntaxKind).StringLiteralPart,
+              kind: $unwrapTraitObject(_ast2.SyntaxKind).StringLiteralPart,
               value: str
             });
             parts.push(readIdent());
@@ -187,11 +189,11 @@ function TokenStream(input) {
       };
     };
     parts.push({
-      kind: $unwrapTraitObject(_ast.SyntaxKind).StringLiteralPart,
+      kind: $unwrapTraitObject(_ast2.SyntaxKind).StringLiteralPart,
       value: str
     });
     return {
-      kind: $unwrapTraitObject(_ast.SyntaxKind).StringLiteral,
+      kind: $unwrapTraitObject(_ast2.SyntaxKind).StringLiteral,
       parts: parts
     };
   };
@@ -204,7 +206,7 @@ function TokenStream(input) {
     });
     $unwrapTraitObject(input).next();
     return {
-      kind: $unwrapTraitObject(_ast.SyntaxKind).Comment,
+      kind: $unwrapTraitObject(_ast2.SyntaxKind).Comment,
       text: comment
     };
   };
@@ -216,7 +218,7 @@ function TokenStream(input) {
     var ch = $unwrapTraitObject(input).peek();
     if (isNewline(ch)) {
       $unwrapTraitObject(input).next();
-      return { kind: $unwrapTraitObject(_ast.SyntaxKind).NewlineToken };
+      return { kind: $unwrapTraitObject(_ast2.SyntaxKind).NewlineToken };
     };
     if (ch == "/" && $unwrapTraitObject(input).peek(1) == "/") {
       return readComment();
@@ -240,7 +242,7 @@ function TokenStream(input) {
     if (!token) {
       return false;
     };
-    return $unwrapTraitObject(token).kind == $unwrapTraitObject(_ast.SyntaxKind).NewlineToken || $unwrapTraitObject(token).kind == $unwrapTraitObject(_ast.SyntaxKind).Comment;
+    return $unwrapTraitObject(token).kind == $unwrapTraitObject(_ast2.SyntaxKind).NewlineToken || $unwrapTraitObject(token).kind == $unwrapTraitObject(_ast2.SyntaxKind).Comment;
   };
   function peek() {
     var returnDummy = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;

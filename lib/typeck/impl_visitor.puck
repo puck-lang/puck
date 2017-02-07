@@ -1,44 +1,21 @@
 import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
+  Module
+  TopLevelStatement
   Expression
 
-  Block
-  FunctionDeclaration
-  Identifier
   ImplDeclaration
   ImplShorthandDeclaration
-  Module
-  ObjectDestructure
-  TypeBound
-  FunctionTypeBound
-  NamedTypeBound
   TraitDeclaration
   TypeDeclaration
-  TypeParameter
-  VariableDeclaration
 
-  ExportDirective
   ImportDirective
+  ImportSpecifier
+  ObjectDestructure
+  ExportDirective
+  ExportedStatement
 
-  AssignmentExpression
-  BinaryExpression
-  CallExpression
-  ForExpression
-  IfExpression
-  UnaryExpression
-  WhileLoop
-
-  IndexAccess
-  MemberAccess
-
-  Token
-  ReturnStatement
-
-  ListLiteral
-  BooleanLiteral
-  NumberLiteral
-  ObjectLiteral
-  StringLiteral
+  TypeBound
 }
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
@@ -153,6 +130,19 @@ export fn ImplVisitor(context, file) {
   Object.assign({}, visit.emptyVisitor, structureVisitor, {
     reportError
 
+    visitModule: |mut self, mut m: Module| {
+      self.scope = m.scope
+      // visit.walkModule(self, m)
+      m.statements
+        .filter(|e: TopLevelStatement| match e {
+          // TopLevelStatement::ImportDirective(_) => true
+          TopLevelStatement::ImplDeclaration(_) => true
+          TopLevelStatement::ImplShorthandDeclaration(_) => true
+          _ => false
+        })
+        .forEach(|s| self.visitTopLevelStatement(s))
+    }
+
     visitImplDeclaration: |mut self, mut i: ImplDeclaration| {
       self.scope = self.scope.createChild()
       i.scope = self.scope
@@ -160,8 +150,8 @@ export fn ImplVisitor(context, file) {
       self.visitTypeBound(i.trait_)
       self.visitTypeBound(i.type_)
 
-      let traitType: Type = i.trait_.type_
-      let structType: Type = i.type_.type_
+      let traitType = i.trait_.getType()
+      let structType = i.type_.getType()
       self.scope.setSelfBinding(structType.name.unwrap())
       i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
 
@@ -182,7 +172,7 @@ export fn ImplVisitor(context, file) {
       i.typeParameters.forEach(self.visitTypeParameter.bind(self))
       self.visitTypeBound(i.type_)
 
-      let structType: Type = i.type_.type_
+      let structType = i.type_.getType()
       self.scope.setSelfBinding(structType.name.unwrap())
       i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
 
@@ -193,46 +183,6 @@ export fn ImplVisitor(context, file) {
       }
 
       self.scope = self.scope.parent
-    }
-    visitModule: |mut self, mut m: Module| {
-      self.scope = m.scope
-      m.expressions
-        .filter(|e|
-          e.kind == SyntaxKind.ImportDirective or
-          e.kind == SyntaxKind.ImplDeclaration or
-          e.kind == SyntaxKind.ImplShorthandDeclaration
-        )
-        .forEach(self.visitExpression.bind(self))
-    }
-    visitObjectDestructure: |self, mut i: ObjectDestructure| {
-      i.members.forEach(|m| {
-        if importDirective.module {
-          let e = importDirective.module.exports[m.local.name]
-          if e.expression.kind == SyntaxKind.TraitDeclaration
-            {
-              // Get the from the imported module again as it may have been missing during the
-              // TypeVisitor pass depending on file order
-              let mut binding = self.scope.getTypeBinding(m.local.name)
-              binding.type_ = e.expression.type_
-              let mut binding = self.scope.getBinding(m.local.name)
-              binding.type_ = e.expression.type_
-            }
-          if e.expression.kind == SyntaxKind.TypeDeclaration
-            {
-              // Get the from the imported module again as it may have been missing during the
-              // TypeVisitor pass depending on file order
-              let mut binding = self.scope.getTypeBinding(m.local.name)
-              binding.type_ = e.expression.type_
-            }
-        }
-      })
-    }
-
-    visitImportDirective: |self, mut i: ImportDirective| {
-      if i.specifier.kind == SyntaxKind.ObjectDestructure {
-        importDirective = i
-        visit.walkImportDirective(self, i)
-      }
     }
   })
 }

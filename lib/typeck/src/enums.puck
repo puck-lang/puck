@@ -1,9 +1,11 @@
+import 'puck:js' as {Error}
 import '../../ast/ast.puck' as {
+  Expression
   TypePath
   Pattern
   MatchExpression
 }
-import '../../entities.puck' as {Enum, Type, TypeKind}
+import '../../entities.puck' as {Enum, Scope, Type, TypeKind}
 
 fn isIndividuallyExhaustive(p: Pattern) {
   match p {
@@ -14,6 +16,18 @@ fn isIndividuallyExhaustive(p: Pattern) {
     Pattern::Tuple(tuple) => tuple.properties.every(isIndividuallyExhaustive)
     Pattern::TupleType(_, tuple) => tuple.properties.every(isIndividuallyExhaustive)
     Pattern::UnitType(_) => true
+  }
+}
+
+export fn getEnumType(typePath: TypePath, scope: Scope) -> Option<Type> {
+  match typePath {
+    TypePath::Member(_) => None
+    TypePath::Object({name}, _) => {
+      let type_ = scope.getTypeBinding(name).type_
+      if type_.isEnum()
+        then Some(type_)
+        else None
+    }
   }
 }
 
@@ -52,8 +66,8 @@ fn isEnumArm(p: Pattern) {
 }
 
 export fn checkExhaustive(e: MatchExpression) -> Result<(), String> {
-  if let TypeKind::Enum(enum_) = e.expression.type_.kind {
-    checkExhaustiveEnum(e.patterns.map(|a| a.pattern), e.expression.type_, enum_)
+  if let TypeKind::Enum(enum_) = e.expression.getType().kind {
+    checkExhaustiveEnum(e.patterns.map(|a| a.pattern), e.expression.getType(), enum_, e.scope)
   }
   else Ok(())
 }
@@ -66,7 +80,7 @@ fn getSubPatterns(pattern: Pattern) -> List<Pattern> {
   }
 }
 
-fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum) -> Result<(), String> {
+fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, scope: Scope) -> Result<(), String> {
   let typeName = type_.displayName()
   let mut exhaustiveMap = ObjectMap.new()
   let mut enumArmsMap = ObjectMap.new()
@@ -107,27 +121,26 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum) ->
       .filter(|(pattern, _)| isEnumPattern(pattern))
       .map(|(pattern, index)| {
         let p: Pattern = pattern
-        let type_: Type = match p {
-          Pattern::RecordType(typePath, _) => typePath.type_
-          Pattern::TupleType(typePath, _) => typePath.type_
-          Pattern::UnitType(typePath) => typePath.type_
+        let type_: Option<Type> = match p {
+          Pattern::RecordType(typePath, _) => getEnumType(typePath, scope)
+          Pattern::TupleType(typePath, _) => getEnumType(typePath, scope)
+          Pattern::UnitType(typePath) => getEnumType(typePath, scope)
           _ => throw 'Invalid pattern'
         }
-        if not type_
-          then throw 'no type'
-        let enum_ = if let TypeKind::Enum(enum_) = type_.kind
-          then enum_
-          else throw 'Not an enum'
+        let enum_ =
+          if let Option::Some(type_) = type_
+            then type_.getEnum()
+            else throw 'no type'
 
         let subPatterns = patterns
           .map(getSubPatterns)
           .map(|subPatterns| subPatterns[index]);
 
-        (type_, enum_, subPatterns)
+        (type_.unwrap(), enum_, subPatterns)
       })
 
     let errors = enumPatterns
-      .map(|(type_, enum_, subPatterns): (Type, Enum, List<Pattern>)| checkExhaustiveEnum(subPatterns, type_, enum_))
+      .map(|(type_, enum_, subPatterns): (Type, Enum, List<Pattern>)| checkExhaustiveEnum(subPatterns, type_, enum_, scope))
       .filter(|result: Result<(), String>| result.isErr())
 
     innerErrors = innerErrors.concat(errors)

@@ -7,7 +7,7 @@ export class Type {
     kind: string
     value: [{
       functions: {[name: string]: Type}
-      _arguments: Array<{type_: Type}>
+      parameters: Array<{type_: Type}>
       selfBinding: Option<{type_: Type}>
       kind: Record | Tuple | {kind: 'Unit'}
       returnType: Type

@@ -90,7 +90,7 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
   let implementations =
     if implementations.length > 1
       then implementations
-        .filter(|i| asType(asType(i.trait_).getTrait().functions[functionName]).getFunction().argumentRange
+        .filter(|i| asType(asType(i.trait_).getTrait().functions[functionName]).getFunction().parameterRange
           .contains(e.argumentList.length)
         )
       else implementations

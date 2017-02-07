@@ -41,7 +41,6 @@ Food['$Banana'] = {
     return self;
   }
 };
-
 var apple = { name: "apple" };
 var banana = { name: "banana" };
 var apple2 = { type: '$Apple', value: apple, $isTraitObject: true };

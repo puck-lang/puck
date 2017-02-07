@@ -1,4 +1,4 @@
-import 'puck:js' as {console, process, typeof}
+import 'puck:js' as {Error, console, process, typeof}
 import '../entities.puck' as {UnparsedFile}
 
 export fn InputStream(file: UnparsedFile) {
