@@ -23,7 +23,6 @@ var Enum = {
     return { kind: 'A', value: members };
   }
 };
-
 var a = 1;
 var b = 2,
     c = 3;
@@ -63,11 +62,6 @@ var _a$b = {
 
 var p = 1,
     q = 2;
-var _a$b2 = {
-  a: 1,
-  b: 2
-},
-    r = _a$b2.a;
 
 var _Enum$A = Enum.A(1),
     _Enum$A$value = _slicedToArray(_Enum$A.value, 1),

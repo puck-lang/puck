@@ -23,10 +23,11 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = 
   if not type_ then return type_
 
   if let Option::Some(instance) = type_.instance {
+    let mut i = instance
     let typeParameters: List<Type> = instance.typeParameters
     if typeParameters.any(|parameter| parameter.isParameter()) {
       return createTypeInstance(
-        instance.class
+        i.class
         typeParameters
           .map(|p|
             if p.isParameter()
@@ -43,7 +44,10 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = 
 
    let resolvedKind = match type_.kind {
     TypeKind::Enum(enum_) => TypeKind::Enum(resolveTypeParametersEnum(parameterMap, enum_))
-    TypeKind::Function(func) => TypeKind::Function(resolveTypeParametersFn(parameterMap, func))
+    TypeKind::Function(func) => {
+      let mut f = func
+      TypeKind::Function(resolveTypeParametersFn(parameterMap, f))
+    }
     TypeKind::Parameter => return parameterMap.get(type_.name.unwrap()).unwrapOr(type_)
     TypeKind::Struct(struct) => TypeKind::Struct(resolveTypeParametersStruct(parameterMap, struct))
     TypeKind::Trait(trait_) => TypeKind::Trait(resolveTypeParametersTrait(parameterMap, trait_))
@@ -61,9 +65,9 @@ fn resolveTypeParametersEnum(parameterMap: ObjectMap<Type>, e: Enum) {
   })
 }
 
-fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, func: Function) {
+fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, mut func: Function) {
   assign(func, {
-    arguments: func.arguments.map(|binding| assign(binding, {
+    parameters: func.parameters.map(|mut binding| assign(binding, {
       type_:
         if binding.type_
           then resolveTypeParameters(parameterMap, false)(binding.type_)
@@ -158,7 +162,7 @@ export fn getType(scope: Scope, t: TypeBound) {
 
     }
     TypeBound::NamedTypeBound(t) => {
-      let binding = scope.getTypePath(t.path)
+      let mut binding = scope.getTypePath(t.path)
 
       if not binding
         then binding
@@ -182,6 +186,9 @@ fn isSameName(to: Type, subject: Type) {
 }
 
 export fn isAssignable(to: Type, subject: Type) {
+  if to and not subject {
+    if let TypeKind::Trait(_) = to.kind then return false
+  }
   if not subject or not to then return true
   if to == subject then return true
 
@@ -231,11 +238,11 @@ fn isEnumAssignable(to: Enum, subject: Enum) {
 }
 
 fn isFunctionAssignable(to: Function, subject: Function) {
-  if not to.argumentRange.isSubsetOf(subject.argumentRange)
+  if not to.parameterRange.isSubsetOf(subject.parameterRange)
     then return false
 
-  to.arguments.enumerate().all(|(toArg, i)|
-    isAssignable(toArg.type_, subject.arguments[i].type_)
+  to.parameters.enumerate().all(|(toArg, i)|
+    isAssignable(toArg.type_, subject.parameters[i].type_)
   )
 }
 

@@ -232,7 +232,7 @@ export function isBlock(token: Token): token is BlockNode {
   return token.kind === SyntaxKind.Block
 }
 
-export function isExport(token: Token): token is ExportDirective {
+export function isExport(token): token is ExportDirective {
   return token.kind === SyntaxKind.ExportDirective
 }
 
@@ -258,19 +258,41 @@ export type Option<T>
     }
 
 export interface Token {
-  kind: SyntaxKind
-}
-
-export interface Expression extends Token {
+  kind?: SyntaxKind
   type_?: Type
 }
+
+export type Expression
+  = {kind: 'Identifier', value: [Identifier]}
+  | {kind: 'ThrowStatement', value: [any]}
+  | {kind: 'FunctionDeclaration', value: [FunctionDeclaration]}
+  | {kind: 'VariableDeclaration', value: [VariableDeclaration]}
+
+  | {kind: 'AssignmentExpression', value: [AssignmentExpression]}
+  | {kind: 'BinaryExpression', value: [BinaryExpression]}
+  | {kind: 'CallExpression', value: [CallExpression]}
+  | {kind: 'IfExpression', value: [IfExpression]}
+  | {kind: 'IfLetExpression', value: [IfLetExpression]}
+  | {kind: 'MatchExpression', value: [MatchExpression]}
+  | {kind: 'TypePathExpression', value: [TypePathExpression]}
+  | {kind: 'UnaryExpression', value: [UnaryExpression]}
+
+  | {kind: 'IndexAccess', value: [IndexAccess]}
+  | {kind: 'MemberAccess', value: [MemberAccess]}
+
+  | {kind: 'BooleanLiteral', value: [BooleanLiteral]}
+  | {kind: 'ListLiteral', value: [ListLiteral]}
+  | {kind: 'NumberLiteral', value: [NumberLiteral]}
+  | {kind: 'RecordLiteral', value: [ObjectLiteral]}
+  | {kind: 'StringLiteral', value: [StringLiteral]}
+  | {kind: 'TupleLiteral', value: [TupleLiteral]}
 
 export interface CommentNode extends Token {
   text: string
 }
 
 export interface BlockNode extends Token {
-  expressions: Array<Expression>
+  statements: Array<BlockLevelStatement>
 }
 
 export interface EnumDeclaration extends Token {
@@ -280,7 +302,7 @@ export interface EnumDeclaration extends Token {
   members: Array<TypeDeclaration>
 }
 
-export interface FunctionDeclaration extends Expression {
+export interface FunctionDeclaration extends Token {
   name: Option<Identifier>
   parameterList: Array<VariableDeclaration>
   returnType: Option<TypeBound>
@@ -289,17 +311,17 @@ export interface FunctionDeclaration extends Expression {
   traitFunctionType: Type
 }
 
-export interface Identifier extends SimpleIdentifier, Expression {
+export interface Identifier extends SimpleIdentifier {
   name: string
 }
 
-export interface ImplDeclaration extends Token {
+export interface ImplDeclaration {
   trait_: TypeBound
   type_: TypeBound
   members: Array<FunctionDeclaration>
 }
 
-export interface ImplShorthandDeclaration extends Token {
+export interface ImplShorthandDeclaration {
   type_: TypeBound
   members: Array<FunctionDeclaration>
 }
@@ -308,8 +330,24 @@ export interface Module extends Token {
   fileName: string
   path: string
   exports: {[name: string]: ExportDirective}
-  expressions: Array<Token>
+  statements: Array<
+    {kind: 'EnumDeclaration', value: [EnumDeclaration]} |
+    {kind: 'TypeDeclaration', value: [TypeDeclaration]} |
+    {kind: 'ImplDeclaration', value: [ImplDeclaration]} |
+    {kind: 'ImplShorthandDeclaration', value: [ImplShorthandDeclaration]} |
+    {kind: 'BlockLevelStatement', value: [BlockLevelStatement]} |
+    {kind: 'TraitDeclaration', value: [TraitDeclaration]}
+  | {kind: 'ImportDirective', value: [ImportDirective]}
+  | {kind: 'ExportDirective', value: [ExportDirective]}
+  >
 }
+
+export type BlockLevelStatement
+  = {kind: 'Block', value: [BlockNode]}
+  | {kind: 'BreakStatement', value: [BreakStatement]}
+  | {kind: 'ReturnStatement', value: [ReturnStatement]}
+  | {kind: 'WhileLoop', value: [WhileLoop]}
+  | {kind: 'Expression', value: [Expression]}
 
 export interface ObjectDestructure extends Token {
   openBrace: Token
@@ -331,16 +369,16 @@ export interface TraitDeclaration extends Token {
   members: Array<FunctionDeclaration>
 }
 
-export interface TypeBound {
-  kind: string
+export type TypeBound = {
+  kind: 'NamedTypeBound'|'RecordTypeBound'|'TupleTypeBound',
   value: [{
     path: TypePath
     typeParameters: Array<TypeBound>
+    type_: Type
   }]
-  type_: Type
 }
 
-export interface TypeDeclaration extends Token {
+export interface TypeDeclaration {
   keyword: Token
   name: Identifier
   typeParameters: Array<TypeParameter>
@@ -377,11 +415,17 @@ export interface VariableDeclaration extends Token {
   typeBound: Option<TypeBound>
   initializer: Option<Expression>
   type_?: Type
+  scope: any
 }
 
 export interface ExportDirective extends Token {
   keyword: Token
-  expression: VariableDeclaration|FunctionDeclaration|TraitDeclaration|TypeDeclaration|EnumDeclaration
+  statement:
+    {kind: 'VariableDeclaration', value: [VariableDeclaration]} |
+    {kind: 'FunctionDeclaration', value: [FunctionDeclaration]} |
+    {kind: 'TraitDeclaration', value: [TraitDeclaration]} |
+    {kind: 'TypeDeclaration', value: [TypeDeclaration]} |
+    {kind: 'EnumDeclaration', value: [EnumDeclaration]}
   identifier: Identifier
 }
 
@@ -390,8 +434,12 @@ export interface ImportDirective extends Token {
   domain: Option<string>
   path: string
   asKeyword: Token
-  specifier: Identifier|ObjectDestructure
+  specifier: ImportSpecifier
 }
+
+export type ImportSpecifier
+  = {kind: 'ObjectDestructure', value: [ObjectDestructure]}
+  | {kind: 'Identifier', value: [Identifier]}
 
 export interface IdentifierPatternArm {
   kind: 'Identifier'
@@ -437,19 +485,19 @@ export interface TuplePattern extends Token {
   properties: Array<Pattern>
 }
 
-export interface AssignmentExpression extends Expression {
-  lhs: Identifier|MemberAccess|IndexAccess
+export interface AssignmentExpression extends Token {
+  lhs: Expression
   token: Token
   rhs: Expression
 }
 
-export interface BinaryExpression extends Expression {
+export interface BinaryExpression extends Token {
   lhs: Expression
   operator: Token
   rhs: Expression
 }
 
-export interface CallExpression extends Expression {
+export interface CallExpression extends Token {
   func: Expression
   openParen: Token
   argumentList: Array<Expression>
@@ -494,7 +542,7 @@ export interface TypePathExpression extends Token {
   typePath: TypePath,
 }
 
-export interface UnaryExpression extends Expression {
+export interface UnaryExpression extends Token {
   operator: Token
   rhs: Expression
 }
@@ -504,12 +552,12 @@ export interface WhileLoop extends Token {
   body: BlockNode,
 }
 
-export interface IndexAccess extends Expression {
+export interface IndexAccess extends Token {
   object: Expression
   index: Expression
 }
 
-export interface MemberAccess extends Expression {
+export interface MemberAccess extends Token {
   object: Expression
   member: Identifier
 }
@@ -523,19 +571,19 @@ export interface ReturnStatement extends Token {
   expression: Expression
 }
 
-export interface BooleanLiteral extends Expression {
+export interface BooleanLiteral extends Token {
   value: boolean
 }
 
-export interface ListLiteral extends Expression {
+export interface ListLiteral extends Token {
   members: Array<Expression>
 }
 
-export interface NumberLiteral extends Expression {
+export interface NumberLiteral extends Token {
   value: number
 }
 
-export interface ObjectLiteral extends Expression {
+export interface ObjectLiteral extends Token {
   members: Array<ObjectLiteralMember>
 }
 
@@ -544,14 +592,14 @@ export interface ObjectLiteralMember extends Token {
   value: Expression
 }
 
-export interface StringLiteralPart extends Expression {
+export interface StringLiteralPart extends Token {
   value: string
 }
 
-export interface StringLiteral extends Expression {
+export interface StringLiteral extends Token {
   parts: Array<StringLiteralPart|Identifier>
 }
 
-export interface TupleLiteral extends Expression {
+export interface TupleLiteral extends Token {
   expressions: Array<Expression>
 }

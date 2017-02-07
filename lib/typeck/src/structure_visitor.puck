@@ -1,6 +1,8 @@
 import 'puck:js' as {Error, Object, undefined}
 import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {
+  Expression
+
   FunctionDeclaration
   Identifier
   TypeParameter
@@ -18,13 +20,14 @@ import '../../ast/ast.puck' as {
   BooleanLiteral
   ListLiteral
   NumberLiteral
-  ObjectLiteral
+  RecordLiteral
   StringLiteral
   TupleLiteral
 }
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
+  Enum
   Scope
   StructKind
   Type
@@ -55,8 +58,8 @@ export let structureVisitor = {
       f.typeParameters.forEach(self.visitTypeParameter.bind(self))
       f.parameterList.enumerate().forEach(|(p, i)| {
         let type_ =
-          if assignedTo and assignedTo.arguments[i] then assignedTo.arguments[i].type_
-        self.visitFunctionParameter(p, type_)
+          if assignedTo and assignedTo.parameters[i] then assignedTo.parameters[i].type_
+        self.visitVariableDeclaration(p, undefined, type_)
       })
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
 
@@ -81,17 +84,16 @@ export let structureVisitor = {
 
       if let Option::Some(first) = f.parameterList.first() {
         if let Pattern::Identifier({name}) = first.pattern {
-          let type_: Option<TypeBound> = first.typeBound
           if name == 'self' {
-            if type_.isNone() {
+            let selfTypeBound: Option<TypeBound> = first.typeBound
+            if selfTypeBound.isNone() {
               f.parameterList[0].typeBound = Some(TypeBound::NamedTypeBound({
-                kind: SyntaxKind.NamedTypeBound
                 path: TypePath::Member({name: 'Self'})
                 typeParameters: []
               }))
             }
             else {
-              self.visitFunctionParameter(first)
+              self.visitVariableDeclaration(first)
               if not isAssignable(first.type_, selfType)
                 then self.reportError(first, notAssignableError(first.type_, selfType))
             }
@@ -99,7 +101,7 @@ export let structureVisitor = {
         }
       }
 
-      f.parameterList.forEach(|p| self.visitFunctionParameter(p))
+      f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
 
       f.type_ = createFunctionType(f.scope, f, self.reportError)
@@ -107,20 +109,11 @@ export let structureVisitor = {
       self.scope = f.scope.parent
     }
   }
-  visitFunctionParameter: |self, mut v: VariableDeclaration, type_| {
-    self.visitVariableDeclaration(v, self.visitLiteral.bind(self), type_)
-  }
-  visitTypeBound: |self, mut t_: TypeBound| {
-    if not t_.scope {
-      t_.scope = self.scope
-      visit.walkTypeBound(self, t_)
-      match t_ {
-        TypeBound::FunctionTypeBound(t) => t_.type_ = t.type_
-        TypeBound::NamedTypeBound(t) => t_.type_ = t.type_
-        TypeBound::RecordTypeBound(t) => t_.type_ = t.type_
-        TypeBound::TupleTypeBound(t) => t_.type_ = t.type_
-      }
-    }
+  // visitFunctionParameter: |self, mut v: VariableDeclaration, type_| {
+  //   self.visitVariableDeclaration(v, self.visitLiteral.bind(self), type_)
+  // }
+  visitTypeBound: |self, mut t: TypeBound| {
+    visit.walkTypeBound(self, t)
   }
   visitFunctionTypeBound: |mut self, mut t: FunctionTypeBound| {
     if not t.scope {
@@ -128,16 +121,23 @@ export let structureVisitor = {
       t.scope = self.scope
 
       visit.walkFunctionTypeBound(self, t)
-      let arguments = t.arguments.properties
+      let parameters = t.parameters.properties
+        .enumerate()
+        .map(|(t, i): (TypeBound, Num)| {{
+          name: '$i'
+          mutable: false
+          type_: t.getType()
+        }})
+        .toList()
 
       t.type_ = {
         displayName: None
         name: None
         kind: TypeKind::Function({
           selfBinding: None
-          arguments
-          argumentRange: {start: arguments.length, end: arguments.length + 1}
-          returnType: t.returnType.type_
+          parameters
+          parameterRange: {start: parameters.length, end: parameters.length + 1}
+          returnType: t.returnType.getType()
           isAbstract: false
         })
         class: TypeClass.fromAstNode(t, || {})
@@ -188,7 +188,7 @@ export let structureVisitor = {
 
       t.type_ =
         if type_.class.isSome()
-          then createTypeInstance(type_, t.typeParameters.map(|p| p.type_))
+          then createTypeInstance(type_, t.typeParameters.map(|typeBound| typeBound.getType()))
           else type_
     }
   }
@@ -206,7 +206,7 @@ export let structureVisitor = {
           kind: StructKind::Record({
             properties: ObjectMap.fromIter(t.properties.map(|member| (
               member.name.name
-              member.typeBound.type_
+              member.typeBound.getType()
             )))
           })
         })
@@ -215,6 +215,7 @@ export let structureVisitor = {
       }
     }
   }
+  visitRecordTypeBoundMember: visit.walkingVisitor.visitRecordTypeBoundMember,
   visitTupleTypeBound: |self, mut t: TupleTypeBound| {
     if not t.scope {
       t.scope = self.scope
@@ -226,7 +227,7 @@ export let structureVisitor = {
         name: None
         kind: TypeKind::Struct({
           implementations: []
-          kind: StructKind::Tuple({properties: t.properties.map(|p| p.type_).toList()})
+          kind: StructKind::Tuple({properties: t.properties.map(|p| p.getType()).toList()})
         })
         class: None
         instance: None
@@ -241,7 +242,7 @@ export let structureVisitor = {
         displayName: None
         name: Some(t.name.name)
         kind: TypeKind::Parameter({
-          defaultValue: t.defaultValue.map(|typeBound| typeBound.type_)
+          defaultValue: t.defaultValue.map(|typeBound| typeBound.getType())
         })
         class: TypeClass.fromAstNode(t, self.reportError)
         instance: None
@@ -250,9 +251,10 @@ export let structureVisitor = {
     }
   }
   visitTypePath: |self, mut t: TypePath| {
-    if not t.scope {
+    if not t.type_ {
       t.scope = self.scope
-      let binding = t.scope.getTypeBinding(t.value[0].name)
+      let binding = self.scope.getTypePath(t)
+      // let binding = t.scope.getTypeBinding(t.value[0].name)
       if not binding
         then self.reportError(t, 'Use of undeclared type ' + t.value[0].name)
       t.type_= binding.type_
@@ -263,7 +265,7 @@ export let structureVisitor = {
     d.scope = self.scope
     d.type_ = d.typeBound.mapOr(type_, |bound| {
       self.visitTypeBound(bound)
-      bound.type_ or type_
+      bound.getType() or type_
     })
 
     let mut patternType = None
@@ -284,56 +286,57 @@ export let structureVisitor = {
 
     if let Option::Some(initializer) = d.initializer {
       visitInitializer(initializer)
+      let initializerType = initializer.getType()
       if not d.type_ and d.pattern.binding {
-        d.pattern.binding.type_ = initializer.type_
-        d.type_ = initializer.type_
+        d.pattern.binding.type_ = initializerType
+        d.type_ = initializerType
       }
-      else if not isAssignable(d.type_, initializer.type_)
-        then self.reportError(d, notAssignableError(d.type_, initializer.type_))
+      else if not isAssignable(d.type_, initializerType)
+        then self.reportError(d, notAssignableError(d.type_, initializerType))
       else if let Option::Some(patternTy) = patternType {
         let patternTy: Type = patternTy
-        if not isAssignable(patternTy, initializer.type_)
-          then self.reportError(d, notAssignableError(patternTy, initializer.type_))
+        if not isAssignable(patternTy, initializerType)
+          then self.reportError(d, notAssignableError(patternTy, initializerType))
       }
     }
   }
 
-  visitLiteral: |self, mut l| {
-    l.scope = self.scope
-    if l.kind == SyntaxKind.BooleanLiteral
-      then self.visitStrictBooleanLiteral(l)
-    else if l.kind == SyntaxKind.ListLiteral
-      then self.visitStrictListLiteral(l)
-    else if l.kind == SyntaxKind.NumberLiteral
-      then self.visitStrictNumberLiteral(l)
-    else if l.kind == SyntaxKind.ObjectLiteral
-      then self.visitStrictObjectLiteral(l)
-    else if l.kind == SyntaxKind.StringLiteral
-      then self.visitStrictStringLiteral(l)
-    else self.reportError(l, 'not a literal' + inspect(l))
-  }
-  visitStrictBooleanLiteral: |self, mut l: BooleanLiteral| {
-    l.type_ = self.scope.getTypeBinding('Bool').type_
-  }
-  visitStrictListLiteral: |self, mut l: ListLiteral| {
-    l.members.forEach(self.visitLiteral.bind(self))
-  }
-  visitStrictNumberLiteral: |self, mut l: NumberLiteral| {
-    l.type_ = self.scope.getTypeBinding('Num').type_
-  }
-  visitStrictObjectLiteral: |self, mut l: ObjectLiteral| {
-    l.members.forEach(|m| {
-      self.visitLiteral(m.value)
-    })
-  }
-  visitStrictStringLiteral: |self, mut l: StringLiteral| {
-    l.type_ = self.scope.getTypeBinding('String').type_
-     if l.parts.some(|p| p.kind == SyntaxKind.Identifier)
-      then self.reportError(l, 'not a literal')
-  }
-  visitStrictTupleLiteral: |self, mut l: TupleLiteral| {
-    l.expressions.forEach(self.visitLiteral.bind(self))
-  }
+  // visitLiteral: |self, mut l| {
+  //   l.scope = self.scope
+  //   if l.kind == SyntaxKind.BooleanLiteral
+  //     then self.visitStrictBooleanLiteral(l)
+  //   else if l.kind == SyntaxKind.ListLiteral
+  //     then self.visitStrictListLiteral(l)
+  //   else if l.kind == SyntaxKind.NumberLiteralOPtion<
+  //     then self.visitStrictNumberLiteral(l)
+  //   else if l.kind == SyntaxKind.RecordLiteral
+  //     then self.visitStrictRecordLiteral(l)
+  //   else if l.kind == SyntaxKind.StringLiteral
+  //     then self.visitStrictStringLiteral(l)
+  //   else self.reportError(l, 'not a literal' + inspect(l))
+  // }
+  // visitStrictBooleanLiteral: |self, mut l: BooleanLiteral| {
+  //   l.type_ = self.scope.getTypeBinding('Bool').type_
+  // }
+  // visitStrictListLiteral: |self, mut l: ListLiteral| {
+  //   l.members.forEach(self.visitLiteral.bind(self))
+  // }
+  // visitStrictNumberLiteral: |self, mut l: NumberLiteral| {
+  //   l.type_ = self.scope.getTypeBinding('Num').type_
+  // }
+  // visitStrictRecordLiteral: |self, mut l: RecordLiteral| {
+  //   l.members.forEach(|m| {
+  //     self.visitLiteral(m.value)
+  //   })
+  // }
+  // visitStrictStringLiteral: |self, mut l: StringLiteral| {
+  //   l.type_ = self.scope.getTypeBinding('String').type_
+  //    if l.parts.some(|p| p.kind == SyntaxKind.Identifier)
+  //     then self.reportError(l, 'not a literal')
+  // }
+  // visitStrictTupleLiteral: |self, mut l: TupleLiteral| {
+  //   l.expressions.forEach(self.visitLiteral.bind(self))
+  // }
 }
 
 export enum PatternError {
@@ -370,15 +373,30 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
           else ObjectMap.new()
 
       let properties: Result<ObjectMap<Type>, PatternError> = record.properties
-        .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive))
-        .reduce(|acc: Result<ObjectMap<Type>, PatternError>, cur: Result<Type, PatternError>| {
-          acc.andThen(|props| cur.map(|prop| props.concat(prop)))
-        }, Ok([]))
+        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)))
+        .reduce(|acc: Result<ObjectMap<Type>, PatternError>, (name, type_): (String, Result<Type, PatternError>)| {
+          acc.andThen(|props| type_.map(|prop| {
+            let mut newProps = Object.assign({}, props)
+            newProps[name] = prop
+            newProps
+          }))
+        }, Ok(ObjectMap.new()))
 
       properties.map(|_| false)
     }
     Pattern::RecordType(typePath, record) => {
       visitor.visitTypePath(typePath)
+
+      let enumType: Option<Type> =
+        match typePath {
+          TypePath::Member(_) => None
+          TypePath::Object({name}, _) => {
+            let type_ = scope.getTypeBinding(name).type_
+            if type_.isEnum()
+              then Some(type_)
+              else None
+          }
+        }
 
       let recordType: Type =
         if type_
@@ -404,12 +422,49 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
       }
 
       let properties: Result<ObjectMap<Type>, PatternError> = record.properties
-        .map(|mut p| declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive))
-        .reduce(|acc: Result<ObjectMap<Type>, PatternError>, cur: Result<Type, PatternError>| {
-          acc.andThen(|props| cur.map(|prop| props.concat(prop)))
-        }, Ok([]))
+        .toList()
+        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)))
+        .reduce(|acc: Result<ObjectMap<Type>, PatternError>, (name, type_): (String, Result<Type, PatternError>)| {
+          acc.andThen(|props| type_.map(|prop| {
+            let mut newProps = Object.assign({}, props)
+            newProps[name] = prop
+            newProps
+          }))
+        }, Ok(ObjectMap.new()))
 
-      properties.map(|_| typePath.type_)
+      // properties.map(|_| typePath.type_)
+
+      properties.andThen(|properties| {
+        let type_ = {
+          displayName: None
+          name: None
+          kind: TypeKind::Struct({
+            implementations: []
+            kind: StructKind::Record({
+              properties
+            })
+          })
+          class: None
+          instance: None
+        }
+
+        if let Option::Some(enumType) = enumType {
+          if not allowNotExhaustive and enumType.getEnum().members.size() > 1
+            then Err(PatternError::NotExhaustive)
+            else {
+              let member = getEnumMember(typePath)
+              let enumArmType = enumType.getEnum().members[member]
+
+              if isAssignable(enumArmType, type_)
+                then Ok(enumType)
+                else Err(PatternError::PatternMismatch(p, enumArmType, type_))
+            }
+        } else {
+          if isAssignable(typePath.type_, type_)
+            then Ok(typePath.type_)
+            else Err(PatternError::PatternMismatch(p, typePath.type_, type_))
+        }
+      })
     }
     Pattern::Tuple(tuple) => {
       let props =
@@ -418,7 +473,8 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
             TypeKind::Struct(struct) => {
               match struct.kind {
                 StructKind::Tuple(tuple) => tuple.properties
-                _ => throw 'bad type t'
+                _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+                // _ => throw 'bad type t'
               }
             }
             TypeKind::Parameter => []
@@ -450,17 +506,31 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
     Pattern::TupleType(typePath, tuple) => {
       visitor.visitTypePath(typePath)
 
+      let enumType: Option<Type> =
+        match typePath {
+          TypePath::Member(_) => None
+          TypePath::Object({name}, _) => {
+            let enumType = scope.getTypeBinding(name).type_
+            if enumType.isEnum() {
+              if type_ and type_.isEnum() and not isAssignable(enumType, type_)
+                then return Err(PatternError::PatternMismatch(p, enumType, type_))
+              Some(enumType)
+            }
+            else None
+          }
+        }
+
       let tupleType: Type =
         if type_
           then type_
           else typePath.type_
 
-      let typePathType: Type =
-        if isAssignable(typePath.type_, tupleType)
-          then tupleType
-          else typePath.type_
+      // let typePathType: Type =
+      //   if isAssignable(typePath.type_, tupleType)
+      //     then tupleType
+      //     else typePath.type_
 
-      let tupleType: Type = match typePathType.kind {
+      let tupleType: Type = match tupleType.kind {
         TypeKind::Enum(enum_) => {
           let member = getEnumMember(typePath)
           let enumArmType = enum_.members[member]
@@ -472,11 +542,12 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
         TypeKind::Struct(struct) => {
           match struct.kind {
             StructKind::Tuple(tuple) => tuple.properties
-            _ => throw 'bad type t'
+            _ => {print('asd2'); return Err(PatternError::PatternMismatch(p, p.type_, tupleType))}
+            // _ => throw 'bad type t'
           }
         }
         TypeKind::Parameter => []
-        _ => return Err(PatternError::PatternMismatch(p, p.type_, tupleType))
+        _ => {print('asd'); return Err(PatternError::PatternMismatch(p, p.type_, tupleType))}
       }
 
       let properties: Result<List<Type>, PatternError> = tuple.properties
@@ -501,15 +572,15 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
           instance: None
         }
 
-        if let TypeKind::Enum(enumType) = typePath.type_.kind {
-          if not allowNotExhaustive and enumType.members.size() > 1
+        if let Option::Some(enumType) = enumType {
+          if not allowNotExhaustive and enumType.getEnum().members.size() > 1
             then Err(PatternError::NotExhaustive)
             else {
               let member = getEnumMember(typePath)
-              let enumArmType = enumType.members[member]
+              let enumArmType = enumType.getEnum().members[member]
 
               if isAssignable(enumArmType, type_)
-                then Ok(typePath.type_)
+                then Ok(enumType)
                 else Err(PatternError::PatternMismatch(p, enumArmType, type_))
             }
         } else {

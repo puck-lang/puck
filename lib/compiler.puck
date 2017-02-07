@@ -1,4 +1,4 @@
-import 'puck:js' as {Object, asResult, console, process, require, undefined, typeof}
+import 'puck:js' as {Error, Object, asResult, console, process, require, undefined, typeof}
 import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
@@ -46,7 +46,7 @@ fn dumpFiles(files: List<File>, prop: String) {
     print(file.absolutePath)
     let mut data = file[prop]
     if typeof(data) != 'string' {
-      data = inspect(data, {colors: false, depth: 10})
+      data = inspect(data, {colors: false, depth: 25})
     }
     print(data.split('\n').map(|line| '  $line').join('\n'))
   })

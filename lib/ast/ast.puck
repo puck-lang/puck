@@ -6,15 +6,123 @@ export type Token {
   kind: SyntaxKind
 }
 
-export type Expression {}
-
-export type CommentNode {
-  text: String
+export type Module {
+  fileName: String
+  path: String
+  exports: ObjectMap<ExportDirective>
+  statements: List<TopLevelStatement>
 }
 
-export type Block {
-  expressions: List<Expression>
-  type_: Type
+export enum TopLevelStatement {
+  ExportDirective(ExportDirective)
+  ImportDirective(ImportDirective)
+
+  EnumDeclaration(EnumDeclaration)
+  ImplDeclaration(ImplDeclaration)
+  ImplShorthandDeclaration(ImplShorthandDeclaration)
+  TraitDeclaration(TraitDeclaration)
+  TypeDeclaration(TypeDeclaration)
+
+  BlockLevelStatement(BlockLevelStatement)
+}
+
+export enum BlockLevelStatement {
+  Block(Block)
+  BreakStatement(BreakStatement)
+  ReturnStatement(ReturnStatement)
+  WhileLoop(WhileLoop)
+
+  Expression(Expression)
+}
+
+export enum Expression {
+  ThrowStatement({expression: Expression})
+  Comment(Comment)
+  Identifier(Identifier)
+
+  FunctionDeclaration(FunctionDeclaration)
+  VariableDeclaration(VariableDeclaration)
+
+  AssignmentExpression(AssignmentExpression)
+  BinaryExpression(BinaryExpression)
+  CallExpression(CallExpression)
+  IfExpression(IfExpression)
+  IfLetExpression(IfLetExpression)
+  MatchExpression(MatchExpression)
+  TypePathExpression(TypePathExpression)
+  UnaryExpression(UnaryExpression)
+
+  IndexAccess(IndexAccess)
+  MemberAccess(MemberAccess)
+
+  BooleanLiteral(BooleanLiteral)
+  ListLiteral(ListLiteral)
+  NumberLiteral(NumberLiteral)
+  RecordLiteral(RecordLiteral)
+  StringLiteral(StringLiteral)
+  TupleLiteral(TupleLiteral)
+}
+
+impl TopLevelStatement {
+  fn getType(self) -> Type {
+    match self {
+      TopLevelStatement::ExportDirective(e) => throw 'type on export'
+      TopLevelStatement::ImportDirective(e) => throw 'type on import'
+
+      TopLevelStatement::EnumDeclaration(e) => e.type_
+      TopLevelStatement::ImplDeclaration(e) => e.type_
+      TopLevelStatement::ImplShorthandDeclaration(e) => e.type_
+      TopLevelStatement::TraitDeclaration(e) => e.type_
+      TopLevelStatement::TypeDeclaration(e) => e.type_
+
+      TopLevelStatement::BlockLevelStatement(e) => e.getType()
+    }
+  }
+}
+
+impl BlockLevelStatement {
+  fn getType(self) -> Type {
+    match self {
+      BlockLevelStatement::Block(e) => e.type_
+      BlockLevelStatement::BreakStatement(e) => e.type_
+      BlockLevelStatement::ReturnStatement(e) => e.type_
+      BlockLevelStatement::WhileLoop(e) => e.type_
+
+      BlockLevelStatement::Expression(e) =>  e.getType()
+    }
+  }
+}
+
+impl Expression {
+  fn getType(self) -> Type {
+    match self {
+      Expression::ThrowStatement(e) => e.type_
+      Expression::Comment(_) => {}
+
+      Expression::Identifier(e) => e.type_
+      Expression::FunctionDeclaration(e) => e.type_
+      Expression::VariableDeclaration(e) => e.type_
+
+      Expression::AssignmentExpression(e) => e.type_
+      Expression::BinaryExpression(e) => e.type_
+      Expression::CallExpression(e) => e.type_
+      Expression::IfExpression(e) => e.type_
+      Expression::IfLetExpression(e) => e.type_
+      Expression::MatchExpression(e) => e.type_
+      Expression::TypePathExpression(e) => e.type_
+      Expression::UnaryExpression(e) => e.type_
+
+      Expression::IndexAccess(e) => e.type_
+      Expression::MemberAccess(e) => e.type_
+
+      Expression::BooleanLiteral(e) => e.type_
+      Expression::ListLiteral(e) => e.type_
+      Expression::NumberLiteral(e) => e.type_
+      Expression::RecordLiteral(e) => e.type_
+      Expression::StringLiteral(e) => e.type_
+      Expression::TupleLiteral(e) => e.type_
+    }
+  }
 }
 
 export type EnumDeclaration {
@@ -29,20 +137,6 @@ export type EnumDeclaration {
 export type EnumMember {
   name: Identifier
   bound: Option<TypeBound>
-}
-
-export type FunctionDeclaration {
-  name: Option<Identifier>
-  typeParameters: List<TypeParameter>
-  parameterList: List<VariableDeclaration>
-  returnType: Option<TypeBound>
-  body: Option<Block>
-
-  type_: Type
-}
-
-export type Identifier {
-  name: String
 }
 
 export type ImplDeclaration {
@@ -69,28 +163,6 @@ export type ImplShorthandDeclaration {
   closeBrace: Token
 }
 
-export type Module {
-  fileName: String
-  path: String
-  exports: ObjectMap<ExportDirective>
-  expressions: List<Expression>
-}
-
-export type ObjectDestructure {
-  openBrace: Token
-  members: List<ObjectDestructureMember>
-  closeBrace: Token
-}
-
-export type ObjectDestructureMember {
-  property: SimpleIdentifier
-  local: SimpleIdentifier
-}
-
-export type SimpleIdentifier {
-  name: String
-}
-
 export type TraitDeclaration {
   keyword: Token
   name: Identifier
@@ -98,52 +170,6 @@ export type TraitDeclaration {
   openBrace: Token
   members: List<FunctionDeclaration>
   closeBrace: Token
-}
-
-export enum TypeBound {
-  FunctionTypeBound(FunctionTypeBound)
-  NamedTypeBound(NamedTypeBound)
-  RecordTypeBound(RecordTypeBound)
-  TupleTypeBound(TupleTypeBound)
-}
-
-impl TypeBound {
-  fn getRecordTypeBound(self) -> RecordTypeBound {
-    match self {
-      TypeBound::RecordTypeBound(record) => record
-      _ => throw 'TypeBound is not a RecordTypeBound'
-    }
-  }
-
-  fn getTupleTypeBound(self) -> TupleTypeBound {
-    match self {
-      TypeBound::TupleTypeBound(tuple) => tuple
-      _ => throw 'TypeBound is not a TupleTypeBound'
-    }
-  }
-}
-
-export type FunctionTypeBound {
-  typeParameters: List<TypeParameter>
-  arguments: TupleTypeBound
-  returnType: TypeBound
-}
-
-export type NamedTypeBound {
-  path: TypePath
-  typeParameters: List<TypeBound>
-}
-
-export type RecordTypeBound {
-  openBrace: Token
-  properties: List<TypeProperty>
-  closeBrace: Token
-}
-
-export type TupleTypeBound {
-  openParen: Token
-  properties: List<TypeBound>
-  closeParen: Token
 }
 
 export type TypeDeclaration {
@@ -155,14 +181,79 @@ export type TypeDeclaration {
   type_: Type
 }
 
-export type TypeParameter {
-  name: Identifier
-  defaultValue: Option<TypeBound>
+export type ExportDirective {
+  keyword: Token
+  statement: ExportedStatement
+  identifier: Identifier
 }
 
-export type TypeProperty {
-  name: Identifier
-  typeBound: TypeBound
+export enum ExportedStatement {
+  EnumDeclaration(EnumDeclaration)
+  TraitDeclaration(TraitDeclaration)
+  TypeDeclaration(TypeDeclaration)
+  FunctionDeclaration(FunctionDeclaration)
+  VariableDeclaration(VariableDeclaration)
+}
+
+export type ImportDirective {
+  importKeyword: Token
+  domain: Option<String>
+  path: String
+  asKeyword: Token
+  specifier: ImportSpecifier
+}
+export enum ImportSpecifier {
+  Asterisk(Token)
+  Identifier(Identifier)
+  ObjectDestructure(ObjectDestructure)
+}
+
+export type ObjectDestructure {
+  openBrace: Token
+  members: List<ObjectDestructureMember>
+  closeBrace: Token
+}
+
+export type ObjectDestructureMember {
+  property: Identifier
+  local: Identifier
+}
+
+export type Block {
+  statements: List<BlockLevelStatement>
+  type_: Type
+}
+
+export type BreakStatement {
+  keyword: Token
+}
+
+export type ReturnStatement {
+  keyword: Token
+  expression: Expression
+}
+
+export type WhileLoop {
+  condition: Expression,
+  body: Block,
+}
+
+export type Comment {
+  text: String
+}
+
+export type Identifier {
+  name: String
+}
+
+export type FunctionDeclaration {
+  name: Option<Identifier>
+  typeParameters: List<TypeParameter>
+  parameterList: List<VariableDeclaration>
+  returnType: Option<TypeBound>
+  body: Option<Block>
+
+  type_: Type
 }
 
 export type VariableDeclaration {
@@ -172,22 +263,8 @@ export type VariableDeclaration {
   initializer: Option<Expression>
 }
 
-export type ExportDirective {
-  keyword: Token
-  // expression: FunctionDeclaration|TraitDeclaration|TypeDeclaration|VariableDeclaration
-  identifier: Identifier
-}
-
-export type ImportDirective {
-  importKeyword: Token
-  domain: Option<String>
-  path: String
-  asKeyword: Token
-  // specifier: Identifier|ObjectDestructure
-}
-
 export type AssignmentExpression {
-  // lhs: Identifier|MemberAccess|IndexAccess
+  lhs: Expression
   token: Token
   rhs: Expression
 }
@@ -203,10 +280,6 @@ export type CallExpression {
   openParen: Token
   argumentList: List<Expression>
   closeParen: Token
-}
-
-export type ForExpression {
-  body: Expression
 }
 
 export type IfExpression {
@@ -243,14 +316,14 @@ export type TypePathExpression {
   typePath: TypePath
 }
 
+export enum TypePath {
+  Object(Identifier, TypePath)
+  Member(Identifier)
+}
+
 export type UnaryExpression {
   operator: Token
   rhs: Expression
-}
-
-export type WhileLoop {
-  condition: Expression,
-  body: Block,
 }
 
 export type IndexAccess {
@@ -263,25 +336,40 @@ export type MemberAccess {
   member: Identifier
 }
 
-export enum TypePath {
-  Object(Identifier, TypePath)
-  Member(Identifier)
+export type BooleanLiteral {
+  value: Bool
 }
 
-export type RecordPattern {
+export type ListLiteral {
+  members: List<Expression>
+}
+
+export type NumberLiteral {
+  value: Num
+}
+
+export type RecordLiteral {
   openBrace: Token
-  properties: List<RecordPatternMember>
+  members: List<RecordLiteralMember>
   closeBrace: Token
 }
 
-export type RecordPatternMember {
-  property: SimpleIdentifier
-  pattern: Pattern
+export type RecordLiteralMember {
+  name: Identifier
+  value: Expression
 }
 
-export type TuplePattern {
+export type StringLiteral {
+  // parts: List<StringLiteralPart|Identifier>
+}
+
+export type StringLiteralPart {
+  value: String
+}
+
+export type TupleLiteral {
   openParen: Token
-  properties: List<Pattern>
+  expressions: List<Expression>
   closeParen: Token
 }
 
@@ -298,48 +386,84 @@ export enum Pattern {
   UnitType(TypePath)
 }
 
-export type BreakStatement {
-  keyword: Token
-}
-
-export type ReturnStatement {
-  keyword: Token
-  expression: Expression
-}
-
-export type ListLiteral {
-  members: List<Expression>
-}
-
-export type BooleanLiteral {
-  value: Bool
-}
-
-export type NumberLiteral {
-  value: Num
-}
-
-export type ObjectLiteral {
+export type RecordPattern {
   openBrace: Token
-  members: List<ObjectLiteralMember>
+  properties: List<RecordPatternMember>
   closeBrace: Token
 }
 
-export type ObjectLiteralMember {
-  name: SimpleIdentifier
-  value: Expression
+export type RecordPatternMember {
+  property: Identifier
+  pattern: Pattern
 }
 
-export type StringLiteralPart {
-  value: String
-}
-
-export type StringLiteral {
-  // parts: List<StringLiteralPart|Identifier>
-}
-
-export type TupleLiteral {
+export type TuplePattern {
   openParen: Token
-  expressions: List<Expression>
+  properties: List<Pattern>
   closeParen: Token
+}
+
+export enum TypeBound {
+  FunctionTypeBound(FunctionTypeBound)
+  NamedTypeBound(NamedTypeBound)
+  RecordTypeBound(RecordTypeBound)
+  TupleTypeBound(TupleTypeBound)
+}
+
+impl TypeBound {
+  fn getType(self) -> Type {
+    match self {
+      TypeBound::FunctionTypeBound(t) => t.type_
+      TypeBound::NamedTypeBound(t) => t.type_
+      TypeBound::RecordTypeBound(t) => t.type_
+      TypeBound::TupleTypeBound(t) => t.type_
+    }
+  }
+
+  fn getRecordTypeBound(self) -> RecordTypeBound {
+    match self {
+      TypeBound::RecordTypeBound(record) => record
+      _ => throw 'TypeBound is not a RecordTypeBound'
+    }
+  }
+
+  fn getTupleTypeBound(self) -> TupleTypeBound {
+    match self {
+      TypeBound::TupleTypeBound(tuple) => tuple
+      _ => throw 'TypeBound is not a TupleTypeBound'
+    }
+  }
+}
+
+export type FunctionTypeBound {
+  typeParameters: List<TypeParameter>
+  parameters: TupleTypeBound
+  returnType: TypeBound
+}
+
+export type NamedTypeBound {
+  path: TypePath
+  typeParameters: List<TypeBound>
+}
+
+export type RecordTypeBound {
+  openBrace: Token
+  properties: List<RecordTypeBoundMember>
+  closeBrace: Token
+}
+
+export type RecordTypeBoundMember {
+  name: Identifier
+  typeBound: TypeBound
+}
+
+export type TupleTypeBound {
+  openParen: Token
+  properties: List<TypeBound>
+  closeParen: Token
+}
+
+export type TypeParameter {
+  name: Identifier
+  defaultValue: Option<TypeBound>
 }

@@ -1,46 +1,88 @@
 import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
-  Block
+  Module
+  TopLevelStatement
+
   EnumDeclaration
   EnumMember
-  FunctionDeclaration
-  Identifier
-  Module
+  TraitDeclaration
+  TypeDeclaration
+
+  ExportDirective
+  ExportedStatement
+  ImportDirective
+  ImportSpecifier
   ObjectDestructure
+
+  Block
+
+  Identifier
+  FunctionDeclaration
+  VariableDeclaration
+
   TypeBound
   FunctionTypeBound
   NamedTypeBound
-  TraitDeclaration
-  TypeDeclaration
   TypeParameter
-  VariableDeclaration
-
-  ExportDirective
-  ImportDirective
-
-  Token
 }
 import '../ast/visit.puck' as visit
-import '../compiler/ast.ts' as {SyntaxKind}
 import '../entities.puck' as {StructKind, Type, TypeClass, TypeKind}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 
-/// Visits and declares Traits, Types and toplevel function frames[1]
+fn isTypeScope(e: ExportDirective) {
+  match e.statement {
+    ExportedStatement::EnumDeclaration(_) => true
+    ExportedStatement::TraitDeclaration(_) => true
+    ExportedStatement::TypeDeclaration(_) => true
+    _ => false
+  }
+}
+
+/// Visits and declares Enums, Traits and Types
 ///
-/// Traits and types are declared in this separate step so that we are sure
-/// that complete type information is known during the checking step.
+/// Enum, traits and types are declared in this separate step so that we are sure
+/// that complete type information is known during the impl and checking steps.
 ///
-/// 1. function declaration withoud the body
+/// The declarations are visited in three passes, first will all type names be
+/// defined. Then will all type parameters be defined and after that is finally the
+/// bodies visited and properties or functions are defined.
+/// This assures that the hoisting rules is followed and all required information is known.
 export fn TypeVisitor(context, file) {
-  let mut importDirective: ImportDirective
   let reportError = context.reportError.bind(context, file)
 
   Object.assign({}, visit.emptyVisitor, structureVisitor, {
     scope: createScope(context, file)
     reportError
     imports: {}
-    postHoist: []
+
+    visitModule: |mut self, mut m: Module| {
+      self.scope = m.scope
+      self.scope.clearBindings()
+      let mut imports = []
+      let mut declarations = []
+
+      m.statements.forEach(|s: TopLevelStatement|
+        match s {
+          TopLevelStatement::EnumDeclaration(_) => declarations.add(s)
+          TopLevelStatement::ImportDirective(i) => imports.add(i)
+          TopLevelStatement::TraitDeclaration(_) => declarations.add(s)
+          TopLevelStatement::TypeDeclaration(_) => declarations.add(s)
+          TopLevelStatement::ExportDirective(e) => match e.statement {
+            ExportedStatement::EnumDeclaration(_) => declarations.add(s)
+            ExportedStatement::TraitDeclaration(_) => declarations.add(s)
+            ExportedStatement::TypeDeclaration(_) => declarations.add(s)
+            _ => {}
+          }
+          _ => {}
+        }
+      )
+
+      imports.forEach(|mut i| self.visitImportDirective(i))
+      declarations.forEach(|mut e| self.visitTopLevelStatement(e))
+      declarations.forEach(|mut e| self.visitTopLevelStatement(e))
+      declarations.forEach(|mut e| self.visitTopLevelStatement(e))
+    }
 
     visitEnumDeclaration: |mut self, mut t: EnumDeclaration| {
       if not t.type_ {
@@ -56,10 +98,9 @@ export fn TypeVisitor(context, file) {
         }
         self.scope.defineType(t.type_, t, true)
         self.scope.define({name: t.name.name, mutable: false, token: t, type_: t.type_})
-        t.scope = self.scope.createChild()
-        self.postHoist.push(t)
       }
-      else if not t.typeParametersAssigned {
+      else if not t.scope {
+        t.scope = self.scope.createChild()
         self.scope = t.scope
         if let Option::Some(class) = t.type_.class {
           t.typeParameters.forEach(|p| {
@@ -67,7 +108,6 @@ export fn TypeVisitor(context, file) {
             class.typeParameters.push(p.type_)
           })
         }
-        t.typeParametersAssigned = true
         t.scope.setSelfBinding(t.name.name)
         self.scope = self.scope.parent
       }
@@ -89,7 +129,7 @@ export fn TypeVisitor(context, file) {
                 class: None
                 instance: None
               }}
-              |bound| bound.type_
+              |bound| bound.getType()
             )
           ))
         )
@@ -110,66 +150,6 @@ export fn TypeVisitor(context, file) {
         self.scope = self.scope.parent
       }
     }
-    visitModule: |mut self, mut m: Module| {
-      self.scope = m.scope
-      self.scope.clearBindings()
-      let expressions = m.expressions.filter(|e|
-        e.kind == SyntaxKind.EnumDeclaration or
-        e.kind == SyntaxKind.ImportDirective or
-        e.kind == SyntaxKind.TraitDeclaration or
-        e.kind == SyntaxKind.TypeDeclaration or
-        (e.kind == SyntaxKind.ExportDirective and (
-          e.expression.kind == SyntaxKind.EnumDeclaration or
-          e.expression.kind == SyntaxKind.TraitDeclaration or
-          e.expression.kind == SyntaxKind.TypeDeclaration
-        ))
-      )
-      expressions.forEach(|mut e| {
-        self.visitExpression(e)
-        e.hoisted = true
-      })
-      self.postHoist.forEach(self.visitExpression.bind(self))
-      expressions.forEach(self.visitExpression.bind(self))
-    }
-    visitNamedTypeBound: |self, mut t: NamedTypeBound| {
-      let binding = self.scope.getTypePath(t.path)
-      if not binding
-        then self.reportError(t, 'Use of undeclared type ' + t.path.value[0].name)
-      if not binding.token.scope {
-        if not self.imports[t.path.value[0].name] then reportError(t
-          'Scope not set for binding ' + t.path.value[0].name + ' but not found in imports either')
-
-        context.runTypeVisitorOnFile(self.imports[t.path.value[0].name])
-      }
-      structureVisitor.visitNamedTypeBound.call(self, t)
-    }
-    visitObjectDestructure: |mut self, mut i: ObjectDestructure| {
-      i.scope = self.scope
-      i.members.forEach(|m| {
-        if importDirective.module {
-          let e = importDirective.module.exports[m.local.name]
-          if e.expression.kind == SyntaxKind.EnumDeclaration
-          or e.expression.kind == SyntaxKind.TraitDeclaration
-          or e.expression.kind == SyntaxKind.TypeDeclaration {
-            let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
-            self.scope.setTypeBinding(typeBinding)
-            self.scope.define({name: m.local.name, mutable: false, token: m, type_: typeBinding.type_})
-            self.imports[m.local.name] = importDirective.file
-          }
-          else {
-            let binding = importDirective.module.scope.getBinding(m.property.name)
-            self.scope.define({
-              name: m.local.name
-              mutable: false
-              token: m
-              inherit: binding
-              importedFrom: importDirective
-            })
-          }
-        }
-        else self.scope.define({name: m.local.name, mutable: false, token: m})
-      })
-    }
     visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
       if not t.type_ {
         t.type_ = {
@@ -189,7 +169,6 @@ export fn TypeVisitor(context, file) {
           token: t
           type_: t.type_
         })
-        self.postHoist.push(t)
       }
       else if not t.scope {
         self.scope = self.scope.createChild()
@@ -257,10 +236,9 @@ export fn TypeVisitor(context, file) {
           token: t
           type_: t.type_
         })
-        t.scope = self.scope.createChild()
-        self.postHoist.push(t)
       }
-      else if not t.typeParametersAssigned {
+      else if not t.scope {
+        t.scope = self.scope.createChild()
         self.scope = t.scope
         if let Option::Some(class) = t.type_.class {
           t.typeParameters.forEach(|p| {
@@ -268,7 +246,6 @@ export fn TypeVisitor(context, file) {
             class.typeParameters.push(p.type_)
           })
         }
-        t.typeParametersAssigned = true
         t.scope.setSelfBinding(t.name.name)
         self.scope = self.scope.parent
       }
@@ -280,12 +257,15 @@ export fn TypeVisitor(context, file) {
           match t.type_.kind {
             TypeKind::Struct({kind: StructKind::Record({properties})}) => {
               Object.assign(properties, ObjectMap.fromIter(
-                typeBound.getRecordTypeBound().properties.map(|p| (p.name.name, p.typeBound.type_))
+                typeBound.getRecordTypeBound().properties.map(|p| {
+                  // print('(p.name.name, p.typeBound.type_)', (p.name.name, p.typeBound, p.typeBound.getType()))
+                  (p.name.name, p.typeBound.getType())
+                })
               ))
             }
             TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
               Object.assign(tuple, {
-                properties: typeBound.getTupleTypeBound().properties.map(|p| p.type_).toList()
+                properties: typeBound.getTupleTypeBound().properties.map(|p| p.getType()).toList()
               })
             }
             _ => {}
@@ -295,22 +275,60 @@ export fn TypeVisitor(context, file) {
         self.scope = self.scope.parent
       }
     }
-    visitTypeProperty: visit.walkingVisitor.visitTypeProperty
 
     visitExportDirective: |self, mut e: ExportDirective| {
       e.scope = self.scope
       visit.walkExportDirective(self, e)
     }
-    visitImportDirective: |self, mut i: ImportDirective| {
-      if i.hoisted then return undefined
-
-      i.scope = self.scope
-      if i.specifier.kind == SyntaxKind.Identifier
-        then self.scope.define({name: i.specifier.name, mutable: false, token: i})
-      else if i.specifier.kind == SyntaxKind.ObjectDestructure {
-        importDirective = i
-        visit.walkImportDirective(self, i)
+    visitImportDirective: |mut self, mut importDirective: ImportDirective| {
+      importDirective.scope = self.scope
+      match importDirective.specifier {
+        ImportSpecifier::Identifier(identifier) => {
+          self.scope.define({name: identifier.name, mutable: false, token: identifier})
+        }
+        ImportSpecifier::ObjectDestructure(d) => {
+          d.members.forEach(|m| {
+            if importDirective.module {
+              let e = importDirective.module.exports[m.local.name]
+              if isTypeScope(e) {
+                let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
+                self.scope.setTypeBinding(typeBinding)
+                self.scope.define({name: m.local.name, mutable: false, token: m, type_: typeBinding.type_})
+                self.imports[m.local.name] = importDirective.file
+              }
+              else {
+                let binding = importDirective.module.scope.getBinding(m.property.name)
+                self.scope.define({
+                  name: m.local.name
+                  mutable: false
+                  token: m
+                  inherit: binding
+                  importedFrom: importDirective
+                })
+              }
+            }
+            else self.scope.define({name: m.local.name, mutable: false, token: m})
+          })
+        }
+        ImportSpecifier::Asterisk(_) => {}
       }
     }
+
+    visitTypeBound: |self, mut t: TypeBound| {
+      visit.walkTypeBound(self, t)
+    }
+    visitNamedTypeBound: |self, mut t: NamedTypeBound| {
+      let binding = self.scope.getTypePath(t.path)
+      if not binding
+        then self.reportError(t, 'Use of undeclared type ' + t.path.value[0].name)
+      if not binding.token.scope {
+        if not self.imports[t.path.value[0].name] then reportError(t
+          'Scope not set for binding ' + t.path.value[0].name + ' but not found in imports either')
+
+        context.runTypeVisitorOnFile(self.imports[t.path.value[0].name])
+      }
+      structureVisitor.visitNamedTypeBound.call(self, t)
+    }
+    visitTypeProperty: visit.walkingVisitor.visitTypeProperty
   })
 }

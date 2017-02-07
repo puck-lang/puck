@@ -85,7 +85,6 @@ SelfAware['$FunctionsType'] = {
   withImmutableSelf: SelfAware.withImmutableSelf,
   withMutableSelf: SelfAware.withMutableSelf
 };
-
 Functions.value.noBody();
 var func = { name: "func" };
 Functions['$FunctionsType'].withBody.call({ type: '$FunctionsType', value: func, $isTraitObject: true }, "body");

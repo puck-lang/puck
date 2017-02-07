@@ -85,11 +85,11 @@ var structureVisitor = exports.structureVisitor = {
               i = _ref2[1];
 
           var __PUCK__value__5 = void 0;
-          if (assignedTo && $unwrapTraitObject(assignedTo._arguments)[i]) {
-            __PUCK__value__5 = $unwrapTraitObject($unwrapTraitObject(assignedTo._arguments)[i]).type_;
+          if (assignedTo && $unwrapTraitObject(assignedTo.parameters)[i]) {
+            __PUCK__value__5 = $unwrapTraitObject($unwrapTraitObject(assignedTo.parameters)[i]).type_;
           };
           var type_ = __PUCK__value__5;
-          return $unwrapTraitObject(self).visitFunctionParameter(p, type_);
+          return $unwrapTraitObject(self).visitVariableDeclaration(p, _js._undefined, type_);
         });
         var __PUCK__value__6 = f.returnType;
         if ($unwrapTraitObject(__PUCK__value__6).kind == "Some") {
@@ -135,16 +135,15 @@ var structureVisitor = exports.structureVisitor = {
           var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
               name = _PUCK__value__9$valu[0].name;
 
-          var type_ = first.typeBound;
           if (name == "self") {
-            if (_core.Option.isNone.call(type_)) {
+            var selfTypeBound = first.typeBound;
+            if (_core.Option.isNone.call(selfTypeBound)) {
               $unwrapTraitObject(f.parameterList[0]).typeBound = (0, _core.Some)(_ast.TypeBound.NamedTypeBound({
-                kind: $unwrapTraitObject(_ast2.SyntaxKind).NamedTypeBound,
                 path: _ast.TypePath.Member({ name: "Self" }),
                 typeParameters: []
               }));
             } else {
-              $unwrapTraitObject(self).visitFunctionParameter(first);
+              $unwrapTraitObject(self).visitVariableDeclaration(first);
               if (!(0, _types.isAssignable)(first.type_, selfType)) {
                 $unwrapTraitObject(self).reportError(first, notAssignableError(first.type_, selfType));
               };
@@ -153,7 +152,7 @@ var structureVisitor = exports.structureVisitor = {
         };
       };
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: f.parameterList, $isTraitObject: true }, function (p) {
-        return $unwrapTraitObject(self).visitFunctionParameter(p);
+        return $unwrapTraitObject(self).visitVariableDeclaration(p);
       });
       var __PUCK__value__10 = f.returnType;
       if ($unwrapTraitObject(__PUCK__value__10).kind == "Some") {
@@ -166,48 +165,9 @@ var structureVisitor = exports.structureVisitor = {
       return $unwrapTraitObject(self).scope = $unwrapTraitObject(f.scope).parent;
     };
   },
-  visitFunctionParameter: function visitFunctionParameter(v, type_) {
+  visitTypeBound: function visitTypeBound(t) {
     var self = this;
-    return $unwrapTraitObject(self).visitVariableDeclaration(v, $unwrapTraitObject($unwrapTraitObject(self).visitLiteral).bind(self), type_);
-  },
-  visitTypeBound: function visitTypeBound(t_) {
-    var self = this;
-    if (!t_.scope) {
-      t_.scope = $unwrapTraitObject(self).scope;
-      $unwrapTraitObject(visit).walkTypeBound(self, t_);
-      var __PUCK__value__11 = t_;
-      var __PUCK__value__12 = __PUCK__value__11;
-      if ($unwrapTraitObject(__PUCK__value__12).kind == "FunctionTypeBound") {
-        var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
-            t = _PUCK__value__12$val[0];
-
-        return t_.type_ = t.type_;
-      } else {
-        var __PUCK__value__13 = __PUCK__value__11;
-        if ($unwrapTraitObject(__PUCK__value__13).kind == "NamedTypeBound") {
-          var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
-              _t = _PUCK__value__13$val[0];
-
-          return t_.type_ = _t.type_;
-        } else {
-          var __PUCK__value__14 = __PUCK__value__11;
-          if ($unwrapTraitObject(__PUCK__value__14).kind == "RecordTypeBound") {
-            var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
-                _t2 = _PUCK__value__14$val[0];
-
-            return t_.type_ = _t2.type_;
-          } else {
-            var __PUCK__value__15 = __PUCK__value__11;
-            if ($unwrapTraitObject(__PUCK__value__15).kind == "TupleTypeBound") {
-              var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
-                  _t3 = _PUCK__value__15$val[0];
-
-              return t_.type_ = _t3.type_;
-            };
-          };
-        };
-      };
-    };
+    return $unwrapTraitObject(visit).walkTypeBound(self, t);
   },
   visitFunctionTypeBound: function visitFunctionTypeBound(t) {
     var self = this;
@@ -215,18 +175,30 @@ var structureVisitor = exports.structureVisitor = {
       $unwrapTraitObject(self).scope = $unwrapTraitObject($unwrapTraitObject(self).scope).createChild();
       t.scope = $unwrapTraitObject(self).scope;
       $unwrapTraitObject(visit).walkFunctionTypeBound(self, t);
-      var _arguments = t._arguments.properties;
+      var __PUCK__value__12 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: t.parameters.properties, $isTraitObject: true });
+      var __PUCK__value__11 = _core.Iterable[__PUCK__value__12.type].map.call(__PUCK__value__12, function (_ref3) {
+        var _ref4 = _slicedToArray(_ref3, 2),
+            t = _ref4[0],
+            i = _ref4[1];
+
+        return {
+          name: "" + i + "",
+          mutable: false,
+          type_: _ast.TypeBound.getType.call(t)
+        };
+      });
+      var parameters = _core.Iterable[__PUCK__value__11.type].toList.call(__PUCK__value__11);
       t.type_ = {
         displayName: _core.None,
         name: _core.None,
         kind: _entities.TypeKind.Function({
           selfBinding: _core.None,
-          _arguments: _arguments,
-          argumentRange: {
-            start: _arguments.length,
-            end: _arguments.length + 1
+          parameters: parameters,
+          parameterRange: {
+            start: parameters.length,
+            end: parameters.length + 1
           },
-          returnType: t.returnType.type_,
+          returnType: _ast.TypeBound.getType.call(t.returnType),
           isAbstract: false
         }),
         _class: _entities.TypeClass.fromAstNode(t, function () {}),
@@ -241,24 +213,24 @@ var structureVisitor = exports.structureVisitor = {
       t.scope = $unwrapTraitObject(self).scope;
       $unwrapTraitObject(self).visitTypePath(t.path);
       var type_ = t.path.type_;
-      var __PUCK__value__16 = t.path;
-      var __PUCK__value__17 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__16).kind == "Member") {
-        var _PUCK__value__16$val = _slicedToArray(__PUCK__value__16.value, 1),
-            name = _PUCK__value__16$val[0].name;
+      var __PUCK__value__13 = t.path;
+      var __PUCK__value__14 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__13).kind == "Member") {
+        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
+            name = _PUCK__value__13$val[0].name;
 
-        var __PUCK__value__18 = void 0;
+        var __PUCK__value__15 = void 0;
         if (name == "Self") {
           if (t.typeParameters.length > 0) {
             $unwrapTraitObject(self).reportError(t, "Self is not generic");
           };
-          var __PUCK__value__19 = type_._class;
-          if ($unwrapTraitObject(__PUCK__value__19).kind == "Some") {
-            var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
-                _class = _PUCK__value__19$val[0];
+          var __PUCK__value__16 = type_._class;
+          if ($unwrapTraitObject(__PUCK__value__16).kind == "Some") {
+            var _PUCK__value__16$val = _slicedToArray(__PUCK__value__16.value, 1),
+                _class = _PUCK__value__16$val[0];
 
-            t.typeParameters = $unwrapTraitObject(_class.typeParameterBindings).map(function (_ref3) {
-              var name = _ref3.name;
+            t.typeParameters = $unwrapTraitObject(_class.typeParameterBindings).map(function (_ref5) {
+              var name = _ref5.name;
 
               return _ast.TypeBound.NamedTypeBound({
                 kind: $unwrapTraitObject(_ast2.SyntaxKind).NamedTypeBound,
@@ -267,25 +239,25 @@ var structureVisitor = exports.structureVisitor = {
               });
             });
           };
-          __PUCK__value__18 = true;
+          __PUCK__value__15 = true;
         } else {
-          __PUCK__value__18 = false;
+          __PUCK__value__15 = false;
         };
-        __PUCK__value__17 = __PUCK__value__18;
+        __PUCK__value__14 = __PUCK__value__15;
       } else {
-        __PUCK__value__17 = false;
+        __PUCK__value__14 = false;
       };
-      var isSelf = __PUCK__value__17;
+      var isSelf = __PUCK__value__14;
       if (!isSelf) {
-        var __PUCK__value__20 = type_._class;
-        if ($unwrapTraitObject(__PUCK__value__20).kind == "Some") {
-          var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1),
-              _class2 = _PUCK__value__20$val[0];
+        var __PUCK__value__17 = type_._class;
+        if ($unwrapTraitObject(__PUCK__value__17).kind == "Some") {
+          var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
+              _class2 = _PUCK__value__17$val[0];
 
-          var __PUCK__value__21 = (0, _range.checkRange)(t.typeParameters, _class2.parameterRange, "type parameters", _entities.Type.displayName.call(type_));
-          if ($unwrapTraitObject(__PUCK__value__21).kind == "Err") {
-            var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1),
-                error = _PUCK__value__21$val[0];
+          var __PUCK__value__18 = (0, _range.checkRange)(t.typeParameters, _class2.parameterRange, "type parameters", _entities.Type.displayName.call(type_));
+          if ($unwrapTraitObject(__PUCK__value__18).kind == "Err") {
+            var _PUCK__value__18$val = _slicedToArray(__PUCK__value__18.value, 1),
+                error = _PUCK__value__18$val[0];
 
             $unwrapTraitObject(self).reportError(t, error);
           };
@@ -296,15 +268,15 @@ var structureVisitor = exports.structureVisitor = {
         };
       };
       $unwrapTraitObject(visit).walkNamedTypeBound(self, t);
-      var __PUCK__value__22 = void 0;
+      var __PUCK__value__19 = void 0;
       if (_core.Option.isSome.call(type_._class)) {
-        __PUCK__value__22 = (0, _types.createTypeInstance)(type_, _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: t.typeParameters, $isTraitObject: true }, function (p) {
-          return p.type_;
+        __PUCK__value__19 = (0, _types.createTypeInstance)(type_, _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: t.typeParameters, $isTraitObject: true }, function (typeBound) {
+          return _ast.TypeBound.getType.call(typeBound);
         }));
       } else {
-        __PUCK__value__22 = type_;
+        __PUCK__value__19 = type_;
       };
-      return t.type_ = __PUCK__value__22;
+      return t.type_ = __PUCK__value__19;
     };
   },
   visitRecordTypeBound: function visitRecordTypeBound(t) {
@@ -318,7 +290,7 @@ var structureVisitor = exports.structureVisitor = {
         kind: _entities.TypeKind.Struct({
           implementations: [],
           kind: _entities.StructKind.Record({ properties: _core.ObjectMap.fromIter(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, function (member) {
-              return [member.name.name, member.typeBound.type_];
+              return [member.name.name, _ast.TypeBound.getType.call(member.typeBound)];
             })) })
         }),
         _class: _core.None,
@@ -326,20 +298,21 @@ var structureVisitor = exports.structureVisitor = {
       };
     };
   },
+  visitRecordTypeBoundMember: $unwrapTraitObject($unwrapTraitObject(visit).walkingVisitor).visitRecordTypeBoundMember,
   visitTupleTypeBound: function visitTupleTypeBound(t) {
     var self = this;
     if (!t.scope) {
       t.scope = $unwrapTraitObject(self).scope;
       $unwrapTraitObject(visit).walkTupleTypeBound(self, t);
-      var __PUCK__value__23 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, function (p) {
-        return p.type_;
+      var __PUCK__value__20 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, function (p) {
+        return _ast.TypeBound.getType.call(p);
       });
       return t.type_ = {
         displayName: _core.None,
         name: _core.None,
         kind: _entities.TypeKind.Struct({
           implementations: [],
-          kind: _entities.StructKind.Tuple({ properties: _core.Iterable[__PUCK__value__23.type].toList.call(__PUCK__value__23) })
+          kind: _entities.StructKind.Tuple({ properties: _core.Iterable[__PUCK__value__20.type].toList.call(__PUCK__value__20) })
         }),
         _class: _core.None,
         instance: _core.None
@@ -355,7 +328,7 @@ var structureVisitor = exports.structureVisitor = {
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
         kind: _entities.TypeKind.Parameter({ defaultValue: _core.Option.map.call(t.defaultValue, function (typeBound) {
-            return typeBound.type_;
+            return _ast.TypeBound.getType.call(typeBound);
           }) }),
         _class: _entities.TypeClass.fromAstNode(t, $unwrapTraitObject(self).reportError),
         instance: _core.None
@@ -365,9 +338,9 @@ var structureVisitor = exports.structureVisitor = {
   },
   visitTypePath: function visitTypePath(t) {
     var self = this;
-    if (!t.scope) {
+    if (!t.type_) {
       t.scope = $unwrapTraitObject(self).scope;
-      var binding = $unwrapTraitObject(t.scope).getTypeBinding($unwrapTraitObject($unwrapTraitObject(t.value)[0]).name);
+      var binding = $unwrapTraitObject($unwrapTraitObject(self).scope).getTypePath(t);
       if (!binding) {
         $unwrapTraitObject(self).reportError(t, "Use of undeclared type " + $unwrapTraitObject($unwrapTraitObject(t.value)[0]).name);
       };
@@ -384,132 +357,77 @@ var structureVisitor = exports.structureVisitor = {
     d.scope = $unwrapTraitObject(self).scope;
     d.type_ = _core.Option.mapOr.call(d.typeBound, type_, function (bound) {
       $unwrapTraitObject(self).visitTypeBound(bound);
-      return bound.type_ || type_;
+      return _ast.TypeBound.getType.call(bound) || type_;
     });
     var patternType = _core.None;
-    var __PUCK__value__24 = declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive);
-    var __PUCK__value__25 = __PUCK__value__24;
-    if ($unwrapTraitObject(__PUCK__value__25).kind == "Ok") {
-      var _PUCK__value__25$val = _slicedToArray(__PUCK__value__25.value, 1),
-          patternTy = _PUCK__value__25$val[0];
+    var __PUCK__value__21 = declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive);
+    var __PUCK__value__22 = __PUCK__value__21;
+    if ($unwrapTraitObject(__PUCK__value__22).kind == "Ok") {
+      var _PUCK__value__22$val = _slicedToArray(__PUCK__value__22.value, 1),
+          patternTy = _PUCK__value__22$val[0];
 
       patternType = (0, _core.Some)(patternTy);
       if (!(0, _types.isAssignable)(patternTy, d.type_)) {
         $unwrapTraitObject(self).reportError(d, notAssignableError(patternTy, d.type_));
       };
     } else {
-      var __PUCK__value__26 = __PUCK__value__24;
-      if ($unwrapTraitObject(__PUCK__value__26).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__26).value)[$unwrapTraitObject(0)]).kind == "PatternMismatch") {
-        var _PUCK__value__26$val = _slicedToArray(__PUCK__value__26.value, 1),
-            _PUCK__value__26$val$ = _slicedToArray(_PUCK__value__26$val[0].value, 3),
-            __PUCK__value__27 = _PUCK__value__26$val$[0],
-            to = _PUCK__value__26$val$[1],
-            subject = _PUCK__value__26$val$[2];
+      var __PUCK__value__23 = __PUCK__value__21;
+      if ($unwrapTraitObject(__PUCK__value__23).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__23).value)[$unwrapTraitObject(0)]).kind == "PatternMismatch") {
+        var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1),
+            _PUCK__value__23$val$ = _slicedToArray(_PUCK__value__23$val[0].value, 3),
+            __PUCK__value__24 = _PUCK__value__23$val$[0],
+            to = _PUCK__value__23$val$[1],
+            subject = _PUCK__value__23$val$[2];
 
         $unwrapTraitObject(self).reportError(d, notAssignableError(to, subject));
       } else {
-        var __PUCK__value__28 = __PUCK__value__24;
-        if ($unwrapTraitObject(__PUCK__value__28).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__28).value)[$unwrapTraitObject(0)]).kind == "NotExhaustive") {
-          var _PUCK__value__28$val = _toArray(__PUCK__value__28.value);
+        var __PUCK__value__25 = __PUCK__value__21;
+        if ($unwrapTraitObject(__PUCK__value__25).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__25).value)[$unwrapTraitObject(0)]).kind == "NotExhaustive") {
+          var _PUCK__value__25$val = _toArray(__PUCK__value__25.value);
 
           $unwrapTraitObject(self).reportError(d, "non exhaustive pattern");
         };
       };
     };
-    var __PUCK__value__29 = d.initializer;
-    if ($unwrapTraitObject(__PUCK__value__29).kind == "Some") {
-      var _PUCK__value__29$val = _slicedToArray(__PUCK__value__29.value, 1),
-          initializer = _PUCK__value__29$val[0];
+    var __PUCK__value__26 = d.initializer;
+    if ($unwrapTraitObject(__PUCK__value__26).kind == "Some") {
+      var _PUCK__value__26$val = _slicedToArray(__PUCK__value__26.value, 1),
+          initializer = _PUCK__value__26$val[0];
 
       visitInitializer(initializer);
+      var initializerType = _ast.Expression.getType.call(initializer);
       if (!d.type_ && d.pattern.binding) {
-        $unwrapTraitObject(d.pattern.binding).type_ = initializer.type_;
-        return d.type_ = initializer.type_;
+        $unwrapTraitObject(d.pattern.binding).type_ = initializerType;
+        return d.type_ = initializerType;
       } else {
-        if (!(0, _types.isAssignable)(d.type_, initializer.type_)) {
-          return $unwrapTraitObject(self).reportError(d, notAssignableError(d.type_, initializer.type_));
+        if (!(0, _types.isAssignable)(d.type_, initializerType)) {
+          return $unwrapTraitObject(self).reportError(d, notAssignableError(d.type_, initializerType));
         } else {
-          var __PUCK__value__30 = patternType;
-          if ($unwrapTraitObject(__PUCK__value__30).kind == "Some") {
-            var _PUCK__value__30$val = _slicedToArray(__PUCK__value__30.value, 1),
-                _patternTy = _PUCK__value__30$val[0];
+          var __PUCK__value__27 = patternType;
+          if ($unwrapTraitObject(__PUCK__value__27).kind == "Some") {
+            var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1),
+                _patternTy = _PUCK__value__27$val[0];
 
             _patternTy = _patternTy;
-            if (!(0, _types.isAssignable)(_patternTy, initializer.type_)) {
-              return $unwrapTraitObject(self).reportError(d, notAssignableError(_patternTy, initializer.type_));
+            if (!(0, _types.isAssignable)(_patternTy, initializerType)) {
+              return $unwrapTraitObject(self).reportError(d, notAssignableError(_patternTy, initializerType));
             };
           };
         };
       };
     };
-  },
-  visitLiteral: function visitLiteral(l) {
-    var self = this;
-    $unwrapTraitObject(l).scope = $unwrapTraitObject(self).scope;
-    if ($unwrapTraitObject(l).kind == $unwrapTraitObject(_ast2.SyntaxKind).BooleanLiteral) {
-      return $unwrapTraitObject(self).visitStrictBooleanLiteral(l);
-    } else {
-      if ($unwrapTraitObject(l).kind == $unwrapTraitObject(_ast2.SyntaxKind).ListLiteral) {
-        return $unwrapTraitObject(self).visitStrictListLiteral(l);
-      } else {
-        if ($unwrapTraitObject(l).kind == $unwrapTraitObject(_ast2.SyntaxKind).NumberLiteral) {
-          return $unwrapTraitObject(self).visitStrictNumberLiteral(l);
-        } else {
-          if ($unwrapTraitObject(l).kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectLiteral) {
-            return $unwrapTraitObject(self).visitStrictObjectLiteral(l);
-          } else {
-            if ($unwrapTraitObject(l).kind == $unwrapTraitObject(_ast2.SyntaxKind).StringLiteral) {
-              return $unwrapTraitObject(self).visitStrictStringLiteral(l);
-            } else {
-              return $unwrapTraitObject(self).reportError(l, "not a literal" + (0, _util.inspect)(l));
-            };
-          };
-        };
-      };
-    };
-  },
-  visitStrictBooleanLiteral: function visitStrictBooleanLiteral(l) {
-    var self = this;
-    return l.type_ = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).scope).getTypeBinding("Bool")).type_;
-  },
-  visitStrictListLiteral: function visitStrictListLiteral(l) {
-    var self = this;
-    return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: l.members, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitLiteral).bind(self));
-  },
-  visitStrictNumberLiteral: function visitStrictNumberLiteral(l) {
-    var self = this;
-    return l.type_ = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).scope).getTypeBinding("Num")).type_;
-  },
-  visitStrictObjectLiteral: function visitStrictObjectLiteral(l) {
-    var self = this;
-    return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: l.members, $isTraitObject: true }, function (m) {
-      return $unwrapTraitObject(self).visitLiteral(m.value);
-    });
-  },
-  visitStrictStringLiteral: function visitStrictStringLiteral(l) {
-    var self = this;
-    l.type_ = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).scope).getTypeBinding("String")).type_;
-    if ($unwrapTraitObject(l.parts).some(function (p) {
-      return $unwrapTraitObject(p).kind == $unwrapTraitObject(_ast2.SyntaxKind).Identifier;
-    })) {
-      return $unwrapTraitObject(self).reportError(l, "not a literal");
-    };
-  },
-  visitStrictTupleLiteral: function visitStrictTupleLiteral(l) {
-    var self = this;
-    return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: l.expressions, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitLiteral).bind(self));
   }
 };
 function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive) {
-  var __PUCK__value__31 = p;
-  var __PUCK__value__32 = __PUCK__value__31;
-  if ($unwrapTraitObject(__PUCK__value__32).kind == "CatchAll") {
-    var _undefined2 = __PUCK__value__32;
+  var __PUCK__value__28 = p;
+  var __PUCK__value__29 = __PUCK__value__28;
+  if ($unwrapTraitObject(__PUCK__value__29).kind == "CatchAll") {
+    var _undefined2 = __PUCK__value__29;
     return (0, _core.Ok)(false);
   } else {
-    var __PUCK__value__33 = __PUCK__value__31;
-    if ($unwrapTraitObject(__PUCK__value__33).kind == "Identifier") {
-      var _undefined3 = __PUCK__value__33;
+    var __PUCK__value__30 = __PUCK__value__28;
+    if ($unwrapTraitObject(__PUCK__value__30).kind == "Identifier") {
+      var _undefined3 = __PUCK__value__30;
       p.binding = scope.define({
         name: $unwrapTraitObject($unwrapTraitObject(p.value)[0]).name,
         mutable: mutable,
@@ -518,72 +436,78 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
       }, true);
       return (0, _core.Ok)(false);
     } else {
-      var __PUCK__value__34 = __PUCK__value__31;
-      if ($unwrapTraitObject(__PUCK__value__34).kind == "Record") {
+      var __PUCK__value__31 = __PUCK__value__28;
+      if ($unwrapTraitObject(__PUCK__value__31).kind == "Record") {
         var _ret2 = function () {
-          var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1),
-              record = _PUCK__value__34$val[0];
+          var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1),
+              record = _PUCK__value__31$val[0];
 
-          var __PUCK__value__35 = void 0;
+          var __PUCK__value__32 = void 0;
           if (type_) {
-            var __PUCK__value__36 = type_.kind;
-            var __PUCK__value__37 = __PUCK__value__36;
-            var __PUCK__value__38 = void 0;
-            if ($unwrapTraitObject(__PUCK__value__37).kind == "Struct") {
-              var _PUCK__value__37$val = _slicedToArray(__PUCK__value__37.value, 1),
-                  struct = _PUCK__value__37$val[0];
+            var __PUCK__value__33 = type_.kind;
+            var __PUCK__value__34 = __PUCK__value__33;
+            var __PUCK__value__35 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__34).kind == "Struct") {
+              var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1),
+                  struct = _PUCK__value__34$val[0];
 
-              var __PUCK__value__39 = struct.kind;
-              var __PUCK__value__40 = __PUCK__value__39;
-              var __PUCK__value__41 = void 0;
-              if ($unwrapTraitObject(__PUCK__value__40).kind == "Record") {
-                var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1),
-                    _record = _PUCK__value__40$val[0];
+              var __PUCK__value__36 = struct.kind;
+              var __PUCK__value__37 = __PUCK__value__36;
+              var __PUCK__value__38 = void 0;
+              if ($unwrapTraitObject(__PUCK__value__37).kind == "Record") {
+                var _PUCK__value__37$val = _slicedToArray(__PUCK__value__37.value, 1),
+                    _record = _PUCK__value__37$val[0];
 
-                __PUCK__value__41 = _record.properties;
+                __PUCK__value__38 = _record.properties;
               } else {
-                var __PUCK__value__42 = __PUCK__value__39;
-                var __PUCK__value__43 = void 0;
+                var __PUCK__value__39 = __PUCK__value__36;
+                var __PUCK__value__40 = void 0;
                 if (true) {
-                  var __PUCK__value__44 = __PUCK__value__42;
+                  var __PUCK__value__41 = __PUCK__value__39;
                   throw "bad type";
                 };
-                __PUCK__value__41 = __PUCK__value__43;
+                __PUCK__value__38 = __PUCK__value__40;
               };
-              __PUCK__value__38 = __PUCK__value__41;
+              __PUCK__value__35 = __PUCK__value__38;
             } else {
-              var __PUCK__value__45 = __PUCK__value__36;
-              var __PUCK__value__46 = void 0;
-              if ($unwrapTraitObject(__PUCK__value__45).kind == "Parameter") {
-                var _undefined4 = __PUCK__value__45;
-                __PUCK__value__46 = {};
+              var __PUCK__value__42 = __PUCK__value__33;
+              var __PUCK__value__43 = void 0;
+              if ($unwrapTraitObject(__PUCK__value__42).kind == "Parameter") {
+                var _undefined4 = __PUCK__value__42;
+                __PUCK__value__43 = {};
               } else {
-                var __PUCK__value__47 = __PUCK__value__36;
-                var __PUCK__value__48 = void 0;
+                var __PUCK__value__44 = __PUCK__value__33;
+                var __PUCK__value__45 = void 0;
                 if (true) {
-                  var __PUCK__value__49 = __PUCK__value__47;
+                  var __PUCK__value__46 = __PUCK__value__44;
                   throw "abd type";
                 };
-                __PUCK__value__46 = __PUCK__value__48;
+                __PUCK__value__43 = __PUCK__value__45;
               };
-              __PUCK__value__38 = __PUCK__value__46;
+              __PUCK__value__35 = __PUCK__value__43;
             };
-            __PUCK__value__35 = __PUCK__value__38;
+            __PUCK__value__32 = __PUCK__value__35;
           } else {
-            __PUCK__value__35 = _core.ObjectMap._new();
+            __PUCK__value__32 = _core.ObjectMap._new();
           };
-          var props = __PUCK__value__35;
+          var props = __PUCK__value__32;
           var properties = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: record.properties, $isTraitObject: true }, function (p) {
-            return declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive);
-          }).value.reduce(function (acc, cur) {
+            return [p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)];
+          }).value.reduce(function (acc, _ref6) {
+            var _ref7 = _slicedToArray(_ref6, 2),
+                name = _ref7[0],
+                type_ = _ref7[1];
+
             return _core.Result.andThen.call(acc, function (props) {
-              return _core.Result.map.call(cur, function (prop) {
-                return props.concat(prop);
+              return _core.Result.map.call(type_, function (prop) {
+                var newProps = $unwrapTraitObject(_js._Object).assign({}, props);
+                $unwrapTraitObject(newProps)[name] = prop;
+                return newProps;
               });
             });
-          }, (0, _core.Ok)([]));
+          }, (0, _core.Ok)(_core.ObjectMap._new()));
           return {
-            v: _core.Result.map.call(properties, function (__PUCK__value__50) {
+            v: _core.Result.map.call(properties, function (__PUCK__value__47) {
               return false;
             })
           };
@@ -591,143 +515,193 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
         if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
       } else {
-        var __PUCK__value__51 = __PUCK__value__31;
-        if ($unwrapTraitObject(__PUCK__value__51).kind == "RecordType") {
+        var __PUCK__value__48 = __PUCK__value__28;
+        if ($unwrapTraitObject(__PUCK__value__48).kind == "RecordType") {
           var _ret3 = function () {
-            var _PUCK__value__51$val = _slicedToArray(__PUCK__value__51.value, 2),
-                typePath = _PUCK__value__51$val[0],
-                record = _PUCK__value__51$val[1];
+            var _PUCK__value__48$val = _slicedToArray(__PUCK__value__48.value, 2),
+                typePath = _PUCK__value__48$val[0],
+                record = _PUCK__value__48$val[1];
 
             $unwrapTraitObject(visitor).visitTypePath(typePath);
-            var __PUCK__value__52 = void 0;
-            if (type_) {
-              __PUCK__value__52 = type_;
+            var __PUCK__value__49 = typePath;
+            var __PUCK__value__50 = __PUCK__value__49;
+            var __PUCK__value__51 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__50).kind == "Member") {
+              var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 1),
+                  __PUCK__value__52 = _PUCK__value__50$val[0];
+
+              __PUCK__value__51 = _core.None;
             } else {
-              __PUCK__value__52 = typePath.type_;
+              var __PUCK__value__53 = __PUCK__value__49;
+              var __PUCK__value__54 = void 0;
+              if ($unwrapTraitObject(__PUCK__value__53).kind == "_Object") {
+                var _PUCK__value__53$val = _slicedToArray(__PUCK__value__53.value, 2),
+                    name = _PUCK__value__53$val[0].name,
+                    __PUCK__value__55 = _PUCK__value__53$val[1];
+
+                var _type_ = scope.getTypeBinding(name).type_;
+                var __PUCK__value__56 = void 0;
+                if (_entities.Type.isEnum.call(_type_)) {
+                  __PUCK__value__56 = (0, _core.Some)(_type_);
+                } else {
+                  __PUCK__value__56 = _core.None;
+                };
+                __PUCK__value__54 = __PUCK__value__56;
+              };
+              __PUCK__value__51 = __PUCK__value__54;
             };
-            var recordType = __PUCK__value__52;
-            var __PUCK__value__53 = recordType.kind;
-            var __PUCK__value__54 = __PUCK__value__53;
-            var __PUCK__value__55 = void 0;
-            if ($unwrapTraitObject(__PUCK__value__54).kind == "Enum") {
-              var _PUCK__value__54$val = _slicedToArray(__PUCK__value__54.value, 1),
-                  enum_ = _PUCK__value__54$val[0];
+            var enumType = __PUCK__value__51;
+            var __PUCK__value__57 = void 0;
+            if (type_) {
+              __PUCK__value__57 = type_;
+            } else {
+              __PUCK__value__57 = typePath.type_;
+            };
+            var recordType = __PUCK__value__57;
+            var __PUCK__value__58 = recordType.kind;
+            var __PUCK__value__59 = __PUCK__value__58;
+            var __PUCK__value__60 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__59).kind == "Enum") {
+              var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 1),
+                  enum_ = _PUCK__value__59$val[0];
 
               var member = (0, _enums.getEnumMember)(typePath);
               var enumArmType = enum_.members[member];
-              __PUCK__value__55 = enumArmType;
+              __PUCK__value__60 = enumArmType;
             } else {
-              var __PUCK__value__56 = __PUCK__value__53;
-              var __PUCK__value__57 = void 0;
+              var __PUCK__value__61 = __PUCK__value__58;
+              var __PUCK__value__62 = void 0;
               if (true) {
-                var __PUCK__value__58 = __PUCK__value__56;
-                __PUCK__value__57 = recordType;
+                var __PUCK__value__63 = __PUCK__value__61;
+                __PUCK__value__62 = recordType;
               };
-              __PUCK__value__55 = __PUCK__value__57;
+              __PUCK__value__60 = __PUCK__value__62;
             };
-            recordType = __PUCK__value__55;
-            var __PUCK__value__59 = recordType.kind;
-            var __PUCK__value__60 = __PUCK__value__59;
-            var __PUCK__value__61 = void 0;
-            if ($unwrapTraitObject(__PUCK__value__60).kind == "Struct") {
-              var _PUCK__value__60$val = _slicedToArray(__PUCK__value__60.value, 1),
-                  struct = _PUCK__value__60$val[0];
+            recordType = __PUCK__value__60;
+            var __PUCK__value__64 = recordType.kind;
+            var __PUCK__value__65 = __PUCK__value__64;
+            var __PUCK__value__66 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__65).kind == "Struct") {
+              var _PUCK__value__65$val = _slicedToArray(__PUCK__value__65.value, 1),
+                  struct = _PUCK__value__65$val[0];
 
-              var __PUCK__value__62 = struct.kind;
-              var __PUCK__value__63 = __PUCK__value__62;
-              var __PUCK__value__64 = void 0;
-              if ($unwrapTraitObject(__PUCK__value__63).kind == "Record") {
-                var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1),
-                    _record2 = _PUCK__value__63$val[0];
-
-                __PUCK__value__64 = _record2.properties;
-              } else {
-                var __PUCK__value__65 = __PUCK__value__62;
-                var __PUCK__value__66 = void 0;
-                if (true) {
-                  var __PUCK__value__67 = __PUCK__value__65;
-                  throw "bad type";
-                };
-                __PUCK__value__64 = __PUCK__value__66;
-              };
-              __PUCK__value__61 = __PUCK__value__64;
-            } else {
-              var __PUCK__value__68 = __PUCK__value__59;
+              var __PUCK__value__67 = struct.kind;
+              var __PUCK__value__68 = __PUCK__value__67;
               var __PUCK__value__69 = void 0;
-              if ($unwrapTraitObject(__PUCK__value__68).kind == "Parameter") {
-                var _undefined5 = __PUCK__value__68;
-                __PUCK__value__69 = {};
+              if ($unwrapTraitObject(__PUCK__value__68).kind == "Record") {
+                var _PUCK__value__68$val = _slicedToArray(__PUCK__value__68.value, 1),
+                    _record2 = _PUCK__value__68$val[0];
+
+                __PUCK__value__69 = _record2.properties;
               } else {
-                var __PUCK__value__70 = __PUCK__value__59;
+                var __PUCK__value__70 = __PUCK__value__67;
                 var __PUCK__value__71 = void 0;
                 if (true) {
                   var __PUCK__value__72 = __PUCK__value__70;
-                  throw "abd type";
+                  throw "bad type";
                 };
                 __PUCK__value__69 = __PUCK__value__71;
               };
-              __PUCK__value__61 = __PUCK__value__69;
+              __PUCK__value__66 = __PUCK__value__69;
+            } else {
+              var __PUCK__value__73 = __PUCK__value__64;
+              var __PUCK__value__74 = void 0;
+              if ($unwrapTraitObject(__PUCK__value__73).kind == "Parameter") {
+                var _undefined5 = __PUCK__value__73;
+                __PUCK__value__74 = {};
+              } else {
+                var __PUCK__value__75 = __PUCK__value__64;
+                var __PUCK__value__76 = void 0;
+                if (true) {
+                  var __PUCK__value__77 = __PUCK__value__75;
+                  throw "abd type";
+                };
+                __PUCK__value__74 = __PUCK__value__76;
+              };
+              __PUCK__value__66 = __PUCK__value__74;
             };
-            var props = __PUCK__value__61;
-            var properties = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: record.properties, $isTraitObject: true }, function (p) {
-              return declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive);
-            }).value.reduce(function (acc, cur) {
+            var props = __PUCK__value__66;
+            var properties = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _core.Iterable['$List<E>'].toList.call({ type: '$List<E>', value: record.properties, $isTraitObject: true }), $isTraitObject: true }, function (p) {
+              return [p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)];
+            }).value.reduce(function (acc, _ref8) {
+              var _ref9 = _slicedToArray(_ref8, 2),
+                  name = _ref9[0],
+                  type_ = _ref9[1];
+
               return _core.Result.andThen.call(acc, function (props) {
-                return _core.Result.map.call(cur, function (prop) {
-                  return props.concat(prop);
+                return _core.Result.map.call(type_, function (prop) {
+                  var newProps = $unwrapTraitObject(_js._Object).assign({}, props);
+                  $unwrapTraitObject(newProps)[name] = prop;
+                  return newProps;
                 });
               });
-            }, (0, _core.Ok)([]));
+            }, (0, _core.Ok)(_core.ObjectMap._new()));
             return {
-              v: _core.Result.map.call(properties, function (__PUCK__value__73) {
-                return typePath.type_;
+              v: _core.Result.andThen.call(properties, function (properties) {
+                var type_ = {
+                  displayName: _core.None,
+                  name: _core.None,
+                  kind: _entities.TypeKind.Struct({
+                    implementations: [],
+                    kind: _entities.StructKind.Record({ properties: properties })
+                  }),
+                  _class: _core.None,
+                  instance: _core.None
+                };
+                var __PUCK__value__78 = enumType;
+                if ($unwrapTraitObject(__PUCK__value__78).kind == "Some") {
+                  var _PUCK__value__78$val = _slicedToArray(__PUCK__value__78.value, 1),
+                      _enumType = _PUCK__value__78$val[0];
+
+                  if (!allowNotExhaustive && _core.ObjectMap.size.call(_entities.Type.getEnum.call(_enumType).members) > 1) {
+                    return (0, _core.Err)(PatternError.NotExhaustive);
+                  } else {
+                    var _member = (0, _enums.getEnumMember)(typePath);
+                    var _enumArmType = _entities.Type.getEnum.call(_enumType).members[_member];
+                    if ((0, _types.isAssignable)(_enumArmType, type_)) {
+                      return (0, _core.Ok)(_enumType);
+                    } else {
+                      return (0, _core.Err)(PatternError.PatternMismatch(p, _enumArmType, type_));
+                    };
+                  };
+                } else {
+                  if ((0, _types.isAssignable)(typePath.type_, type_)) {
+                    return (0, _core.Ok)(typePath.type_);
+                  } else {
+                    return (0, _core.Err)(PatternError.PatternMismatch(p, typePath.type_, type_));
+                  };
+                };
               })
             };
           }();
 
           if ((typeof _ret3 === 'undefined' ? 'undefined' : _typeof(_ret3)) === "object") return _ret3.v;
         } else {
-          var __PUCK__value__74 = __PUCK__value__31;
-          if ($unwrapTraitObject(__PUCK__value__74).kind == "Tuple") {
+          var __PUCK__value__79 = __PUCK__value__28;
+          if ($unwrapTraitObject(__PUCK__value__79).kind == "Tuple") {
             var _ret4 = function () {
-              var _PUCK__value__74$val = _slicedToArray(__PUCK__value__74.value, 1),
-                  tuple = _PUCK__value__74$val[0];
+              var _PUCK__value__79$val = _slicedToArray(__PUCK__value__79.value, 1),
+                  tuple = _PUCK__value__79$val[0];
 
-              var __PUCK__value__75 = void 0;
+              var __PUCK__value__80 = void 0;
               if (type_) {
-                var __PUCK__value__76 = type_.kind;
-                var __PUCK__value__77 = __PUCK__value__76;
-                var __PUCK__value__78 = void 0;
-                if ($unwrapTraitObject(__PUCK__value__77).kind == "Struct") {
-                  var _PUCK__value__77$val = _slicedToArray(__PUCK__value__77.value, 1),
-                      struct = _PUCK__value__77$val[0];
+                var __PUCK__value__81 = type_.kind;
+                var __PUCK__value__82 = __PUCK__value__81;
+                var __PUCK__value__83 = void 0;
+                if ($unwrapTraitObject(__PUCK__value__82).kind == "Struct") {
+                  var _PUCK__value__82$val = _slicedToArray(__PUCK__value__82.value, 1),
+                      struct = _PUCK__value__82$val[0];
 
-                  var __PUCK__value__79 = struct.kind;
-                  var __PUCK__value__80 = __PUCK__value__79;
-                  var __PUCK__value__81 = void 0;
-                  if ($unwrapTraitObject(__PUCK__value__80).kind == "Tuple") {
-                    var _PUCK__value__80$val = _slicedToArray(__PUCK__value__80.value, 1),
-                        _tuple = _PUCK__value__80$val[0];
-
-                    __PUCK__value__81 = _tuple.properties;
-                  } else {
-                    var __PUCK__value__82 = __PUCK__value__79;
-                    var __PUCK__value__83 = void 0;
-                    if (true) {
-                      var __PUCK__value__84 = __PUCK__value__82;
-                      throw "bad type t";
-                    };
-                    __PUCK__value__81 = __PUCK__value__83;
-                  };
-                  __PUCK__value__78 = __PUCK__value__81;
-                } else {
-                  var __PUCK__value__85 = __PUCK__value__76;
+                  var __PUCK__value__84 = struct.kind;
+                  var __PUCK__value__85 = __PUCK__value__84;
                   var __PUCK__value__86 = void 0;
-                  if ($unwrapTraitObject(__PUCK__value__85).kind == "Parameter") {
-                    var _undefined6 = __PUCK__value__85;
-                    __PUCK__value__86 = [];
+                  if ($unwrapTraitObject(__PUCK__value__85).kind == "Tuple") {
+                    var _PUCK__value__85$val = _slicedToArray(__PUCK__value__85.value, 1),
+                        _tuple = _PUCK__value__85$val[0];
+
+                    __PUCK__value__86 = _tuple.properties;
                   } else {
-                    var __PUCK__value__87 = __PUCK__value__76;
+                    var __PUCK__value__87 = __PUCK__value__84;
                     var __PUCK__value__88 = void 0;
                     if (true) {
                       var __PUCK__value__89 = __PUCK__value__87;
@@ -737,22 +711,40 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                     };
                     __PUCK__value__86 = __PUCK__value__88;
                   };
-                  __PUCK__value__78 = __PUCK__value__86;
+                  __PUCK__value__83 = __PUCK__value__86;
+                } else {
+                  var __PUCK__value__90 = __PUCK__value__81;
+                  var __PUCK__value__91 = void 0;
+                  if ($unwrapTraitObject(__PUCK__value__90).kind == "Parameter") {
+                    var _undefined6 = __PUCK__value__90;
+                    __PUCK__value__91 = [];
+                  } else {
+                    var __PUCK__value__92 = __PUCK__value__81;
+                    var __PUCK__value__93 = void 0;
+                    if (true) {
+                      var __PUCK__value__94 = __PUCK__value__92;
+                      return {
+                        v: (0, _core.Err)(PatternError.PatternMismatch(p, p.type_, type_))
+                      };
+                    };
+                    __PUCK__value__91 = __PUCK__value__93;
+                  };
+                  __PUCK__value__83 = __PUCK__value__91;
                 };
-                __PUCK__value__75 = __PUCK__value__78;
+                __PUCK__value__80 = __PUCK__value__83;
               } else {
-                __PUCK__value__75 = [];
+                __PUCK__value__80 = [];
               };
-              var props = __PUCK__value__75;
-              var __PUCK__value__91 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: tuple.properties, $isTraitObject: true });
-              var __PUCK__value__90 = _core.Iterable[__PUCK__value__91.type].map.call(__PUCK__value__91, function (_ref4) {
-                var _ref5 = _slicedToArray(_ref4, 2),
-                    p = _ref5[0],
-                    i = _ref5[1];
+              var props = __PUCK__value__80;
+              var __PUCK__value__96 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: tuple.properties, $isTraitObject: true });
+              var __PUCK__value__95 = _core.Iterable[__PUCK__value__96.type].map.call(__PUCK__value__96, function (_ref10) {
+                var _ref11 = _slicedToArray(_ref10, 2),
+                    p = _ref11[0],
+                    i = _ref11[1];
 
                 return declarePatternVariables(scope, visitor, $unwrapTraitObject(p), mutable, props[i], allowNotExhaustive);
               });
-              var properties = _core.Iterable[__PUCK__value__90.type].toList.call(__PUCK__value__90).reduce(function (acc, cur) {
+              var properties = _core.Iterable[__PUCK__value__95.type].toList.call(__PUCK__value__95).reduce(function (acc, cur) {
                 return _core.Result.andThen.call(acc, function (props) {
                   return _core.Result.map.call(cur, function (prop) {
                     return props.concat(prop);
@@ -777,102 +769,132 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
             if ((typeof _ret4 === 'undefined' ? 'undefined' : _typeof(_ret4)) === "object") return _ret4.v;
           } else {
-            var __PUCK__value__92 = __PUCK__value__31;
-            if ($unwrapTraitObject(__PUCK__value__92).kind == "TupleType") {
+            var __PUCK__value__97 = __PUCK__value__28;
+            if ($unwrapTraitObject(__PUCK__value__97).kind == "TupleType") {
               var _ret5 = function () {
-                var _PUCK__value__92$val = _slicedToArray(__PUCK__value__92.value, 2),
-                    typePath = _PUCK__value__92$val[0],
-                    tuple = _PUCK__value__92$val[1];
+                var _PUCK__value__97$val = _slicedToArray(__PUCK__value__97.value, 2),
+                    typePath = _PUCK__value__97$val[0],
+                    tuple = _PUCK__value__97$val[1];
 
                 $unwrapTraitObject(visitor).visitTypePath(typePath);
-                var __PUCK__value__93 = void 0;
+                var __PUCK__value__98 = typePath;
+                var __PUCK__value__99 = __PUCK__value__98;
+                var __PUCK__value__100 = void 0;
+                if ($unwrapTraitObject(__PUCK__value__99).kind == "Member") {
+                  var _PUCK__value__99$val = _slicedToArray(__PUCK__value__99.value, 1),
+                      __PUCK__value__101 = _PUCK__value__99$val[0];
+
+                  __PUCK__value__100 = _core.None;
+                } else {
+                  var __PUCK__value__102 = __PUCK__value__98;
+                  var __PUCK__value__103 = void 0;
+                  if ($unwrapTraitObject(__PUCK__value__102).kind == "_Object") {
+                    var _PUCK__value__102$va = _slicedToArray(__PUCK__value__102.value, 2),
+                        name = _PUCK__value__102$va[0].name,
+                        __PUCK__value__104 = _PUCK__value__102$va[1];
+
+                    var _enumType2 = scope.getTypeBinding(name).type_;
+                    var __PUCK__value__105 = void 0;
+                    if (_entities.Type.isEnum.call(_enumType2)) {
+                      if (type_ && _entities.Type.isEnum.call(type_) && !(0, _types.isAssignable)(_enumType2, type_)) {
+                        return {
+                          v: (0, _core.Err)(PatternError.PatternMismatch(p, _enumType2, type_))
+                        };
+                      };
+                      __PUCK__value__105 = (0, _core.Some)(_enumType2);
+                    } else {
+                      __PUCK__value__105 = _core.None;
+                    };
+                    __PUCK__value__103 = __PUCK__value__105;
+                  };
+                  __PUCK__value__100 = __PUCK__value__103;
+                };
+                var enumType = __PUCK__value__100;
+                var __PUCK__value__106 = void 0;
                 if (type_) {
-                  __PUCK__value__93 = type_;
+                  __PUCK__value__106 = type_;
                 } else {
-                  __PUCK__value__93 = typePath.type_;
+                  __PUCK__value__106 = typePath.type_;
                 };
-                var tupleType = __PUCK__value__93;
-                var __PUCK__value__94 = void 0;
-                if ((0, _types.isAssignable)(typePath.type_, tupleType)) {
-                  __PUCK__value__94 = tupleType;
-                } else {
-                  __PUCK__value__94 = typePath.type_;
-                };
-                var typePathType = __PUCK__value__94;
-                var __PUCK__value__95 = typePathType.kind;
-                var __PUCK__value__96 = __PUCK__value__95;
-                var __PUCK__value__97 = void 0;
-                if ($unwrapTraitObject(__PUCK__value__96).kind == "Enum") {
-                  var _PUCK__value__96$val = _slicedToArray(__PUCK__value__96.value, 1),
-                      enum_ = _PUCK__value__96$val[0];
+                var tupleType = __PUCK__value__106;
+                var __PUCK__value__107 = tupleType.kind;
+                var __PUCK__value__108 = __PUCK__value__107;
+                var __PUCK__value__109 = void 0;
+                if ($unwrapTraitObject(__PUCK__value__108).kind == "Enum") {
+                  var _PUCK__value__108$va = _slicedToArray(__PUCK__value__108.value, 1),
+                      enum_ = _PUCK__value__108$va[0];
 
                   var member = (0, _enums.getEnumMember)(typePath);
                   var enumArmType = enum_.members[member];
-                  __PUCK__value__97 = enumArmType;
+                  __PUCK__value__109 = enumArmType;
                 } else {
-                  var __PUCK__value__98 = __PUCK__value__95;
-                  var __PUCK__value__99 = void 0;
-                  if (true) {
-                    var __PUCK__value__100 = __PUCK__value__98;
-                    __PUCK__value__99 = tupleType;
-                  };
-                  __PUCK__value__97 = __PUCK__value__99;
-                };
-                tupleType = __PUCK__value__97;
-                var __PUCK__value__101 = tupleType.kind;
-                var __PUCK__value__102 = __PUCK__value__101;
-                var __PUCK__value__103 = void 0;
-                if ($unwrapTraitObject(__PUCK__value__102).kind == "Struct") {
-                  var _PUCK__value__102$va = _slicedToArray(__PUCK__value__102.value, 1),
-                      struct = _PUCK__value__102$va[0];
-
-                  var __PUCK__value__104 = struct.kind;
-                  var __PUCK__value__105 = __PUCK__value__104;
-                  var __PUCK__value__106 = void 0;
-                  if ($unwrapTraitObject(__PUCK__value__105).kind == "Tuple") {
-                    var _PUCK__value__105$va = _slicedToArray(__PUCK__value__105.value, 1),
-                        _tuple2 = _PUCK__value__105$va[0];
-
-                    __PUCK__value__106 = _tuple2.properties;
-                  } else {
-                    var __PUCK__value__107 = __PUCK__value__104;
-                    var __PUCK__value__108 = void 0;
-                    if (true) {
-                      var __PUCK__value__109 = __PUCK__value__107;
-                      throw "bad type t";
-                    };
-                    __PUCK__value__106 = __PUCK__value__108;
-                  };
-                  __PUCK__value__103 = __PUCK__value__106;
-                } else {
-                  var __PUCK__value__110 = __PUCK__value__101;
+                  var __PUCK__value__110 = __PUCK__value__107;
                   var __PUCK__value__111 = void 0;
-                  if ($unwrapTraitObject(__PUCK__value__110).kind == "Parameter") {
-                    var _undefined7 = __PUCK__value__110;
-                    __PUCK__value__111 = [];
+                  if (true) {
+                    var __PUCK__value__112 = __PUCK__value__110;
+                    __PUCK__value__111 = tupleType;
+                  };
+                  __PUCK__value__109 = __PUCK__value__111;
+                };
+                tupleType = __PUCK__value__109;
+                var __PUCK__value__113 = tupleType.kind;
+                var __PUCK__value__114 = __PUCK__value__113;
+                var __PUCK__value__115 = void 0;
+                if ($unwrapTraitObject(__PUCK__value__114).kind == "Struct") {
+                  var _PUCK__value__114$va = _slicedToArray(__PUCK__value__114.value, 1),
+                      struct = _PUCK__value__114$va[0];
+
+                  var __PUCK__value__116 = struct.kind;
+                  var __PUCK__value__117 = __PUCK__value__116;
+                  var __PUCK__value__118 = void 0;
+                  if ($unwrapTraitObject(__PUCK__value__117).kind == "Tuple") {
+                    var _PUCK__value__117$va = _slicedToArray(__PUCK__value__117.value, 1),
+                        _tuple2 = _PUCK__value__117$va[0];
+
+                    __PUCK__value__118 = _tuple2.properties;
                   } else {
-                    var __PUCK__value__112 = __PUCK__value__101;
-                    var __PUCK__value__113 = void 0;
+                    var __PUCK__value__119 = __PUCK__value__116;
+                    var __PUCK__value__120 = void 0;
                     if (true) {
-                      var __PUCK__value__114 = __PUCK__value__112;
+                      var __PUCK__value__121 = __PUCK__value__119;
+                      (0, _core.print)("asd2");
                       return {
                         v: (0, _core.Err)(PatternError.PatternMismatch(p, p.type_, tupleType))
                       };
                     };
-                    __PUCK__value__111 = __PUCK__value__113;
+                    __PUCK__value__118 = __PUCK__value__120;
                   };
-                  __PUCK__value__103 = __PUCK__value__111;
+                  __PUCK__value__115 = __PUCK__value__118;
+                } else {
+                  var __PUCK__value__122 = __PUCK__value__113;
+                  var __PUCK__value__123 = void 0;
+                  if ($unwrapTraitObject(__PUCK__value__122).kind == "Parameter") {
+                    var _undefined7 = __PUCK__value__122;
+                    __PUCK__value__123 = [];
+                  } else {
+                    var __PUCK__value__124 = __PUCK__value__113;
+                    var __PUCK__value__125 = void 0;
+                    if (true) {
+                      var __PUCK__value__126 = __PUCK__value__124;
+                      (0, _core.print)("asd");
+                      return {
+                        v: (0, _core.Err)(PatternError.PatternMismatch(p, p.type_, tupleType))
+                      };
+                    };
+                    __PUCK__value__123 = __PUCK__value__125;
+                  };
+                  __PUCK__value__115 = __PUCK__value__123;
                 };
-                var props = __PUCK__value__103;
-                var __PUCK__value__116 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: tuple.properties, $isTraitObject: true });
-                var __PUCK__value__115 = _core.Iterable[__PUCK__value__116.type].map.call(__PUCK__value__116, function (_ref6) {
-                  var _ref7 = _slicedToArray(_ref6, 2),
-                      p = _ref7[0],
-                      i = _ref7[1];
+                var props = __PUCK__value__115;
+                var __PUCK__value__128 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: tuple.properties, $isTraitObject: true });
+                var __PUCK__value__127 = _core.Iterable[__PUCK__value__128.type].map.call(__PUCK__value__128, function (_ref12) {
+                  var _ref13 = _slicedToArray(_ref12, 2),
+                      p = _ref13[0],
+                      i = _ref13[1];
 
                   return declarePatternVariables(scope, visitor, $unwrapTraitObject(p), mutable, props[i], allowNotExhaustive);
                 });
-                var properties = _core.Iterable[__PUCK__value__115.type].toList.call(__PUCK__value__115).reduce(function (acc, cur) {
+                var properties = _core.Iterable[__PUCK__value__127.type].toList.call(__PUCK__value__127).reduce(function (acc, cur) {
                   return _core.Result.andThen.call(acc, function (props) {
                     return _core.Result.map.call(cur, function (prop) {
                       return props.concat(prop);
@@ -891,20 +913,20 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                       _class: _core.None,
                       instance: _core.None
                     };
-                    var __PUCK__value__117 = $unwrapTraitObject(typePath.type_).kind;
-                    if ($unwrapTraitObject(__PUCK__value__117).kind == "Enum") {
-                      var _PUCK__value__117$va = _slicedToArray(__PUCK__value__117.value, 1),
-                          enumType = _PUCK__value__117$va[0];
+                    var __PUCK__value__129 = enumType;
+                    if ($unwrapTraitObject(__PUCK__value__129).kind == "Some") {
+                      var _PUCK__value__129$va = _slicedToArray(__PUCK__value__129.value, 1),
+                          _enumType3 = _PUCK__value__129$va[0];
 
-                      if (!allowNotExhaustive && _core.ObjectMap.size.call(enumType.members) > 1) {
+                      if (!allowNotExhaustive && _core.ObjectMap.size.call(_entities.Type.getEnum.call(_enumType3).members) > 1) {
                         return (0, _core.Err)(PatternError.NotExhaustive);
                       } else {
-                        var _member = (0, _enums.getEnumMember)(typePath);
-                        var _enumArmType = enumType.members[_member];
-                        if ((0, _types.isAssignable)(_enumArmType, type_)) {
-                          return (0, _core.Ok)(typePath.type_);
+                        var _member2 = (0, _enums.getEnumMember)(typePath);
+                        var _enumArmType2 = _entities.Type.getEnum.call(_enumType3).members[_member2];
+                        if ((0, _types.isAssignable)(_enumArmType2, type_)) {
+                          return (0, _core.Ok)(_enumType3);
                         } else {
-                          return (0, _core.Err)(PatternError.PatternMismatch(p, _enumArmType, type_));
+                          return (0, _core.Err)(PatternError.PatternMismatch(p, _enumArmType2, type_));
                         };
                       };
                     } else {
@@ -920,10 +942,10 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
 
               if ((typeof _ret5 === 'undefined' ? 'undefined' : _typeof(_ret5)) === "object") return _ret5.v;
             } else {
-              var __PUCK__value__118 = __PUCK__value__31;
-              if ($unwrapTraitObject(__PUCK__value__118).kind == "UnitType") {
-                var _PUCK__value__118$va = _slicedToArray(__PUCK__value__118.value, 1),
-                    typePath = _PUCK__value__118$va[0];
+              var __PUCK__value__130 = __PUCK__value__28;
+              if ($unwrapTraitObject(__PUCK__value__130).kind == "UnitType") {
+                var _PUCK__value__130$va = _slicedToArray(__PUCK__value__130.value, 1),
+                    typePath = _PUCK__value__130$va[0];
 
                 $unwrapTraitObject(visitor).visitTypePath(typePath);
                 return (0, _core.Ok)(false);

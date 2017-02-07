@@ -23,6 +23,5 @@ Type.isAnswer2 = function isAnswer2() {
   var self = this;
   return Type.isAnswer.call(self);
 };
-
 var type_ = { value: 42 };
 Type.isAnswer.call(type_);

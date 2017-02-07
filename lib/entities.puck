@@ -27,7 +27,7 @@ export type File {
 }
 
 fn getFunctionTypeName(function: Function) {
-  getTupleTypeName(function.arguments.map(|a| a.type_)) + ' -> ' +
+  getTupleTypeName(function.parameters.map(|a| a.type_)) + ' -> ' +
     (function.returnType and function.returnType.displayName())
 }
 
@@ -116,6 +116,16 @@ impl Type {
     }
   }
 
+  fn getEnum(self: Type) -> Enum {
+    match self.kind {
+      TypeKind::Enum(enum_) => enum_
+      _ => {
+        let name = self.displayName()
+        throw Error('Type $name is not an enum')
+      }
+    }
+  }
+
   fn getFunction(self: Type) -> Function {
     match self.kind {
       TypeKind::Function(function) => function
@@ -133,6 +143,13 @@ impl Type {
         let name = self.displayName()
         throw Error('Type $name is not a trait')
       }
+    }
+  }
+
+  fn isEnum(self) -> Bool {
+    match self.kind {
+      TypeKind::Enum(_) => true
+      _ => false
     }
   }
 
@@ -167,8 +184,8 @@ export type Enum {
 /// Represents a function type (Num, Num) -> Bool
 export type Function {
   selfBinding: Option<Binding>
-  arguments: List<Binding>
-  argumentRange: Range
+  parameters: List<Binding>
+  parameterRange: Range
   returnType: Type
   isAbstract: Bool
 }

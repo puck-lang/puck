@@ -45,7 +45,7 @@ function InputStream(file) {
     return peek() == "";
   };
   function croak(msg) {
-    throw Error("" + msg + "\n    at " + $unwrapTraitObject(file).absolutePath + "  (" + line + ":" + col + ")\n\n");
+    throw (0, _js.Error)("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
     $unwrapTraitObject(_js.console).error("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
     return $unwrapTraitObject(_js.process).exit(1);
   };

@@ -34,7 +34,11 @@ function TopLevelVisitor(context, file) {
   var variableDeclaration = _core.None;
   var reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
   return $unwrapTraitObject(_js._Object).assign({}, $unwrapTraitObject(visit).emptyVisitor, {
-    visitBlock: function visitBlock(b) {},
+    visitModule: function visitModule(m) {
+      var self = this;
+      m.scope = scope;
+      return $unwrapTraitObject(visit).walkModule(self, m);
+    },
     visitEnumDeclaration: function visitEnumDeclaration(t) {
       var self = this;
       return $unwrapTraitObject(scope).defineType({
@@ -47,35 +51,6 @@ function TopLevelVisitor(context, file) {
         _class: _entities.TypeClass.fromAstNode(t, reportError),
         instance: _core.None
       }, t);
-    },
-    visitFunctionDeclaration: function visitFunctionDeclaration(f) {
-      var self = this;
-      var __PUCK__value__1 = f.name;
-      if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
-        var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
-            name = _PUCK__value__1$valu[0];
-
-        return $unwrapTraitObject(scope).define({
-          name: name.name,
-          token: f,
-          mutable: false
-        });
-      };
-    },
-    visitModule: function visitModule(m) {
-      var self = this;
-      m.scope = scope;
-      return $unwrapTraitObject(visit).walkModule(self, m);
-    },
-    visitObjectDestructure: function visitObjectDestructure(i) {
-      var self = this;
-      return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
-        return $unwrapTraitObject(scope).define({
-          name: m.local.name,
-          mutable: false,
-          token: m
-        }, true);
-      });
     },
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
@@ -92,44 +67,44 @@ function TopLevelVisitor(context, file) {
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
-      var __PUCK__value__2 = t.bound;
-      var __PUCK__value__3 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
-        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-            typeBound = _PUCK__value__2$valu[0];
+      var __PUCK__value__1 = t.bound;
+      var __PUCK__value__2 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
+        var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+            typeBound = _PUCK__value__1$valu[0];
 
-        var __PUCK__value__4 = typeBound;
-        var __PUCK__value__5 = __PUCK__value__4;
-        var __PUCK__value__6 = void 0;
-        if ($unwrapTraitObject(__PUCK__value__5).kind == "RecordTypeBound") {
-          var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-              record = _PUCK__value__5$valu[0];
+        var __PUCK__value__3 = typeBound;
+        var __PUCK__value__4 = __PUCK__value__3;
+        var __PUCK__value__5 = void 0;
+        if ($unwrapTraitObject(__PUCK__value__4).kind == "RecordTypeBound") {
+          var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+              record = _PUCK__value__4$valu[0];
 
-          __PUCK__value__6 = _entities.StructKind.Record({ properties: _core.ObjectMap._new() });
+          __PUCK__value__5 = _entities.StructKind.Record({ properties: _core.ObjectMap._new() });
         } else {
-          var __PUCK__value__7 = __PUCK__value__4;
-          var __PUCK__value__8 = void 0;
-          if ($unwrapTraitObject(__PUCK__value__7).kind == "TupleTypeBound") {
-            var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-                tuple = _PUCK__value__7$valu[0];
+          var __PUCK__value__6 = __PUCK__value__3;
+          var __PUCK__value__7 = void 0;
+          if ($unwrapTraitObject(__PUCK__value__6).kind == "TupleTypeBound") {
+            var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+                tuple = _PUCK__value__6$valu[0];
 
-            __PUCK__value__8 = _entities.StructKind.Tuple({ properties: [] });
+            __PUCK__value__7 = _entities.StructKind.Tuple({ properties: [] });
           } else {
-            var __PUCK__value__9 = __PUCK__value__4;
-            var __PUCK__value__10 = void 0;
+            var __PUCK__value__8 = __PUCK__value__3;
+            var __PUCK__value__9 = void 0;
             if (true) {
-              var __PUCK__value__11 = __PUCK__value__9;
+              var __PUCK__value__10 = __PUCK__value__8;
               throw "Unreachable";
             };
-            __PUCK__value__8 = __PUCK__value__10;
+            __PUCK__value__7 = __PUCK__value__9;
           };
-          __PUCK__value__6 = __PUCK__value__8;
+          __PUCK__value__5 = __PUCK__value__7;
         };
-        __PUCK__value__3 = __PUCK__value__6;
+        __PUCK__value__2 = __PUCK__value__5;
       } else {
-        __PUCK__value__3 = _entities.StructKind.Unit;
+        __PUCK__value__2 = _entities.StructKind.Unit;
       };
-      var structKind = __PUCK__value__3;
+      var structKind = __PUCK__value__2;
       return $unwrapTraitObject(scope).defineType({
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
@@ -141,29 +116,73 @@ function TopLevelVisitor(context, file) {
         instance: _core.None
       }, t);
     },
-    visitVariableDeclaration: function visitVariableDeclaration(d) {
-      var self = this;
-      variableDeclaration = (0, _core.Some)(d);
-      $unwrapTraitObject(visit).walkVariableDeclaration(self, d);
-      return variableDeclaration = _core.None;
-    },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
       return $unwrapTraitObject(visit).walkExportDirective(self, e);
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
-      if ($unwrapTraitObject(i.specifier).kind == $unwrapTraitObject(_ast2.SyntaxKind).Identifier) {
+      var __PUCK__value__11 = i.specifier;
+      var __PUCK__value__12 = __PUCK__value__11;
+      if ($unwrapTraitObject(__PUCK__value__12).kind == "Identifier") {
+        var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
+            identifier = _PUCK__value__12$val[0];
+
         return $unwrapTraitObject(scope).define({
-          name: $unwrapTraitObject(i.specifier).name,
+          name: identifier.name,
           mutable: false,
-          token: i
+          token: identifier
         });
       } else {
-        if ($unwrapTraitObject(i.specifier).kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectDestructure) {
-          return $unwrapTraitObject(visit).walkImportDirective(self, i);
+        var __PUCK__value__13 = __PUCK__value__11;
+        if ($unwrapTraitObject(__PUCK__value__13).kind == "ObjectDestructure") {
+          var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
+              d = _PUCK__value__13$val[0];
+
+          return $unwrapTraitObject(self).visitObjectDestructure(d);
+        } else {
+          var __PUCK__value__14 = __PUCK__value__11;
+          if ($unwrapTraitObject(__PUCK__value__14).kind == "Asterisk") {
+            var __PUCK__value__15 = __PUCK__value__14;;
+
+            var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
+                __PUCK__value__16 = _PUCK__value__15$val[0];
+
+            ;
+            return __PUCK__value__15;
+          };
         };
       };
+    },
+    visitObjectDestructure: function visitObjectDestructure(i) {
+      var self = this;
+      return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
+        return $unwrapTraitObject(scope).define({
+          name: m.local.name,
+          mutable: false,
+          token: m
+        }, true);
+      });
+    },
+    visitFunctionDeclaration: function visitFunctionDeclaration(f) {
+      var self = this;
+      var __PUCK__value__17 = f.name;
+      if ($unwrapTraitObject(__PUCK__value__17).kind == "Some") {
+        var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
+            name = _PUCK__value__17$val[0];
+
+        return $unwrapTraitObject(scope).define({
+          name: name.name,
+          token: f,
+          mutable: false
+        });
+      };
+    },
+    visitVariableDeclaration: function visitVariableDeclaration(d) {
+      var self = this;
+      variableDeclaration = (0, _core.Some)(d);
+      $unwrapTraitObject(visit).walkVariableDeclaration(self, d);
+      return variableDeclaration = _core.None;
     },
     visitPattern: $unwrapTraitObject($unwrapTraitObject(visit).walkingVisitor).visitPattern,
     visitIdentifierPattern: function visitIdentifierPattern(p) {

@@ -21,12 +21,12 @@ match Result::Ok(5) {
   Result::Err(_) => 'error'
 }
 
-///// Option is not assignable to type Result<Num, E>
+///// Result<Num, E> is not assignable to type Option
 match Result::Ok(5) {
   Option::Some(_) => 'Something'
 }
 
-///// Option is not assignable to type Result<Num, E>
+///// Result<Num, E> is not assignable to type Option
 match Ok(5) {
   Option::Some(_) => 'Something'
 }

@@ -140,6 +140,36 @@ function ImplVisitor(context, file) {
   var reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
   return $unwrapTraitObject(_js._Object).assign({}, $unwrapTraitObject(visit).emptyVisitor, _structure_visitor.structureVisitor, {
     reportError: reportError,
+    visitModule: function visitModule(m) {
+      var self = this;
+      $unwrapTraitObject(self).scope = m.scope;
+      return $unwrapTraitObject(m.statements.filter(function (e) {
+        var __PUCK__value__6 = e;
+        var __PUCK__value__7 = __PUCK__value__6;
+        if ($unwrapTraitObject(__PUCK__value__7).kind == "ImplDeclaration") {
+          var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+              __PUCK__value__8 = _PUCK__value__7$valu[0];
+
+          return true;
+        } else {
+          var __PUCK__value__9 = __PUCK__value__6;
+          if ($unwrapTraitObject(__PUCK__value__9).kind == "ImplShorthandDeclaration") {
+            var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+                __PUCK__value__10 = _PUCK__value__9$valu[0];
+
+            return true;
+          } else {
+            var __PUCK__value__11 = __PUCK__value__6;
+            if (true) {
+              var __PUCK__value__12 = __PUCK__value__11;
+              return false;
+            };
+          };
+        };
+      })).forEach(function (s) {
+        return $unwrapTraitObject(self).visitTopLevelStatement(s);
+      });
+    },
     visitImplDeclaration: function visitImplDeclaration(i) {
       var self = this;
       $unwrapTraitObject(self).scope = $unwrapTraitObject($unwrapTraitObject(self).scope).createChild();
@@ -147,35 +177,35 @@ function ImplVisitor(context, file) {
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
       $unwrapTraitObject(self).visitTypeBound(i.trait_);
       $unwrapTraitObject(self).visitTypeBound(i.type_);
-      var traitType = i.trait_.type_;
-      var structType = i.type_.type_;
+      var traitType = _ast.TypeBound.getType.call(i.trait_);
+      var structType = _ast.TypeBound.getType.call(i.type_);
       $unwrapTraitObject($unwrapTraitObject(self).scope).setSelfBinding(_core.Option.unwrap.call(structType.name));
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
         return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
       });
-      var __PUCK__value__6 = traitType.kind;
-      if ($unwrapTraitObject(__PUCK__value__6).kind == "Trait") {
-        var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
-            trait_ = _PUCK__value__6$valu[0];
+      var __PUCK__value__13 = traitType.kind;
+      if ($unwrapTraitObject(__PUCK__value__13).kind == "Trait") {
+        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
+            trait_ = _PUCK__value__13$val[0];
 
-        var __PUCK__value__7 = structType.kind;
-        var __PUCK__value__8 = __PUCK__value__7;
-        if ($unwrapTraitObject(__PUCK__value__8).kind == "Enum") {
-          var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
-              enum_ = _PUCK__value__8$valu[0];
+        var __PUCK__value__14 = structType.kind;
+        var __PUCK__value__15 = __PUCK__value__14;
+        if ($unwrapTraitObject(__PUCK__value__15).kind == "Enum") {
+          var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
+              enum_ = _PUCK__value__15$val[0];
 
           implementTrait(traitType, trait_, structType, enum_, i, reportError);
         } else {
-          var __PUCK__value__9 = __PUCK__value__7;
-          if ($unwrapTraitObject(__PUCK__value__9).kind == "Struct") {
-            var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-                struct = _PUCK__value__9$valu[0];
+          var __PUCK__value__16 = __PUCK__value__14;
+          if ($unwrapTraitObject(__PUCK__value__16).kind == "Struct") {
+            var _PUCK__value__16$val = _slicedToArray(__PUCK__value__16.value, 1),
+                struct = _PUCK__value__16$val[0];
 
             implementTrait(traitType, trait_, structType, struct, i, reportError);
           } else {
-            var __PUCK__value__10 = __PUCK__value__7;
+            var __PUCK__value__17 = __PUCK__value__14;
             if (true) {
-              var __PUCK__value__11 = __PUCK__value__10;
+              var __PUCK__value__18 = __PUCK__value__17;
               reportError(i.type_, _entities.Type.displayName.call(structType) + " is not a struct or an enum");
             };
           };
@@ -191,66 +221,34 @@ function ImplVisitor(context, file) {
       i.scope = $unwrapTraitObject(self).scope;
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
       $unwrapTraitObject(self).visitTypeBound(i.type_);
-      var structType = i.type_.type_;
+      var structType = _ast.TypeBound.getType.call(i.type_);
       $unwrapTraitObject($unwrapTraitObject(self).scope).setSelfBinding(_core.Option.unwrap.call(structType.name));
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
         return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
       });
-      var __PUCK__value__12 = structType.kind;
-      var __PUCK__value__13 = __PUCK__value__12;
-      if ($unwrapTraitObject(__PUCK__value__13).kind == "Enum") {
-        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
-            enum_ = _PUCK__value__13$val[0];
+      var __PUCK__value__19 = structType.kind;
+      var __PUCK__value__20 = __PUCK__value__19;
+      if ($unwrapTraitObject(__PUCK__value__20).kind == "Enum") {
+        var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1),
+            enum_ = _PUCK__value__20$val[0];
 
         implementShorthand(structType, enum_, i, reportError);
       } else {
-        var __PUCK__value__14 = __PUCK__value__12;
-        if ($unwrapTraitObject(__PUCK__value__14).kind == "Struct") {
-          var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
-              struct = _PUCK__value__14$val[0];
+        var __PUCK__value__21 = __PUCK__value__19;
+        if ($unwrapTraitObject(__PUCK__value__21).kind == "Struct") {
+          var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1),
+              struct = _PUCK__value__21$val[0];
 
           implementShorthand(structType, struct, i, reportError);
         } else {
-          var __PUCK__value__15 = __PUCK__value__12;
+          var __PUCK__value__22 = __PUCK__value__19;
           if (true) {
-            var __PUCK__value__16 = __PUCK__value__15;
+            var __PUCK__value__23 = __PUCK__value__22;
             reportError(i.type_, _entities.Type.displayName.call(structType) + " is not a struct or an enum");
           };
         };
       };
       return $unwrapTraitObject(self).scope = $unwrapTraitObject($unwrapTraitObject(self).scope).parent;
-    },
-    visitModule: function visitModule(m) {
-      var self = this;
-      $unwrapTraitObject(self).scope = m.scope;
-      return $unwrapTraitObject(m.expressions.filter(function (e) {
-        return $unwrapTraitObject(e).kind == $unwrapTraitObject(_ast2.SyntaxKind).ImportDirective || $unwrapTraitObject(e).kind == $unwrapTraitObject(_ast2.SyntaxKind).ImplDeclaration || $unwrapTraitObject(e).kind == $unwrapTraitObject(_ast2.SyntaxKind).ImplShorthandDeclaration;
-      })).forEach($unwrapTraitObject($unwrapTraitObject(self).visitExpression).bind(self));
-    },
-    visitObjectDestructure: function visitObjectDestructure(i) {
-      var self = this;
-      return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
-        if (importDirective._module) {
-          var e = $unwrapTraitObject($unwrapTraitObject(importDirective._module).exports)[m.local.name];
-          if ($unwrapTraitObject($unwrapTraitObject(e).expression).kind == $unwrapTraitObject(_ast2.SyntaxKind).TraitDeclaration) {
-            var binding = $unwrapTraitObject($unwrapTraitObject(self).scope).getTypeBinding(m.local.name);
-            $unwrapTraitObject(binding).type_ = $unwrapTraitObject($unwrapTraitObject(e).expression).type_;
-            binding = $unwrapTraitObject($unwrapTraitObject(self).scope).getBinding(m.local.name);
-            $unwrapTraitObject(binding).type_ = $unwrapTraitObject($unwrapTraitObject(e).expression).type_;
-          };
-          if ($unwrapTraitObject($unwrapTraitObject(e).expression).kind == $unwrapTraitObject(_ast2.SyntaxKind).TypeDeclaration) {
-            var _binding = $unwrapTraitObject($unwrapTraitObject(self).scope).getTypeBinding(m.local.name);
-            return $unwrapTraitObject(_binding).type_ = $unwrapTraitObject($unwrapTraitObject(e).expression).type_;
-          };
-        };
-      });
-    },
-    visitImportDirective: function visitImportDirective(i) {
-      var self = this;
-      if ($unwrapTraitObject(i.specifier).kind == $unwrapTraitObject(_ast2.SyntaxKind).ObjectDestructure) {
-        importDirective = i;
-        return $unwrapTraitObject(visit).walkImportDirective(self, i);
-      };
     }
   });
 }

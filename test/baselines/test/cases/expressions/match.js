@@ -9,6 +9,7 @@ function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
+
 var Value = {
   One: function One(object) {
     return { kind: 'One', value: object };
@@ -19,7 +20,6 @@ var Value = {
 var _Object = {
   _Object: { kind: '_Object', value: Symbol('_Object') }
 };
-
 var __PUCK__value__1 = _core.Option.Some(5);
 var __PUCK__value__2 = __PUCK__value__1;
 var __PUCK__value__3 = void 0;

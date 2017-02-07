@@ -34,49 +34,37 @@ export fn createScope(context, file, parent = false) {
     }
     getTypeBinding: |name| typeBindings[name] or (parent and parent.getTypeBinding(name))
     getTypePath: |self, typePath: TypePath| {
-      // match typePath {
-      //   TypePath::Member({name}) => self.getTypeBinding(name)
-      //   TypePath::Object({name}, path) => {
-      //     let mut name_ = name
-      //     let mut path_ = path
-      //     let mut type_ = self.getTypeBinding(name).type_
+      match typePath {
+        TypePath::Member({name}) => self.getTypeBinding(name)
+        TypePath::Object({name}, path) => {
+          let mut name_ = name
+          let mut path_ = path
+          let mut type_: Type = self.getTypeBinding(name).type_
 
-      //     while true {
-      //       type_ = type_.members[name]
-      //       match path {
-      //         TypePath::Member({name}) => {
-      //           name_ = name
-      //           break
-      //         }
-      //         TypePath::Object({name}, path) => {
-      //           name_ = name
-      //           path_ = path
-      //         }
-      //       }
-      //     }
-
-      //     {
-      //       name: name_
-      //       type_
-      //     }
-      //   }
-      // }
-      if typePath.kind == 'Member'
-        then self.getTypeBinding(typePath.value[0].name)
-        else {
-          let mut type_ = self.getTypeBinding(typePath.value[0].name).type_
-          let mut path = typePath.value[1]
-
-          while path.kind == 'Object' {
-            type_ = type_.members[path.value[0].name]
-            path = path.value[1]
+          while true {
+            // if not type_.members {
+            //   print('type_.members', type_)
+            // }
+            match path_ {
+              TypePath::Member({name}) => {
+                name_ = name
+                type_ = type_.getEnum().members[name]
+                break
+              }
+              TypePath::Object({name}, path) => {
+                name_ = name
+                path_ = path
+                type_ = type_.getEnum().members[name]
+              }
+            }
           }
 
           {
-            name: path.value[0].name
-            type_: type_.members[path.value[0].name]
+            name: name_
+            type_
           }
         }
+      }
     }
 
     define: |self, mut binding: Binding, allowRedeclare = false| {

@@ -296,19 +296,37 @@ Type.verboseName = function verboseName() {
     };
   };
 };
-Type.getFunction = function getFunction() {
+Type.getEnum = function getEnum() {
   var self = this;
   var __PUCK__value__26 = self.kind;
   var __PUCK__value__27 = __PUCK__value__26;
-  if ($unwrapTraitObject(__PUCK__value__27).kind == "Function") {
+  if ($unwrapTraitObject(__PUCK__value__27).kind == "Enum") {
     var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1),
-        _function = _PUCK__value__27$val[0];
+        enum_ = _PUCK__value__27$val[0];
 
-    return _function;
+    return enum_;
   } else {
     var __PUCK__value__28 = __PUCK__value__26;
     if (true) {
       var __PUCK__value__29 = __PUCK__value__28;
+      var name = Type.displayName.call(self);
+      throw (0, _js.Error)("Type " + name + " is not an enum");
+    };
+  };
+};
+Type.getFunction = function getFunction() {
+  var self = this;
+  var __PUCK__value__30 = self.kind;
+  var __PUCK__value__31 = __PUCK__value__30;
+  if ($unwrapTraitObject(__PUCK__value__31).kind == "Function") {
+    var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1),
+        _function = _PUCK__value__31$val[0];
+
+    return _function;
+  } else {
+    var __PUCK__value__32 = __PUCK__value__30;
+    if (true) {
+      var __PUCK__value__33 = __PUCK__value__32;
       var name = Type.displayName.call(self);
       throw (0, _js.Error)("Type " + name + " is not a function");
     };
@@ -316,52 +334,69 @@ Type.getFunction = function getFunction() {
 };
 Type.getTrait = function getTrait() {
   var self = this;
-  var __PUCK__value__30 = self.kind;
-  var __PUCK__value__31 = __PUCK__value__30;
-  if ($unwrapTraitObject(__PUCK__value__31).kind == "Trait") {
-    var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1),
-        trait_ = _PUCK__value__31$val[0];
+  var __PUCK__value__34 = self.kind;
+  var __PUCK__value__35 = __PUCK__value__34;
+  if ($unwrapTraitObject(__PUCK__value__35).kind == "Trait") {
+    var _PUCK__value__35$val = _slicedToArray(__PUCK__value__35.value, 1),
+        trait_ = _PUCK__value__35$val[0];
 
     return trait_;
   } else {
-    var __PUCK__value__32 = __PUCK__value__30;
+    var __PUCK__value__36 = __PUCK__value__34;
     if (true) {
-      var __PUCK__value__33 = __PUCK__value__32;
+      var __PUCK__value__37 = __PUCK__value__36;
       var name = Type.displayName.call(self);
       throw (0, _js.Error)("Type " + name + " is not a trait");
     };
   };
 };
-Type.isFunction = function isFunction() {
+Type.isEnum = function isEnum() {
   var self = this;
-  var __PUCK__value__34 = self.kind;
-  var __PUCK__value__35 = __PUCK__value__34;
-  if ($unwrapTraitObject(__PUCK__value__35).kind == "Function") {
-    var _PUCK__value__35$val = _slicedToArray(__PUCK__value__35.value, 1),
-        __PUCK__value__36 = _PUCK__value__35$val[0];
+  var __PUCK__value__38 = self.kind;
+  var __PUCK__value__39 = __PUCK__value__38;
+  if ($unwrapTraitObject(__PUCK__value__39).kind == "Enum") {
+    var _PUCK__value__39$val = _slicedToArray(__PUCK__value__39.value, 1),
+        __PUCK__value__40 = _PUCK__value__39$val[0];
 
     return true;
   } else {
-    var __PUCK__value__37 = __PUCK__value__34;
+    var __PUCK__value__41 = __PUCK__value__38;
     if (true) {
-      var __PUCK__value__38 = __PUCK__value__37;
+      var __PUCK__value__42 = __PUCK__value__41;
+      return false;
+    };
+  };
+};
+Type.isFunction = function isFunction() {
+  var self = this;
+  var __PUCK__value__43 = self.kind;
+  var __PUCK__value__44 = __PUCK__value__43;
+  if ($unwrapTraitObject(__PUCK__value__44).kind == "Function") {
+    var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
+        __PUCK__value__45 = _PUCK__value__44$val[0];
+
+    return true;
+  } else {
+    var __PUCK__value__46 = __PUCK__value__43;
+    if (true) {
+      var __PUCK__value__47 = __PUCK__value__46;
       return false;
     };
   };
 };
 Type.isParameter = function isParameter() {
   var self = this;
-  var __PUCK__value__39 = self.kind;
-  var __PUCK__value__40 = __PUCK__value__39;
-  if ($unwrapTraitObject(__PUCK__value__40).kind == "Parameter") {
-    var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1),
-        __PUCK__value__41 = _PUCK__value__40$val[0];
+  var __PUCK__value__48 = self.kind;
+  var __PUCK__value__49 = __PUCK__value__48;
+  if ($unwrapTraitObject(__PUCK__value__49).kind == "Parameter") {
+    var _PUCK__value__49$val = _slicedToArray(__PUCK__value__49.value, 1),
+        __PUCK__value__50 = _PUCK__value__49$val[0];
 
     return true;
   } else {
-    var __PUCK__value__42 = __PUCK__value__39;
+    var __PUCK__value__51 = __PUCK__value__48;
     if (true) {
-      var __PUCK__value__43 = __PUCK__value__42;
+      var __PUCK__value__52 = __PUCK__value__51;
       return false;
     };
   };
@@ -381,9 +416,8 @@ TypeClass.fromAstNode = function fromAstNode(astNode, reportError) {
     return _core.None;
   };
 };
-
 function getFunctionTypeName(_function) {
-  return getTupleTypeName(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _function._arguments, $isTraitObject: true }, function (a) {
+  return getTupleTypeName(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _function.parameters, $isTraitObject: true }, function (a) {
     return a.type_;
   })) + " -> " + (_function.returnType && Type.displayName.call(_function.returnType));
 };
@@ -404,37 +438,37 @@ function getRecordTypeName(properties) {
 function getGenericName(name, type_) {
   var showClassParameters = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
 
-  var __PUCK__value__44 = type_.instance;
-  var __PUCK__value__45 = void 0;
-  if ($unwrapTraitObject(__PUCK__value__44).kind == "Some") {
-    var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
-        instance = _PUCK__value__44$val[0];
+  var __PUCK__value__53 = type_.instance;
+  var __PUCK__value__54 = void 0;
+  if ($unwrapTraitObject(__PUCK__value__53).kind == "Some") {
+    var _PUCK__value__53$val = _slicedToArray(__PUCK__value__53.value, 1),
+        instance = _PUCK__value__53$val[0];
 
-    __PUCK__value__45 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: instance.typeParameters, $isTraitObject: true }, function (p) {
+    __PUCK__value__54 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: instance.typeParameters, $isTraitObject: true }, function (p) {
       return Type.displayName.call(p);
     }).value.join(", ") + ">";
   } else {
-    var __PUCK__value__46 = void 0;
+    var __PUCK__value__55 = void 0;
     if (showClassParameters) {
-      var __PUCK__value__47 = type_._class;
-      var __PUCK__value__48 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__47).kind == "Some") {
-        var _PUCK__value__47$val = _slicedToArray(__PUCK__value__47.value, 1),
-            _class = _PUCK__value__47$val[0];
+      var __PUCK__value__56 = type_._class;
+      var __PUCK__value__57 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__56).kind == "Some") {
+        var _PUCK__value__56$val = _slicedToArray(__PUCK__value__56.value, 1),
+            _class = _PUCK__value__56$val[0];
 
-        __PUCK__value__48 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _class.typeParameters, $isTraitObject: true }, function (p) {
+        __PUCK__value__57 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _class.typeParameters, $isTraitObject: true }, function (p) {
           return Type.displayName.call(p);
         }).value.join(", ") + ">";
       } else {
-        __PUCK__value__48 = "";
+        __PUCK__value__57 = "";
       };
-      __PUCK__value__46 = __PUCK__value__48;
+      __PUCK__value__55 = __PUCK__value__57;
     } else {
-      __PUCK__value__46 = "";
+      __PUCK__value__55 = "";
     };
-    __PUCK__value__45 = __PUCK__value__46;
+    __PUCK__value__54 = __PUCK__value__55;
   };
-  var parameters = __PUCK__value__45;
+  var parameters = __PUCK__value__54;
   if (Type.isFunction.call(type_)) {
     return parameters + name;
   } else {

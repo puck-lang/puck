@@ -87,7 +87,7 @@ function walkSync(directory) {
     if ($unwrapTraitObject($unwrapTraitObject(fs).statSync(file)).isDirectory()) {
       return walkSync(file, filelist);
     } else {
-      return $unwrapTraitObject(filelist).push(file);
+      return filelist.push(file);
     };
   });
   return filelist;

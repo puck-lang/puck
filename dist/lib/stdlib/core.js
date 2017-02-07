@@ -204,14 +204,14 @@ Result.mapErr = function mapErr(op) {
 Result.unwrap = function unwrap() {
   var self = this;
   if (Result.isErr.call(self)) {
-    throw (0, _js.Error)($unwrapTraitObject($unwrapTraitObject(self).value)[$unwrapTraitObject(0)]);
+    throw (0, _js.Error)($unwrapTraitObject(self.value)[0]);
   };
   return $unwrapTraitObject(self.value)[0];
 };
 Result.unwrapErr = function unwrapErr() {
   var self = this;
   if (Result.isOk.call(self)) {
-    throw (0, _js.Error)($unwrapTraitObject($unwrapTraitObject(self).value)[$unwrapTraitObject(0)]);
+    throw (0, _js.Error)($unwrapTraitObject(self.value)[0]);
   };
   return $unwrapTraitObject(self.value)[0];
 };

@@ -3,6 +3,10 @@
     "allowJs": true,
     "module": "commonjs",
     "target": "es5",
+    "lib": [
+      "es5",
+      "es2015"
+    ],
     "noImplicitAny": false,
     "sourceMap": false,
     "outDir": "dist/lib"

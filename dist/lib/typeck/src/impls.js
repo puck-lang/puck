@@ -155,7 +155,7 @@ function getImplementation(functionName, type_, e, reportError) {
   var __PUCK__value__16 = void 0;
   if ($unwrapTraitObject(implementations).length > 1) {
     __PUCK__value__16 = $unwrapTraitObject(implementations).filter(function (i) {
-      return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions[functionName])).argumentRange, e.argumentList.length);
+      return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions[functionName])).parameterRange, e.argumentList.length);
     });
   } else {
     __PUCK__value__16 = implementations;

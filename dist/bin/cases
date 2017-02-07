@@ -33,7 +33,7 @@ if (command == _js._undefined) {
     (0, _test.buildTestCompiler)();
     var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
     var caseFiles = (0, _helpers.walkSync)("test/cases");
-    var failCases = $unwrapTraitObject(caseFiles).filter(function (f) {
+    var failCases = caseFiles.filter(function (f) {
       return $unwrapTraitObject(failPattern).test(f);
     });
     (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");

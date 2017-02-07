@@ -11,7 +11,7 @@ type Record {a: Num, b: Num}
 enum Enum { A(Num) }
 
 let Tuple(p, q) = (1, 2)
-let Record {a: r} = {a: 1, b: 2}
+// let Record {a: r} = {a: 1, b: 2}
 let Enum::A(s) = Enum::A(1)
 
 let a = 2
