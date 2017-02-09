@@ -41,5 +41,5 @@ export fn InputStream(file: UnparsedFile) {
     process.exit(1)
   }
 
-  {next, peek, eof, croak, file, getLine: || line, getCol: || col}
+  {next, peek, eof, croak, file, getPosition: || {{line, column: col}}}
 }

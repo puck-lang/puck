@@ -24,15 +24,16 @@ var __PUCK__value__1 = _core.Option.Some(5);
 var __PUCK__value__2 = __PUCK__value__1;
 var __PUCK__value__3 = void 0;
 if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
-  var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-      num = _PUCK__value__2$valu[0];
+  var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+      _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+      num = _$unwrapTraitObject$v[0];
 
   __PUCK__value__3 = "" + num + "";
 } else {
   var __PUCK__value__4 = __PUCK__value__1;
   var __PUCK__value__5 = void 0;
   if ($unwrapTraitObject(__PUCK__value__4).kind == "None") {
-    var _undefined = __PUCK__value__4;
+    var _undefined = $unwrapTraitObject(__PUCK__value__4);
     __PUCK__value__5 = "nothing";
   };
   __PUCK__value__3 = __PUCK__value__5;
@@ -42,16 +43,18 @@ var __PUCK__value__6 = _core.Result.Ok(5);
 var __PUCK__value__7 = __PUCK__value__6;
 var __PUCK__value__8 = void 0;
 if ($unwrapTraitObject(__PUCK__value__7).kind == "Ok") {
-  var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-      _num = _PUCK__value__7$valu[0];
+  var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__7),
+      _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+      _num = _$unwrapTraitObject2$[0];
 
   __PUCK__value__8 = "" + _num + "";
 } else {
   var __PUCK__value__9 = __PUCK__value__6;
   var __PUCK__value__10 = void 0;
   if ($unwrapTraitObject(__PUCK__value__9).kind == "Err") {
-    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-        __PUCK__value__11 = _PUCK__value__9$valu[0];
+    var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__9),
+        _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+        __PUCK__value__11 = _$unwrapTraitObject3$[0];
 
     __PUCK__value__10 = "error";
   };
@@ -62,8 +65,9 @@ var __PUCK__value__12 = _core.Result.Ok(5);
 var __PUCK__value__13 = __PUCK__value__12;
 var __PUCK__value__14 = void 0;
 if ($unwrapTraitObject(__PUCK__value__13).kind == "Ok") {
-  var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
-      _num2 = _PUCK__value__13$val[0];
+  var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__13),
+      _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+      _num2 = _$unwrapTraitObject4$[0];
 
   __PUCK__value__14 = "" + _num2 + "";
 } else {
@@ -79,8 +83,9 @@ if ($unwrapTraitObject(__PUCK__value__13).kind == "Ok") {
 var __PUCK__value__18 = _core.Result.Ok(5);
 var __PUCK__value__19 = __PUCK__value__18;
 if ($unwrapTraitObject(__PUCK__value__19).kind == "Ok") {
-  var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
-      _num3 = _PUCK__value__19$val[0];
+  var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__19),
+      _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+      _num3 = _$unwrapTraitObject5$[0];
 
   _num3;
 } else {
@@ -94,15 +99,16 @@ var __PUCK__value__22 = _core.Option.Some(5);
 var __PUCK__value__23 = __PUCK__value__22;
 var __PUCK__value__24 = void 0;
 if ($unwrapTraitObject(__PUCK__value__23).kind == "Some") {
-  var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1),
-      _num4 = _PUCK__value__23$val[0];
+  var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__23),
+      _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+      _num4 = _$unwrapTraitObject6$[0];
 
   __PUCK__value__24 = _num4;
 } else {
   var __PUCK__value__25 = __PUCK__value__22;
   var __PUCK__value__26 = void 0;
   if ($unwrapTraitObject(__PUCK__value__25).kind == "None") {
-    var _undefined2 = __PUCK__value__25;
+    var _undefined2 = $unwrapTraitObject(__PUCK__value__25);
     __PUCK__value__26 = 0;
   };
   __PUCK__value__24 = __PUCK__value__26;
@@ -112,15 +118,16 @@ var __PUCK__value__27 = _core.Option.None;
 var __PUCK__value__28 = __PUCK__value__27;
 var __PUCK__value__29 = void 0;
 if ($unwrapTraitObject(__PUCK__value__28).kind == "Some") {
-  var _PUCK__value__28$val = _slicedToArray(__PUCK__value__28.value, 1),
-      __PUCK__value__30 = _PUCK__value__28$val[0];
+  var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__28),
+      _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+      __PUCK__value__30 = _$unwrapTraitObject7$[0];
 
   __PUCK__value__29 = "someting";
 } else {
   var __PUCK__value__31 = __PUCK__value__27;
   var __PUCK__value__32 = void 0;
   if ($unwrapTraitObject(__PUCK__value__31).kind == "None") {
-    var _undefined3 = __PUCK__value__31;
+    var _undefined3 = $unwrapTraitObject(__PUCK__value__31);
     __PUCK__value__32 = "nothing";
   };
   __PUCK__value__29 = __PUCK__value__32;
@@ -138,16 +145,18 @@ var __PUCK__value__37 = _core.Result.Err(5);
 var __PUCK__value__38 = __PUCK__value__37;
 var __PUCK__value__39 = void 0;
 if ($unwrapTraitObject(__PUCK__value__38).kind == "Ok") {
-  var _PUCK__value__38$val = _slicedToArray(__PUCK__value__38.value, 1),
-      __PUCK__value__40 = _PUCK__value__38$val[0];
+  var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__38),
+      _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+      __PUCK__value__40 = _$unwrapTraitObject8$[0];
 
   __PUCK__value__39 = "ok";
 } else {
   var __PUCK__value__41 = __PUCK__value__37;
   var __PUCK__value__42 = void 0;
   if ($unwrapTraitObject(__PUCK__value__41).kind == "Err") {
-    var _PUCK__value__41$val = _slicedToArray(__PUCK__value__41.value, 1),
-        err = _PUCK__value__41$val[0];
+    var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__41),
+        _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+        err = _$unwrapTraitObject9$[0];
 
     __PUCK__value__42 = "error: " + err + "";
   };
@@ -160,22 +169,24 @@ function sayHello(name) {
 var __PUCK__value__43 = _core.Option.Some("World");
 var __PUCK__value__44 = __PUCK__value__43;
 if ($unwrapTraitObject(__PUCK__value__44).kind == "Some") {
-  var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
-      name = _PUCK__value__44$val[0];
+  var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__44),
+      _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+      name = _$unwrapTraitObject11[0];
 
   name = $unwrapTraitObject(name).toUpperCase();
   sayHello(name);
 } else {
   var __PUCK__value__45 = __PUCK__value__43;
   if ($unwrapTraitObject(__PUCK__value__45).kind == "None") {
-    var _undefined4 = __PUCK__value__45;
+    var _undefined4 = $unwrapTraitObject(__PUCK__value__45);
     (0, _core.print)("Oh, nothing");
   };
 };
 var __PUCK__value__46 = Value.One({ value: "World" });
 var __PUCK__value__47 = __PUCK__value__46;
 if ($unwrapTraitObject(__PUCK__value__47).kind == "One") {
-  var value = __PUCK__value__47.value.value;
+  var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__47),
+      value = _$unwrapTraitObject12.value.value;
 
   sayHello(value);
 } else {
@@ -188,12 +199,12 @@ if ($unwrapTraitObject(__PUCK__value__47).kind == "One") {
 var __PUCK__value__50 = Value.Two;
 var __PUCK__value__51 = __PUCK__value__50;
 if ($unwrapTraitObject(__PUCK__value__51).kind == "Two") {
-  var _undefined5 = __PUCK__value__51;
+  var _undefined5 = $unwrapTraitObject(__PUCK__value__51);
   (0, _core.print)("two");
 } else {
   var __PUCK__value__52 = __PUCK__value__50;
   if ($unwrapTraitObject(__PUCK__value__52).kind == "Three") {
-    var _undefined6 = __PUCK__value__52;
+    var _undefined6 = $unwrapTraitObject(__PUCK__value__52);
     (0, _core.print)("three");
   } else {
     var __PUCK__value__53 = __PUCK__value__50;
@@ -206,12 +217,12 @@ if ($unwrapTraitObject(__PUCK__value__51).kind == "Two") {
 var __PUCK__value__55 = Value.Three;
 var __PUCK__value__56 = __PUCK__value__55;
 if ($unwrapTraitObject(__PUCK__value__56).kind == "Two") {
-  var _undefined7 = __PUCK__value__56;
+  var _undefined7 = $unwrapTraitObject(__PUCK__value__56);
   (0, _core.print)("two");
 } else {
   var __PUCK__value__57 = __PUCK__value__55;
   if ($unwrapTraitObject(__PUCK__value__57).kind == "Three") {
-    var _undefined8 = __PUCK__value__57;
+    var _undefined8 = $unwrapTraitObject(__PUCK__value__57);
     (0, _core.print)("three");
   } else {
     var __PUCK__value__58 = __PUCK__value__55;
@@ -227,27 +238,31 @@ function func() {
 var __PUCK__value__60 = func();
 var __PUCK__value__61 = __PUCK__value__60;
 if ($unwrapTraitObject(__PUCK__value__61).kind == "Ok") {
-  var _PUCK__value__61$val = _slicedToArray(__PUCK__value__61.value, 1),
-      __PUCK__value__62 = _PUCK__value__61$val[0];
+  var _$unwrapTraitObject13 = $unwrapTraitObject(__PUCK__value__61),
+      _$unwrapTraitObject14 = _slicedToArray(_$unwrapTraitObject13.value, 1),
+      __PUCK__value__62 = _$unwrapTraitObject14[0];
 
   (0, _core.print)("ok");
 } else {
   var __PUCK__value__63 = __PUCK__value__60;
   if ($unwrapTraitObject(__PUCK__value__63).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__63).value)[$unwrapTraitObject(0)]).kind == "One") {
-    var _PUCK__value__63$val = _slicedToArray(__PUCK__value__63.value, 1),
-        _value = _PUCK__value__63$val[0].value.value;
+    var _$unwrapTraitObject15 = $unwrapTraitObject(__PUCK__value__63),
+        _$unwrapTraitObject16 = _slicedToArray(_$unwrapTraitObject15.value, 1),
+        _value = _$unwrapTraitObject16[0].value.value;
 
     sayHello(_value);
   } else {
     var __PUCK__value__64 = __PUCK__value__60;
     if ($unwrapTraitObject(__PUCK__value__64).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__64).value)[$unwrapTraitObject(0)]).kind == "Two") {
-      var _PUCK__value__64$val = _toArray(__PUCK__value__64.value);
+      var _$unwrapTraitObject17 = $unwrapTraitObject(__PUCK__value__64),
+          _$unwrapTraitObject18 = _toArray(_$unwrapTraitObject17.value);
 
       (0, _core.print)("two");
     } else {
       var __PUCK__value__65 = __PUCK__value__60;
       if ($unwrapTraitObject(__PUCK__value__65).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__65).value)[$unwrapTraitObject(0)]).kind == "Three") {
-        var _PUCK__value__65$val = _toArray(__PUCK__value__65.value);
+        var _$unwrapTraitObject19 = $unwrapTraitObject(__PUCK__value__65),
+            _$unwrapTraitObject20 = _toArray(_$unwrapTraitObject19.value);
 
         (0, _core.print)("three");
       };
@@ -257,33 +272,35 @@ if ($unwrapTraitObject(__PUCK__value__61).kind == "Ok") {
 var __PUCK__value__66 = _core.Option.Some(_core.Option.Some(5));
 var __PUCK__value__67 = __PUCK__value__66;
 if ($unwrapTraitObject(__PUCK__value__67).kind == "Some") {
-  var _PUCK__value__67$val = _slicedToArray(__PUCK__value__67.value, 1),
-      inner = _PUCK__value__67$val[0];
+  var _$unwrapTraitObject21 = $unwrapTraitObject(__PUCK__value__67),
+      _$unwrapTraitObject22 = _slicedToArray(_$unwrapTraitObject21.value, 1),
+      inner = _$unwrapTraitObject22[0];
 
   var __PUCK__value__68 = inner;
   var __PUCK__value__69 = __PUCK__value__68;
   if ($unwrapTraitObject(__PUCK__value__69).kind == "Some") {
-    var _PUCK__value__69$val = _slicedToArray(__PUCK__value__69.value, 1),
-        _value2 = _PUCK__value__69$val[0];
+    var _$unwrapTraitObject23 = $unwrapTraitObject(__PUCK__value__69),
+        _$unwrapTraitObject24 = _slicedToArray(_$unwrapTraitObject23.value, 1),
+        _value2 = _$unwrapTraitObject24[0];
 
     _value2;
   } else {
     var __PUCK__value__70 = __PUCK__value__68;
     if ($unwrapTraitObject(__PUCK__value__70).kind == "None") {
-      var _undefined9 = __PUCK__value__70;
+      var _undefined9 = $unwrapTraitObject(__PUCK__value__70);
       0;
     };
   };
 } else {
   var __PUCK__value__71 = __PUCK__value__66;
   if ($unwrapTraitObject(__PUCK__value__71).kind == "None") {
-    var _undefined10 = __PUCK__value__71;
+    var _undefined10 = $unwrapTraitObject(__PUCK__value__71);
     0;
   };
 };
 var __PUCK__value__72 = _Object._Object;
 var __PUCK__value__73 = __PUCK__value__72;
 if ($unwrapTraitObject(__PUCK__value__73).kind == "_Object") {
-  var _undefined11 = __PUCK__value__73;
+  var _undefined11 = $unwrapTraitObject(__PUCK__value__73);
   "Object";
 }

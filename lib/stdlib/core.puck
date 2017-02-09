@@ -142,8 +142,10 @@ export trait Iterable<E> {
   fn any(self, predicate: (E) -> Bool) -> Bool
   fn find(self, predicate: (E) -> Bool) -> Option<E>
 
+  fn filter(self, func: (E) -> Bool) -> Iterable<E>
   fn forEach(self, func: (E) -> ()) -> ()
   fn map<U>(self, func: (E) -> U) -> Iterable<U>
+  fn filterMap<U>(self, func: (E) -> Option<U>) -> Iterable<U>
 
   /// Returns an [Iterable] that provides all but the first [count] elements.
   fn skip(self, count: Num) -> Iterable<E>
@@ -216,8 +218,22 @@ impl<E> Iterable<E> for List<E> {
     anyCast(self).forEach(func)
   }
 
+  fn filter(self, func: (E) -> Bool) -> Iterable<E> {
+    asList(anyCast(self).filter(func))
+  }
+
   fn map<U>(self, func: (E) -> U) -> Iterable<U> {
     asList(anyCast(self).map(func))
+  }
+
+  fn filterMap<U>(self, func: (E) -> Option<U>) -> Iterable<U> {
+    let mut newList = []
+    self.forEach(|element| {
+      if let Option::Some(mappedElement) = func(element) {
+        newList.add(mappedElement)
+      }
+    })
+    newList
   }
 
   fn skip(self, count: Num) -> Iterable<E> {
@@ -340,3 +356,5 @@ impl<T> ObjectMap<T> {
     Object.keys(self).length
   }
 }
+
+export enum Never {}

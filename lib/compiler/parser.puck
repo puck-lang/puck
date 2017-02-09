@@ -72,18 +72,18 @@ import 'ast.ts' as {
 
 export fn parse(input) { // : TokenStream
 
-  fn isToken(kind, withDummy = false) { // kind: SyntaxKind
+  fn isToken(kind, withDummy = false) -> Bool { // kind: SyntaxKind
     let token = input.peek(withDummy)
     token and token.kind == kind
   }
 
-  fn tokenName(token: Token) {
+  fn tokenName(token) -> String { // : {kind: SyntaxKind}
     if typeof(tokenToText[token.kind]) == 'function' then tokenToText[token.kind](token)
     else if tokenToText[token.kind] then tokenToText[token.kind]
     else SyntaxKind[token.kind]
   }
 
-  fn expect(expect, name = 'token') { // kind: SyntaxKind
+  fn expect(expect, name = 'token') -> Token { // kind: SyntaxKind
     let token = input.peek()
     if not isToken(expect) {
       let expectedText = ': "' + tokenName({kind: expect}) + '"'
@@ -102,18 +102,23 @@ export fn parse(input) { // : TokenStream
   }
 
   // fn consumeToken(token: SyntaxKind = undefined, name = undefined) {
-  fn consumeToken(token, name = 'token') {
+  fn consumeToken(token, name = 'token') -> Token {
     if token then expect(token, name)
-    return input.next()
+    input.next()
   }
 
-  fn maybeConsumeToken<T>(token, name = 'token') -> Option<T> {
+  fn consumeIdentifier() -> Identifier {
+    expect(SyntaxKind.Identifier, 'identifier')
+    input.next()
+  }
+
+  fn maybeConsumeToken(token, name = 'token') -> Option<Token> {
     if isToken(token)
       then Some(consumeToken(token, name))
       else None
   }
 
-  fn skipKeyword(kw) { // kind: SyntaxKind
+  fn skipKeyword(kw) -> Token { // kind: SyntaxKind
     expect(kw, 'keyword')
     input.next()
   }
@@ -125,7 +130,7 @@ export fn parse(input) { // : TokenStream
     input.croak('Unexpected token: $name')
   }
 
-  fn consumeSeparator(kind) { // kind: SyntaxKind
+  fn consumeSeparator(kind) -> () { // kind: SyntaxKind
     if not input.eof() {
       let mut token = input.peek(true)
 
@@ -136,7 +141,7 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn isAssignment(token: Token) {
+  fn isAssignment(token: Token) -> Bool {
     if not token then return undefined
 
     token.kind == SyntaxKind.EqualsToken
@@ -239,7 +244,7 @@ export fn parse(input) { // : TokenStream
       input.next()
       maybeAccess(Expression::MemberAccess({
         object: token
-        member: consumeToken(SyntaxKind.Identifier, 'identifier')
+        member: consumeIdentifier()
       }))
     }
     else token
@@ -247,20 +252,22 @@ export fn parse(input) { // : TokenStream
 
   fn maybeIndexAccess(token: Expression) -> Expression {
     if isToken(SyntaxKind.OpenBracketToken, true) {
-      input.next()
+      let openBracket = input.next()
       let index = parseExpression()
-      consumeToken(SyntaxKind.CloseBracketToken)
+      let closeBracket = consumeToken(SyntaxKind.CloseBracketToken)
 
       maybeAccess(Expression::IndexAccess({
         object: token
+        openBracket
         index
+        closeBracket
       }))
     }
     else token
   }
 
   // fn delimited<T>(start: SyntaxKind|string, stop: SyntaxKind|string, separator: SyntaxKind|string|(fn () then void), parser: fn () then T) -> Array<T> {
-  fn delimited<T>(mut start, mut stop, mut separator, parser: () -> T, consumeStop = true) -> List<T> {
+  fn delimited<T>(mut start, mut stop, mut separator, parser: () -> T, consumeStop) -> List<T> {
     if typeof(start) == 'string' then start = textToToken[start]
     if typeof(stop) == 'string' then stop = textToToken[stop]
     if typeof(separator) == 'string' then separator = textToToken[separator]
@@ -374,10 +381,10 @@ export fn parse(input) { // : TokenStream
 
   fn parseEnumDeclaration() -> EnumDeclaration {
     let keyword = consumeToken(SyntaxKind.EnumKeyword)
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let name = consumeIdentifier()
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeParameter)
+        then delimited('<', '>', ',', parseTypeParameter, true)
         else []
 
     let openBrace = input.peek()
@@ -395,7 +402,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseEnumMember() -> EnumMember {
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let name = consumeIdentifier()
 
     let bound =
       if isToken(SyntaxKind.OpenBraceToken)
@@ -414,7 +421,7 @@ export fn parse(input) { // : TokenStream
     let implKeyword = consumeToken(SyntaxKind.ImplKeyword)
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeParameter)
+        then delimited('<', '>', ',', parseTypeParameter, true)
       else []
 
     let trait_ = parseTypeBound()
@@ -465,10 +472,10 @@ export fn parse(input) { // : TokenStream
 
   fn parseTraitDeclaration() -> TraitDeclaration {
     let keyword = consumeToken(SyntaxKind.TraitKeyword)
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let name = consumeIdentifier()
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeParameter)
+        then delimited('<', '>', ',', parseTypeParameter, true)
       else []
 
     let openBrace = expect(SyntaxKind.OpenBraceToken)
@@ -496,10 +503,10 @@ export fn parse(input) { // : TokenStream
 
   fn parseTypeDeclaration() -> TypeDeclaration {
     let keyword = consumeToken(SyntaxKind.TypeKeyword)
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let name = consumeIdentifier()
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeParameter)
+        then delimited('<', '>', ',', parseTypeParameter, true)
         else []
 
     let bound =
@@ -569,7 +576,7 @@ export fn parse(input) { // : TokenStream
 
     let locator = consumeToken(SyntaxKind.StringLiteral)
     if locator.parts.length != 1 then throw Error('More than one part in import string')
-    let parts = locator.parts[0].value.split(':')
+    let parts = locator.parts[0].value[0].value.split(':')
     if parts > 2 then input.croak('Illegal token ":" used in import path')
     let domain = if parts.length == 2 then Some(parts[0]) else None
     let path = if parts.length == 2 then parts[1] else parts[0]
@@ -580,7 +587,7 @@ export fn parse(input) { // : TokenStream
         then ImportSpecifier::ObjectDestructure(parseObjectDestructure())
       else if isToken(SyntaxKind.AsteriskToken)
         then ImportSpecifier::Asterisk(consumeToken(false))
-      else ImportSpecifier::Identifier(consumeToken(SyntaxKind.Identifier, 'identifier'))
+      else ImportSpecifier::Identifier(consumeIdentifier())
 
     {
       importKeyword
@@ -604,11 +611,11 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseObjectDestructureMember() -> ObjectDestructureMember {
-    let property = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let property = consumeIdentifier()
     let local =
       if isToken(SyntaxKind.ColonToken) {
         input.next()
-        consumeToken(SyntaxKind.Identifier, 'identifier')
+        consumeIdentifier()
       }
       else property
 
@@ -619,8 +626,14 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseBlock() -> Block {
+    let openBrace = Some(input.peek())
+    let statements = delimited('{', '}', ';', parseBlockLevelStatement, false)
+    let closeBrace = Some(consumeToken(SyntaxKind.CloseBraceToken))
+
     {
-      statements: delimited('{', '}', ';', parseBlockLevelStatement)
+      openBrace
+      statements
+      closeBrace
       type_: undefined
     }
   }
@@ -648,15 +661,15 @@ export fn parse(input) { // : TokenStream
 
   fn parseFunctionDeclaration(optionalBody = false) -> FunctionDeclaration {
     consumeToken(SyntaxKind.FnKeyword)
-    let name = maybeConsumeToken(SyntaxKind.Identifier, 'identifier')
+    let name =
       if isToken(SyntaxKind.Identifier)
-        then Some(consumeToken(SyntaxKind.Identifier, 'identifier'))
+        then Some(consumeIdentifier())
         else None
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeParameter)
+        then delimited('<', '>', ',', parseTypeParameter, true)
         else []
-    let parameterList = delimited('(', ')', ',', parseVariableDeclaration)
+    let parameterList = delimited('(', ')', ',', parseVariableDeclaration, true)
 
     let returnType =
       if maybeConsumeToken(SyntaxKind.MinusGreaterThanToken).isSome()
@@ -679,13 +692,15 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseLambda() -> FunctionDeclaration {
-    let parameterList = delimited('|', '|', ',', parseVariableDeclaration)
+    let parameterList = delimited('|', '|', ',', parseVariableDeclaration, true)
 
     let body =
       if isToken(SyntaxKind.OpenBraceToken)
         then Some(parseBlock())
         else Some({
+          openBrace: None
           statements: [parseBlockLevelStatement()]
+          closeBrace: None
           type_: undefined
         })
 
@@ -728,7 +743,9 @@ export fn parse(input) { // : TokenStream
         else {
           skipKeyword(SyntaxKind.ThenKeyword)
           {
+            openBrace: None
             statements: [parseBlockLevelStatement()]
+            closeBrace: None
             type_: undefined
           }
         }
@@ -744,7 +761,9 @@ export fn parse(input) { // : TokenStream
             if isToken(SyntaxKind.OpenBraceToken)
               then parseBlock()
               else ({
+                openBrace: None
                 statements: [parseBlockLevelStatement()]
+                closeBrace: None
                 type_: undefined
               })
           )
@@ -765,7 +784,9 @@ export fn parse(input) { // : TokenStream
         else {
           skipKeyword(SyntaxKind.ThenKeyword)
           {
+            openBrace: None
             statements: [parseBlockLevelStatement()]
+            closeBrace: None
             type_: undefined
           }
         }
@@ -783,7 +804,9 @@ export fn parse(input) { // : TokenStream
             if isToken(SyntaxKind.OpenBraceToken)
               then parseBlock()
               else ({
+                openBrace: None
                 statements: [parseBlockLevelStatement()]
+                closeBrace: None
                 type_: undefined
               })
           )
@@ -809,7 +832,9 @@ export fn parse(input) { // : TokenStream
       if isToken(SyntaxKind.OpenBraceToken)
         then parseBlock()
         else {{
+          openBrace: None
           statements: [parseBlockLevelStatement()]
+          closeBrace: None
           type_: undefined
         }}
     {
@@ -829,7 +854,15 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseListLiteral() -> ListLiteral {
-    {members: delimited('[', ']', ',', parseExpression)}
+    let openBracket = input.peek()
+    let members = delimited('[', ']', ',', parseExpression, false)
+    let closeBracket = consumeToken(SyntaxKind.CloseBracketToken)
+
+    {
+      openBracket
+      members
+      closeBracket
+    }
   }
 
   fn parseRecordLiteral() -> RecordLiteral {
@@ -844,7 +877,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseRecordLiteralMember() -> RecordLiteralMember {
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let name = consumeIdentifier()
     let value =
       if isToken(SyntaxKind.ColonToken) {
         input.next()
@@ -873,14 +906,14 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parsePattern() -> Pattern {
-    if maybeConsumeToken(SyntaxKind.UnderscoreToken).isSome()
-      then Pattern.CatchAll
+    if let Option::Some(token) = maybeConsumeToken(SyntaxKind.UnderscoreToken)
+      then Pattern::CatchAll(token)
     else if isToken(SyntaxKind.OpenParenToken)
-      then Pattern.Tuple(parseTuplePattern())
+      then Pattern::Tuple(parseTuplePattern())
     else if isToken(SyntaxKind.OpenBraceToken)
-      then Pattern.Record(parseRecordPattern())
+      then Pattern::Record(parseRecordPattern())
     else {
-      let identifier = consumeToken(SyntaxKind.Identifier, 'identifier')
+      let identifier = consumeIdentifier()
 
       if isToken(SyntaxKind.ColonColonToken)
       or isToken(SyntaxKind.OpenParenToken)
@@ -888,12 +921,12 @@ export fn parse(input) { // : TokenStream
         let typePath = parseTypePath(Some(identifier))
 
         if isToken(SyntaxKind.OpenParenToken)
-          then Pattern.TupleType(typePath, parseTuplePattern())
+          then Pattern::TupleType(typePath, parseTuplePattern())
         else if isToken(SyntaxKind.OpenBraceToken)
           then Pattern.RecordType(typePath, parseRecordPattern())
-        else Pattern.UnitType(typePath)
+        else Pattern::UnitType(typePath)
       }
-      else Pattern.Identifier(identifier)
+      else Pattern::Identifier(identifier)
     }
   }
 
@@ -906,7 +939,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseRecordPatternMember() -> RecordPatternMember {
-    let property = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let property = consumeIdentifier()
     let pattern =
       if maybeConsumeToken(SyntaxKind.ColonToken).isSome()
         then parsePattern()
@@ -940,7 +973,7 @@ export fn parse(input) { // : TokenStream
   fn parseFunctionTypeBound(tuple: Option<TypeBound>) -> TypeBound {
     let typeParameters =
       if tuple.isNone() and isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeParameter)
+        then delimited('<', '>', ',', parseTypeParameter, true)
         else []
 
     let parameters = tuple.unwrapOrElse(parseTupleTypeBound).getTupleTypeBound()
@@ -958,7 +991,7 @@ export fn parse(input) { // : TokenStream
     let path = parseTypePath(None)
     let typeParameters =
       if isToken(SyntaxKind.LessThanToken)
-        then delimited('<', '>', ',', parseTypeBound)
+        then delimited('<', '>', ',', parseTypeBound, true)
         else []
 
     TypeBound::NamedTypeBound({
@@ -981,7 +1014,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseRecordTypeBoundMember() -> RecordTypeBoundMember {
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let name = consumeIdentifier()
     consumeToken(SyntaxKind.ColonToken)
     let typeBound = parseTypeBound()
     {
@@ -1004,7 +1037,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseTypeParameter() -> TypeParameter {
-    let name = consumeToken(SyntaxKind.Identifier, 'identifier')
+    let name = consumeIdentifier()
     let defaultValue =
       if isToken(SyntaxKind.EqualsToken) {
         input.next()
@@ -1019,7 +1052,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseTypePath(identifier: Option<Identifier>) -> TypePath {
-    let i = identifier.unwrapOrElse(|| consumeToken(SyntaxKind.Identifier, 'identifier'))
+    let i = identifier.unwrapOrElse(consumeIdentifier)
 
     if maybeConsumeToken(SyntaxKind.ColonColonToken).isSome()
       then TypePath::Object(i, parseTypePath(None))

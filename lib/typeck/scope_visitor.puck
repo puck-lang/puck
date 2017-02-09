@@ -61,6 +61,7 @@ import '../ast/ast.puck' as {
   TupleTypeBound
   TypeParameter
 }
+import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/enums.puck' as {checkExhaustive}
@@ -99,7 +100,7 @@ fn asIterable<E>(a: List<E>) -> Iterable<E> {a}
 export fn ScopeVisitor(context, file) {
   let mut importDirective: ImportDirective
   let mut matchExpression: Option<MatchExpression> = None
-  let reportError = context.reportError.bind(context, file)
+  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
 
   fn getBinding(e: Expression) -> Option<Binding> {
     match e {
@@ -213,7 +214,8 @@ export fn ScopeVisitor(context, file) {
     function
   }
 
-  Object.assign({}, visit.walkingVisitor, structureVisitor, {
+  let structureVisitorInstance = structureVisitor(reportError)
+  Object.assign({}, visit.walkingVisitor, structureVisitorInstance, {
     reportError
 
     visitModule: |mut self, mut m: Module| {
@@ -311,7 +313,7 @@ export fn ScopeVisitor(context, file) {
       visit.walkIdentifier(self, i)
     }
     visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration, isHoisting = false| {
-      structureVisitor.visitFunctionDeclaration.call(self, f)
+      structureVisitorInstance.visitFunctionDeclaration.call(self, f)
 
       if not isHoisting {
         let selfScope = self.scope
@@ -338,7 +340,7 @@ export fn ScopeVisitor(context, file) {
       }
     }
     visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, type_, allowNotExhaustive = false| {
-      structureVisitor.visitVariableDeclaration.call(
+      structureVisitorInstance.visitVariableDeclaration.call(
         self
         d
         if visitInitializer
@@ -490,10 +492,10 @@ export fn ScopeVisitor(context, file) {
       match result {
         Result::Ok(patternTy) => {
           if not isAssignable(e.expression.getType(), patternTy)
-            then self.reportError(e.expression, notAssignableError(patternTy, e.expression.getType()))
+            then reportError(e.expression, notAssignableError(patternTy, e.expression.getType()))
         }
         Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
-          self.reportError(e.expression, notAssignableError(to, subject))
+          reportError(e.expression, notAssignableError(to, subject))
         }
         _ => {}
       }
@@ -535,7 +537,7 @@ export fn ScopeVisitor(context, file) {
       e.patterns.forEach(|a| self.visitMatchArm(a, isUsed))
 
       if let Result::Err(error) = checkExhaustive(e) {
-        self.reportError(e, error)
+        reportError(e, error)
       }
       if isUsed {
         e.type_ =
@@ -570,10 +572,10 @@ export fn ScopeVisitor(context, file) {
       match result {
         Result::Ok(patternTy) => {
           if not isAssignable(m.expression.getType(), patternTy)
-            then self.reportError(a, notAssignableError(m.expression.getType(), patternTy))
+            then reportError(a, notAssignableError(m.expression.getType(), patternTy))
         }
         Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
-          self.reportError(a, notAssignableError(to, subject))
+          reportError(a, notAssignableError(to, subject))
         }
         _ => {}
       }
@@ -586,87 +588,89 @@ export fn ScopeVisitor(context, file) {
     visitTypePathExpression: |self, mut e: TypePathExpression| {
       e.scope = self.scope
       let typePath = e.typePath
-      if typePath.kind == '_Object' {
-        let binding = e.scope.getTypeBinding(typePath.value[0].name)
+      if let TypePath::Object(object, typePath) = typePath {
+        let binding = e.scope.getTypeBinding(object.name)
         if not binding
-          then self.reportError(e, 'Use of undeclared type ' + typePath.value[0].name)
+          then reportError(e, 'Use of undeclared type ' + object.name)
         let type_: Type = binding.type_
 
-        if typePath.value[1].kind != 'Member'
-          then self.reportError(e, 'Nested type paths are not supported')
+        if let TypePath::Member(memberIdentifier) = typePath {
+          if let TypeKind::Enum(enum_) = type_.kind {
+            let member: Type = enum_.members[memberIdentifier.name]
+            if not member {
+              reportError(memberIdentifier, type_.displayName() + ' has no member named ' + memberIdentifier.name)
+            }
+            else match member.kind {
+              TypeKind::Struct(struct) => match struct.kind {
+                StructKind::Record(record) => {
+                  e.type_ = {
+                    displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
+                    name: type_.name
+                    kind: TypeKind::Function({
+                      selfBinding: None
+                      parameters: [{
+                        name: memberIdentifier.name
+                        token: memberIdentifier
+                        mutable: false
+                        type_: member
+                        redefined: false
+                      }]
+                      parameterRange: {start: 1, end: 2}
+                      returnType:
+                        if let Option::Some(class) = type_.class
+                          then createTypeInstance(type_, asIterable(class.typeParameters))
+                          else type_
+                      isAbstract: false
+                    })
+                    class: type_.class.map(|class| Object.assign({}, class, {instances: []}))
+                    instance: type_.instance
+                  }
+                }
 
-        if let TypeKind::Enum(enum_) = type_.kind {
-          let memberIdentifier = typePath.value[1].value[0]
-          let member: Type = enum_.members[memberIdentifier.name]
-          if not member {
-            reportError(memberIdentifier, type_.displayName() + ' has no member named ' + memberIdentifier.name)
-          }
-          else match member.kind {
-            TypeKind::Struct(struct) => match struct.kind {
-              StructKind::Record(record) => {
-                e.type_ = {
-                  displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
-                  name: type_.name
-                  kind: TypeKind::Function({
-                    selfBinding: None
-                    parameters: [{
-                      name: memberIdentifier.name
-                      token: memberIdentifier
-                      mutable: false
-                      type_: member
-                      redefined: false
-                    }]
-                    parameterRange: {start: 1, end: 2}
-                    returnType:
-                      if let Option::Some(class) = type_.class
-                        then createTypeInstance(type_, asIterable(class.typeParameters))
-                        else type_
-                    isAbstract: false
-                  })
-                  class: type_.class.map(|class| Object.assign({}, class, {instances: []}))
-                  instance: type_.instance
+                StructKind::Tuple(tuple) => {
+                  e.type_ = {
+                    displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
+                    name: type_.name
+                    kind: TypeKind::Function({
+                      selfBinding: None
+                      parameters: tuple.properties.enumerate().map(|(p, i)| {{
+                        name: i.toString()
+                        token: memberIdentifier
+                        mutable: false
+                        type_: p
+                        redefined: false
+                      }}).toList()
+                      parameterRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
+                      returnType:
+                        if let Option::Some(class) = type_.class
+                          then createTypeInstance(type_, asIterable(class.typeParameters))
+                          else type_
+                      isAbstract: false
+                    })
+                    class: type_.class.map(|class| Object.assign({}, class, {instances: []}))
+                    instance: type_.instance
+                  }
+                }
+
+                StructKind::Unit => {
+                  e.type_ = {
+                    displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
+                    name: type_.name
+                    kind: type_.kind
+                    class: type_.class
+                    instance: type_.instance
+                  }
                 }
               }
-
-              StructKind::Tuple(tuple) => {
-                e.type_ = {
-                  displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
-                  name: type_.name
-                  kind: TypeKind::Function({
-                    selfBinding: None
-                    parameters: tuple.properties.enumerate().map(|(p, i)| {{
-                      name: i.toString()
-                      token: memberIdentifier
-                      mutable: false
-                      type_: p
-                      redefined: false
-                    }}).toList()
-                    parameterRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
-                    returnType:
-                      if let Option::Some(class) = type_.class
-                        then createTypeInstance(type_, asIterable(class.typeParameters))
-                        else type_
-                    isAbstract: false
-                  })
-                  class: type_.class.map(|class| Object.assign({}, class, {instances: []}))
-                  instance: type_.instance
-                }
-              }
-
-              StructKind::Unit => {
-                e.type_ = {
-                  displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
-                  name: type_.name
-                  kind: type_.kind
-                  class: type_.class
-                  instance: type_.instance
-                }
+              _ => {
+                throw 'enum arm is not a struct'
               }
             }
-            _ => {
-              throw 'enum arm is not a struct'
-            }
           }
+        }
+        else {
+          reportError(e, 'Nested type paths are not supported')
+          ()
         }
       }
     }

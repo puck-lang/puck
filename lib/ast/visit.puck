@@ -43,6 +43,7 @@ import 'ast.puck' as {
   NumberLiteral
   RecordLiteral
   StringLiteral
+  StringLiteralPart
   TupleLiteral
 
   Pattern
@@ -401,8 +402,11 @@ export fn walkRecordLiteral(visitor: Visitor, l: RecordLiteral) {
 }
 export fn walkStringLiteral(visitor: Visitor, l: StringLiteral) {
   l.parts
-    .filter(|p| p.kind == SyntaxKind.Identifier)
-    .forEach(visitor.visitIdentifier.bind(visitor))
+    .filterMap(|p| match p {
+      StringLiteralPart::Identifier(identifier) => Some(identifier)
+      _ => None
+    })
+    .forEach(|i| visitor.visitIdentifier(i))
 }
 export fn walkTupleLiteral(visitor: Visitor, l: TupleLiteral) {
   l.expressions.forEach(visitor.visitExpression.bind(visitor))

@@ -1,4 +1,4 @@
-import 'puck:js' as {Object}
+import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
   Module
   Expression
@@ -20,9 +20,10 @@ import '../ast/ast.puck' as {
 
   TypeBound
 }
+import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../entities.puck' as {StructKind, TypeClass, TypeKind}
+import '../entities.puck' as {Scope, StructKind, TypeClass, TypeKind}
 import 'src/scope.puck' as {createScope}
 
 /// Visits and declares top level bindings
@@ -30,9 +31,9 @@ import 'src/scope.puck' as {createScope}
 /// The result is used by the import visitor for import and exports but is then
 /// throwed away becouse too little information is known about the imported bindings
 export fn TopLevelVisitor(context, file) {
-  let mut scope = createScope(context, file)
+  let mut scope: Scope = createScope(context, file)
   let mut variableDeclaration: Option<VariableDeclaration> = None
-  let reportError = context.reportError.bind(context, file)
+  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
 
   Object.assign({}, visit.emptyVisitor, {
 
@@ -93,7 +94,7 @@ export fn TopLevelVisitor(context, file) {
     visitImportDirective: |self, i: ImportDirective| {
       match i.specifier {
         ImportSpecifier::Identifier(identifier) => {
-          scope.define({name: identifier.name, mutable: false, token: identifier})
+          scope.define({name: identifier.name, mutable: false, token: identifier, type_: undefined}, false)
         }
         ImportSpecifier::ObjectDestructure(d) => {
           self.visitObjectDestructure(d)
@@ -104,16 +105,19 @@ export fn TopLevelVisitor(context, file) {
     visitObjectDestructure: |self, i: ObjectDestructure| {
       // Allow redeclaration in this pass as we don't yet know if the type or variable scope
       // should be used for the imported identifiers.
-      i.members.forEach(|m| scope.define({name: m.local.name, mutable: false, token: m}, true))
+      i.members.forEach(|m| scope.define({name: m.local.name, mutable: false, token: m, type_: undefined}, true))
     }
 
     visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
-      if let Option::Some(name) = f.name then
+      if let Option::Some(name) = f.name {
+        let token: ToSpan = f
         scope.define({
           name: name.name
-          token: f
+          token
           mutable: false
-        })
+          type_: undefined
+        }, false)
+      }
     }
     visitVariableDeclaration: |self, d: VariableDeclaration| {
       variableDeclaration = Some(d)
@@ -124,7 +128,7 @@ export fn TopLevelVisitor(context, file) {
     visitPattern: visit.walkingVisitor.visitPattern
     visitIdentifierPattern: |self, p: Identifier| {
       variableDeclaration.map(|d| {
-        scope.define({name: p.name, mutable: d.mutable, token: d}, true)
+        scope.define({name: p.name, mutable: d.mutable, token: d, type_: undefined}, true)
       })
     }
   })

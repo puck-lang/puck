@@ -592,13 +592,17 @@ export interface ObjectLiteralMember extends Token {
   value: Expression
 }
 
-export interface StringLiteralPart extends Token {
+export interface SimpleStringLiteral extends Token {
   value: string
 }
 
 export interface StringLiteral extends Token {
-  parts: Array<StringLiteralPart|Identifier>
+  parts: Array<StringLiteralPart>
 }
+
+export type StringLiteralPart
+  = {kind: 'Literal', value: [SimpleStringLiteral]}
+  | {kind: 'Identifier', value: [Identifier]}
 
 export interface TupleLiteral extends Token {
   expressions: Array<Expression>

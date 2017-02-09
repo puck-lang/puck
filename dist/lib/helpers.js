@@ -48,8 +48,9 @@ function cmd(cmd) {
   var __PUCK__value__1 = result;
   var __PUCK__value__2 = __PUCK__value__1;
   if ($unwrapTraitObject(__PUCK__value__2).kind == "Ok") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-        output = _PUCK__value__2$valu[0];
+    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+        _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+        output = _$unwrapTraitObject$v[0];
 
     if (output.toString()) {
       return $unwrapTraitObject(_js.console).log($unwrapTraitObject(output.toString()).trim());
@@ -57,8 +58,9 @@ function cmd(cmd) {
   } else {
     var __PUCK__value__3 = __PUCK__value__1;
     if ($unwrapTraitObject(__PUCK__value__3).kind == "Err") {
-      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-          error = _PUCK__value__3$valu[0];
+      var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+          _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+          error = _$unwrapTraitObject2$[0];
 
       var stdout = $unwrapTraitObject(error.stdout).toString();
       var stderr = $unwrapTraitObject(error.stderr).toString();

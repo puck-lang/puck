@@ -15,6 +15,8 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _ast = require('./ast/ast');
 
+var _span = require('./ast/span');
+
 var _range = require('./typeck/src/range');
 
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
@@ -144,24 +146,27 @@ Type.displayName = function displayName() {
   };
   var __PUCK__value__1 = self.displayName;
   if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
-    var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
-        name = _PUCK__value__1$valu[0];
+    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
+        _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+        name = _$unwrapTraitObject$v[0];
 
     return name;
   };
   var __PUCK__value__2 = self.kind;
   var __PUCK__value__3 = __PUCK__value__2;
   if ($unwrapTraitObject(__PUCK__value__3).kind == "Enum") {
-    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-        enum_ = _PUCK__value__3$valu[0];
+    var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+        _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+        enum_ = _$unwrapTraitObject2$[0];
 
     return getGenericName(_core.Option.unwrap.call(self.name), self);
   } else {
     var __PUCK__value__4 = __PUCK__value__2;
     if ($unwrapTraitObject(__PUCK__value__4).kind == "Function") {
       var _ret = function () {
-        var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-            _function = _PUCK__value__4$valu[0];
+        var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__4),
+            _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+            _function = _$unwrapTraitObject3$[0];
 
         return {
           v: _core.Option.unwrapOrElse.call(self.name, function () {
@@ -174,37 +179,41 @@ Type.displayName = function displayName() {
     } else {
       var __PUCK__value__5 = __PUCK__value__2;
       if ($unwrapTraitObject(__PUCK__value__5).kind == "Parameter") {
-        var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-            __PUCK__value__6 = _PUCK__value__5$valu[0];
+        var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__5),
+            _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+            __PUCK__value__6 = _$unwrapTraitObject4$[0];
 
         return _core.Option.unwrap.call(self.name);
       } else {
         var __PUCK__value__7 = __PUCK__value__2;
         if ($unwrapTraitObject(__PUCK__value__7).kind == "Struct") {
           var _ret2 = function () {
-            var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-                struct = _PUCK__value__7$valu[0];
+            var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__7),
+                _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+                struct = _$unwrapTraitObject5$[0];
 
             return {
               v: _core.Option.mapOrElse.call(self.name, function () {
                 var __PUCK__value__8 = struct.kind;
                 var __PUCK__value__9 = __PUCK__value__8;
                 if ($unwrapTraitObject(__PUCK__value__9).kind == "Record") {
-                  var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-                      properties = _PUCK__value__9$valu[0].properties;
+                  var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__9),
+                      _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+                      properties = _$unwrapTraitObject6$[0].properties;
 
                   return getRecordTypeName(properties);
                 } else {
                   var __PUCK__value__10 = __PUCK__value__8;
                   if ($unwrapTraitObject(__PUCK__value__10).kind == "Tuple") {
-                    var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1),
-                        _properties = _PUCK__value__10$val[0].properties;
+                    var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__10),
+                        _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+                        _properties = _$unwrapTraitObject7$[0].properties;
 
                     return getTupleTypeName({ type: '$List<E>', value: _properties, $isTraitObject: true });
                   } else {
                     var __PUCK__value__11 = __PUCK__value__8;
                     if ($unwrapTraitObject(__PUCK__value__11).kind == "Unit") {
-                      var _undefined = __PUCK__value__11;
+                      var _undefined = $unwrapTraitObject(__PUCK__value__11);
                       return _core.Option.unwrap.call(self.name);
                     };
                   };
@@ -219,8 +228,9 @@ Type.displayName = function displayName() {
         } else {
           var __PUCK__value__12 = __PUCK__value__2;
           if ($unwrapTraitObject(__PUCK__value__12).kind == "Trait") {
-            var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
-                __PUCK__value__13 = _PUCK__value__12$val[0];
+            var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__12),
+                _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+                __PUCK__value__13 = _$unwrapTraitObject8$[0];
 
             return getGenericName(_core.Option.unwrap.call(self.name), self, true);
           };
@@ -237,48 +247,54 @@ Type.verboseName = function verboseName() {
   var __PUCK__value__14 = self.kind;
   var __PUCK__value__15 = __PUCK__value__14;
   if ($unwrapTraitObject(__PUCK__value__15).kind == "Enum") {
-    var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
-        enum_ = _PUCK__value__15$val[0];
+    var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__15),
+        _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+        enum_ = _$unwrapTraitObject9$[0];
 
     return getGenericName(_core.Option.unwrap.call(self.name), self, true);
   } else {
     var __PUCK__value__16 = __PUCK__value__14;
     if ($unwrapTraitObject(__PUCK__value__16).kind == "Function") {
-      var _PUCK__value__16$val = _slicedToArray(__PUCK__value__16.value, 1),
-          _function = _PUCK__value__16$val[0];
+      var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__16),
+          _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+          _function = _$unwrapTraitObject11[0];
 
       return getGenericName(getFunctionTypeName(_function), self, true);
     } else {
       var __PUCK__value__17 = __PUCK__value__14;
       if ($unwrapTraitObject(__PUCK__value__17).kind == "Parameter") {
-        var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
-            __PUCK__value__18 = _PUCK__value__17$val[0];
+        var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__17),
+            _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
+            __PUCK__value__18 = _$unwrapTraitObject13[0];
 
         return _core.Option.unwrap.call(self.name);
       } else {
         var __PUCK__value__19 = __PUCK__value__14;
         if ($unwrapTraitObject(__PUCK__value__19).kind == "Struct") {
-          var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
-              struct = _PUCK__value__19$val[0];
+          var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__19),
+              _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14.value, 1),
+              struct = _$unwrapTraitObject15[0];
 
           var __PUCK__value__20 = struct.kind;
           var __PUCK__value__21 = __PUCK__value__20;
           if ($unwrapTraitObject(__PUCK__value__21).kind == "Record") {
-            var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1),
-                properties = _PUCK__value__21$val[0].properties;
+            var _$unwrapTraitObject16 = $unwrapTraitObject(__PUCK__value__21),
+                _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject16.value, 1),
+                properties = _$unwrapTraitObject17[0].properties;
 
             return getRecordTypeName(properties);
           } else {
             var __PUCK__value__22 = __PUCK__value__20;
             if ($unwrapTraitObject(__PUCK__value__22).kind == "Tuple") {
-              var _PUCK__value__22$val = _slicedToArray(__PUCK__value__22.value, 1),
-                  _properties2 = _PUCK__value__22$val[0].properties;
+              var _$unwrapTraitObject18 = $unwrapTraitObject(__PUCK__value__22),
+                  _$unwrapTraitObject19 = _slicedToArray(_$unwrapTraitObject18.value, 1),
+                  _properties2 = _$unwrapTraitObject19[0].properties;
 
               return getTupleTypeName({ type: '$List<E>', value: _properties2, $isTraitObject: true });
             } else {
               var __PUCK__value__23 = __PUCK__value__20;
               if ($unwrapTraitObject(__PUCK__value__23).kind == "Unit") {
-                var _undefined2 = __PUCK__value__23;
+                var _undefined2 = $unwrapTraitObject(__PUCK__value__23);
                 return _core.Option.unwrap.call(self.name);
               };
             };
@@ -286,8 +302,9 @@ Type.verboseName = function verboseName() {
         } else {
           var __PUCK__value__24 = __PUCK__value__14;
           if ($unwrapTraitObject(__PUCK__value__24).kind == "Trait") {
-            var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1),
-                __PUCK__value__25 = _PUCK__value__24$val[0];
+            var _$unwrapTraitObject20 = $unwrapTraitObject(__PUCK__value__24),
+                _$unwrapTraitObject21 = _slicedToArray(_$unwrapTraitObject20.value, 1),
+                __PUCK__value__25 = _$unwrapTraitObject21[0];
 
             return getGenericName(_core.Option.unwrap.call(self.name), self, true);
           };
@@ -301,8 +318,9 @@ Type.getEnum = function getEnum() {
   var __PUCK__value__26 = self.kind;
   var __PUCK__value__27 = __PUCK__value__26;
   if ($unwrapTraitObject(__PUCK__value__27).kind == "Enum") {
-    var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1),
-        enum_ = _PUCK__value__27$val[0];
+    var _$unwrapTraitObject22 = $unwrapTraitObject(__PUCK__value__27),
+        _$unwrapTraitObject23 = _slicedToArray(_$unwrapTraitObject22.value, 1),
+        enum_ = _$unwrapTraitObject23[0];
 
     return enum_;
   } else {
@@ -319,8 +337,9 @@ Type.getFunction = function getFunction() {
   var __PUCK__value__30 = self.kind;
   var __PUCK__value__31 = __PUCK__value__30;
   if ($unwrapTraitObject(__PUCK__value__31).kind == "Function") {
-    var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1),
-        _function = _PUCK__value__31$val[0];
+    var _$unwrapTraitObject24 = $unwrapTraitObject(__PUCK__value__31),
+        _$unwrapTraitObject25 = _slicedToArray(_$unwrapTraitObject24.value, 1),
+        _function = _$unwrapTraitObject25[0];
 
     return _function;
   } else {
@@ -337,8 +356,9 @@ Type.getTrait = function getTrait() {
   var __PUCK__value__34 = self.kind;
   var __PUCK__value__35 = __PUCK__value__34;
   if ($unwrapTraitObject(__PUCK__value__35).kind == "Trait") {
-    var _PUCK__value__35$val = _slicedToArray(__PUCK__value__35.value, 1),
-        trait_ = _PUCK__value__35$val[0];
+    var _$unwrapTraitObject26 = $unwrapTraitObject(__PUCK__value__35),
+        _$unwrapTraitObject27 = _slicedToArray(_$unwrapTraitObject26.value, 1),
+        trait_ = _$unwrapTraitObject27[0];
 
     return trait_;
   } else {
@@ -355,8 +375,9 @@ Type.isEnum = function isEnum() {
   var __PUCK__value__38 = self.kind;
   var __PUCK__value__39 = __PUCK__value__38;
   if ($unwrapTraitObject(__PUCK__value__39).kind == "Enum") {
-    var _PUCK__value__39$val = _slicedToArray(__PUCK__value__39.value, 1),
-        __PUCK__value__40 = _PUCK__value__39$val[0];
+    var _$unwrapTraitObject28 = $unwrapTraitObject(__PUCK__value__39),
+        _$unwrapTraitObject29 = _slicedToArray(_$unwrapTraitObject28.value, 1),
+        __PUCK__value__40 = _$unwrapTraitObject29[0];
 
     return true;
   } else {
@@ -372,8 +393,9 @@ Type.isFunction = function isFunction() {
   var __PUCK__value__43 = self.kind;
   var __PUCK__value__44 = __PUCK__value__43;
   if ($unwrapTraitObject(__PUCK__value__44).kind == "Function") {
-    var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
-        __PUCK__value__45 = _PUCK__value__44$val[0];
+    var _$unwrapTraitObject30 = $unwrapTraitObject(__PUCK__value__44),
+        _$unwrapTraitObject31 = _slicedToArray(_$unwrapTraitObject30.value, 1),
+        __PUCK__value__45 = _$unwrapTraitObject31[0];
 
     return true;
   } else {
@@ -389,8 +411,9 @@ Type.isParameter = function isParameter() {
   var __PUCK__value__48 = self.kind;
   var __PUCK__value__49 = __PUCK__value__48;
   if ($unwrapTraitObject(__PUCK__value__49).kind == "Parameter") {
-    var _PUCK__value__49$val = _slicedToArray(__PUCK__value__49.value, 1),
-        __PUCK__value__50 = _PUCK__value__49$val[0];
+    var _$unwrapTraitObject32 = $unwrapTraitObject(__PUCK__value__49),
+        _$unwrapTraitObject33 = _slicedToArray(_$unwrapTraitObject32.value, 1),
+        __PUCK__value__50 = _$unwrapTraitObject33[0];
 
     return true;
   } else {
@@ -441,8 +464,9 @@ function getGenericName(name, type_) {
   var __PUCK__value__53 = type_.instance;
   var __PUCK__value__54 = void 0;
   if ($unwrapTraitObject(__PUCK__value__53).kind == "Some") {
-    var _PUCK__value__53$val = _slicedToArray(__PUCK__value__53.value, 1),
-        instance = _PUCK__value__53$val[0];
+    var _$unwrapTraitObject34 = $unwrapTraitObject(__PUCK__value__53),
+        _$unwrapTraitObject35 = _slicedToArray(_$unwrapTraitObject34.value, 1),
+        instance = _$unwrapTraitObject35[0];
 
     __PUCK__value__54 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: instance.typeParameters, $isTraitObject: true }, function (p) {
       return Type.displayName.call(p);
@@ -453,8 +477,9 @@ function getGenericName(name, type_) {
       var __PUCK__value__56 = type_._class;
       var __PUCK__value__57 = void 0;
       if ($unwrapTraitObject(__PUCK__value__56).kind == "Some") {
-        var _PUCK__value__56$val = _slicedToArray(__PUCK__value__56.value, 1),
-            _class = _PUCK__value__56$val[0];
+        var _$unwrapTraitObject36 = $unwrapTraitObject(__PUCK__value__56),
+            _$unwrapTraitObject37 = _slicedToArray(_$unwrapTraitObject36.value, 1),
+            _class = _$unwrapTraitObject37[0];
 
         __PUCK__value__57 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _class.typeParameters, $isTraitObject: true }, function (p) {
           return Type.displayName.call(p);

@@ -3,7 +3,9 @@ import '../ast/ast.puck' as {
   Comment
   NumberLiteral
   StringLiteral
+  StringLiteralPart
 }
+import '../ast/span.puck' as {Span}
 import 'ast.ts' as {SyntaxKind, operators, textToToken}
 
 export fn TokenStream(input) {
@@ -15,7 +17,7 @@ export fn TokenStream(input) {
     if curr.length > longest then curr.length else longest
   }, 0)
 
-  fn tryParseOperator() {
+  fn tryParseOperator() -> Option<Span> {
     let mut length = 0
     let mut searchString = ''
     let mut found
@@ -41,13 +43,16 @@ export fn TokenStream(input) {
     }
 
     if textToToken[found] {
+      let start = input.getPosition()
       let mut i = 0
       while i < length {
         input.next()
         i += 1
       }
-      {kind: textToToken[found]}
+      let end = input.getPosition()
+      Some({kind: textToToken[found], span: {start, end}})
     }
+    else None
   }
 
   fn isDigit(ch) {
@@ -84,6 +89,7 @@ export fn TokenStream(input) {
 
   fn readNumber() -> NumberLiteral {
     let mut hasDot = false
+    let start = input.getPosition()
     let number = readWhile(fn (ch) {
       if ch == '.' {
         if hasDot or not isDigit(input.peek(1))
@@ -95,24 +101,44 @@ export fn TokenStream(input) {
       }
       else isDigit(ch)
     })
+    let end = input.getPosition()
 
-    {kind: SyntaxKind.NumberLiteral, value: global.parseFloat(number)}
+    {
+      kind: SyntaxKind.NumberLiteral
+      span: {start, end}
+      value: global.parseFloat(number)
+    }
   }
 
-  fn readIdent() {
+  fn readIdentifier() {
+    let start = input.getPosition()
     let id = readWhile(isId)
+    let end = input.getPosition()
+    {
+      kind: SyntaxKind.Identifier
+      span: {start, end}
+      name: id
+    }
+  }
+
+  fn readIdentifierOrKeyword() {
+    let start = input.getPosition()
+    let id = readWhile(isId)
+    let end = input.getPosition()
+    let span = {start, end}
     if id == 'import' {
       inImport = true
-      {kind: SyntaxKind.ImportKeyword}
+      {kind: SyntaxKind.ImportKeyword, span}
     }
     else if id == 'as' {
       inImport = false
-      {kind: SyntaxKind.AsKeyword}
+      {kind: SyntaxKind.AsKeyword, span}
     }
-    else if textToToken[id] != undefined then {kind: textToToken[id]}
+    else if textToToken[id] != undefined then {kind: textToToken[id], span}
     else {{
-      kind: SyntaxKind.Identifier,
-      name: id,
+      kind: SyntaxKind.Identifier
+      span
+      name: id
     }}
   }
 
@@ -121,6 +147,7 @@ export fn TokenStream(input) {
     let mut parts = []
     let mut str = ''
 
+    let mut start = input.getPosition()
     let delimiter = input.next()
 
     while not input.eof() {
@@ -139,28 +166,34 @@ export fn TokenStream(input) {
       }
       else if ch == '\\' then escaped = true
       else if ch == '$' and isIdStart(input.peek()) and not inImport {
-        parts.push({kind: SyntaxKind.StringLiteralPart, value: str})
-        parts.push(readIdent())
+        let end = input.getPosition()
+        parts.push(StringLiteralPart::Literal({span: {start, end}, value: str}))
+        parts.push(StringLiteralPart::Identifier(readIdentifier()))
         str = ''
+        start = input.getPosition()
       }
       else if ch == delimiter then break
       else str += ch
     }
-    parts.push({kind: SyntaxKind.StringLiteralPart, value: str})
+    let end = input.getPosition()
+    parts.push(StringLiteralPart::Literal({span: {start, end}, value: str}))
 
     {kind: SyntaxKind.StringLiteral, parts}
   }
 
   fn readComment() -> Comment {
+    let start = input.getPosition()
     input.next()
     input.next()
     readWhile(isWhitespace)
     let comment = readWhile(fn (ch) {ch != '\n'})
     input.next()
+    let end = input.getPosition()
 
     {
-      kind: SyntaxKind.Comment,
-      text: comment,
+      kind: SyntaxKind.Comment
+      span: {start, end}
+      text: comment
     }
   }
 
@@ -176,10 +209,11 @@ export fn TokenStream(input) {
     if ch == '/' and input.peek(1) == '/' then return readComment()
     if ch == '\'' or ch == '"' then return readString()
     if isDigit(ch) then return readNumber()
-    if isIdStart(ch) then return readIdent()
-    let operator = tryParseOperator()
-    if not operator then input.croak('Unexpected token: $ch')
-    operator
+    if isIdStart(ch) then return readIdentifierOrKeyword()
+
+    if let Option::Some(operator) = tryParseOperator()
+      then operator
+      else input.croak('Unexpected token: $ch')
   }
 
   fn isDummy(token) {

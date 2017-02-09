@@ -192,7 +192,11 @@ export fn isAssignable(to: Type, subject: Type) {
   if not subject or not to then return true
   if to == subject then return true
 
-  if let TypeKind::Parameter = subject.kind then return true
+  match subject.kind {
+    TypeKind::Parameter => return true
+    TypeKind::Enum(enum_) => if enum_.members.size() == 0 then return true
+    _ => {}
+  }
 
   match to.kind {
     TypeKind::Enum(toEnum) => match subject.kind {

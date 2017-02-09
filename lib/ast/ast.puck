@@ -1,9 +1,11 @@
 import '../entities.puck' as {Type}
+import 'span.puck' as {Span, ToSpan}
 
 export type SyntaxKind {}
 
 export type Token {
   kind: SyntaxKind
+  span: Span
 }
 
 export type Module {
@@ -93,6 +95,18 @@ impl BlockLevelStatement {
   }
 }
 
+impl ToSpan for BlockLevelStatement {
+  fn span(self) -> Span {
+    match self {
+      BlockLevelStatement::Block(e) => e.span()
+      BlockLevelStatement::BreakStatement(e) => e.span()
+      BlockLevelStatement::ReturnStatement(e) => e.span()
+      BlockLevelStatement::WhileLoop(e) => e.span()
+      BlockLevelStatement::Expression(e) =>  e.span()
+    }
+  }
+}
+
 impl Expression {
   fn getType(self) -> Type {
     match self {
@@ -125,6 +139,38 @@ impl Expression {
   }
 }
 
+impl ToSpan for Expression {
+  fn span(self) -> Span {
+    match self {
+      Expression::ThrowStatement(e) => throw 'No span for ThrowStatement'
+      Expression::Comment(_) => throw 'No span for Comment'
+
+      Expression::Identifier(e) => e.span()
+      Expression::FunctionDeclaration(e) => e.span()
+      Expression::VariableDeclaration(e) => throw 'No span for VariableDeclaration'
+
+      Expression::AssignmentExpression(e) => e.span()
+      Expression::BinaryExpression(e) => throw 'No span for BinaryExpression'
+      Expression::CallExpression(e) => e.span()
+      Expression::IfExpression(e) => e.span()
+      Expression::IfLetExpression(e) => e.span()
+      Expression::MatchExpression(e) => e.span()
+      Expression::TypePathExpression(e) => e.span()
+      Expression::UnaryExpression(e) => throw 'No span for UnaryExpression'
+
+      Expression::IndexAccess(e) => e.span()
+      Expression::MemberAccess(e) => e.span()
+
+      Expression::BooleanLiteral(e) => e.span()
+      Expression::ListLiteral(e) => e.span()
+      Expression::NumberLiteral(e) => e.span
+      Expression::RecordLiteral(e) => e.span()
+      Expression::StringLiteral(e) => e.span()
+      Expression::TupleLiteral(e) => e.span()
+    }
+  }
+}
+
 export type EnumDeclaration {
   keyword: Token
   name: Identifier
@@ -134,9 +180,23 @@ export type EnumDeclaration {
   closeBrace: Token
 }
 
+impl ToSpan for EnumDeclaration {
+  fn span(self) -> Span {{
+    start: self.keyword.span.start
+    end: self.closeBrace.span.end
+  }}
+}
+
 export type EnumMember {
   name: Identifier
   bound: Option<TypeBound>
+}
+
+impl ToSpan for EnumMember {
+  fn span(self) -> Span {{
+    start: self.name.span.start
+    end: self.bound.mapOr(self.name.span, |b| b.span()).end
+  }}
 }
 
 export type ImplDeclaration {
@@ -152,6 +212,13 @@ export type ImplDeclaration {
   closeBrace: Token
 }
 
+impl ToSpan for ImplDeclaration {
+  fn span(self) -> Span {{
+    start: self.implKeyword.span.start
+    end: self.closeBrace.span.end
+  }}
+}
+
 export type ImplShorthandDeclaration {
   implKeyword: Token
   typeParameters: List<TypeParameter>
@@ -163,6 +230,13 @@ export type ImplShorthandDeclaration {
   closeBrace: Token
 }
 
+impl ToSpan for ImplShorthandDeclaration {
+  fn span(self) -> Span {{
+    start: self.implKeyword.span.start
+    end: self.closeBrace.span.end
+  }}
+}
+
 export type TraitDeclaration {
   keyword: Token
   name: Identifier
@@ -172,6 +246,13 @@ export type TraitDeclaration {
   closeBrace: Token
 }
 
+impl ToSpan for TraitDeclaration {
+  fn span(self) -> Span {{
+    start: self.keyword.span.start
+    end: self.closeBrace.span.end
+  }}
+}
+
 export type TypeDeclaration {
   keyword: Token
   name: Identifier
@@ -179,6 +260,13 @@ export type TypeDeclaration {
   bound: Option<TypeBound>
 
   type_: Type
+}
+
+impl ToSpan for TypeDeclaration {
+  fn span(self) -> Span {{
+    start: self.keyword.span.start
+    end: self.bound.unwrap().span().end
+  }}
 }
 
 export type ExportDirective {
@@ -202,10 +290,28 @@ export type ImportDirective {
   asKeyword: Token
   specifier: ImportSpecifier
 }
+
+impl ToSpan for ImportDirective {
+  fn span(self) -> Span {{
+    start: self.importKeyword.span.start
+    end: self.specifier.span().end
+  }}
+}
+
 export enum ImportSpecifier {
   Asterisk(Token)
   Identifier(Identifier)
   ObjectDestructure(ObjectDestructure)
+}
+
+impl ToSpan for ImportSpecifier {
+  fn span(self) -> Span {
+    match self {
+      ImportSpecifier::Asterisk(token) => token.span
+      ImportSpecifier::Identifier(identifier) => identifier.span
+      ImportSpecifier::ObjectDestructure(objectDestructure) => objectDestructure.span()
+    }
+  }
 }
 
 export type ObjectDestructure {
@@ -214,14 +320,37 @@ export type ObjectDestructure {
   closeBrace: Token
 }
 
+impl ToSpan for ObjectDestructure {
+  fn span(self) -> Span {{
+    start: self.openBrace.span.start
+    end: self.closeBrace.span.end
+  }}
+}
+
 export type ObjectDestructureMember {
   property: Identifier
   local: Identifier
 }
 
+impl ToSpan for ObjectDestructureMember {
+  fn span(self) -> Span {{
+    start: self.property.span.start
+    end: self.local.span.end
+  }}
+}
+
 export type Block {
+  openBrace: Option<Token>
   statements: List<BlockLevelStatement>
+  closeBrace: Option<Token>
   type_: Type
+}
+
+impl ToSpan for Block {
+  fn span(self) -> Span {{
+    start: self.openBrace.mapOrElse(|| self.statements.first().unwrap().span(), |t| t.span).start
+    end: self.closeBrace.mapOrElse(|| self.statements.last().unwrap().span(), |t| t.span).end
+  }}
 }
 
 export type BreakStatement {
@@ -244,6 +373,11 @@ export type Comment {
 
 export type Identifier {
   name: String
+  span: Span
+}
+
+impl ToSpan for Identifier {
+  fn span(self) -> Span {self.span}
 }
 
 export type FunctionDeclaration {
@@ -256,6 +390,13 @@ export type FunctionDeclaration {
   type_: Type
 }
 
+impl ToSpan for FunctionDeclaration {
+  fn span(self) -> Span {{
+    start: self.name.unwrap().span().start
+    end: self.body.unwrap().span().end
+  }}
+}
+
 export type VariableDeclaration {
   pattern: Pattern
   mutable: Bool
@@ -263,10 +404,24 @@ export type VariableDeclaration {
   initializer: Option<Expression>
 }
 
+impl ToSpan for VariableDeclaration {
+  fn span(self) -> Span {{
+    start: self.pattern.span().start
+    end: self.initializer.mapOrElse(|| self.typeBound.mapOrElse(|| self.pattern.span(), |t| t.span()), |i| i.span()).end
+  }}
+}
+
 export type AssignmentExpression {
   lhs: Expression
   token: Token
   rhs: Expression
+}
+
+impl ToSpan for AssignmentExpression {
+  fn span(self) -> Span {{
+    start: self.lhs.span().start
+    end: self.rhs.span().end
+  }}
 }
 
 export type BinaryExpression {
@@ -282,11 +437,25 @@ export type CallExpression {
   closeParen: Token
 }
 
+impl ToSpan for CallExpression {
+  fn span(self) -> Span {{
+    start: self.func.span().start
+    end: self.closeParen.span.end
+  }}
+}
+
 export type IfExpression {
   ifKeyword: Token
   condition: Expression
   then_: Block
   else_: Option<Block>
+}
+
+impl ToSpan for IfExpression {
+  fn span(self) -> Span {{
+    start: self.ifKeyword.span.start
+    end: self.else_.unwrapOr(self.then_).span().end
+  }}
 }
 
 export type IfLetExpression {
@@ -298,6 +467,13 @@ export type IfLetExpression {
   else_: Option<Block>
 }
 
+impl ToSpan for IfLetExpression {
+  fn span(self) -> Span {{
+    start: self.ifKeyword.span.start
+    end: self.else_.unwrapOr(self.then_).span().end
+  }}
+}
+
 export type MatchExpression {
   matchKeyword: Token
   expression: Expression
@@ -306,19 +482,52 @@ export type MatchExpression {
   closeBrace: Token
 }
 
+impl ToSpan for MatchExpression {
+  fn span(self) -> Span {{
+    start: self.matchKeyword.span.start
+    end: self.closeBrace.span.end
+  }}
+}
+
 export type MatchArm {
   pattern: Pattern
   arrow: Token
   block: Block
 }
 
+impl ToSpan for MatchArm {
+  fn span(self) -> Span {{
+    start: self.pattern.span().start
+    end: self.block.span().end
+  }}
+}
+
 export type TypePathExpression {
   typePath: TypePath
+}
+
+impl ToSpan for TypePathExpression {
+  fn span(self) -> Span {{
+    start: self.typePath.span().start
+    end: self.typePath.span().end
+  }}
 }
 
 export enum TypePath {
   Object(Identifier, TypePath)
   Member(Identifier)
+}
+
+impl ToSpan for TypePath {
+  fn span(self) -> Span {
+    match self {
+      TypePath::Object(identifier, typePath) => {{
+        start: identifier.span.start
+        end: typePath.span().end
+      }}
+      TypePath::Member(identifier) => identifier.span
+    }
+  }
 }
 
 export type UnaryExpression {
@@ -328,7 +537,16 @@ export type UnaryExpression {
 
 export type IndexAccess {
   object: Expression
+  openBracket: Token
   index: Expression
+  closeBracket: Token
+}
+
+impl ToSpan for IndexAccess {
+  fn span(self) -> Span {{
+    start: self.object.span().start
+    end: self.closeBracket.span.end
+  }}
 }
 
 export type MemberAccess {
@@ -336,16 +554,42 @@ export type MemberAccess {
   member: Identifier
 }
 
+impl ToSpan for MemberAccess {
+  fn span(self) -> Span {{
+    start: self.object.span().start
+    end: self.member.span().end
+  }}
+}
+
 export type BooleanLiteral {
+  keyword: Token
   value: Bool
 }
 
+impl ToSpan for BooleanLiteral {
+  fn span(self) -> Span {self.keyword.span}
+}
+
 export type ListLiteral {
+  openBracket: Token
   members: List<Expression>
+  closeBracket: Token
+}
+
+impl ToSpan for ListLiteral {
+  fn span(self) -> Span {{
+    start: self.openBracket.span.start
+    end: self.closeBracket.span.end
+  }}
 }
 
 export type NumberLiteral {
   value: Num
+  span: Span
+}
+
+impl ToSpan for NumberLiteral {
+  fn span(self) -> Span {self.span}
 }
 
 export type RecordLiteral {
@@ -354,17 +598,44 @@ export type RecordLiteral {
   closeBrace: Token
 }
 
+impl ToSpan for RecordLiteral {
+  fn span(self) -> Span {{
+    start: self.openBrace.span.start
+    end: self.closeBrace.span.end
+  }}
+}
+
 export type RecordLiteralMember {
   name: Identifier
   value: Expression
 }
 
 export type StringLiteral {
-  // parts: List<StringLiteralPart|Identifier>
+  parts: List<StringLiteralPart>
 }
 
-export type StringLiteralPart {
-  value: String
+impl ToSpan for StringLiteral {
+  fn span(self) -> Span {{
+    start: self.parts.first().unwrap().span().start
+    end: self.parts.last().unwrap().span().end
+  }}
+}
+
+export enum StringLiteralPart {
+  Literal({
+    value: String
+    span: Span
+  })
+  Identifier(Identifier)
+}
+
+impl ToSpan for StringLiteralPart {
+  fn span(self) -> Span {
+    match self {
+      StringLiteralPart::Literal({span}) => span
+      StringLiteralPart::Identifier({span}) => span
+    }
+  }
 }
 
 export type TupleLiteral {
@@ -373,8 +644,15 @@ export type TupleLiteral {
   closeParen: Token
 }
 
+impl ToSpan for TupleLiteral {
+  fn span(self) -> Span {{
+    start: self.openParen.span.start
+    end: self.closeParen.span.end
+  }}
+}
+
 export enum Pattern {
-  CatchAll
+  CatchAll(Token)
   Identifier(Identifier)
   // Boolen(BooleanLiteral)
   // Number(NumberLiteral)
@@ -384,6 +662,32 @@ export enum Pattern {
   RecordType(TypePath, RecordPattern)
   TupleType(TypePath, TuplePattern)
   UnitType(TypePath)
+}
+
+impl ToSpan for Pattern {
+  fn span(self) -> Span {
+    match self {
+      Pattern::CatchAll(token) => token.span
+      Pattern::Identifier(identifier) => identifier.span
+      Pattern::Record(recordPattern) => {{
+        start: recordPattern.openBrace.span.start
+        end: recordPattern.closeBrace.span.end
+      }}
+      Pattern::Tuple(tuplePattern) => {{
+        start: tuplePattern.openParen.span.start
+        end: tuplePattern.closeParen.span.end
+      }}
+      Pattern::RecordType(typePath, recordPattern) => {{
+        start: typePath.span().start
+        end: recordPattern.closeBrace.span.end
+      }}
+      Pattern::TupleType(typePath, tuplePattern) => {{
+        start: typePath.span().start
+        end: tuplePattern.closeParen.span.end
+      }}
+      Pattern::UnitType(typePath) => typePath.span()
+    }
+  }
 }
 
 export type RecordPattern {
@@ -435,6 +739,17 @@ impl TypeBound {
   }
 }
 
+impl ToSpan for TypeBound {
+  fn span(self) -> Span {
+    match self {
+      TypeBound::FunctionTypeBound(t) => t.span()
+      TypeBound::NamedTypeBound(t) => t.span()
+      TypeBound::RecordTypeBound(t) => t.span()
+      TypeBound::TupleTypeBound(t) => t.span()
+    }
+  }
+}
+
 export type FunctionTypeBound {
   typeParameters: List<TypeParameter>
   parameters: TupleTypeBound
@@ -446,10 +761,24 @@ export type NamedTypeBound {
   typeParameters: List<TypeBound>
 }
 
+impl ToSpan for NamedTypeBound {
+  fn span(self) -> Span {{
+    start: self.path.span().start
+    end: self.typeParameters.last().mapOr(self.path.span(), |p| p.span()).end
+  }}
+}
+
 export type RecordTypeBound {
   openBrace: Token
   properties: List<RecordTypeBoundMember>
   closeBrace: Token
+}
+
+impl ToSpan for RecordTypeBound {
+  fn span(self) -> Span {{
+    start: self.openBrace.span.start
+    end: self.closeBrace.span.end
+  }}
 }
 
 export type RecordTypeBoundMember {
@@ -463,7 +792,21 @@ export type TupleTypeBound {
   closeParen: Token
 }
 
+impl ToSpan for TupleTypeBound {
+  fn span(self) -> Span {{
+    start: self.openParen.span.start
+    end: self.closeParen.span.end
+  }}
+}
+
 export type TypeParameter {
   name: Identifier
   defaultValue: Option<TypeBound>
+}
+
+impl ToSpan for TypeParameter {
+  fn span(self) -> Span {{
+    start: self.name.span.start
+    end: self.name.span.end
+  }}
 }

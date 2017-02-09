@@ -16,6 +16,7 @@ import '../../ast/ast.puck' as {
 
   CallExpression
 }
+import '../../ast/span.puck' as {ToSpan}
 import '../../entities.puck' as {
   Implementation
   Type
@@ -44,6 +45,7 @@ export fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
           List.zip(objectInstance_.typeParameters, implementationInstance.typeParameters)
             .all(|(objectP, implP)| isAssignable(implP, objectP))
         })
+        .toList()
       else implementations
     else implementations
 }
@@ -51,6 +53,7 @@ export fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
 export fn getImplementationsForTrait(type_: Type, trait_: Type, implementations: List<Implementation>) -> List<Implementation> {
   implementations
     .filter(|i| isAssignable(trait_, i.trait_))
+    .toList()
 }
 
 export fn getMostSpecificImplementations(type_: Type, implementations: List<Implementation>) -> List<Implementation> {
@@ -65,11 +68,12 @@ export fn getMostSpecificImplementations(type_: Type, implementations: List<Impl
       })
       .filter(|(_, specificity)| specificity == maxSpecificity)
       .map(|(i, _)| i)
+      .toList()
   }
   else implementations
 }
 
-export fn getImplementation(functionName: String, type_: Type, e: CallExpression, reportError) -> Option<Implementation> {
+export fn getImplementation(functionName: String, type_: Type, e: CallExpression, reportError: (ToSpan, String) -> {}) -> Option<Implementation> {
   // Implementations implemented for the correct type instance (generics)
   let implementations = getImplementationsForInstance(type_)
 
@@ -104,7 +108,7 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
 
   if implementations.length > 1
     then reportError(e, 'Ambiguous trait call')
-    else implementations.first()
+  implementations.first()
 }
 
 fn getTypeSpecificity(type_: Type) -> Num {

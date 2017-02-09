@@ -3,13 +3,15 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TypeBound = exports.Pattern = exports.TypePath = exports.ImportSpecifier = exports.ExportedStatement = exports.Expression = exports.BlockLevelStatement = exports.TopLevelStatement = exports.TypeParameter = exports.TupleTypeBound = exports.RecordTypeBoundMember = exports.RecordTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.TupleLiteral = exports.StringLiteralPart = exports.StringLiteral = exports.RecordLiteralMember = exports.RecordLiteral = exports.NumberLiteral = exports.ListLiteral = exports.BooleanLiteral = exports.MemberAccess = exports.IndexAccess = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.IfLetExpression = exports.IfExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.VariableDeclaration = exports.FunctionDeclaration = exports.Identifier = exports.Comment = exports.WhileLoop = exports.ReturnStatement = exports.BreakStatement = exports.Block = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.ImportDirective = exports.ExportDirective = exports.TypeDeclaration = exports.TraitDeclaration = exports.ImplShorthandDeclaration = exports.ImplDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Module = exports.Token = exports.SyntaxKind = undefined;
+exports.TypeBound = exports.Pattern = exports.StringLiteralPart = exports.TypePath = exports.ImportSpecifier = exports.ExportedStatement = exports.Expression = exports.BlockLevelStatement = exports.TopLevelStatement = exports.TypeParameter = exports.TupleTypeBound = exports.RecordTypeBoundMember = exports.RecordTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.TupleLiteral = exports.StringLiteral = exports.RecordLiteralMember = exports.RecordLiteral = exports.NumberLiteral = exports.ListLiteral = exports.BooleanLiteral = exports.MemberAccess = exports.IndexAccess = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.IfLetExpression = exports.IfExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.VariableDeclaration = exports.FunctionDeclaration = exports.Identifier = exports.Comment = exports.WhileLoop = exports.ReturnStatement = exports.BreakStatement = exports.Block = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.ImportDirective = exports.ExportDirective = exports.TypeDeclaration = exports.TraitDeclaration = exports.ImplShorthandDeclaration = exports.ImplDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Module = exports.Token = exports.SyntaxKind = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _entities = require('./../entities');
+
+var _span3 = require('./span');
 
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
@@ -126,9 +128,6 @@ var RecordLiteralMember = exports.RecordLiteralMember = function RecordLiteralMe
   return object;
 };
 var StringLiteral = exports.StringLiteral = function StringLiteral(object) {
-  return object;
-};
-var StringLiteralPart = exports.StringLiteralPart = function StringLiteralPart(object) {
   return object;
 };
 var TupleLiteral = exports.TupleLiteral = function TupleLiteral(object) {
@@ -481,46 +480,68 @@ var TypePath = exports.TypePath = {
     return { kind: 'Member', value: members };
   }
 };
-var Pattern = exports.Pattern = {
-  CatchAll: { kind: 'CatchAll', value: Symbol('CatchAll') },
-  Identifier: function Identifier() {
+var StringLiteralPart = exports.StringLiteralPart = {
+  Literal: function Literal() {
     for (var _len45 = arguments.length, members = Array(_len45), _key45 = 0; _key45 < _len45; _key45++) {
       members[_key45] = arguments[_key45];
+    }
+
+    return { kind: 'Literal', value: members };
+  },
+  Identifier: function Identifier() {
+    for (var _len46 = arguments.length, members = Array(_len46), _key46 = 0; _key46 < _len46; _key46++) {
+      members[_key46] = arguments[_key46];
+    }
+
+    return { kind: 'Identifier', value: members };
+  }
+};
+var Pattern = exports.Pattern = {
+  CatchAll: function CatchAll() {
+    for (var _len47 = arguments.length, members = Array(_len47), _key47 = 0; _key47 < _len47; _key47++) {
+      members[_key47] = arguments[_key47];
+    }
+
+    return { kind: 'CatchAll', value: members };
+  },
+  Identifier: function Identifier() {
+    for (var _len48 = arguments.length, members = Array(_len48), _key48 = 0; _key48 < _len48; _key48++) {
+      members[_key48] = arguments[_key48];
     }
 
     return { kind: 'Identifier', value: members };
   },
   Record: function Record() {
-    for (var _len46 = arguments.length, members = Array(_len46), _key46 = 0; _key46 < _len46; _key46++) {
-      members[_key46] = arguments[_key46];
+    for (var _len49 = arguments.length, members = Array(_len49), _key49 = 0; _key49 < _len49; _key49++) {
+      members[_key49] = arguments[_key49];
     }
 
     return { kind: 'Record', value: members };
   },
   Tuple: function Tuple() {
-    for (var _len47 = arguments.length, members = Array(_len47), _key47 = 0; _key47 < _len47; _key47++) {
-      members[_key47] = arguments[_key47];
+    for (var _len50 = arguments.length, members = Array(_len50), _key50 = 0; _key50 < _len50; _key50++) {
+      members[_key50] = arguments[_key50];
     }
 
     return { kind: 'Tuple', value: members };
   },
   RecordType: function RecordType() {
-    for (var _len48 = arguments.length, members = Array(_len48), _key48 = 0; _key48 < _len48; _key48++) {
-      members[_key48] = arguments[_key48];
+    for (var _len51 = arguments.length, members = Array(_len51), _key51 = 0; _key51 < _len51; _key51++) {
+      members[_key51] = arguments[_key51];
     }
 
     return { kind: 'RecordType', value: members };
   },
   TupleType: function TupleType() {
-    for (var _len49 = arguments.length, members = Array(_len49), _key49 = 0; _key49 < _len49; _key49++) {
-      members[_key49] = arguments[_key49];
+    for (var _len52 = arguments.length, members = Array(_len52), _key52 = 0; _key52 < _len52; _key52++) {
+      members[_key52] = arguments[_key52];
     }
 
     return { kind: 'TupleType', value: members };
   },
   UnitType: function UnitType() {
-    for (var _len50 = arguments.length, members = Array(_len50), _key50 = 0; _key50 < _len50; _key50++) {
-      members[_key50] = arguments[_key50];
+    for (var _len53 = arguments.length, members = Array(_len53), _key53 = 0; _key53 < _len53; _key53++) {
+      members[_key53] = arguments[_key53];
     }
 
     return { kind: 'UnitType', value: members };
@@ -528,92 +549,848 @@ var Pattern = exports.Pattern = {
 };
 var TypeBound = exports.TypeBound = {
   FunctionTypeBound: function FunctionTypeBound() {
-    for (var _len51 = arguments.length, members = Array(_len51), _key51 = 0; _key51 < _len51; _key51++) {
-      members[_key51] = arguments[_key51];
+    for (var _len54 = arguments.length, members = Array(_len54), _key54 = 0; _key54 < _len54; _key54++) {
+      members[_key54] = arguments[_key54];
     }
 
     return { kind: 'FunctionTypeBound', value: members };
   },
   NamedTypeBound: function NamedTypeBound() {
-    for (var _len52 = arguments.length, members = Array(_len52), _key52 = 0; _key52 < _len52; _key52++) {
-      members[_key52] = arguments[_key52];
+    for (var _len55 = arguments.length, members = Array(_len55), _key55 = 0; _key55 < _len55; _key55++) {
+      members[_key55] = arguments[_key55];
     }
 
     return { kind: 'NamedTypeBound', value: members };
   },
   RecordTypeBound: function RecordTypeBound() {
-    for (var _len53 = arguments.length, members = Array(_len53), _key53 = 0; _key53 < _len53; _key53++) {
-      members[_key53] = arguments[_key53];
+    for (var _len56 = arguments.length, members = Array(_len56), _key56 = 0; _key56 < _len56; _key56++) {
+      members[_key56] = arguments[_key56];
     }
 
     return { kind: 'RecordTypeBound', value: members };
   },
   TupleTypeBound: function TupleTypeBound() {
-    for (var _len54 = arguments.length, members = Array(_len54), _key54 = 0; _key54 < _len54; _key54++) {
-      members[_key54] = arguments[_key54];
+    for (var _len57 = arguments.length, members = Array(_len57), _key57 = 0; _key57 < _len57; _key57++) {
+      members[_key57] = arguments[_key57];
     }
 
     return { kind: 'TupleTypeBound', value: members };
   }
 };
+_span3.ToSpan['$BlockLevelStatement'] = {
+  span: function span() {
+    var self = this;
+    var __PUCK__value__1 = self;
+    var __PUCK__value__2 = __PUCK__value__1;
+    if ($unwrapTraitObject(__PUCK__value__2).kind == "Block") {
+      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+          e = _$unwrapTraitObject$v[0];
+
+      return _span3.ToSpan['$Block'].span.call({ type: '$Block', value: e, $isTraitObject: true });
+    } else {
+      var __PUCK__value__3 = __PUCK__value__1;
+      if ($unwrapTraitObject(__PUCK__value__3).kind == "BreakStatement") {
+        var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+            _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+            _e = _$unwrapTraitObject2$[0];
+
+        return _e.span();
+      } else {
+        var __PUCK__value__4 = __PUCK__value__1;
+        if ($unwrapTraitObject(__PUCK__value__4).kind == "ReturnStatement") {
+          var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__4),
+              _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+              _e2 = _$unwrapTraitObject3$[0];
+
+          return _e2.span();
+        } else {
+          var __PUCK__value__5 = __PUCK__value__1;
+          if ($unwrapTraitObject(__PUCK__value__5).kind == "WhileLoop") {
+            var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__5),
+                _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+                _e3 = _$unwrapTraitObject4$[0];
+
+            return _e3.span();
+          } else {
+            var __PUCK__value__6 = __PUCK__value__1;
+            if ($unwrapTraitObject(__PUCK__value__6).kind == "Expression") {
+              var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__6),
+                  _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+                  _e4 = _$unwrapTraitObject5$[0];
+
+              return _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: _e4, $isTraitObject: true });
+            };
+          };
+        };
+      };
+    };
+  }
+};
+_span3.ToSpan['$Expression'] = {
+  span: function span() {
+    var self = this;
+    var __PUCK__value__7 = self;
+    var __PUCK__value__8 = __PUCK__value__7;
+    if ($unwrapTraitObject(__PUCK__value__8).kind == "ThrowStatement") {
+      var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__8),
+          _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+          e = _$unwrapTraitObject6$[0];
+
+      throw "No span for ThrowStatement";
+    } else {
+      var __PUCK__value__9 = __PUCK__value__7;
+      if ($unwrapTraitObject(__PUCK__value__9).kind == "Comment") {
+        var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__9),
+            _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+            __PUCK__value__10 = _$unwrapTraitObject7$[0];
+
+        throw "No span for Comment";
+      } else {
+        var __PUCK__value__11 = __PUCK__value__7;
+        if ($unwrapTraitObject(__PUCK__value__11).kind == "Identifier") {
+          var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__11),
+              _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+              _e5 = _$unwrapTraitObject8$[0];
+
+          return _span3.ToSpan['$Identifier'].span.call({ type: '$Identifier', value: _e5, $isTraitObject: true });
+        } else {
+          var __PUCK__value__12 = __PUCK__value__7;
+          if ($unwrapTraitObject(__PUCK__value__12).kind == "FunctionDeclaration") {
+            var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__12),
+                _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+                _e6 = _$unwrapTraitObject9$[0];
+
+            return _span3.ToSpan['$FunctionDeclaration'].span.call({ type: '$FunctionDeclaration', value: _e6, $isTraitObject: true });
+          } else {
+            var __PUCK__value__13 = __PUCK__value__7;
+            if ($unwrapTraitObject(__PUCK__value__13).kind == "VariableDeclaration") {
+              var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__13),
+                  _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+                  _e7 = _$unwrapTraitObject11[0];
+
+              throw "No span for VariableDeclaration";
+            } else {
+              var __PUCK__value__14 = __PUCK__value__7;
+              if ($unwrapTraitObject(__PUCK__value__14).kind == "AssignmentExpression") {
+                var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__14),
+                    _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
+                    _e8 = _$unwrapTraitObject13[0];
+
+                return _span3.ToSpan['$AssignmentExpression'].span.call({ type: '$AssignmentExpression', value: _e8, $isTraitObject: true });
+              } else {
+                var __PUCK__value__15 = __PUCK__value__7;
+                if ($unwrapTraitObject(__PUCK__value__15).kind == "BinaryExpression") {
+                  var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__15),
+                      _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14.value, 1),
+                      _e9 = _$unwrapTraitObject15[0];
+
+                  throw "No span for BinaryExpression";
+                } else {
+                  var __PUCK__value__16 = __PUCK__value__7;
+                  if ($unwrapTraitObject(__PUCK__value__16).kind == "CallExpression") {
+                    var _$unwrapTraitObject16 = $unwrapTraitObject(__PUCK__value__16),
+                        _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject16.value, 1),
+                        _e10 = _$unwrapTraitObject17[0];
+
+                    return _span3.ToSpan['$CallExpression'].span.call({ type: '$CallExpression', value: _e10, $isTraitObject: true });
+                  } else {
+                    var __PUCK__value__17 = __PUCK__value__7;
+                    if ($unwrapTraitObject(__PUCK__value__17).kind == "IfExpression") {
+                      var _$unwrapTraitObject18 = $unwrapTraitObject(__PUCK__value__17),
+                          _$unwrapTraitObject19 = _slicedToArray(_$unwrapTraitObject18.value, 1),
+                          _e11 = _$unwrapTraitObject19[0];
+
+                      return _span3.ToSpan['$IfExpression'].span.call({ type: '$IfExpression', value: _e11, $isTraitObject: true });
+                    } else {
+                      var __PUCK__value__18 = __PUCK__value__7;
+                      if ($unwrapTraitObject(__PUCK__value__18).kind == "IfLetExpression") {
+                        var _$unwrapTraitObject20 = $unwrapTraitObject(__PUCK__value__18),
+                            _$unwrapTraitObject21 = _slicedToArray(_$unwrapTraitObject20.value, 1),
+                            _e12 = _$unwrapTraitObject21[0];
+
+                        return _span3.ToSpan['$IfLetExpression'].span.call({ type: '$IfLetExpression', value: _e12, $isTraitObject: true });
+                      } else {
+                        var __PUCK__value__19 = __PUCK__value__7;
+                        if ($unwrapTraitObject(__PUCK__value__19).kind == "MatchExpression") {
+                          var _$unwrapTraitObject22 = $unwrapTraitObject(__PUCK__value__19),
+                              _$unwrapTraitObject23 = _slicedToArray(_$unwrapTraitObject22.value, 1),
+                              _e13 = _$unwrapTraitObject23[0];
+
+                          return _span3.ToSpan['$MatchExpression'].span.call({ type: '$MatchExpression', value: _e13, $isTraitObject: true });
+                        } else {
+                          var __PUCK__value__20 = __PUCK__value__7;
+                          if ($unwrapTraitObject(__PUCK__value__20).kind == "TypePathExpression") {
+                            var _$unwrapTraitObject24 = $unwrapTraitObject(__PUCK__value__20),
+                                _$unwrapTraitObject25 = _slicedToArray(_$unwrapTraitObject24.value, 1),
+                                _e14 = _$unwrapTraitObject25[0];
+
+                            return _span3.ToSpan['$TypePathExpression'].span.call({ type: '$TypePathExpression', value: _e14, $isTraitObject: true });
+                          } else {
+                            var __PUCK__value__21 = __PUCK__value__7;
+                            if ($unwrapTraitObject(__PUCK__value__21).kind == "UnaryExpression") {
+                              var _$unwrapTraitObject26 = $unwrapTraitObject(__PUCK__value__21),
+                                  _$unwrapTraitObject27 = _slicedToArray(_$unwrapTraitObject26.value, 1),
+                                  _e15 = _$unwrapTraitObject27[0];
+
+                              throw "No span for UnaryExpression";
+                            } else {
+                              var __PUCK__value__22 = __PUCK__value__7;
+                              if ($unwrapTraitObject(__PUCK__value__22).kind == "IndexAccess") {
+                                var _$unwrapTraitObject28 = $unwrapTraitObject(__PUCK__value__22),
+                                    _$unwrapTraitObject29 = _slicedToArray(_$unwrapTraitObject28.value, 1),
+                                    _e16 = _$unwrapTraitObject29[0];
+
+                                return _span3.ToSpan['$IndexAccess'].span.call({ type: '$IndexAccess', value: _e16, $isTraitObject: true });
+                              } else {
+                                var __PUCK__value__23 = __PUCK__value__7;
+                                if ($unwrapTraitObject(__PUCK__value__23).kind == "MemberAccess") {
+                                  var _$unwrapTraitObject30 = $unwrapTraitObject(__PUCK__value__23),
+                                      _$unwrapTraitObject31 = _slicedToArray(_$unwrapTraitObject30.value, 1),
+                                      _e17 = _$unwrapTraitObject31[0];
+
+                                  return _span3.ToSpan['$MemberAccess'].span.call({ type: '$MemberAccess', value: _e17, $isTraitObject: true });
+                                } else {
+                                  var __PUCK__value__24 = __PUCK__value__7;
+                                  if ($unwrapTraitObject(__PUCK__value__24).kind == "BooleanLiteral") {
+                                    var _$unwrapTraitObject32 = $unwrapTraitObject(__PUCK__value__24),
+                                        _$unwrapTraitObject33 = _slicedToArray(_$unwrapTraitObject32.value, 1),
+                                        _e18 = _$unwrapTraitObject33[0];
+
+                                    return _span3.ToSpan['$BooleanLiteral'].span.call({ type: '$BooleanLiteral', value: _e18, $isTraitObject: true });
+                                  } else {
+                                    var __PUCK__value__25 = __PUCK__value__7;
+                                    if ($unwrapTraitObject(__PUCK__value__25).kind == "ListLiteral") {
+                                      var _$unwrapTraitObject34 = $unwrapTraitObject(__PUCK__value__25),
+                                          _$unwrapTraitObject35 = _slicedToArray(_$unwrapTraitObject34.value, 1),
+                                          _e19 = _$unwrapTraitObject35[0];
+
+                                      return _span3.ToSpan['$ListLiteral'].span.call({ type: '$ListLiteral', value: _e19, $isTraitObject: true });
+                                    } else {
+                                      var __PUCK__value__26 = __PUCK__value__7;
+                                      if ($unwrapTraitObject(__PUCK__value__26).kind == "NumberLiteral") {
+                                        var _$unwrapTraitObject36 = $unwrapTraitObject(__PUCK__value__26),
+                                            _$unwrapTraitObject37 = _slicedToArray(_$unwrapTraitObject36.value, 1),
+                                            _e20 = _$unwrapTraitObject37[0];
+
+                                        return _e20.span;
+                                      } else {
+                                        var __PUCK__value__27 = __PUCK__value__7;
+                                        if ($unwrapTraitObject(__PUCK__value__27).kind == "RecordLiteral") {
+                                          var _$unwrapTraitObject38 = $unwrapTraitObject(__PUCK__value__27),
+                                              _$unwrapTraitObject39 = _slicedToArray(_$unwrapTraitObject38.value, 1),
+                                              _e21 = _$unwrapTraitObject39[0];
+
+                                          return _span3.ToSpan['$RecordLiteral'].span.call({ type: '$RecordLiteral', value: _e21, $isTraitObject: true });
+                                        } else {
+                                          var __PUCK__value__28 = __PUCK__value__7;
+                                          if ($unwrapTraitObject(__PUCK__value__28).kind == "StringLiteral") {
+                                            var _$unwrapTraitObject40 = $unwrapTraitObject(__PUCK__value__28),
+                                                _$unwrapTraitObject41 = _slicedToArray(_$unwrapTraitObject40.value, 1),
+                                                _e22 = _$unwrapTraitObject41[0];
+
+                                            return _span3.ToSpan['$StringLiteral'].span.call({ type: '$StringLiteral', value: _e22, $isTraitObject: true });
+                                          } else {
+                                            var __PUCK__value__29 = __PUCK__value__7;
+                                            if ($unwrapTraitObject(__PUCK__value__29).kind == "TupleLiteral") {
+                                              var _$unwrapTraitObject42 = $unwrapTraitObject(__PUCK__value__29),
+                                                  _$unwrapTraitObject43 = _slicedToArray(_$unwrapTraitObject42.value, 1),
+                                                  _e23 = _$unwrapTraitObject43[0];
+
+                                              return _span3.ToSpan['$TupleLiteral'].span.call({ type: '$TupleLiteral', value: _e23, $isTraitObject: true });
+                                            };
+                                          };
+                                        };
+                                      };
+                                    };
+                                  };
+                                };
+                              };
+                            };
+                          };
+                        };
+                      };
+                    };
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+  }
+};
+_span3.ToSpan['$EnumDeclaration'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.keyword.span.start,
+      end: self.value.closeBrace.span.end
+    };
+  }
+};
+_span3.ToSpan['$EnumMember'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.name.span.start,
+      end: _core.Option.mapOr.call(self.value.bound, self.value.name.span, function (b) {
+        return _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: b, $isTraitObject: true });
+      }).end
+    };
+  }
+};
+_span3.ToSpan['$ImplDeclaration'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.implKeyword.span.start,
+      end: self.value.closeBrace.span.end
+    };
+  }
+};
+_span3.ToSpan['$ImplShorthandDeclaration'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.implKeyword.span.start,
+      end: self.value.closeBrace.span.end
+    };
+  }
+};
+_span3.ToSpan['$TraitDeclaration'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.keyword.span.start,
+      end: self.value.closeBrace.span.end
+    };
+  }
+};
+_span3.ToSpan['$TypeDeclaration'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.keyword.span.start,
+      end: _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: _core.Option.unwrap.call(self.value.bound), $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$ImportDirective'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.importKeyword.span.start,
+      end: _span3.ToSpan['$ImportSpecifier'].span.call({ type: '$ImportSpecifier', value: self.value.specifier, $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$ImportSpecifier'] = {
+  span: function span() {
+    var self = this;
+    var __PUCK__value__30 = self;
+    var __PUCK__value__31 = __PUCK__value__30;
+    if ($unwrapTraitObject(__PUCK__value__31).kind == "Asterisk") {
+      var _$unwrapTraitObject44 = $unwrapTraitObject(__PUCK__value__31),
+          _$unwrapTraitObject45 = _slicedToArray(_$unwrapTraitObject44.value, 1),
+          token = _$unwrapTraitObject45[0];
+
+      return token.span;
+    } else {
+      var __PUCK__value__32 = __PUCK__value__30;
+      if ($unwrapTraitObject(__PUCK__value__32).kind == "Identifier") {
+        var _$unwrapTraitObject46 = $unwrapTraitObject(__PUCK__value__32),
+            _$unwrapTraitObject47 = _slicedToArray(_$unwrapTraitObject46.value, 1),
+            identifier = _$unwrapTraitObject47[0];
+
+        return identifier.span;
+      } else {
+        var __PUCK__value__33 = __PUCK__value__30;
+        if ($unwrapTraitObject(__PUCK__value__33).kind == "ObjectDestructure") {
+          var _$unwrapTraitObject48 = $unwrapTraitObject(__PUCK__value__33),
+              _$unwrapTraitObject49 = _slicedToArray(_$unwrapTraitObject48.value, 1),
+              objectDestructure = _$unwrapTraitObject49[0];
+
+          return _span3.ToSpan['$ObjectDestructure'].span.call({ type: '$ObjectDestructure', value: objectDestructure, $isTraitObject: true });
+        };
+      };
+    };
+  }
+};
+_span3.ToSpan['$ObjectDestructure'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.openBrace.span.start,
+      end: self.value.closeBrace.span.end
+    };
+  }
+};
+_span3.ToSpan['$ObjectDestructureMember'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.property.span.start,
+      end: self.value.local.span.end
+    };
+  }
+};
+_span3.ToSpan['$Block'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _core.Option.mapOrElse.call(self.value.openBrace, function () {
+        return _span3.ToSpan['$BlockLevelStatement'].span.call({ type: '$BlockLevelStatement', value: _core.Option.unwrap.call(_core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: self.value.statements, $isTraitObject: true })), $isTraitObject: true });
+      }, function (t) {
+        return t.span;
+      }).start,
+      end: _core.Option.mapOrElse.call(self.value.closeBrace, function () {
+        return _span3.ToSpan['$BlockLevelStatement'].span.call({ type: '$BlockLevelStatement', value: _core.Option.unwrap.call(_core.Iterable['$List<E>'].last.call({ type: '$List<E>', value: self.value.statements, $isTraitObject: true })), $isTraitObject: true });
+      }, function (t) {
+        return t.span;
+      }).end
+    };
+  }
+};
+_span3.ToSpan['$Identifier'] = {
+  span: function span() {
+    var self = this;
+    return self.value.span;
+  }
+};
+_span3.ToSpan['$FunctionDeclaration'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$Identifier'].span.call({ type: '$Identifier', value: _core.Option.unwrap.call(self.value.name), $isTraitObject: true }).start,
+      end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: _core.Option.unwrap.call(self.value.body), $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$VariableDeclaration'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$Pattern'].span.call({ type: '$Pattern', value: self.value.pattern, $isTraitObject: true }).start,
+      end: _core.Option.mapOrElse.call(self.value.initializer, function () {
+        return _core.Option.mapOrElse.call(self.value.typeBound, function () {
+          return _span3.ToSpan['$Pattern'].span.call({ type: '$Pattern', value: self.value.pattern, $isTraitObject: true });
+        }, function (t) {
+          return _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: t, $isTraitObject: true });
+        });
+      }, function (i) {
+        return _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: i, $isTraitObject: true });
+      }).end
+    };
+  }
+};
+_span3.ToSpan['$AssignmentExpression'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.lhs, $isTraitObject: true }).start,
+      end: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.rhs, $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$CallExpression'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.func, $isTraitObject: true }).start,
+      end: self.value.closeParen.span.end
+    };
+  }
+};
+_span3.ToSpan['$IfExpression'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.ifKeyword.span.start,
+      end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: _core.Option.unwrapOr.call(self.value.else_, self.value.then_), $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$IfLetExpression'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.ifKeyword.span.start,
+      end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: _core.Option.unwrapOr.call(self.value.else_, self.value.then_), $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$MatchExpression'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.matchKeyword.span.start,
+      end: self.value.closeBrace.span.end
+    };
+  }
+};
+_span3.ToSpan['$MatchArm'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$Pattern'].span.call({ type: '$Pattern', value: self.value.pattern, $isTraitObject: true }).start,
+      end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: self.value.block, $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$TypePathExpression'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: self.value.typePath, $isTraitObject: true }).start,
+      end: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: self.value.typePath, $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$TypePath'] = {
+  span: function span() {
+    var self = this;
+    var __PUCK__value__34 = self;
+    var __PUCK__value__35 = __PUCK__value__34;
+    if ($unwrapTraitObject(__PUCK__value__35).kind == "_Object") {
+      var _$unwrapTraitObject50 = $unwrapTraitObject(__PUCK__value__35),
+          _$unwrapTraitObject51 = _slicedToArray(_$unwrapTraitObject50.value, 2),
+          identifier = _$unwrapTraitObject51[0],
+          typePath = _$unwrapTraitObject51[1];
+
+      return {
+        start: identifier.span.start,
+        end: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: typePath, $isTraitObject: true }).end
+      };
+    } else {
+      var __PUCK__value__36 = __PUCK__value__34;
+      if ($unwrapTraitObject(__PUCK__value__36).kind == "Member") {
+        var _$unwrapTraitObject52 = $unwrapTraitObject(__PUCK__value__36),
+            _$unwrapTraitObject53 = _slicedToArray(_$unwrapTraitObject52.value, 1),
+            _identifier = _$unwrapTraitObject53[0];
+
+        return _identifier.span;
+      };
+    };
+  }
+};
+_span3.ToSpan['$IndexAccess'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.object, $isTraitObject: true }).start,
+      end: self.value.closeBracket.span.end
+    };
+  }
+};
+_span3.ToSpan['$MemberAccess'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.object, $isTraitObject: true }).start,
+      end: _span3.ToSpan['$Identifier'].span.call({ type: '$Identifier', value: self.value.member, $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$BooleanLiteral'] = {
+  span: function span() {
+    var self = this;
+    return self.value.keyword.span;
+  }
+};
+_span3.ToSpan['$ListLiteral'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.openBracket.span.start,
+      end: self.value.closeBracket.span.end
+    };
+  }
+};
+_span3.ToSpan['$NumberLiteral'] = {
+  span: function span() {
+    var self = this;
+    return self.value.span;
+  }
+};
+_span3.ToSpan['$RecordLiteral'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.openBrace.span.start,
+      end: self.value.closeBrace.span.end
+    };
+  }
+};
+_span3.ToSpan['$StringLiteral'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$StringLiteralPart'].span.call({ type: '$StringLiteralPart', value: _core.Option.unwrap.call(_core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: self.value.parts, $isTraitObject: true })), $isTraitObject: true }).start,
+      end: _span3.ToSpan['$StringLiteralPart'].span.call({ type: '$StringLiteralPart', value: _core.Option.unwrap.call(_core.Iterable['$List<E>'].last.call({ type: '$List<E>', value: self.value.parts, $isTraitObject: true })), $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan['$StringLiteralPart'] = {
+  span: function span() {
+    var self = this;
+    var __PUCK__value__37 = self;
+    var __PUCK__value__38 = __PUCK__value__37;
+    if ($unwrapTraitObject(__PUCK__value__38).kind == "Literal") {
+      var _$unwrapTraitObject54 = $unwrapTraitObject(__PUCK__value__38),
+          _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject54.value, 1),
+          _span = _$unwrapTraitObject55[0].span;
+
+      return _span;
+    } else {
+      var __PUCK__value__39 = __PUCK__value__37;
+      if ($unwrapTraitObject(__PUCK__value__39).kind == "Identifier") {
+        var _$unwrapTraitObject56 = $unwrapTraitObject(__PUCK__value__39),
+            _$unwrapTraitObject57 = _slicedToArray(_$unwrapTraitObject56.value, 1),
+            _span2 = _$unwrapTraitObject57[0].span;
+
+        return _span2;
+      };
+    };
+  }
+};
+_span3.ToSpan['$TupleLiteral'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.openParen.span.start,
+      end: self.value.closeParen.span.end
+    };
+  }
+};
+_span3.ToSpan['$Pattern'] = {
+  span: function span() {
+    var self = this;
+    var __PUCK__value__40 = self;
+    var __PUCK__value__41 = __PUCK__value__40;
+    if ($unwrapTraitObject(__PUCK__value__41).kind == "CatchAll") {
+      var _$unwrapTraitObject58 = $unwrapTraitObject(__PUCK__value__41),
+          _$unwrapTraitObject59 = _slicedToArray(_$unwrapTraitObject58.value, 1),
+          token = _$unwrapTraitObject59[0];
+
+      return token.span;
+    } else {
+      var __PUCK__value__42 = __PUCK__value__40;
+      if ($unwrapTraitObject(__PUCK__value__42).kind == "Identifier") {
+        var _$unwrapTraitObject60 = $unwrapTraitObject(__PUCK__value__42),
+            _$unwrapTraitObject61 = _slicedToArray(_$unwrapTraitObject60.value, 1),
+            identifier = _$unwrapTraitObject61[0];
+
+        return identifier.span;
+      } else {
+        var __PUCK__value__43 = __PUCK__value__40;
+        if ($unwrapTraitObject(__PUCK__value__43).kind == "Record") {
+          var _$unwrapTraitObject62 = $unwrapTraitObject(__PUCK__value__43),
+              _$unwrapTraitObject63 = _slicedToArray(_$unwrapTraitObject62.value, 1),
+              recordPattern = _$unwrapTraitObject63[0];
+
+          return {
+            start: recordPattern.openBrace.span.start,
+            end: recordPattern.closeBrace.span.end
+          };
+        } else {
+          var __PUCK__value__44 = __PUCK__value__40;
+          if ($unwrapTraitObject(__PUCK__value__44).kind == "Tuple") {
+            var _$unwrapTraitObject64 = $unwrapTraitObject(__PUCK__value__44),
+                _$unwrapTraitObject65 = _slicedToArray(_$unwrapTraitObject64.value, 1),
+                tuplePattern = _$unwrapTraitObject65[0];
+
+            return {
+              start: tuplePattern.openParen.span.start,
+              end: tuplePattern.closeParen.span.end
+            };
+          } else {
+            var __PUCK__value__45 = __PUCK__value__40;
+            if ($unwrapTraitObject(__PUCK__value__45).kind == "RecordType") {
+              var _$unwrapTraitObject66 = $unwrapTraitObject(__PUCK__value__45),
+                  _$unwrapTraitObject67 = _slicedToArray(_$unwrapTraitObject66.value, 2),
+                  typePath = _$unwrapTraitObject67[0],
+                  _recordPattern = _$unwrapTraitObject67[1];
+
+              return {
+                start: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: typePath, $isTraitObject: true }).start,
+                end: _recordPattern.closeBrace.span.end
+              };
+            } else {
+              var __PUCK__value__46 = __PUCK__value__40;
+              if ($unwrapTraitObject(__PUCK__value__46).kind == "TupleType") {
+                var _$unwrapTraitObject68 = $unwrapTraitObject(__PUCK__value__46),
+                    _$unwrapTraitObject69 = _slicedToArray(_$unwrapTraitObject68.value, 2),
+                    _typePath = _$unwrapTraitObject69[0],
+                    _tuplePattern = _$unwrapTraitObject69[1];
+
+                return {
+                  start: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: _typePath, $isTraitObject: true }).start,
+                  end: _tuplePattern.closeParen.span.end
+                };
+              } else {
+                var __PUCK__value__47 = __PUCK__value__40;
+                if ($unwrapTraitObject(__PUCK__value__47).kind == "UnitType") {
+                  var _$unwrapTraitObject70 = $unwrapTraitObject(__PUCK__value__47),
+                      _$unwrapTraitObject71 = _slicedToArray(_$unwrapTraitObject70.value, 1),
+                      _typePath2 = _$unwrapTraitObject71[0];
+
+                  return _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: _typePath2, $isTraitObject: true });
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+  }
+};
+_span3.ToSpan['$TypeBound'] = {
+  span: function span() {
+    var self = this;
+    var __PUCK__value__48 = self;
+    var __PUCK__value__49 = __PUCK__value__48;
+    if ($unwrapTraitObject(__PUCK__value__49).kind == "FunctionTypeBound") {
+      var _$unwrapTraitObject72 = $unwrapTraitObject(__PUCK__value__49),
+          _$unwrapTraitObject73 = _slicedToArray(_$unwrapTraitObject72.value, 1),
+          t = _$unwrapTraitObject73[0];
+
+      return t.span();
+    } else {
+      var __PUCK__value__50 = __PUCK__value__48;
+      if ($unwrapTraitObject(__PUCK__value__50).kind == "NamedTypeBound") {
+        var _$unwrapTraitObject74 = $unwrapTraitObject(__PUCK__value__50),
+            _$unwrapTraitObject75 = _slicedToArray(_$unwrapTraitObject74.value, 1),
+            _t = _$unwrapTraitObject75[0];
+
+        return _span3.ToSpan['$NamedTypeBound'].span.call({ type: '$NamedTypeBound', value: _t, $isTraitObject: true });
+      } else {
+        var __PUCK__value__51 = __PUCK__value__48;
+        if ($unwrapTraitObject(__PUCK__value__51).kind == "RecordTypeBound") {
+          var _$unwrapTraitObject76 = $unwrapTraitObject(__PUCK__value__51),
+              _$unwrapTraitObject77 = _slicedToArray(_$unwrapTraitObject76.value, 1),
+              _t2 = _$unwrapTraitObject77[0];
+
+          return _span3.ToSpan['$RecordTypeBound'].span.call({ type: '$RecordTypeBound', value: _t2, $isTraitObject: true });
+        } else {
+          var __PUCK__value__52 = __PUCK__value__48;
+          if ($unwrapTraitObject(__PUCK__value__52).kind == "TupleTypeBound") {
+            var _$unwrapTraitObject78 = $unwrapTraitObject(__PUCK__value__52),
+                _$unwrapTraitObject79 = _slicedToArray(_$unwrapTraitObject78.value, 1),
+                _t3 = _$unwrapTraitObject79[0];
+
+            return _span3.ToSpan['$TupleTypeBound'].span.call({ type: '$TupleTypeBound', value: _t3, $isTraitObject: true });
+          };
+        };
+      };
+    };
+  }
+};
+_span3.ToSpan['$NamedTypeBound'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: self.value.path, $isTraitObject: true }).start,
+      end: _core.Option.mapOr.call(_core.Iterable['$List<E>'].last.call({ type: '$List<E>', value: self.value.typeParameters, $isTraitObject: true }), _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: self.value.path, $isTraitObject: true }), function (p) {
+        return _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: p, $isTraitObject: true });
+      }).end
+    };
+  }
+};
+_span3.ToSpan['$RecordTypeBound'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.openBrace.span.start,
+      end: self.value.closeBrace.span.end
+    };
+  }
+};
+_span3.ToSpan['$TupleTypeBound'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.openParen.span.start,
+      end: self.value.closeParen.span.end
+    };
+  }
+};
+_span3.ToSpan['$TypeParameter'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.name.span.start,
+      end: self.value.name.span.end
+    };
+  }
+};
 TopLevelStatement.getType = function getType() {
   var self = this;
-  var __PUCK__value__1 = self;
-  var __PUCK__value__2 = __PUCK__value__1;
-  if ($unwrapTraitObject(__PUCK__value__2).kind == "ExportDirective") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-        e = _PUCK__value__2$valu[0];
+  var __PUCK__value__53 = self;
+  var __PUCK__value__54 = __PUCK__value__53;
+  if ($unwrapTraitObject(__PUCK__value__54).kind == "ExportDirective") {
+    var _$unwrapTraitObject80 = $unwrapTraitObject(__PUCK__value__54),
+        _$unwrapTraitObject81 = _slicedToArray(_$unwrapTraitObject80.value, 1),
+        e = _$unwrapTraitObject81[0];
 
     throw "type on export";
   } else {
-    var __PUCK__value__3 = __PUCK__value__1;
-    if ($unwrapTraitObject(__PUCK__value__3).kind == "ImportDirective") {
-      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-          _e = _PUCK__value__3$valu[0];
+    var __PUCK__value__55 = __PUCK__value__53;
+    if ($unwrapTraitObject(__PUCK__value__55).kind == "ImportDirective") {
+      var _$unwrapTraitObject82 = $unwrapTraitObject(__PUCK__value__55),
+          _$unwrapTraitObject83 = _slicedToArray(_$unwrapTraitObject82.value, 1),
+          _e24 = _$unwrapTraitObject83[0];
 
       throw "type on import";
     } else {
-      var __PUCK__value__4 = __PUCK__value__1;
-      if ($unwrapTraitObject(__PUCK__value__4).kind == "EnumDeclaration") {
-        var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-            _e2 = _PUCK__value__4$valu[0];
+      var __PUCK__value__56 = __PUCK__value__53;
+      if ($unwrapTraitObject(__PUCK__value__56).kind == "EnumDeclaration") {
+        var _$unwrapTraitObject84 = $unwrapTraitObject(__PUCK__value__56),
+            _$unwrapTraitObject85 = _slicedToArray(_$unwrapTraitObject84.value, 1),
+            _e25 = _$unwrapTraitObject85[0];
 
-        return _e2.type_;
+        return _e25.type_;
       } else {
-        var __PUCK__value__5 = __PUCK__value__1;
-        if ($unwrapTraitObject(__PUCK__value__5).kind == "ImplDeclaration") {
-          var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-              _e3 = _PUCK__value__5$valu[0];
+        var __PUCK__value__57 = __PUCK__value__53;
+        if ($unwrapTraitObject(__PUCK__value__57).kind == "ImplDeclaration") {
+          var _$unwrapTraitObject86 = $unwrapTraitObject(__PUCK__value__57),
+              _$unwrapTraitObject87 = _slicedToArray(_$unwrapTraitObject86.value, 1),
+              _e26 = _$unwrapTraitObject87[0];
 
-          return _e3.type_;
+          return _e26.type_;
         } else {
-          var __PUCK__value__6 = __PUCK__value__1;
-          if ($unwrapTraitObject(__PUCK__value__6).kind == "ImplShorthandDeclaration") {
-            var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
-                _e4 = _PUCK__value__6$valu[0];
+          var __PUCK__value__58 = __PUCK__value__53;
+          if ($unwrapTraitObject(__PUCK__value__58).kind == "ImplShorthandDeclaration") {
+            var _$unwrapTraitObject88 = $unwrapTraitObject(__PUCK__value__58),
+                _$unwrapTraitObject89 = _slicedToArray(_$unwrapTraitObject88.value, 1),
+                _e27 = _$unwrapTraitObject89[0];
 
-            return _e4.type_;
+            return _e27.type_;
           } else {
-            var __PUCK__value__7 = __PUCK__value__1;
-            if ($unwrapTraitObject(__PUCK__value__7).kind == "TraitDeclaration") {
-              var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-                  _e5 = _PUCK__value__7$valu[0];
+            var __PUCK__value__59 = __PUCK__value__53;
+            if ($unwrapTraitObject(__PUCK__value__59).kind == "TraitDeclaration") {
+              var _$unwrapTraitObject90 = $unwrapTraitObject(__PUCK__value__59),
+                  _$unwrapTraitObject91 = _slicedToArray(_$unwrapTraitObject90.value, 1),
+                  _e28 = _$unwrapTraitObject91[0];
 
-              return _e5.type_;
+              return _e28.type_;
             } else {
-              var __PUCK__value__8 = __PUCK__value__1;
-              if ($unwrapTraitObject(__PUCK__value__8).kind == "TypeDeclaration") {
-                var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
-                    _e6 = _PUCK__value__8$valu[0];
+              var __PUCK__value__60 = __PUCK__value__53;
+              if ($unwrapTraitObject(__PUCK__value__60).kind == "TypeDeclaration") {
+                var _$unwrapTraitObject92 = $unwrapTraitObject(__PUCK__value__60),
+                    _$unwrapTraitObject93 = _slicedToArray(_$unwrapTraitObject92.value, 1),
+                    _e29 = _$unwrapTraitObject93[0];
 
-                return _e6.type_;
+                return _e29.type_;
               } else {
-                var __PUCK__value__9 = __PUCK__value__1;
-                if ($unwrapTraitObject(__PUCK__value__9).kind == "BlockLevelStatement") {
-                  var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-                      _e7 = _PUCK__value__9$valu[0];
+                var __PUCK__value__61 = __PUCK__value__53;
+                if ($unwrapTraitObject(__PUCK__value__61).kind == "BlockLevelStatement") {
+                  var _$unwrapTraitObject94 = $unwrapTraitObject(__PUCK__value__61),
+                      _$unwrapTraitObject95 = _slicedToArray(_$unwrapTraitObject94.value, 1),
+                      _e30 = _$unwrapTraitObject95[0];
 
-                  return BlockLevelStatement.getType.call(_e7);
+                  return BlockLevelStatement.getType.call(_e30);
                 };
               };
             };
@@ -625,41 +1402,46 @@ TopLevelStatement.getType = function getType() {
 };
 BlockLevelStatement.getType = function getType() {
   var self = this;
-  var __PUCK__value__10 = self;
-  var __PUCK__value__11 = __PUCK__value__10;
-  if ($unwrapTraitObject(__PUCK__value__11).kind == "Block") {
-    var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1),
-        e = _PUCK__value__11$val[0];
+  var __PUCK__value__62 = self;
+  var __PUCK__value__63 = __PUCK__value__62;
+  if ($unwrapTraitObject(__PUCK__value__63).kind == "Block") {
+    var _$unwrapTraitObject96 = $unwrapTraitObject(__PUCK__value__63),
+        _$unwrapTraitObject97 = _slicedToArray(_$unwrapTraitObject96.value, 1),
+        e = _$unwrapTraitObject97[0];
 
     return e.type_;
   } else {
-    var __PUCK__value__12 = __PUCK__value__10;
-    if ($unwrapTraitObject(__PUCK__value__12).kind == "BreakStatement") {
-      var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
-          _e8 = _PUCK__value__12$val[0];
+    var __PUCK__value__64 = __PUCK__value__62;
+    if ($unwrapTraitObject(__PUCK__value__64).kind == "BreakStatement") {
+      var _$unwrapTraitObject98 = $unwrapTraitObject(__PUCK__value__64),
+          _$unwrapTraitObject99 = _slicedToArray(_$unwrapTraitObject98.value, 1),
+          _e31 = _$unwrapTraitObject99[0];
 
-      return _e8.type_;
+      return _e31.type_;
     } else {
-      var __PUCK__value__13 = __PUCK__value__10;
-      if ($unwrapTraitObject(__PUCK__value__13).kind == "ReturnStatement") {
-        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
-            _e9 = _PUCK__value__13$val[0];
+      var __PUCK__value__65 = __PUCK__value__62;
+      if ($unwrapTraitObject(__PUCK__value__65).kind == "ReturnStatement") {
+        var _$unwrapTraitObject100 = $unwrapTraitObject(__PUCK__value__65),
+            _$unwrapTraitObject101 = _slicedToArray(_$unwrapTraitObject100.value, 1),
+            _e32 = _$unwrapTraitObject101[0];
 
-        return _e9.type_;
+        return _e32.type_;
       } else {
-        var __PUCK__value__14 = __PUCK__value__10;
-        if ($unwrapTraitObject(__PUCK__value__14).kind == "WhileLoop") {
-          var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
-              _e10 = _PUCK__value__14$val[0];
+        var __PUCK__value__66 = __PUCK__value__62;
+        if ($unwrapTraitObject(__PUCK__value__66).kind == "WhileLoop") {
+          var _$unwrapTraitObject102 = $unwrapTraitObject(__PUCK__value__66),
+              _$unwrapTraitObject103 = _slicedToArray(_$unwrapTraitObject102.value, 1),
+              _e33 = _$unwrapTraitObject103[0];
 
-          return _e10.type_;
+          return _e33.type_;
         } else {
-          var __PUCK__value__15 = __PUCK__value__10;
-          if ($unwrapTraitObject(__PUCK__value__15).kind == "Expression") {
-            var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
-                _e11 = _PUCK__value__15$val[0];
+          var __PUCK__value__67 = __PUCK__value__62;
+          if ($unwrapTraitObject(__PUCK__value__67).kind == "Expression") {
+            var _$unwrapTraitObject104 = $unwrapTraitObject(__PUCK__value__67),
+                _$unwrapTraitObject105 = _slicedToArray(_$unwrapTraitObject104.value, 1),
+                _e34 = _$unwrapTraitObject105[0];
 
-            return Expression.getType.call(_e11);
+            return Expression.getType.call(_e34);
           };
         };
       };
@@ -668,156 +1450,176 @@ BlockLevelStatement.getType = function getType() {
 };
 Expression.getType = function getType() {
   var self = this;
-  var __PUCK__value__16 = self;
-  var __PUCK__value__17 = __PUCK__value__16;
-  if ($unwrapTraitObject(__PUCK__value__17).kind == "ThrowStatement") {
-    var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
-        e = _PUCK__value__17$val[0];
+  var __PUCK__value__68 = self;
+  var __PUCK__value__69 = __PUCK__value__68;
+  if ($unwrapTraitObject(__PUCK__value__69).kind == "ThrowStatement") {
+    var _$unwrapTraitObject106 = $unwrapTraitObject(__PUCK__value__69),
+        _$unwrapTraitObject107 = _slicedToArray(_$unwrapTraitObject106.value, 1),
+        e = _$unwrapTraitObject107[0];
 
     return e.type_;
   } else {
-    var __PUCK__value__18 = __PUCK__value__16;
-    if ($unwrapTraitObject(__PUCK__value__18).kind == "Comment") {
-      var __PUCK__value__19 = __PUCK__value__18;;
+    var __PUCK__value__70 = __PUCK__value__68;
+    if ($unwrapTraitObject(__PUCK__value__70).kind == "Comment") {
+      var __PUCK__value__71 = $unwrapTraitObject(__PUCK__value__70);;
 
-      var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
-          __PUCK__value__20 = _PUCK__value__19$val[0];
+      var _PUCK__value__71$val = _slicedToArray(__PUCK__value__71.value, 1),
+          __PUCK__value__72 = _PUCK__value__71$val[0];
 
       ;
-      return __PUCK__value__19;
+      return __PUCK__value__71;
     } else {
-      var __PUCK__value__21 = __PUCK__value__16;
-      if ($unwrapTraitObject(__PUCK__value__21).kind == "Identifier") {
-        var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1),
-            _e12 = _PUCK__value__21$val[0];
+      var __PUCK__value__73 = __PUCK__value__68;
+      if ($unwrapTraitObject(__PUCK__value__73).kind == "Identifier") {
+        var _$unwrapTraitObject108 = $unwrapTraitObject(__PUCK__value__73),
+            _$unwrapTraitObject109 = _slicedToArray(_$unwrapTraitObject108.value, 1),
+            _e35 = _$unwrapTraitObject109[0];
 
-        return _e12.type_;
+        return _e35.type_;
       } else {
-        var __PUCK__value__22 = __PUCK__value__16;
-        if ($unwrapTraitObject(__PUCK__value__22).kind == "FunctionDeclaration") {
-          var _PUCK__value__22$val = _slicedToArray(__PUCK__value__22.value, 1),
-              _e13 = _PUCK__value__22$val[0];
+        var __PUCK__value__74 = __PUCK__value__68;
+        if ($unwrapTraitObject(__PUCK__value__74).kind == "FunctionDeclaration") {
+          var _$unwrapTraitObject110 = $unwrapTraitObject(__PUCK__value__74),
+              _$unwrapTraitObject111 = _slicedToArray(_$unwrapTraitObject110.value, 1),
+              _e36 = _$unwrapTraitObject111[0];
 
-          return _e13.type_;
+          return _e36.type_;
         } else {
-          var __PUCK__value__23 = __PUCK__value__16;
-          if ($unwrapTraitObject(__PUCK__value__23).kind == "VariableDeclaration") {
-            var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1),
-                _e14 = _PUCK__value__23$val[0];
+          var __PUCK__value__75 = __PUCK__value__68;
+          if ($unwrapTraitObject(__PUCK__value__75).kind == "VariableDeclaration") {
+            var _$unwrapTraitObject112 = $unwrapTraitObject(__PUCK__value__75),
+                _$unwrapTraitObject113 = _slicedToArray(_$unwrapTraitObject112.value, 1),
+                _e37 = _$unwrapTraitObject113[0];
 
-            return _e14.type_;
+            return _e37.type_;
           } else {
-            var __PUCK__value__24 = __PUCK__value__16;
-            if ($unwrapTraitObject(__PUCK__value__24).kind == "AssignmentExpression") {
-              var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1),
-                  _e15 = _PUCK__value__24$val[0];
+            var __PUCK__value__76 = __PUCK__value__68;
+            if ($unwrapTraitObject(__PUCK__value__76).kind == "AssignmentExpression") {
+              var _$unwrapTraitObject114 = $unwrapTraitObject(__PUCK__value__76),
+                  _$unwrapTraitObject115 = _slicedToArray(_$unwrapTraitObject114.value, 1),
+                  _e38 = _$unwrapTraitObject115[0];
 
-              return _e15.type_;
+              return _e38.type_;
             } else {
-              var __PUCK__value__25 = __PUCK__value__16;
-              if ($unwrapTraitObject(__PUCK__value__25).kind == "BinaryExpression") {
-                var _PUCK__value__25$val = _slicedToArray(__PUCK__value__25.value, 1),
-                    _e16 = _PUCK__value__25$val[0];
+              var __PUCK__value__77 = __PUCK__value__68;
+              if ($unwrapTraitObject(__PUCK__value__77).kind == "BinaryExpression") {
+                var _$unwrapTraitObject116 = $unwrapTraitObject(__PUCK__value__77),
+                    _$unwrapTraitObject117 = _slicedToArray(_$unwrapTraitObject116.value, 1),
+                    _e39 = _$unwrapTraitObject117[0];
 
-                return _e16.type_;
+                return _e39.type_;
               } else {
-                var __PUCK__value__26 = __PUCK__value__16;
-                if ($unwrapTraitObject(__PUCK__value__26).kind == "CallExpression") {
-                  var _PUCK__value__26$val = _slicedToArray(__PUCK__value__26.value, 1),
-                      _e17 = _PUCK__value__26$val[0];
+                var __PUCK__value__78 = __PUCK__value__68;
+                if ($unwrapTraitObject(__PUCK__value__78).kind == "CallExpression") {
+                  var _$unwrapTraitObject118 = $unwrapTraitObject(__PUCK__value__78),
+                      _$unwrapTraitObject119 = _slicedToArray(_$unwrapTraitObject118.value, 1),
+                      _e40 = _$unwrapTraitObject119[0];
 
-                  return _e17.type_;
+                  return _e40.type_;
                 } else {
-                  var __PUCK__value__27 = __PUCK__value__16;
-                  if ($unwrapTraitObject(__PUCK__value__27).kind == "IfExpression") {
-                    var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1),
-                        _e18 = _PUCK__value__27$val[0];
+                  var __PUCK__value__79 = __PUCK__value__68;
+                  if ($unwrapTraitObject(__PUCK__value__79).kind == "IfExpression") {
+                    var _$unwrapTraitObject120 = $unwrapTraitObject(__PUCK__value__79),
+                        _$unwrapTraitObject121 = _slicedToArray(_$unwrapTraitObject120.value, 1),
+                        _e41 = _$unwrapTraitObject121[0];
 
-                    return _e18.type_;
+                    return _e41.type_;
                   } else {
-                    var __PUCK__value__28 = __PUCK__value__16;
-                    if ($unwrapTraitObject(__PUCK__value__28).kind == "IfLetExpression") {
-                      var _PUCK__value__28$val = _slicedToArray(__PUCK__value__28.value, 1),
-                          _e19 = _PUCK__value__28$val[0];
+                    var __PUCK__value__80 = __PUCK__value__68;
+                    if ($unwrapTraitObject(__PUCK__value__80).kind == "IfLetExpression") {
+                      var _$unwrapTraitObject122 = $unwrapTraitObject(__PUCK__value__80),
+                          _$unwrapTraitObject123 = _slicedToArray(_$unwrapTraitObject122.value, 1),
+                          _e42 = _$unwrapTraitObject123[0];
 
-                      return _e19.type_;
+                      return _e42.type_;
                     } else {
-                      var __PUCK__value__29 = __PUCK__value__16;
-                      if ($unwrapTraitObject(__PUCK__value__29).kind == "MatchExpression") {
-                        var _PUCK__value__29$val = _slicedToArray(__PUCK__value__29.value, 1),
-                            _e20 = _PUCK__value__29$val[0];
+                      var __PUCK__value__81 = __PUCK__value__68;
+                      if ($unwrapTraitObject(__PUCK__value__81).kind == "MatchExpression") {
+                        var _$unwrapTraitObject124 = $unwrapTraitObject(__PUCK__value__81),
+                            _$unwrapTraitObject125 = _slicedToArray(_$unwrapTraitObject124.value, 1),
+                            _e43 = _$unwrapTraitObject125[0];
 
-                        return _e20.type_;
+                        return _e43.type_;
                       } else {
-                        var __PUCK__value__30 = __PUCK__value__16;
-                        if ($unwrapTraitObject(__PUCK__value__30).kind == "TypePathExpression") {
-                          var _PUCK__value__30$val = _slicedToArray(__PUCK__value__30.value, 1),
-                              _e21 = _PUCK__value__30$val[0];
+                        var __PUCK__value__82 = __PUCK__value__68;
+                        if ($unwrapTraitObject(__PUCK__value__82).kind == "TypePathExpression") {
+                          var _$unwrapTraitObject126 = $unwrapTraitObject(__PUCK__value__82),
+                              _$unwrapTraitObject127 = _slicedToArray(_$unwrapTraitObject126.value, 1),
+                              _e44 = _$unwrapTraitObject127[0];
 
-                          return _e21.type_;
+                          return _e44.type_;
                         } else {
-                          var __PUCK__value__31 = __PUCK__value__16;
-                          if ($unwrapTraitObject(__PUCK__value__31).kind == "UnaryExpression") {
-                            var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1),
-                                _e22 = _PUCK__value__31$val[0];
+                          var __PUCK__value__83 = __PUCK__value__68;
+                          if ($unwrapTraitObject(__PUCK__value__83).kind == "UnaryExpression") {
+                            var _$unwrapTraitObject128 = $unwrapTraitObject(__PUCK__value__83),
+                                _$unwrapTraitObject129 = _slicedToArray(_$unwrapTraitObject128.value, 1),
+                                _e45 = _$unwrapTraitObject129[0];
 
-                            return _e22.type_;
+                            return _e45.type_;
                           } else {
-                            var __PUCK__value__32 = __PUCK__value__16;
-                            if ($unwrapTraitObject(__PUCK__value__32).kind == "IndexAccess") {
-                              var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1),
-                                  _e23 = _PUCK__value__32$val[0];
+                            var __PUCK__value__84 = __PUCK__value__68;
+                            if ($unwrapTraitObject(__PUCK__value__84).kind == "IndexAccess") {
+                              var _$unwrapTraitObject130 = $unwrapTraitObject(__PUCK__value__84),
+                                  _$unwrapTraitObject131 = _slicedToArray(_$unwrapTraitObject130.value, 1),
+                                  _e46 = _$unwrapTraitObject131[0];
 
-                              return _e23.type_;
+                              return _e46.type_;
                             } else {
-                              var __PUCK__value__33 = __PUCK__value__16;
-                              if ($unwrapTraitObject(__PUCK__value__33).kind == "MemberAccess") {
-                                var _PUCK__value__33$val = _slicedToArray(__PUCK__value__33.value, 1),
-                                    _e24 = _PUCK__value__33$val[0];
+                              var __PUCK__value__85 = __PUCK__value__68;
+                              if ($unwrapTraitObject(__PUCK__value__85).kind == "MemberAccess") {
+                                var _$unwrapTraitObject132 = $unwrapTraitObject(__PUCK__value__85),
+                                    _$unwrapTraitObject133 = _slicedToArray(_$unwrapTraitObject132.value, 1),
+                                    _e47 = _$unwrapTraitObject133[0];
 
-                                return _e24.type_;
+                                return _e47.type_;
                               } else {
-                                var __PUCK__value__34 = __PUCK__value__16;
-                                if ($unwrapTraitObject(__PUCK__value__34).kind == "BooleanLiteral") {
-                                  var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1),
-                                      _e25 = _PUCK__value__34$val[0];
+                                var __PUCK__value__86 = __PUCK__value__68;
+                                if ($unwrapTraitObject(__PUCK__value__86).kind == "BooleanLiteral") {
+                                  var _$unwrapTraitObject134 = $unwrapTraitObject(__PUCK__value__86),
+                                      _$unwrapTraitObject135 = _slicedToArray(_$unwrapTraitObject134.value, 1),
+                                      _e48 = _$unwrapTraitObject135[0];
 
-                                  return _e25.type_;
+                                  return _e48.type_;
                                 } else {
-                                  var __PUCK__value__35 = __PUCK__value__16;
-                                  if ($unwrapTraitObject(__PUCK__value__35).kind == "ListLiteral") {
-                                    var _PUCK__value__35$val = _slicedToArray(__PUCK__value__35.value, 1),
-                                        _e26 = _PUCK__value__35$val[0];
+                                  var __PUCK__value__87 = __PUCK__value__68;
+                                  if ($unwrapTraitObject(__PUCK__value__87).kind == "ListLiteral") {
+                                    var _$unwrapTraitObject136 = $unwrapTraitObject(__PUCK__value__87),
+                                        _$unwrapTraitObject137 = _slicedToArray(_$unwrapTraitObject136.value, 1),
+                                        _e49 = _$unwrapTraitObject137[0];
 
-                                    return _e26.type_;
+                                    return _e49.type_;
                                   } else {
-                                    var __PUCK__value__36 = __PUCK__value__16;
-                                    if ($unwrapTraitObject(__PUCK__value__36).kind == "NumberLiteral") {
-                                      var _PUCK__value__36$val = _slicedToArray(__PUCK__value__36.value, 1),
-                                          _e27 = _PUCK__value__36$val[0];
+                                    var __PUCK__value__88 = __PUCK__value__68;
+                                    if ($unwrapTraitObject(__PUCK__value__88).kind == "NumberLiteral") {
+                                      var _$unwrapTraitObject138 = $unwrapTraitObject(__PUCK__value__88),
+                                          _$unwrapTraitObject139 = _slicedToArray(_$unwrapTraitObject138.value, 1),
+                                          _e50 = _$unwrapTraitObject139[0];
 
-                                      return _e27.type_;
+                                      return _e50.type_;
                                     } else {
-                                      var __PUCK__value__37 = __PUCK__value__16;
-                                      if ($unwrapTraitObject(__PUCK__value__37).kind == "RecordLiteral") {
-                                        var _PUCK__value__37$val = _slicedToArray(__PUCK__value__37.value, 1),
-                                            _e28 = _PUCK__value__37$val[0];
+                                      var __PUCK__value__89 = __PUCK__value__68;
+                                      if ($unwrapTraitObject(__PUCK__value__89).kind == "RecordLiteral") {
+                                        var _$unwrapTraitObject140 = $unwrapTraitObject(__PUCK__value__89),
+                                            _$unwrapTraitObject141 = _slicedToArray(_$unwrapTraitObject140.value, 1),
+                                            _e51 = _$unwrapTraitObject141[0];
 
-                                        return _e28.type_;
+                                        return _e51.type_;
                                       } else {
-                                        var __PUCK__value__38 = __PUCK__value__16;
-                                        if ($unwrapTraitObject(__PUCK__value__38).kind == "StringLiteral") {
-                                          var _PUCK__value__38$val = _slicedToArray(__PUCK__value__38.value, 1),
-                                              _e29 = _PUCK__value__38$val[0];
+                                        var __PUCK__value__90 = __PUCK__value__68;
+                                        if ($unwrapTraitObject(__PUCK__value__90).kind == "StringLiteral") {
+                                          var _$unwrapTraitObject142 = $unwrapTraitObject(__PUCK__value__90),
+                                              _$unwrapTraitObject143 = _slicedToArray(_$unwrapTraitObject142.value, 1),
+                                              _e52 = _$unwrapTraitObject143[0];
 
-                                          return _e29.type_;
+                                          return _e52.type_;
                                         } else {
-                                          var __PUCK__value__39 = __PUCK__value__16;
-                                          if ($unwrapTraitObject(__PUCK__value__39).kind == "TupleLiteral") {
-                                            var _PUCK__value__39$val = _slicedToArray(__PUCK__value__39.value, 1),
-                                                _e30 = _PUCK__value__39$val[0];
+                                          var __PUCK__value__91 = __PUCK__value__68;
+                                          if ($unwrapTraitObject(__PUCK__value__91).kind == "TupleLiteral") {
+                                            var _$unwrapTraitObject144 = $unwrapTraitObject(__PUCK__value__91),
+                                                _$unwrapTraitObject145 = _slicedToArray(_$unwrapTraitObject144.value, 1),
+                                                _e53 = _$unwrapTraitObject145[0];
 
-                                            return _e30.type_;
+                                            return _e53.type_;
                                           };
                                         };
                                       };
@@ -842,34 +1644,38 @@ Expression.getType = function getType() {
 };
 TypeBound.getType = function getType() {
   var self = this;
-  var __PUCK__value__40 = self;
-  var __PUCK__value__41 = __PUCK__value__40;
-  if ($unwrapTraitObject(__PUCK__value__41).kind == "FunctionTypeBound") {
-    var _PUCK__value__41$val = _slicedToArray(__PUCK__value__41.value, 1),
-        t = _PUCK__value__41$val[0];
+  var __PUCK__value__92 = self;
+  var __PUCK__value__93 = __PUCK__value__92;
+  if ($unwrapTraitObject(__PUCK__value__93).kind == "FunctionTypeBound") {
+    var _$unwrapTraitObject146 = $unwrapTraitObject(__PUCK__value__93),
+        _$unwrapTraitObject147 = _slicedToArray(_$unwrapTraitObject146.value, 1),
+        t = _$unwrapTraitObject147[0];
 
     return t.type_;
   } else {
-    var __PUCK__value__42 = __PUCK__value__40;
-    if ($unwrapTraitObject(__PUCK__value__42).kind == "NamedTypeBound") {
-      var _PUCK__value__42$val = _slicedToArray(__PUCK__value__42.value, 1),
-          _t = _PUCK__value__42$val[0];
+    var __PUCK__value__94 = __PUCK__value__92;
+    if ($unwrapTraitObject(__PUCK__value__94).kind == "NamedTypeBound") {
+      var _$unwrapTraitObject148 = $unwrapTraitObject(__PUCK__value__94),
+          _$unwrapTraitObject149 = _slicedToArray(_$unwrapTraitObject148.value, 1),
+          _t4 = _$unwrapTraitObject149[0];
 
-      return _t.type_;
+      return _t4.type_;
     } else {
-      var __PUCK__value__43 = __PUCK__value__40;
-      if ($unwrapTraitObject(__PUCK__value__43).kind == "RecordTypeBound") {
-        var _PUCK__value__43$val = _slicedToArray(__PUCK__value__43.value, 1),
-            _t2 = _PUCK__value__43$val[0];
+      var __PUCK__value__95 = __PUCK__value__92;
+      if ($unwrapTraitObject(__PUCK__value__95).kind == "RecordTypeBound") {
+        var _$unwrapTraitObject150 = $unwrapTraitObject(__PUCK__value__95),
+            _$unwrapTraitObject151 = _slicedToArray(_$unwrapTraitObject150.value, 1),
+            _t5 = _$unwrapTraitObject151[0];
 
-        return _t2.type_;
+        return _t5.type_;
       } else {
-        var __PUCK__value__44 = __PUCK__value__40;
-        if ($unwrapTraitObject(__PUCK__value__44).kind == "TupleTypeBound") {
-          var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
-              _t3 = _PUCK__value__44$val[0];
+        var __PUCK__value__96 = __PUCK__value__92;
+        if ($unwrapTraitObject(__PUCK__value__96).kind == "TupleTypeBound") {
+          var _$unwrapTraitObject152 = $unwrapTraitObject(__PUCK__value__96),
+              _$unwrapTraitObject153 = _slicedToArray(_$unwrapTraitObject152.value, 1),
+              _t6 = _$unwrapTraitObject153[0];
 
-          return _t3.type_;
+          return _t6.type_;
         };
       };
     };
@@ -877,34 +1683,36 @@ TypeBound.getType = function getType() {
 };
 TypeBound.getRecordTypeBound = function getRecordTypeBound() {
   var self = this;
-  var __PUCK__value__45 = self;
-  var __PUCK__value__46 = __PUCK__value__45;
-  if ($unwrapTraitObject(__PUCK__value__46).kind == "RecordTypeBound") {
-    var _PUCK__value__46$val = _slicedToArray(__PUCK__value__46.value, 1),
-        record = _PUCK__value__46$val[0];
+  var __PUCK__value__97 = self;
+  var __PUCK__value__98 = __PUCK__value__97;
+  if ($unwrapTraitObject(__PUCK__value__98).kind == "RecordTypeBound") {
+    var _$unwrapTraitObject154 = $unwrapTraitObject(__PUCK__value__98),
+        _$unwrapTraitObject155 = _slicedToArray(_$unwrapTraitObject154.value, 1),
+        record = _$unwrapTraitObject155[0];
 
     return record;
   } else {
-    var __PUCK__value__47 = __PUCK__value__45;
+    var __PUCK__value__99 = __PUCK__value__97;
     if (true) {
-      var __PUCK__value__48 = __PUCK__value__47;
+      var __PUCK__value__100 = __PUCK__value__99;
       throw "TypeBound is not a RecordTypeBound";
     };
   };
 };
 TypeBound.getTupleTypeBound = function getTupleTypeBound() {
   var self = this;
-  var __PUCK__value__49 = self;
-  var __PUCK__value__50 = __PUCK__value__49;
-  if ($unwrapTraitObject(__PUCK__value__50).kind == "TupleTypeBound") {
-    var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 1),
-        tuple = _PUCK__value__50$val[0];
+  var __PUCK__value__101 = self;
+  var __PUCK__value__102 = __PUCK__value__101;
+  if ($unwrapTraitObject(__PUCK__value__102).kind == "TupleTypeBound") {
+    var _$unwrapTraitObject156 = $unwrapTraitObject(__PUCK__value__102),
+        _$unwrapTraitObject157 = _slicedToArray(_$unwrapTraitObject156.value, 1),
+        tuple = _$unwrapTraitObject157[0];
 
     return tuple;
   } else {
-    var __PUCK__value__51 = __PUCK__value__49;
+    var __PUCK__value__103 = __PUCK__value__101;
     if (true) {
-      var __PUCK__value__52 = __PUCK__value__51;
+      var __PUCK__value__104 = __PUCK__value__103;
       throw "TypeBound is not a TupleTypeBound";
     };
   };

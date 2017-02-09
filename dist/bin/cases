@@ -33,12 +33,12 @@ if (command == _js._undefined) {
     (0, _test.buildTestCompiler)();
     var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
     var caseFiles = (0, _helpers.walkSync)("test/cases");
-    var failCases = caseFiles.filter(function (f) {
+    var failCases = _core.Iterable['$List<E>'].filter.call({ type: '$List<E>', value: caseFiles, $isTraitObject: true }, function (f) {
       return $unwrapTraitObject(failPattern).test(f);
     });
     (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
     var buildString = $unwrapTraitObject((0, _js.require)("puck-lang/.tmp/old/lib/compiler")).buildString;
-    $unwrapTraitObject(failCases).forEach(function (file) {
+    _core.Iterable[failCases.type].forEach.call(failCases, function (file) {
       return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(fs).readFileSync(file, { encoding: "utf-8" })).split("/////")).forEach(function (test, i) {
         var firstNewline = $unwrapTraitObject(test).indexOf("\n");
         var error = $unwrapTraitObject(test).substr(0, firstNewline);
@@ -54,16 +54,18 @@ if (command == _js._undefined) {
         var __PUCK__value__2 = result;
         var __PUCK__value__3 = __PUCK__value__2;
         if ($unwrapTraitObject(__PUCK__value__3).kind == "Ok") {
-          var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-              __PUCK__value__4 = _PUCK__value__3$valu[0];
+          var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__3),
+              _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+              __PUCK__value__4 = _$unwrapTraitObject$v[0];
 
           (0, _core.print)("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
           return $unwrapTraitObject(_js.process).exit(1);
         } else {
           var __PUCK__value__5 = __PUCK__value__2;
           if ($unwrapTraitObject(__PUCK__value__5).kind == "Err") {
-            var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-                message = _PUCK__value__5$valu[0].message;
+            var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__5),
+                _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+                message = _$unwrapTraitObject2$[0].message;
 
             if (!_core.String.contains.call(message, $unwrapTraitObject(error).trim())) {
               (0, _core.print)("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + message + "");

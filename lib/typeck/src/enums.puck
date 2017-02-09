@@ -142,6 +142,7 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
     let errors = enumPatterns
       .map(|(type_, enum_, subPatterns): (Type, Enum, List<Pattern>)| checkExhaustiveEnum(subPatterns, type_, enum_, scope))
       .filter(|result: Result<(), String>| result.isErr())
+      .toList()
 
     innerErrors = innerErrors.concat(errors)
 
@@ -157,14 +158,11 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
 
   if mapSize == memberCount - 1 {
     let mut (missing, _) = enum_.members.find(|(member, _)| not exhaustiveMap[member]).unwrap()
-    return Err('Match is not exhaustive. It is missing a case for $typeName::$missing')
+    Err('Match is not exhaustive. It is missing a case for $typeName::$missing')
   }
-  else if mapSize < memberCount {
-    return Err('Match is not exhaustive.')
-  }
-  else if let Option::Some((member, a)) = exhaustiveMap.find(|(_, exhaustive)| not exhaustive) {
-    return Err('Match is not exhaustive. $typeName::$member is not exhaustive. $a')
-  }
-
-  Ok(())
+  else if mapSize < memberCount
+    then Err('Match is not exhaustive.')
+  else if let Option::Some((member, a)) = exhaustiveMap.find(|(_, exhaustive)| not exhaustive)
+    then Err('Match is not exhaustive. $typeName::$member is not exhaustive. $a')
+  else Ok(())
 }

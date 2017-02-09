@@ -18,6 +18,8 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _ast = require('./../../ast/ast');
 
+var _span = require('./../../ast/span');
+
 var _entities = require('./../../entities');
 
 var _range = require('./range');
@@ -56,8 +58,9 @@ function createFunctionType(scope, f, reportError) {
   var __PUCK__value__4 = f.returnType;
   var __PUCK__value__5 = void 0;
   if ($unwrapTraitObject(__PUCK__value__4).kind == "Some") {
-    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-        _returnType = _PUCK__value__4$valu[0];
+    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__4),
+        _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+        _returnType = _$unwrapTraitObject$v[0];
 
     __PUCK__value__5 = _ast.TypeBound.getType.call(_returnType);
   } else {
@@ -109,8 +112,9 @@ function createFunctionType(scope, f, reportError) {
 function checkFunctionAssignability(functionName, to, subject) {
   var __PUCK__value__9 = (0, _range.checkRange)(subject.parameters, to.parameterRange, "arguments", functionName);
   if ($unwrapTraitObject(__PUCK__value__9).kind == "Err") {
-    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-        error = _PUCK__value__9$valu[0];
+    var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__9),
+        _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+        error = _$unwrapTraitObject2$[0];
 
     return (0, _core.Err)(error);
   };
@@ -144,8 +148,9 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
   var __PUCK__value__12 = __PUCK__value__11;
   if ($unwrapTraitObject(__PUCK__value__12).kind == "Parameter") {
     var _ret = function () {
-      var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
-          __PUCK__value__13 = _PUCK__value__12$val[0];
+      var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__12),
+          _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+          __PUCK__value__13 = _$unwrapTraitObject3$[0];
 
       var name = _core.Option.unwrap.call(parameterType.name);
       if (_core.Iterable['$List<E>'].any.call({ type: '$List<E>', value: typeParameters, $isTraitObject: true }, function (p) {
@@ -163,14 +168,16 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
   } else {
     var __PUCK__value__14 = __PUCK__value__11;
     if ($unwrapTraitObject(__PUCK__value__14).kind == "Function") {
-      var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
-          parameterFunction = _PUCK__value__14$val[0];
+      var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__14),
+          _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+          parameterFunction = _$unwrapTraitObject4$[0];
 
       if (parameterFunction.returnType) {
         var __PUCK__value__15 = argumentType.kind;
         if ($unwrapTraitObject(__PUCK__value__15).kind == "Function") {
-          var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
-              argumentFunction = _PUCK__value__15$val[0];
+          var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__15),
+              _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+              argumentFunction = _$unwrapTraitObject5$[0];
 
           if (argumentFunction.returnType) {
             return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterFunction.returnType, argumentFunction.returnType);
