@@ -1,11 +1,12 @@
 import 'puck:js' as {Error, Object, null, undefined}
 import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {TypeDeclaration, TypeParameter, TypePath}
+import '../../ast/span.puck' as {ToSpan}
 import '../../compiler/ast.ts' as {SyntaxKind}
-import '../../entities.puck' as {Binding, Type}
+import '../../entities.puck' as {Binding, Scope, Type}
 
-export fn createScope(context, file, parent = false) {
-  let reportError = context.reportError.bind(context, file)
+export fn createScope(context, file, parent = false) -> Scope {
+  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
   let mut bindings = ObjectMap.new()
   let mut typeBindings = ObjectMap.new()
 
@@ -80,7 +81,7 @@ export fn createScope(context, file, parent = false) {
       }
       bindings[name] = binding
     }
-    defineType: |self, type_: Type, token, allowRedeclare = false| {
+    defineType: |self, type_: Type, token: ToSpan, allowRedeclare = false| {
       let name = type_.name.unwrap()
       if name == 'Self'
         then reportError(token, 'Self is a reserved name')

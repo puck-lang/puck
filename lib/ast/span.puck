@@ -1,0 +1,14 @@
+
+export type Position {
+  line: Num
+  column: Num
+}
+
+export type Span {
+  start: Position
+  end: Position
+}
+
+export trait ToSpan {
+  fn span(self) -> Span
+}

@@ -14,6 +14,8 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _ast = require('./../ast/ast');
 
+var _span = require('./../ast/span');
+
 var _visit = require('./../ast/visit');
 
 var visit = _interopRequireWildcard(_visit);
@@ -43,7 +45,7 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
   if (_core.Iterable['$List<E>'].any.call({ type: '$List<E>', value: implementable.implementations, $isTraitObject: true }, function (imp) {
     return imp.trait_ == traitType;
   })) {
-    reportError(i, "" + traitName + " has already been implemented for " + _entities.Type.displayName.call(type_));
+    reportError({ type: '$ImplDeclaration', value: i, $isTraitObject: true }, "" + traitName + " has already been implemented for " + _entities.Type.displayName.call(type_));
   };
   var functions = _core.ObjectMap.fromIter(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
     return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
@@ -53,7 +55,7 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
     var traitFunctionType = traitFunctions[name];
     var traitFunction = _entities.Type.getFunction.call(traitFunctionType);
     if (traitFunction.isAbstract && !functions[name]) {
-      return reportError(i, "Function " + traitName + "::" + name + " is not implemented for " + _entities.Type.displayName.call(type_));
+      return reportError({ type: '$ImplDeclaration', value: i, $isTraitObject: true }, "Function " + traitName + "::" + name + " is not implemented for " + _entities.Type.displayName.call(type_));
     };
   });
   _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
@@ -61,33 +63,37 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
     var _function = _entities.Type.getFunction.call(functionDeclaration.type_);
     var traitFunctionType = traitFunctions[_core.Option.unwrap.call(functionDeclaration.type_.name)];
     if (!traitFunctionType) {
-      reportError(i, "Function " + functionName + " is not defined by " + traitName + "");
+      reportError({ type: '$ImplDeclaration', value: i, $isTraitObject: true }, "Function " + functionName + " is not defined by " + traitName + "");
     };
     var traitFunctionName = _entities.Type.displayName.call(traitFunctionType);
     var traitFunction = _entities.Type.getFunction.call(traitFunctionType);
     var __PUCK__value__1 = _function.selfBinding;
     if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
-      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
-          implSelf = _PUCK__value__1$valu[0];
+      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
+          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+          implSelf = _$unwrapTraitObject$v[0];
 
       var __PUCK__value__2 = traitFunction.selfBinding;
       if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
-        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-            traitSelf = _PUCK__value__2$valu[0];
+        var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__2),
+            _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+            traitSelf = _$unwrapTraitObject2$[0];
 
         if (implSelf.mutable && !traitSelf.mutable) {
-          return reportError(functionDeclaration, "Function " + traitName + "::" + traitFunctionName + " requires an immutable self parameter");
+          reportError({ type: '$FunctionDeclaration', value: functionDeclaration, $isTraitObject: true }, "Function " + traitName + "::" + traitFunctionName + " requires an immutable self parameter");
         };
       } else {
-        return reportError(_function, "Function " + traitName + "::" + traitFunctionName + " is static");
+        reportError({ type: '$FunctionDeclaration', value: functionDeclaration, $isTraitObject: true }, "Function " + traitName + "::" + traitFunctionName + " is static");
       };
+      return [];
     } else {
       var __PUCK__value__3 = traitFunction.selfBinding;
       if ($unwrapTraitObject(__PUCK__value__3).kind == "Some") {
-        var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-            __PUCK__value__4 = _PUCK__value__3$valu[0];
+        var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__3),
+            _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+            __PUCK__value__4 = _$unwrapTraitObject3$[0];
 
-        return reportError(_function, "Function " + traitName + "::" + traitFunctionName + " requires a self parameter");
+        return reportError({ type: '$FunctionDeclaration', value: functionDeclaration, $isTraitObject: true }, "Function " + traitName + "::" + traitFunctionName + " requires a self parameter");
       };
     };
   });
@@ -104,10 +110,11 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError)
     functionDeclaration.traitFunctionType = traitFunctionType;
     var __PUCK__value__5 = (0, _functions.checkFunctionAssignability)(functionName, traitFunction, _function);
     if ($unwrapTraitObject(__PUCK__value__5).kind == "Err") {
-      var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-          error = _PUCK__value__5$valu[0];
+      var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__5),
+          _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+          error = _$unwrapTraitObject4$[0];
 
-      return reportError(_function, error);
+      return reportError({ type: '$FunctionDeclaration', value: functionDeclaration, $isTraitObject: true }, error);
     };
   });
 };
@@ -116,7 +123,7 @@ function implementShorthand(type_, implementable, i, reportError) {
   if (_core.Iterable['$List<E>'].any.call({ type: '$List<E>', value: implementable.implementations, $isTraitObject: true }, function (imp) {
     return _entities.Type.getTrait.call(imp.trait_).isShorthand;
   })) {
-    reportError(i, "" + typeName + " has already been implemented");
+    reportError({ type: '$ImplShorthandDeclaration', value: i, $isTraitObject: true }, "" + typeName + " has already been implemented");
   };
   var functions = _core.ObjectMap.fromIter(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
     return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
@@ -138,35 +145,38 @@ function implementShorthand(type_, implementable, i, reportError) {
 function ImplVisitor(context, file) {
   var importDirective = void 0;
   var reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
-  return $unwrapTraitObject(_js._Object).assign({}, $unwrapTraitObject(visit).emptyVisitor, _structure_visitor.structureVisitor, {
+  return $unwrapTraitObject(_js._Object).assign({}, $unwrapTraitObject(visit).emptyVisitor, (0, _structure_visitor.structureVisitor)(reportError), {
     reportError: reportError,
     visitModule: function visitModule(m) {
       var self = this;
       $unwrapTraitObject(self).scope = m.scope;
-      return $unwrapTraitObject(m.statements.filter(function (e) {
-        var __PUCK__value__6 = e;
-        var __PUCK__value__7 = __PUCK__value__6;
-        if ($unwrapTraitObject(__PUCK__value__7).kind == "ImplDeclaration") {
-          var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-              __PUCK__value__8 = _PUCK__value__7$valu[0];
+      var __PUCK__value__6 = _core.Iterable['$List<E>'].filter.call({ type: '$List<E>', value: m.statements, $isTraitObject: true }, function (e) {
+        var __PUCK__value__7 = e;
+        var __PUCK__value__8 = __PUCK__value__7;
+        if ($unwrapTraitObject(__PUCK__value__8).kind == "ImplDeclaration") {
+          var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__8),
+              _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+              __PUCK__value__9 = _$unwrapTraitObject5$[0];
 
           return true;
         } else {
-          var __PUCK__value__9 = __PUCK__value__6;
-          if ($unwrapTraitObject(__PUCK__value__9).kind == "ImplShorthandDeclaration") {
-            var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-                __PUCK__value__10 = _PUCK__value__9$valu[0];
+          var __PUCK__value__10 = __PUCK__value__7;
+          if ($unwrapTraitObject(__PUCK__value__10).kind == "ImplShorthandDeclaration") {
+            var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__10),
+                _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+                __PUCK__value__11 = _$unwrapTraitObject6$[0];
 
             return true;
           } else {
-            var __PUCK__value__11 = __PUCK__value__6;
+            var __PUCK__value__12 = __PUCK__value__7;
             if (true) {
-              var __PUCK__value__12 = __PUCK__value__11;
+              var __PUCK__value__13 = __PUCK__value__12;
               return false;
             };
           };
         };
-      })).forEach(function (s) {
+      });
+      return _core.Iterable[__PUCK__value__6.type].forEach.call(__PUCK__value__6, function (s) {
         return $unwrapTraitObject(self).visitTopLevelStatement(s);
       });
     },
@@ -183,35 +193,38 @@ function ImplVisitor(context, file) {
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
         return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
       });
-      var __PUCK__value__13 = traitType.kind;
-      if ($unwrapTraitObject(__PUCK__value__13).kind == "Trait") {
-        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
-            trait_ = _PUCK__value__13$val[0];
+      var __PUCK__value__14 = traitType.kind;
+      if ($unwrapTraitObject(__PUCK__value__14).kind == "Trait") {
+        var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__14),
+            _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+            trait_ = _$unwrapTraitObject7$[0];
 
-        var __PUCK__value__14 = structType.kind;
-        var __PUCK__value__15 = __PUCK__value__14;
-        if ($unwrapTraitObject(__PUCK__value__15).kind == "Enum") {
-          var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
-              enum_ = _PUCK__value__15$val[0];
+        var __PUCK__value__15 = structType.kind;
+        var __PUCK__value__16 = __PUCK__value__15;
+        if ($unwrapTraitObject(__PUCK__value__16).kind == "Enum") {
+          var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__16),
+              _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+              enum_ = _$unwrapTraitObject8$[0];
 
           implementTrait(traitType, trait_, structType, enum_, i, reportError);
         } else {
-          var __PUCK__value__16 = __PUCK__value__14;
-          if ($unwrapTraitObject(__PUCK__value__16).kind == "Struct") {
-            var _PUCK__value__16$val = _slicedToArray(__PUCK__value__16.value, 1),
-                struct = _PUCK__value__16$val[0];
+          var __PUCK__value__17 = __PUCK__value__15;
+          if ($unwrapTraitObject(__PUCK__value__17).kind == "Struct") {
+            var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__17),
+                _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+                struct = _$unwrapTraitObject9$[0];
 
             implementTrait(traitType, trait_, structType, struct, i, reportError);
           } else {
-            var __PUCK__value__17 = __PUCK__value__14;
+            var __PUCK__value__18 = __PUCK__value__15;
             if (true) {
-              var __PUCK__value__18 = __PUCK__value__17;
-              reportError(i.type_, _entities.Type.displayName.call(structType) + " is not a struct or an enum");
+              var __PUCK__value__19 = __PUCK__value__18;
+              reportError({ type: '$TypeBound', value: i.type_, $isTraitObject: true }, _entities.Type.displayName.call(structType) + " is not a struct or an enum");
             };
           };
         };
       } else {
-        reportError(i.trait_, _entities.Type.displayName.call(traitType) + " is not a trait");
+        reportError({ type: '$TypeBound', value: i.trait_, $isTraitObject: true }, _entities.Type.displayName.call(traitType) + " is not a trait");
       };
       return $unwrapTraitObject(self).scope = $unwrapTraitObject($unwrapTraitObject(self).scope).parent;
     },
@@ -226,25 +239,27 @@ function ImplVisitor(context, file) {
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
         return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
       });
-      var __PUCK__value__19 = structType.kind;
-      var __PUCK__value__20 = __PUCK__value__19;
-      if ($unwrapTraitObject(__PUCK__value__20).kind == "Enum") {
-        var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1),
-            enum_ = _PUCK__value__20$val[0];
+      var __PUCK__value__20 = structType.kind;
+      var __PUCK__value__21 = __PUCK__value__20;
+      if ($unwrapTraitObject(__PUCK__value__21).kind == "Enum") {
+        var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__21),
+            _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+            enum_ = _$unwrapTraitObject11[0];
 
         implementShorthand(structType, enum_, i, reportError);
       } else {
-        var __PUCK__value__21 = __PUCK__value__19;
-        if ($unwrapTraitObject(__PUCK__value__21).kind == "Struct") {
-          var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1),
-              struct = _PUCK__value__21$val[0];
+        var __PUCK__value__22 = __PUCK__value__20;
+        if ($unwrapTraitObject(__PUCK__value__22).kind == "Struct") {
+          var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__22),
+              _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
+              struct = _$unwrapTraitObject13[0];
 
           implementShorthand(structType, struct, i, reportError);
         } else {
-          var __PUCK__value__22 = __PUCK__value__19;
+          var __PUCK__value__23 = __PUCK__value__20;
           if (true) {
-            var __PUCK__value__23 = __PUCK__value__22;
-            reportError(i.type_, _entities.Type.displayName.call(structType) + " is not a struct or an enum");
+            var __PUCK__value__24 = __PUCK__value__23;
+            reportError({ type: '$TypeBound', value: i.type_, $isTraitObject: true }, _entities.Type.displayName.call(structType) + " is not a struct or an enum");
           };
         };
       };

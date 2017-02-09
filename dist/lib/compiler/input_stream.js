@@ -55,11 +55,11 @@ function InputStream(file) {
     eof: eof,
     croak: croak,
     file: file,
-    getLine: function getLine() {
-      return line;
-    },
-    getCol: function getCol() {
-      return col;
+    getPosition: function getPosition() {
+      return {
+        line: line,
+        column: col
+      };
     }
   };
 }

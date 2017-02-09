@@ -14,6 +14,8 @@ var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _ast = require('./../ast/ast');
 
+var _span = require('./../ast/span');
+
 var _visit = require('./../ast/visit');
 
 var visit = _interopRequireWildcard(_visit);
@@ -41,7 +43,7 @@ function TopLevelVisitor(context, file) {
     },
     visitEnumDeclaration: function visitEnumDeclaration(t) {
       var self = this;
-      return $unwrapTraitObject(scope).defineType({
+      return scope.defineType({
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
         kind: _entities.TypeKind.Enum({
@@ -50,11 +52,11 @@ function TopLevelVisitor(context, file) {
         }),
         _class: _entities.TypeClass.fromAstNode(t, reportError),
         instance: _core.None
-      }, t);
+      }, { type: '$EnumDeclaration', value: t, $isTraitObject: true });
     },
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
-      return $unwrapTraitObject(scope).defineType({
+      return scope.defineType({
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
         kind: _entities.TypeKind.Trait({
@@ -63,30 +65,33 @@ function TopLevelVisitor(context, file) {
         }),
         _class: _entities.TypeClass.fromAstNode(t, reportError),
         instance: _core.None
-      }, t);
+      }, { type: '$TraitDeclaration', value: t, $isTraitObject: true });
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
       var __PUCK__value__1 = t.bound;
       var __PUCK__value__2 = void 0;
       if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
-        var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
-            typeBound = _PUCK__value__1$valu[0];
+        var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
+            _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+            typeBound = _$unwrapTraitObject$v[0];
 
         var __PUCK__value__3 = typeBound;
         var __PUCK__value__4 = __PUCK__value__3;
         var __PUCK__value__5 = void 0;
         if ($unwrapTraitObject(__PUCK__value__4).kind == "RecordTypeBound") {
-          var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-              record = _PUCK__value__4$valu[0];
+          var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__4),
+              _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+              record = _$unwrapTraitObject2$[0];
 
           __PUCK__value__5 = _entities.StructKind.Record({ properties: _core.ObjectMap._new() });
         } else {
           var __PUCK__value__6 = __PUCK__value__3;
           var __PUCK__value__7 = void 0;
           if ($unwrapTraitObject(__PUCK__value__6).kind == "TupleTypeBound") {
-            var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
-                tuple = _PUCK__value__6$valu[0];
+            var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__6),
+                _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+                tuple = _$unwrapTraitObject3$[0];
 
             __PUCK__value__7 = _entities.StructKind.Tuple({ properties: [] });
           } else {
@@ -105,7 +110,7 @@ function TopLevelVisitor(context, file) {
         __PUCK__value__2 = _entities.StructKind.Unit;
       };
       var structKind = __PUCK__value__2;
-      return $unwrapTraitObject(scope).defineType({
+      return scope.defineType({
         displayName: _core.None,
         name: (0, _core.Some)(t.name.name),
         kind: _entities.TypeKind.Struct({
@@ -114,7 +119,7 @@ function TopLevelVisitor(context, file) {
         }),
         _class: _entities.TypeClass.fromAstNode(t, reportError),
         instance: _core.None
-      }, t);
+      }, { type: '$TypeDeclaration', value: t, $isTraitObject: true });
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -125,25 +130,28 @@ function TopLevelVisitor(context, file) {
       var __PUCK__value__11 = i.specifier;
       var __PUCK__value__12 = __PUCK__value__11;
       if ($unwrapTraitObject(__PUCK__value__12).kind == "Identifier") {
-        var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
-            identifier = _PUCK__value__12$val[0];
+        var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__12),
+            _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+            identifier = _$unwrapTraitObject4$[0];
 
-        return $unwrapTraitObject(scope).define({
+        return scope.define({
           name: identifier.name,
           mutable: false,
-          token: identifier
-        });
+          token: { type: '$Identifier', value: identifier, $isTraitObject: true },
+          type_: _js._undefined
+        }, false);
       } else {
         var __PUCK__value__13 = __PUCK__value__11;
         if ($unwrapTraitObject(__PUCK__value__13).kind == "ObjectDestructure") {
-          var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
-              d = _PUCK__value__13$val[0];
+          var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__13),
+              _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+              d = _$unwrapTraitObject5$[0];
 
           return $unwrapTraitObject(self).visitObjectDestructure(d);
         } else {
           var __PUCK__value__14 = __PUCK__value__11;
           if ($unwrapTraitObject(__PUCK__value__14).kind == "Asterisk") {
-            var __PUCK__value__15 = __PUCK__value__14;;
+            var __PUCK__value__15 = $unwrapTraitObject(__PUCK__value__14);;
 
             var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
                 __PUCK__value__16 = _PUCK__value__15$val[0];
@@ -157,10 +165,11 @@ function TopLevelVisitor(context, file) {
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
       return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
-        return $unwrapTraitObject(scope).define({
+        return scope.define({
           name: m.local.name,
           mutable: false,
-          token: m
+          token: { type: '$ObjectDestructureMember', value: m, $isTraitObject: true },
+          type_: _js._undefined
         }, true);
       });
     },
@@ -168,14 +177,17 @@ function TopLevelVisitor(context, file) {
       var self = this;
       var __PUCK__value__17 = f.name;
       if ($unwrapTraitObject(__PUCK__value__17).kind == "Some") {
-        var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
-            name = _PUCK__value__17$val[0];
+        var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__17),
+            _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+            name = _$unwrapTraitObject6$[0];
 
-        return $unwrapTraitObject(scope).define({
+        var token = { type: '$FunctionDeclaration', value: f, $isTraitObject: true };
+        return scope.define({
           name: name.name,
-          token: f,
-          mutable: false
-        });
+          token: token,
+          mutable: false,
+          type_: _js._undefined
+        }, false);
       };
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
@@ -188,10 +200,11 @@ function TopLevelVisitor(context, file) {
     visitIdentifierPattern: function visitIdentifierPattern(p) {
       var self = this;
       return _core.Option.map.call(variableDeclaration, function (d) {
-        return $unwrapTraitObject(scope).define({
+        return scope.define({
           name: p.name,
           mutable: d.mutable,
-          token: d
+          token: { type: '$VariableDeclaration', value: d, $isTraitObject: true },
+          type_: _js._undefined
         }, true);
       });
     }

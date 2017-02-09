@@ -1,9 +1,10 @@
 import 'puck:js' as {Array, Error, typeof}
 import 'ast/ast.puck' as {
   Token
-  Identifier
   Module
+  Identifier
 }
+import 'ast/span.puck' as {ToSpan}
 import 'typeck/src/range.puck' as {getRange}
 
 export type UnparsedFile {
@@ -227,7 +228,7 @@ export type TypeClass {
   instances: List<Type>
 }
 impl TypeClass {
-  fn fromAstNode(astNode, reportError) -> Option<TypeClass> { // : {typeParameters: List<TypeParameter>}
+  fn fromAstNode(astNode, reportError: (ToSpan, String) -> {}) -> Option<TypeClass> { // : {typeParameters: List<TypeParameter>}
     if astNode.typeParameters and astNode.typeParameters.length {
       let parameterRange = getRange(
         astNode.typeParameters
@@ -259,7 +260,7 @@ export type TypeParameter {
 
 export type Binding {
   name: String
-  // token: Token
+  token: ToSpan
   mutable: Bool
   type_: Type
   // redefined: Bool
@@ -273,11 +274,10 @@ export type TypeBinding {
 
 export type Scope {
   getLocalBinding: (String) -> Binding
-  // getBinding: (String, allowRedeclare = true) -> Binding
   getBinding: (String) -> Binding
   getTypeBinding: (String) -> TypeBinding
   define: (Binding, Bool) -> Binding
-  defineType: (Type, Bool) -> TypeBinding
+  defineType: (Type, ToSpan) -> TypeBinding
 }
 
 export type ScopeAware {

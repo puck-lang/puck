@@ -17,6 +17,7 @@ import '../ast/ast.puck' as {
 
   TypeBound
 }
+import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/functions.puck' as {checkFunctionAssignability}
@@ -36,7 +37,7 @@ import '../entities.puck' as {
   TypeKind
 }
 
-fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, i: ImplDeclaration, reportError) {
+fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, i: ImplDeclaration, reportError: (ToSpan, String) -> {}) {
   let traitName = traitType.displayName()
 
   if implementable.implementations.any(|imp| imp.trait_ == traitType)
@@ -71,10 +72,11 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
         if implSelf.mutable and not traitSelf.mutable
           then reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires an immutable self parameter')
       }
-      else reportError(function, 'Function $traitName::$traitFunctionName is static')
+      else reportError(functionDeclaration, 'Function $traitName::$traitFunctionName is static')
+      ()
     }
     else if let Option::Some(_) = traitFunction.selfBinding
-      then reportError(function, 'Function $traitName::$traitFunctionName requires a self parameter')
+      then reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires a self parameter')
   })
 
   let implementation = {
@@ -92,11 +94,11 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
     functionDeclaration.traitFunctionType = traitFunctionType
 
     if let Result::Err(error) = checkFunctionAssignability(functionName, traitFunction, function)
-      then reportError(function, error)
+      then reportError(functionDeclaration, error)
   })
 }
 
-fn implementShorthand(type_: Type, implementable: {implementations: List<Implementation>}, i: ImplShorthandDeclaration, reportError) {
+fn implementShorthand(type_: Type, implementable: {implementations: List<Implementation>}, i: ImplShorthandDeclaration, reportError: (ToSpan, String) -> {}) {
   let typeName = type_.displayName()
 
   if implementable.implementations.any(|imp| imp.trait_.getTrait().isShorthand)
@@ -125,17 +127,15 @@ fn implementShorthand(type_: Type, implementable: {implementations: List<Impleme
 
 export fn ImplVisitor(context, file) {
   let mut importDirective: ImportDirective
-  let reportError = context.reportError.bind(context, file)
+  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
 
-  Object.assign({}, visit.emptyVisitor, structureVisitor, {
+  Object.assign({}, visit.emptyVisitor, structureVisitor(reportError), {
     reportError
 
     visitModule: |mut self, mut m: Module| {
       self.scope = m.scope
-      // visit.walkModule(self, m)
       m.statements
         .filter(|e: TopLevelStatement| match e {
-          // TopLevelStatement::ImportDirective(_) => true
           TopLevelStatement::ImplDeclaration(_) => true
           TopLevelStatement::ImplShorthandDeclaration(_) => true
           _ => false

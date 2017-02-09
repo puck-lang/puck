@@ -31,7 +31,7 @@ import {
   ReturnStatement,
   SimpleIdentifier,
   StringLiteral,
-  StringLiteralPart,
+  SimpleStringLiteral,
   SyntaxKind,
   Token,
   TraitDeclaration,
@@ -479,6 +479,9 @@ export function Emitter() {
       }
     }
 
+    let oldTypeOverrides = typeOverrides
+    typeOverrides = {...typeOverrides}
+
     if (fn.traitFunctionType) {
       const {selfBinding} = fn.traitFunctionType.kind.value[0]
       if (selfBinding.kind === 'Some') {
@@ -492,7 +495,7 @@ export function Emitter() {
         if (p.pattern.kind === 'Identifier') {
           typeOverrides[p.pattern.value[0].name] = {
             old: p.type_,
-            new: fn.traitFunctionType.kind.value[0]._arguments ? fn.traitFunctionType.kind.value[0]._arguments[i].type_ : fn.traitFunctionType.kind.value[0].parameters[i].type_,
+            new: fn.traitFunctionType.kind.value[0].parameters[i].type_,
           }
         }
       })
@@ -505,7 +508,7 @@ export function Emitter() {
     let code = `function ${name}(${parameterList.map(emitFunctionParameter).join(', ')}) `
     code += withContext(Context.Return, () => emitBlock(body, undefined, returnType), true)
 
-    typeOverrides = {}
+    typeOverrides = oldTypeOverrides
 
     return code
   }
@@ -585,14 +588,22 @@ export function Emitter() {
     if (vd.pattern.kind === 'Identifier') {
       binding = vd.scope.getBinding(vd.pattern.value[0].name)
       willBeRedefined = binding.redefined
-      while (binding && (binding.token !== vd.pattern)) {
+      while (binding && ((binding.token.$isTraitObject ? binding.token.value : binding.token) !== vd.pattern)) {
         binding = binding.previous
       }
     }
 
-    let initializer = vd.initializer.kind == 'Some'
-      ? ` = ${emitExpression(vd.initializer.value[0], Context.Value, vd.type_)}`
-      : ''
+    let initializer = ``
+
+    if (vd.initializer.kind == 'Some') {
+      initializer = emitExpression(vd.initializer.value[0], Context.Value, vd.type_)
+      let type = getType(vd.initializer.value[0])
+
+      if (vd.pattern.kind !== 'Identifier' && vd.pattern.kind !== 'CatchAll') {
+        initializer = unwrap(initializer, vd.initializer.value[0])
+      }
+      initializer = ` = ${initializer}`
+    }
 
     if (binding && binding.previous) {
       return `${emitPatternDestructuring(vd.pattern)}${initializer}`
@@ -709,7 +720,7 @@ export function Emitter() {
     let parameterBindings = functionType && (functionType.kind.value[0]._arguments || functionType.kind.value[0].parameters)
 
     if (fn.traitName) {
-      parameterBindings = fn.functionType.kind.value[0].parameters || fn.functionType.kind.value[0]._arguments
+      parameterBindings = fn.functionType.kind.value[0].parameters
       let selfBinding = fn.functionType.kind.value[0].selfBinding
       if (selfBinding.kind === 'Some') {
         parameterBindings = [selfBinding.value[0], ...parameterBindings]
@@ -804,8 +815,8 @@ export function Emitter() {
             kind: 'StringLiteral',
             value: [{
               parts: [{
-                kind: SyntaxKind.StringLiteralPart,
-                value: emitIdentifier(typePath.value[1].value[0]),
+                kind: 'Literal',
+                value: [{value: emitIdentifier(typePath.value[1].value[0])}],
               }],
             }]
           },
@@ -1059,16 +1070,15 @@ export function Emitter() {
     return `{${body}`
   }
 
-  function emitStringLiteralPart(l: StringLiteralPart) {
+  function emitStringLiteralPart(l: SimpleStringLiteral) {
     return JSON.stringify(l.value)
   }
 
   function emitStringLiteral(l: StringLiteral) {
-    if ((l as any).value !== undefined) return emitStringLiteralPart(l as any)
     return l.parts
-      .map(p => p.kind === SyntaxKind.StringLiteralPart
-        ? emitStringLiteralPart(p as StringLiteralPart)
-        : emitIdentifier(p as Identifier)
+      .map(p => (p.kind === 'Literal')
+        ? emitStringLiteralPart(p.value[0])
+        : emitIdentifier(p.value[0] as Identifier)
       )
       .join(' + ')
   }

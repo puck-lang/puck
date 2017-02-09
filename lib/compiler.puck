@@ -3,6 +3,7 @@ import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
 import 'node:util' as {inspect}
+import 'ast/span.puck' as {ToSpan}
 import 'compiler/emitter.ts' as {Emitter}
 import 'compiler/input_stream.puck' as {InputStream}
 import 'compiler/parser.puck' as {parse}
@@ -125,9 +126,10 @@ fn createContext(ignoreErrors = false) {
       }
       self.files[file.absolutePath]
     }
-    reportError: fn (self, file: File, token, message) {
+    reportError: fn (self, file: File, token: ToSpan, message) {
       if not ignoreErrors {
-        throw Error('$message\n  in ' + file.absolutePath)
+        let {line, column} = token.span().start
+        throw Error('$message\n  in ' + file.absolutePath + ' ($line:$column)')
       }
     }
   }

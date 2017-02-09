@@ -3,6 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.TokenStream = TokenStream;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -10,6 +13,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
 var _ast = require('./../ast/ast');
+
+var _span = require('./../ast/span');
 
 var _ast2 = require('./ast');
 
@@ -52,12 +57,22 @@ function TokenStream(input) {
       };
     };
     if ($unwrapTraitObject(_ast2.textToToken)[$unwrapTraitObject(found)]) {
+      var start = $unwrapTraitObject(input).getPosition();
       var i = 0;
       while (i < length) {
         $unwrapTraitObject(input).next();
         i += 1;
       };
-      return { kind: $unwrapTraitObject(_ast2.textToToken)[$unwrapTraitObject(found)] };
+      var end = $unwrapTraitObject(input).getPosition();
+      return (0, _core.Some)({
+        kind: $unwrapTraitObject(_ast2.textToToken)[$unwrapTraitObject(found)],
+        span: {
+          start: start,
+          end: end
+        }
+      });
+    } else {
+      return _core.None;
     };
   };
   function isDigit(ch) {
@@ -87,6 +102,7 @@ function TokenStream(input) {
   };
   function readNumber() {
     var hasDot = false;
+    var start = $unwrapTraitObject(input).getPosition();
     var number = readWhile(function (ch) {
       if (ch == ".") {
         if (hasDot || !isDigit($unwrapTraitObject(input).peek(1))) {
@@ -99,26 +115,60 @@ function TokenStream(input) {
         return isDigit(ch);
       };
     });
+    var end = $unwrapTraitObject(input).getPosition();
     return {
       kind: $unwrapTraitObject(_ast2.SyntaxKind).NumberLiteral,
+      span: {
+        start: start,
+        end: end
+      },
       value: $unwrapTraitObject(_js.global).parseFloat(number)
     };
   };
-  function readIdent() {
+  function readIdentifier() {
+    var start = $unwrapTraitObject(input).getPosition();
     var id = readWhile(isId);
+    var end = $unwrapTraitObject(input).getPosition();
+    return {
+      kind: $unwrapTraitObject(_ast2.SyntaxKind).Identifier,
+      span: {
+        start: start,
+        end: end
+      },
+      name: id
+    };
+  };
+  function readIdentifierOrKeyword() {
+    var start = $unwrapTraitObject(input).getPosition();
+    var id = readWhile(isId);
+    var end = $unwrapTraitObject(input).getPosition();
+    var span = {
+      start: start,
+      end: end
+    };
     if (id == "import") {
       inImport = true;
-      return { kind: $unwrapTraitObject(_ast2.SyntaxKind).ImportKeyword };
+      return {
+        kind: $unwrapTraitObject(_ast2.SyntaxKind).ImportKeyword,
+        span: span
+      };
     } else {
       if (id == "as") {
         inImport = false;
-        return { kind: $unwrapTraitObject(_ast2.SyntaxKind).AsKeyword };
+        return {
+          kind: $unwrapTraitObject(_ast2.SyntaxKind).AsKeyword,
+          span: span
+        };
       } else {
         if ($unwrapTraitObject(_ast2.textToToken)[id] != _js._undefined) {
-          return { kind: $unwrapTraitObject(_ast2.textToToken)[id] };
+          return {
+            kind: $unwrapTraitObject(_ast2.textToToken)[id],
+            span: span
+          };
         } else {
           return {
             kind: $unwrapTraitObject(_ast2.SyntaxKind).Identifier,
+            span: span,
             name: id
           };
         };
@@ -129,6 +179,7 @@ function TokenStream(input) {
     var escaped = false;
     var parts = [];
     var str = "";
+    var start = $unwrapTraitObject(input).getPosition();
     var delimiter = $unwrapTraitObject(input).next();
     while (!$unwrapTraitObject(input).eof()) {
       var ch = $unwrapTraitObject(input).next();
@@ -172,12 +223,17 @@ function TokenStream(input) {
           escaped = true;
         } else {
           if (ch == "$" && isIdStart($unwrapTraitObject(input).peek()) && !inImport) {
-            parts.push({
-              kind: $unwrapTraitObject(_ast2.SyntaxKind).StringLiteralPart,
+            var _end = $unwrapTraitObject(input).getPosition();
+            parts.push(_ast.StringLiteralPart.Literal({
+              span: {
+                start: start,
+                end: _end
+              },
               value: str
-            });
-            parts.push(readIdent());
+            }));
+            parts.push(_ast.StringLiteralPart.Identifier(readIdentifier()));
             str = "";
+            start = $unwrapTraitObject(input).getPosition();
           } else {
             if (ch == delimiter) {
               break;
@@ -188,16 +244,21 @@ function TokenStream(input) {
         };
       };
     };
-    parts.push({
-      kind: $unwrapTraitObject(_ast2.SyntaxKind).StringLiteralPart,
+    var end = $unwrapTraitObject(input).getPosition();
+    parts.push(_ast.StringLiteralPart.Literal({
+      span: {
+        start: start,
+        end: end
+      },
       value: str
-    });
+    }));
     return {
       kind: $unwrapTraitObject(_ast2.SyntaxKind).StringLiteral,
       parts: parts
     };
   };
   function readComment() {
+    var start = $unwrapTraitObject(input).getPosition();
     $unwrapTraitObject(input).next();
     $unwrapTraitObject(input).next();
     readWhile(isWhitespace);
@@ -205,8 +266,13 @@ function TokenStream(input) {
       return ch != "\n";
     });
     $unwrapTraitObject(input).next();
+    var end = $unwrapTraitObject(input).getPosition();
     return {
       kind: $unwrapTraitObject(_ast2.SyntaxKind).Comment,
+      span: {
+        start: start,
+        end: end
+      },
       text: comment
     };
   };
@@ -230,13 +296,18 @@ function TokenStream(input) {
       return readNumber();
     };
     if (isIdStart(ch)) {
-      return readIdent();
+      return readIdentifierOrKeyword();
     };
-    var operator = tryParseOperator();
-    if (!operator) {
-      $unwrapTraitObject(input).croak("Unexpected token: " + ch + "");
+    var __PUCK__value__1 = tryParseOperator();
+    if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
+      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
+          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+          operator = _$unwrapTraitObject$v[0];
+
+      return operator;
+    } else {
+      return $unwrapTraitObject(input).croak("Unexpected token: " + ch + "");
     };
-    return operator;
   };
   function isDummy(token) {
     if (!token) {

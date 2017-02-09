@@ -16,6 +16,8 @@ var _util = require('util');
 
 var _ast = require('./../../ast/ast');
 
+var _span = require('./../../ast/span');
+
 var _ast2 = require('./../../compiler/ast');
 
 var _entities = require('./../../entities');
@@ -68,16 +70,18 @@ function createScope(context, file) {
       var __PUCK__value__1 = typePath;
       var __PUCK__value__2 = __PUCK__value__1;
       if ($unwrapTraitObject(__PUCK__value__2).kind == "Member") {
-        var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-            name = _PUCK__value__2$valu[0].name;
+        var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+            _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+            name = _$unwrapTraitObject$v[0].name;
 
         return $unwrapTraitObject(self).getTypeBinding(name);
       } else {
         var __PUCK__value__3 = __PUCK__value__1;
         if ($unwrapTraitObject(__PUCK__value__3).kind == "_Object") {
-          var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 2),
-              _name = _PUCK__value__3$valu[0].name,
-              path = _PUCK__value__3$valu[1];
+          var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+              _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 2),
+              _name = _$unwrapTraitObject2$[0].name,
+              path = _$unwrapTraitObject2$[1];
 
           var name_ = _name;
           var path_ = path;
@@ -86,8 +90,9 @@ function createScope(context, file) {
             var __PUCK__value__4 = path_;
             var __PUCK__value__5 = __PUCK__value__4;
             if ($unwrapTraitObject(__PUCK__value__5).kind == "Member") {
-              var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-                  _name2 = _PUCK__value__5$valu[0].name;
+              var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__5),
+                  _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+                  _name2 = _$unwrapTraitObject3$[0].name;
 
               name_ = _name2;
               type_ = _entities.Type.getEnum.call(type_).members[_name2];
@@ -95,9 +100,10 @@ function createScope(context, file) {
             } else {
               var __PUCK__value__6 = __PUCK__value__4;
               if ($unwrapTraitObject(__PUCK__value__6).kind == "_Object") {
-                var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 2),
-                    _name3 = _PUCK__value__6$valu[0].name,
-                    _path = _PUCK__value__6$valu[1];
+                var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__6),
+                    _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 2),
+                    _name3 = _$unwrapTraitObject4$[0].name,
+                    _path = _$unwrapTraitObject4$[1];
 
                 name_ = _name3;
                 path_ = _path;

@@ -329,57 +329,65 @@ function walkTopLevelStatement(visitor, s) {
   var __PUCK__value__1 = s;
   var __PUCK__value__2 = __PUCK__value__1;
   if ($unwrapTraitObject(__PUCK__value__2).kind == "ExportDirective") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-        e = _PUCK__value__2$valu[0];
+    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+        _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+        e = _$unwrapTraitObject$v[0];
 
     return visitor.visitExportDirective(e);
   } else {
     var __PUCK__value__3 = __PUCK__value__1;
     if ($unwrapTraitObject(__PUCK__value__3).kind == "ImportDirective") {
-      var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-          _e = _PUCK__value__3$valu[0];
+      var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+          _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+          _e = _$unwrapTraitObject2$[0];
 
       return visitor.visitImportDirective(_e);
     } else {
       var __PUCK__value__4 = __PUCK__value__1;
       if ($unwrapTraitObject(__PUCK__value__4).kind == "EnumDeclaration") {
-        var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-            _e2 = _PUCK__value__4$valu[0];
+        var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__4),
+            _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+            _e2 = _$unwrapTraitObject3$[0];
 
         return visitor.visitEnumDeclaration(_e2);
       } else {
         var __PUCK__value__5 = __PUCK__value__1;
         if ($unwrapTraitObject(__PUCK__value__5).kind == "ImplDeclaration") {
-          var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-              _e3 = _PUCK__value__5$valu[0];
+          var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__5),
+              _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+              _e3 = _$unwrapTraitObject4$[0];
 
           return visitor.visitImplDeclaration(_e3);
         } else {
           var __PUCK__value__6 = __PUCK__value__1;
           if ($unwrapTraitObject(__PUCK__value__6).kind == "ImplShorthandDeclaration") {
-            var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
-                _e4 = _PUCK__value__6$valu[0];
+            var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__6),
+                _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+                _e4 = _$unwrapTraitObject5$[0];
 
             return visitor.visitImplShorthandDeclaration(_e4);
           } else {
             var __PUCK__value__7 = __PUCK__value__1;
             if ($unwrapTraitObject(__PUCK__value__7).kind == "TraitDeclaration") {
-              var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-                  _e5 = _PUCK__value__7$valu[0];
+              var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__7),
+                  _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+                  _e5 = _$unwrapTraitObject6$[0];
 
               return visitor.visitTraitDeclaration(_e5);
             } else {
               var __PUCK__value__8 = __PUCK__value__1;
               if ($unwrapTraitObject(__PUCK__value__8).kind == "TypeDeclaration") {
-                var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
-                    _e6 = _PUCK__value__8$valu[0];
+                var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__8),
+                    _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+                    _e6 = _$unwrapTraitObject7$[0];
 
                 return visitor.visitTypeDeclaration(_e6);
               } else {
                 var __PUCK__value__9 = __PUCK__value__1;
                 if ($unwrapTraitObject(__PUCK__value__9).kind == "BlockLevelStatement") {
-                  var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-                      _e7 = _PUCK__value__9$valu[0];
+                  var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__9),
+                      _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+                      _e7 = _$unwrapTraitObject8$[0];
 
                   return walkBlockLevelStatement(visitor, _e7);
                 };
@@ -395,36 +403,41 @@ function walkBlockLevelStatement(visitor, s) {
   var __PUCK__value__10 = s;
   var __PUCK__value__11 = __PUCK__value__10;
   if ($unwrapTraitObject(__PUCK__value__11).kind == "Block") {
-    var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1),
-        e = _PUCK__value__11$val[0];
+    var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__11),
+        _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+        e = _$unwrapTraitObject9$[0];
 
     return visitor.visitBlock(e);
   } else {
     var __PUCK__value__12 = __PUCK__value__10;
     if ($unwrapTraitObject(__PUCK__value__12).kind == "BreakStatement") {
-      var _PUCK__value__12$val = _slicedToArray(__PUCK__value__12.value, 1),
-          _e8 = _PUCK__value__12$val[0];
+      var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__12),
+          _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+          _e8 = _$unwrapTraitObject11[0];
 
       return visitor.visitBreak(_e8);
     } else {
       var __PUCK__value__13 = __PUCK__value__10;
       if ($unwrapTraitObject(__PUCK__value__13).kind == "ReturnStatement") {
-        var _PUCK__value__13$val = _slicedToArray(__PUCK__value__13.value, 1),
-            _e9 = _PUCK__value__13$val[0];
+        var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__13),
+            _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
+            _e9 = _$unwrapTraitObject13[0];
 
         return visitor.visitReturn(_e9);
       } else {
         var __PUCK__value__14 = __PUCK__value__10;
         if ($unwrapTraitObject(__PUCK__value__14).kind == "WhileLoop") {
-          var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
-              _e10 = _PUCK__value__14$val[0];
+          var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__14),
+              _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14.value, 1),
+              _e10 = _$unwrapTraitObject15[0];
 
           return visitor.visitWhileLoop(_e10);
         } else {
           var __PUCK__value__15 = __PUCK__value__10;
           if ($unwrapTraitObject(__PUCK__value__15).kind == "Expression") {
-            var _PUCK__value__15$val = _slicedToArray(__PUCK__value__15.value, 1),
-                _e11 = _PUCK__value__15$val[0];
+            var _$unwrapTraitObject16 = $unwrapTraitObject(__PUCK__value__15),
+                _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject16.value, 1),
+                _e11 = _$unwrapTraitObject17[0];
 
             return walkExpression(visitor, _e11);
           };
@@ -437,14 +450,15 @@ function walkExpression(visitor, e) {
   var __PUCK__value__16 = e;
   var __PUCK__value__17 = __PUCK__value__16;
   if ($unwrapTraitObject(__PUCK__value__17).kind == "ThrowStatement") {
-    var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
-        _e12 = _PUCK__value__17$val[0];
+    var _$unwrapTraitObject18 = $unwrapTraitObject(__PUCK__value__17),
+        _$unwrapTraitObject19 = _slicedToArray(_$unwrapTraitObject18.value, 1),
+        _e12 = _$unwrapTraitObject19[0];
 
     return visitor.visitExpression(_e12.expression);
   } else {
     var __PUCK__value__18 = __PUCK__value__16;
     if ($unwrapTraitObject(__PUCK__value__18).kind == "Comment") {
-      var __PUCK__value__19 = __PUCK__value__18;;
+      var __PUCK__value__19 = $unwrapTraitObject(__PUCK__value__18);;
 
       var _PUCK__value__19$val = _slicedToArray(__PUCK__value__19.value, 1),
           __PUCK__value__20 = _PUCK__value__19$val[0];
@@ -454,134 +468,153 @@ function walkExpression(visitor, e) {
     } else {
       var __PUCK__value__21 = __PUCK__value__16;
       if ($unwrapTraitObject(__PUCK__value__21).kind == "Identifier") {
-        var _PUCK__value__21$val = _slicedToArray(__PUCK__value__21.value, 1),
-            _e13 = _PUCK__value__21$val[0];
+        var _$unwrapTraitObject20 = $unwrapTraitObject(__PUCK__value__21),
+            _$unwrapTraitObject21 = _slicedToArray(_$unwrapTraitObject20.value, 1),
+            _e13 = _$unwrapTraitObject21[0];
 
         return visitor.visitIdentifier(_e13);
       } else {
         var __PUCK__value__22 = __PUCK__value__16;
         if ($unwrapTraitObject(__PUCK__value__22).kind == "FunctionDeclaration") {
-          var _PUCK__value__22$val = _slicedToArray(__PUCK__value__22.value, 1),
-              _e14 = _PUCK__value__22$val[0];
+          var _$unwrapTraitObject22 = $unwrapTraitObject(__PUCK__value__22),
+              _$unwrapTraitObject23 = _slicedToArray(_$unwrapTraitObject22.value, 1),
+              _e14 = _$unwrapTraitObject23[0];
 
           return visitor.visitFunctionDeclaration(_e14);
         } else {
           var __PUCK__value__23 = __PUCK__value__16;
           if ($unwrapTraitObject(__PUCK__value__23).kind == "VariableDeclaration") {
-            var _PUCK__value__23$val = _slicedToArray(__PUCK__value__23.value, 1),
-                _e15 = _PUCK__value__23$val[0];
+            var _$unwrapTraitObject24 = $unwrapTraitObject(__PUCK__value__23),
+                _$unwrapTraitObject25 = _slicedToArray(_$unwrapTraitObject24.value, 1),
+                _e15 = _$unwrapTraitObject25[0];
 
             return visitor.visitVariableDeclaration(_e15);
           } else {
             var __PUCK__value__24 = __PUCK__value__16;
             if ($unwrapTraitObject(__PUCK__value__24).kind == "AssignmentExpression") {
-              var _PUCK__value__24$val = _slicedToArray(__PUCK__value__24.value, 1),
-                  _e16 = _PUCK__value__24$val[0];
+              var _$unwrapTraitObject26 = $unwrapTraitObject(__PUCK__value__24),
+                  _$unwrapTraitObject27 = _slicedToArray(_$unwrapTraitObject26.value, 1),
+                  _e16 = _$unwrapTraitObject27[0];
 
               return visitor.visitAssignmentExpression(_e16);
             } else {
               var __PUCK__value__25 = __PUCK__value__16;
               if ($unwrapTraitObject(__PUCK__value__25).kind == "BinaryExpression") {
-                var _PUCK__value__25$val = _slicedToArray(__PUCK__value__25.value, 1),
-                    _e17 = _PUCK__value__25$val[0];
+                var _$unwrapTraitObject28 = $unwrapTraitObject(__PUCK__value__25),
+                    _$unwrapTraitObject29 = _slicedToArray(_$unwrapTraitObject28.value, 1),
+                    _e17 = _$unwrapTraitObject29[0];
 
                 return visitor.visitBinaryExpression(_e17);
               } else {
                 var __PUCK__value__26 = __PUCK__value__16;
                 if ($unwrapTraitObject(__PUCK__value__26).kind == "CallExpression") {
-                  var _PUCK__value__26$val = _slicedToArray(__PUCK__value__26.value, 1),
-                      _e18 = _PUCK__value__26$val[0];
+                  var _$unwrapTraitObject30 = $unwrapTraitObject(__PUCK__value__26),
+                      _$unwrapTraitObject31 = _slicedToArray(_$unwrapTraitObject30.value, 1),
+                      _e18 = _$unwrapTraitObject31[0];
 
                   return visitor.visitCallExpression(_e18);
                 } else {
                   var __PUCK__value__27 = __PUCK__value__16;
                   if ($unwrapTraitObject(__PUCK__value__27).kind == "IfExpression") {
-                    var _PUCK__value__27$val = _slicedToArray(__PUCK__value__27.value, 1),
-                        _e19 = _PUCK__value__27$val[0];
+                    var _$unwrapTraitObject32 = $unwrapTraitObject(__PUCK__value__27),
+                        _$unwrapTraitObject33 = _slicedToArray(_$unwrapTraitObject32.value, 1),
+                        _e19 = _$unwrapTraitObject33[0];
 
                     return visitor.visitIfExpression(_e19);
                   } else {
                     var __PUCK__value__28 = __PUCK__value__16;
                     if ($unwrapTraitObject(__PUCK__value__28).kind == "IfLetExpression") {
-                      var _PUCK__value__28$val = _slicedToArray(__PUCK__value__28.value, 1),
-                          _e20 = _PUCK__value__28$val[0];
+                      var _$unwrapTraitObject34 = $unwrapTraitObject(__PUCK__value__28),
+                          _$unwrapTraitObject35 = _slicedToArray(_$unwrapTraitObject34.value, 1),
+                          _e20 = _$unwrapTraitObject35[0];
 
                       return visitor.visitIfLetExpression(_e20);
                     } else {
                       var __PUCK__value__29 = __PUCK__value__16;
                       if ($unwrapTraitObject(__PUCK__value__29).kind == "MatchExpression") {
-                        var _PUCK__value__29$val = _slicedToArray(__PUCK__value__29.value, 1),
-                            _e21 = _PUCK__value__29$val[0];
+                        var _$unwrapTraitObject36 = $unwrapTraitObject(__PUCK__value__29),
+                            _$unwrapTraitObject37 = _slicedToArray(_$unwrapTraitObject36.value, 1),
+                            _e21 = _$unwrapTraitObject37[0];
 
                         return visitor.visitMatchExpression(_e21);
                       } else {
                         var __PUCK__value__30 = __PUCK__value__16;
                         if ($unwrapTraitObject(__PUCK__value__30).kind == "TypePathExpression") {
-                          var _PUCK__value__30$val = _slicedToArray(__PUCK__value__30.value, 1),
-                              _e22 = _PUCK__value__30$val[0];
+                          var _$unwrapTraitObject38 = $unwrapTraitObject(__PUCK__value__30),
+                              _$unwrapTraitObject39 = _slicedToArray(_$unwrapTraitObject38.value, 1),
+                              _e22 = _$unwrapTraitObject39[0];
 
                           return visitor.visitTypePathExpression(_e22);
                         } else {
                           var __PUCK__value__31 = __PUCK__value__16;
                           if ($unwrapTraitObject(__PUCK__value__31).kind == "UnaryExpression") {
-                            var _PUCK__value__31$val = _slicedToArray(__PUCK__value__31.value, 1),
-                                _e23 = _PUCK__value__31$val[0];
+                            var _$unwrapTraitObject40 = $unwrapTraitObject(__PUCK__value__31),
+                                _$unwrapTraitObject41 = _slicedToArray(_$unwrapTraitObject40.value, 1),
+                                _e23 = _$unwrapTraitObject41[0];
 
                             return visitor.visitUnaryExpression(_e23);
                           } else {
                             var __PUCK__value__32 = __PUCK__value__16;
                             if ($unwrapTraitObject(__PUCK__value__32).kind == "IndexAccess") {
-                              var _PUCK__value__32$val = _slicedToArray(__PUCK__value__32.value, 1),
-                                  _e24 = _PUCK__value__32$val[0];
+                              var _$unwrapTraitObject42 = $unwrapTraitObject(__PUCK__value__32),
+                                  _$unwrapTraitObject43 = _slicedToArray(_$unwrapTraitObject42.value, 1),
+                                  _e24 = _$unwrapTraitObject43[0];
 
                               return visitor.visitIndexAccess(_e24);
                             } else {
                               var __PUCK__value__33 = __PUCK__value__16;
                               if ($unwrapTraitObject(__PUCK__value__33).kind == "MemberAccess") {
-                                var _PUCK__value__33$val = _slicedToArray(__PUCK__value__33.value, 1),
-                                    _e25 = _PUCK__value__33$val[0];
+                                var _$unwrapTraitObject44 = $unwrapTraitObject(__PUCK__value__33),
+                                    _$unwrapTraitObject45 = _slicedToArray(_$unwrapTraitObject44.value, 1),
+                                    _e25 = _$unwrapTraitObject45[0];
 
                                 return visitor.visitMemberAccess(_e25);
                               } else {
                                 var __PUCK__value__34 = __PUCK__value__16;
                                 if ($unwrapTraitObject(__PUCK__value__34).kind == "BooleanLiteral") {
-                                  var _PUCK__value__34$val = _slicedToArray(__PUCK__value__34.value, 1),
-                                      _e26 = _PUCK__value__34$val[0];
+                                  var _$unwrapTraitObject46 = $unwrapTraitObject(__PUCK__value__34),
+                                      _$unwrapTraitObject47 = _slicedToArray(_$unwrapTraitObject46.value, 1),
+                                      _e26 = _$unwrapTraitObject47[0];
 
                                   return visitor.visitBooleanLiteral(_e26);
                                 } else {
                                   var __PUCK__value__35 = __PUCK__value__16;
                                   if ($unwrapTraitObject(__PUCK__value__35).kind == "ListLiteral") {
-                                    var _PUCK__value__35$val = _slicedToArray(__PUCK__value__35.value, 1),
-                                        _e27 = _PUCK__value__35$val[0];
+                                    var _$unwrapTraitObject48 = $unwrapTraitObject(__PUCK__value__35),
+                                        _$unwrapTraitObject49 = _slicedToArray(_$unwrapTraitObject48.value, 1),
+                                        _e27 = _$unwrapTraitObject49[0];
 
                                     return visitor.visitListLiteral(_e27);
                                   } else {
                                     var __PUCK__value__36 = __PUCK__value__16;
                                     if ($unwrapTraitObject(__PUCK__value__36).kind == "NumberLiteral") {
-                                      var _PUCK__value__36$val = _slicedToArray(__PUCK__value__36.value, 1),
-                                          _e28 = _PUCK__value__36$val[0];
+                                      var _$unwrapTraitObject50 = $unwrapTraitObject(__PUCK__value__36),
+                                          _$unwrapTraitObject51 = _slicedToArray(_$unwrapTraitObject50.value, 1),
+                                          _e28 = _$unwrapTraitObject51[0];
 
                                       return visitor.visitNumberLiteral(_e28);
                                     } else {
                                       var __PUCK__value__37 = __PUCK__value__16;
                                       if ($unwrapTraitObject(__PUCK__value__37).kind == "RecordLiteral") {
-                                        var _PUCK__value__37$val = _slicedToArray(__PUCK__value__37.value, 1),
-                                            _e29 = _PUCK__value__37$val[0];
+                                        var _$unwrapTraitObject52 = $unwrapTraitObject(__PUCK__value__37),
+                                            _$unwrapTraitObject53 = _slicedToArray(_$unwrapTraitObject52.value, 1),
+                                            _e29 = _$unwrapTraitObject53[0];
 
                                         return visitor.visitRecordLiteral(_e29);
                                       } else {
                                         var __PUCK__value__38 = __PUCK__value__16;
                                         if ($unwrapTraitObject(__PUCK__value__38).kind == "StringLiteral") {
-                                          var _PUCK__value__38$val = _slicedToArray(__PUCK__value__38.value, 1),
-                                              _e30 = _PUCK__value__38$val[0];
+                                          var _$unwrapTraitObject54 = $unwrapTraitObject(__PUCK__value__38),
+                                              _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject54.value, 1),
+                                              _e30 = _$unwrapTraitObject55[0];
 
                                           return visitor.visitStringLiteral(_e30);
                                         } else {
                                           var __PUCK__value__39 = __PUCK__value__16;
                                           if ($unwrapTraitObject(__PUCK__value__39).kind == "TupleLiteral") {
-                                            var _PUCK__value__39$val = _slicedToArray(__PUCK__value__39.value, 1),
-                                                _e31 = _PUCK__value__39$val[0];
+                                            var _$unwrapTraitObject56 = $unwrapTraitObject(__PUCK__value__39),
+                                                _$unwrapTraitObject57 = _slicedToArray(_$unwrapTraitObject56.value, 1),
+                                                _e31 = _$unwrapTraitObject57[0];
 
                                             return visitor.visitTupleLiteral(_e31);
                                           };
@@ -617,8 +650,9 @@ function walkEnumDeclaration(visitor, e) {
 function walkEnumMember(visitor, e) {
   var __PUCK__value__40 = e.bound;
   if ($unwrapTraitObject(__PUCK__value__40).kind == "Some") {
-    var _PUCK__value__40$val = _slicedToArray(__PUCK__value__40.value, 1),
-        typeBound = _PUCK__value__40$val[0];
+    var _$unwrapTraitObject58 = $unwrapTraitObject(__PUCK__value__40),
+        _$unwrapTraitObject59 = _slicedToArray(_$unwrapTraitObject58.value, 1),
+        typeBound = _$unwrapTraitObject59[0];
 
     return visitor.visitTypeBound(typeBound);
   };
@@ -648,8 +682,9 @@ function walkTypeDeclaration(visitor, t) {
   });
   var __PUCK__value__41 = t.bound;
   if ($unwrapTraitObject(__PUCK__value__41).kind == "Some") {
-    var _PUCK__value__41$val = _slicedToArray(__PUCK__value__41.value, 1),
-        typeBound = _PUCK__value__41$val[0];
+    var _$unwrapTraitObject60 = $unwrapTraitObject(__PUCK__value__41),
+        _$unwrapTraitObject61 = _slicedToArray(_$unwrapTraitObject60.value, 1),
+        typeBound = _$unwrapTraitObject61[0];
 
     return visitor.visitTypeBound(typeBound);
   };
@@ -658,36 +693,41 @@ function walkExportDirective(visitor, e) {
   var __PUCK__value__42 = e.statement;
   var __PUCK__value__43 = __PUCK__value__42;
   if ($unwrapTraitObject(__PUCK__value__43).kind == "EnumDeclaration") {
-    var _PUCK__value__43$val = _slicedToArray(__PUCK__value__43.value, 1),
-        d = _PUCK__value__43$val[0];
+    var _$unwrapTraitObject62 = $unwrapTraitObject(__PUCK__value__43),
+        _$unwrapTraitObject63 = _slicedToArray(_$unwrapTraitObject62.value, 1),
+        d = _$unwrapTraitObject63[0];
 
     return visitor.visitEnumDeclaration(d);
   } else {
     var __PUCK__value__44 = __PUCK__value__42;
     if ($unwrapTraitObject(__PUCK__value__44).kind == "FunctionDeclaration") {
-      var _PUCK__value__44$val = _slicedToArray(__PUCK__value__44.value, 1),
-          _d = _PUCK__value__44$val[0];
+      var _$unwrapTraitObject64 = $unwrapTraitObject(__PUCK__value__44),
+          _$unwrapTraitObject65 = _slicedToArray(_$unwrapTraitObject64.value, 1),
+          _d = _$unwrapTraitObject65[0];
 
       return visitor.visitFunctionDeclaration(_d);
     } else {
       var __PUCK__value__45 = __PUCK__value__42;
       if ($unwrapTraitObject(__PUCK__value__45).kind == "TraitDeclaration") {
-        var _PUCK__value__45$val = _slicedToArray(__PUCK__value__45.value, 1),
-            _d2 = _PUCK__value__45$val[0];
+        var _$unwrapTraitObject66 = $unwrapTraitObject(__PUCK__value__45),
+            _$unwrapTraitObject67 = _slicedToArray(_$unwrapTraitObject66.value, 1),
+            _d2 = _$unwrapTraitObject67[0];
 
         return visitor.visitTraitDeclaration(_d2);
       } else {
         var __PUCK__value__46 = __PUCK__value__42;
         if ($unwrapTraitObject(__PUCK__value__46).kind == "TypeDeclaration") {
-          var _PUCK__value__46$val = _slicedToArray(__PUCK__value__46.value, 1),
-              _d3 = _PUCK__value__46$val[0];
+          var _$unwrapTraitObject68 = $unwrapTraitObject(__PUCK__value__46),
+              _$unwrapTraitObject69 = _slicedToArray(_$unwrapTraitObject68.value, 1),
+              _d3 = _$unwrapTraitObject69[0];
 
           return visitor.visitTypeDeclaration(_d3);
         } else {
           var __PUCK__value__47 = __PUCK__value__42;
           if ($unwrapTraitObject(__PUCK__value__47).kind == "VariableDeclaration") {
-            var _PUCK__value__47$val = _slicedToArray(__PUCK__value__47.value, 1),
-                _d4 = _PUCK__value__47$val[0];
+            var _$unwrapTraitObject70 = $unwrapTraitObject(__PUCK__value__47),
+                _$unwrapTraitObject71 = _slicedToArray(_$unwrapTraitObject70.value, 1),
+                _d4 = _$unwrapTraitObject71[0];
 
             return visitor.visitVariableDeclaration(_d4);
           };
@@ -731,15 +771,17 @@ function walkFunctionDeclaration(visitor, f) {
   _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: f.parameterList, $isTraitObject: true }, $unwrapTraitObject(visitor.visitVariableDeclaration).bind(visitor));
   var __PUCK__value__48 = f.returnType;
   if ($unwrapTraitObject(__PUCK__value__48).kind == "Some") {
-    var _PUCK__value__48$val = _slicedToArray(__PUCK__value__48.value, 1),
-        returnType = _PUCK__value__48$val[0];
+    var _$unwrapTraitObject72 = $unwrapTraitObject(__PUCK__value__48),
+        _$unwrapTraitObject73 = _slicedToArray(_$unwrapTraitObject72.value, 1),
+        returnType = _$unwrapTraitObject73[0];
 
     visitor.visitTypeBound(returnType);
   };
   var __PUCK__value__49 = f.body;
   if ($unwrapTraitObject(__PUCK__value__49).kind == "Some") {
-    var _PUCK__value__49$val = _slicedToArray(__PUCK__value__49.value, 1),
-        body = _PUCK__value__49$val[0];
+    var _$unwrapTraitObject74 = $unwrapTraitObject(__PUCK__value__49),
+        _$unwrapTraitObject75 = _slicedToArray(_$unwrapTraitObject74.value, 1),
+        body = _$unwrapTraitObject75[0];
 
     return visitor.visitBlock(body);
   };
@@ -748,15 +790,17 @@ function walkVariableDeclaration(visitor, d) {
   visitor.visitPattern(d.pattern);
   var __PUCK__value__50 = d.typeBound;
   if ($unwrapTraitObject(__PUCK__value__50).kind == "Some") {
-    var _PUCK__value__50$val = _slicedToArray(__PUCK__value__50.value, 1),
-        typeBound = _PUCK__value__50$val[0];
+    var _$unwrapTraitObject76 = $unwrapTraitObject(__PUCK__value__50),
+        _$unwrapTraitObject77 = _slicedToArray(_$unwrapTraitObject76.value, 1),
+        typeBound = _$unwrapTraitObject77[0];
 
     visitor.visitTypeBound(typeBound);
   };
   var __PUCK__value__51 = d.initializer;
   if ($unwrapTraitObject(__PUCK__value__51).kind == "Some") {
-    var _PUCK__value__51$val = _slicedToArray(__PUCK__value__51.value, 1),
-        initializer = _PUCK__value__51$val[0];
+    var _$unwrapTraitObject78 = $unwrapTraitObject(__PUCK__value__51),
+        _$unwrapTraitObject79 = _slicedToArray(_$unwrapTraitObject78.value, 1),
+        initializer = _$unwrapTraitObject79[0];
 
     return visitor.visitExpression(initializer);
   };
@@ -778,8 +822,9 @@ function walkIfExpression(visitor, e) {
   visitor.visitBlock(e.then_);
   var __PUCK__value__52 = e.else_;
   if ($unwrapTraitObject(__PUCK__value__52).kind == "Some") {
-    var _PUCK__value__52$val = _slicedToArray(__PUCK__value__52.value, 1),
-        else_ = _PUCK__value__52$val[0];
+    var _$unwrapTraitObject80 = $unwrapTraitObject(__PUCK__value__52),
+        _$unwrapTraitObject81 = _slicedToArray(_$unwrapTraitObject80.value, 1),
+        else_ = _$unwrapTraitObject81[0];
 
     return visitor.visitBlock(else_);
   };
@@ -790,8 +835,9 @@ function walkIfLetExpression(visitor, e) {
   visitor.visitBlock(e.then_);
   var __PUCK__value__53 = e.else_;
   if ($unwrapTraitObject(__PUCK__value__53).kind == "Some") {
-    var _PUCK__value__53$val = _slicedToArray(__PUCK__value__53.value, 1),
-        else_ = _PUCK__value__53$val[0];
+    var _$unwrapTraitObject82 = $unwrapTraitObject(__PUCK__value__53),
+        _$unwrapTraitObject83 = _slicedToArray(_$unwrapTraitObject82.value, 1),
+        else_ = _$unwrapTraitObject83[0];
 
     return visitor.visitBlock(else_);
   };
@@ -829,63 +875,85 @@ function walkRecordLiteral(visitor, l) {
   });
 };
 function walkStringLiteral(visitor, l) {
-  return $unwrapTraitObject($unwrapTraitObject(l.parts).filter(function (p) {
-    return $unwrapTraitObject(p).kind == $unwrapTraitObject(_ast2.SyntaxKind).Identifier;
-  })).forEach($unwrapTraitObject(visitor.visitIdentifier).bind(visitor));
+  var __PUCK__value__54 = _core.Iterable['$List<E>'].filterMap.call({ type: '$List<E>', value: l.parts, $isTraitObject: true }, function (p) {
+    var __PUCK__value__55 = p;
+    var __PUCK__value__56 = __PUCK__value__55;
+    if ($unwrapTraitObject(__PUCK__value__56).kind == "Identifier") {
+      var _$unwrapTraitObject84 = $unwrapTraitObject(__PUCK__value__56),
+          _$unwrapTraitObject85 = _slicedToArray(_$unwrapTraitObject84.value, 1),
+          identifier = _$unwrapTraitObject85[0];
+
+      return (0, _core.Some)(identifier);
+    } else {
+      var __PUCK__value__57 = __PUCK__value__55;
+      if (true) {
+        var __PUCK__value__58 = __PUCK__value__57;
+        return _core.None;
+      };
+    };
+  });
+  return _core.Iterable[__PUCK__value__54.type].forEach.call(__PUCK__value__54, function (i) {
+    return visitor.visitIdentifier(i);
+  });
 };
 function walkTupleLiteral(visitor, l) {
   return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: l.expressions, $isTraitObject: true }, $unwrapTraitObject(visitor.visitExpression).bind(visitor));
 };
 function walkPattern(visitor, p) {
-  var __PUCK__value__54 = p;
-  var __PUCK__value__55 = __PUCK__value__54;
-  if ($unwrapTraitObject(__PUCK__value__55).kind == "CatchAll") {
-    var __PUCK__value__56 = __PUCK__value__55;;
-    var _undefined = __PUCK__value__56;;
-    return __PUCK__value__56;
+  var __PUCK__value__59 = p;
+  var __PUCK__value__60 = __PUCK__value__59;
+  if ($unwrapTraitObject(__PUCK__value__60).kind == "CatchAll") {
+    var __PUCK__value__61 = $unwrapTraitObject(__PUCK__value__60);;
+    var _undefined = __PUCK__value__61;;
+    return __PUCK__value__61;
   } else {
-    var __PUCK__value__57 = __PUCK__value__54;
-    if ($unwrapTraitObject(__PUCK__value__57).kind == "Identifier") {
-      var _PUCK__value__57$val = _slicedToArray(__PUCK__value__57.value, 1),
-          identifier = _PUCK__value__57$val[0];
+    var __PUCK__value__62 = __PUCK__value__59;
+    if ($unwrapTraitObject(__PUCK__value__62).kind == "Identifier") {
+      var _$unwrapTraitObject86 = $unwrapTraitObject(__PUCK__value__62),
+          _$unwrapTraitObject87 = _slicedToArray(_$unwrapTraitObject86.value, 1),
+          identifier = _$unwrapTraitObject87[0];
 
       return visitor.visitIdentifierPattern(identifier);
     } else {
-      var __PUCK__value__58 = __PUCK__value__54;
-      if ($unwrapTraitObject(__PUCK__value__58).kind == "Record") {
-        var _PUCK__value__58$val = _slicedToArray(__PUCK__value__58.value, 1),
-            record = _PUCK__value__58$val[0];
+      var __PUCK__value__63 = __PUCK__value__59;
+      if ($unwrapTraitObject(__PUCK__value__63).kind == "Record") {
+        var _$unwrapTraitObject88 = $unwrapTraitObject(__PUCK__value__63),
+            _$unwrapTraitObject89 = _slicedToArray(_$unwrapTraitObject88.value, 1),
+            record = _$unwrapTraitObject89[0];
 
         return visitor.visitRecordPattern(record);
       } else {
-        var __PUCK__value__59 = __PUCK__value__54;
-        if ($unwrapTraitObject(__PUCK__value__59).kind == "RecordType") {
-          var _PUCK__value__59$val = _slicedToArray(__PUCK__value__59.value, 2),
-              typePath = _PUCK__value__59$val[0],
-              _record = _PUCK__value__59$val[1];
+        var __PUCK__value__64 = __PUCK__value__59;
+        if ($unwrapTraitObject(__PUCK__value__64).kind == "RecordType") {
+          var _$unwrapTraitObject90 = $unwrapTraitObject(__PUCK__value__64),
+              _$unwrapTraitObject91 = _slicedToArray(_$unwrapTraitObject90.value, 2),
+              typePath = _$unwrapTraitObject91[0],
+              _record = _$unwrapTraitObject91[1];
 
           return visitor.visitRecordPattern(_record);
         } else {
-          var __PUCK__value__60 = __PUCK__value__54;
-          if ($unwrapTraitObject(__PUCK__value__60).kind == "Tuple") {
-            var _PUCK__value__60$val = _slicedToArray(__PUCK__value__60.value, 1),
-                tuple = _PUCK__value__60$val[0];
+          var __PUCK__value__65 = __PUCK__value__59;
+          if ($unwrapTraitObject(__PUCK__value__65).kind == "Tuple") {
+            var _$unwrapTraitObject92 = $unwrapTraitObject(__PUCK__value__65),
+                _$unwrapTraitObject93 = _slicedToArray(_$unwrapTraitObject92.value, 1),
+                tuple = _$unwrapTraitObject93[0];
 
             return visitor.visitTuplePattern(tuple);
           } else {
-            var __PUCK__value__61 = __PUCK__value__54;
-            if ($unwrapTraitObject(__PUCK__value__61).kind == "TupleType") {
-              var _PUCK__value__61$val = _slicedToArray(__PUCK__value__61.value, 2),
-                  _typePath = _PUCK__value__61$val[0],
-                  _tuple = _PUCK__value__61$val[1];
+            var __PUCK__value__66 = __PUCK__value__59;
+            if ($unwrapTraitObject(__PUCK__value__66).kind == "TupleType") {
+              var _$unwrapTraitObject94 = $unwrapTraitObject(__PUCK__value__66),
+                  _$unwrapTraitObject95 = _slicedToArray(_$unwrapTraitObject94.value, 2),
+                  _typePath = _$unwrapTraitObject95[0],
+                  _tuple = _$unwrapTraitObject95[1];
 
               return visitor.visitTuplePattern(_tuple);
             } else {
-              var __PUCK__value__62 = __PUCK__value__54;
-              if ($unwrapTraitObject(__PUCK__value__62).kind == "UnitType") {
-                var __PUCK__value__63 = __PUCK__value__62;;
-                var _undefined2 = __PUCK__value__63;;
-                return __PUCK__value__63;
+              var __PUCK__value__67 = __PUCK__value__59;
+              if ($unwrapTraitObject(__PUCK__value__67).kind == "UnitType") {
+                var __PUCK__value__68 = $unwrapTraitObject(__PUCK__value__67);;
+                var _undefined2 = __PUCK__value__68;;
+                return __PUCK__value__68;
               };
             };
           };
@@ -908,32 +976,36 @@ function walkTuplePattern(visitor, p) {
   });
 };
 function walkTypeBound(visitor, t) {
-  var __PUCK__value__64 = t;
-  var __PUCK__value__65 = __PUCK__value__64;
-  if ($unwrapTraitObject(__PUCK__value__65).kind == "FunctionTypeBound") {
-    var _PUCK__value__65$val = _slicedToArray(__PUCK__value__65.value, 1),
-        _t = _PUCK__value__65$val[0];
+  var __PUCK__value__69 = t;
+  var __PUCK__value__70 = __PUCK__value__69;
+  if ($unwrapTraitObject(__PUCK__value__70).kind == "FunctionTypeBound") {
+    var _$unwrapTraitObject96 = $unwrapTraitObject(__PUCK__value__70),
+        _$unwrapTraitObject97 = _slicedToArray(_$unwrapTraitObject96.value, 1),
+        _t = _$unwrapTraitObject97[0];
 
     return visitor.visitFunctionTypeBound(_t);
   } else {
-    var __PUCK__value__66 = __PUCK__value__64;
-    if ($unwrapTraitObject(__PUCK__value__66).kind == "NamedTypeBound") {
-      var _PUCK__value__66$val = _slicedToArray(__PUCK__value__66.value, 1),
-          _t2 = _PUCK__value__66$val[0];
+    var __PUCK__value__71 = __PUCK__value__69;
+    if ($unwrapTraitObject(__PUCK__value__71).kind == "NamedTypeBound") {
+      var _$unwrapTraitObject98 = $unwrapTraitObject(__PUCK__value__71),
+          _$unwrapTraitObject99 = _slicedToArray(_$unwrapTraitObject98.value, 1),
+          _t2 = _$unwrapTraitObject99[0];
 
       return visitor.visitNamedTypeBound(_t2);
     } else {
-      var __PUCK__value__67 = __PUCK__value__64;
-      if ($unwrapTraitObject(__PUCK__value__67).kind == "RecordTypeBound") {
-        var _PUCK__value__67$val = _slicedToArray(__PUCK__value__67.value, 1),
-            _t3 = _PUCK__value__67$val[0];
+      var __PUCK__value__72 = __PUCK__value__69;
+      if ($unwrapTraitObject(__PUCK__value__72).kind == "RecordTypeBound") {
+        var _$unwrapTraitObject100 = $unwrapTraitObject(__PUCK__value__72),
+            _$unwrapTraitObject101 = _slicedToArray(_$unwrapTraitObject100.value, 1),
+            _t3 = _$unwrapTraitObject101[0];
 
         return visitor.visitRecordTypeBound(_t3);
       } else {
-        var __PUCK__value__68 = __PUCK__value__64;
-        if ($unwrapTraitObject(__PUCK__value__68).kind == "TupleTypeBound") {
-          var _PUCK__value__68$val = _slicedToArray(__PUCK__value__68.value, 1),
-              _t4 = _PUCK__value__68$val[0];
+        var __PUCK__value__73 = __PUCK__value__69;
+        if ($unwrapTraitObject(__PUCK__value__73).kind == "TupleTypeBound") {
+          var _$unwrapTraitObject102 = $unwrapTraitObject(__PUCK__value__73),
+              _$unwrapTraitObject103 = _slicedToArray(_$unwrapTraitObject102.value, 1),
+              _t4 = _$unwrapTraitObject103[0];
 
           return visitor.visitTupleTypeBound(_t4);
         };
@@ -961,10 +1033,11 @@ function walkTupleTypeBound(visitor, t) {
   return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeBound).bind(visitor));
 };
 function walkTypeParameter(visitor, t) {
-  var __PUCK__value__69 = t.defaultValue;
-  if ($unwrapTraitObject(__PUCK__value__69).kind == "Some") {
-    var _PUCK__value__69$val = _slicedToArray(__PUCK__value__69.value, 1),
-        defaultValue = _PUCK__value__69$val[0];
+  var __PUCK__value__74 = t.defaultValue;
+  if ($unwrapTraitObject(__PUCK__value__74).kind == "Some") {
+    var _$unwrapTraitObject104 = $unwrapTraitObject(__PUCK__value__74),
+        _$unwrapTraitObject105 = _slicedToArray(_$unwrapTraitObject104.value, 1),
+        defaultValue = _$unwrapTraitObject105[0];
 
     return visitor.visitTypeBound(defaultValue);
   };

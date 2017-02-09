@@ -385,6 +385,8 @@ function Emitter() {
                     ].concat(body.statements) });
             }
         }
+        var oldTypeOverrides = typeOverrides;
+        typeOverrides = __assign({}, typeOverrides);
         if (fn.traitFunctionType) {
             var selfBinding = fn.traitFunctionType.kind.value[0].selfBinding;
             if (selfBinding.kind === 'Some') {
@@ -397,7 +399,7 @@ function Emitter() {
                 if (p.pattern.kind === 'Identifier') {
                     typeOverrides[p.pattern.value[0].name] = {
                         old: p.type_,
-                        new: fn.traitFunctionType.kind.value[0]._arguments ? fn.traitFunctionType.kind.value[0]._arguments[i].type_ : fn.traitFunctionType.kind.value[0].parameters[i].type_,
+                        new: fn.traitFunctionType.kind.value[0].parameters[i].type_,
                     };
                 }
             });
@@ -407,7 +409,7 @@ function Emitter() {
             : fn.returnType.kind === 'Some' && fn.returnType.value[0].value[0].type_;
         var code = "function " + name + "(" + parameterList.map(emitFunctionParameter).join(', ') + ") ";
         code += withContext(Context.Return, function () { return emitBlock(body, undefined, returnType); }, true);
-        typeOverrides = {};
+        typeOverrides = oldTypeOverrides;
         return code;
     }
     function emitFunctionParameter(vd) {
@@ -470,13 +472,21 @@ function Emitter() {
         if (vd.pattern.kind === 'Identifier') {
             binding = vd.scope.getBinding(vd.pattern.value[0].name);
             willBeRedefined = binding.redefined;
-            while (binding && (binding.token !== vd.pattern)) {
+            while (binding && ((binding.token.$isTraitObject ? binding.token.value : binding.token) !== vd.pattern)) {
                 binding = binding.previous;
             }
         }
-        var initializer = vd.initializer.kind == 'Some'
-            ? " = " + emitExpression(vd.initializer.value[0], Context.Value, vd.type_)
-            : '';
+        var initializer = "";
+        if (vd.initializer.kind == 'Some') {
+            initializer = emitExpression(vd.initializer.value[0], Context.Value, vd.type_);
+            var type = getType(vd.initializer.value[0]);
+            if (vd.pattern.kind !== 'Identifier' && vd.pattern.kind !== 'CatchAll') {
+                // includeTraitObjectHelper = true
+                // initializer = `$unwrapTraitObject(${initializer})`
+                initializer = unwrap(initializer, vd.initializer.value[0]);
+            }
+            initializer = " = " + initializer;
+        }
         if (binding && binding.previous) {
             return "" + emitPatternDestructuring(vd.pattern) + initializer;
         }
@@ -584,7 +594,7 @@ function Emitter() {
         var functionType = getType(fn.func);
         var parameterBindings = functionType && (functionType.kind.value[0]._arguments || functionType.kind.value[0].parameters);
         if (fn.traitName) {
-            parameterBindings = fn.functionType.kind.value[0].parameters || fn.functionType.kind.value[0]._arguments;
+            parameterBindings = fn.functionType.kind.value[0].parameters;
             var selfBinding = fn.functionType.kind.value[0].selfBinding;
             if (selfBinding.kind === 'Some') {
                 parameterBindings = [selfBinding.value[0]].concat(parameterBindings);
@@ -672,8 +682,8 @@ function Emitter() {
                             kind: 'StringLiteral',
                             value: [{
                                     parts: [{
-                                            kind: ast_1.SyntaxKind.StringLiteralPart,
-                                            value: emitIdentifier(typePath.value[1].value[0]),
+                                            kind: 'Literal',
+                                            value: [{ value: emitIdentifier(typePath.value[1].value[0]) }],
                                         }],
                                 }]
                         },
@@ -900,12 +910,10 @@ function Emitter() {
         return JSON.stringify(l.value);
     }
     function emitStringLiteral(l) {
-        if (l.value !== undefined)
-            return emitStringLiteralPart(l);
         return l.parts
-            .map(function (p) { return p.kind === ast_1.SyntaxKind.StringLiteralPart
-            ? emitStringLiteralPart(p)
-            : emitIdentifier(p); })
+            .map(function (p) { return (p.kind === 'Literal')
+            ? emitStringLiteralPart(p.value[0])
+            : emitIdentifier(p.value[0]); })
             .join(' + ');
     }
     function emitTupleLiteral(l, assignedTo) {

@@ -26,6 +26,8 @@ var path = _interopRequireWildcard(_path);
 
 var _util = require('util');
 
+var _span = require('./ast/span');
+
 var _emitter = require('./compiler/emitter');
 
 var _input_stream = require('./compiler/input_stream');
@@ -182,7 +184,11 @@ function createContext() {
     reportError: function reportError(file, token, message) {
       var self = this;
       if (!ignoreErrors) {
-        throw (0, _js.Error)("" + message + "\n  in " + file.absolutePath);
+        var _ToSpan$token$type$sp = _span.ToSpan[token.type].span.call(token).start,
+            line = _ToSpan$token$type$sp.line,
+            column = _ToSpan$token$type$sp.column;
+
+        throw (0, _js.Error)("" + message + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")");
       };
     }
   };

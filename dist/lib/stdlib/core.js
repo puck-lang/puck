@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Option = exports.Result = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = undefined;
+exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Never = exports.Option = exports.Result = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -58,6 +58,7 @@ var Option = exports.Option = {
   },
   None: { kind: 'None', value: Symbol('None') }
 };
+var Never = exports.Never = {};
 var Iterable = exports.Iterable = {};
 Iterable['$List<E>'] = {
   enumerate: function enumerate() {
@@ -125,6 +126,10 @@ Iterable['$List<E>'] = {
       return None;
     };
   },
+  filter: function filter(func) {
+    var self = this;
+    return { type: '$List<E>', value: asList($unwrapTraitObject(anyCast(self)).filter(func)), $isTraitObject: true };
+  },
   forEach: function forEach(func) {
     var self = this;
     return $unwrapTraitObject(anyCast(self)).forEach(func);
@@ -133,6 +138,21 @@ Iterable['$List<E>'] = {
     var self = this;
     return { type: '$List<E>', value: asList($unwrapTraitObject(anyCast(self)).map(func)), $isTraitObject: true };
   },
+  filterMap: function filterMap(func) {
+    var self = this;
+    var newList = [];
+    Iterable['$List<E>'].forEach.call(self, function (element) {
+      var __PUCK__value__1 = func($unwrapTraitObject(element));
+      if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
+        var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
+            _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+            mappedElement = _$unwrapTraitObject$v[0];
+
+        return List.add.call(newList, $unwrapTraitObject(mappedElement));
+      };
+    });
+    return { type: '$List<E>', value: newList, $isTraitObject: true };
+  },
   skip: function skip(count) {
     var self = this;
     return { type: '$List<E>', value: asList(self.value.slice(count)), $isTraitObject: true };
@@ -140,13 +160,13 @@ Iterable['$List<E>'] = {
   skipUntil: function skipUntil(predicate) {
     var self = this;
     var index = self.value.findIndex(predicate);
-    var __PUCK__value__1 = void 0;
+    var __PUCK__value__2 = void 0;
     if (index == -1) {
-      __PUCK__value__1 = [];
+      __PUCK__value__2 = [];
     } else {
-      __PUCK__value__1 = self.value.slice(index);
+      __PUCK__value__2 = self.value.slice(index);
     };
-    return { type: '$List<E>', value: asList(__PUCK__value__1), $isTraitObject: true };
+    return { type: '$List<E>', value: asList(__PUCK__value__2), $isTraitObject: true };
   },
   toList: function toList() {
     var self = this;
@@ -167,10 +187,11 @@ Result.isErr = function isErr() {
 };
 Result.andThen = function andThen(op) {
   var self = this;
-  var __PUCK__value__2 = self;
-  if ($unwrapTraitObject(__PUCK__value__2).kind == "Ok") {
-    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-        value = _PUCK__value__2$valu[0];
+  var __PUCK__value__3 = self;
+  if ($unwrapTraitObject(__PUCK__value__3).kind == "Ok") {
+    var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+        _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+        value = _$unwrapTraitObject2$[0];
 
     return op($unwrapTraitObject(value));
   } else {
@@ -179,10 +200,11 @@ Result.andThen = function andThen(op) {
 };
 Result.map = function map(op) {
   var self = this;
-  var __PUCK__value__3 = self;
-  if ($unwrapTraitObject(__PUCK__value__3).kind == "Ok") {
-    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-        value = _PUCK__value__3$valu[0];
+  var __PUCK__value__4 = self;
+  if ($unwrapTraitObject(__PUCK__value__4).kind == "Ok") {
+    var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__4),
+        _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+        value = _$unwrapTraitObject3$[0];
 
     return Ok($unwrapTraitObject(op($unwrapTraitObject(value))));
   } else {
@@ -191,10 +213,11 @@ Result.map = function map(op) {
 };
 Result.mapErr = function mapErr(op) {
   var self = this;
-  var __PUCK__value__4 = self;
-  if ($unwrapTraitObject(__PUCK__value__4).kind == "Err") {
-    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-        value = _PUCK__value__4$valu[0];
+  var __PUCK__value__5 = self;
+  if ($unwrapTraitObject(__PUCK__value__5).kind == "Err") {
+    var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__5),
+        _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+        value = _$unwrapTraitObject4$[0];
 
     return Err($unwrapTraitObject(op($unwrapTraitObject(value))));
   } else {
@@ -225,10 +248,11 @@ Option.isNone = function isNone() {
 };
 Option.andThen = function andThen(op) {
   var self = this;
-  var __PUCK__value__5 = self;
-  if ($unwrapTraitObject(__PUCK__value__5).kind == "Some") {
-    var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-        value = _PUCK__value__5$valu[0];
+  var __PUCK__value__6 = self;
+  if ($unwrapTraitObject(__PUCK__value__6).kind == "Some") {
+    var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__6),
+        _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+        value = _$unwrapTraitObject5$[0];
 
     return op($unwrapTraitObject(value));
   } else {
@@ -237,10 +261,11 @@ Option.andThen = function andThen(op) {
 };
 Option.map = function map(f) {
   var self = this;
-  var __PUCK__value__6 = self;
-  if ($unwrapTraitObject(__PUCK__value__6).kind == "Some") {
-    var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
-        value = _PUCK__value__6$valu[0];
+  var __PUCK__value__7 = self;
+  if ($unwrapTraitObject(__PUCK__value__7).kind == "Some") {
+    var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__7),
+        _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+        value = _$unwrapTraitObject6$[0];
 
     return Some($unwrapTraitObject(f($unwrapTraitObject(value))));
   } else {
@@ -249,10 +274,11 @@ Option.map = function map(f) {
 };
 Option.mapOr = function mapOr(_default, f) {
   var self = this;
-  var __PUCK__value__7 = self;
-  if ($unwrapTraitObject(__PUCK__value__7).kind == "Some") {
-    var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
-        value = _PUCK__value__7$valu[0];
+  var __PUCK__value__8 = self;
+  if ($unwrapTraitObject(__PUCK__value__8).kind == "Some") {
+    var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__8),
+        _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+        value = _$unwrapTraitObject7$[0];
 
     return f($unwrapTraitObject(value));
   } else {
@@ -261,10 +287,11 @@ Option.mapOr = function mapOr(_default, f) {
 };
 Option.mapOrElse = function mapOrElse(_default, f) {
   var self = this;
-  var __PUCK__value__8 = self;
-  if ($unwrapTraitObject(__PUCK__value__8).kind == "Some") {
-    var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
-        value = _PUCK__value__8$valu[0];
+  var __PUCK__value__9 = self;
+  if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
+    var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__9),
+        _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+        value = _$unwrapTraitObject8$[0];
 
     return f($unwrapTraitObject(value));
   } else {
@@ -280,10 +307,11 @@ Option.unwrap = function unwrap() {
 };
 Option.unwrapOr = function unwrapOr(_default) {
   var self = this;
-  var __PUCK__value__9 = self;
-  if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
-    var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
-        value = _PUCK__value__9$valu[0];
+  var __PUCK__value__10 = self;
+  if ($unwrapTraitObject(__PUCK__value__10).kind == "Some") {
+    var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__10),
+        _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+        value = _$unwrapTraitObject9$[0];
 
     return value;
   } else {
@@ -292,10 +320,11 @@ Option.unwrapOr = function unwrapOr(_default) {
 };
 Option.unwrapOrElse = function unwrapOrElse(_default) {
   var self = this;
-  var __PUCK__value__10 = self;
-  if ($unwrapTraitObject(__PUCK__value__10).kind == "Some") {
-    var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1),
-        value = _PUCK__value__10$val[0];
+  var __PUCK__value__11 = self;
+  if ($unwrapTraitObject(__PUCK__value__11).kind == "Some") {
+    var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__11),
+        _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+        value = _$unwrapTraitObject11[0];
 
     return value;
   } else {
@@ -306,15 +335,15 @@ List.zip = function zip(a, b) {
   if (Iterable[a.type].size.call(a) != Iterable[b.type].size.call(b)) {
     throw (0, _js.Error)("Iterable a and b are not of the same length");
   };
-  var __PUCK__value__12 = Iterable[a.type].enumerate.call(a);
-  var __PUCK__value__11 = Iterable[__PUCK__value__12.type].map.call(__PUCK__value__12, function (_ref) {
+  var __PUCK__value__13 = Iterable[a.type].enumerate.call(a);
+  var __PUCK__value__12 = Iterable[__PUCK__value__13.type].map.call(__PUCK__value__13, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         a = _ref2[0],
         i = _ref2[1];
 
     return [a, b.value[i]];
   });
-  return Iterable[__PUCK__value__11.type].toList.call(__PUCK__value__11);
+  return Iterable[__PUCK__value__12.type].toList.call(__PUCK__value__12);
 };
 List.add = function add(element) {
   var self = this;

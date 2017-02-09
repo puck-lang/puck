@@ -7,6 +7,7 @@ import '../ast/ast.puck' as {
   ImportDirective
   ImportSpecifier
 }
+import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
 import '../entities.puck' as {UnparsedFile}
 import '../compiler/ast.ts' as {SyntaxKind}
@@ -16,7 +17,7 @@ let puckFile = RegExp('\\.puck$', 'i')
 let puckModules = ['core', 'js', 'test']
 
 export fn ImportVisitor(context, file: UnparsedFile) {
-  let reportError = context.reportError.bind(context, file)
+  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
   let mut moduleScope
 
   fn importModule(mut i: ImportDirective, importedFile: UnparsedFile) {
@@ -44,6 +45,7 @@ export fn ImportVisitor(context, file: UnparsedFile) {
                 local: property
               }
             })
+            .toList()
         })
       }
       ImportSpecifier::Identifier(_) => {}
