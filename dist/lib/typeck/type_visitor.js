@@ -548,15 +548,53 @@ function TypeVisitor(context, file) {
     },
     visitNamedTypeBound: function visitNamedTypeBound(t) {
       var self = this;
-      var binding = $unwrapTraitObject($unwrapTraitObject(self).scope).getTypePath(t.path);
-      if (!binding) {
-        reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, "Use of undeclared type " + $unwrapTraitObject($unwrapTraitObject(t.path.value)[0]).name);
-      };
-      if (!$unwrapTraitObject($unwrapTraitObject(binding).token).scope) {
-        if (!$unwrapTraitObject($unwrapTraitObject(self).imports)[$unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(t.path.value)[0]).name)]) {
-          reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, "Scope not set for binding " + $unwrapTraitObject($unwrapTraitObject(t.path.value)[0]).name + " but not found in imports either");
+      var result = $unwrapTraitObject($unwrapTraitObject(self).scope).getTypePath(t.path);
+      var __PUCK__value__62 = result;
+      var __PUCK__value__63 = __PUCK__value__62;
+      if ($unwrapTraitObject(__PUCK__value__63).kind == "Ok") {
+        var _$unwrapTraitObject46 = $unwrapTraitObject(__PUCK__value__63),
+            _$unwrapTraitObject47 = _slicedToArray(_$unwrapTraitObject46.value, 1),
+            binding = _$unwrapTraitObject47[0];
+
+        if (!$unwrapTraitObject(binding.token).scope) {
+          var __PUCK__value__64 = t.path;
+          var __PUCK__value__65 = __PUCK__value__64;
+          var __PUCK__value__66 = void 0;
+          if ($unwrapTraitObject(__PUCK__value__65).kind == "Member") {
+            var _$unwrapTraitObject48 = $unwrapTraitObject(__PUCK__value__65),
+                _$unwrapTraitObject49 = _slicedToArray(_$unwrapTraitObject48.value, 1),
+                _name = _$unwrapTraitObject49[0].name;
+
+            __PUCK__value__66 = _name;
+          } else {
+            var __PUCK__value__67 = __PUCK__value__64;
+            var __PUCK__value__68 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__67).kind == "_Object") {
+              var _$unwrapTraitObject50 = $unwrapTraitObject(__PUCK__value__67),
+                  _$unwrapTraitObject51 = _slicedToArray(_$unwrapTraitObject50.value, 2),
+                  _name2 = _$unwrapTraitObject51[0].name,
+                  __PUCK__value__69 = _$unwrapTraitObject51[1];
+
+              __PUCK__value__68 = _name2;
+            };
+            __PUCK__value__66 = __PUCK__value__68;
+          };
+          var name = __PUCK__value__66;
+          if ($unwrapTraitObject($unwrapTraitObject(self).imports)[name]) {
+            $unwrapTraitObject(context).runTypeVisitorOnFile($unwrapTraitObject($unwrapTraitObject(self).imports)[name]);
+          } else {
+            reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, "Scope not set for binding " + name + " but not found in imports either");
+          };
         };
-        $unwrapTraitObject(context).runTypeVisitorOnFile($unwrapTraitObject($unwrapTraitObject(self).imports)[$unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(t.path.value)[0]).name)]);
+      } else {
+        var __PUCK__value__70 = __PUCK__value__62;
+        if ($unwrapTraitObject(__PUCK__value__70).kind == "Err") {
+          var _$unwrapTraitObject52 = $unwrapTraitObject(__PUCK__value__70),
+              _$unwrapTraitObject53 = _slicedToArray(_$unwrapTraitObject52.value, 1),
+              err = _$unwrapTraitObject53[0];
+
+          reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, err);
+        };
       };
       return $unwrapTraitObject($unwrapTraitObject(structureVisitorInstance).visitNamedTypeBound).call(self, t);
     },

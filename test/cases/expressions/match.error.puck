@@ -95,3 +95,13 @@ print(
     _ => 'something'
   }
 )
+
+///// Use of undeclared type Missing
+match Some(4) {
+  Missing::Type => 1
+}
+
+///// Use of undeclared type Option::Missing
+match Some(4) {
+  Option::Missing => 1
+}

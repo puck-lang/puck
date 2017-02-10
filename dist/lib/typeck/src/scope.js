@@ -74,7 +74,12 @@ function createScope(context, file) {
             _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
             name = _$unwrapTraitObject$v[0].name;
 
-        return $unwrapTraitObject(self).getTypeBinding(name);
+        var binding = $unwrapTraitObject(self).getTypeBinding(name);
+        if (binding) {
+          return (0, _core.Ok)(binding);
+        } else {
+          return (0, _core.Err)("Use of undeclared type " + name + "");
+        };
       } else {
         var __PUCK__value__3 = __PUCK__value__1;
         if ($unwrapTraitObject(__PUCK__value__3).kind == "_Object") {
@@ -85,8 +90,13 @@ function createScope(context, file) {
 
           var name_ = _name;
           var path_ = path;
-          var type_ = $unwrapTraitObject($unwrapTraitObject(self).getTypeBinding(_name)).type_;
+          var _binding = $unwrapTraitObject(self).getTypeBinding(_name);
+          if (!_binding) {
+            return (0, _core.Err)("Use of undeclared type " + _name + "");
+          };
+          var type_ = $unwrapTraitObject(_binding).type_;
           while (true) {
+            var displayPath = "" + _name + "";
             var __PUCK__value__4 = path_;
             var __PUCK__value__5 = __PUCK__value__4;
             if ($unwrapTraitObject(__PUCK__value__5).kind == "Member") {
@@ -96,6 +106,9 @@ function createScope(context, file) {
 
               name_ = _name2;
               type_ = _entities.Type.getEnum.call(type_).members[_name2];
+              if (!type_) {
+                return (0, _core.Err)("Use of undeclared type " + displayPath + "::" + _name2 + "");
+              };
               break;
             } else {
               var __PUCK__value__6 = __PUCK__value__4;
@@ -108,13 +121,18 @@ function createScope(context, file) {
                 name_ = _name3;
                 path_ = _path;
                 type_ = _entities.Type.getEnum.call(type_).members[_name3];
+                if (!type_) {
+                  return (0, _core.Err)("Use of undeclared type " + displayPath + "::" + _name3 + "");
+                };
+                displayPath = "" + displayPath + "::" + _name3 + "";
               };
             };
           };
-          return {
+          return (0, _core.Ok)({
             name: name_,
-            type_: type_
-          };
+            type_: type_,
+            token: $unwrapTraitObject(_binding).token
+          });
         };
       };
     },
