@@ -193,11 +193,12 @@ function TypeVisitor(context, file) {
           _class: _entities.TypeClass.fromAstNode(t, reportError),
           instance: _core.None
         };
-        $unwrapTraitObject($unwrapTraitObject(self).scope).defineType(t.type_, t, true);
+        var token = { type: '$EnumDeclaration', value: t, $isTraitObject: true };
+        $unwrapTraitObject($unwrapTraitObject(self).scope).defineType(t.type_, token, true);
         return $unwrapTraitObject($unwrapTraitObject(self).scope).define({
           name: t.name.name,
           mutable: false,
-          token: t,
+          token: token,
           type_: t.type_
         });
       } else {
@@ -278,11 +279,12 @@ function TypeVisitor(context, file) {
           _class: _entities.TypeClass.fromAstNode(t, reportError),
           instance: _core.None
         };
-        $unwrapTraitObject($unwrapTraitObject(self).scope).defineType(t.type_, t, true);
+        var token = { type: '$TraitDeclaration', value: t, $isTraitObject: true };
+        $unwrapTraitObject($unwrapTraitObject(self).scope).defineType(t.type_, token, true);
         return t.binding = $unwrapTraitObject($unwrapTraitObject(self).scope).define({
           name: t.name.name,
           mutable: false,
-          token: t,
+          token: token,
           type_: t.type_
         });
       } else {
@@ -400,11 +402,12 @@ function TypeVisitor(context, file) {
           _class: _entities.TypeClass.fromAstNode(t, reportError),
           instance: _core.None
         };
-        $unwrapTraitObject($unwrapTraitObject(self).scope).defineType(t.type_, t, true);
+        var token = { type: '$TypeDeclaration', value: t, $isTraitObject: true };
+        $unwrapTraitObject($unwrapTraitObject(self).scope).defineType(t.type_, token, true);
         return t.binding = $unwrapTraitObject($unwrapTraitObject(self).scope).define({
           name: t.name.name,
           mutable: false,
-          token: t,
+          token: token,
           type_: t.type_
         });
       } else {
@@ -485,10 +488,11 @@ function TypeVisitor(context, file) {
             _$unwrapTraitObject43 = _slicedToArray(_$unwrapTraitObject42.value, 1),
             identifier = _$unwrapTraitObject43[0];
 
+        var token = { type: '$Identifier', value: identifier, $isTraitObject: true };
         return $unwrapTraitObject($unwrapTraitObject(self).scope).define({
           name: identifier.name,
           mutable: false,
-          token: identifier
+          token: token
         });
       } else {
         var __PUCK__value__58 = __PUCK__value__56;
@@ -498,15 +502,19 @@ function TypeVisitor(context, file) {
               d = _$unwrapTraitObject45[0];
 
           return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: d.members, $isTraitObject: true }, function (m) {
+            var token = { type: '$ObjectDestructureMember', value: m, $isTraitObject: true };
             if (importDirective._module) {
               var e = $unwrapTraitObject($unwrapTraitObject(importDirective._module).exports)[m.local.name];
+              if (!e) {
+                return _js._undefined;
+              };
               if (isTypeScope(e)) {
                 var typeBinding = $unwrapTraitObject($unwrapTraitObject(importDirective._module).scope).getTypeBinding(m.property.name);
                 $unwrapTraitObject($unwrapTraitObject(self).scope).setTypeBinding(typeBinding);
                 $unwrapTraitObject($unwrapTraitObject(self).scope).define({
                   name: m.local.name,
                   mutable: false,
-                  token: m,
+                  token: token,
                   type_: $unwrapTraitObject(typeBinding).type_
                 });
                 return $unwrapTraitObject($unwrapTraitObject(self).imports)[m.local.name] = importDirective.file;
@@ -515,7 +523,7 @@ function TypeVisitor(context, file) {
                 return $unwrapTraitObject($unwrapTraitObject(self).scope).define({
                   name: m.local.name,
                   mutable: false,
-                  token: m,
+                  token: token,
                   inherit: binding,
                   importedFrom: importDirective
                 });
@@ -524,7 +532,7 @@ function TypeVisitor(context, file) {
               return $unwrapTraitObject($unwrapTraitObject(self).scope).define({
                 name: m.local.name,
                 mutable: false,
-                token: m
+                token: token
               });
             };
           });

@@ -166,6 +166,7 @@ function ScopeVisitor(context, file) {
           error = _$unwrapTraitObject7$[0];
 
       reportError({ type: '$CallExpression', value: c, $isTraitObject: true }, $unwrapTraitObject(error));
+      return _function;
     };
     var __PUCK__value__21 = functionType._class;
     var __PUCK__value__22 = void 0;

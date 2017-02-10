@@ -1,23 +1,24 @@
 import 'puck:js' as {Error, console, process, typeof}
+import '../ast/span.puck' as {Span, ToSpan}
 import '../entities.puck' as {UnparsedFile}
 
-export fn InputStream(file: UnparsedFile) {
+export fn InputStream(context, file: UnparsedFile) {
   let code =
     if file.puck.substring(0, 13) == '//#![no_core]'
       then file.puck.slice(13)
       else "import 'puck:core' as *\n" + file.puck
   let mut pos = 0
   let mut line = 0
-  let mut col = 1
+  let mut column = 1
 
   fn next() {
     let ch = code.charAt(pos)
     pos = pos + 1
     if (ch == '\n') {
       line = line + 1
-      col = 1
+      column = 1
     } else {
-      col = col + 1
+      column = column + 1
     }
     ch
   }
@@ -30,16 +31,15 @@ export fn InputStream(file: UnparsedFile) {
     peek() == ''
   }
 
-  fn croak(msg) {
-    throw Error(
-      '$msg
-    at ' + file.absolutePath + '  ($line:$col)\n\n')
-    console.error(
-      '$msg
-    at ' + file.absolutePath + '  ($line:$col)\n\n'
-    )
-    process.exit(1)
+  fn croak(message) {
+    let span: Span = {
+      start: {line, column}
+      end: {line, column: column + 1}
+    }
+    let token: ToSpan = span
+    context.reportError(file, token, message)
+    throw 'Syntax Error'
   }
 
-  {next, peek, eof, croak, file, getPosition: || {{line, column: col}}}
+  {next, peek, eof, croak, file, getPosition: || {{line, column: column}}}
 }

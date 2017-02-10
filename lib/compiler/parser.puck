@@ -1,4 +1,4 @@
-import 'puck:js' as {Error, Object, console, global, null, typeof, undefined}
+import 'puck:js' as {Error, Object, global, null, typeof, undefined}
 import '../ast/ast.puck' as {
   Token
   Module
@@ -95,7 +95,6 @@ export fn parse(input) { // : TokenStream
         }
         else 'reached end of file'
 
-      console.error(token)
       input.croak('Expected $name$expectedText, but $but')
     }
     token
@@ -125,7 +124,6 @@ export fn parse(input) { // : TokenStream
 
   fn unexpected() {
     let token = input.peek()
-    console.error('token', token, typeof(token))
     let name = tokenToText[token.kind]
     input.croak('Unexpected token: $name')
   }

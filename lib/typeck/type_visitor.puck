@@ -99,8 +99,9 @@ export fn TypeVisitor(context, file) {
           class: TypeClass.fromAstNode(t, reportError)
           instance: None
         }
-        self.scope.defineType(t.type_, t, true)
-        self.scope.define({name: t.name.name, mutable: false, token: t, type_: t.type_})
+        let token: ToSpan = t
+        self.scope.defineType(t.type_, token, true)
+        self.scope.define({name: t.name.name, mutable: false, token, type_: t.type_})
       }
       else if not t.scope {
         t.scope = self.scope.createChild()
@@ -165,11 +166,12 @@ export fn TypeVisitor(context, file) {
           class: TypeClass.fromAstNode(t, reportError)
           instance: None
         }
-        self.scope.defineType(t.type_, t, true)
+        let token: ToSpan = t
+        self.scope.defineType(t.type_, token, true)
         t.binding = self.scope.define({
           name: t.name.name
           mutable: false
-          token: t
+          token
           type_: t.type_
         })
       }
@@ -232,11 +234,12 @@ export fn TypeVisitor(context, file) {
           class: TypeClass.fromAstNode(t, reportError)
           instance: None
         }
-        self.scope.defineType(t.type_, t, true)
+        let token: ToSpan = t
+        self.scope.defineType(t.type_, token, true)
         t.binding = self.scope.define({
           name: t.name.name
           mutable: false
-          token: t
+          token
           type_: t.type_
         })
       }
@@ -287,16 +290,19 @@ export fn TypeVisitor(context, file) {
       importDirective.scope = self.scope
       match importDirective.specifier {
         ImportSpecifier::Identifier(identifier) => {
-          self.scope.define({name: identifier.name, mutable: false, token: identifier})
+          let token: ToSpan = identifier
+          self.scope.define({name: identifier.name, mutable: false, token})
         }
         ImportSpecifier::ObjectDestructure(d) => {
           d.members.forEach(|m| {
+            let token: ToSpan = m
             if importDirective.module {
               let e = importDirective.module.exports[m.local.name]
+              if not e then return undefined
               if isTypeScope(e) {
                 let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
                 self.scope.setTypeBinding(typeBinding)
-                self.scope.define({name: m.local.name, mutable: false, token: m, type_: typeBinding.type_})
+                self.scope.define({name: m.local.name, mutable: false, token, type_: typeBinding.type_})
                 self.imports[m.local.name] = importDirective.file
               }
               else {
@@ -304,13 +310,13 @@ export fn TypeVisitor(context, file) {
                 self.scope.define({
                   name: m.local.name
                   mutable: false
-                  token: m
+                  token
                   inherit: binding
                   importedFrom: importDirective
                 })
               }
             }
-            else self.scope.define({name: m.local.name, mutable: false, token: m})
+            else self.scope.define({name: m.local.name, mutable: false, token})
           })
         }
         ImportSpecifier::Asterisk(_) => {}

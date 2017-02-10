@@ -21,7 +21,7 @@ fn fileInspect(self, depth, opts) {
 }
 
 export fn parseString(context, file: UnparsedFile) {
-  let mut ast = parse(TokenStream(InputStream(file)))
+  let mut ast = parse(TokenStream(InputStream(context, file)))
   TopLevelVisitor(context, file).visitModule(ast)
   ImportVisitor(context, file).visitModule(ast)
   ast
@@ -53,7 +53,7 @@ fn dumpFiles(files: List<File>, prop: String) {
   })
 }
 
-fn createContext(ignoreErrors = false) {
+export fn createContext(ignoreErrors = false) {
   {
     files: {}
     deferred: {}
@@ -88,6 +88,9 @@ fn createContext(ignoreErrors = false) {
       }
       file.typeVisitorStarted = true
       TypeVisitor(self, file).visitModule(file.ast)
+    }
+    runImplVisitorOnFile: fn (self, mut file) {
+      ImplVisitor(self, file).visitModule(file.ast)
     }
     runCheckerOnFile: fn (self, mut file) {
       if not file.scopeVisitorStarted {

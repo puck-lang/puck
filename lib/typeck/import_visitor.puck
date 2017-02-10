@@ -73,16 +73,16 @@ export fn ImportVisitor(context, file: UnparsedFile) {
         match result {
           Result::Ok(stat) => {
             if not stat.isFile()
-              then reportError(i, 'Imported file $path is not a file')
+              then return reportError(i, 'Imported file $path is not a file')
           }
-          Result::Err(error) => reportError(i, 'Imported file $path not found')
+          Result::Err(error) => return reportError(i, 'Imported file $path not found')
         }
 
         if puckFile.test(path) then importModule(i, importedFile)
       }
       else if i.domain.value[0] == 'puck' {
         if puckModules.indexOf(i.path) == -1
-          then reportError(i, 'Invalid puck module ' + i.path)
+          then return reportError(i, 'Invalid puck module ' + i.path)
         let importedFile = context.resolvePath(
           path.join(
             path.dirname(require.resolve('puck-lang/dist/bin/puck'))

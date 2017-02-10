@@ -9,12 +9,14 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+var _span = require('./../ast/span');
+
 var _entities = require('./../entities');
 
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
-function InputStream(file) {
+function InputStream(context, file) {
   var __PUCK__value__1 = void 0;
   if (file.puck.substring(0, 13) == "//#![no_core]") {
     __PUCK__value__1 = file.puck.slice(13);
@@ -24,15 +26,15 @@ function InputStream(file) {
   var code = __PUCK__value__1;
   var pos = 0;
   var line = 0;
-  var col = 1;
+  var column = 1;
   function next() {
     var ch = $unwrapTraitObject(code).charAt(pos);
     pos = pos + 1;
     if (ch == "\n") {
       line = line + 1;
-      col = 1;
+      column = 1;
     } else {
-      col = col + 1;
+      column = column + 1;
     };
     return ch;
   };
@@ -44,10 +46,20 @@ function InputStream(file) {
   function eof() {
     return peek() == "";
   };
-  function croak(msg) {
-    throw (0, _js.Error)("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
-    $unwrapTraitObject(_js.console).error("" + msg + "\n    at " + file.absolutePath + "  (" + line + ":" + col + ")\n\n");
-    return $unwrapTraitObject(_js.process).exit(1);
+  function croak(message) {
+    var span = {
+      start: {
+        line: line,
+        column: column
+      },
+      end: {
+        line: line,
+        column: column + 1
+      }
+    };
+    var token = { type: '$Span', value: span, $isTraitObject: true };
+    $unwrapTraitObject(context).reportError(file, token, message);
+    throw "Syntax Error";
   };
   return {
     next: next,
@@ -58,7 +70,7 @@ function InputStream(file) {
     getPosition: function getPosition() {
       return {
         line: line,
-        column: col
+        column: column
       };
     }
   };

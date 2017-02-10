@@ -65,13 +65,15 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
 
       f.type_ = createFunctionType(f.scope, f, reportError)
-      if let Option::Some(name) = f.name then
+      if let Option::Some(name) = f.name {
+        let token: ToSpan = f
         f.scope.parent.define({
           name: name.name
-          token: f
+          token
           mutable: false
           type_: f.type_
         })
+      }
 
       self.scope = f.scope.parent
     }
@@ -154,6 +156,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
 
       self.visitTypePath(t.path)
       let type_: Type = t.path.type_
+      if not type_ then return ()
 
       let isSelf =
         if let TypePath::Member({name}) = t.path {

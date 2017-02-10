@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 exports.ImportVisitor = ImportVisitor;
@@ -114,7 +116,7 @@ function ImportVisitor(context, file) {
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
       if (_core.Option.isNone.call(i.domain)) {
-        (function () {
+        var _ret = function () {
           var importedFile = $unwrapTraitObject(context).resolvePath(i.path, file);
           var path = $unwrapTraitObject(importedFile).absolutePath;
           var result = (0, _js.asResult)(function () {
@@ -128,7 +130,9 @@ function ImportVisitor(context, file) {
                 stat = _$unwrapTraitObject5$[0];
 
             if (!stat.isFile()) {
-              reportError({ type: '$ImportDirective', value: i, $isTraitObject: true }, "Imported file " + path + " is not a file");
+              return {
+                v: reportError({ type: '$ImportDirective', value: i, $isTraitObject: true }, "Imported file " + path + " is not a file")
+              };
             };
           } else {
             var __PUCK__value__11 = __PUCK__value__9;
@@ -137,17 +141,21 @@ function ImportVisitor(context, file) {
                   _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
                   error = _$unwrapTraitObject6$[0];
 
-              reportError({ type: '$ImportDirective', value: i, $isTraitObject: true }, "Imported file " + path + " not found");
+              return {
+                v: reportError({ type: '$ImportDirective', value: i, $isTraitObject: true }, "Imported file " + path + " not found")
+              };
             };
           };
           if ($unwrapTraitObject(puckFile).test(path)) {
             importModule(i, importedFile);
           };
-        })();
+        }();
+
+        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
       } else {
         if ($unwrapTraitObject(i.domain.value)[0] == "puck") {
           if (puckModules.indexOf(i.path) == -1) {
-            reportError({ type: '$ImportDirective', value: i, $isTraitObject: true }, "Invalid puck module " + i.path);
+            return reportError({ type: '$ImportDirective', value: i, $isTraitObject: true }, "Invalid puck module " + i.path);
           };
           var importedFile = $unwrapTraitObject(context).resolvePath($unwrapTraitObject(path).join($unwrapTraitObject(path).dirname($unwrapTraitObject(_js.require).resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
           importModule(i, importedFile);

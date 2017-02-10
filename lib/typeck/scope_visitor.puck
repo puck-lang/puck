@@ -123,9 +123,6 @@ export fn ScopeVisitor(context, file) {
         Expression::Identifier(i) => Some(i.name)
         _ => None
       }
-    // let iName: Option<String> = if not name.kind
-    //   then Some(name)
-    //   else name
     let name = namei.unwrapOrElse(|| functionType.displayName())
 
     let function = match functionType.kind {
@@ -140,8 +137,10 @@ export fn ScopeVisitor(context, file) {
       }
     }
 
-    if let Result::Err(error) = checkRange(c.argumentList, function.parameterRange, 'arguments', name)
-      then reportError(c, error)
+    if let Result::Err(error) = checkRange(c.argumentList, function.parameterRange, 'arguments', name) {
+      reportError(c, error)
+      return function
+    }
 
     let function: Function =
       if let Option::Some(class) = functionType.class {
@@ -173,10 +172,6 @@ export fn ScopeVisitor(context, file) {
         })
         let resolvedFunction: Type = resolveTypeParameters(parameterMap)(functionType)
 
-        // match resolvedFunction.kind {
-        //   TypeKind::Function(func) => func
-        //   _ => throw 'resolved function is not a function'
-        // }
         resolvedFunction.getFunction()
       }
       else function

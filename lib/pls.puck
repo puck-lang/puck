@@ -1,0 +1,46 @@
+import 'puck:js' as {Error, asResult, undefined}
+import 'node:path' as path
+import 'node:vscode-languageserver' as {DiagnosticSeverity}
+import 'ast/span.puck' as {ToSpan}
+import 'compiler.puck' as {createContext}
+import 'entities.puck' as {File}
+
+export fn createServer(sendDiagnostic) {
+  let mut context = createContext()
+  context.reportError = fn (file: File, token: ToSpan, message) {
+    let span = token.span()
+    sendDiagnostic(file.absolutePath, {
+      severity: DiagnosticSeverity.Error
+      range: {
+        start: {line: span.start.line - 1, character: span.start.column - 1}
+        end: {line: span.end.line - 1, character: span.end.column - 1}
+      }
+      message
+      source: 'puck'
+    })
+  }
+  context.validateDocument = fn (filePath: String, contents: String) {
+    let result = asResult(|| {
+      let mut file = {
+        isBin: false
+        fileName: path.basename(filePath)
+        absolutePath: path.resolve(path.normalize(filePath))
+        puck: contents
+      }
+      context.files[file.absolutePath] = undefined
+      context.deferred[file.absolutePath] = undefined
+      file = context.importFile(file)
+
+      context.runTypeVisitorOnFile(file)
+      context.runImplVisitorOnFile(file)
+      context.runCheckerOnFile(file)
+    })
+
+    if let Result::Err(error) = result {
+      if error != 'Syntax Error' {
+        print('Error:', error)
+      }
+    }
+  }
+  context
+}

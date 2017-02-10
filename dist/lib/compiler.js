@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.parseString = parseString;
 exports.compile = compile;
+exports.createContext = createContext;
 exports.buildString = buildString;
 exports.build = build;
 
@@ -61,7 +62,7 @@ function fileInspect(depth, opts) {
   return (0, _util.inspect)({ absolutePath: $unwrapTraitObject(self).absolutePath }, $unwrapTraitObject(_js._Object).assign({}, opts, { depth: $unwrapTraitObject(opts).depth - depth }));
 };
 function parseString(context, file) {
-  var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(file)));
+  var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(context, file)));
   $unwrapTraitObject((0, _top_level_visitor.TopLevelVisitor)(context, file)).visitModule(ast);
   $unwrapTraitObject((0, _import_visitor.ImportVisitor)(context, file)).visitModule(ast);
   return ast;
@@ -135,6 +136,10 @@ function createContext() {
       };
       $unwrapTraitObject(file).typeVisitorStarted = true;
       return $unwrapTraitObject((0, _type_visitor.TypeVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
+    },
+    runImplVisitorOnFile: function runImplVisitorOnFile(file) {
+      var self = this;
+      return $unwrapTraitObject((0, _impl_visitor.ImplVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
     },
     runCheckerOnFile: function runCheckerOnFile(file) {
       var self = this;
