@@ -155,29 +155,6 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
   instance
 }
 
-export fn getType(scope: Scope, t: TypeBound) {
-  if not t then return undefined
-  match t {
-    TypeBound::FunctionTypeBound(t) => {
-
-    }
-    TypeBound::NamedTypeBound(t) => {
-      let mut binding = scope.getTypePath(t.path)
-
-      if not binding
-        then binding
-      else if let Option::Some(_) = binding.type_.class {
-        createTypeInstance(binding.type_, t.typeParameters.map(|p| p.type_).toList())
-      }
-      else binding.type_
-    }
-    TypeBound::RecordTypeBound(t) => {
-    }
-    TypeBound::TupleTypeBound(t) => {
-    }
-  }
-}
-
 fn isSameName(to: Type, subject: Type) {
   match (to.name, subject.name) {
     (Option::Some(toName), Option::Some(subjectName)) => toName == subjectName

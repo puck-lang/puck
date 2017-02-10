@@ -24,10 +24,11 @@ import '../ast/ast.puck' as {
   FunctionTypeBound
   NamedTypeBound
   TypeParameter
+  TypePath
 }
 import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
-import '../entities.puck' as {StructKind, Type, TypeClass, TypeKind}
+import '../entities.puck' as {StructKind, Type, TypeBinding, TypeClass, TypeKind}
 import 'src/scope.puck' as {createScope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 
@@ -320,15 +321,25 @@ export fn TypeVisitor(context, file) {
       visit.walkTypeBound(self, t)
     }
     visitNamedTypeBound: |self, mut t: NamedTypeBound| {
-      let binding = self.scope.getTypePath(t.path)
-      if not binding
-        then reportError(t, 'Use of undeclared type ' + t.path.value[0].name)
-      if not binding.token.scope {
-        if not self.imports[t.path.value[0].name] then reportError(t
-          'Scope not set for binding ' + t.path.value[0].name + ' but not found in imports either')
+      let result: Result<TypeBinding, String> = self.scope.getTypePath(t.path)
 
-        context.runTypeVisitorOnFile(self.imports[t.path.value[0].name])
+      match result {
+        Result::Ok(binding) => {
+          if not binding.token.scope {
+            let name =
+              match t.path {
+                TypePath::Member({name}) => name
+                TypePath::Object({name}, _) => name
+              }
+
+            if self.imports[name]
+              then context.runTypeVisitorOnFile(self.imports[name])
+              else reportError(t, 'Scope not set for binding $name but not found in imports either')
+          }
+        }
+        Result::Err(err) => reportError(t, err)
       }
+
       structureVisitorInstance.visitNamedTypeBound.call(self, t)
     }
     visitTypeProperty: visit.walkingVisitor.visitTypeProperty

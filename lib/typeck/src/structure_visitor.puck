@@ -38,7 +38,7 @@ import '../../entities.puck' as {
 import 'enums.puck' as {getEnumMember}
 import 'functions.puck' as {createFunctionType}
 import 'range.puck' as {checkRange}
-import 'types.puck' as {createTypeInstance, getType, isAssignable}
+import 'types.puck' as {createTypeInstance, isAssignable}
 
 export fn notAssignableError(to: Type, subject: Type) {
   subject.displayName() + ' is not assignable to type ' + to.displayName()
@@ -254,11 +254,11 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
   visitTypePath: |self, mut t: TypePath| {
     if not t.type_ {
       t.scope = self.scope
-      let binding = self.scope.getTypePath(t)
-      // let binding = t.scope.getTypeBinding(t.value[0].name)
-      if not binding
-        then reportError(t, 'Use of undeclared type ' + t.value[0].name)
-      t.type_= binding.type_
+      let result: Result<{name: String, type_: Type}, String> = self.scope.getTypePath(t)
+      match result {
+        Result::Ok(binding) => t.type_= binding.type_
+        Result::Err(err) => reportError(t, err)
+      }
     }
   }
   visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, type_, allowNotExhaustive = false| {
