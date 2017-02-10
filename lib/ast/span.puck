@@ -12,3 +12,7 @@ export type Span {
 export trait ToSpan {
   fn span(self) -> Span
 }
+
+impl ToSpan for Span {
+  fn span(self) -> Span {self}
+}

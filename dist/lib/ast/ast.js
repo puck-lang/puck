@@ -1256,7 +1256,7 @@ _span3.ToSpan['$TypeBound'] = {
           _$unwrapTraitObject73 = _slicedToArray(_$unwrapTraitObject72.value, 1),
           t = _$unwrapTraitObject73[0];
 
-      return t.span();
+      return _span3.ToSpan['$FunctionTypeBound'].span.call({ type: '$FunctionTypeBound', value: t, $isTraitObject: true });
     } else {
       var __PUCK__value__50 = __PUCK__value__48;
       if ($unwrapTraitObject(__PUCK__value__50).kind == "NamedTypeBound") {
@@ -1284,6 +1284,19 @@ _span3.ToSpan['$TypeBound'] = {
           };
         };
       };
+    };
+  }
+};
+_span3.ToSpan['$FunctionTypeBound'] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _core.Option.mapOrElse.call(_core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: self.value.typeParameters, $isTraitObject: true }), function () {
+        return _span3.ToSpan['$TupleTypeBound'].span.call({ type: '$TupleTypeBound', value: self.value.parameters, $isTraitObject: true });
+      }, function (p) {
+        return _span3.ToSpan['$TypeParameter'].span.call({ type: '$TypeParameter', value: p, $isTraitObject: true });
+      }).start,
+      end: _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: self.value.returnType, $isTraitObject: true }).end
     };
   }
 };

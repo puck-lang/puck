@@ -111,9 +111,10 @@ function structureVisitor(reportError) {
                 _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
                 name = _$unwrapTraitObject3$[0];
 
+            var token = { type: '$FunctionDeclaration', value: f, $isTraitObject: true };
             $unwrapTraitObject($unwrapTraitObject(f.scope).parent).define({
               name: name.name,
-              token: f,
+              token: token,
               mutable: false,
               type_: f.type_
             });
@@ -228,6 +229,9 @@ function structureVisitor(reportError) {
         t.scope = $unwrapTraitObject(self).scope;
         $unwrapTraitObject(self).visitTypePath(t.path);
         var type_ = t.path.type_;
+        if (!type_) {
+          return [];
+        };
         var __PUCK__value__13 = t.path;
         var __PUCK__value__14 = void 0;
         if ($unwrapTraitObject(__PUCK__value__13).kind == "Member") {

@@ -756,6 +756,13 @@ export type FunctionTypeBound {
   returnType: TypeBound
 }
 
+impl ToSpan for FunctionTypeBound {
+  fn span(self) -> Span {{
+    start: self.typeParameters.first().mapOrElse(|| self.parameters.span(), |p| p.span()).start
+    end: self.returnType.span().end
+  }}
+}
+
 export type NamedTypeBound {
   path: TypePath
   typeParameters: List<TypeBound>

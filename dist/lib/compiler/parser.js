@@ -51,7 +51,6 @@ function parse(input) {
         __PUCK__value__1 = "reached end of file";
       };
       var but = __PUCK__value__1;
-      $unwrapTraitObject(_js.console).error(token);
       $unwrapTraitObject(input).croak("Expected " + name + "" + expectedText + ", but " + but + "");
     };
     return token;
@@ -83,7 +82,6 @@ function parse(input) {
   };
   function unexpected() {
     var token = $unwrapTraitObject(input).peek();
-    $unwrapTraitObject(_js.console).error("token", token, (0, _js._typeof)(token));
     var name = $unwrapTraitObject(_ast2.tokenToText)[$unwrapTraitObject($unwrapTraitObject(token).kind)];
     return $unwrapTraitObject(input).croak("Unexpected token: " + name + "");
   };
