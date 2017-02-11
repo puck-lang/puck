@@ -3,7 +3,7 @@ import 'node:path' as path
 import 'node:vscode-languageserver' as {DiagnosticSeverity}
 import 'ast/span.puck' as {ToSpan}
 import 'compiler.puck' as {createContext}
-import 'entities.puck' as {File}
+import 'entities.puck' as {File, UnparsedFile}
 
 export fn createServer(sendDiagnostic) {
   let mut context = createContext()
@@ -21,7 +21,7 @@ export fn createServer(sendDiagnostic) {
   }
   context.validateDocument = fn (filePath: String, contents: String) {
     let result = asResult(|| {
-      let mut file = {
+      let mut file: UnparsedFile = {
         isBin: false
         fileName: path.basename(filePath)
         absolutePath: path.resolve(path.normalize(filePath))
@@ -32,8 +32,11 @@ export fn createServer(sendDiagnostic) {
       file = context.importFile(file)
 
       context.runTypeVisitorOnFile(file)
+      context.runTypeVisitor()
       context.runImplVisitorOnFile(file)
+      context.runImplVisitor()
       context.runCheckerOnFile(file)
+      context.runChecker()
     })
 
     if let Result::Err(error) = result {
