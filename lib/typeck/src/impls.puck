@@ -28,21 +28,19 @@ import 'types.puck' as {isAssignable}
 fn asType(a) -> Type {a}
 
 export fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
-  let implementations =  match type_.kind {
+  let implementations = match type_.kind {
     TypeKind::Enum(enum_) => enum_.implementations
     TypeKind::Struct(struct) => struct.implementations
-    TypeKind::Parameter => []
-    _ => throw 'Not an enum or a struct'
+    _ => []
   }
 
   if implementations.length > 1
     then if let Option::Some(objectInstance) = type_.instance
       then implementations
-        .filter(|i: Implementation| {
-          let objectInstance_: TypeInstance = objectInstance
+        .filter(|i| {
           let implementationInstance = i.type_.instance.unwrap()
 
-          List.zip(objectInstance_.typeParameters, implementationInstance.typeParameters)
+          List.zip(objectInstance.typeParameters, implementationInstance.typeParameters)
             .all(|(objectP, implP)| isAssignable(implP, objectP))
         })
         .toList()

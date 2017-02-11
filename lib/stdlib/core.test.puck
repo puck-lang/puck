@@ -1,4 +1,5 @@
 import 'puck:test' as *
+import 'core.puck' as {Option, Result, String}
 
 fn any(a) {a}
 

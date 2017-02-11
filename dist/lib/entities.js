@@ -139,6 +139,15 @@ Type.empty = function empty() {
     instance: _core.None
   };
 };
+Type.unused = function unused() {
+  return {
+    displayName: (0, _core.Some)("_"),
+    name: _core.None,
+    kind: TypeKind.Parameter({ defaultValue: _core.None }),
+    _class: _core.None,
+    instance: _core.None
+  };
+};
 Type.displayName = function displayName() {
   var self = this;
   if (!self) {
@@ -425,14 +434,14 @@ Type.isParameter = function isParameter() {
   };
 };
 TypeClass.fromAstNode = function fromAstNode(astNode, reportError) {
-  if ($unwrapTraitObject(astNode).typeParameters && $unwrapTraitObject($unwrapTraitObject(astNode).typeParameters).length) {
-    var parameterRange = (0, _range.getRange)($unwrapTraitObject(astNode).typeParameters, function (p) {
+  if (astNode.typeParameters && astNode.typeParameters.length) {
+    var parameterRange = (0, _range.getRange)(astNode.typeParameters, function (p) {
       return _core.Option.isSome.call(p.defaultValue);
     }, reportError, "type parameter");
     return (0, _core.Some)({
       parameterRange: parameterRange,
       typeParameters: [],
-      typeParameterBindings: $unwrapTraitObject(astNode).typeParameters,
+      typeParameterBindings: astNode.typeParameters,
       instances: []
     });
   } else {

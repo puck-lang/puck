@@ -10,10 +10,10 @@ let (a, b, c) = (1, 2)
 ///// (Num, Num) is not assignable to type (Num, Bool)
 let (a, b): (Num, Bool) = (1, 2)
 
-///// (Bool, Bool) is not assignable to type (??)
+///// (Bool, Bool) is not assignable to type (Bool)
 let (a): (Bool, Bool) = (1, 2)
 
-///// (Bool, Bool) is not assignable to type (??, ??, ??)
+///// (Bool, Bool) is not assignable to type (Bool, Bool, ??)
 let (a, b, c): (Bool, Bool) = (1, 2)
 
 ///// (Num, Num) is not assignable to type (Num)
@@ -34,15 +34,15 @@ let Tuple(a, b) = (1, true)
 type Tuple(Num, Num)
 let Tuple(a, b) = (1, 2, 3)
 
-///// (??) is not assignable to type Tuple
+///// (Num) is not assignable to type Tuple
 type Tuple(Num, Num)
 let Tuple(a) = ((1))
 
-///// (??, ??, ??) is not assignable to type Tuple
+///// (Num, Num, ??) is not assignable to type Tuple
 type Tuple(Num, Num)
 let Tuple(a, b, c) = (1, 2, 3)
 
-///// (??, ??, ??) is not assignable to type Tuple
+///// (Num, Num, ??) is not assignable to type Tuple
 type Tuple(Num, Num)
 let Tuple(a, b, c) = (1, 2)
 

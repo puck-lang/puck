@@ -135,7 +135,7 @@ export fn ImplVisitor(context, file) {
     visitModule: |mut self, mut m: Module| {
       self.scope = m.scope
       m.statements
-        .filter(|e: TopLevelStatement| match e {
+        .filter(|e| match e {
           TopLevelStatement::ImplDeclaration(_) => true
           TopLevelStatement::ImplShorthandDeclaration(_) => true
           _ => false

@@ -140,7 +140,8 @@ function ScopeVisitor(context, file) {
       var __PUCK__value__17 = void 0;
       if (true) {
         var __PUCK__value__18 = __PUCK__value__16;
-        __PUCK__value__17 = reportError({ type: '$CallExpression', value: c, $isTraitObject: true }, "" + name + " is not callable");
+        reportError({ type: '$CallExpression', value: c, $isTraitObject: true }, "" + name + " is not callable");
+        return _js._undefined;
       };
       __PUCK__value__15 = __PUCK__value__17;
     };
@@ -151,7 +152,7 @@ function ScopeVisitor(context, file) {
           _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
           selfBinding = _$unwrapTraitObject6$[0];
 
-      if ($unwrapTraitObject(selfBinding).mutable) {
+      if (selfBinding.mutable) {
         if (!_core.Option.mapOr.call(getBinding(c.func), true, function (binding) {
           return binding.mutable;
         })) {
@@ -165,7 +166,7 @@ function ScopeVisitor(context, file) {
           _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
           error = _$unwrapTraitObject7$[0];
 
-      reportError({ type: '$CallExpression', value: c, $isTraitObject: true }, $unwrapTraitObject(error));
+      reportError({ type: '$CallExpression', value: c, $isTraitObject: true }, error);
       return _function;
     };
     var __PUCK__value__21 = functionType._class;
@@ -413,7 +414,7 @@ function ScopeVisitor(context, file) {
       var isHoisting = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
       var self = this;
-      $unwrapTraitObject($unwrapTraitObject(structureVisitorInstance).visitFunctionDeclaration).call(self, f);
+      structureVisitorInstance.visitFunctionDeclaration.call(self, f);
       if (!isHoisting) {
         var selfScope = $unwrapTraitObject(self).scope;
         $unwrapTraitObject(self).scope = f.scope;
@@ -461,7 +462,7 @@ function ScopeVisitor(context, file) {
           return $unwrapTraitObject(self).assignedTo = parentAssignedTo;
         };
       };
-      return $unwrapTraitObject($unwrapTraitObject(structureVisitorInstance).visitVariableDeclaration).call(self, d, __PUCK__value__47, type_, allowNotExhaustive);
+      return structureVisitorInstance.visitVariableDeclaration.call(self, d, __PUCK__value__47, type_, allowNotExhaustive);
     },
     visitAssignmentExpression: function visitAssignmentExpression(e) {
       var self = this;
@@ -586,7 +587,9 @@ function ScopeVisitor(context, file) {
       if (functionType) {
         e.functionType = functionType;
         var _function2 = checkFunctionCall(functionType, e);
-        return e.type_ = _function2.returnType;
+        if (_function2) {
+          return e.type_ = _function2.returnType;
+        };
       };
     },
     visitIfExpression: function visitIfExpression(e) {
@@ -759,7 +762,7 @@ function ScopeVisitor(context, file) {
             _$unwrapTraitObject62 = _slicedToArray(_$unwrapTraitObject61.value, 1),
             error = _$unwrapTraitObject62[0];
 
-        reportError({ type: '$MatchExpression', value: e, $isTraitObject: true }, $unwrapTraitObject(error));
+        reportError({ type: '$MatchExpression', value: e, $isTraitObject: true }, error);
       };
       if (isUsed) {
         var __PUCK__value__80 = void 0;

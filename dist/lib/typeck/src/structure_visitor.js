@@ -282,7 +282,7 @@ function structureVisitor(reportError) {
                   _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
                   error = _$unwrapTraitObject11[0];
 
-              reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, $unwrapTraitObject(error));
+              reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, error);
             };
           } else {
             if (t.typeParameters.length > 0) {
@@ -353,7 +353,7 @@ function structureVisitor(reportError) {
           kind: _entities.TypeKind.Parameter({ defaultValue: _core.Option.map.call(t.defaultValue, function (typeBound) {
               return _ast.TypeBound.getType.call(typeBound);
             }) }),
-          _class: _entities.TypeClass.fromAstNode(t, reportError),
+          _class: _core.None,
           instance: _core.None
         };
         return $unwrapTraitObject($unwrapTraitObject(self).scope).defineType(t.type_, t);
@@ -467,7 +467,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
   var __PUCK__value__32 = __PUCK__value__31;
   if ($unwrapTraitObject(__PUCK__value__32).kind == "CatchAll") {
     var _undefined2 = $unwrapTraitObject(__PUCK__value__32);
-    return (0, _core.Ok)(false);
+    return (0, _core.Ok)(_entities.Type.unused());
   } else {
     var __PUCK__value__33 = __PUCK__value__31;
     if ($unwrapTraitObject(__PUCK__value__33).kind == "Identifier") {
@@ -481,7 +481,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
         token: { type: '$Pattern', value: p, $isTraitObject: true },
         type_: type_
       }, true);
-      return (0, _core.Ok)(false);
+      return (0, _core.Ok)(type_);
     } else {
       var __PUCK__value__34 = __PUCK__value__31;
       if ($unwrapTraitObject(__PUCK__value__34).kind == "Record") {

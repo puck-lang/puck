@@ -1,5 +1,6 @@
 import 'puck:js' as {RegExp, global, null, undefined}
 import '../ast/ast.puck' as {
+  Token
   Comment
   NumberLiteral
   StringLiteral
@@ -17,7 +18,7 @@ export fn TokenStream(input) {
     if curr.length > longest then curr.length else longest
   }, 0)
 
-  fn tryParseOperator() -> Option<Span> {
+  fn tryParseOperator() -> Option<Token> {
     let mut length = 0
     let mut searchString = ''
     let mut found

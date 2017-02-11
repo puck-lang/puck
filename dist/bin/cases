@@ -40,9 +40,9 @@ if (command == _js._undefined) {
     var buildString = $unwrapTraitObject((0, _js.require)("puck-lang/.tmp/old/lib/compiler")).buildString;
     _core.Iterable[failCases.type].forEach.call(failCases, function (file) {
       return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(fs).readFileSync(file, { encoding: "utf-8" })).split("/////")).forEach(function (test, i) {
-        var firstNewline = $unwrapTraitObject(test).indexOf("\n");
-        var error = $unwrapTraitObject(test).substr(0, firstNewline);
-        var code = $unwrapTraitObject(test).substr(firstNewline);
+        var firstNewline = test.indexOf("\n");
+        var error = test.substr(0, firstNewline);
+        var code = test.substr(firstNewline);
         if (!error && !code) {
           return false;
         };

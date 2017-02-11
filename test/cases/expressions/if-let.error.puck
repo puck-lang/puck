@@ -13,7 +13,7 @@ if let Option::Some(_) = ((4)) {
 
 }
 
-///// (??, ??) is not assignable to type (T)
+///// (_, _) is not assignable to type (T)
 if let Option::Some(_, _) = Option::Some(3) {
 
 }

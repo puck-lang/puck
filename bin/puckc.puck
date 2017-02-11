@@ -28,10 +28,12 @@ if arguments.length == 0 {
 ')
   process.exit(1)
 } else {
-  let files = arguments.map(|file| {{
-    isBin: isBinary
-    file
-    outFile: outFile or join(outDir, file.replace(RegExp('\\.puck$'), extension))
-  }})
+  let files = arguments
+    .map(|file| {{
+      isBin: isBinary
+      file
+      outFile: outFile or join(outDir, file.replace(RegExp('\\.puck$'), extension))
+    }})
+    .toList()
   build(files, {dump, ignoreErrors})
 }

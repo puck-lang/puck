@@ -141,7 +141,7 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
 
     let errors = enumPatterns
       .map(|(type_, enum_, subPatterns): (Type, Enum, List<Pattern>)| checkExhaustiveEnum(subPatterns, type_, enum_, scope))
-      .filter(|result: Result<(), String>| result.isErr())
+      .filter(|result| result.isErr())
       .toList()
 
     innerErrors = innerErrors.concat(errors)

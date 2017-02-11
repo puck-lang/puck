@@ -79,7 +79,7 @@ function babelTransform(file) {
 };
 function dumpFiles(files, prop) {
   return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: files, $isTraitObject: true }, function (file) {
-    (0, _core.print)();
+    (0, _core.print)("");
     (0, _core.print)(file.absolutePath);
     var data = file[prop];
     if ((0, _js._typeof)(data) != "string") {
@@ -115,7 +115,10 @@ function createContext() {
       return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_js._Object).keys($unwrapTraitObject(self).files)).map(function (path) {
         return $unwrapTraitObject($unwrapTraitObject(self).files)[$unwrapTraitObject(path)];
       })).forEach(function (file) {
-        return $unwrapTraitObject((0, _impl_visitor.ImplVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
+        if (!$unwrapTraitObject(file).implVisitorStarted) {
+          $unwrapTraitObject(file).implVisitorStarted = true;
+          return $unwrapTraitObject((0, _impl_visitor.ImplVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
+        };
       });
     },
     runChecker: function runChecker() {
@@ -139,10 +142,20 @@ function createContext() {
     },
     runImplVisitorOnFile: function runImplVisitorOnFile(file) {
       var self = this;
+      if (!$unwrapTraitObject(file).typeVisitorStarted) {
+        $unwrapTraitObject(self).runTypeVisitorOnFile(file);
+      };
+      if ($unwrapTraitObject(file).implVisitorStarted) {
+        throw (0, _js.Error)("runImplVisitorOnFile??");
+      };
+      $unwrapTraitObject(file).implVisitorStarted = true;
       return $unwrapTraitObject((0, _impl_visitor.ImplVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
     },
     runCheckerOnFile: function runCheckerOnFile(file) {
       var self = this;
+      if (!$unwrapTraitObject(file).implVisitorStarted) {
+        $unwrapTraitObject(self).runImplVisitorOnFile(file);
+      };
       if (!$unwrapTraitObject(file).scopeVisitorStarted) {
         $unwrapTraitObject(file).scopeVisitorStarted = true;
         return $unwrapTraitObject((0, _scope_visitor.ScopeVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);

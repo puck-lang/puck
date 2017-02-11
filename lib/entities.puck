@@ -44,11 +44,11 @@ fn getRecordTypeName(properties: ObjectMap<Type>) {
 fn getGenericName(name: String, type_: Type, showClassParameters = false) {
   let parameters =
     if let Option::Some(instance) = type_.instance {
-      '<' + instance.typeParameters.map(|p: Type| p.displayName()).join(', ') + '>'
+      '<' + instance.typeParameters.map(|p| p.displayName()).join(', ') + '>'
     }
     else if showClassParameters
       then if let Option::Some(class) = type_.class {
-        '<' + class.typeParameters.map(|p: Type| p.displayName()).join(', ') + '>'
+        '<' + class.typeParameters.map(|p| p.displayName()).join(', ') + '>'
       }
       else ''
     else ''
@@ -73,6 +73,16 @@ impl Type {
     kind: TypeKind::Struct({
       implementations: []
       kind: StructKind::Tuple({properties: []})
+    })
+    class: None
+    instance: None
+  }}
+
+  fn unused() -> Type {{
+    displayName: Some('_')
+    name: None
+    kind: TypeKind::Parameter({
+      defaultValue: None
     })
     class: None
     instance: None
@@ -229,7 +239,7 @@ export type TypeClass {
   instances: List<Type>
 }
 impl TypeClass {
-  fn fromAstNode(astNode, reportError: (ToSpan, String) -> {}) -> Option<TypeClass> { // : {typeParameters: List<TypeParameter>}
+  fn fromAstNode(astNode: {typeParameters: List<TypeParameter>}, reportError: (ToSpan, String) -> {}) -> Option<TypeClass> {
     if astNode.typeParameters and astNode.typeParameters.length {
       let parameterRange = getRange(
         astNode.typeParameters

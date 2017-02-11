@@ -637,7 +637,7 @@ _span3.ToSpan['$Expression'] = {
           _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
           e = _$unwrapTraitObject6$[0];
 
-      throw "No span for ThrowStatement";
+      return _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: e.expression, $isTraitObject: true });
     } else {
       var __PUCK__value__9 = __PUCK__value__7;
       if ($unwrapTraitObject(__PUCK__value__9).kind == "Comment") {
@@ -669,7 +669,7 @@ _span3.ToSpan['$Expression'] = {
                   _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
                   _e7 = _$unwrapTraitObject11[0];
 
-              throw "No span for VariableDeclaration";
+              return _span3.ToSpan['$VariableDeclaration'].span.call({ type: '$VariableDeclaration', value: _e7, $isTraitObject: true });
             } else {
               var __PUCK__value__14 = __PUCK__value__7;
               if ($unwrapTraitObject(__PUCK__value__14).kind == "AssignmentExpression") {
@@ -685,7 +685,7 @@ _span3.ToSpan['$Expression'] = {
                       _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14.value, 1),
                       _e9 = _$unwrapTraitObject15[0];
 
-                  throw "No span for BinaryExpression";
+                  return _e9.span();
                 } else {
                   var __PUCK__value__16 = __PUCK__value__7;
                   if ($unwrapTraitObject(__PUCK__value__16).kind == "CallExpression") {
@@ -733,7 +733,7 @@ _span3.ToSpan['$Expression'] = {
                                   _$unwrapTraitObject27 = _slicedToArray(_$unwrapTraitObject26.value, 1),
                                   _e15 = _$unwrapTraitObject27[0];
 
-                              throw "No span for UnaryExpression";
+                              return _e15.span();
                             } else {
                               var __PUCK__value__22 = __PUCK__value__7;
                               if ($unwrapTraitObject(__PUCK__value__22).kind == "IndexAccess") {
@@ -963,7 +963,15 @@ _span3.ToSpan['$FunctionDeclaration'] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$Identifier'].span.call({ type: '$Identifier', value: _core.Option.unwrap.call(self.value.name), $isTraitObject: true }).start,
+      start: _core.Option.mapOrElse.call(self.value.name, function () {
+        return _core.Option.mapOrElse.call(_core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: self.value.typeParameters, $isTraitObject: true }), function () {
+          return self.value.openParenOrBar.span;
+        }, function (p) {
+          return _span3.ToSpan['$TypeParameter'].span.call({ type: '$TypeParameter', value: p, $isTraitObject: true });
+        });
+      }, function (i) {
+        return i.span;
+      }).start,
       end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: _core.Option.unwrap.call(self.value.body), $isTraitObject: true }).end
     };
   }
