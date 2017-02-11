@@ -20,8 +20,17 @@ export fn createScope(context, file, parent = false) -> Scope {
     getLocalBinding: |name| bindings[name]
     getBinding: |name| {
       let mut binding = bindings[name] or (parent and parent.getBinding(name))
-      if binding.inherit {
-        binding.type_ = binding.inherit.type_
+      if binding.importedFrom and not binding.inherit {
+        context.runCheckerOnFile(binding.importedFrom.file)
+        let externalBinding = binding.importedFrom.module.scope.getBinding(
+          binding.token.property.name
+        )
+        binding.inherit = externalBinding
+        binding.type_ = externalBinding.type_
+
+      }
+      else if binding.inherit {
+        binding.type_ = binding.inherit.token.type_
         if not binding.type_ {
           context.runCheckerOnFile(binding.importedFrom.file)
           let externalBinding = binding.importedFrom.module.scope.getBinding(

@@ -604,7 +604,7 @@ function TypeVisitor(context, file) {
           reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, err);
         };
       };
-      return $unwrapTraitObject($unwrapTraitObject(structureVisitorInstance).visitNamedTypeBound).call(self, t);
+      return structureVisitorInstance.visitNamedTypeBound.call(self, t);
     },
     visitTypeProperty: $unwrapTraitObject($unwrapTraitObject(visit).walkingVisitor).visitTypeProperty
   });

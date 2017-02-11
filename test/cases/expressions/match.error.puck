@@ -9,7 +9,7 @@ match Option::Some(5) {
   Option::Some(num) => '$num'
 }
 
-///// (??, ??) is not assignable to type (T)
+///// (Num, ??) is not assignable to type (T)
 match Result::Ok(5) {
   Result::Ok(num, value) => '$num'
   Result::Err(_) => 'error'

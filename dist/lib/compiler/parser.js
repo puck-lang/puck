@@ -781,7 +781,9 @@ function parse(input) {
       __PUCK__value__46 = [];
     };
     var typeParameters = __PUCK__value__46;
-    var parameterList = delimited("(", ")", ",", parseVariableDeclaration, true);
+    var openParenOrBar = $unwrapTraitObject(input).peek();
+    var parameterList = delimited("(", ")", ",", parseVariableDeclaration, false);
+    var closeParenOrBar = consumeToken($unwrapTraitObject(_ast2.SyntaxKind).CloseParenToken);
     var __PUCK__value__47 = void 0;
     if (_core.Option.isSome.call(maybeConsumeToken($unwrapTraitObject(_ast2.SyntaxKind).MinusGreaterThanToken))) {
       __PUCK__value__47 = (0, _core.Some)(parseTypeBound());
@@ -799,14 +801,18 @@ function parse(input) {
     return {
       name: name,
       typeParameters: typeParameters,
+      openParenOrBar: openParenOrBar,
       parameterList: parameterList,
+      closeParenOrBar: closeParenOrBar,
       returnType: returnType,
       body: body,
       type_: _js._undefined
     };
   };
   function parseLambda() {
-    var parameterList = delimited("|", "|", ",", parseVariableDeclaration, true);
+    var openParenOrBar = $unwrapTraitObject(input).peek();
+    var parameterList = delimited("|", "|", ",", parseVariableDeclaration, false);
+    var closeParenOrBar = consumeToken($unwrapTraitObject(_ast2.SyntaxKind).BarToken);
     var __PUCK__value__49 = void 0;
     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).OpenBraceToken)) {
       __PUCK__value__49 = (0, _core.Some)(parseBlock());
@@ -822,7 +828,9 @@ function parse(input) {
     return {
       name: _core.None,
       typeParameters: [],
+      openParenOrBar: openParenOrBar,
       parameterList: parameterList,
+      closeParenOrBar: closeParenOrBar,
       returnType: _core.None,
       body: body,
       type_: _js._undefined

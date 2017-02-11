@@ -142,21 +142,21 @@ impl Expression {
 impl ToSpan for Expression {
   fn span(self) -> Span {
     match self {
-      Expression::ThrowStatement(e) => throw 'No span for ThrowStatement'
+      Expression::ThrowStatement(e) => e.expression.span()
       Expression::Comment(_) => throw 'No span for Comment'
 
       Expression::Identifier(e) => e.span()
       Expression::FunctionDeclaration(e) => e.span()
-      Expression::VariableDeclaration(e) => throw 'No span for VariableDeclaration'
+      Expression::VariableDeclaration(e) => e.span()
 
       Expression::AssignmentExpression(e) => e.span()
-      Expression::BinaryExpression(e) => throw 'No span for BinaryExpression'
+      Expression::BinaryExpression(e) => e.span()
       Expression::CallExpression(e) => e.span()
       Expression::IfExpression(e) => e.span()
       Expression::IfLetExpression(e) => e.span()
       Expression::MatchExpression(e) => e.span()
       Expression::TypePathExpression(e) => e.span()
-      Expression::UnaryExpression(e) => throw 'No span for UnaryExpression'
+      Expression::UnaryExpression(e) => e.span()
 
       Expression::IndexAccess(e) => e.span()
       Expression::MemberAccess(e) => e.span()
@@ -383,7 +383,9 @@ impl ToSpan for Identifier {
 export type FunctionDeclaration {
   name: Option<Identifier>
   typeParameters: List<TypeParameter>
+  openParenOrBar: Token
   parameterList: List<VariableDeclaration>
+  closeParenOrBar: Token
   returnType: Option<TypeBound>
   body: Option<Block>
 
@@ -392,7 +394,15 @@ export type FunctionDeclaration {
 
 impl ToSpan for FunctionDeclaration {
   fn span(self) -> Span {{
-    start: self.name.unwrap().span().start
+    start: self.name.mapOrElse(
+      || {
+        self.typeParameters.first().mapOrElse(
+          || self.openParenOrBar.span
+          |p| p.span()
+        )
+      }
+      |i| i.span
+    ).start
     end: self.body.unwrap().span().end
   }}
 }

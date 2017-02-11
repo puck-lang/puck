@@ -45,13 +45,14 @@ if (_arguments.value.length == 0) {
   (0, _core.print)("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] ...files\n");
   $unwrapTraitObject(_js2.process).exit(1);
 } else {
-  var files = _core.Iterable[_arguments.type].map.call(_arguments, function (file) {
+  var __PUCK__value__3 = _core.Iterable[_arguments.type].map.call(_arguments, function (file) {
     return {
       isBin: isBinary,
       file: file,
       outFile: outFile || (0, _path.join)(outDir, file.replace((0, _js2.RegExp)("\\.puck$"), extension))
     };
   });
+  var files = _core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3);
   (0, _compiler.build)(files, {
     dump: dump,
     ignoreErrors: ignoreErrors

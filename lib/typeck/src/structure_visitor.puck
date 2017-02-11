@@ -112,9 +112,6 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
       self.scope = f.scope.parent
     }
   }
-  // visitFunctionParameter: |self, mut v: VariableDeclaration, type_| {
-  //   self.visitVariableDeclaration(v, self.visitLiteral.bind(self), type_)
-  // }
   visitTypeBound: |self, mut t: TypeBound| {
     visit.walkTypeBound(self, t)
   }
@@ -155,7 +152,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
       t.scope = self.scope
 
       self.visitTypePath(t.path)
-      let type_: Type = t.path.type_
+      let mut type_: Type = t.path.type_
       if not type_ then return ()
 
       let isSelf =
@@ -248,7 +245,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
         kind: TypeKind::Parameter({
           defaultValue: t.defaultValue.map(|typeBound| typeBound.getType())
         })
-        class: TypeClass.fromAstNode(t, reportError)
+        class: None
         instance: None
       }
       self.scope.defineType(t.type_, t)
@@ -315,7 +312,7 @@ export enum PatternError {
 export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool) ->
     Result<Type, PatternError> {
   match p {
-    Pattern::CatchAll => Ok(false)
+    Pattern::CatchAll => Ok(Type.unused())
     Pattern::Identifier(identifier) => {
       p.binding = scope.define({
         name: identifier.name
@@ -323,7 +320,7 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
         token: p
         type_
       }, true)
-      Ok(false)
+      Ok(type_)
     }
     Pattern::Record(record) => {
       let props =
@@ -399,8 +396,6 @@ export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable
             newProps
           }))
         }, Ok(ObjectMap.new()))
-
-      // properties.map(|_| typePath.type_)
 
       properties.andThen(|properties| {
         let type_ = {

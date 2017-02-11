@@ -667,7 +667,9 @@ export fn parse(input) { // : TokenStream
       if isToken(SyntaxKind.LessThanToken)
         then delimited('<', '>', ',', parseTypeParameter, true)
         else []
-    let parameterList = delimited('(', ')', ',', parseVariableDeclaration, true)
+    let openParenOrBar = input.peek()
+    let parameterList = delimited('(', ')', ',', parseVariableDeclaration, false)
+    let closeParenOrBar = consumeToken(SyntaxKind.CloseParenToken)
 
     let returnType =
       if maybeConsumeToken(SyntaxKind.MinusGreaterThanToken).isSome()
@@ -682,7 +684,9 @@ export fn parse(input) { // : TokenStream
     {
       name
       typeParameters
+      openParenOrBar
       parameterList
+      closeParenOrBar
       returnType
       body
       type_: undefined
@@ -690,7 +694,9 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseLambda() -> FunctionDeclaration {
-    let parameterList = delimited('|', '|', ',', parseVariableDeclaration, true)
+    let openParenOrBar = input.peek()
+    let parameterList = delimited('|', '|', ',', parseVariableDeclaration, false)
+    let closeParenOrBar = consumeToken(SyntaxKind.BarToken)
 
     let body =
       if isToken(SyntaxKind.OpenBraceToken)
@@ -705,7 +711,9 @@ export fn parse(input) { // : TokenStream
     {
       name: None
       typeParameters: []
+      openParenOrBar
       parameterList
+      closeParenOrBar
       returnType: None
       body
       type_: undefined

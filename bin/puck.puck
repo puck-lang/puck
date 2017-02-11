@@ -27,12 +27,14 @@ if command == 'build' {
       file
       outFile: normalizeBinName(file)
     }})
+    .toList()
   let libFiles = walkSync('lib')
     .filter(|f| puckPattern.test(f))
     .map(|file| {{
       file
       outFile: path.join('dist', file.replace(RegExp('\\.puck$'), '.js'))
     }})
+    .toList()
 
   build(binFiles)
   build(libFiles)

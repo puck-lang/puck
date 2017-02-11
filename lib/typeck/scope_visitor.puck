@@ -116,7 +116,7 @@ export fn ScopeVisitor(context, file) {
     }
   }
 
-  fn checkFunctionCall(functionType: Type, c: CallExpression) {
+  fn checkFunctionCall(mut functionType: Type, c: CallExpression) {
     if not functionType then return undefined
     let namei: Option<String> =
       match c.func {
@@ -127,7 +127,10 @@ export fn ScopeVisitor(context, file) {
 
     let function = match functionType.kind {
       TypeKind::Function(func) => func
-      _ => reportError(c, '$name is not callable')
+      _ => {
+        reportError(c, '$name is not callable')
+        return undefined
+      }
     }
 
     if let Option::Some(selfBinding) = function.selfBinding {
@@ -235,7 +238,6 @@ export fn ScopeVisitor(context, file) {
         self.isUsed = false
         self.visitTopLevelStatement(s)
       })
-      // visit.walkModule(self, m)
     }
     visitExpression: |mut self, e: Expression| {
       self.isUsed = true
@@ -443,7 +445,9 @@ export fn ScopeVisitor(context, file) {
       if functionType {
         e.functionType = functionType
         let function = checkFunctionCall(functionType, e)
-        e.type_ = function.returnType
+        if function {
+          e.type_ = function.returnType
+        }
       }
     }
     visitIfExpression: |mut self, mut e: IfExpression| {
@@ -483,7 +487,7 @@ export fn ScopeVisitor(context, file) {
       let isUsed = self.isUsed
       self.visitPattern(e.pattern)
       self.visitExpression(e.expression)
-      let result: Result<(), ()> = declarePatternVariables(e.scope, self, e.pattern, false, e.expression.getType(), true)
+      let result = declarePatternVariables(e.scope, self, e.pattern, false, e.expression.getType(), true)
       match result {
         Result::Ok(patternTy) => {
           if not isAssignable(e.expression.getType(), patternTy)
@@ -537,7 +541,7 @@ export fn ScopeVisitor(context, file) {
       if isUsed {
         e.type_ =
           if e.patterns.isNotEmpty() {
-            let result: Result<Type, ()> = findCommonType(e.patterns.map(|arm| arm.type_).toList())
+            let result = findCommonType(e.patterns.map(|arm| arm.type_).toList())
             match result {
               Result::Ok(type_) => type_
               Result::Err(_) => reportError(e, 'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm.type_).displayName()).join(', '))
@@ -563,7 +567,7 @@ export fn ScopeVisitor(context, file) {
 
       let m = matchExpression.unwrap()
 
-      let result: Result<(), ()> = declarePatternVariables(a.scope, self, a.pattern, false, m.expression.getType(), true)
+      let result = declarePatternVariables(a.scope, self, a.pattern, false, m.expression.getType(), true)
       match result {
         Result::Ok(patternTy) => {
           if not isAssignable(m.expression.getType(), patternTy)
@@ -587,7 +591,7 @@ export fn ScopeVisitor(context, file) {
         let binding = e.scope.getTypeBinding(object.name)
         if not binding
           then reportError(e, 'Use of undeclared type ' + object.name)
-        let type_: Type = binding.type_
+        let mut type_: Type = binding.type_
 
         if let TypePath::Member(memberIdentifier) = typePath {
           if let TypeKind::Enum(enum_) = type_.kind {

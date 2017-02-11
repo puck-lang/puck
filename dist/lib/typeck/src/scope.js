@@ -52,12 +52,19 @@ function createScope(context, file) {
     },
     getBinding: function getBinding(name) {
       var binding = bindings[$unwrapTraitObject(name)] || parent && parent.getBinding(name);
-      if ($unwrapTraitObject(binding).inherit) {
-        $unwrapTraitObject(binding).type_ = $unwrapTraitObject($unwrapTraitObject(binding).inherit).type_;
-        if (!$unwrapTraitObject(binding).type_) {
-          $unwrapTraitObject(context).runCheckerOnFile($unwrapTraitObject($unwrapTraitObject(binding).importedFrom).file);
-          var externalBinding = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(binding).importedFrom)._module).scope).getBinding($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(binding).token).property).name);
-          $unwrapTraitObject(binding).type_ = $unwrapTraitObject(externalBinding).type_;
+      if ($unwrapTraitObject(binding).importedFrom && !$unwrapTraitObject(binding).inherit) {
+        $unwrapTraitObject(context).runCheckerOnFile($unwrapTraitObject($unwrapTraitObject(binding).importedFrom).file);
+        var externalBinding = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(binding).importedFrom)._module).scope).getBinding($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(binding).token).property).name);
+        $unwrapTraitObject(binding).inherit = externalBinding;
+        $unwrapTraitObject(binding).type_ = $unwrapTraitObject(externalBinding).type_;
+      } else {
+        if ($unwrapTraitObject(binding).inherit) {
+          $unwrapTraitObject(binding).type_ = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(binding).inherit).token).type_;
+          if (!$unwrapTraitObject(binding).type_) {
+            $unwrapTraitObject(context).runCheckerOnFile($unwrapTraitObject($unwrapTraitObject(binding).importedFrom).file);
+            var _externalBinding = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(binding).importedFrom)._module).scope).getBinding($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(binding).token).property).name);
+            $unwrapTraitObject(binding).type_ = $unwrapTraitObject(_externalBinding).type_;
+          };
         };
       };
       return binding;
