@@ -26,28 +26,28 @@ impl Functions for FunctionsType {
 ///// Generic<String> has already been implemented for FunctionsType
 import 'traits.puck' as {Generic, FunctionsType}
 impl Generic<String> for FunctionsType {
-  fn generic(a: String) -> String {a}
+  fn generic(self, a: String) -> String {a}
 }
 impl Generic<String> for FunctionsType {
-  fn generic(a: String) -> String {a}
+  fn generic(self, a: String) -> String {a}
 }
 
 ///// Generic<T> has already been implemented for FunctionsType
 import 'traits.puck' as {Generic, FunctionsType}
 impl<T> Generic<T> for FunctionsType {
-  fn generic<T>(a: T) -> T {a}
+  fn generic<T>(self, a: T) -> T {a}
 }
 impl<T> Generic<T> for FunctionsType {
-  fn generic<T>(a: T) -> T {a}
+  fn generic<T>(self, a: T) -> T {a}
 }
 
 ///// Generic<Num> has already been implemented for GenericType<Num>
 import 'traits.puck' as {Generic, GenericType}
 impl Generic<Num> for GenericType<Num> {
-  fn generic(a: Num) -> Num {a}
+  fn generic(self, a: Num) -> Num {a}
 }
 impl Generic<Num> for GenericType<Num> {
-  fn generic(a: Num) -> Num {a}
+  fn generic(self, a: Num) -> Num {a}
 }
 
 ///// Function Functions::noBody is not implemented for GenericType<String>
@@ -108,14 +108,17 @@ impl SelfAware for EmptyType {
   fn withImmutableSelf(self, mut a: String) -> String {a}
 }
 
-///// A has already been declared in the scope
+///// A is already defined
 trait A {}
 let A = true
 
-// TODO: Reenable this when possible (no unknown property access)
-//// Functions has no function named missing
-// import 'traits.puck' as {Functions}
-// Functions.missing()
+///// Functions has no function named missing
+import 'traits.puck' as {Functions}
+Functions.missing()
+
+///// Functions::withBody takes a self parameter and can't be called directly
+import 'traits.puck' as {Functions}
+Functions.withBody('a')
 
 ///// withMutableSelf can only be called on a mutable binding
 import 'traits.puck' as {SelfAware, FunctionsType}

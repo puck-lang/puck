@@ -1,0 +1,188 @@
+import '../../ast/ast.puck' as {Pattern, TypePath}
+import '../../ast/span.puck' as {ToSpan}
+import '../../entities.puck' as {StructKind, Type, TypeKind}
+import 'scope.puck' as {Scope}
+import 'types.puck' as {isAssignable}
+
+export enum PatternError {
+  ScopeError(ToSpan, String)
+  PatternMismatch(Pattern, Type, Type)
+  NotExhaustive
+}
+
+fn getValueType(typePath: TypePath, type_: Type) -> Result<Type, (Type, Type)> {
+  let typePathType: Type = typePath.type_
+  let typePathProvidesType: Type = typePathType.providesType.unwrapOr(typePath.type_)
+  let structType: Type =
+    if type_ {
+      if let Option::Some((member, typePathEnum)) = typePathType.enumMember {
+        match type_.kind {
+          TypeKind::Enum(_) => {}
+          TypeKind::Parameter => {}
+          _ => return Err((typePathEnum, type_))
+        }
+      }
+      type_
+    }
+    else typePathProvidesType
+
+  match structType.kind {
+    TypeKind::Enum(enum_) => {
+      if let Option::Some((member, typePathEnum)) = typePathType.enumMember {
+        if isAssignable(typePathEnum, type_)
+          then Ok(enum_.members.get(member).unwrap())
+          else return Err((typePathEnum, type_))
+      }
+      else return Err((typePathProvidesType, type_))
+    }
+    _ => Ok(structType)
+  }
+}
+
+fn isNonExhaustive(typePath: TypePath) -> Bool {
+  let typePathType: Type = typePath.type_
+  let typePathType: Type = typePathType.enumMember
+    .map(|(_, enum_)| enum_)
+    .orElse(|| typePathType.providesType)
+    .unwrapOr(typePathType)
+
+  if let TypeKind::Enum(enum_) = typePathType.kind {
+    if enum_.members.size() > 1
+      then return true
+  }
+  false
+}
+
+export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool) ->
+    Result<(), PatternError> {
+  match p {
+    Pattern::CatchAll => Ok(())
+    Pattern::Identifier(identifier) => {
+      match scope.define({
+        name: identifier.name
+        token: p
+        mutable
+        allowRedeclare: true
+        type_
+        importedFrom: None
+        previous: None
+      }) {
+        Result::Ok(binding) => {
+          p.binding = binding
+          Ok(())
+        }
+        Result::Err(err) => Err(PatternError::ScopeError(identifier, err))
+      }
+    }
+    Pattern::Record(record) => {
+      let props =
+        if type_
+          then match type_.kind {
+            TypeKind::Struct(struct) => match struct.kind {
+              StructKind::Record(record) => record.properties
+              _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+            }
+            TypeKind::Parameter => {{}}
+            _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+          }
+          else ObjectMap.new()
+
+      let properties: Result<(), PatternError> = record.properties
+        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)))
+        .reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
+          acc.andThen(|_| type_)
+        }, Ok(()))
+
+      properties
+    }
+    Pattern::RecordType(typePath, record) => {
+      let recordType =
+        match getValueType(typePath, type_) {
+          Result::Ok(type_) => type_
+          Result::Err((to, subject)) => return Err(PatternError::PatternMismatch(p, to, subject))
+        }
+
+      let props =
+        match recordType.kind {
+          TypeKind::Struct(struct) => match struct.kind {
+            StructKind::Record(record) => record.properties
+            _ => return Err(PatternError::PatternMismatch(p, p.type_, recordType))
+          }
+          TypeKind::Parameter => {{}}
+          _ => return Err(PatternError::PatternMismatch(p, p.type_, recordType))
+        }
+
+      if not allowNotExhaustive and isNonExhaustive(typePath)
+        then return Err(PatternError::NotExhaustive)
+
+      let properties: Result<(), PatternError> = record.properties
+        .toList()
+        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)))
+        .reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
+          acc.andThen(|_| type_)
+        }, Ok(()))
+
+      properties
+    }
+    Pattern::Tuple(tuple) => {
+      let props =
+        if type_
+          then match type_.kind {
+            TypeKind::Struct(struct) => match struct.kind {
+              StructKind::Tuple(tuple) => tuple.properties
+              _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+            }
+            TypeKind::Parameter => []
+            _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+          }
+          else []
+
+      let properties: Result<(), PatternError> = tuple.properties
+        .enumerate()
+        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
+        .toList()
+        .reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
+          acc.andThen(|_| cur)
+        }, Ok(()))
+
+      properties
+    }
+    Pattern::TupleType(typePath, tuple) => {
+      let tupleType =
+        match getValueType(typePath, type_) {
+          Result::Ok(type_) => type_
+          Result::Err((to, subject)) => return Err(PatternError::PatternMismatch(p, to, subject))
+        }
+
+      let props =
+        match tupleType.kind {
+          TypeKind::Struct(struct) => match struct.kind {
+            StructKind::Tuple(tuple) => tuple.properties
+            _ => return Err(PatternError::PatternMismatch(p, p.type_, tupleType))
+          }
+          TypeKind::Parameter => []
+          _ => return Err(PatternError::PatternMismatch(p, p.type_, tupleType))
+        }
+
+      if not allowNotExhaustive and isNonExhaustive(typePath)
+        then return Err(PatternError::NotExhaustive)
+
+      let properties: Result<(), PatternError> = tuple.properties
+        .enumerate()
+        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
+        .toList()
+        .reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
+          acc.andThen(|_| cur)
+        }, Ok(()))
+
+      properties
+
+    }
+    Pattern::UnitType(typePath) => {
+      if not allowNotExhaustive and isNonExhaustive(typePath)
+        then return Err(PatternError::NotExhaustive)
+
+      Ok(())
+    }
+  }
+}

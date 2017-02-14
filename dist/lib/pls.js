@@ -53,8 +53,8 @@ function createServer(sendDiagnostic) {
     var result = (0, _js.asResult)(function () {
       var file = {
         isBin: false,
-        fileName: $unwrapTraitObject(path).basename(filePath),
-        absolutePath: $unwrapTraitObject(path).resolve($unwrapTraitObject(path).normalize(filePath)),
+        fileName: path.basename(filePath),
+        absolutePath: path.resolve(path.normalize(filePath)),
         puck: contents
       };
       context.files[file.absolutePath] = _js._undefined;
@@ -62,13 +62,10 @@ function createServer(sendDiagnostic) {
       file = context.importFile(file);
       context.runTypeVisitorOnFile(file);
       context.runTypeVisitor();
-      (0, _core.print)("after type", context.deferred);
       context.runImplVisitorOnFile(file);
       context.runImplVisitor();
-      (0, _core.print)("after impl", context.deferred);
       context.runCheckerOnFile(file);
-      context.runChecker();
-      return (0, _core.print)("after checker", context.deferred);
+      return context.runChecker();
     });
     var __PUCK__value__1 = result;
     if ($unwrapTraitObject(__PUCK__value__1).kind == "Err") {

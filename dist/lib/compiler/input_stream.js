@@ -19,7 +19,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 function InputStream(context, file) {
   var __PUCK__value__1 = void 0;
   if (file.puck.substring(0, 13) == "//#![no_core]") {
-    __PUCK__value__1 = file.puck.slice(13);
+    __PUCK__value__1 = "\n" + file.puck.slice(13);
   } else {
     __PUCK__value__1 = "import 'puck:core' as *\n" + file.puck;
   };

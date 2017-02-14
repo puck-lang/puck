@@ -17,8 +17,5 @@ var e = _interopRequireWildcard(_export);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
-var foo = exports.foo = $unwrapTraitObject(e).b + _module.a + _export.b + _module.b;
+var foo = exports.foo = e.b + _module.a + _export.b + _module.b;
 var q = "not imported";

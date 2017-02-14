@@ -30,5 +30,5 @@ let five: Option<Num> = Result::Ok(5)
 ///// Result<Num, E> is not assignable to type Option<Num>
 let five: Option<Num> = Ok(5)
 
-///// Option has no member named Just
+///// Use of undeclared type Option::Just
 let five: Option<Num> = Option::Just(5)

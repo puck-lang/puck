@@ -13,7 +13,7 @@ export trait SelfAware {
   fn withMutableSelf(mut self) -> SelfAware {self}
 }
 export trait Generic<T> {
-  fn generic(a: T) -> T
+  fn generic(self, a: T) -> T
 }
 export trait GenericSelf<T> {
   fn genericSelf(self, a: GenericSelf<T>) -> T
@@ -40,7 +40,7 @@ impl Functions for FunctionsType {
 }
 
 impl<T> Generic<T> for GenericType<T> {
-  fn generic(a: T) -> T {a}
+  fn generic(self, a: T) -> T {a}
 }
 
 impl<T> GenericSelf<T> for GenericType<String> {
@@ -48,7 +48,7 @@ impl<T> GenericSelf<T> for GenericType<String> {
 }
 
 impl Generic<String> for GenericType<String> {
-  fn generic(a: String) -> String {a + a}
+  fn generic(self, a: String) -> String {a + a}
 }
 
 impl SelfAware for FunctionsType {}

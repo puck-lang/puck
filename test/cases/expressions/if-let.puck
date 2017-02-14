@@ -1,10 +1,9 @@
-// TODO: Support this
-// if let Some(value) = Some(5) {
-//   print(value)
-// }
-// else {
-//   print('None')
-// }
+if let Some(value) = Some(5) {
+  print(value)
+}
+else {
+  print('None')
+}
 
 if let Option::Some(value) = Option::Some(5) {
   print(value)

@@ -5,7 +5,6 @@ import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
   Enum
   Function
-  Scope
   Struct
   StructKind
   Trait
@@ -105,6 +104,18 @@ fn mapObject<T>(object: ObjectMap<T>, mapper) {
 }
 
 export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
+  if let Option::Some(providedType) = type_.providesType {
+    let mut p = providedType
+    return {
+      displayName: type_.displayName
+      name: type_.name
+      kind: type_.kind
+      class: type_.class
+      instance: type_.instance
+      providesType: createTypeInstance(p, typeParameters_)
+      enumMember: type_.enumMember
+    }
+  }
   let mut class: TypeClass = type_.class.unwrap()
   let typeParameters: List<Type> =
     if typeParameters_.length < class.parameterRange.end - 1 {
@@ -112,8 +123,8 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
         class.typeParameters
           .slice(typeParameters_.length)
           .map(|p| {
-            if let TypeKind::Parameter(p) = p.kind {
-              p.defaultValue.unwrap()
+            if let TypeKind::Parameter(parameter) = p.kind {
+              parameter.defaultValue.unwrapOr(p)
             }
             else throw 'not a type parameter'
           })
@@ -137,7 +148,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
         (typeParameter.name.unwrap(), typeArgument)
       }))
 
-  let mut instance = {
+  let mut instance: Type = {
     displayName: type_.displayName
     name: type_.name
     kind: type_.kind
@@ -147,10 +158,18 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
       typeParameters
       parameterMap
     })
+    providesType: type_.providesType
+    enumMember: type_.enumMember
   }
   class.instances.push(instance)
 
   instance.kind = resolveTypeParameters(parameterMap)(type_).kind
+
+  if let TypeKind::Enum(enum_) = instance.kind {
+    enum_.members.forEach(|mut (_, member)| {
+      member.enumMember = member.enumMember.map(|(member, _)| (member, instance))
+    })
+  }
 
   instance
 }

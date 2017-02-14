@@ -23,69 +23,31 @@ import '../ast/ast.puck' as {
 import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../entities.puck' as {Scope, StructKind, TypeClass, TypeKind}
-import 'src/scope.puck' as {createScope}
+import '../entities.puck' as {StructKind, TypeClass, TypeKind}
 
 /// Visits and declares top level bindings
 ///
 /// The result is used by the import visitor for import and exports but is then
 /// throwed away becouse too little information is known about the imported bindings
 export fn TopLevelVisitor(context, file) {
-  let mut scope: Scope = createScope(context, file)
-  let mut variableDeclaration: Option<VariableDeclaration> = None
+  let mut declarations: ObjectMap<ToSpan> = ObjectMap.new()
   let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
 
   Object.assign({}, visit.emptyVisitor, {
 
     visitModule: |self, mut m: Module| {
-      m.scope = scope
+      m.declarations = declarations
+      m.file = file
       visit.walkModule(self, m)
     }
     visitEnumDeclaration: |self, t: EnumDeclaration| {
-      scope.defineType({
-        displayName: None
-        name: Some(t.name.name)
-        kind: TypeKind::Enum({
-          implementations: []
-          members: ObjectMap.new()
-        })
-        class: TypeClass.fromAstNode(t, reportError)
-        instance: None
-      }, t)
+      declarations.set(t.name.name, t)
     }
     visitTraitDeclaration: |self, t: TraitDeclaration| {
-      scope.defineType({
-        displayName: None
-        name: Some(t.name.name)
-        kind: TypeKind::Trait({
-          isShorthand: false
-          functions: ObjectMap.new()
-        })
-        class: TypeClass.fromAstNode(t, reportError)
-        instance: None
-      }, t)
+      declarations.set(t.name.name, t)
     }
     visitTypeDeclaration: |self, t: TypeDeclaration| {
-      let structKind =
-        if let Option::Some(typeBound) = t.bound {
-          match typeBound {
-            TypeBound::RecordTypeBound(record) => StructKind::Record({properties: ObjectMap.new()})
-            TypeBound::TupleTypeBound(tuple) => StructKind::Tuple({properties: []})
-            _ => throw 'Unreachable'
-          }
-        }
-        else StructKind::Unit
-
-      scope.defineType({
-        displayName: None
-        name: Some(t.name.name)
-        kind: TypeKind::Struct({
-          implementations: []
-          kind: structKind
-        })
-        class: TypeClass.fromAstNode(t, reportError)
-        instance: None
-      }, t)
+      declarations.set(t.name.name, t)
     }
 
     visitExportDirective: |self, e: ExportDirective| {
@@ -94,7 +56,7 @@ export fn TopLevelVisitor(context, file) {
     visitImportDirective: |self, i: ImportDirective| {
       match i.specifier {
         ImportSpecifier::Identifier(identifier) => {
-          scope.define({name: identifier.name, mutable: false, token: identifier, type_: undefined}, false)
+          declarations.set(identifier.name, identifier)
         }
         ImportSpecifier::ObjectDestructure(d) => {
           self.visitObjectDestructure(d)
@@ -103,33 +65,23 @@ export fn TopLevelVisitor(context, file) {
       }
     }
     visitObjectDestructure: |self, i: ObjectDestructure| {
-      // Allow redeclaration in this pass as we don't yet know if the type or variable scope
-      // should be used for the imported identifiers.
-      i.members.forEach(|m| scope.define({name: m.local.name, mutable: false, token: m, type_: undefined}, true))
+      i.members.forEach(|m| {
+        declarations.set(m.local.name, m)
+      })
     }
 
     visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
       if let Option::Some(name) = f.name {
-        let token: ToSpan = f
-        scope.define({
-          name: name.name
-          token
-          mutable: false
-          type_: undefined
-        }, false)
+        declarations.set(name.name, f)
       }
     }
     visitVariableDeclaration: |self, d: VariableDeclaration| {
-      variableDeclaration = Some(d)
       visit.walkVariableDeclaration(self, d)
-      variableDeclaration = None
     }
 
     visitPattern: visit.walkingVisitor.visitPattern
     visitIdentifierPattern: |self, p: Identifier| {
-      variableDeclaration.map(|d| {
-        scope.define({name: p.name, mutable: d.mutable, token: d, type_: undefined}, true)
-      })
+      declarations.set(p.name, p)
     }
   })
 }

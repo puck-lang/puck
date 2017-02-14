@@ -1,8 +1,9 @@
 import 'puck:js' as {undefined}
 import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration, TypeBound, TypeParameter}
 import '../../ast/span.puck' as {ToSpan}
-import '../../entities.puck' as {Binding, Function, Scope, Type, TypeKind}
+import '../../entities.puck' as {Function, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
+import 'scope.puck' as {Binding, Scope}
 import 'types.puck' as {isAssignable}
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> {}) -> Type {
@@ -64,6 +65,8 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
     })
     class
     instance: None
+    providesType: None
+    enumMember: None
   }
 }
 

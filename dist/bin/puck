@@ -34,9 +34,9 @@ var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__
 var command = _arguments.value[0];
 var puckPattern = (0, _js.RegExp)("\\.puck$", "i");
 function normalizeBinName(file) {
-  var dirname = $unwrapTraitObject(path).dirname(file);
-  var fileName = $unwrapTraitObject($unwrapTraitObject(path).basename(file, ".puck")).replace((0, _js.RegExp)("^_"), "");
-  return $unwrapTraitObject(path).join("dist", dirname, fileName);
+  var dirname = path.dirname(file);
+  var fileName = $unwrapTraitObject(path.basename(file, ".puck")).replace((0, _js.RegExp)("^_"), "");
+  return path.join("dist", dirname, fileName);
 };
 if (command == "build") {
   var outDir = _arguments.value[1];
@@ -57,7 +57,7 @@ if (command == "build") {
   var __PUCK__value__4 = _core.Iterable[__PUCK__value__5.type].map.call(__PUCK__value__5, function (file) {
     return {
       file: file,
-      outFile: $unwrapTraitObject(path).join("dist", file.replace((0, _js.RegExp)("\\.puck$"), ".js"))
+      outFile: path.join("dist", file.replace((0, _js.RegExp)("\\.puck$"), ".js"))
     };
   });
   var libFiles = _core.Iterable[__PUCK__value__4.type].toList.call(__PUCK__value__4);
@@ -67,7 +67,7 @@ if (command == "build") {
 } else {
   if (command == "test") {
     var watch = !$unwrapTraitObject($unwrapTraitObject(_js.process).env).CI;
-    var rootDir = $unwrapTraitObject(path).resolve("lib");
+    var rootDir = path.resolve("lib");
     (0, _jest.jest)(watch, rootDir);
   } else {
     $unwrapTraitObject(_js.console).error("Unknown command", command);

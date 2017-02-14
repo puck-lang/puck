@@ -5,7 +5,7 @@ import '../entities.puck' as {UnparsedFile}
 export fn InputStream(context, file: UnparsedFile) {
   let code =
     if file.puck.substring(0, 13) == '//#![no_core]'
-      then file.puck.slice(13)
+      then '\n' + file.puck.slice(13)
       else "import 'puck:core' as *\n" + file.puck
   let mut pos = 0
   let mut line = 0

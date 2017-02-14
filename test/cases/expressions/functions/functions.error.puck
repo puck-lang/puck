@@ -2,7 +2,7 @@
 fn a(a: String, b: Num) {}
 a(1, 2)
 
-///// func has already been declared in the scope
+///// func is already defined
 fn func() {}
 fn func(a, b) {}
 

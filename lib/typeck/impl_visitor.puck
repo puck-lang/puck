@@ -22,14 +22,13 @@ import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/functions.puck' as {checkFunctionAssignability}
 import 'src/range.puck' as {checkRange}
-import 'src/scope.puck' as {createScope}
+import 'src/scope.puck' as {Binding, Scope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {
   isAssignable
   isSameType
 }
 import '../entities.puck' as {
-  Binding
   Implementation
   Trait
   Type
@@ -121,6 +120,8 @@ fn implementShorthand(type_: Type, implementable: {implementations: List<Impleme
       })
       class: None
       instance: None
+      providesType: None
+      enumMember: None
     }
   })
 }
@@ -144,15 +145,17 @@ export fn ImplVisitor(context, file) {
     }
 
     visitImplDeclaration: |mut self, mut i: ImplDeclaration| {
-      self.scope = self.scope.createChild()
-      i.scope = self.scope
+      let parentScope: Scope = self.scope
+      let mut scope = parentScope.createChild()
+      self.scope = scope
+      i.scope = scope
       i.typeParameters.forEach(self.visitTypeParameter.bind(self))
       self.visitTypeBound(i.trait_)
       self.visitTypeBound(i.type_)
 
       let traitType = i.trait_.getType()
-      let structType = i.type_.getType()
-      self.scope.setSelfBinding(structType.name.unwrap())
+      let mut structType = i.type_.getType()
+      scope.setSelfType(structType)
       i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
 
       if let TypeKind::Trait(trait_) = traitType.kind {
@@ -164,16 +167,18 @@ export fn ImplVisitor(context, file) {
       }
       else reportError(i.trait_, traitType.displayName() + ' is not a trait')
 
-      self.scope = self.scope.parent
+      self.scope = parentScope
     }
     visitImplShorthandDeclaration: |mut self, mut i: ImplShorthandDeclaration| {
-      self.scope = self.scope.createChild()
+      let parentScope: Scope = self.scope
+      let mut scope = parentScope.createChild()
+      self.scope = scope
       i.scope = self.scope
       i.typeParameters.forEach(self.visitTypeParameter.bind(self))
       self.visitTypeBound(i.type_)
 
-      let structType = i.type_.getType()
-      self.scope.setSelfBinding(structType.name.unwrap())
+      let mut structType = i.type_.getType()
+      scope.setSelfType(structType)
       i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
 
       match structType.kind {
@@ -182,7 +187,7 @@ export fn ImplVisitor(context, file) {
         _ => reportError(i.type_, structType.displayName() + ' is not a struct or an enum')
       }
 
-      self.scope = self.scope.parent
+      self.scope = parentScope
     }
   })
 }

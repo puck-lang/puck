@@ -286,7 +286,9 @@ function parse(input) {
       fileName: $unwrapTraitObject($unwrapTraitObject(input).file).fileName,
       path: $unwrapTraitObject($unwrapTraitObject(input).file).absolutePath,
       exports: exports,
-      statements: statements
+      statements: statements,
+      file: _js._undefined,
+      scope: _js._undefined
     };
   };
   function parseTopLevelStatement() {
@@ -707,7 +709,8 @@ function parse(input) {
       domain: domain,
       path: path,
       asKeyword: asKeyword,
-      specifier: specifier
+      specifier: specifier,
+      _module: _core.None
     };
   };
   function parseObjectDestructure() {

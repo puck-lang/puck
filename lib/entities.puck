@@ -1,12 +1,13 @@
-import 'puck:js' as {Array, Error, typeof}
+import 'puck:js' as {Array, Error, Object, typeof}
 import 'ast/ast.puck' as {
   Token
   Module
   Identifier
   TypePath
 }
-import 'ast/span.puck' as {ToSpan}
+import 'ast/span.puck' as {Span, ToSpan}
 import 'typeck/src/range.puck' as {getRange}
+import 'typeck/src/scope.puck' as {Binding}
 
 export type UnparsedFile {
   isBin: Bool
@@ -24,7 +25,7 @@ export type File {
   outFile: String
 
   puck: String
-  ast: Module
+  // ast: Module
   js: String
 }
 
@@ -64,11 +65,18 @@ export type Type {
   kind: TypeKind
   class: Option<TypeClass>
   instance: Option<TypeInstance>
+  /// A type definition will have a type like (String) -> String as it can be used as
+  /// a function and doesn't contain any properties directly.
+  /// providesType will then point to the type defined by the definition (like String)
+  providesType: Option<Type>
+  /// If this type is a member of an enum, enumMember will contain the
+  /// member name and a pointer to the enum type
+  enumMember: Option<(String, Type)>
 }
 
 impl Type {
   fn empty() -> Type {{
-    displayName: Some('')
+    displayName: Some('()')
     name: None
     kind: TypeKind::Struct({
       implementations: []
@@ -76,6 +84,21 @@ impl Type {
     })
     class: None
     instance: None
+    providesType: None
+    enumMember: None
+  }}
+
+  fn provides(mut type_: Type) -> Type {{
+    displayName: type_.displayName
+    name: type_.name
+    kind: TypeKind::Struct({
+      implementations: []
+      kind: StructKind::Tuple({properties: []})
+    })
+    class: type_.class
+    instance: type_.instance
+    providesType: Some(type_)
+    enumMember: None
   }}
 
   fn unused() -> Type {{
@@ -86,6 +109,8 @@ impl Type {
     })
     class: None
     instance: None
+    providesType: None
+    enumMember: None
   }}
 
   fn displayName(self) -> String {
@@ -267,31 +292,4 @@ export type TypeInstance {
 }
 export type TypeParameter {
   defaultValue: Option<Type>
-}
-
-export type Binding {
-  name: String
-  token: ToSpan
-  mutable: Bool
-  type_: Type
-  // redefined: Bool
-  // previous: Option<Binding>
-}
-
-export type TypeBinding {
-  name: String
-  type_: Type
-}
-
-export type Scope {
-  getLocalBinding: (String) -> Binding
-  getBinding: (String) -> Binding
-  getTypeBinding: (String) -> TypeBinding
-  getTypePath: (TypePath) -> Result<{name: String, type_: Type}, String>
-  define: (Binding, Bool) -> Binding
-  defineType: (Type, ToSpan) -> TypeBinding
-}
-
-export type ScopeAware {
-  scope: Scope
 }

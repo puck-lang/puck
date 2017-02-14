@@ -138,14 +138,16 @@ function implementShorthand(type_, implementable, i, reportError) {
         functions: functions
       }),
       _class: _core.None,
-      instance: _core.None
+      instance: _core.None,
+      providesType: _core.None,
+      enumMember: _core.None
     }
   });
 };
 function ImplVisitor(context, file) {
   var importDirective = void 0;
   var reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
-  return $unwrapTraitObject(_js._Object).assign({}, $unwrapTraitObject(visit).emptyVisitor, (0, _structure_visitor.structureVisitor)(reportError), {
+  return $unwrapTraitObject(_js._Object).assign({}, visit.emptyVisitor, (0, _structure_visitor.structureVisitor)(reportError), {
     reportError: reportError,
     visitModule: function visitModule(m) {
       var self = this;
@@ -182,14 +184,16 @@ function ImplVisitor(context, file) {
     },
     visitImplDeclaration: function visitImplDeclaration(i) {
       var self = this;
-      $unwrapTraitObject(self).scope = $unwrapTraitObject($unwrapTraitObject(self).scope).createChild();
-      i.scope = $unwrapTraitObject(self).scope;
+      var parentScope = $unwrapTraitObject(self).scope;
+      var scope = _scope.Scope.createChild.call(parentScope);
+      $unwrapTraitObject(self).scope = scope;
+      i.scope = scope;
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
       $unwrapTraitObject(self).visitTypeBound(i.trait_);
       $unwrapTraitObject(self).visitTypeBound(i.type_);
       var traitType = _ast.TypeBound.getType.call(i.trait_);
       var structType = _ast.TypeBound.getType.call(i.type_);
-      $unwrapTraitObject($unwrapTraitObject(self).scope).setSelfBinding(_core.Option.unwrap.call(structType.name));
+      _scope.Scope.setSelfType.call(scope, structType);
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
         return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
       });
@@ -226,16 +230,18 @@ function ImplVisitor(context, file) {
       } else {
         reportError({ type: '$TypeBound', value: i.trait_, $isTraitObject: true }, _entities.Type.displayName.call(traitType) + " is not a trait");
       };
-      return $unwrapTraitObject(self).scope = $unwrapTraitObject($unwrapTraitObject(self).scope).parent;
+      return $unwrapTraitObject(self).scope = parentScope;
     },
     visitImplShorthandDeclaration: function visitImplShorthandDeclaration(i) {
       var self = this;
-      $unwrapTraitObject(self).scope = $unwrapTraitObject($unwrapTraitObject(self).scope).createChild();
+      var parentScope = $unwrapTraitObject(self).scope;
+      var scope = _scope.Scope.createChild.call(parentScope);
+      $unwrapTraitObject(self).scope = scope;
       i.scope = $unwrapTraitObject(self).scope;
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
       $unwrapTraitObject(self).visitTypeBound(i.type_);
       var structType = _ast.TypeBound.getType.call(i.type_);
-      $unwrapTraitObject($unwrapTraitObject(self).scope).setSelfBinding(_core.Option.unwrap.call(structType.name));
+      _scope.Scope.setSelfType.call(scope, structType);
       _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
         return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
       });
@@ -263,7 +269,7 @@ function ImplVisitor(context, file) {
           };
         };
       };
-      return $unwrapTraitObject(self).scope = $unwrapTraitObject($unwrapTraitObject(self).scope).parent;
+      return $unwrapTraitObject(self).scope = parentScope;
     }
   });
 }

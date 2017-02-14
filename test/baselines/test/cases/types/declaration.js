@@ -33,20 +33,17 @@ var NamedGenericTuple = function NamedGenericTuple() {
 
   return members;
 };
-var Enum = {
-  A: function A() {
-    for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      members[_key3] = arguments[_key3];
-    }
-
-    return { kind: 'A', value: members };
-  },
-  B: function B(object) {
-    return { kind: 'B', value: object };
-  },
-  C: { kind: 'C', value: Symbol('C') }
+var Record = function Record(object) {
+  return object;
 };
-var GenericEnum = {
+var Tuple = function Tuple() {
+  for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    members[_key3] = arguments[_key3];
+  }
+
+  return members;
+};
+var Enum = {
   A: function A() {
     for (var _len4 = arguments.length, members = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
       members[_key4] = arguments[_key4];
@@ -59,3 +56,18 @@ var GenericEnum = {
   },
   C: { kind: 'C', value: Symbol('C') }
 };
+var GenericEnum = {
+  A: function A() {
+    for (var _len5 = arguments.length, members = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      members[_key5] = arguments[_key5];
+    }
+
+    return { kind: 'A', value: members };
+  },
+  B: function B(object) {
+    return { kind: 'B', value: object };
+  },
+  C: { kind: 'C', value: Symbol('C') }
+};
+var record = Record({ name: "Puck" });
+var tuple = Tuple(42, true);

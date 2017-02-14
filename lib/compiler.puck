@@ -1,4 +1,4 @@
-import 'puck:js' as {Error, Object, asResult, console, process, require, undefined, typeof}
+import 'puck:js' as {Error, Object, asResult, console, require, undefined, typeof}
 import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
@@ -17,7 +17,10 @@ import 'typeck/type_visitor.puck' as {TypeVisitor}
 import 'entities.puck' as {File, UnparsedFile}
 
 fn fileInspect(self, depth, opts) {
-  inspect({absolutePath: self.absolutePath}, Object.assign({}, opts, {depth: opts.depth - depth}))
+  inspect(
+    Object.assign({}, self, {puck: '[hidden]', ast: '[hidden]', js: '[hidden]', inspect: undefined})
+    Object.assign({}, opts, {depth: opts.depth - depth})
+  )
 }
 
 export fn parseString(context, file: UnparsedFile) {
@@ -64,6 +67,7 @@ export fn createContext(ignoreErrors = false) {
           if not file.typeVisitorStarted {
             file.typeVisitorStarted = true
             TypeVisitor(self, file).visitModule(file.ast)
+            file.typeVisitorCompleted = true
           }
         })
     }
@@ -88,11 +92,14 @@ export fn createContext(ignoreErrors = false) {
         })
     }
     runTypeVisitorOnFile: fn (self, mut file) {
-      if file.typeVisitorStarted {
-        throw 'Circular import??'
+      if not file.typeVisitorCompleted {
+        if file.typeVisitorStarted {
+          throw 'Circular import??'
+        }
+        file.typeVisitorStarted = true
+        TypeVisitor(self, file).visitModule(file.ast)
+        file.typeVisitorCompleted = true
       }
-      file.typeVisitorStarted = true
-      TypeVisitor(self, file).visitModule(file.ast)
     }
     runImplVisitorOnFile: fn (self, mut file) {
       if not file.typeVisitorStarted {
@@ -114,7 +121,10 @@ export fn createContext(ignoreErrors = false) {
       }
     }
     defer: fn (mut self, file, func) {
-      self.deferred[file.absolutePath] = func
+      if not self.deferred[file.absolutePath] {
+        self.deferred[file.absolutePath] = []
+      }
+      self.deferred[file.absolutePath].push(func)
     }
     resolvePath: fn (file, relativeTo) {
       let filePath =
@@ -139,12 +149,15 @@ export fn createContext(ignoreErrors = false) {
           then file.puck = fs.readFileSync(file.absolutePath, {encoding: 'utf-8'})
         file.ast = parseString(self, file)
 
-        if self.deferred[file.absolutePath]
-          then self.deferred[file.absolutePath]()
+        if self.deferred[file.absolutePath] {
+          let callbacks = self.deferred[file.absolutePath]
+          self.deferred[file.absolutePath] = undefined
+          callbacks.forEach(|callback| callback())
+        }
       }
       self.files[file.absolutePath]
     }
-    reportError: fn (self, file: File, token: ToSpan, message) {
+    reportError: fn (self, file: File, token: ToSpan, message: String) {
       if not ignoreErrors {
         let {line, column} = token.span().start
         throw Error('$message\n  in ' + file.absolutePath + ' ($line:$column)')

@@ -295,6 +295,7 @@ var emptyVisitor = exports.emptyVisitor = {
   visitIfLetExpression: function visitIfLetExpression() {},
   visitMatchExpression: function visitMatchExpression() {},
   visitMatchArm: function visitMatchArm() {},
+  visitTypePath: function visitTypePath() {},
   visitTypePathExpression: function visitTypePathExpression() {},
   visitUnaryExpression: function visitUnaryExpression() {},
   visitIndexAccess: function visitIndexAccess() {},
@@ -930,6 +931,7 @@ function walkPattern(visitor, p) {
               typePath = _$unwrapTraitObject91[0],
               _record = _$unwrapTraitObject91[1];
 
+          visitor.visitTypePath(typePath);
           return visitor.visitRecordPattern(_record);
         } else {
           var __PUCK__value__65 = __PUCK__value__59;
@@ -947,13 +949,16 @@ function walkPattern(visitor, p) {
                   _typePath = _$unwrapTraitObject95[0],
                   _tuple = _$unwrapTraitObject95[1];
 
+              visitor.visitTypePath(_typePath);
               return visitor.visitTuplePattern(_tuple);
             } else {
               var __PUCK__value__67 = __PUCK__value__59;
               if ($unwrapTraitObject(__PUCK__value__67).kind == "UnitType") {
-                var __PUCK__value__68 = $unwrapTraitObject(__PUCK__value__67);;
-                var _undefined2 = __PUCK__value__68;;
-                return __PUCK__value__68;
+                var _$unwrapTraitObject96 = $unwrapTraitObject(__PUCK__value__67),
+                    _$unwrapTraitObject97 = _slicedToArray(_$unwrapTraitObject96.value, 1),
+                    _typePath2 = _$unwrapTraitObject97[0];
+
+                return visitor.visitTypePath(_typePath2);
               };
             };
           };
@@ -965,9 +970,7 @@ function walkPattern(visitor, p) {
 function walkIdentifierPattern(visitor, p) {};
 function walkRecordPattern(visitor, p) {
   return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: p.properties, $isTraitObject: true }, function (p) {
-    if (p.local) {
-      return visitor.visitPattern(p.local);
-    };
+    return visitor.visitPattern(p.pattern);
   });
 };
 function walkTuplePattern(visitor, p) {
@@ -976,36 +979,36 @@ function walkTuplePattern(visitor, p) {
   });
 };
 function walkTypeBound(visitor, t) {
-  var __PUCK__value__69 = t;
-  var __PUCK__value__70 = __PUCK__value__69;
-  if ($unwrapTraitObject(__PUCK__value__70).kind == "FunctionTypeBound") {
-    var _$unwrapTraitObject96 = $unwrapTraitObject(__PUCK__value__70),
-        _$unwrapTraitObject97 = _slicedToArray(_$unwrapTraitObject96.value, 1),
-        _t = _$unwrapTraitObject97[0];
+  var __PUCK__value__68 = t;
+  var __PUCK__value__69 = __PUCK__value__68;
+  if ($unwrapTraitObject(__PUCK__value__69).kind == "FunctionTypeBound") {
+    var _$unwrapTraitObject98 = $unwrapTraitObject(__PUCK__value__69),
+        _$unwrapTraitObject99 = _slicedToArray(_$unwrapTraitObject98.value, 1),
+        _t = _$unwrapTraitObject99[0];
 
     return visitor.visitFunctionTypeBound(_t);
   } else {
-    var __PUCK__value__71 = __PUCK__value__69;
-    if ($unwrapTraitObject(__PUCK__value__71).kind == "NamedTypeBound") {
-      var _$unwrapTraitObject98 = $unwrapTraitObject(__PUCK__value__71),
-          _$unwrapTraitObject99 = _slicedToArray(_$unwrapTraitObject98.value, 1),
-          _t2 = _$unwrapTraitObject99[0];
+    var __PUCK__value__70 = __PUCK__value__68;
+    if ($unwrapTraitObject(__PUCK__value__70).kind == "NamedTypeBound") {
+      var _$unwrapTraitObject100 = $unwrapTraitObject(__PUCK__value__70),
+          _$unwrapTraitObject101 = _slicedToArray(_$unwrapTraitObject100.value, 1),
+          _t2 = _$unwrapTraitObject101[0];
 
       return visitor.visitNamedTypeBound(_t2);
     } else {
-      var __PUCK__value__72 = __PUCK__value__69;
-      if ($unwrapTraitObject(__PUCK__value__72).kind == "RecordTypeBound") {
-        var _$unwrapTraitObject100 = $unwrapTraitObject(__PUCK__value__72),
-            _$unwrapTraitObject101 = _slicedToArray(_$unwrapTraitObject100.value, 1),
-            _t3 = _$unwrapTraitObject101[0];
+      var __PUCK__value__71 = __PUCK__value__68;
+      if ($unwrapTraitObject(__PUCK__value__71).kind == "RecordTypeBound") {
+        var _$unwrapTraitObject102 = $unwrapTraitObject(__PUCK__value__71),
+            _$unwrapTraitObject103 = _slicedToArray(_$unwrapTraitObject102.value, 1),
+            _t3 = _$unwrapTraitObject103[0];
 
         return visitor.visitRecordTypeBound(_t3);
       } else {
-        var __PUCK__value__73 = __PUCK__value__69;
-        if ($unwrapTraitObject(__PUCK__value__73).kind == "TupleTypeBound") {
-          var _$unwrapTraitObject102 = $unwrapTraitObject(__PUCK__value__73),
-              _$unwrapTraitObject103 = _slicedToArray(_$unwrapTraitObject102.value, 1),
-              _t4 = _$unwrapTraitObject103[0];
+        var __PUCK__value__72 = __PUCK__value__68;
+        if ($unwrapTraitObject(__PUCK__value__72).kind == "TupleTypeBound") {
+          var _$unwrapTraitObject104 = $unwrapTraitObject(__PUCK__value__72),
+              _$unwrapTraitObject105 = _slicedToArray(_$unwrapTraitObject104.value, 1),
+              _t4 = _$unwrapTraitObject105[0];
 
           return visitor.visitTupleTypeBound(_t4);
         };
@@ -1033,11 +1036,11 @@ function walkTupleTypeBound(visitor, t) {
   return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeBound).bind(visitor));
 };
 function walkTypeParameter(visitor, t) {
-  var __PUCK__value__74 = t.defaultValue;
-  if ($unwrapTraitObject(__PUCK__value__74).kind == "Some") {
-    var _$unwrapTraitObject104 = $unwrapTraitObject(__PUCK__value__74),
-        _$unwrapTraitObject105 = _slicedToArray(_$unwrapTraitObject104.value, 1),
-        defaultValue = _$unwrapTraitObject105[0];
+  var __PUCK__value__73 = t.defaultValue;
+  if ($unwrapTraitObject(__PUCK__value__73).kind == "Some") {
+    var _$unwrapTraitObject106 = $unwrapTraitObject(__PUCK__value__73),
+        _$unwrapTraitObject107 = _slicedToArray(_$unwrapTraitObject106.value, 1),
+        defaultValue = _$unwrapTraitObject107[0];
 
     return visitor.visitTypeBound(defaultValue);
   };

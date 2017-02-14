@@ -183,6 +183,7 @@ export let emptyVisitor = {
   visitIfLetExpression: || {}
   visitMatchExpression: || {}
   visitMatchArm: || {}
+  visitTypePath: || {}
   visitTypePathExpression: || {}
   visitUnaryExpression: || {}
 
@@ -418,15 +419,17 @@ export fn walkPattern(visitor: Visitor, p: Pattern) {
     Pattern::Identifier(identifier) => visitor.visitIdentifierPattern(identifier)
     Pattern::Record(record) => visitor.visitRecordPattern(record)
     Pattern::RecordType(typePath, record) => {
-      // visitor.visitTypePathExpression(typePath)
+      visitor.visitTypePath(typePath)
       visitor.visitRecordPattern(record)
     }
     Pattern::Tuple(tuple) => visitor.visitTuplePattern(tuple)
     Pattern::TupleType(typePath, tuple) => {
-      // visitor.visitTypePathExpression(typePath)
+      visitor.visitTypePath(typePath)
       visitor.visitTuplePattern(tuple)
     }
-    Pattern::UnitType => {}
+    Pattern::UnitType(typePath) => {
+      visitor.visitTypePath(typePath)
+    }
   }
 }
 export fn walkIdentifierPattern(visitor: Visitor, p: Identifier) {
@@ -435,7 +438,7 @@ export fn walkIdentifierPattern(visitor: Visitor, p: Identifier) {
 export fn walkRecordPattern(visitor: Visitor, p: RecordPattern) {
   p.properties.forEach(|p| {
     // visitor.visitIdentifier(p.property)
-    if p.local then visitor.visitPattern(p.local)
+    visitor.visitPattern(p.pattern)
   })
 }
 export fn walkTuplePattern(visitor: Visitor, p: TuplePattern) {

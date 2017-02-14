@@ -1,0 +1,81 @@
+import 'puck:js' as {Object}
+import '../../ast/ast.puck' as {Identifier}
+import '../../ast/span.puck' as {Span}
+import '../../entities.puck' as {StructKind, Type, TypeKind}
+import 'types.puck' as {createTypeInstance}
+
+export fn enumMemberToFunction(mut type_: Type) -> Type {
+  let displayName =
+    if let Option::Some((member, enum_)) = type_.enumMember
+      then enum_.name.map(|name| '$name::$member')
+      else type_.displayName
+
+  let mut providedType = type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
+  let mut returnType: Type =
+    if let Option::Some(class) = providedType.class
+      then createTypeInstance(providedType, class.typeParameters)
+      else providedType
+
+  let kind =
+    match type_.providesType.unwrapOr(type_).kind {
+      TypeKind::Struct(struct) => match struct.kind {
+        StructKind::Record(record) => {
+          TypeKind::Function({
+            selfBinding: None
+            parameters: [{
+              name: type_.name.unwrapOr('record')
+              token: Span.empty()
+              mutable: false
+              type_: type_.providesType.unwrapOr(type_)
+              redefined: false
+            }]
+            parameterRange: {start: 1, end: 2}
+            returnType
+            isAbstract: false
+          })
+        }
+
+        StructKind::Tuple(tuple) => {
+          TypeKind::Function({
+            selfBinding: None
+            parameters: tuple.properties.enumerate().map(|(p, i)| {{
+              name: i.toString()
+              token: Span.empty()
+              mutable: false
+              type_: p
+              redefined: false
+            }}).toList()
+            parameterRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
+            returnType
+            isAbstract: false
+          })
+        }
+
+        StructKind::Unit => return {
+          displayName
+          name: returnType.name
+          kind: returnType.kind
+          class: returnType.class
+          instance: returnType.instance
+          providesType: returnType.providesType
+          enumMember: returnType.enumMember
+        }
+      }
+      _ => {
+        TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Tuple({properties: []})
+        })
+      }
+    }
+
+  {
+    displayName
+    name: type_.name
+    kind
+    class: providedType.class.map(|class| Object.assign({}, class, {instances: []}))
+    instance: providedType.instance
+    providesType: type_.providesType.orValue(Some(type_))
+    enumMember: type_.enumMember
+  }
+}

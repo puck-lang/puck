@@ -10,6 +10,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 var ast_1 = require("./ast");
 var entities_1 = require("../entities");
 var impls_1 = require("../typeck/src/impls");
+var scope_1 = require("../typeck/src/scope");
 var jsKeywords = [
     'arguments', 'case', 'class', 'default', 'function', 'module', 'new', 'null',
     'static', 'Object', 'typeof', 'undefined',
@@ -24,16 +25,14 @@ var Context;
     Context[Context["Return"] = 1] = "Return";
     Context[Context["Value"] = 2] = "Value";
 })(Context || (Context = {}));
-function isEnumPattern(pattern) {
+function getEnumMember(pattern) {
     if (pattern.kind === 'UnitType' || pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
         var typePath = pattern.value[0];
-        if (typePath.kind === '_Object') {
-            if (typePath.value[1].kind !== 'Member')
-                throw 'Multi step type paths is not supported';
-            return true;
+        if (typePath.type_.enumMember.kind == 'Some') {
+            return typePath.type_.enumMember.value[0][0];
         }
     }
-    return false;
+    return null;
 }
 function Emitter() {
     var level = 0;
@@ -470,10 +469,10 @@ function Emitter() {
         var willBeRedefined = true;
         var binding;
         if (vd.pattern.kind === 'Identifier') {
-            binding = vd.scope.getBinding(vd.pattern.value[0].name);
-            willBeRedefined = binding.redefined;
+            binding = scope_1.Scope.getBinding.call(vd.scope, vd.pattern.value[0].name).value[0];
+            willBeRedefined = binding.redefined || (binding.previous && binding.previous.value[0]);
             while (binding && ((binding.token.$isTraitObject ? binding.token.value : binding.token) !== vd.pattern)) {
-                binding = binding.previous;
+                binding = binding.previous.value[0];
             }
         }
         var initializer = "";
@@ -481,13 +480,11 @@ function Emitter() {
             initializer = emitExpression(vd.initializer.value[0], Context.Value, vd.type_);
             var type = getType(vd.initializer.value[0]);
             if (vd.pattern.kind !== 'Identifier' && vd.pattern.kind !== 'CatchAll') {
-                // includeTraitObjectHelper = true
-                // initializer = `$unwrapTraitObject(${initializer})`
                 initializer = unwrap(initializer, vd.initializer.value[0]);
             }
             initializer = " = " + initializer;
         }
-        if (binding && binding.previous) {
+        if (binding && binding.previous && binding.previous.value[0]) {
             return "" + emitPatternDestructuring(vd.pattern) + initializer;
         }
         if (context) {
@@ -545,7 +542,7 @@ function Emitter() {
         return "import " + specifier + " from '" + path + "'";
     }
     function emitPatternDestructuring(p) {
-        var isEnum = isEnumPattern(p);
+        var isEnum = !!getEnumMember(p);
         if (p.kind === 'CatchAll') {
             return newValueVariable();
         }
@@ -592,16 +589,15 @@ function Emitter() {
         var fn = fn_;
         var functionName;
         var functionType = getType(fn.func);
-        var parameterBindings = functionType && (functionType.kind.value[0]._arguments || functionType.kind.value[0].parameters);
+        var parameterBindings = functionType && functionType.kind.value[0].parameters;
         if (fn.traitName) {
             parameterBindings = fn.functionType.kind.value[0].parameters;
             var selfBinding = fn.functionType.kind.value[0].selfBinding;
             if (selfBinding.kind === 'Some') {
                 parameterBindings = [selfBinding.value[0]].concat(parameterBindings);
             }
-            var outerValueVariable = void 0;
+            var outerValueVariable = valueVariable;
             if (fn.isTraitObject) {
-                outerValueVariable = valueVariable;
                 if (fn.func.value[0].object.kind === 'Identifier') {
                     valueVariable = fn.func.value[0].object.value[0].name;
                 }
@@ -610,10 +606,10 @@ function Emitter() {
                     hoist("let " + valueVariable + " = " + emitExpression(fn.func.value[0].object) + "\n");
                 }
             }
-            functionName = "" + fn.traitName + (fn.isShorthand ? "" :
+            functionName = "" + fn.traitName + ((fn.isShorthand || selfBinding.kind === 'None') ? "" :
                 fn.isTraitObject ? "[" + emitIdentifier({ name: valueVariable }) + ".type]"
                     : "[" + getTypeProp(fn.implementationType) + "]") + "." + emitIdentifier(fn.func.value[0].member);
-            if (fn.functionType.kind.value[0].selfBinding.kind === 'Some') {
+            if (selfBinding.kind === 'Some') {
                 if (fn.isTraitObject) {
                     fn.argumentList.unshift({
                         kind: 'Identifier',
@@ -622,13 +618,13 @@ function Emitter() {
                                 type_: fn.func.value[0].object.value[0].type_,
                             }],
                     });
-                    valueVariable = outerValueVariable;
                 }
                 else {
                     fn.argumentList.unshift(fn.func.value[0].object);
                 }
                 functionName += '.call';
             }
+            valueVariable = outerValueVariable;
         }
         else {
             functionName = emitExpression(fn.func);
@@ -661,10 +657,9 @@ function Emitter() {
             return code;
     }
     function emitPatternComparison(pattern, expression) {
-        var isEnum = isEnumPattern(pattern);
+        var enumMember = getEnumMember(pattern);
         var condition = [];
-        if (isEnum) {
-            var typePath = pattern.value[0];
+        if (enumMember) {
             condition.push({
                 kind: 'BinaryExpression',
                 value: [{
@@ -683,7 +678,7 @@ function Emitter() {
                             value: [{
                                     parts: [{
                                             kind: 'Literal',
-                                            value: [{ value: emitIdentifier(typePath.value[1].value[0]) }],
+                                            value: [{ value: emitIdentifier({ name: enumMember }) }],
                                         }],
                                 }]
                         },
