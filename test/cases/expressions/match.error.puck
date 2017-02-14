@@ -9,13 +9,13 @@ match Option::Some(5) {
   Option::Some(num) => '$num'
 }
 
-///// (Num, ??) is not assignable to type (T)
+///// (T) is not assignable to pattern (num, value)
 match Result::Ok(5) {
   Result::Ok(num, value) => '$num'
   Result::Err(_) => 'error'
 }
 
-///// () is not assignable to type (T)
+///// (T) is not assignable to pattern ()
 match Result::Ok(5) {
   Result::Ok() => '$num'
   Result::Err(_) => 'error'

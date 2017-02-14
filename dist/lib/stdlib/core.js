@@ -246,7 +246,7 @@ Option.isNone = function isNone() {
   var self = this;
   return !Option.isSome.call(self);
 };
-Option.andThen = function andThen(op) {
+Option.okOr = function okOr(err) {
   var self = this;
   var __PUCK__value__6 = self;
   if ($unwrapTraitObject(__PUCK__value__6).kind == "Some") {
@@ -254,18 +254,68 @@ Option.andThen = function andThen(op) {
         _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
         value = _$unwrapTraitObject5$[0];
 
-    return op($unwrapTraitObject(value));
+    return Ok($unwrapTraitObject(value));
   } else {
-    return self;
+    return Err($unwrapTraitObject(err));
   };
 };
-Option.map = function map(f) {
+Option.okOrElse = function okOrElse(err) {
   var self = this;
   var __PUCK__value__7 = self;
   if ($unwrapTraitObject(__PUCK__value__7).kind == "Some") {
     var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__7),
         _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
         value = _$unwrapTraitObject6$[0];
+
+    return Ok($unwrapTraitObject(value));
+  } else {
+    return Err($unwrapTraitObject(err()));
+  };
+};
+Option.andValue = function andValue(optb) {
+  var self = this;
+  if (Option.isNone.call(self)) {
+    return self;
+  } else {
+    return optb;
+  };
+};
+Option.andThen = function andThen(op) {
+  var self = this;
+  var __PUCK__value__8 = self;
+  if ($unwrapTraitObject(__PUCK__value__8).kind == "Some") {
+    var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__8),
+        _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+        value = _$unwrapTraitObject7$[0];
+
+    return op($unwrapTraitObject(value));
+  } else {
+    return self;
+  };
+};
+Option.orValue = function orValue(optb) {
+  var self = this;
+  if (Option.isSome.call(self)) {
+    return self;
+  } else {
+    return optb;
+  };
+};
+Option.orElse = function orElse(op) {
+  var self = this;
+  if (Option.isNone.call(self)) {
+    return op();
+  } else {
+    return self;
+  };
+};
+Option.map = function map(f) {
+  var self = this;
+  var __PUCK__value__9 = self;
+  if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
+    var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__9),
+        _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+        value = _$unwrapTraitObject8$[0];
 
     return Some($unwrapTraitObject(f($unwrapTraitObject(value))));
   } else {
@@ -274,11 +324,11 @@ Option.map = function map(f) {
 };
 Option.mapOr = function mapOr(_default, f) {
   var self = this;
-  var __PUCK__value__8 = self;
-  if ($unwrapTraitObject(__PUCK__value__8).kind == "Some") {
-    var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__8),
-        _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
-        value = _$unwrapTraitObject7$[0];
+  var __PUCK__value__10 = self;
+  if ($unwrapTraitObject(__PUCK__value__10).kind == "Some") {
+    var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__10),
+        _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+        value = _$unwrapTraitObject9$[0];
 
     return f($unwrapTraitObject(value));
   } else {
@@ -287,11 +337,11 @@ Option.mapOr = function mapOr(_default, f) {
 };
 Option.mapOrElse = function mapOrElse(_default, f) {
   var self = this;
-  var __PUCK__value__9 = self;
-  if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
-    var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__9),
-        _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
-        value = _$unwrapTraitObject8$[0];
+  var __PUCK__value__11 = self;
+  if ($unwrapTraitObject(__PUCK__value__11).kind == "Some") {
+    var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__11),
+        _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+        value = _$unwrapTraitObject11[0];
 
     return f($unwrapTraitObject(value));
   } else {
@@ -307,11 +357,11 @@ Option.unwrap = function unwrap() {
 };
 Option.unwrapOr = function unwrapOr(_default) {
   var self = this;
-  var __PUCK__value__10 = self;
-  if ($unwrapTraitObject(__PUCK__value__10).kind == "Some") {
-    var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__10),
-        _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
-        value = _$unwrapTraitObject9$[0];
+  var __PUCK__value__12 = self;
+  if ($unwrapTraitObject(__PUCK__value__12).kind == "Some") {
+    var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__12),
+        _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
+        value = _$unwrapTraitObject13[0];
 
     return value;
   } else {
@@ -320,11 +370,11 @@ Option.unwrapOr = function unwrapOr(_default) {
 };
 Option.unwrapOrElse = function unwrapOrElse(_default) {
   var self = this;
-  var __PUCK__value__11 = self;
-  if ($unwrapTraitObject(__PUCK__value__11).kind == "Some") {
-    var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__11),
-        _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
-        value = _$unwrapTraitObject11[0];
+  var __PUCK__value__13 = self;
+  if ($unwrapTraitObject(__PUCK__value__13).kind == "Some") {
+    var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__13),
+        _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14.value, 1),
+        value = _$unwrapTraitObject15[0];
 
     return value;
   } else {
@@ -335,15 +385,15 @@ List.zip = function zip(a, b) {
   if (Iterable[a.type].size.call(a) != Iterable[b.type].size.call(b)) {
     throw (0, _js.Error)("Iterable a and b are not of the same length");
   };
-  var __PUCK__value__13 = Iterable[a.type].enumerate.call(a);
-  var __PUCK__value__12 = Iterable[__PUCK__value__13.type].map.call(__PUCK__value__13, function (_ref) {
+  var __PUCK__value__15 = Iterable[a.type].enumerate.call(a);
+  var __PUCK__value__14 = Iterable[__PUCK__value__15.type].map.call(__PUCK__value__15, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         a = _ref2[0],
         i = _ref2[1];
 
     return [a, b.value[i]];
   });
-  return Iterable[__PUCK__value__12.type].toList.call(__PUCK__value__12);
+  return Iterable[__PUCK__value__14.type].toList.call(__PUCK__value__14);
 };
 List.add = function add(element) {
   var self = this;
@@ -444,6 +494,11 @@ ObjectMap.get = function get(key) {
   } else {
     return None;
   };
+};
+ObjectMap.set = function set(key, value) {
+  var self = this;
+  self[key] = value;
+  return [];
 };
 ObjectMap.size = function size() {
   var self = this;

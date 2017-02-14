@@ -31,7 +31,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 };
 function createServer(sendDiagnostic) {
   var context = (0, _compiler.createContext)();
-  $unwrapTraitObject(context).reportError = function (file, token, message) {
+  context.reportError = function (file, token, message) {
     var span = _span.ToSpan[token.type].span.call(token);
     return sendDiagnostic(file.absolutePath, {
       severity: $unwrapTraitObject(_vscodeLanguageserver.DiagnosticSeverity).Error,
@@ -49,20 +49,23 @@ function createServer(sendDiagnostic) {
       source: "puck"
     });
   };
-  $unwrapTraitObject(context).validateDocument = function (filePath, contents) {
+  context.validateDocument = function (filePath, contents) {
     var result = (0, _js.asResult)(function () {
       var file = {
         isBin: false,
-        fileName: $unwrapTraitObject(path).basename(filePath),
-        absolutePath: $unwrapTraitObject(path).resolve($unwrapTraitObject(path).normalize(filePath)),
+        fileName: path.basename(filePath),
+        absolutePath: path.resolve(path.normalize(filePath)),
         puck: contents
       };
-      $unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(file.absolutePath)] = _js._undefined;
-      $unwrapTraitObject($unwrapTraitObject(context).deferred)[$unwrapTraitObject(file.absolutePath)] = _js._undefined;
-      file = $unwrapTraitObject(context).importFile(file);
-      $unwrapTraitObject(context).runTypeVisitorOnFile(file);
-      $unwrapTraitObject(context).runImplVisitorOnFile(file);
-      return $unwrapTraitObject(context).runCheckerOnFile(file);
+      context.files[file.absolutePath] = _js._undefined;
+      context.deferred[file.absolutePath] = _js._undefined;
+      file = context.importFile(file);
+      context.runTypeVisitorOnFile(file);
+      context.runTypeVisitor();
+      context.runImplVisitorOnFile(file);
+      context.runImplVisitor();
+      context.runCheckerOnFile(file);
+      return context.runChecker();
     });
     var __PUCK__value__1 = result;
     if ($unwrapTraitObject(__PUCK__value__1).kind == "Err") {
@@ -71,7 +74,7 @@ function createServer(sendDiagnostic) {
           error = _$unwrapTraitObject$v[0];
 
       if (error != "Syntax Error") {
-        return (0, _core.print)("Error:", error);
+        return (0, _core.print)("Error:", $unwrapTraitObject(error));
       };
     };
   };

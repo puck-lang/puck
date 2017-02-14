@@ -43,7 +43,7 @@ var puckFile = (0, _js.RegExp)("\\.puck$", "i");
 var puckModules = ["core", "js", "test"];
 function ImportVisitor(context, file) {
   var reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
-  var moduleScope = void 0;
+  var declarations = void 0;
   function importModule(i, importedFile) {
     var contextFile = $unwrapTraitObject(context).importFile(importedFile);
     var _module = $unwrapTraitObject(contextFile).ast;
@@ -72,7 +72,7 @@ function ImportVisitor(context, file) {
             token = _$unwrapTraitObject2$[0];
 
         var __PUCK__value__5 = _core.Iterable['$List<E>'].filter.call({ type: '$List<E>', value: _core.ObjectMap.keys.call(_module.exports), $isTraitObject: true }, function (e) {
-          return !$unwrapTraitObject(moduleScope).getBinding(e);
+          return !_core.ObjectMap.has.call(declarations, e);
         });
         var __PUCK__value__4 = _core.Iterable[__PUCK__value__5.type].map.call(__PUCK__value__5, function (e) {
           var property = $unwrapTraitObject(_module.exports[e]).identifier;
@@ -96,13 +96,13 @@ function ImportVisitor(context, file) {
       };
     };
     i.file = contextFile;
-    return i._module = _module;
+    return i._module = (0, _core.Some)(_module);
   };
-  return $unwrapTraitObject(_js._Object).assign({}, $unwrapTraitObject(visit).emptyVisitor, {
+  return $unwrapTraitObject(_js._Object).assign({}, visit.emptyVisitor, {
     visitModule: function visitModule(m) {
       var self = this;
-      moduleScope = m.scope;
-      return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: m.statements, $isTraitObject: true }, function (s) {
+      declarations = m.declarations;
+      _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: m.statements, $isTraitObject: true }, function (s) {
         var __PUCK__value__8 = s;
         if ($unwrapTraitObject(__PUCK__value__8).kind == "ImportDirective") {
           var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__8),
@@ -112,6 +112,7 @@ function ImportVisitor(context, file) {
           return $unwrapTraitObject(self).visitImportDirective(e);
         };
       });
+      return m.declarations = _js._undefined;
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;

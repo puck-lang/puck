@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StructKind = exports.TypeKind = exports.ScopeAware = exports.Scope = exports.TypeBinding = exports.Binding = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Tuple = exports.Record = exports.Trait = exports.Struct = exports.Function = exports.Enum = exports.Type = exports.File = exports.UnparsedFile = undefined;
+exports.StructKind = exports.TypeKind = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Tuple = exports.Record = exports.Trait = exports.Struct = exports.Function = exports.Enum = exports.Type = exports.File = exports.UnparsedFile = undefined;
 
 var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -18,6 +18,8 @@ var _ast = require('./ast/ast');
 var _span = require('./ast/span');
 
 var _range = require('./typeck/src/range');
+
+var _scope = require('./typeck/src/scope');
 
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
@@ -59,18 +61,6 @@ var TypeInstance = exports.TypeInstance = function TypeInstance(object) {
   return object;
 };
 var TypeParameter = exports.TypeParameter = function TypeParameter(object) {
-  return object;
-};
-var Binding = exports.Binding = function Binding(object) {
-  return object;
-};
-var TypeBinding = exports.TypeBinding = function TypeBinding(object) {
-  return object;
-};
-var Scope = exports.Scope = function Scope(object) {
-  return object;
-};
-var ScopeAware = exports.ScopeAware = function ScopeAware(object) {
   return object;
 };
 var TypeKind = exports.TypeKind = {
@@ -129,14 +119,30 @@ var StructKind = exports.StructKind = {
 };
 Type.empty = function empty() {
   return {
-    displayName: (0, _core.Some)(""),
+    displayName: (0, _core.Some)("()"),
     name: _core.None,
     kind: TypeKind.Struct({
       implementations: [],
       kind: StructKind.Tuple({ properties: [] })
     }),
     _class: _core.None,
-    instance: _core.None
+    instance: _core.None,
+    providesType: _core.None,
+    enumMember: _core.None
+  };
+};
+Type.provides = function provides(type_) {
+  return {
+    displayName: type_.displayName,
+    name: type_.name,
+    kind: TypeKind.Struct({
+      implementations: [],
+      kind: StructKind.Tuple({ properties: [] })
+    }),
+    _class: type_._class,
+    instance: type_.instance,
+    providesType: (0, _core.Some)(type_),
+    enumMember: _core.None
   };
 };
 Type.unused = function unused() {
@@ -145,7 +151,9 @@ Type.unused = function unused() {
     name: _core.None,
     kind: TypeKind.Parameter({ defaultValue: _core.None }),
     _class: _core.None,
-    instance: _core.None
+    instance: _core.None,
+    providesType: _core.None,
+    enumMember: _core.None
   };
 };
 Type.displayName = function displayName() {

@@ -65,6 +65,7 @@ Functions['$FunctionsType'] = {
 };
 Generic['$GenericType<T>'] = {
   generic: function generic(a) {
+    var self = this;
     return $unwrapTraitObject(a);
   }
 };
@@ -77,6 +78,7 @@ GenericSelf['$GenericType<String>'] = {
 };
 Generic['$GenericType<String>'] = {
   generic: function generic(a) {
+    var self = this;
     return a + a;
   }
 };
@@ -85,12 +87,12 @@ SelfAware['$FunctionsType'] = {
   withImmutableSelf: SelfAware.withImmutableSelf,
   withMutableSelf: SelfAware.withMutableSelf
 };
-Functions.value.noBody();
+Functions.noBody();
 var func = { name: "func" };
 Functions['$FunctionsType'].withBody.call({ type: '$FunctionsType', value: func, $isTraitObject: true }, "body");
 var mutFunc = func;
 SelfAware['$FunctionsType'].withMutableSelf.call({ type: '$FunctionsType', value: mutFunc, $isTraitObject: true });
 var genericNum = {};
-Generic['$GenericType<T>'].generic(5);
+Generic['$GenericType<T>'].generic.call({ type: '$GenericType<T>', value: genericNum, $isTraitObject: true }, 5);
 var genericString = {};
-Generic['$GenericType<String>'].generic("hello");
+Generic['$GenericType<String>'].generic.call({ type: '$GenericType<String>', value: genericString, $isTraitObject: true }, "hello");

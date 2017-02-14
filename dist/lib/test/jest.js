@@ -22,7 +22,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 };
 function jest(watch, rootDir) {
   var moduleNameMapper = _core.ObjectMap._new();
-  moduleNameMapper["^puck-lang/dist/lib/stdlib(.*)$"] = $unwrapTraitObject(path).resolve($unwrapTraitObject(_js.require).resolve("../core"), "..") + "$1";
+  moduleNameMapper["^puck-lang/dist/lib/stdlib(.*)$"] = path.resolve($unwrapTraitObject(_js.require).resolve("../core"), "..") + "$1";
   var transform = _core.ObjectMap._new();
   transform[".*"] = $unwrapTraitObject(_js.require).resolve("../../test/jest_preprocessor");
   var config = {

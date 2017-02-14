@@ -25,6 +25,8 @@ var _span = require('./../../ast/span');
 
 var _entities = require('./../../entities');
 
+var _scope = require('./scope');
+
 var _types = require('./types');
 
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
@@ -145,10 +147,11 @@ function getImplementation(functionName, type_, e, reportError) {
   implementations = $unwrapTraitObject(implementations).filter(function (i) {
     return _entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions[functionName];
   });
+  var scope = e.scope;
   var __PUCK__value__18 = void 0;
   if ($unwrapTraitObject(implementations).length > 1) {
     __PUCK__value__18 = $unwrapTraitObject(implementations).filter(function (i) {
-      return $unwrapTraitObject(e.scope).getTypeBinding(_core.Option.unwrap.call(asType($unwrapTraitObject(i).trait_).name));
+      return _core.Option.isSome.call(_scope.Scope.getBinding.call(scope, _core.Option.unwrap.call(asType($unwrapTraitObject(i).trait_).name)));
     });
   } else {
     __PUCK__value__18 = implementations;

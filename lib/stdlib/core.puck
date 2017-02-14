@@ -70,9 +70,41 @@ impl<T> Option<T> {
   fn isSome(self) -> Bool {self.kind == 'Some'}
   fn isNone(self) -> Bool {not self.isSome()}
 
+  fn okOr<E>(self, err: E) -> Result<T, E> {
+    if let Option::Some(value) = self
+      then Ok(value)
+      else Err(err)
+  }
+
+  fn okOrElse<E>(self, err: () -> E) -> Result<T, E> {
+    if let Option::Some(value) = self
+      then Ok(value)
+      else Err(err())
+  }
+
+  /// Returns None if the option is None, otherwise returns optb.
+  fn andValue(self, optb: Option<T>) -> Option<T> {
+    if self.isNone()
+      then self
+      else optb
+  }
+
   fn andThen<U>(self, op: (T) -> Option<U>) -> Option<U> {
     if let Option::Some(value) = self
       then op(value)
+      else self
+  }
+
+  /// Returns the option if it contains a value, otherwise returns optb.
+  fn orValue(self, optb: Option<T>) -> Option<T> {
+    if self.isSome()
+      then self
+      else optb
+  }
+
+  fn orElse(self, op: () -> Option<T>) -> Option<T> {
+    if self.isNone()
+      then op()
       else self
   }
 
@@ -227,7 +259,7 @@ impl<E> Iterable<E> for List<E> {
   }
 
   fn filterMap<U>(self, func: (E) -> Option<U>) -> Iterable<U> {
-    let mut newList = []
+    let mut newList: List<U> = []
     self.forEach(|element| {
       if let Option::Some(mappedElement) = func(element) {
         newList.add(mappedElement)
@@ -271,7 +303,7 @@ impl<Idx> Range<Idx> {
   }
 }
 
-export fn print(message, extra = []) {
+export fn print<T>(message, extra: T = ()) {
   console.log.apply(console, [message].concat(extra))
 }
 
@@ -350,6 +382,11 @@ impl<T> ObjectMap<T> {
     if self.has(key)
       then Some(self[key])
       else None
+  }
+
+  fn set(mut self, key: String, value: T) -> () {
+    self[key] = value
+    ()
   }
 
   fn size(self) -> Num {

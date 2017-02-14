@@ -1,134 +1,156 @@
 import 'puck:js' as {Error, Object, null, undefined}
 import 'node:util' as {inspect}
-import '../../ast/ast.puck' as {TypeDeclaration, TypeParameter, TypePath}
-import '../../ast/span.puck' as {ToSpan}
+import '../../ast/ast.puck' as {Module, Identifier, TypePath}
+import '../../ast/span.puck' as {Span, ToSpan}
 import '../../compiler/ast.ts' as {SyntaxKind}
-import '../../entities.puck' as {Binding, Scope, Type}
+import '../../entities.puck' as {Type}
 
-export fn createScope(context, file, parent = false) -> Scope {
-  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
-  let mut bindings = ObjectMap.new()
-  let mut typeBindings = ObjectMap.new()
+export type Binding {
+  name: String
+  token: ToSpan
+  mutable: Bool
+  allowRedeclare: Bool
+  type_: Type
+  previous: Option<Binding>
+  importedFrom: Option<Module>
+}
 
-  {
-    parent
-    setSelfBinding: |self, selfType| typeBindings['Self'] = self.getTypeBinding(selfType)
-    createChild: |self| createScope(context, file, self)
-    clearBindings: || bindings = ObjectMap.new()
-    setTypeBinding: |binding| typeBindings[binding.name] = binding
+export type Scope {
+  context: {}
+  parent: Option<Scope>
+  bindings: ObjectMap<Binding>
+}
 
-    getLocalBinding: |name| bindings[name]
-    getBinding: |name| {
-      let mut binding = bindings[name] or (parent and parent.getBinding(name))
-      if binding.importedFrom and not binding.inherit {
-        context.runCheckerOnFile(binding.importedFrom.file)
-        let externalBinding = binding.importedFrom.module.scope.getBinding(
-          binding.token.property.name
-        )
-        binding.inherit = externalBinding
-        binding.type_ = externalBinding.type_
+impl Scope {
+  fn new(context) -> Scope {{
+    context
+    parent: None
+    bindings: ObjectMap.new()
+  }}
 
-      }
-      else if binding.inherit {
-        binding.type_ = binding.inherit.token.type_
-        if not binding.type_ {
-          context.runCheckerOnFile(binding.importedFrom.file)
-          let externalBinding = binding.importedFrom.module.scope.getBinding(
-            binding.token.property.name
-          )
+  fn createChild(self) -> Scope {{
+    context: self.context
+    parent: Some(self)
+    bindings: ObjectMap.new()
+  }}
 
-          binding.type_ = externalBinding.type_
+  fn getBinding(self, name: String, visitor = '') -> Option<Binding> {
+    self.bindings
+      .get(name)
+      .orElse(|| self.parent.andThen(|p| p.getBinding(name, visitor)))
+      .map(|mut binding| {
+        if let Option::Some(module) = binding.importedFrom {
+          if not (binding.type_ and binding.type_.completed) and visitor != 'TypeVisitor' {
+            if visitor == 'TypeVisitor' {
+              self.context.runTypeVisitorOnFile(module.file)
+            } else {
+              self.context.runCheckerOnFile(module.file)
+            }
+            let moduleScope: Scope = module.scope
+            let externalBinding = moduleScope.getBinding(
+              binding.token.property.name
+              visitor
+            )
+            binding.type_ = externalBinding.unwrap().type_
+          }
         }
+        binding
+      })
+  }
+
+  fn define(mut self, binding: Binding) -> Result<Binding, String> {
+    if binding.name == 'Self'
+      then return Err('Self is a reserved name')
+
+    let previous =
+      match self.bindings.get(binding.name) {
+        Option::Some(previous) => {
+          if previous.allowRedeclare
+            then Some(previous)
+            else return Err(binding.name + ' is already defined')
+        }
+        Option::None => None
       }
-      binding
+
+    let binding: Binding = {
+      name: binding.name
+      token: binding.token
+      mutable: binding.mutable
+      allowRedeclare: binding.allowRedeclare
+      type_: binding.type_
+      importedFrom: binding.importedFrom
+      previous
     }
-    getTypeBinding: |name| typeBindings[name] or (parent and parent.getTypeBinding(name))
-    getTypePath: |self, typePath: TypePath| {
-      match typePath {
-        TypePath::Member({name}) => {
-          let binding = self.getTypeBinding(name)
 
-          if binding
-            then Ok(binding)
-            else Err('Use of undeclared type $name')
-        }
-        TypePath::Object({name}, path) => {
-          let mut name_ = name
-          let mut path_ = path
-          let binding = self.getTypeBinding(name)
-          if not binding
-            then return Err('Use of undeclared type $name')
-          let mut type_: Type = binding.type_
+    self.bindings.set(binding.name, binding)
+    Ok(binding)
+  }
 
-          while true {
-            let mut displayPath = '$name'
-            match path_ {
-              TypePath::Member({name}) => {
-                name_ = name
-                type_ = type_.getEnum().members[name]
-                if not type_
-                  then return Err('Use of undeclared type $displayPath::$name')
-                break
+  fn setSelfType(mut self, mut selfType: Type) -> () {
+    self.bindings.set('Self', {
+      name: 'Self'
+      token: Span.empty()
+      mutable: false
+      allowRedeclare: false
+      type_: Type.provides(selfType)
+      previous: None
+      importedFrom: None
+    })
+  }
+
+  fn getTypePath(self, typePath: TypePath, visitor = '') -> Result<Binding, String> {
+    match typePath {
+      TypePath::Member({name}) => {
+        self.getBinding(name, visitor)
+          .okOr('Use of undeclared type $name')
+      }
+      TypePath::Object(identifier, path) => {
+        let mut token: ToSpan = identifier
+        let mut name = identifier.name
+        let mut path_ = path
+        let binding =
+          match self.getBinding(name, visitor) {
+            Option::Some(binding) => binding
+            Option::None => return Err('Use of undeclared type $name')
+          }
+        let mut type_: Type = binding.type_
+
+        while true {
+          let mut displayPath = '$name'
+          match path_ {
+            TypePath::Member(identifier) => {
+              token = identifier
+              name = identifier.name
+              match type_.providesType.unwrap().getEnum().members.get(name) {
+                Option::Some(memberType) => type_ = memberType
+                Option::None => return Err('Use of undeclared type $displayPath::$name')
               }
-              TypePath::Object({name}, path) => {
-                name_ = name
-                path_ = path
-                type_ = type_.getEnum().members[name]
-                if not type_
-                  then return Err('Use of undeclared type $displayPath::$name')
-                displayPath = '$displayPath::$name'
-              }
+              break
+            }
+            TypePath::Object(identifier, path) => {
+              token = identifier
+              name = identifier.name
+              path_ = path
+              type_ =
+                match type_.getEnum().members.get(name) {
+                  Option::Some(type_) => type_
+                  Option::None => return Err('Use of undeclared type $displayPath::$name')
+                }
+              displayPath = '$displayPath::$name'
             }
           }
-
-          Ok({
-            name: name_
-            type_
-            token: binding.token
-          })
         }
-      }
-    }
 
-    define: |self, mut binding: Binding, allowRedeclare = false| {
-      let name = binding.name
-      if not name then throw Error('Missing name')
-      binding.allowRedeclare = allowRedeclare
-      binding.redefined = bindings[name] != undefined
-      if binding.redefined {
-        if not allowRedeclare or not bindings[name].allowRedeclare
-          then reportError(binding.token, '$name has already been declared in the scope' + inspect(self))
-        bindings[name].redefined = true
-        binding.previous = bindings[name]
+        Ok(Binding({
+          name
+          token
+          mutable: binding.mutable
+          allowRedeclare: binding.allowRedeclare
+          type_
+          previous: binding.previous
+          importedFrom: binding.importedFrom
+        }))
       }
-      bindings[name] = binding
-    }
-    defineType: |self, type_: Type, token: ToSpan, allowRedeclare = false| {
-      let name = type_.name.unwrap()
-      if name == 'Self'
-        then reportError(token, 'Self is a reserved name')
-      if not allowRedeclare and typeBindings[name]
-        then reportError(token, 'Type $name is already defined')
-
-      if allowRedeclare and typeBindings[name] {
-        Object.assign(typeBindings[name].type_, type_)
-        typeBindings[name]
-      }
-      else typeBindings[name] = {
-        name
-        token
-        type_
-      }
-    }
-    inspect: |depth, opts| {
-      '[Scope]'
-      // let mut scope = {}
-      // if parent then scope['[parent]'] = parent.inspect()
-      // Object.assign(scope, bindings)
-
-      // if not depth and not opts
-      //   then scope
-      //   else inspect(scope, Object.assign({}, opts, {depth}))
     }
   }
 }

@@ -5,7 +5,8 @@ import '../../ast/ast.puck' as {
   Pattern
   MatchExpression
 }
-import '../../entities.puck' as {Enum, Scope, Type, TypeKind}
+import '../../entities.puck' as {Enum, Type, TypeKind}
+import 'scope.puck' as {Scope}
 
 fn isIndividuallyExhaustive(p: Pattern) {
   match p {
@@ -23,22 +24,23 @@ export fn getEnumType(typePath: TypePath, scope: Scope) -> Option<Type> {
   match typePath {
     TypePath::Member(_) => None
     TypePath::Object({name}, _) => {
-      let type_ = scope.getTypeBinding(name).type_
-      if type_.isEnum()
-        then Some(type_)
-        else None
+      scope
+        .getBinding(name)
+        .andThen(|binding| binding.type_.providesType)
+        .andThen(|type_: Type| {
+          if type_.isEnum()
+            then Some(type_)
+            else None
+        })
     }
   }
 }
 
 export fn getEnumMember(typePath: TypePath) {
-  match typePath {
-    TypePath::Object(_, typePath) => match typePath {
-      TypePath::Member(member) => member.name
-      _ => throw 'Invalid typepath'
-    }
-    _ => throw 'Invalid typepath'
-  }
+  let typePathType: Type = typePath.type_
+  let (member, _) = typePathType.enumMember.unwrap()
+
+  member
 }
 
 fn isEnumPattern(p: Pattern) {

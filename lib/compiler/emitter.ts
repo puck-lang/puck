@@ -60,6 +60,7 @@ import {
   getImplementationsForTrait,
   getMostSpecificImplementations,
 } from '../typeck/src/impls'
+import {Scope} from '../typeck/src/scope'
 import {isTypeScopeDeclaration} from '../helpers'
 
 const jsKeywords = [
@@ -77,17 +78,14 @@ enum Context {
   Value = 2,
 }
 
-function isEnumPattern(pattern: Pattern): pattern is RecordPatternArm|TuplePatternArm|UnitPatternArm {
+function getEnumMember(pattern: Pattern): string {
   if (pattern.kind === 'UnitType' || pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
-      const typePath = pattern.value[0]
-      if (typePath.kind === '_Object') {
-        if (typePath.value[1].kind !== 'Member')
-          throw 'Multi step type paths is not supported'
-
-        return true
-      }
+    const typePath = pattern.value[0] as any
+    if (typePath.type_.enumMember.kind == 'Some') {
+      return typePath.type_.enumMember.value[0][0]
+    }
   }
-  return false
+  return null
 }
 
 export function Emitter() {
@@ -586,10 +584,10 @@ export function Emitter() {
     let willBeRedefined = true
     let binding
     if (vd.pattern.kind === 'Identifier') {
-      binding = vd.scope.getBinding(vd.pattern.value[0].name)
-      willBeRedefined = binding.redefined
+      binding = Scope.getBinding.call(vd.scope, vd.pattern.value[0].name).value[0]
+      willBeRedefined = binding.redefined || (binding.previous && binding.previous.value[0])
       while (binding && ((binding.token.$isTraitObject ? binding.token.value : binding.token) !== vd.pattern)) {
-        binding = binding.previous
+        binding = binding.previous.value[0]
       }
     }
 
@@ -605,7 +603,7 @@ export function Emitter() {
       initializer = ` = ${initializer}`
     }
 
-    if (binding && binding.previous) {
+    if (binding && binding.previous && binding.previous.value[0]) {
       return `${emitPatternDestructuring(vd.pattern)}${initializer}`
     }
 
@@ -668,7 +666,7 @@ export function Emitter() {
   }
 
   function emitPatternDestructuring(p: Pattern) {
-    let isEnum = isEnumPattern(p)
+    let isEnum = !!getEnumMember(p)
 
     if (p.kind === 'CatchAll') {
       return newValueVariable()
@@ -717,7 +715,7 @@ export function Emitter() {
     let fn = fn_ as CallExpression & {traitName: string, implementationType: any, isShorthand: boolean, isTraitObject: boolean}
     let functionName
     let functionType = getType(fn.func)
-    let parameterBindings = functionType && (functionType.kind.value[0]._arguments || functionType.kind.value[0].parameters)
+    let parameterBindings = functionType && functionType.kind.value[0].parameters
 
     if (fn.traitName) {
       parameterBindings = fn.functionType.kind.value[0].parameters
@@ -725,9 +723,8 @@ export function Emitter() {
       if (selfBinding.kind === 'Some') {
         parameterBindings = [selfBinding.value[0], ...parameterBindings]
       }
-      let outerValueVariable
+      let outerValueVariable = valueVariable
       if (fn.isTraitObject) {
-        outerValueVariable = valueVariable
         if ((fn.func.value[0] as MemberAccess).object.kind === 'Identifier') {
           valueVariable = ((fn.func.value[0] as MemberAccess).object.value[0] as Identifier).name
         } else {
@@ -736,11 +733,11 @@ export function Emitter() {
         }
       }
       functionName = `${fn.traitName}${
-        fn.isShorthand ? `` :
+        (fn.isShorthand || selfBinding.kind === 'None') ? `` :
         fn.isTraitObject ? `[${emitIdentifier({name: valueVariable})}.type]`
         : `[${getTypeProp(fn.implementationType)}]`
       }.${emitIdentifier((fn.func.value[0] as MemberAccess).member)}`
-      if (fn.functionType.kind.value[0].selfBinding.kind === 'Some') {
+      if (selfBinding.kind === 'Some') {
         if (fn.isTraitObject) {
           fn.argumentList.unshift({
             kind: 'Identifier',
@@ -749,13 +746,13 @@ export function Emitter() {
               type_: (fn.func.value[0] as MemberAccess).object.value[0].type_,
             }],
           })
-          valueVariable = outerValueVariable
         }
         else {
           fn.argumentList.unshift((fn.func.value[0] as MemberAccess).object)
         }
         functionName += '.call'
       }
+      valueVariable = outerValueVariable
     }
     else {
       functionName = emitExpression(fn.func)
@@ -792,12 +789,10 @@ export function Emitter() {
   }
 
   function emitPatternComparison(pattern: Pattern, expression: Expression): Expression {
-    let isEnum = isEnumPattern(pattern)
+    let enumMember = getEnumMember(pattern)
     let condition: Array<Expression> = []
 
-    if (isEnum) {
-      const typePath = pattern.value[0] as TypePathObjectArm
-
+    if (enumMember) {
       condition.push({
         kind: 'BinaryExpression',
         value: [{
@@ -816,7 +811,7 @@ export function Emitter() {
             value: [{
               parts: [{
                 kind: 'Literal',
-                value: [{value: emitIdentifier(typePath.value[1].value[0])}],
+                value: [{value: emitIdentifier({name: enumMember})}],
               }],
             }]
           },

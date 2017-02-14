@@ -80,13 +80,13 @@ function cmd(cmd) {
 function walkSync(directory) {
   var filelist = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-  if (!$unwrapTraitObject(fs).existsSync(directory) || !$unwrapTraitObject($unwrapTraitObject(fs).statSync(directory)).isDirectory()) {
+  if (!fs.existsSync(directory) || !$unwrapTraitObject(fs.statSync(directory)).isDirectory()) {
     return [];
   };
-  var files = $unwrapTraitObject(fs).readdirSync(directory);
+  var files = fs.readdirSync(directory);
   $unwrapTraitObject(files).forEach(function (fileName) {
-    var file = $unwrapTraitObject(path).join(directory, fileName);
-    if ($unwrapTraitObject($unwrapTraitObject(fs).statSync(file)).isDirectory()) {
+    var file = path.join(directory, fileName);
+    if ($unwrapTraitObject(fs.statSync(file)).isDirectory()) {
       return walkSync(file, filelist);
     } else {
       return filelist.push(file);

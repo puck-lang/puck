@@ -3,7 +3,7 @@ if let Result::Ok(_) = Option::Some(4) {
 
 }
 
-///// Option<Num> is not assignable to type (??)
+///// Option<Num> is not assignable to type (_)
 if let (_) = Option::Some(4) {
 
 }
@@ -13,7 +13,7 @@ if let Option::Some(_) = ((4)) {
 
 }
 
-///// (_, _) is not assignable to type (T)
+///// (T) is not assignable to pattern (_, _)
 if let Option::Some(_, _) = Option::Some(3) {
 
 }

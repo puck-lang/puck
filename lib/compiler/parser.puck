@@ -311,6 +311,8 @@ export fn parse(input) { // : TokenStream
       path: input.file.absolutePath
       exports
       statements
+      file: undefined
+      scope: undefined
     }
   }
 
@@ -593,6 +595,8 @@ export fn parse(input) { // : TokenStream
       path
       asKeyword
       specifier
+
+      module: None
     }
   }
 
@@ -929,7 +933,7 @@ export fn parse(input) { // : TokenStream
         if isToken(SyntaxKind.OpenParenToken)
           then Pattern::TupleType(typePath, parseTuplePattern())
         else if isToken(SyntaxKind.OpenBraceToken)
-          then Pattern.RecordType(typePath, parseRecordPattern())
+          then Pattern::RecordType(typePath, parseRecordPattern())
         else Pattern::UnitType(typePath)
       }
       else Pattern::Identifier(identifier)
@@ -949,7 +953,7 @@ export fn parse(input) { // : TokenStream
     let pattern =
       if maybeConsumeToken(SyntaxKind.ColonToken).isSome()
         then parsePattern()
-        else Pattern.Identifier(property)
+        else Pattern::Identifier(property)
 
     {property, pattern}
   }

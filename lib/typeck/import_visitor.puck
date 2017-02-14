@@ -1,4 +1,4 @@
-import 'puck:js' as {Object, RegExp, asResult, require}
+import 'puck:js' as {Object, RegExp, asResult, require, undefined}
 import 'node:fs' as {statSync}
 import 'node:path' as path
 import '../ast/ast.puck' as {
@@ -18,7 +18,7 @@ let puckModules = ['core', 'js', 'test']
 
 export fn ImportVisitor(context, file: UnparsedFile) {
   let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
-  let mut moduleScope
+  let mut declarations: ObjectMap<ToSpan>
 
   fn importModule(mut i: ImportDirective, importedFile: UnparsedFile) {
     let contextFile = context.importFile(importedFile)
@@ -37,7 +37,7 @@ export fn ImportVisitor(context, file: UnparsedFile) {
           openBrace: token
           closeBrace: token
           members: module.exports.keys()
-            .filter(|e| not moduleScope.getBinding(e))
+            .filter(|e| not declarations.has(e))
             .map(|e| {
               let property = module.exports[e].identifier
               {
@@ -51,18 +51,20 @@ export fn ImportVisitor(context, file: UnparsedFile) {
       ImportSpecifier::Identifier(_) => {}
     }
     i.file = contextFile
-    i.module = module
+    i.module = Some(module)
   }
 
   Object.assign({}, visit.emptyVisitor, {
 
-    visitModule: |self, m: Module| {
-      moduleScope = m.scope
+    visitModule: |self, mut m: Module| {
+      declarations = m.declarations
       m.statements.forEach(|s| {
         if let TopLevelStatement::ImportDirective(e) = s {
           self.visitImportDirective(e)
         }
       })
+      // No need to keep this around after this step
+      m.declarations = undefined
     }
 
     visitImportDirective: |self, mut i: ImportDirective| {

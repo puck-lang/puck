@@ -59,7 +59,12 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 
 function fileInspect(depth, opts) {
   var self = this;
-  return (0, _util.inspect)({ absolutePath: $unwrapTraitObject(self).absolutePath }, $unwrapTraitObject(_js._Object).assign({}, opts, { depth: $unwrapTraitObject(opts).depth - depth }));
+  return (0, _util.inspect)($unwrapTraitObject(_js._Object).assign({}, self, {
+    puck: "[hidden]",
+    ast: "[hidden]",
+    js: "[hidden]",
+    inspect: _js._undefined
+  }), $unwrapTraitObject(_js._Object).assign({}, opts, { depth: $unwrapTraitObject(opts).depth - depth }));
 };
 function parseString(context, file) {
   var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(context, file)));
@@ -71,7 +76,7 @@ function compile(context, file) {
   return $unwrapTraitObject((0, _emitter.Emitter)(context, file)).emitModule(file.ast, file.isBin);
 };
 function babelTransform(file) {
-  return $unwrapTraitObject($unwrapTraitObject(babel).transform($unwrapTraitObject(file).js, {
+  return $unwrapTraitObject(babel.transform($unwrapTraitObject(file).js, {
     filename: $unwrapTraitObject(file).absolutePath,
     presets: $unwrapTraitObject(_js.require).resolve("babel-preset-latest"),
     babelrc: false
@@ -106,7 +111,8 @@ function createContext() {
       })).forEach(function (file) {
         if (!$unwrapTraitObject(file).typeVisitorStarted) {
           $unwrapTraitObject(file).typeVisitorStarted = true;
-          return $unwrapTraitObject((0, _type_visitor.TypeVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
+          $unwrapTraitObject((0, _type_visitor.TypeVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
+          return $unwrapTraitObject(file).typeVisitorCompleted = true;
         };
       });
     },
@@ -134,11 +140,14 @@ function createContext() {
     },
     runTypeVisitorOnFile: function runTypeVisitorOnFile(file) {
       var self = this;
-      if ($unwrapTraitObject(file).typeVisitorStarted) {
-        throw "Circular import??";
+      if (!$unwrapTraitObject(file).typeVisitorCompleted) {
+        if ($unwrapTraitObject(file).typeVisitorStarted) {
+          throw "Circular import??";
+        };
+        $unwrapTraitObject(file).typeVisitorStarted = true;
+        $unwrapTraitObject((0, _type_visitor.TypeVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
+        return $unwrapTraitObject(file).typeVisitorCompleted = true;
       };
-      $unwrapTraitObject(file).typeVisitorStarted = true;
-      return $unwrapTraitObject((0, _type_visitor.TypeVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
     },
     runImplVisitorOnFile: function runImplVisitorOnFile(file) {
       var self = this;
@@ -163,18 +172,21 @@ function createContext() {
     },
     defer: function defer(file, func) {
       var self = this;
-      return $unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)] = func;
+      if (!$unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)]) {
+        $unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)] = [];
+      };
+      return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)]).push(func);
     },
     resolvePath: function resolvePath(file, relativeTo) {
       var __PUCK__value__1 = void 0;
       if ($unwrapTraitObject(file).substring(0, 1) == "/") {
         __PUCK__value__1 = file;
       } else {
-        __PUCK__value__1 = $unwrapTraitObject(path).join($unwrapTraitObject(path).dirname($unwrapTraitObject(relativeTo).absolutePath), file);
+        __PUCK__value__1 = path.join(path.dirname($unwrapTraitObject(relativeTo).absolutePath), file);
       };
       var filePath = __PUCK__value__1;
-      var absolutePath = $unwrapTraitObject(path).resolve($unwrapTraitObject(path).normalize(filePath));
-      var fileName = $unwrapTraitObject(path).basename(absolutePath);
+      var absolutePath = path.resolve(path.normalize(filePath));
+      var fileName = path.basename(absolutePath);
       return {
         absolutePath: absolutePath,
         fileName: fileName,
@@ -190,11 +202,15 @@ function createContext() {
       if (!$unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath]) {
         $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath] = file;
         if (!file.puck) {
-          file.puck = $unwrapTraitObject(fs).readFileSync(file.absolutePath, { encoding: "utf-8" });
+          file.puck = fs.readFileSync(file.absolutePath, { encoding: "utf-8" });
         };
         file.ast = parseString(self, file);
         if ($unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath]) {
-          $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath]();
+          var callbacks = $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath];
+          $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath] = _js._undefined;
+          $unwrapTraitObject(callbacks).forEach(function (callback) {
+            return callback();
+          });
         };
       };
       return $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath];
@@ -216,8 +232,8 @@ function buildString(code, filePath) {
     var context = createContext();
     var file = context.importFile({
       isBin: false,
-      fileName: $unwrapTraitObject(path).basename(filePath),
-      absolutePath: $unwrapTraitObject(path).resolve($unwrapTraitObject(path).normalize(filePath)),
+      fileName: path.basename(filePath),
+      absolutePath: path.resolve(path.normalize(filePath)),
       puck: code
     });
     context.runTypeVisitor();
@@ -234,10 +250,10 @@ function build(files) {
   var dump = options.dump;
   var context = createContext(options.ignoreErrors);
   files = $unwrapTraitObject(files).map(function (f) {
-    var fileName = $unwrapTraitObject(path).basename($unwrapTraitObject(f).file);
-    var absolutePath = $unwrapTraitObject(path).resolve($unwrapTraitObject(path).normalize($unwrapTraitObject(f).file));
-    var outFile = $unwrapTraitObject(path).normalize($unwrapTraitObject(f).outFile);
-    var outDir = $unwrapTraitObject(path).dirname(outFile);
+    var fileName = path.basename($unwrapTraitObject(f).file);
+    var absolutePath = path.resolve(path.normalize($unwrapTraitObject(f).file));
+    var outFile = path.normalize($unwrapTraitObject(f).outFile);
+    var outDir = path.dirname(outFile);
     return {
       isBin: $unwrapTraitObject(f).isBin,
       absolutePath: absolutePath,
@@ -282,6 +298,6 @@ function build(files) {
     var outDir = $unwrapTraitObject(f).outDir;
     var outFile = $unwrapTraitObject(f).outFile;
     (0, _helpers.cmd)("mkdir -p " + outDir + "");
-    return $unwrapTraitObject(fs).writeFileSync("" + outFile + "", $unwrapTraitObject(f).babel + "\n", { mode: 511 });
+    return fs.writeFileSync("" + outFile + "", $unwrapTraitObject(f).babel + "\n", { mode: 511 });
   });
 }

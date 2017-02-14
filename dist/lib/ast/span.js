@@ -20,3 +20,15 @@ ToSpan['$Span'] = {
     return self.value;
   }
 };
+Span.empty = function empty() {
+  return {
+    start: {
+      line: 0,
+      column: 0
+    },
+    end: {
+      line: 0,
+      column: 0
+    }
+  };
+};

@@ -1,4 +1,4 @@
-import '../entities.puck' as {Type}
+import '../entities.puck' as {File, Type}
 import 'span.puck' as {Span, ToSpan}
 
 export type SyntaxKind {}
@@ -13,6 +13,7 @@ export type Module {
   path: String
   exports: ObjectMap<ExportDirective>
   statements: List<TopLevelStatement>
+  file: File
 }
 
 export enum TopLevelStatement {
@@ -289,6 +290,7 @@ export type ImportDirective {
   path: String
   asKeyword: Token
   specifier: ImportSpecifier
+  module: Option<Module>
 }
 
 impl ToSpan for ImportDirective {
@@ -674,6 +676,20 @@ export enum Pattern {
   UnitType(TypePath)
 }
 
+impl Pattern {
+  fn displayName(self) -> String {
+    match self {
+      Pattern::CatchAll(_) => '_'
+      Pattern::Identifier(identifier) => identifier.name
+      Pattern::Record(recordPattern) => recordPattern.displayName()
+      Pattern::Tuple(tuplePattern) => tuplePattern.displayName()
+      Pattern::RecordType(_, recordPattern) => recordPattern.displayName()
+      Pattern::TupleType(_, tuplePattern) => tuplePattern.displayName()
+      Pattern::UnitType(_) => ''
+    }
+  }
+}
+
 impl ToSpan for Pattern {
   fn span(self) -> Span {
     match self {
@@ -706,6 +722,23 @@ export type RecordPattern {
   closeBrace: Token
 }
 
+impl RecordPattern {
+  fn displayName(self) -> String {
+    '{' +
+      self.properties.map(|p| {
+        let shorthand =
+          if let Pattern::Identifier({name}) = p.pattern
+            then name == p.property.name
+            else false
+
+        if shorthand
+          then p.property.name
+          else p.property.name + ': ' + p.pattern.displayName()
+      }).join(', ') +
+    '}'
+  }
+}
+
 export type RecordPatternMember {
   property: Identifier
   pattern: Pattern
@@ -715,6 +748,12 @@ export type TuplePattern {
   openParen: Token
   properties: List<Pattern>
   closeParen: Token
+}
+
+impl TuplePattern {
+  fn displayName(self) -> String {
+    '(' + self.properties.map(|p| p.displayName()).join(', ') + ')'
+  }
 }
 
 export enum TypeBound {

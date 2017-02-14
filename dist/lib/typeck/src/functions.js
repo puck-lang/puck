@@ -24,6 +24,8 @@ var _entities = require('./../../entities');
 
 var _range = require('./range');
 
+var _scope = require('./scope');
+
 var _types = require('./types');
 
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
@@ -106,7 +108,9 @@ function createFunctionType(scope, f, reportError) {
       isAbstract: _core.Option.isNone.call(f.body)
     }),
     _class: _class,
-    instance: _core.None
+    instance: _core.None,
+    providesType: _core.None,
+    enumMember: _core.None
   };
 };
 function checkFunctionAssignability(functionName, to, subject) {

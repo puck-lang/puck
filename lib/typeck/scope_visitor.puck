@@ -67,14 +67,11 @@ import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/enums.puck' as {checkExhaustive}
 import 'src/functions.puck' as {resolveFunctionTypeParameters}
 import 'src/impls.puck' as {getImplementation}
+import 'src/patterns.puck' as {PatternError, declarePatternVariables}
 import 'src/range.puck' as {checkRange}
-import 'src/scope.puck' as {createScope}
-import 'src/structure_visitor.puck' as {
-  PatternError
-  declarePatternVariables
-  notAssignableError
-  structureVisitor
-}
+import 'src/scope.puck' as {Binding, Scope}
+import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
+import 'src/type_function.puck' as {enumMemberToFunction}
 import 'src/types.puck' as {
   createTypeInstance
   findCommonType
@@ -83,10 +80,8 @@ import 'src/types.puck' as {
   resolveTypeParameters
 }
 import '../entities.puck' as {
-  Binding
   Function
   Implementation
-  Scope
   Struct
   StructKind
   Type
@@ -105,10 +100,8 @@ export fn ScopeVisitor(context, file) {
   fn getBinding(e: Expression) -> Option<Binding> {
     match e {
       Expression::Identifier(i) => {
-        let binding = i.scope.getBinding(i.name)
-        if binding
-          then Some(binding)
-          else None
+        let scope: Scope = i.scope
+        scope.getBinding(i.name)
       }
       Expression::IndexAccess(i) => getBinding(i.object)
       Expression::MemberAccess(i) => getBinding(i.object)
@@ -251,9 +244,10 @@ export fn ScopeVisitor(context, file) {
       i.members.forEach(|f| self.visitFunctionDeclaration(f))
     }
     visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
+      let parentScope = self.scope
       self.scope = t.scope
       visit.walkTraitDeclaration(self, t)
-      self.scope = self.scope.parent
+      self.scope = parentScope
     }
     visitTypeDeclaration: |self, mut t: TypeDeclaration| {}
 
@@ -293,20 +287,26 @@ export fn ScopeVisitor(context, file) {
       visit.walkReturn(self, r)
     }
     visitWhileLoop: |mut self, mut e: WhileLoop| {
-      self.scope = createScope(context, file, self.scope)
+      let parentScope: Scope = self.scope
+      self.scope = parentScope.createChild()
       e.scope = self.scope
       self.visitExpression(e.condition)
       self.visitBlock(e.body, false)
       e.type_ = Type.empty()
-      self.scope = self.scope.parent
+      self.scope = parentScope
     }
 
     visitIdentifier: |self, mut i: Identifier| {
+      let scope: Scope = self.scope
       i.scope = self.scope
-      let binding = i.scope.getBinding(i.name)
-      if not binding
-        then reportError(i, 'Use of undefined variable ' + i.name)
-        else i.type_ = binding.type_
+      if let Option::Some(binding) = scope.getBinding(i.name) {
+        let mut b = binding
+        i.type_ =
+          if binding.type_ and binding.type_.providesType.isSome()
+            then enumMemberToFunction(b.type_)
+            else binding.type_
+      }
+      else reportError(i, 'Use of undefined variable ' + i.name)
       visit.walkIdentifier(self, i)
     }
     visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration, isHoisting = false| {
@@ -382,43 +382,81 @@ export fn ScopeVisitor(context, file) {
           let name = access.member.name
           let objectType: Type = access.object.getType()
 
-          if let TypeKind::Trait(trait_) = objectType.kind {
-            functionType = trait_.functions[name]
-
-            // if not functionType
-            //   then reportError(e, objectType.displayName() + ' has no function named $name')
+          if let Option::Some(providesType) = objectType.providesType {
+            match providesType.kind {
+              TypeKind::Enum(enum_) => {
+                functionType = enum_.implementations
+                  .find(|{trait_}| trait_.getTrait().isShorthand)
+                  .map(|{trait_}| {
+                    trait_.getTrait().functions[name]
+                  })
+                  .unwrapOr(undefined)
+              }
+              TypeKind::Struct(struct) => {
+                functionType = struct.implementations
+                  .find(|{trait_}| trait_.getTrait().isShorthand)
+                  .map(|{trait_}| {
+                    trait_.getTrait().functions[name]
+                  })
+                  .unwrapOr(undefined)
+              }
+              TypeKind::Trait(trait_) => {
+                functionType = trait_.functions[name]
+              }
+              _ => {}
+            }
 
             if functionType {
               let function = functionType.getFunction()
 
               if function.selfBinding.isSome() {
-                e.traitName = objectType.name.unwrap()
+                reportError(e, providesType.displayName() + '::$name takes a self parameter and can\'t be called directly')
+              }
+              else {
+                e.traitName = providesType.name.unwrap()
                 e.isTraitObject =  true
               }
             }
+            else reportError(e, providesType.displayName() + ' has no function named $name')
           }
-          else if let Option::Some(implementation) = getImplementation(name, objectType, e, reportError) {
-            let trait_: Type =
-              if let Option::Some(instance) = implementation.trait_.instance
-                then instance.class
-                else implementation.trait_
-            let traitName = trait_.name.unwrap()
-            if not e.scope.getTypeBinding(traitName)
-              then reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
+          else {
+            if let TypeKind::Trait(trait_) = objectType.kind {
+              functionType = trait_.functions[name]
 
-            e.traitName = traitName
-            e.isShorthand =  trait_.getTrait().isShorthand
-            e.implementationType = implementation.type_
+              if functionType {
+                let function = functionType.getFunction()
 
-            functionType = asType(implementation.trait_).getTrait().functions[name]
-          }
+                if function.selfBinding.isSome() {
+                  e.traitName = objectType.name.unwrap()
+                  e.isTraitObject =  true
+                }
+              }
+            }
+            else if let Option::Some(implementation) = getImplementation(name, objectType, e, reportError) {
+              let trait_: Type =
+                if let Option::Some(instance) = implementation.trait_.instance
+                  then instance.class
+                  else implementation.trait_
+              let traitName = trait_.name.unwrap()
+              let scope: Scope = e.scope
+              if scope.getBinding(traitName).isNone()
+                then reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
 
-          if let Option::Some(instance) = objectType.instance {
-            functionType = resolveTypeParameters(instance.parameterMap)(functionType)
+              e.traitName = traitName
+              e.isShorthand =  trait_.getTrait().isShorthand
+              e.implementationType = implementation.type_
+
+              functionType = asType(implementation.trait_).getTrait().functions[name]
+            }
+
+            if let Option::Some(instance) = objectType.instance {
+              functionType = resolveTypeParameters(instance.parameterMap)(functionType)
+            }
           }
         }
       }
 
+      let mut parentAssignedTo
       if functionType and functionType.isFunction() {
         let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
         let mut callParameterMap = ObjectMap.new()
@@ -440,7 +478,10 @@ export fn ScopeVisitor(context, file) {
         }
         self.assignedTo = parentAssignedTo
       } else {
+        let parentAssignedTo = self.assignedTo
+        self.assignedTo = undefined
         e.argumentList.forEach(|a| self.visitExpression(a))
+        self.assignedTo = parentAssignedTo
       }
       if functionType {
         e.functionType = functionType
@@ -451,7 +492,8 @@ export fn ScopeVisitor(context, file) {
       }
     }
     visitIfExpression: |mut self, mut e: IfExpression| {
-      self.scope = createScope(context, file, self.scope)
+      let parentScope: Scope = self.scope
+      self.scope = parentScope.createChild()
       e.scope = self.scope
       let isUsed = self.isUsed
       self.visitExpression(e.condition)
@@ -460,8 +502,7 @@ export fn ScopeVisitor(context, file) {
       if isUsed {
         e.type_ =
           if let Option::Some(else_) = e.else_ {
-            let result: Result<Type, ()> = findCommonType([e.then_.type_, else_.type_])
-            match result {
+            match  findCommonType([e.then_.type_, else_.type_]) {
               Result::Ok(type_) => type_
               Result::Err(_) => reportError(e
                 'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
@@ -477,34 +518,35 @@ export fn ScopeVisitor(context, file) {
             })
             class: None
             instance: None
+            providesType: None
+            enumMember: None
           }}
       }
-      self.scope = self.scope.parent
+      self.scope = parentScope
     }
     visitIfLetExpression: |mut self, mut e: IfLetExpression| {
-      self.scope = createScope(context, file, self.scope)
+      let parentScope: Scope = self.scope
+      self.scope = parentScope.createChild()
       e.scope = self.scope
       let isUsed = self.isUsed
       self.visitPattern(e.pattern)
       self.visitExpression(e.expression)
-      let result = declarePatternVariables(e.scope, self, e.pattern, false, e.expression.getType(), true)
-      match result {
-        Result::Ok(patternTy) => {
-          if not isAssignable(e.expression.getType(), patternTy)
-            then reportError(e.expression, notAssignableError(patternTy, e.expression.getType()))
-        }
+      match declarePatternVariables(e.scope, self, e.pattern, false, e.expression.getType(), true) {
+        Result::Ok(_) => {}
         Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
           reportError(e.expression, notAssignableError(to, subject))
         }
-        _ => {}
+        Result::Err(PatternError::ScopeError(token, err)) => reportError(token, err)
+        Result::Err(PatternError::NotExhaustive) => {
+          // Allowed in if let expressions
+        }
       }
       self.visitBlock(e.then_, isUsed)
       if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
       if isUsed {
         e.type_ =
           if let Option::Some(else_) = e.else_ {
-            let result: Result<Type, ()> = findCommonType([e.then_.type_, else_.type_])
-            match result {
+            match findCommonType([e.then_.type_, else_.type_]) {
               Result::Ok(type_) => type_
               Result::Err(_) => reportError(e
                 'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
@@ -520,9 +562,11 @@ export fn ScopeVisitor(context, file) {
             })
             class: None
             instance: None
+            providesType: None
+            enumMember: None
           }}
       }
-      self.scope = self.scope.parent
+      self.scope = parentScope
     }
     visitMatchExpression: |mut self, mut e: MatchExpression| {
       e.scope = self.scope
@@ -541,8 +585,7 @@ export fn ScopeVisitor(context, file) {
       if isUsed {
         e.type_ =
           if e.patterns.isNotEmpty() {
-            let result = findCommonType(e.patterns.map(|arm| arm.type_).toList())
-            match result {
+            match findCommonType(e.patterns.map(|arm| arm.type_).toList()) {
               Result::Ok(type_) => type_
               Result::Err(_) => reportError(e, 'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm.type_).displayName()).join(', '))
             }
@@ -556,133 +599,57 @@ export fn ScopeVisitor(context, file) {
             })
             class: None
             instance: None
+            providesType: None
+            enumMember: None
           }}
       }
 
       matchExpression = oldMatchExpression
     }
     visitMatchArm: |mut self, mut a: MatchArm, isUsed| {
-      self.scope = createScope(context, file, self.scope)
+      let parentScope: Scope = self.scope
+      self.scope = parentScope.createChild()
       a.scope = self.scope
 
       let m = matchExpression.unwrap()
 
-      let result = declarePatternVariables(a.scope, self, a.pattern, false, m.expression.getType(), true)
-      match result {
-        Result::Ok(patternTy) => {
-          if not isAssignable(m.expression.getType(), patternTy)
-            then reportError(a, notAssignableError(m.expression.getType(), patternTy))
-        }
+      self.visitPattern(a.pattern)
+      match declarePatternVariables(a.scope, self, a.pattern, false, m.expression.getType(), true) {
+        Result::Ok(_) => {}
         Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
           reportError(a, notAssignableError(to, subject))
         }
-        _ => {}
+        Result::Err(PatternError::ScopeError(token, err)) => reportError(token, err)
+        Result::Err(PatternError::NotExhaustive) => {
+          // Allowed in match expressions
+        }
       }
 
       self.visitBlock(a.block, isUsed)
       a.type_ = a.block.type_
 
-      self.scope = self.scope.parent
+      self.scope = parentScope
     }
     visitTypePathExpression: |self, mut e: TypePathExpression| {
       e.scope = self.scope
       let typePath = e.typePath
-      if let TypePath::Object(object, typePath) = typePath {
-        let binding = e.scope.getTypeBinding(object.name)
-        if not binding
-          then reportError(e, 'Use of undeclared type ' + object.name)
-        let mut type_: Type = binding.type_
-
-        if let TypePath::Member(memberIdentifier) = typePath {
-          if let TypeKind::Enum(enum_) = type_.kind {
-            let member: Type = enum_.members[memberIdentifier.name]
-            if not member {
-              reportError(memberIdentifier, type_.displayName() + ' has no member named ' + memberIdentifier.name)
-            }
-            else match member.kind {
-              TypeKind::Struct(struct) => match struct.kind {
-                StructKind::Record(record) => {
-                  e.type_ = {
-                    displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
-                    name: type_.name
-                    kind: TypeKind::Function({
-                      selfBinding: None
-                      parameters: [{
-                        name: memberIdentifier.name
-                        token: memberIdentifier
-                        mutable: false
-                        type_: member
-                        redefined: false
-                      }]
-                      parameterRange: {start: 1, end: 2}
-                      returnType:
-                        if let Option::Some(class) = type_.class
-                          then createTypeInstance(type_, asIterable(class.typeParameters))
-                          else type_
-                      isAbstract: false
-                    })
-                    class: type_.class.map(|class| Object.assign({}, class, {instances: []}))
-                    instance: type_.instance
-                  }
-                }
-
-                StructKind::Tuple(tuple) => {
-                  e.type_ = {
-                    displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
-                    name: type_.name
-                    kind: TypeKind::Function({
-                      selfBinding: None
-                      parameters: tuple.properties.enumerate().map(|(p, i)| {{
-                        name: i.toString()
-                        token: memberIdentifier
-                        mutable: false
-                        type_: p
-                        redefined: false
-                      }}).toList()
-                      parameterRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
-                      returnType:
-                        if let Option::Some(class) = type_.class
-                          then createTypeInstance(type_, asIterable(class.typeParameters))
-                          else type_
-                      isAbstract: false
-                    })
-                    class: type_.class.map(|class| Object.assign({}, class, {instances: []}))
-                    instance: type_.instance
-                  }
-                }
-
-                StructKind::Unit => {
-                  e.type_ = {
-                    displayName: type_.name.map(|name| name + '::' + memberIdentifier.name)
-                    name: type_.name
-                    kind: type_.kind
-                    class: type_.class
-                    instance: type_.instance
-                  }
-                }
-              }
-              _ => {
-                throw 'enum arm is not a struct'
-              }
-            }
-          }
-        }
-        else {
-          reportError(e, 'Nested type paths are not supported')
-          ()
-        }
-      }
+      self.visitTypePath(e.typePath)
+      let type_: Type = e.typePath.type_
+      e.type_ = enumMemberToFunction(e.typePath.type_)
     }
     visitUnaryExpression: |self, mut e: UnaryExpression| {
+      let scope: Scope = self.scope
       e.scope = self.scope
       visit.walkUnaryExpression(self, e)
 
-      e.type_ =
-        if e.operator.kind == SyntaxKind.NotKeyword
-          then e.scope.getTypeBinding('Bool').type_
-        else if e.operator.kind == SyntaxKind.MinusToken
-             or e.operator.kind == SyntaxKind.PlusToken
-          then e.scope.getTypeBinding('Num').type_
+      if e.operator.kind == SyntaxKind.NotKeyword {
+        e.type_ = scope.getBinding('Bool').unwrap().type_.providesType.unwrap()
+      }
+      else if e.operator.kind == SyntaxKind.MinusToken
+            or e.operator.kind == SyntaxKind.PlusToken {
+        e.type_ = scope.getBinding('Num').unwrap().type_.providesType.unwrap()
+      }
+      ()
     }
 
     visitIndexAccess: |self, mut a: IndexAccess| {
@@ -703,11 +670,14 @@ export fn ScopeVisitor(context, file) {
     }
 
     visitBooleanLiteral: |self, mut l: BooleanLiteral| {
+      let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = self.scope.getTypeBinding('Bool').type_
+      l.type_ = scope.getBinding('Bool').unwrap().type_.providesType.unwrap()
       visit.walkBooleanLiteral(self, l)
     }
     visitListLiteral: |self, mut l: ListLiteral| {
+      let scope: Scope = self.scope
+      let mut listType = scope.getBinding('List').unwrap().type_.providesType.unwrap()
       l.scope = self.scope
       visit.walkListLiteral(self, l)
       if l.members.length >= 1 {
@@ -716,21 +686,22 @@ export fn ScopeVisitor(context, file) {
         match result {
           Result::Ok(type_) => {
             if not type_ {
-              l.type_ = self.scope.getTypeBinding('List').type_
+              l.type_ = listType
             } else {
-              l.type_ = createTypeInstance(self.scope.getTypeBinding('List').type_, asIterable([type_]))
+              l.type_ = createTypeInstance(listType, asIterable([type_]))
             }
           }
           Result::Err(_) => reportError(l, 'List contains mixed types')
         }
       }
       else {
-        l.type_ = self.scope.getTypeBinding('List').type_
+        l.type_ = listType
       }
     }
     visitNumberLiteral: |self, mut l: NumberLiteral| {
+      let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = self.scope.getTypeBinding('Num').type_
+      l.type_ = scope.getBinding('Num').unwrap().type_.providesType.unwrap()
       visit.walkNumberLiteral(self, l)
     }
     visitRecordLiteral: |self, mut l: RecordLiteral| {
@@ -751,11 +722,14 @@ export fn ScopeVisitor(context, file) {
         })
         class: None
         instance: None
+        providesType: None
+        enumMember: None
       }
     }
     visitStringLiteral: |self, mut l: StringLiteral| {
+      let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = self.scope.getTypeBinding('String').type_
+      l.type_ = scope.getBinding('String').unwrap().type_.providesType.unwrap()
       visit.walkStringLiteral(self, l)
     }
     visitTupleLiteral: |self, mut l: TupleLiteral| {
@@ -772,6 +746,8 @@ export fn ScopeVisitor(context, file) {
         })
         class: None
         instance: None
+        providesType: None
+        enumMember: None
       }
     }
 
@@ -780,13 +756,23 @@ export fn ScopeVisitor(context, file) {
       visit.walkPattern(self, p)
       p.type_ =
         match p {
-          Pattern::CatchAll => undefined
+          Pattern::CatchAll => Type.unused()
           Pattern::Identifier(identifier) => undefined
           Pattern::Record(record) => record.type_
-          Pattern::RecordType(typePath, record) => typePath.type_
+          Pattern::RecordType(typePath, record) => {
+            let type_: Type = typePath.providesType
+            if not isAssignable(record.type_, type_)
+              then reportError(p, type_.displayName() + ' is not assignable to pattern ' + record.displayName())
+            type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
+          }
           Pattern::Tuple(tuple) => tuple.type_
-          Pattern::TupleType(typePath, tuple) => typePath.type_
-          Pattern::UnitType => Type.empty()
+          Pattern::TupleType(typePath, tuple) => {
+            let type_: Type = typePath.providesType
+            if not isAssignable(tuple.type_, type_)
+              then reportError(p, type_.displayName() + ' is not assignable to pattern ' + tuple.displayName())
+            type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
+          }
+          Pattern::UnitType(typePath) => undefined
         }
     }
 
@@ -799,11 +785,13 @@ export fn ScopeVisitor(context, file) {
         kind: TypeKind::Struct({
           implementations: []
           kind: StructKind::Record({properties: ObjectMap.fromIter(
-            p.properties.map(|p| (p.property, p.local and p.local.type_))
+            p.properties.map(|p| (p.property.name, p.pattern.type_))
           )})
         })
         instance: None
         class: None
+        providesType: None
+        enumMember: None
       }
     }
     visitTuplePattern: |self, mut p: TuplePattern| {
@@ -818,6 +806,8 @@ export fn ScopeVisitor(context, file) {
         })
         instance: None
         class: None
+        providesType: None
+        enumMember: None
       }
     }
   })

@@ -29,26 +29,27 @@ import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
   Enum
-  Scope
   StructKind
   Type
   TypeClass
   TypeKind
 }
-import 'enums.puck' as {getEnumMember}
 import 'functions.puck' as {createFunctionType}
+import 'patterns.puck' as {PatternError, declarePatternVariables}
 import 'range.puck' as {checkRange}
+import 'scope.puck' as {Scope}
 import 'types.puck' as {createTypeInstance, isAssignable}
 
 export fn notAssignableError(to: Type, subject: Type) {
   subject.displayName() + ' is not assignable to type ' + to.displayName()
 }
 
-export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
+export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
   visitEnumMember: visit.walkingVisitor.visitEnumMember
   visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
     if not f.scope {
-      self.scope = self.scope.createChild()
+      let mut parentScope: Scope = self.scope
+      self.scope = parentScope.createChild()
       f.scope = self.scope
 
       let assignedTo =
@@ -56,10 +57,12 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
           if let TypeKind::Function(func) = self.assignedTo.type_.kind
             then func
 
-      f.typeParameters.forEach(self.visitTypeParameter.bind(self))
+      f.typeParameters.forEach(|p| self.visitTypeParameter(p))
       f.parameterList.enumerate().forEach(|(p, i)| {
-        let type_ =
-          if assignedTo and assignedTo.parameters[i] then assignedTo.parameters[i].type_
+        let type_: Type =
+          if assignedTo and assignedTo.parameters[i]
+            then assignedTo.parameters[i].type_
+            else undefined
         self.visitVariableDeclaration(p, undefined, type_)
       })
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
@@ -67,20 +70,25 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
       f.type_ = createFunctionType(f.scope, f, reportError)
       if let Option::Some(name) = f.name {
         let token: ToSpan = f
-        f.scope.parent.define({
+        if let Result::Err(err) = parentScope.define({
           name: name.name
           token
+          allowRedeclare: false
           mutable: false
           type_: f.type_
+          previous: None
+          importedFrom: None
         })
+          then reportError(name, err)
       }
 
-      self.scope = f.scope.parent
+      self.scope = parentScope
     }
   }
   visitMethodDeclaration: |mut self, mut f: FunctionDeclaration, selfType: Type| {
     if not f.scope {
-      self.scope = self.scope.createChild()
+      let parentScope: Scope = self.scope
+      self.scope = parentScope.createChild()
       f.scope = self.scope
 
       f.typeParameters.forEach(self.visitTypeParameter.bind(self))
@@ -109,7 +117,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
 
       f.type_ = createFunctionType(f.scope, f, reportError)
 
-      self.scope = f.scope.parent
+      self.scope = parentScope
     }
   }
   visitTypeBound: |self, mut t: TypeBound| {
@@ -117,7 +125,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
   }
   visitFunctionTypeBound: |mut self, mut t: FunctionTypeBound| {
     if not t.scope {
-      self.scope = self.scope.createChild()
+      let parentScope: Scope = self.scope
+      self.scope = parentScope.createChild()
       t.scope = self.scope
 
       visit.walkFunctionTypeBound(self, t)
@@ -130,7 +139,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
         }})
         .toList()
 
-      t.type_ = {
+      t.type_ = Type({
         displayName: None
         name: None
         kind: TypeKind::Function({
@@ -142,9 +151,11 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
         })
         class: TypeClass.fromAstNode(t, reportError)
         instance: None
-      }
+        providesType: None
+        enumMember: None
+      })
 
-      self.scope = self.scope.parent
+      self.scope = parentScope
     }
   }
   visitNamedTypeBound: |self, mut t: NamedTypeBound| {
@@ -152,7 +163,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
       t.scope = self.scope
 
       self.visitTypePath(t.path)
-      let mut type_: Type = t.path.type_
+      let mut type_: Type = t.path.providesType
       if not type_ then return ()
 
       let isSelf =
@@ -161,13 +172,6 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
             if t.typeParameters.length > 0
               then reportError(t, 'Self is not generic')
 
-            if let Option::Some(class) = type_.class {
-              t.typeParameters = class.typeParameterBindings.map(|{name}| TypeBound::NamedTypeBound({
-                kind: SyntaxKind.NamedTypeBound
-                path: TypePath::Member(name)
-                typeParameters: []
-              }))
-            }
             true
           }
           else false
@@ -199,7 +203,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
 
       visit.walkRecordTypeBound(self, t)
 
-      t.type_ = {
+      t.type_ = Type({
         displayName: None
         name: None
         kind: TypeKind::Struct({
@@ -213,7 +217,9 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
         })
         class: None
         instance: None
-      }
+        providesType: None
+        enumMember: None
+      })
     }
   }
   visitRecordTypeBoundMember: visit.walkingVisitor.visitRecordTypeBoundMember,
@@ -223,7 +229,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
 
       visit.walkTupleTypeBound(self, t)
 
-      t.type_ = {
+      t.type_ = Type({
         displayName: None
         name: None
         kind: TypeKind::Struct({
@@ -232,14 +238,16 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
         })
         class: None
         instance: None
-      }
+        providesType: None
+        enumMember: None
+      })
     }
   }
   visitTypeParameter: |self, mut t: TypeParameter| {
     if not t.scope {
       t.scope = self.scope
       visit.walkTypeParameter(self, t)
-      t.type_ = {
+      t.type_ = Type({
         displayName: None
         name: Some(t.name.name)
         kind: TypeKind::Parameter({
@@ -247,308 +255,73 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}) {{
         })
         class: None
         instance: None
-      }
-      self.scope.defineType(t.type_, t)
+        providesType: None
+        enumMember: None
+      })
+      let mut scope: Scope = self.scope
+      if let Result::Err(err) = scope.define({
+        name: t.name.name
+        token: t
+        mutable: false
+        allowRedeclare: false
+        type_: Type.provides(t.type_)
+        importedFrom: None
+        previous: None
+      })
+        then reportError(t.name, err)
     }
   }
   visitTypePath: |self, mut t: TypePath| {
     if not t.type_ {
       t.scope = self.scope
-      let result: Result<{name: String, type_: Type}, String> = self.scope.getTypePath(t)
-      match result {
-        Result::Ok(binding) => t.type_= binding.type_
+      let scope: Scope = self.scope
+      match scope.getTypePath(t, visitor) {
+        Result::Ok(binding) => {
+          t.type_= binding.type_
+          t.providesType = binding.type_.providesType.unwrapOr(binding.type_)
+        }
         Result::Err(err) => reportError(t, err)
       }
     }
   }
-  visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, type_, allowNotExhaustive = false| {
+  visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, type_: Type, allowNotExhaustive = false| {
     if d.scope then return undefined
     d.scope = self.scope
-    d.type_ = d.typeBound.mapOr(type_, |bound| {
+    self.visitPattern(d.pattern)
+    let type_: Type = d.typeBound.mapOr(type_, |bound| {
       self.visitTypeBound(bound)
       bound.getType() or type_
     })
-
-    let mut patternType = None
+    d.type_ = type_
+    if not isAssignable(d.pattern.type_, d.type_)
+      then return reportError(d.pattern, type_.displayName() + ' is not assignable to pattern ' + d.pattern.displayName())
 
     match declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive) {
-      Result::Ok(patternTy) => {
-        patternType = Some(patternTy)
-        if not isAssignable(patternTy, d.type_)
-          then reportError(d, notAssignableError(patternTy, d.type_))
-      }
+      Result::Ok(_) => {}
       Result::Err(PatternError::PatternMismatch(_, to, subject)) => {
         reportError(d, notAssignableError(to, subject))
       }
       Result::Err(PatternError::NotExhaustive) => {
         reportError(d, 'non exhaustive pattern')
       }
+      Result::Err(PatternError::ScopeError(token, err)) => reportError(token, err)
     }
 
     if let Option::Some(initializer) = d.initializer {
-      visitInitializer(initializer)
+      if visitInitializer {
+        visitInitializer(initializer)
+      } else {
+        self.visitExpression(initializer)
+      }
       let initializerType = initializer.getType()
       if not d.type_ and d.pattern.binding {
         d.pattern.binding.type_ = initializerType
         d.type_ = initializerType
       }
       else if not isAssignable(d.type_, initializerType)
-        then reportError(d, notAssignableError(d.type_, initializerType))
-      else if let Option::Some(patternTy) = patternType {
-        let patternTy: Type = patternTy
-        if not isAssignable(patternTy, initializerType)
-          then reportError(d, notAssignableError(patternTy, initializerType))
-      }
+        then return reportError(d, notAssignableError(d.type_, initializerType))
+      if not isAssignable(d.pattern.type_, initializerType)
+        then return reportError(d, notAssignableError(d.pattern.type_, initializerType))
     }
-    ()
   }
 }}
-
-export enum PatternError {
-  PatternMismatch(Pattern, Type, Type)
-  NotExhaustive
-}
-
-export fn declarePatternVariables(scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool) ->
-    Result<Type, PatternError> {
-  match p {
-    Pattern::CatchAll => Ok(Type.unused())
-    Pattern::Identifier(identifier) => {
-      p.binding = scope.define({
-        name: identifier.name
-        mutable
-        token: p
-        type_
-      }, true)
-      Ok(type_)
-    }
-    Pattern::Record(record) => {
-      let props =
-        if type_
-          then match type_.kind {
-            TypeKind::Struct(struct) => match struct.kind {
-              StructKind::Record(record) => record.properties
-              _ => throw 'bad type'
-            }
-            TypeKind::Parameter => {{}}
-            _ => {
-              throw 'abd type'
-            }
-          }
-          else ObjectMap.new()
-
-      let properties: Result<ObjectMap<Type>, PatternError> = record.properties
-        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)))
-        .reduce(|acc: Result<ObjectMap<Type>, PatternError>, (name, type_): (String, Result<Type, PatternError>)| {
-          acc.andThen(|props| type_.map(|prop| {
-            let mut newProps = Object.assign({}, props)
-            newProps[name] = prop
-            newProps
-          }))
-        }, Ok(ObjectMap.new()))
-
-      properties.map(|_| false)
-    }
-    Pattern::RecordType(typePath, record) => {
-      visitor.visitTypePath(typePath)
-
-      let enumType: Option<Type> =
-        match typePath {
-          TypePath::Member(_) => None
-          TypePath::Object({name}, _) => {
-            let type_ = scope.getTypeBinding(name).type_
-            if type_.isEnum()
-              then Some(type_)
-              else None
-          }
-        }
-
-      let recordType: Type =
-        if type_
-          then type_
-          else typePath.type_
-      let recordType: Type = match recordType.kind {
-        TypeKind::Enum(enum_) => {
-          let member = getEnumMember(typePath)
-          let enumArmType = enum_.members[member]
-          enumArmType
-        }
-        _ => recordType
-      }
-      let props = match recordType.kind {
-        TypeKind::Struct(struct) => match struct.kind {
-          StructKind::Record(record) => record.properties
-          _ => throw 'bad type'
-        }
-        TypeKind::Parameter => {{}}
-        _ => {
-          throw 'abd type'
-        }
-      }
-
-      let properties: Result<ObjectMap<Type>, PatternError> = record.properties
-        .toList()
-        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)))
-        .reduce(|acc: Result<ObjectMap<Type>, PatternError>, (name, type_): (String, Result<Type, PatternError>)| {
-          acc.andThen(|props| type_.map(|prop| {
-            let mut newProps = Object.assign({}, props)
-            newProps[name] = prop
-            newProps
-          }))
-        }, Ok(ObjectMap.new()))
-
-      properties.andThen(|properties| {
-        let type_ = {
-          displayName: None
-          name: None
-          kind: TypeKind::Struct({
-            implementations: []
-            kind: StructKind::Record({
-              properties
-            })
-          })
-          class: None
-          instance: None
-        }
-
-        if let Option::Some(enumType) = enumType {
-          if not allowNotExhaustive and enumType.getEnum().members.size() > 1
-            then Err(PatternError::NotExhaustive)
-            else {
-              let member = getEnumMember(typePath)
-              let enumArmType = enumType.getEnum().members[member]
-
-              if isAssignable(enumArmType, type_)
-                then Ok(enumType)
-                else Err(PatternError::PatternMismatch(p, enumArmType, type_))
-            }
-        } else {
-          if isAssignable(typePath.type_, type_)
-            then Ok(typePath.type_)
-            else Err(PatternError::PatternMismatch(p, typePath.type_, type_))
-        }
-      })
-    }
-    Pattern::Tuple(tuple) => {
-      let props =
-        if type_
-          then match type_.kind {
-            TypeKind::Struct(struct) => {
-              match struct.kind {
-                StructKind::Tuple(tuple) => tuple.properties
-                _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
-              }
-            }
-            TypeKind::Parameter => []
-            _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
-          }
-          else []
-
-      let properties: Result<List<Type>, PatternError> = tuple.properties
-        .enumerate()
-        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
-        .toList()
-        .reduce(|acc: Result<List<Type>, PatternError>, cur: Result<Type, PatternError>| {
-          acc.andThen(|props| cur.map(|prop| props.concat(prop)))
-        }, Ok([]))
-
-      properties.map(|properties| {{
-        displayName: None
-        name: None
-        kind: TypeKind::Struct({
-          implementations: []
-          kind: StructKind::Tuple({
-            properties
-          })
-        })
-        class: None
-        instance: None
-      }})
-    }
-    Pattern::TupleType(typePath, tuple) => {
-      visitor.visitTypePath(typePath)
-
-      let enumType: Option<Type> =
-        match typePath {
-          TypePath::Member(_) => None
-          TypePath::Object({name}, _) => {
-            let enumType = scope.getTypeBinding(name).type_
-            if enumType.isEnum() {
-              if type_ and type_.isEnum() and not isAssignable(enumType, type_)
-                then return Err(PatternError::PatternMismatch(p, enumType, type_))
-              Some(enumType)
-            }
-            else None
-          }
-        }
-
-      let tupleType: Type =
-        if type_
-          then type_
-          else typePath.type_
-
-      let tupleType: Type = match tupleType.kind {
-        TypeKind::Enum(enum_) => {
-          let member = getEnumMember(typePath)
-          let enumArmType = enum_.members[member]
-          enumArmType
-        }
-        _ => tupleType
-      }
-      let props = match tupleType.kind {
-        TypeKind::Struct(struct) => {
-          match struct.kind {
-            StructKind::Tuple(tuple) => tuple.properties
-            _ => return Err(PatternError::PatternMismatch(p, p.type_, tupleType))
-          }
-        }
-        TypeKind::Parameter => []
-        _ => return Err(PatternError::PatternMismatch(p, p.type_, tupleType))
-      }
-
-      let properties: Result<List<Type>, PatternError> = tuple.properties
-        .enumerate()
-        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
-        .toList()
-        .reduce(|acc: Result<List<Type>, PatternError>, cur: Result<Type, PatternError>| {
-          acc.andThen(|props| cur.map(|prop| props.concat(prop)))
-        }, Ok([]))
-
-      properties.andThen(|properties| {
-        let type_ = {
-          displayName: None
-          name: None
-          kind: TypeKind::Struct({
-            implementations: []
-            kind: StructKind::Tuple({
-              properties
-            })
-          })
-          class: None
-          instance: None
-        }
-
-        if let Option::Some(enumType) = enumType {
-          if not allowNotExhaustive and enumType.getEnum().members.size() > 1
-            then Err(PatternError::NotExhaustive)
-            else {
-              let member = getEnumMember(typePath)
-              let enumArmType = enumType.getEnum().members[member]
-
-              if isAssignable(enumArmType, type_)
-                then Ok(enumType)
-                else Err(PatternError::PatternMismatch(p, enumArmType, type_))
-            }
-        } else {
-          if isAssignable(typePath.type_, type_)
-            then Ok(typePath.type_)
-            else Err(PatternError::PatternMismatch(p, typePath.type_, type_))
-        }
-      })
-    }
-    Pattern::UnitType(typePath) => {
-      visitor.visitTypePath(typePath)
-      Ok(false)
-    }
-  }
-}

@@ -23,6 +23,7 @@ import '../../entities.puck' as {
   TypeInstance
   TypeKind
 }
+import 'scope.puck' as {Scope}
 import 'types.puck' as {isAssignable}
 
 fn asType(a) -> Type {a}
@@ -79,13 +80,12 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
   let implementations = implementations
     .filter(|i| asType(i.trait_).getTrait().functions[functionName])
 
+  let scope: Scope = e.scope
   // Implementations that are in scope
   let implementations =
     if implementations.length > 1
       then implementations
-        .filter(|i| e.scope.getTypeBinding(
-          asType(i.trait_).name.unwrap()
-        ))
+        .filter(|i| scope.getBinding(asType(i.trait_).name.unwrap()).isSome())
       else implementations
 
   // Implementations that accept the correct number of arguments

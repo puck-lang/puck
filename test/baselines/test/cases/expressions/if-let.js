@@ -8,7 +8,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
 
-var __PUCK__value__1 = _core.Option.Some(5);
+var __PUCK__value__1 = (0, _core.Some)(5);
 if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
   var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
       _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
@@ -18,11 +18,21 @@ if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
 } else {
   (0, _core.print)("None");
 };
-var __PUCK__value__2 = _core.Option.Some(3);
+var __PUCK__value__2 = _core.Option.Some(5);
 if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
   var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__2),
       _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
-      number = _$unwrapTraitObject2$[0];
+      _value = _$unwrapTraitObject2$[0];
+
+  (0, _core.print)(_value);
+} else {
+  (0, _core.print)("None");
+};
+var __PUCK__value__3 = _core.Option.Some(3);
+if ($unwrapTraitObject(__PUCK__value__3).kind == "Some") {
+  var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__3),
+      _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+      number = _$unwrapTraitObject3$[0];
 
   number;
 } else {

@@ -43,3 +43,9 @@ enum GenericEnum<X, Y> {
   }
   C
 }
+
+type Record {name: String}
+type Tuple(Num, Bool)
+
+let record = Record({name: 'Puck'})
+let tuple = Tuple(42, true)

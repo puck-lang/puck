@@ -6,6 +6,13 @@ print(
 )
 
 print(
+  match Some(5) {
+    Some(num) => '$num'
+    None => 'nothing'
+  }
+)
+
+print(
   match Result::Ok(5) {
     Result::Ok(num) => '$num'
     Result::Err(_) => 'error'

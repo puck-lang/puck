@@ -28,8 +28,8 @@ import '../ast/ast.puck' as {
 }
 import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
-import '../entities.puck' as {StructKind, Type, TypeBinding, TypeClass, TypeKind}
-import 'src/scope.puck' as {createScope}
+import '../entities.puck' as {File, StructKind, Type, TypeClass, TypeKind}
+import 'src/scope.puck' as {Binding, Scope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 
 fn isTypeScope(e: ExportDirective) {
@@ -52,16 +52,14 @@ fn isTypeScope(e: ExportDirective) {
 /// This assures that the hoisting rules is followed and all required information is known.
 export fn TypeVisitor(context, file) {
   let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
+  let mut imports: ObjectMap<File> = ObjectMap.new()
 
-  let structureVisitorInstance = structureVisitor(reportError)
+  let structureVisitorInstance = structureVisitor(reportError, 'TypeVisitor')
   Object.assign({}, visit.emptyVisitor, structureVisitorInstance, {
-    scope: createScope(context, file)
-    reportError
-    imports: {}
+    scope: Scope.new(context)
 
     visitModule: |mut self, mut m: Module| {
-      self.scope = m.scope
-      self.scope.clearBindings()
+      m.scope = self.scope
       let mut imports = []
       let mut declarations = []
 
@@ -81,15 +79,17 @@ export fn TypeVisitor(context, file) {
         }
       )
 
-      imports.forEach(|mut i| self.visitImportDirective(i))
       declarations.forEach(|mut e| self.visitTopLevelStatement(e))
+      imports.forEach(|mut i| self.visitImportDirective(i))
       declarations.forEach(|mut e| self.visitTopLevelStatement(e))
       declarations.forEach(|mut e| self.visitTopLevelStatement(e))
     }
 
     visitEnumDeclaration: |mut self, mut t: EnumDeclaration| {
+      let mut parentScope: Scope = self.scope
+      let type_: Type = t.type_
       if not t.type_ {
-        t.type_ = {
+        let mut type_: Type = {
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Enum({
@@ -98,22 +98,34 @@ export fn TypeVisitor(context, file) {
           })
           class: TypeClass.fromAstNode(t, reportError)
           instance: None
+          providesType: None
+          enumMember: None
         }
+        t.type_ = Type.provides(type_)
         let token: ToSpan = t
-        self.scope.defineType(t.type_, token, true)
-        self.scope.define({name: t.name.name, mutable: false, token, type_: t.type_})
+        if let Result::Err(error) = parentScope.define({
+          name: t.name.name
+          token
+          mutable: false
+          allowRedeclare: false
+          type_: t.type_
+          previous: None
+          importedFrom: None
+        })
+          then reportError(t.name, error)
       }
       else if not t.scope {
-        t.scope = self.scope.createChild()
-        self.scope = t.scope
-        if let Option::Some(class) = t.type_.class {
+        let mut scope = parentScope.createChild()
+        t.scope = scope
+        self.scope = scope
+        if let Option::Some(class) = type_.providesType.unwrap().class {
           t.typeParameters.forEach(|p| {
             self.visitTypeParameter(p)
             class.typeParameters.push(p.type_)
           })
         }
-        t.scope.setSelfBinding(t.name.name)
-        self.scope = self.scope.parent
+        scope.setSelfType(type_.providesType.unwrap())
+        self.scope = parentScope
       }
       else {
         self.scope = t.scope
@@ -122,18 +134,28 @@ export fn TypeVisitor(context, file) {
         let memberMap = ObjectMap.fromIter(
           t.members.map(|p: EnumMember| (
             p.name.name
-            p.bound.mapOrElse(
-              || {{
+            p.bound.mapOr(
+              {
                 displayName: None
-                name: Some(p.name.name)
+                name: Some(t.name.name + '::' + p.name.name)
                 kind: TypeKind::Struct({
                   implementations: []
                   kind: StructKind::Unit
                 })
                 class: None
                 instance: None
+                providesType: None
+                enumMember: Some((p.name.name, type_.providesType.unwrap()))
+              }
+              |bound| {{
+                displayName: None
+                name: None
+                kind: bound.getType().kind
+                class: None
+                instance: None
+                providesType: None
+                enumMember: Some((p.name.name, type_.providesType.unwrap()))
               }}
-              |bound| bound.getType()
             )
           ))
         )
@@ -146,17 +168,20 @@ export fn TypeVisitor(context, file) {
           })
         }
 
-        if let TypeKind::Enum(enum_) = t.type_.kind {
+        if let TypeKind::Enum(enum_) = type_.providesType.unwrap().kind {
           Object.assign(enum_.members, memberMap)
         }
         else throw 'is not an enum'
 
-        self.scope = self.scope.parent
+        self.scope = parentScope
       }
+      ()
     }
     visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
+      let mut parentScope: Scope = self.scope
+      let type_: Type = t.type_
       if not t.type_ {
-        t.type_ = {
+        let mut type_: Type = {
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Trait({
@@ -165,38 +190,45 @@ export fn TypeVisitor(context, file) {
           })
           class: TypeClass.fromAstNode(t, reportError)
           instance: None
+          providesType: None
+          enumMember: None
         }
+        t.type_ = Type.provides(type_)
         let token: ToSpan = t
-        self.scope.defineType(t.type_, token, true)
-        t.binding = self.scope.define({
+        if let Result::Err(error) = parentScope.define({
           name: t.name.name
-          mutable: false
           token
+          mutable: false
+          allowRedeclare: false
           type_: t.type_
+          previous: None
+          importedFrom: None
         })
+          then reportError(t.name, error)
       }
       else if not t.scope {
-        self.scope = self.scope.createChild()
-        t.scope = self.scope
-        if let Option::Some(class) = t.type_.class {
+        let mut scope = parentScope.createChild()
+        t.scope = scope
+        self.scope = scope
+        if let Option::Some(class) = type_.providesType.unwrap().class {
           t.typeParameters.forEach(|p| {
             self.visitTypeParameter(p)
             class.typeParameters.push(p.type_)
           })
         }
-        t.scope.setSelfBinding(t.name.name)
-        self.scope = self.scope.parent
+        scope.setSelfType(type_.providesType.unwrap())
+        self.scope = parentScope
       }
       else {
         self.scope = t.scope
-        t.members.forEach(|m| self.visitMethodDeclaration(m, t.type_))
+        t.members.forEach(|m| self.visitMethodDeclaration(m, type_.providesType.unwrap()))
 
-        if let TypeKind::Trait(trait_) = t.type_.kind {
+        if let TypeKind::Trait(trait_) = type_.providesType.unwrap().kind {
           Object.assign(trait_.functions, ObjectMap.fromIter(
             t.members.map(|m| (m.name.value[0].name, m.type_))
           ))
 
-          if let Option::Some(class) = t.type_.class {
+          if let Option::Some(class) = type_.providesType.unwrap().class {
             class.instances.forEach(|mut instance| {
               if let TypeKind::Trait(instanceTrait) = instance.kind {
                 Object.assign(instanceTrait, {
@@ -209,10 +241,13 @@ export fn TypeVisitor(context, file) {
         }
         else throw 'is not a trait'
 
-        self.scope = self.scope.parent
+        self.scope = parentScope
       }
+      ()
     }
     visitTypeDeclaration: |mut self, mut t: TypeDeclaration| {
+      let mut parentScope: Scope = self.scope
+      let type_: Type = t.type_
       if not t.type_ {
         let structKind =
           if let Option::Some(typeBound) = t.bound {
@@ -224,7 +259,7 @@ export fn TypeVisitor(context, file) {
           }
           else StructKind::Unit
 
-        t.type_ = {
+        let mut type_: Type = {
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Struct({
@@ -233,38 +268,44 @@ export fn TypeVisitor(context, file) {
           })
           class: TypeClass.fromAstNode(t, reportError)
           instance: None
+          providesType: None
+          enumMember: None
         }
+        t.type_ = Type.provides(type_)
         let token: ToSpan = t
-        self.scope.defineType(t.type_, token, true)
-        t.binding = self.scope.define({
+        if let Result::Err(error) = parentScope.define({
           name: t.name.name
-          mutable: false
           token
+          mutable: false
+          allowRedeclare: false
           type_: t.type_
+          previous: None
+          importedFrom: None
         })
+          then reportError(t.name, error)
       }
       else if not t.scope {
-        t.scope = self.scope.createChild()
-        self.scope = t.scope
-        if let Option::Some(class) = t.type_.class {
+        let mut scope = parentScope.createChild()
+        t.scope = scope
+        self.scope = scope
+        if let Option::Some(class) = type_.providesType.unwrap().class {
           t.typeParameters.forEach(|p| {
             self.visitTypeParameter(p)
             class.typeParameters.push(p.type_)
           })
         }
-        t.scope.setSelfBinding(t.name.name)
-        self.scope = self.scope.parent
+        scope.setSelfType(type_.providesType.unwrap())
+        self.scope = parentScope
       }
       else {
         self.scope = t.scope
         if let Option::Some(typeBound) = t.bound {
           self.visitTypeBound(typeBound)
 
-          match t.type_.kind {
+          match type_.providesType.unwrap().kind {
             TypeKind::Struct({kind: StructKind::Record({properties})}) => {
               Object.assign(properties, ObjectMap.fromIter(
                 typeBound.getRecordTypeBound().properties.map(|p| {
-                  // print('(p.name.name, p.typeBound.type_)', (p.name.name, p.typeBound, p.typeBound.getType()))
                   (p.name.name, p.typeBound.getType())
                 })
               ))
@@ -278,8 +319,9 @@ export fn TypeVisitor(context, file) {
           }
         }
 
-        self.scope = self.scope.parent
+        self.scope = parentScope
       }
+      ()
     }
 
     visitExportDirective: |self, mut e: ExportDirective| {
@@ -287,36 +329,74 @@ export fn TypeVisitor(context, file) {
       visit.walkExportDirective(self, e)
     }
     visitImportDirective: |mut self, mut importDirective: ImportDirective| {
+      let mut scope: Scope = self.scope
       importDirective.scope = self.scope
+      if let Option::Some(module) = importDirective.module {
+        if not module.scope {
+          context.runTypeVisitorOnFile(module.file)
+        }
+      }
+
       match importDirective.specifier {
         ImportSpecifier::Identifier(identifier) => {
           let token: ToSpan = identifier
-          self.scope.define({name: identifier.name, mutable: false, token})
+          if let Result::Err(error) = scope.define({
+            name: identifier.name
+            token
+            mutable: false
+            allowRedeclare: false
+            type_: {
+              displayName: Some(identifier.name)
+              name: None
+              kind: TypeKind::Struct({
+                implementations: []
+                kind: StructKind::Record({
+                  properties: ObjectMap.new()
+                })
+              })
+              instance: None
+              class: None
+              providesType: None
+              enumMember: None
+            }
+            previous: None
+            importedFrom: None
+          })
+            then reportError(identifier, error)
         }
         ImportSpecifier::ObjectDestructure(d) => {
           d.members.forEach(|m| {
             let token: ToSpan = m
-            if importDirective.module {
-              let e = importDirective.module.exports[m.local.name]
-              if not e then return undefined
-              if isTypeScope(e) {
-                let typeBinding = importDirective.module.scope.getTypeBinding(m.property.name)
-                self.scope.setTypeBinding(typeBinding)
-                self.scope.define({name: m.local.name, mutable: false, token, type_: typeBinding.type_})
-                self.imports[m.local.name] = importDirective.file
-              }
-              else {
-                let binding = importDirective.module.scope.getBinding(m.property.name)
-                self.scope.define({
-                  name: m.local.name
-                  mutable: false
-                  token
-                  inherit: binding
-                  importedFrom: importDirective
-                })
-              }
+            if let Option::Some(module) = importDirective.module {
+              let e = module.exports.get(m.local.name).unwrap()
+              let moduleScope: Scope = module.scope
+              let importedBinding = moduleScope.getBinding(m.property.name, 'TypeVisitor').unwrapOr(Object.assign({}))
+              if let Result::Err(error) = scope.define({
+                name: m.local.name
+                token
+                mutable: false
+                allowRedeclare: false
+                type_: importedBinding.type_
+                providesType: importedBinding.providesType
+                previous: None
+                importedFrom: importDirective.module
+              })
+                then reportError(m.local, error)
+              imports[m.local.name] = importDirective.file
             }
-            else self.scope.define({name: m.local.name, mutable: false, token})
+            else {
+              if let Result::Err(error) = scope.define({
+                name: m.local.name
+                token
+                mutable: false
+                allowRedeclare: false
+                type_: undefined
+                providesType: None
+                previous: None
+                importedFrom: None
+              })
+                then reportError(m.local, error)
+            }
           })
         }
         ImportSpecifier::Asterisk(_) => {}
@@ -327,23 +407,12 @@ export fn TypeVisitor(context, file) {
       visit.walkTypeBound(self, t)
     }
     visitNamedTypeBound: |self, mut t: NamedTypeBound| {
-      let result: Result<TypeBinding, String> = self.scope.getTypePath(t.path)
+      let scope: Scope = self.scope
+      let result = scope.getTypePath(t.path, 'TypeVisitor')
 
       match result {
-        Result::Ok(binding) => {
-          if not binding.token.scope {
-            let name =
-              match t.path {
-                TypePath::Member({name}) => name
-                TypePath::Object({name}, _) => name
-              }
-
-            if self.imports[name]
-              then context.runTypeVisitorOnFile(self.imports[name])
-              else reportError(t, 'Scope not set for binding $name but not found in imports either')
-          }
-        }
-        Result::Err(err) => reportError(t, err)
+        Ok(binding) => {}
+        Err(err) => reportError(t, err)
       }
 
       structureVisitorInstance.visitNamedTypeBound.call(self, t)

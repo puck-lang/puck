@@ -9,6 +9,13 @@ export type Span {
   end: Position
 }
 
+impl Span {
+  fn empty() -> Span {{
+    start: {line: 0, column: 0}
+    end: {line: 0, column: 0}
+  }}
+}
+
 export trait ToSpan {
   fn span(self) -> Span
 }
