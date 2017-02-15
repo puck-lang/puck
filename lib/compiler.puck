@@ -14,7 +14,7 @@ import 'typeck/import_visitor.puck' as {ImportVisitor}
 import 'typeck/scope_visitor.puck' as {ScopeVisitor}
 import 'typeck/top_level_visitor.puck' as {TopLevelVisitor}
 import 'typeck/type_visitor.puck' as {TypeVisitor}
-import 'entities.puck' as {File, UnparsedFile}
+import 'entities.puck' as {BuildFile, File, UnparsedFile}
 
 fn fileInspect(self, depth, opts) {
   inspect(
@@ -186,7 +186,7 @@ export fn buildString(code: String, filePath: String) -> Result<File, {}> {
   })
 }
 
-export fn build(files: List<UnparsedFile>, options = {}) {
+export fn build(files: List<BuildFile>, options = {}) {
   let dump = options.dump
   let mut context = createContext(options.ignoreErrors)
 

@@ -9,6 +9,12 @@ import 'ast/span.puck' as {Span, ToSpan}
 import 'typeck/src/range.puck' as {getRange}
 import 'typeck/src/scope.puck' as {Binding}
 
+export type BuildFile {
+  isBin: Bool
+  file: String
+  outFile: String
+}
+
 export type UnparsedFile {
   isBin: Bool
   fileName: String
@@ -202,6 +208,12 @@ impl Type {
       TypeKind::Parameter(_) => true
       _ => false
     }
+  }
+
+  fn typeParameters(self) -> Option<List<Type>> {
+    self.instance
+      .map(|i| i.typeParameters)
+      .orValue(self.class.map(|i| i.typeParameters))
   }
 }
 

@@ -181,6 +181,21 @@ fn isSameName(to: Type, subject: Type) {
   }
 }
 
+fn checkTypeParameters(to: Type, subject: Type) {
+  if to.name.isNone() or subject.name.isNone() then return true
+
+  match (to.typeParameters(), subject.typeParameters()) {
+    (Some(toParameters), Some(subjectParameters)) => {
+      if toParameters.size() == subjectParameters.size()
+        then List.zip(toParameters, subjectParameters)
+          .all(|(toParameter, subjectParameter)| isAssignable(toParameter, subjectParameter))
+        else false
+    }
+    (Option::None, Option::None) => true
+    _ => false
+  }
+}
+
 export fn isAssignable(to: Type, subject: Type) {
   if to and not subject {
     if let TypeKind::Trait(_) = to.kind then return false
@@ -197,7 +212,9 @@ export fn isAssignable(to: Type, subject: Type) {
   match to.kind {
     TypeKind::Enum(toEnum) => match subject.kind {
       TypeKind::Enum(subjectEnum) => {
-        isSameName(to, subject) and isEnumAssignable(toEnum, subjectEnum)
+        isSameName(to, subject) and
+        isEnumAssignable(toEnum, subjectEnum) and
+        checkTypeParameters(to, subject)
       }
       _ => false
     }
@@ -208,7 +225,9 @@ export fn isAssignable(to: Type, subject: Type) {
     TypeKind::Parameter => true
     TypeKind::Struct(toStruct) => match subject.kind {
       TypeKind::Struct(subjectStruct) => {
-        isSameName(to, subject) and isStructAssignable(toStruct, subjectStruct)
+        isSameName(to, subject) and
+        isStructAssignable(toStruct, subjectStruct) and
+        checkTypeParameters(to, subject)
       }
       _ => false
     }

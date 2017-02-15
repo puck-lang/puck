@@ -168,6 +168,10 @@ Iterable['$List<E>'] = {
     };
     return { type: '$List<E>', value: asList(__PUCK__value__2), $isTraitObject: true };
   },
+  take: function take(count) {
+    var self = this;
+    return { type: '$List<E>', value: asList(self.value.slice(0, count)), $isTraitObject: true };
+  },
   toList: function toList() {
     var self = this;
     return self.value;
