@@ -27,8 +27,6 @@ export fn expect<T>(value: T) -> ExpectationObject<T> {
   global.expect(value)
 }
 
-// export let expect = global.expect
-
 export fn describe(message: String, group: () -> ()) -> () {
   global.describe(message, group)
 }

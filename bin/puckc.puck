@@ -1,7 +1,8 @@
 import 'puck:js' as {Error}
+import 'node:fs' as {realpathSync}
 import 'node:path' as {join}
 import '../lib/helpers.puck' as {cmd, flag}
-import '../lib/compiler.puck' as {build}
+import '../lib/compiler.puck' as {createContext, build}
 import '../lib/stdlib/js.puck' as {Array, RegExp, console, process}
 
 let mut E = Error
@@ -28,6 +29,8 @@ if arguments.length == 0 {
 ')
   process.exit(1)
 } else {
+  let projectPath = realpathSync('.')
+  let mut context = createContext(projectPath, ignoreErrors)
   let files = arguments
     .map(|file| {{
       isBin: isBinary
@@ -35,5 +38,5 @@ if arguments.length == 0 {
       outFile: outFile or join(outDir, file.replace(RegExp('\\.puck$'), extension))
     }})
     .toList()
-  build(files, {dump, ignoreErrors})
+  build(files, context, {dump})
 }

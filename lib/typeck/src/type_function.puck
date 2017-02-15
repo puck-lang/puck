@@ -10,7 +10,10 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
       then enum_.name.map(|name| '$name::$member')
       else type_.displayName
 
-  let mut providedType = type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
+  let mut providedType = type_.enumMember
+    .map(|(_, enum_)| enum_)
+    .orValue(type_.providesType)
+    .unwrapOr(type_)
   let mut returnType: Type =
     if let Option::Some(class) = providedType.class
       then createTypeInstance(providedType, class.typeParameters)
@@ -55,7 +58,8 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
           })
         }
 
-        StructKind::Unit => return {
+        StructKind::Unit => return Type({
+          id: returnType.id
           displayName
           name: returnType.name
           kind: returnType.kind
@@ -63,7 +67,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
           instance: returnType.instance
           providesType: returnType.providesType
           enumMember: returnType.enumMember
-        }
+        })
       }
       _ => {
         TypeKind::Struct({
@@ -74,6 +78,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
     }
 
   {
+    id: providedType.id
     displayName
     name: type_.name
     kind

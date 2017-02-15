@@ -6,6 +6,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
+var _fs = require('fs');
+
 var _path = require('path');
 
 var _helpers = require('./../lib/helpers');
@@ -21,7 +23,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 var E = _js.Error;
 $unwrapTraitObject(E).stackTraceLimit = 100;
 var argv = $unwrapTraitObject(_js2.process).argv;
-var __PUCK__value__1 = _core.Iterable['$List<E>'].skipUntil.call({ type: '$List<E>', value: argv, $isTraitObject: true }, function (arg) {
+var __PUCK__value__1 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "puckc");
 });
 var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__1, 1);
@@ -45,6 +47,8 @@ if (_arguments.value.length == 0) {
   (0, _core.print)("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] ...files\n");
   $unwrapTraitObject(_js2.process).exit(1);
 } else {
+  var projectPath = (0, _fs.realpathSync)(".");
+  var context = (0, _compiler.createContext)(projectPath, ignoreErrors);
   var __PUCK__value__3 = _core.Iterable[_arguments.type].map.call(_arguments, function (file) {
     return {
       isBin: isBinary,
@@ -53,8 +57,5 @@ if (_arguments.value.length == 0) {
     };
   });
   var files = _core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3);
-  (0, _compiler.build)(files, {
-    dump: dump,
-    ignoreErrors: ignoreErrors
-  });
+  (0, _compiler.build)(files, context, { dump: dump });
 }

@@ -54,7 +54,7 @@ import {
   textToToken,
   tokenToText,
 } from './ast'
-import {Type, Record, Tuple} from '../entities'
+import {Type, Record, Tuple, Implementation} from '../entities'
 import {
   getImplementationsForInstance,
   getImplementationsForTrait,
@@ -171,24 +171,17 @@ export function Emitter() {
     else return type
   }
 
-  function getTypeProp(type, trait?) {
-    if (trait) {
-      let impls = getImplementationsForInstance(type)
-      impls = getImplementationsForTrait(type, trait, impls)
-      if (impls.length > 1) {
-        impls = getMostSpecificImplementations(type, impls)
-      }
-      type = impls[0].type_
+  function getImplId(type, trait) {
+    let impls = getImplementationsForInstance(type)
+    impls = getImplementationsForTrait(type, trait, impls)
+    if (impls.length > 1) {
+      impls = getMostSpecificImplementations(type, impls)
     }
-    else {
-      type = getTypeClass(type)
-    }
+    return impls[0].id
+  }
 
-    if (type && type.name && type.name.kind) {
-      return `'$${Type.displayName.call(type)}'`
-    }
-
-    return `'$${type.name}'`
+  function implProp(impl: Implementation) {
+    return `[${JSON.stringify(impl.id)}]`
   }
 
   function emitExpressions(block: Expression[], inContext = context, assignedTo_?: Type) {
@@ -380,7 +373,7 @@ export function Emitter() {
         const expressionType = getType(expression)
         if (assignedTo && expressionType && (context == Context.Return || context == Context.Value)) {
           if (assignedTo.kind.kind === 'Trait' && getType(expression).kind.kind !== 'Trait') {
-            scalarExpression = `{type: ${getTypeProp(expressionType, assignedTo)}, value: ${scalarExpression}, $isTraitObject: true}`
+            scalarExpression = `{type: '${getImplId(expressionType, assignedTo)}', value: ${scalarExpression}, $isTraitObject: true}`
           }
           else if (assignedTo.kind.kind !== 'Trait') {
             scalarExpression = unwrap(scalarExpression, expression)
@@ -528,7 +521,7 @@ export function Emitter() {
   function emitImplDeclaration(i: ImplDeclaration) {
     let functions: any = Object['assign']({}, i.trait_.value[0].type_.kind.value[0].functions)
     i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m))
-    return `${emitTypePath(i.trait_.value[0].path)}[${getTypeProp(i.type_.value[0].type_)}] = {\n${
+    return `${emitTypePath(i.trait_.value[0].path)}${implProp(i.implementation)} = {\n${
       indent(
         Object.keys(functions).map(f =>
           `${emitIdentifier({name: f})}: ${
@@ -571,7 +564,7 @@ export function Emitter() {
         value = '(...members) => members'
       }
       else {
-        throw `Unsupproted type bound ${SyntaxKind[t.bound.kind]}, ${t.bound.kind}`
+        throw `Unsupported type bound ${SyntaxKind[t.bound.kind]}, ${t.bound.kind}`
       }
     } else {
       value = `Symbol('${emitIdentifier(t.name)}')`
@@ -712,7 +705,7 @@ export function Emitter() {
   }
 
   function emitCallExpression(fn_: CallExpression) {
-    let fn = fn_ as CallExpression & {traitName: string, implementationType: any, isShorthand: boolean, isTraitObject: boolean}
+    let fn = fn_ as CallExpression & {traitName: string, isShorthand: boolean, isTraitObject: boolean}
     let functionName
     let functionType = getType(fn.func)
     let parameterBindings = functionType && functionType.kind.value[0].parameters
@@ -735,7 +728,7 @@ export function Emitter() {
       functionName = `${fn.traitName}${
         (fn.isShorthand || selfBinding.kind === 'None') ? `` :
         fn.isTraitObject ? `[${emitIdentifier({name: valueVariable})}.type]`
-        : `[${getTypeProp(fn.implementationType)}]`
+        : `${implProp(fn.implementation)}`
       }.${emitIdentifier((fn.func.value[0] as MemberAccess).member)}`
       if (selfBinding.kind === 'Some') {
         if (fn.isTraitObject) {

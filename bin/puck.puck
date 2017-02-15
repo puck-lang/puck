@@ -2,7 +2,7 @@ import 'puck:js' as {RegExp, console, process, require}
 import 'node:fs' as fs
 import '../lib/test/jest.puck' as {jest}
 import 'node:path' as path
-import '../lib/compiler.puck' as {build}
+import '../lib/compiler.puck' as {build, createContext}
 import '../lib/helpers.puck' as {walkSync}
 
 let argv: List<String> = process.argv
@@ -37,8 +37,10 @@ if command == 'build' {
     }})
     .toList()
 
-  build(binFiles)
-  build(libFiles)
+  let projectPath = fs.realpathSync('.')
+  let mut context = createContext(projectPath)
+  build(libFiles, context)
+  build(binFiles, context)
 
   print('done')
 }

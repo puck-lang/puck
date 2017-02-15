@@ -75,10 +75,10 @@ var Option = exports.Option = {
 };
 var Never = exports.Never = {};
 var Iterable = exports.Iterable = {};
-Iterable['$List<E>'] = {
+Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"] = {
   enumerate: function enumerate() {
     var self = this;
-    return { type: '$List<E>', value: asList($unwrapTraitObject(anyCast(self)).map(function (element, index) {
+    return { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: asList($unwrapTraitObject(anyCast(self)).map(function (element, index) {
         return [element, index];
       })), $isTraitObject: true };
   },
@@ -143,7 +143,7 @@ Iterable['$List<E>'] = {
   },
   filter: function filter(func) {
     var self = this;
-    return { type: '$List<E>', value: asList($unwrapTraitObject(anyCast(self)).filter(func)), $isTraitObject: true };
+    return { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: asList($unwrapTraitObject(anyCast(self)).filter(func)), $isTraitObject: true };
   },
   forEach: function forEach(func) {
     var self = this;
@@ -151,12 +151,12 @@ Iterable['$List<E>'] = {
   },
   map: function map(func) {
     var self = this;
-    return { type: '$List<E>', value: asList($unwrapTraitObject(anyCast(self)).map(func)), $isTraitObject: true };
+    return { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: asList($unwrapTraitObject(anyCast(self)).map(func)), $isTraitObject: true };
   },
   filterMap: function filterMap(func) {
     var self = this;
     var newList = [];
-    Iterable['$List<E>'].forEach.call(self, function (element) {
+    Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call(self, function (element) {
       var __PUCK__value__1 = func($unwrapTraitObject(element));
       if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
         var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
@@ -166,11 +166,11 @@ Iterable['$List<E>'] = {
         return List.add.call(newList, $unwrapTraitObject(mappedElement));
       };
     });
-    return { type: '$List<E>', value: newList, $isTraitObject: true };
+    return { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: newList, $isTraitObject: true };
   },
   skip: function skip(count) {
     var self = this;
-    return { type: '$List<E>', value: asList(self.value.slice(count)), $isTraitObject: true };
+    return { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: asList(self.value.slice(count)), $isTraitObject: true };
   },
   skipUntil: function skipUntil(predicate) {
     var self = this;
@@ -181,11 +181,11 @@ Iterable['$List<E>'] = {
     } else {
       __PUCK__value__2 = self.value.slice(index);
     };
-    return { type: '$List<E>', value: asList(__PUCK__value__2), $isTraitObject: true };
+    return { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: asList(__PUCK__value__2), $isTraitObject: true };
   },
   take: function take(count) {
     var self = this;
-    return { type: '$List<E>', value: asList(self.value.slice(0, count)), $isTraitObject: true };
+    return { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: asList(self.value.slice(0, count)), $isTraitObject: true };
   },
   toList: function toList() {
     var self = this;
@@ -254,10 +254,10 @@ Radix.radix = function radix() {
   };
 };
 Num.parseInt = function parseInt(string) {
-  var base = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Radix.Decimal;
+  var radix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Radix.Decimal;
 
-  if (RegExp.test.call(Radix.pattern.call(base), string)) {
-    return Result.Ok(js.parseInt(string, Radix.radix.call(base)));
+  if (RegExp.test.call(Radix.pattern.call(radix), string)) {
+    return Result.Ok(js.parseInt(string, Radix.radix.call(radix)));
   } else {
     return Result.Err([]);
   };

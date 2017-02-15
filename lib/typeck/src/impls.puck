@@ -51,6 +51,7 @@ export fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
 
 export fn getImplementationsForTrait(type_: Type, trait_: Type, implementations: List<Implementation>) -> List<Implementation> {
   implementations
+    .filter(|i| not i.trait_.getTrait().isShorthand)
     .filter(|i| isAssignable(trait_, i.trait_))
     .toList()
 }

@@ -75,10 +75,10 @@ function structureVisitor(reportError) {
             __PUCK__value__1 = __PUCK__value__3;
           };
           var assignedTo = __PUCK__value__1;
-          _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: f.typeParameters, $isTraitObject: true }, function (p) {
+          _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.typeParameters, $isTraitObject: true }, function (p) {
             return $unwrapTraitObject(self).visitTypeParameter(p);
           });
-          var __PUCK__value__4 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: f.parameterList, $isTraitObject: true });
+          var __PUCK__value__4 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.parameterList, $isTraitObject: true });
           _core.Iterable[__PUCK__value__4.type].forEach.call(__PUCK__value__4, function (_ref) {
             var _ref2 = _slicedToArray(_ref, 2),
                 p = _ref2[0],
@@ -108,7 +108,7 @@ function structureVisitor(reportError) {
                 _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
                 name = _$unwrapTraitObject3$[0];
 
-            var token = { type: '$FunctionDeclaration', value: f, $isTraitObject: true };
+            var token = { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true };
             var __PUCK__value__8 = _scope.Scope.define.call(parentScope, {
               name: name.name,
               token: token,
@@ -123,7 +123,7 @@ function structureVisitor(reportError) {
                   _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
                   err = _$unwrapTraitObject4$[0];
 
-              reportError({ type: '$Identifier', value: name, $isTraitObject: true }, err);
+              reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: name, $isTraitObject: true }, err);
             };
           };
           return {
@@ -140,8 +140,8 @@ function structureVisitor(reportError) {
         var parentScope = $unwrapTraitObject(self).scope;
         $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
         f.scope = $unwrapTraitObject(self).scope;
-        _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: f.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
-        var __PUCK__value__9 = _core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: f.parameterList, $isTraitObject: true });
+        _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
+        var __PUCK__value__9 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.parameterList, $isTraitObject: true });
         if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
           var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__9),
               _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
@@ -168,13 +168,13 @@ function structureVisitor(reportError) {
               } else {
                 $unwrapTraitObject(self).visitVariableDeclaration(first);
                 if (!(0, _types.isAssignable)(first.type_, selfType)) {
-                  reportError({ type: '$VariableDeclaration', value: first, $isTraitObject: true }, notAssignableError(first.type_, selfType));
+                  reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: first, $isTraitObject: true }, notAssignableError(first.type_, selfType));
                 };
               };
             };
           };
         };
-        _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: f.parameterList, $isTraitObject: true }, function (p) {
+        _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.parameterList, $isTraitObject: true }, function (p) {
           return $unwrapTraitObject(self).visitVariableDeclaration(p);
         });
         var __PUCK__value__11 = f.returnType;
@@ -200,7 +200,7 @@ function structureVisitor(reportError) {
         $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
         t.scope = $unwrapTraitObject(self).scope;
         visit.walkFunctionTypeBound(self, t);
-        var __PUCK__value__13 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: t.parameters.properties, $isTraitObject: true });
+        var __PUCK__value__13 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: t.parameters.properties, $isTraitObject: true });
         var __PUCK__value__12 = _core.Iterable[__PUCK__value__13.type].map.call(__PUCK__value__13, function (_ref3) {
           var _ref4 = _slicedToArray(_ref3, 2),
               t = _ref4[0],
@@ -218,14 +218,15 @@ function structureVisitor(reportError) {
         });
         var parameters = _core.Iterable[__PUCK__value__12.type].toList.call(__PUCK__value__12);
         t.type_ = (0, _entities.Type)({
+          id: _core.None,
           displayName: _core.None,
           name: _core.None,
           kind: _entities.TypeKind.Function({
             selfBinding: _core.None,
             parameters: parameters,
             parameterRange: {
-              start: _core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: parameters, $isTraitObject: true }),
-              end: _core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: parameters, $isTraitObject: true }) + 1
+              start: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: parameters, $isTraitObject: true }),
+              end: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: parameters, $isTraitObject: true }) + 1
             },
             returnType: _ast.TypeBound.getType.call(t.returnType),
             isAbstract: false
@@ -257,7 +258,7 @@ function structureVisitor(reportError) {
           var __PUCK__value__16 = void 0;
           if (name == "Self") {
             if (t.typeParameters.length > 0) {
-              reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, "Self is not generic");
+              reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true }, "Self is not generic");
             };
             __PUCK__value__16 = true;
           } else {
@@ -281,18 +282,18 @@ function structureVisitor(reportError) {
                   _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
                   error = _$unwrapTraitObject11[0];
 
-              reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, error);
+              reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true }, error);
             };
           } else {
             if (t.typeParameters.length > 0) {
-              reportError({ type: '$NamedTypeBound', value: t, $isTraitObject: true }, "Type " + _entities.Type.displayName.call(type_) + " is not generic");
+              reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true }, "Type " + _entities.Type.displayName.call(type_) + " is not generic");
             };
           };
         };
         visit.walkNamedTypeBound(self, t);
         var __PUCK__value__19 = void 0;
         if (_core.Option.isSome.call(type_._class)) {
-          __PUCK__value__19 = (0, _types.createTypeInstance)(type_, _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: t.typeParameters, $isTraitObject: true }, function (typeBound) {
+          __PUCK__value__19 = (0, _types.createTypeInstance)(type_, _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: t.typeParameters, $isTraitObject: true }, function (typeBound) {
             return _ast.TypeBound.getType.call(typeBound);
           }));
         } else {
@@ -307,11 +308,12 @@ function structureVisitor(reportError) {
         t.scope = $unwrapTraitObject(self).scope;
         visit.walkRecordTypeBound(self, t);
         return t.type_ = (0, _entities.Type)({
+          id: _core.None,
           displayName: _core.None,
           name: _core.None,
           kind: _entities.TypeKind.Struct({
             implementations: [],
-            kind: _entities.StructKind.Record({ properties: _core.ObjectMap.fromIter(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, function (member) {
+            kind: _entities.StructKind.Record({ properties: _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: t.properties, $isTraitObject: true }, function (member) {
                 return [member.name.name, _ast.TypeBound.getType.call(member.typeBound)];
               })) })
           }),
@@ -328,10 +330,11 @@ function structureVisitor(reportError) {
       if (!t.scope) {
         t.scope = $unwrapTraitObject(self).scope;
         visit.walkTupleTypeBound(self, t);
-        var __PUCK__value__20 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, function (p) {
+        var __PUCK__value__20 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: t.properties, $isTraitObject: true }, function (p) {
           return _ast.TypeBound.getType.call(p);
         });
         return t.type_ = (0, _entities.Type)({
+          id: _core.None,
           displayName: _core.None,
           name: _core.None,
           kind: _entities.TypeKind.Struct({
@@ -351,6 +354,7 @@ function structureVisitor(reportError) {
         t.scope = $unwrapTraitObject(self).scope;
         visit.walkTypeParameter(self, t);
         t.type_ = (0, _entities.Type)({
+          id: (0, _core.Some)(t.name.name),
           displayName: _core.None,
           name: (0, _core.Some)(t.name.name),
           kind: _entities.TypeKind.Parameter({ defaultValue: _core.Option.map.call(t.defaultValue, function (typeBound) {
@@ -364,7 +368,7 @@ function structureVisitor(reportError) {
         var scope = $unwrapTraitObject(self).scope;
         var __PUCK__value__21 = _scope.Scope.define.call(scope, {
           name: t.name.name,
-          token: { type: '$TypeParameter', value: t, $isTraitObject: true },
+          token: { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: t, $isTraitObject: true },
           mutable: false,
           allowRedeclare: false,
           type_: _entities.Type.provides(t.type_),
@@ -376,7 +380,7 @@ function structureVisitor(reportError) {
               _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
               err = _$unwrapTraitObject13[0];
 
-          return reportError({ type: '$Identifier', value: t.name, $isTraitObject: true }, err);
+          return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: t.name, $isTraitObject: true }, err);
         };
       };
     },
@@ -401,7 +405,7 @@ function structureVisitor(reportError) {
                 _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject16.value, 1),
                 err = _$unwrapTraitObject17[0];
 
-            return reportError({ type: '$TypePath', value: t, $isTraitObject: true }, err);
+            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: t, $isTraitObject: true }, err);
           };
         };
       };
@@ -421,7 +425,7 @@ function structureVisitor(reportError) {
       });
       d.type_ = type_;
       if (!(0, _types.isAssignable)(d.pattern.type_, d.type_)) {
-        return reportError({ type: '$Pattern', value: d.pattern, $isTraitObject: true }, _entities.Type.displayName.call(type_) + " is not assignable to pattern " + _ast.Pattern.displayName.call(d.pattern));
+        return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: d.pattern, $isTraitObject: true }, _entities.Type.displayName.call(type_) + " is not assignable to pattern " + _ast.Pattern.displayName.call(d.pattern));
       };
       var __PUCK__value__25 = (0, _patterns.declarePatternVariables)(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive);
       var __PUCK__value__26 = __PUCK__value__25;
@@ -439,14 +443,14 @@ function structureVisitor(reportError) {
               to = _$unwrapTraitObject22[1],
               subject = _$unwrapTraitObject22[2];
 
-          reportError({ type: '$VariableDeclaration', value: d, $isTraitObject: true }, notAssignableError(to, subject));
+          reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true }, notAssignableError(to, subject));
         } else {
           var __PUCK__value__30 = __PUCK__value__25;
           if ($unwrapTraitObject(__PUCK__value__30).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__30).value)[$unwrapTraitObject(0)]).kind == "NotExhaustive") {
             var _$unwrapTraitObject23 = $unwrapTraitObject(__PUCK__value__30),
                 _$unwrapTraitObject24 = _toArray(_$unwrapTraitObject23.value);
 
-            reportError({ type: '$VariableDeclaration', value: d, $isTraitObject: true }, "non exhaustive pattern");
+            reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true }, "non exhaustive pattern");
           } else {
             var __PUCK__value__31 = __PUCK__value__25;
             if ($unwrapTraitObject(__PUCK__value__31).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__31).value)[$unwrapTraitObject(0)]).kind == "ScopeError") {
@@ -478,11 +482,11 @@ function structureVisitor(reportError) {
           d.type_ = initializerType;
         } else {
           if (!(0, _types.isAssignable)(d.type_, initializerType)) {
-            return reportError({ type: '$VariableDeclaration', value: d, $isTraitObject: true }, notAssignableError(d.type_, initializerType));
+            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true }, notAssignableError(d.type_, initializerType));
           };
         };
         if (!(0, _types.isAssignable)(d.pattern.type_, initializerType)) {
-          return reportError({ type: '$VariableDeclaration', value: d, $isTraitObject: true }, notAssignableError(d.pattern.type_, initializerType));
+          return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true }, notAssignableError(d.pattern.type_, initializerType));
         };
       };
     }

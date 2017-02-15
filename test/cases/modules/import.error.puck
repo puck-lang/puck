@@ -17,3 +17,10 @@ import 'puck:missing' as a
 
 ///// Invalid import domain unknown
 import 'unknown:module' as a
+
+///// ype is not assignable to type Type
+import 'export.puck' as {Type: RenamedType}
+type Type(String)
+
+let a: RenamedType = ((1))
+let b: Type = a

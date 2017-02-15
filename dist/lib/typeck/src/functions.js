@@ -34,7 +34,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 function createFunctionType(scope, f, reportError) {
   var __PUCK__value__1 = void 0;
   if (f.typeParameters.length) {
-    var __PUCK__value__2 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: f.typeParameters, $isTraitObject: true }, function (p) {
+    var __PUCK__value__2 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.typeParameters, $isTraitObject: true }, function (p) {
       return p.type_;
     });
     __PUCK__value__1 = (0, _core.Some)({
@@ -48,7 +48,7 @@ function createFunctionType(scope, f, reportError) {
     __PUCK__value__1 = _core.None;
   };
   var _class = __PUCK__value__1;
-  var __PUCK__value__3 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: f.parameterList, $isTraitObject: true }, function (p) {
+  var __PUCK__value__3 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.parameterList, $isTraitObject: true }, function (p) {
     return {
       pattern: p.pattern,
       mutable: p.mutable,
@@ -96,6 +96,7 @@ function createFunctionType(scope, f, reportError) {
     };
   };
   return {
+    id: _core.None,
     displayName: _core.None,
     name: _core.Option.map.call(f.name, function (identifier) {
       return identifier.name;
@@ -123,7 +124,7 @@ function checkFunctionAssignability(functionName, to, subject) {
     return (0, _core.Err)(error);
   };
   var errors = [];
-  var __PUCK__value__10 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: subject.parameters, $isTraitObject: true });
+  var __PUCK__value__10 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: subject.parameters, $isTraitObject: true });
   _core.Iterable[__PUCK__value__10.type].forEach.call(__PUCK__value__10, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         subjectParameter = _ref2[0],
@@ -157,7 +158,7 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
           __PUCK__value__13 = _$unwrapTraitObject3$[0];
 
       var name = _core.Option.unwrap.call(parameterType.name);
-      if (_core.Iterable['$List<E>'].any.call({ type: '$List<E>', value: typeParameters, $isTraitObject: true }, function (p) {
+      if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: typeParameters, $isTraitObject: true }, function (p) {
         return _core.Option.unwrap.call(p.name) == name;
       })) {
         if (!_core.ObjectMap.has.call(parameterMap, name)) {

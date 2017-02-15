@@ -1,4 +1,5 @@
 import 'puck:js' as {Object, undefined}
+import 'node:path' as {relative}
 import '../ast/ast.puck' as {
   Module
   TopLevelStatement
@@ -39,6 +40,11 @@ fn isTypeScope(e: ExportDirective) {
     ExportedStatement::TypeDeclaration(_) => true
     _ => false
   }
+}
+
+fn generateTypeId(context, file: File, name: String) {
+  let path = relative(context.projectPath, file.absolutePath)
+  Some(path + ':$name')
 }
 
 /// Visits and declares Enums, Traits and Types
@@ -89,7 +95,8 @@ export fn TypeVisitor(context, file) {
       let mut parentScope: Scope = self.scope
       let type_: Type = t.type_
       if not t.type_ {
-        let mut type_: Type = {
+        t.type_ = Type.provides({
+          id: generateTypeId(context, file, t.name.name)
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Enum({
@@ -100,8 +107,7 @@ export fn TypeVisitor(context, file) {
           instance: None
           providesType: None
           enumMember: None
-        }
-        t.type_ = Type.provides(type_)
+        })
         let token: ToSpan = t
         if let Result::Err(error) = parentScope.define({
           name: t.name.name
@@ -135,7 +141,8 @@ export fn TypeVisitor(context, file) {
           t.members.map(|p: EnumMember| (
             p.name.name
             p.bound.mapOr(
-              {
+              Type({
+                id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
                 displayName: None
                 name: Some(t.name.name + '::' + p.name.name)
                 kind: TypeKind::Struct({
@@ -146,8 +153,9 @@ export fn TypeVisitor(context, file) {
                 instance: None
                 providesType: None
                 enumMember: Some((p.name.name, type_.providesType.unwrap()))
-              }
-              |bound| {{
+              })
+              |bound| Type({
+                id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
                 displayName: None
                 name: None
                 kind: bound.getType().kind
@@ -155,7 +163,7 @@ export fn TypeVisitor(context, file) {
                 instance: None
                 providesType: None
                 enumMember: Some((p.name.name, type_.providesType.unwrap()))
-              }}
+              })
             )
           ))
         )
@@ -174,6 +182,7 @@ export fn TypeVisitor(context, file) {
         else throw 'is not an enum'
 
         self.scope = parentScope
+        type_.providesType.unwrap().completed = true
       }
       ()
     }
@@ -182,6 +191,7 @@ export fn TypeVisitor(context, file) {
       let type_: Type = t.type_
       if not t.type_ {
         let mut type_: Type = {
+          id: generateTypeId(context, file, t.name.name)
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Trait({
@@ -242,6 +252,7 @@ export fn TypeVisitor(context, file) {
         else throw 'is not a trait'
 
         self.scope = parentScope
+        type_.providesType.unwrap().completed = true
       }
       ()
     }
@@ -259,7 +270,8 @@ export fn TypeVisitor(context, file) {
           }
           else StructKind::Unit
 
-        let mut type_: Type = {
+        t.type_ = Type.provides({
+          id: generateTypeId(context, file, t.name.name)
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Struct({
@@ -270,8 +282,7 @@ export fn TypeVisitor(context, file) {
           instance: None
           providesType: None
           enumMember: None
-        }
-        t.type_ = Type.provides(type_)
+        })
         let token: ToSpan = t
         if let Result::Err(error) = parentScope.define({
           name: t.name.name
@@ -320,6 +331,7 @@ export fn TypeVisitor(context, file) {
         }
 
         self.scope = parentScope
+        type_.providesType.unwrap().completed = true
       }
       ()
     }
@@ -346,6 +358,7 @@ export fn TypeVisitor(context, file) {
             mutable: false
             allowRedeclare: false
             type_: {
+              id: None
               displayName: Some(identifier.name)
               name: None
               kind: TypeKind::Struct({
@@ -368,7 +381,6 @@ export fn TypeVisitor(context, file) {
           d.members.forEach(|m| {
             let token: ToSpan = m
             if let Option::Some(module) = importDirective.module {
-              let e = module.exports.get(m.local.name).unwrap()
               let moduleScope: Scope = module.scope
               let importedBinding = moduleScope.getBinding(m.property.name, 'TypeVisitor').unwrapOr(Object.assign({}))
               if let Result::Err(error) = scope.define({

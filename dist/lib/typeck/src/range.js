@@ -17,7 +17,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 function getRange(parameters, isOptional, reportError, name) {
   var firstOptional = parameters.length;
   var hasOptional = false;
-  var __PUCK__value__1 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: parameters, $isTraitObject: true });
+  var __PUCK__value__1 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: parameters, $isTraitObject: true });
   _core.Iterable[__PUCK__value__1.type].forEach.call(__PUCK__value__1, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         parameter = _ref2[0],

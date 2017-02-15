@@ -29,8 +29,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
-function createServer(sendDiagnostic) {
-  var context = (0, _compiler.createContext)();
+function createServer(projectPath, sendDiagnostic) {
+  var context = (0, _compiler.createContext)(projectPath);
   context.reportError = function (file, token, message) {
     var span = _span.ToSpan[token.type].span.call(token);
     return sendDiagnostic(file.absolutePath, {

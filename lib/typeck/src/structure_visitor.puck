@@ -144,6 +144,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         .toList()
 
       t.type_ = Type({
+        id: None
         displayName: None
         name: None
         kind: TypeKind::Function({
@@ -208,6 +209,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
       visit.walkRecordTypeBound(self, t)
 
       t.type_ = Type({
+        id: None
         displayName: None
         name: None
         kind: TypeKind::Struct({
@@ -234,6 +236,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
       visit.walkTupleTypeBound(self, t)
 
       t.type_ = Type({
+        id: None
         displayName: None
         name: None
         kind: TypeKind::Struct({
@@ -252,6 +255,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
       t.scope = self.scope
       visit.walkTypeParameter(self, t)
       t.type_ = Type({
+        id: Some(t.name.name)
         displayName: None
         name: Some(t.name.name)
         kind: TypeKind::Parameter({

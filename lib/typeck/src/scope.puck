@@ -19,6 +19,7 @@ export type Scope {
   context: {}
   parent: Option<Scope>
   bindings: ObjectMap<Binding>
+  bindingsByTypeId: ObjectMap<Binding>
 }
 
 impl Scope {
@@ -26,12 +27,14 @@ impl Scope {
     context
     parent: None
     bindings: ObjectMap.new()
+    bindingsByTypeId: ObjectMap.new()
   }}
 
   fn createChild(self) -> Scope {{
     context: self.context
     parent: Some(self)
     bindings: ObjectMap.new()
+    bindingsByTypeId: ObjectMap.new()
   }}
 
   fn getBinding(self, name: String, visitor = '') -> Option<Binding> {
@@ -41,7 +44,7 @@ impl Scope {
       .map(|mut binding| {
         if let Option::Some(module) = binding.importedFrom {
           if not (binding.type_ and binding.type_.completed) and visitor != 'TypeVisitor' {
-            if visitor == 'TypeVisitor' {
+            if visitor == 'ImplVisitor' {
               self.context.runTypeVisitorOnFile(module.file)
             } else {
               self.context.runCheckerOnFile(module.file)
@@ -51,6 +54,23 @@ impl Scope {
               binding.token.property.name
               visitor
             )
+            binding.type_ = externalBinding.unwrap().type_
+          }
+        }
+        binding
+      })
+  }
+
+  fn getBindingByTypeId(self, id: String) -> Option<Binding> {
+    self.bindingsByTypeId
+      .get(id)
+      .orElse(|| self.parent.andThen(|p| p.getBindingByTypeId(id)))
+      .map(|mut binding| {
+        if let Option::Some(module) = binding.importedFrom {
+          if not (binding.type_ and binding.type_.completed) {
+            self.context.runCheckerOnFile(module.file)
+            let moduleScope: Scope = module.scope
+            let externalBinding = moduleScope.getBinding(binding.token.property.name)
             binding.type_ = externalBinding.unwrap().type_
           }
         }
@@ -83,6 +103,11 @@ impl Scope {
     }
 
     self.bindings.set(binding.name, binding)
+    if binding.type_ {
+      if let Some({id: Some(id)}) = binding.type_.providesType {
+        self.bindingsByTypeId.set(id, binding)
+      }
+    }
     Ok(binding)
   }
 

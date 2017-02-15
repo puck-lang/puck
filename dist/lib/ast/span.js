@@ -14,7 +14,7 @@ var Span = exports.Span = function Span(object) {
   return object;
 };
 var ToSpan = exports.ToSpan = {};
-ToSpan['$Span'] = {
+ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span"] = {
   span: function span() {
     var self = this;
     return self.value;

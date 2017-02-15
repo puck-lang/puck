@@ -56,10 +56,12 @@ fn dumpFiles(files: List<File>, prop: String) {
   })
 }
 
-export fn createContext(ignoreErrors = false) {
+export fn createContext(projectPath: String, ignoreErrors = false) {
   {
-    files: {}
-    deferred: {}
+    projectPath
+    impls: ObjectMap.new()
+    files: ObjectMap.new()
+    deferred: ObjectMap.new()
     runTypeVisitor: fn (self) {
       Object.keys(self.files)
         .map(|path| self.files[path])
@@ -71,7 +73,7 @@ export fn createContext(ignoreErrors = false) {
           }
         })
     }
-    runImplVisitor: fn (self) {
+    runImplVisitor: fn (mut self) {
       Object.keys(self.files)
         .map(|path| self.files[path])
         .forEach(|mut file| {
@@ -101,7 +103,7 @@ export fn createContext(ignoreErrors = false) {
         file.typeVisitorCompleted = true
       }
     }
-    runImplVisitorOnFile: fn (self, mut file) {
+    runImplVisitorOnFile: fn (mut self, mut file) {
       if not file.typeVisitorStarted {
         self.runTypeVisitorOnFile(file)
       }
@@ -131,7 +133,7 @@ export fn createContext(ignoreErrors = false) {
         if file.substring(0, 1) == '/'
           then file
           else path.join(path.dirname(relativeTo.absolutePath), file)
-      let absolutePath = path.resolve(path.normalize(filePath))
+      let absolutePath = fs.realpathSync(path.resolve(path.normalize(filePath)))
       let fileName = path.basename(absolutePath)
 
       {absolutePath, fileName, inspect: fileInspect}
@@ -166,13 +168,13 @@ export fn createContext(ignoreErrors = false) {
   }
 }
 
-export fn buildString(code: String, filePath: String) -> Result<File, {}> {
+export fn buildString(code: String, filePath: String, projectPath: String) -> Result<File, {}> {
   asResult(|| {
-    let mut context = createContext()
+    let mut context = createContext(projectPath)
     let mut file = context.importFile({
       isBin: false
       fileName: path.basename(filePath)
-      absolutePath: path.resolve(path.normalize(filePath))
+      absolutePath: fs.realpathSync(path.resolve(path.normalize(filePath)))
       puck: code
     })
 
@@ -186,13 +188,12 @@ export fn buildString(code: String, filePath: String) -> Result<File, {}> {
   })
 }
 
-export fn build(files: List<BuildFile>, options = {}) {
+export fn build(files: List<BuildFile>, mut context, options = {}) {
   let dump = options.dump
-  let mut context = createContext(options.ignoreErrors)
 
   let mut files = files.map(|f| {
     let fileName = path.basename(f.file)
-    let absolutePath = path.resolve(path.normalize(f.file))
+    let absolutePath =fs.realpathSync(path.resolve(path.normalize(f.file)))
     let outFile = path.normalize(f.outFile)
     let outDir = path.dirname(outFile)
 

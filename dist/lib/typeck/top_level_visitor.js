@@ -41,15 +41,15 @@ function TopLevelVisitor(context, file) {
     },
     visitEnumDeclaration: function visitEnumDeclaration(t) {
       var self = this;
-      return _core.ObjectMap.set.call(declarations, t.name.name, { type: '$EnumDeclaration', value: t, $isTraitObject: true });
+      return _core.ObjectMap.set.call(declarations, t.name.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration', value: t, $isTraitObject: true });
     },
     visitTraitDeclaration: function visitTraitDeclaration(t) {
       var self = this;
-      return _core.ObjectMap.set.call(declarations, t.name.name, { type: '$TraitDeclaration', value: t, $isTraitObject: true });
+      return _core.ObjectMap.set.call(declarations, t.name.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration', value: t, $isTraitObject: true });
     },
     visitTypeDeclaration: function visitTypeDeclaration(t) {
       var self = this;
-      return _core.ObjectMap.set.call(declarations, t.name.name, { type: '$TypeDeclaration', value: t, $isTraitObject: true });
+      return _core.ObjectMap.set.call(declarations, t.name.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration', value: t, $isTraitObject: true });
     },
     visitExportDirective: function visitExportDirective(e) {
       var self = this;
@@ -64,7 +64,7 @@ function TopLevelVisitor(context, file) {
             _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
             identifier = _$unwrapTraitObject$v[0];
 
-        return _core.ObjectMap.set.call(declarations, identifier.name, { type: '$Identifier', value: identifier, $isTraitObject: true });
+        return _core.ObjectMap.set.call(declarations, identifier.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true });
       } else {
         var __PUCK__value__3 = __PUCK__value__1;
         if ($unwrapTraitObject(__PUCK__value__3).kind == "ObjectDestructure") {
@@ -89,8 +89,8 @@ function TopLevelVisitor(context, file) {
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
-      return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, function (m) {
-        return _core.ObjectMap.set.call(declarations, m.local.name, { type: '$ObjectDestructureMember', value: m, $isTraitObject: true });
+      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.members, $isTraitObject: true }, function (m) {
+        return _core.ObjectMap.set.call(declarations, m.local.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: m, $isTraitObject: true });
       });
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
@@ -101,7 +101,7 @@ function TopLevelVisitor(context, file) {
             _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
             name = _$unwrapTraitObject3$[0];
 
-        return _core.ObjectMap.set.call(declarations, name.name, { type: '$FunctionDeclaration', value: f, $isTraitObject: true });
+        return _core.ObjectMap.set.call(declarations, name.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true });
       };
     },
     visitVariableDeclaration: function visitVariableDeclaration(d) {
@@ -111,7 +111,7 @@ function TopLevelVisitor(context, file) {
     visitPattern: $unwrapTraitObject(visit.walkingVisitor).visitPattern,
     visitIdentifierPattern: function visitIdentifierPattern(p) {
       var self = this;
-      return _core.ObjectMap.set.call(declarations, p.name, { type: '$Identifier', value: p, $isTraitObject: true });
+      return _core.ObjectMap.set.call(declarations, p.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: p, $isTraitObject: true });
     }
   });
 }

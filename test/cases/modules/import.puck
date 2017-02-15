@@ -1,5 +1,6 @@
 import 'puck:js' as {console, typeof}
 import 'node:module' as {a, b: c}
+import 'export.puck' as {Type: RenamedType, Trait: RenamedTrait, OtherTrait: RenamedOtherTrait}
 import 'export.puck' as e
 import 'export.puck' as *
 
@@ -7,3 +8,22 @@ export let foo = e.b + a + b + c
 
 // asterisk imports can be shadowed
 let q = 'not imported'
+
+let f: RenamedType = ((1))
+let h: (Num) = RenamedType(2)
+RenamedTrait.static().default()
+f.default()
+f.implemented()
+f.other()
+
+trait Trait {
+  fn inner(self) -> Self {self}
+}
+
+impl Trait for RenamedType {}
+
+type Type(String)
+
+impl RenamedTrait for Type {
+  fn implemented(self) -> () {}
+}

@@ -1,4 +1,4 @@
-import {Type} from '../entities'
+import {Type, Implementation} from '../entities'
 export enum SyntaxKind {
   AndKeyword,
   AsKeyword,
@@ -316,6 +316,7 @@ export interface Identifier extends SimpleIdentifier {
 }
 
 export interface ImplDeclaration {
+  implementation: Implementation
   trait_: TypeBound
   type_: TypeBound
   members: Array<FunctionDeclaration>
@@ -505,6 +506,7 @@ export interface CallExpression extends Token {
 
   // The resolved trait function (if is trait call)
   functionType: Type
+  implementation: Implementation
 }
 
 export interface ForExpression extends Token {
