@@ -42,11 +42,15 @@ let five: Num = ident('five')
 ///// Num is not assignable to type String
 fn ident(a: String) -> String {5}
 
-// TODO: Make these error by resolving the genrics
-//// String is not assignable to type Num
-// fn addFive(num: Num) {num}
-// let list: List<String> = [].map(addFive)
+///// List<Num> is not assignable to type List<String>
+fn addFive(num: Num) {num}
+let list: List<String> = [].map(addFive).toList()
 
 ///// addFive is not assignable to type (String) -> Num in parameter func of function map
 fn addFive(num: Num) {num}
 [].map(|_| 'five').map(addFive)
+
+///// Too many arguments given to func, 1 required, 2 given
+fn func<A>(a: A) {}
+
+func(1, 2)

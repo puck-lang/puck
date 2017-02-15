@@ -179,11 +179,16 @@ export trait Iterable<E> {
   fn map<U>(self, func: (E) -> U) -> Iterable<U>
   fn filterMap<U>(self, func: (E) -> Option<U>) -> Iterable<U>
 
-  /// Returns an [Iterable] that provides all but the first [count] elements.
+  /// Returns an Iterable that yields all but the first [count] elements.
   fn skip(self, count: Num) -> Iterable<E>
 
-  /// Returns an [Iterable] that skips leading elements until [test] is satisfied.
+  /// Returns an Iterable that skips leading elements until [test] is satisfied.
   fn skipUntil(self, test: (E) -> Bool) -> Iterable<E>
+
+  /// Returns an Iterable that yields its first count elements.
+  /// If count is greater than the Iterable size the returned Iterable
+  /// will end at its size, before count is reached.
+  fn take(self, count: Num) -> Iterable<E>
 
   fn toList(self) -> List<E>
 }
@@ -279,6 +284,10 @@ impl<E> Iterable<E> for List<E> {
         then []
         else self.slice(index)
     )
+  }
+
+  fn take(self, count: Num) -> Iterable<E> {
+    asList(self.slice(0, count))
   }
 
   fn toList(self) -> List<E> {

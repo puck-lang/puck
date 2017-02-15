@@ -83,8 +83,10 @@ function enumMemberToFunction(type_) {
           name: _core.Option.unwrapOr.call(type_.name, "record"),
           token: { type: '$Span', value: _span.Span.empty(), $isTraitObject: true },
           mutable: false,
+          allowRedeclare: false,
           type_: _core.Option.unwrapOr.call(type_.providesType, type_),
-          redefined: false
+          importedFrom: _core.None,
+          previous: _core.None
         }],
         parameterRange: {
           start: 1,
@@ -111,8 +113,10 @@ function enumMemberToFunction(type_) {
             name: i.toString(),
             token: _span.Span.empty(),
             mutable: false,
+            allowRedeclare: false,
             type_: p,
-            redefined: false
+            importedFrom: _core.None,
+            previous: _core.None
           };
         });
         __PUCK__value__13 = _entities.TypeKind.Function({

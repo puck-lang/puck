@@ -461,18 +461,23 @@ export fn ScopeVisitor(context, file) {
         let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
         let mut callParameterMap = ObjectMap.new()
         let parentAssignedTo = self.assignedTo
-        e.argumentList.enumerate().forEach(|(a, i): (Expression, Num)| {
-          self.assignedTo = functionType.getFunction().parameters[i]
-          self.visitExpression(a)
-          if callTypeParameters.isNotEmpty() and functionType.getFunction().parameters[i].type_ and a.getType() {
-            resolveFunctionTypeParameters(
-              callParameterMap
-              callTypeParameters
-              functionType.getFunction().parameters[i].type_
-              a.getType()
-            )
-          }
-        })
+        let functionKind = functionType.getFunction()
+        e.argumentList.enumerate()
+          // If too many arguments are passed e.argumentList will be longer than functionKind.parameters
+          .take(functionKind.parameters.size())
+          .forEach(|(a, i): (Expression, Num)| {
+            let parameter = functionKind.parameters[i]
+            self.assignedTo = parameter
+            self.visitExpression(a)
+            if callTypeParameters.isNotEmpty() and parameter.type_ and a.getType() {
+              resolveFunctionTypeParameters(
+                callParameterMap
+                callTypeParameters
+                parameter.type_
+                a.getType()
+              )
+            }
+          })
         if callTypeParameters.isNotEmpty() {
           functionType = resolveTypeParameters(callParameterMap)(functionType)
         }

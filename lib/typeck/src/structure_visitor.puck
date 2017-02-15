@@ -134,8 +134,12 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         .enumerate()
         .map(|(t, i): (TypeBound, Num)| {{
           name: '$i'
+          token: t
           mutable: false
+          allowRedeclare: true
           type_: t.getType()
+          importedFrom: None
+          previous: None
         }})
         .toList()
 
@@ -145,7 +149,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         kind: TypeKind::Function({
           selfBinding: None
           parameters
-          parameterRange: {start: parameters.length, end: parameters.length + 1}
+          parameterRange: {start: parameters.size(), end: parameters.size() + 1}
           returnType: t.returnType.getType()
           isAbstract: false
         })

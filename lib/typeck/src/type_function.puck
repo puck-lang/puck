@@ -26,8 +26,10 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
               name: type_.name.unwrapOr('record')
               token: Span.empty()
               mutable: false
+              allowRedeclare: false
               type_: type_.providesType.unwrapOr(type_)
-              redefined: false
+              importedFrom: None
+              previous: None
             }]
             parameterRange: {start: 1, end: 2}
             returnType
@@ -42,8 +44,10 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
               name: i.toString()
               token: Span.empty()
               mutable: false
+              allowRedeclare: false
               type_: p
-              redefined: false
+              importedFrom: None
+              previous: None
             }}).toList()
             parameterRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
             returnType

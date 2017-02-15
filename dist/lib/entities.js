@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StructKind = exports.TypeKind = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Tuple = exports.Record = exports.Trait = exports.Struct = exports.Function = exports.Enum = exports.Type = exports.File = exports.UnparsedFile = undefined;
+exports.StructKind = exports.TypeKind = exports.TypeParameter = exports.TypeInstance = exports.TypeClass = exports.Implementation = exports.Tuple = exports.Record = exports.Trait = exports.Struct = exports.Function = exports.Enum = exports.Type = exports.File = exports.UnparsedFile = exports.BuildFile = undefined;
 
 var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -23,6 +23,9 @@ var _scope = require('./typeck/src/scope');
 
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
+};
+var BuildFile = exports.BuildFile = function BuildFile(object) {
+  return object;
 };
 var UnparsedFile = exports.UnparsedFile = function UnparsedFile(object) {
   return object;
@@ -440,6 +443,14 @@ Type.isParameter = function isParameter() {
       return false;
     };
   };
+};
+Type.typeParameters = function typeParameters() {
+  var self = this;
+  return _core.Option.orValue.call(_core.Option.map.call(self.instance, function (i) {
+    return i.typeParameters;
+  }), _core.Option.map.call(self._class, function (i) {
+    return i.typeParameters;
+  }));
 };
 TypeClass.fromAstNode = function fromAstNode(astNode, reportError) {
   if (astNode.typeParameters && astNode.typeParameters.length) {

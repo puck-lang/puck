@@ -208,8 +208,12 @@ function structureVisitor(reportError) {
 
           return {
             name: "" + i + "",
+            token: t,
             mutable: false,
-            type_: _ast.TypeBound.getType.call(t)
+            allowRedeclare: true,
+            type_: _ast.TypeBound.getType.call(t),
+            importedFrom: _core.None,
+            previous: _core.None
           };
         });
         var parameters = _core.Iterable[__PUCK__value__12.type].toList.call(__PUCK__value__12);
@@ -220,8 +224,8 @@ function structureVisitor(reportError) {
             selfBinding: _core.None,
             parameters: parameters,
             parameterRange: {
-              start: parameters.length,
-              end: parameters.length + 1
+              start: _core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: parameters, $isTraitObject: true }),
+              end: _core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: parameters, $isTraitObject: true }) + 1
             },
             returnType: _ast.TypeBound.getType.call(t.returnType),
             isAbstract: false
