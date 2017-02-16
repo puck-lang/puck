@@ -18,38 +18,38 @@ impl RegExp {
 
 export type Bool {}
 
-export enum NumBase {
+export enum Radix {
   Binary
   Octal
   Decimal
   Hex
 }
 
-impl NumBase {
+impl Radix {
   fn pattern(self) -> RegExp {
     match self {
-      NumBase::Binary => js.RegExp('^[-+]?[01]+$')
-      NumBase::Octal => js.RegExp('^[-+]?[0-7]+$')
-      NumBase::Decimal => js.RegExp('^[-+]?[0-9]+$')
-      NumBase::Hex => js.RegExp('^[-+]?[0-9A-Fa-f]+$')
+      Radix::Binary => js.RegExp('^[-+]?[01]+$')
+      Radix::Octal => js.RegExp('^[-+]?[0-7]+$')
+      Radix::Decimal => js.RegExp('^[-+]?[0-9]+$')
+      Radix::Hex => js.RegExp('^[-+]?[0-9A-Fa-f]+$')
     }
   }
 
   fn radix(self) -> Num {
     match self {
-      NumBase::Binary => 2
-      NumBase::Octal => 8
-      NumBase::Decimal => 10
-      NumBase::Hex => 16
+      Radix::Binary => 2
+      Radix::Octal => 8
+      Radix::Decimal => 10
+      Radix::Hex => 16
     }
   }
 }
 
 export type Num {}
 impl Num {
-  fn parseInt(string: String, base: NumBase = NumBase::Decimal) -> Result<Num, ()> {
-    if base.pattern().test(string)
-      then Result::Ok(js.parseInt(string, base.radix()))
+  fn parseInt(string: String, radix: Radix = Radix::Decimal) -> Result<Num, ()> {
+    if radix.pattern().test(string)
+      then Result::Ok(js.parseInt(string, radix.radix()))
       else Result::Err(())
   }
 

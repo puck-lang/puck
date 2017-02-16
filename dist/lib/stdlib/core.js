@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Never = exports.Option = exports.Result = exports.NumBase = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.RegExp = undefined;
+exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Never = exports.Option = exports.Result = exports.Radix = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.RegExp = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -41,7 +41,7 @@ var Range = exports.Range = function Range(object) {
 var ObjectMap = exports.ObjectMap = function ObjectMap(object) {
   return object;
 };
-var NumBase = exports.NumBase = {
+var Radix = exports.Radix = {
   Binary: { kind: 'Binary', value: Symbol('Binary') },
   Octal: { kind: 'Octal', value: Symbol('Octal') },
   Decimal: { kind: 'Decimal', value: Symbol('Decimal') },
@@ -199,7 +199,7 @@ RegExp.test = function test(string) {
   var self = this;
   return $unwrapTraitObject(anyCast(self)).test(string);
 };
-NumBase.pattern = function pattern() {
+Radix.pattern = function pattern() {
   var self = this;
   var __PUCK__value__3 = self;
   var __PUCK__value__4 = __PUCK__value__3;
@@ -226,7 +226,7 @@ NumBase.pattern = function pattern() {
     };
   };
 };
-NumBase.radix = function radix() {
+Radix.radix = function radix() {
   var self = this;
   var __PUCK__value__8 = self;
   var __PUCK__value__9 = __PUCK__value__8;
@@ -254,10 +254,10 @@ NumBase.radix = function radix() {
   };
 };
 Num.parseInt = function parseInt(string) {
-  var base = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : NumBase.Decimal;
+  var base = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Radix.Decimal;
 
-  if (RegExp.test.call(NumBase.pattern.call(base), string)) {
-    return Result.Ok(js.parseInt(string, NumBase.radix.call(base)));
+  if (RegExp.test.call(Radix.pattern.call(base), string)) {
+    return Result.Ok(js.parseInt(string, Radix.radix.call(base)));
   } else {
     return Result.Err([]);
   };

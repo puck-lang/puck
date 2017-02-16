@@ -1,5 +1,5 @@
 import 'puck:test' as *
-import 'core.puck' as {Num, NumBase, Option, Result, String}
+import 'core.puck' as {Num, Radix, Option, Result, String}
 
 fn any(a) {a}
 
@@ -14,38 +14,38 @@ describe('core', || {
       })
 
       it('should be able to parse binary numbers', || {
-        expect(Num.parseInt('1', NumBase::Binary)).toEqual(Ok(1))
-        expect(Num.parseInt('0', NumBase::Binary)).toEqual(Ok(0))
-        expect(Num.parseInt('10', NumBase::Binary)).toEqual(Ok(2))
-        expect(Num.parseInt('-101', NumBase::Binary)).toEqual(Ok(-5))
+        expect(Num.parseInt('1', Radix::Binary)).toEqual(Ok(1))
+        expect(Num.parseInt('0', Radix::Binary)).toEqual(Ok(0))
+        expect(Num.parseInt('10', Radix::Binary)).toEqual(Ok(2))
+        expect(Num.parseInt('-101', Radix::Binary)).toEqual(Ok(-5))
       })
 
       it('should be able to parse octal numbers', || {
-        expect(Num.parseInt('1', NumBase::Octal)).toEqual(Ok(1))
-        expect(Num.parseInt('0', NumBase::Octal)).toEqual(Ok(0))
-        expect(Num.parseInt('10', NumBase::Octal)).toEqual(Ok(8))
-        expect(Num.parseInt('-107', NumBase::Octal)).toEqual(Ok(-71))
+        expect(Num.parseInt('1', Radix::Octal)).toEqual(Ok(1))
+        expect(Num.parseInt('0', Radix::Octal)).toEqual(Ok(0))
+        expect(Num.parseInt('10', Radix::Octal)).toEqual(Ok(8))
+        expect(Num.parseInt('-107', Radix::Octal)).toEqual(Ok(-71))
       })
 
       it('should be able to parse hex numbers', || {
-        expect(Num.parseInt('1', NumBase::Hex)).toEqual(Ok(1))
-        expect(Num.parseInt('0', NumBase::Hex)).toEqual(Ok(0))
-        expect(Num.parseInt('f', NumBase::Hex)).toEqual(Ok(15))
-        expect(Num.parseInt('F', NumBase::Hex)).toEqual(Ok(15))
-        expect(Num.parseInt('10', NumBase::Hex)).toEqual(Ok(16))
-        expect(Num.parseInt('-10e9f', NumBase::Hex)).toEqual(Ok(-69279))
-        expect(Num.parseInt('-10E9F', NumBase::Hex)).toEqual(Ok(-69279))
+        expect(Num.parseInt('1', Radix::Hex)).toEqual(Ok(1))
+        expect(Num.parseInt('0', Radix::Hex)).toEqual(Ok(0))
+        expect(Num.parseInt('f', Radix::Hex)).toEqual(Ok(15))
+        expect(Num.parseInt('F', Radix::Hex)).toEqual(Ok(15))
+        expect(Num.parseInt('10', Radix::Hex)).toEqual(Ok(16))
+        expect(Num.parseInt('-10e9f', Radix::Hex)).toEqual(Ok(-69279))
+        expect(Num.parseInt('-10E9F', Radix::Hex)).toEqual(Ok(-69279))
       })
 
       it('should error for invalid characters', || {
         expect(Num.parseInt('A')).toEqual(Err(()))
-        expect(Num.parseInt('2', NumBase::Binary)).toEqual(Err(()))
-        expect(Num.parseInt('8', NumBase::Octal)).toEqual(Err(()))
-        expect(Num.parseInt('G', NumBase::Hex)).toEqual(Err(()))
+        expect(Num.parseInt('2', Radix::Binary)).toEqual(Err(()))
+        expect(Num.parseInt('8', Radix::Octal)).toEqual(Err(()))
+        expect(Num.parseInt('G', Radix::Hex)).toEqual(Err(()))
         expect(Num.parseInt('2341A')).toEqual(Err(()))
-        expect(Num.parseInt('1010112', NumBase::Binary)).toEqual(Err(()))
-        expect(Num.parseInt('1232648', NumBase::Octal)).toEqual(Err(()))
-        expect(Num.parseInt('1289AC6G', NumBase::Hex)).toEqual(Err(()))
+        expect(Num.parseInt('1010112', Radix::Binary)).toEqual(Err(()))
+        expect(Num.parseInt('1232648', Radix::Octal)).toEqual(Err(()))
+        expect(Num.parseInt('1289AC6G', Radix::Hex)).toEqual(Err(()))
       })
     })
 

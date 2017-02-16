@@ -23,35 +23,35 @@ function any(a) {
         return (0, _test.expect)(_core2.Num.parseInt("-123456789")).toEqual((0, _core.Ok)(-123456789));
       });
       (0, _test.it)("should be able to parse binary numbers", function () {
-        (0, _test.expect)(_core2.Num.parseInt("1", _core2.NumBase.Binary)).toEqual((0, _core.Ok)(1));
-        (0, _test.expect)(_core2.Num.parseInt("0", _core2.NumBase.Binary)).toEqual((0, _core.Ok)(0));
-        (0, _test.expect)(_core2.Num.parseInt("10", _core2.NumBase.Binary)).toEqual((0, _core.Ok)(2));
-        return (0, _test.expect)(_core2.Num.parseInt("-101", _core2.NumBase.Binary)).toEqual((0, _core.Ok)(-5));
+        (0, _test.expect)(_core2.Num.parseInt("1", _core2.Radix.Binary)).toEqual((0, _core.Ok)(1));
+        (0, _test.expect)(_core2.Num.parseInt("0", _core2.Radix.Binary)).toEqual((0, _core.Ok)(0));
+        (0, _test.expect)(_core2.Num.parseInt("10", _core2.Radix.Binary)).toEqual((0, _core.Ok)(2));
+        return (0, _test.expect)(_core2.Num.parseInt("-101", _core2.Radix.Binary)).toEqual((0, _core.Ok)(-5));
       });
       (0, _test.it)("should be able to parse octal numbers", function () {
-        (0, _test.expect)(_core2.Num.parseInt("1", _core2.NumBase.Octal)).toEqual((0, _core.Ok)(1));
-        (0, _test.expect)(_core2.Num.parseInt("0", _core2.NumBase.Octal)).toEqual((0, _core.Ok)(0));
-        (0, _test.expect)(_core2.Num.parseInt("10", _core2.NumBase.Octal)).toEqual((0, _core.Ok)(8));
-        return (0, _test.expect)(_core2.Num.parseInt("-107", _core2.NumBase.Octal)).toEqual((0, _core.Ok)(-71));
+        (0, _test.expect)(_core2.Num.parseInt("1", _core2.Radix.Octal)).toEqual((0, _core.Ok)(1));
+        (0, _test.expect)(_core2.Num.parseInt("0", _core2.Radix.Octal)).toEqual((0, _core.Ok)(0));
+        (0, _test.expect)(_core2.Num.parseInt("10", _core2.Radix.Octal)).toEqual((0, _core.Ok)(8));
+        return (0, _test.expect)(_core2.Num.parseInt("-107", _core2.Radix.Octal)).toEqual((0, _core.Ok)(-71));
       });
       (0, _test.it)("should be able to parse hex numbers", function () {
-        (0, _test.expect)(_core2.Num.parseInt("1", _core2.NumBase.Hex)).toEqual((0, _core.Ok)(1));
-        (0, _test.expect)(_core2.Num.parseInt("0", _core2.NumBase.Hex)).toEqual((0, _core.Ok)(0));
-        (0, _test.expect)(_core2.Num.parseInt("f", _core2.NumBase.Hex)).toEqual((0, _core.Ok)(15));
-        (0, _test.expect)(_core2.Num.parseInt("F", _core2.NumBase.Hex)).toEqual((0, _core.Ok)(15));
-        (0, _test.expect)(_core2.Num.parseInt("10", _core2.NumBase.Hex)).toEqual((0, _core.Ok)(16));
-        (0, _test.expect)(_core2.Num.parseInt("-10e9f", _core2.NumBase.Hex)).toEqual((0, _core.Ok)(-69279));
-        return (0, _test.expect)(_core2.Num.parseInt("-10E9F", _core2.NumBase.Hex)).toEqual((0, _core.Ok)(-69279));
+        (0, _test.expect)(_core2.Num.parseInt("1", _core2.Radix.Hex)).toEqual((0, _core.Ok)(1));
+        (0, _test.expect)(_core2.Num.parseInt("0", _core2.Radix.Hex)).toEqual((0, _core.Ok)(0));
+        (0, _test.expect)(_core2.Num.parseInt("f", _core2.Radix.Hex)).toEqual((0, _core.Ok)(15));
+        (0, _test.expect)(_core2.Num.parseInt("F", _core2.Radix.Hex)).toEqual((0, _core.Ok)(15));
+        (0, _test.expect)(_core2.Num.parseInt("10", _core2.Radix.Hex)).toEqual((0, _core.Ok)(16));
+        (0, _test.expect)(_core2.Num.parseInt("-10e9f", _core2.Radix.Hex)).toEqual((0, _core.Ok)(-69279));
+        return (0, _test.expect)(_core2.Num.parseInt("-10E9F", _core2.Radix.Hex)).toEqual((0, _core.Ok)(-69279));
       });
       return (0, _test.it)("should error for invalid characters", function () {
         (0, _test.expect)(_core2.Num.parseInt("A")).toEqual((0, _core.Err)([]));
-        (0, _test.expect)(_core2.Num.parseInt("2", _core2.NumBase.Binary)).toEqual((0, _core.Err)([]));
-        (0, _test.expect)(_core2.Num.parseInt("8", _core2.NumBase.Octal)).toEqual((0, _core.Err)([]));
-        (0, _test.expect)(_core2.Num.parseInt("G", _core2.NumBase.Hex)).toEqual((0, _core.Err)([]));
+        (0, _test.expect)(_core2.Num.parseInt("2", _core2.Radix.Binary)).toEqual((0, _core.Err)([]));
+        (0, _test.expect)(_core2.Num.parseInt("8", _core2.Radix.Octal)).toEqual((0, _core.Err)([]));
+        (0, _test.expect)(_core2.Num.parseInt("G", _core2.Radix.Hex)).toEqual((0, _core.Err)([]));
         (0, _test.expect)(_core2.Num.parseInt("2341A")).toEqual((0, _core.Err)([]));
-        (0, _test.expect)(_core2.Num.parseInt("1010112", _core2.NumBase.Binary)).toEqual((0, _core.Err)([]));
-        (0, _test.expect)(_core2.Num.parseInt("1232648", _core2.NumBase.Octal)).toEqual((0, _core.Err)([]));
-        return (0, _test.expect)(_core2.Num.parseInt("1289AC6G", _core2.NumBase.Hex)).toEqual((0, _core.Err)([]));
+        (0, _test.expect)(_core2.Num.parseInt("1010112", _core2.Radix.Binary)).toEqual((0, _core.Err)([]));
+        (0, _test.expect)(_core2.Num.parseInt("1232648", _core2.Radix.Octal)).toEqual((0, _core.Err)([]));
+        return (0, _test.expect)(_core2.Num.parseInt("1289AC6G", _core2.Radix.Hex)).toEqual((0, _core.Err)([]));
       });
     });
     (0, _test.describe)("parse", function () {
