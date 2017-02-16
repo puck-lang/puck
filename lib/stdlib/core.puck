@@ -1,12 +1,182 @@
 //#![no_core]
 import 'puck:js' as {Error, Object, console, null, undefined}
+import 'core/js.js' as js
+
+fn anyCast(a) {a}
+
+export type RegExp {}
+
+impl RegExp {
+  fn new(pattern) -> RegExp {
+    js.RegExp(pattern)
+  }
+
+  fn test(self, string: String) -> Bool {
+    anyCast(self).test(string)
+  }
+}
 
 export type Bool {}
+
+export enum NumBase {
+  Binary
+  Octal
+  Decimal
+  Hex
+}
+
+impl NumBase {
+  fn pattern(self) -> RegExp {
+    match self {
+      NumBase::Binary => js.RegExp('^[-+]?[01]+$')
+      NumBase::Octal => js.RegExp('^[-+]?[0-7]+$')
+      NumBase::Decimal => js.RegExp('^[-+]?[0-9]+$')
+      NumBase::Hex => js.RegExp('^[-+]?[0-9A-Fa-f]+$')
+    }
+  }
+
+  fn radix(self) -> Num {
+    match self {
+      NumBase::Binary => 2
+      NumBase::Octal => 8
+      NumBase::Decimal => 10
+      NumBase::Hex => 16
+    }
+  }
+}
+
 export type Num {}
+impl Num {
+  fn parseInt(string: String, base: NumBase = NumBase::Decimal) -> Result<Num, ()> {
+    if base.pattern().test(string)
+      then Result::Ok(js.parseInt(string, base.radix()))
+      else Result::Err(())
+  }
+
+  fn parse(string: String) -> Result<Num, ()> {
+    if js.RegExp('^[-+]?[0-9]+(\\.[0-9]+)?$').test(string)
+      then Result::Ok(js.parseFloat(string, 10))
+      else Result::Err(())
+  }
+
+  fn isNan(self) -> Bool {
+    js.isNaN(self)
+  }
+
+  fn isInfinite(self) -> Bool {
+    self == js.infinity or self == -js.infinity
+  }
+
+  fn ceil(self) -> Num {
+    js.Math.ceil(self)
+  }
+
+  fn floor(self) -> Num {
+    js.Math.floor(self)
+  }
+
+  fn round(self) -> Num {
+    js.Math.round(self)
+  }
+}
+
 export type String {}
 impl String {
+  fn size(self) -> Num {
+    self.length
+  }
+
   fn contains(self, subStr: String) -> Bool {
     self.indexOf(subStr) >= 0
+  }
+
+  fn split(self, pattern: String = '') -> List<String> {
+    anyCast(self).split(pattern)
+  }
+
+  /// Pads the string on the left if it is shorter than width.
+  ///
+  /// If width is already smaller than or equal to String::size(),
+  /// no padding is added. A negative width is treated as zero.
+  ///
+  /// If padding has length different from 1, the result will not have length width.
+  fn padLeft(self, width: Num, padding: String = ' ') -> String {
+    let width =
+      if width < 0
+        then 0
+        else width
+
+    let padding =
+      if padding == ''
+        then ' '
+        else padding
+
+    if self.size() >= width
+      then return self
+
+    let padCount = (width - self.size()) / padding.size()
+    let mut i = 0
+    let mut new = self
+    while i < padCount {
+      new = padding + new
+      i += 1
+    }
+
+    new
+  }
+
+  /// Pads the string on the right if it is shorter than width.
+  ///
+  /// If width is already smaller than or equal to String::size(),
+  /// no padding is added. A negative width is treated as zero.
+  ///
+  /// If padding has length different from 1, the result will not have length width.
+  fn padRight(self, width: Num, padding: String = ' ') -> String {
+    let width =
+      if width < 0
+        then 0
+        else width
+
+    let padding =
+      if padding == ''
+        then ' '
+        else padding
+
+    if self.size() >= width
+      then return self
+
+    let padCount = (width - self.size()) / padding.size()
+    let mut i = 0
+    let mut new = self
+    while i < padCount {
+      new = new + padding
+      i += 1
+    }
+
+    new
+  }
+
+  fn toLowerCase(self) -> String {
+    anyCast(self).toLowerCase()
+  }
+
+  fn toUpperCase(self) -> String {
+    anyCast(self).toUpperCase()
+  }
+
+  /// Removes leading and trailing whitespace
+  fn trim(self) -> String {
+    self.trimLeft().trimRight()
+  }
+
+  /// Removes leading whitespace
+  fn trimLeft(self) -> String {
+    anyCast(self).replace(RegExp.new('^\\s+'), '')
+  }
+
+  /// Removes trailing whitespace
+  fn trimRight(self) -> String {
+    anyCast(self).replace(RegExp.new('\\s+$'), '')
   }
 }
 
@@ -145,8 +315,6 @@ impl<T> Option<T> {
       else default()
   }
 }
-
-fn anyCast(a) {a}
 
 export type List<E> {}
 impl<E> List<E> {

@@ -1,9 +1,134 @@
 import 'puck:test' as *
-import 'core.puck' as {Option, Result, String}
+import 'core.puck' as {Num, NumBase, Option, Result, String}
 
 fn any(a) {a}
 
 describe('core', || {
+  describe('Num', || {
+    describe('parseInt', || {
+      it('should default to parse decimal numbers', || {
+        expect(Num.parseInt('1')).toEqual(Ok(1))
+        expect(Num.parseInt('0')).toEqual(Ok(0))
+        expect(Num.parseInt('10')).toEqual(Ok(10))
+        expect(Num.parseInt('-123456789')).toEqual(Ok(-123456789))
+      })
+
+      it('should be able to parse binary numbers', || {
+        expect(Num.parseInt('1', NumBase::Binary)).toEqual(Ok(1))
+        expect(Num.parseInt('0', NumBase::Binary)).toEqual(Ok(0))
+        expect(Num.parseInt('10', NumBase::Binary)).toEqual(Ok(2))
+        expect(Num.parseInt('-101', NumBase::Binary)).toEqual(Ok(-5))
+      })
+
+      it('should be able to parse octal numbers', || {
+        expect(Num.parseInt('1', NumBase::Octal)).toEqual(Ok(1))
+        expect(Num.parseInt('0', NumBase::Octal)).toEqual(Ok(0))
+        expect(Num.parseInt('10', NumBase::Octal)).toEqual(Ok(8))
+        expect(Num.parseInt('-107', NumBase::Octal)).toEqual(Ok(-71))
+      })
+
+      it('should be able to parse hex numbers', || {
+        expect(Num.parseInt('1', NumBase::Hex)).toEqual(Ok(1))
+        expect(Num.parseInt('0', NumBase::Hex)).toEqual(Ok(0))
+        expect(Num.parseInt('f', NumBase::Hex)).toEqual(Ok(15))
+        expect(Num.parseInt('F', NumBase::Hex)).toEqual(Ok(15))
+        expect(Num.parseInt('10', NumBase::Hex)).toEqual(Ok(16))
+        expect(Num.parseInt('-10e9f', NumBase::Hex)).toEqual(Ok(-69279))
+        expect(Num.parseInt('-10E9F', NumBase::Hex)).toEqual(Ok(-69279))
+      })
+
+      it('should error for invalid characters', || {
+        expect(Num.parseInt('A')).toEqual(Err(()))
+        expect(Num.parseInt('2', NumBase::Binary)).toEqual(Err(()))
+        expect(Num.parseInt('8', NumBase::Octal)).toEqual(Err(()))
+        expect(Num.parseInt('G', NumBase::Hex)).toEqual(Err(()))
+        expect(Num.parseInt('2341A')).toEqual(Err(()))
+        expect(Num.parseInt('1010112', NumBase::Binary)).toEqual(Err(()))
+        expect(Num.parseInt('1232648', NumBase::Octal)).toEqual(Err(()))
+        expect(Num.parseInt('1289AC6G', NumBase::Hex)).toEqual(Err(()))
+      })
+    })
+
+    describe('parse', || {
+      it('should be able to parse integers', || {
+        expect(Num.parse('1')).toEqual(Ok(1))
+        expect(Num.parse('0')).toEqual(Ok(0))
+        expect(Num.parse('10')).toEqual(Ok(10))
+        expect(Num.parse('-123456789')).toEqual(Ok(-123456789))
+      })
+
+      it('should be able to parse doubles', || {
+        expect(Num.parse('1.03')).toEqual(Ok(1.03))
+        expect(Num.parse('0.5')).toEqual(Ok(0.5))
+        expect(Num.parse('10.12')).toEqual(Ok(10.12))
+        expect(Num.parse('-123456789.123')).toEqual(Ok(-123456789.123))
+      })
+    })
+
+    describe('isNan', || {
+      it('should return false for normal numbers', || {
+        expect(1.isNan()).toBe(false)
+        expect(1.04.isNan()).toBe(false)
+        expect(100.isNan()).toBe(false)
+        expect((-50).isNan()).toBe(false)
+      })
+
+      it('should return true for nan', || {
+        let nan: Num = 0/0
+        expect(nan.isNan()).toBe(true)
+      })
+    })
+
+    describe('isInfinite', || {
+      it('should return false for normal numbers', || {
+        expect(1.isInfinite()).toBe(false)
+        expect(1.04.isInfinite()).toBe(false)
+        expect(100.isInfinite()).toBe(false)
+        expect((-50).isInfinite()).toBe(false)
+      })
+
+      it('should return true for infinity', || {
+        let positiveInfinity: Num = 1/0
+        let negativeInfinity: Num = -1/0
+        expect(positiveInfinity.isInfinite()).toBe(true)
+        expect(negativeInfinity.isInfinite()).toBe(true)
+      })
+    })
+
+    describe('ceil', || {
+      it('should should always away from zero', || {
+        expect(1.ceil()).toBe(1)
+        expect(1.5.ceil()).toBe(2)
+        expect(-0.4.ceil()).toBe(-1)
+        expect(10.4.ceil()).toBe(11)
+        expect(-10.4.ceil()).toBe(-11)
+      })
+    })
+
+    describe('floor', || {
+      it('should should always round towards zero', || {
+        expect(1.floor()).toBe(1)
+        expect(1.5.floor()).toBe(1)
+        expect(-0.4.floor()).toBe(-0)
+        expect(10.4.floor()).toBe(10)
+        expect(-10.4.floor()).toBe(-10)
+      })
+    })
+
+    describe('round', || {
+      it('should should round using normal rules', || {
+        expect(1.round()).toBe(1)
+        expect(1.5.round()).toBe(2)
+        expect(-0.4.round()).toBe(-0)
+        expect(-0.5.round()).toBe(-1)
+        expect(10.4.round()).toBe(10)
+        expect(10.5.round()).toBe(11)
+        expect(-10.4.round()).toBe(-10)
+        expect(-10.5.round()).toBe(-11)
+      })
+    })
+  })
+
   describe('String', || {
     describe('contains', || {
       it('should return true if the string contains the substring', || {
@@ -20,6 +145,99 @@ describe('core', || {
         expect('abcdefg'.contains('ced')).toBe(false)
         expect('abcdefg'.contains('h')).toBe(false)
         expect('abcdefg'.contains('abcdefgh')).toBe(false)
+      })
+    })
+
+    describe('split', || {
+      it('should default to split at each character', || {
+        expect('abcdefg'.split()).toEqual(['a', 'b', 'c', 'd', 'e', 'f', 'g'])
+      })
+
+      it('should split at the provided pattern', || {
+        expect('hello world'.split(' ')).toEqual(['hello', 'world'])
+        expect('hello, world'.split(' ')).toEqual(['hello,', 'world'])
+        expect('hello, world'.split(', ')).toEqual(['hello', 'world'])
+      })
+    })
+
+    describe('padLeft', || {
+      it('should not pad the string if the width is >= width', || {
+        expect('Hello'.padLeft(5)).toEqual('Hello')
+        expect('Hello'.padLeft(2)).toEqual('Hello')
+        expect('Hello'.padLeft(-2)).toEqual('Hello')
+      })
+
+      it('should pad the string with spaces if the width is < width', || {
+        expect('Hello'.padLeft(10)).toEqual('     Hello')
+      })
+
+      it('should pad the string with spaces if the passed padding is an empty string and width is < width', || {
+        expect('Hello'.padLeft(10, '')).toEqual('     Hello')
+      })
+
+      it('should pad the string with passed padding if the width is < width', || {
+        expect('Hello'.padLeft(10, '*')).toEqual('*****Hello')
+        expect('Hello'.padLeft(10, '**')).toEqual('******Hello')
+      })
+    })
+
+    describe('padRight', || {
+      it('should not pad the string if the width is >= width', || {
+        expect('Hello'.padRight(5)).toEqual('Hello')
+        expect('Hello'.padRight(2)).toEqual('Hello')
+        expect('Hello'.padRight(-2)).toEqual('Hello')
+      })
+
+      it('should pad the string with spaces if the width is < width', || {
+        expect('Hello'.padRight(10)).toEqual('Hello     ')
+      })
+
+      it('should pad the string with spaces if the passed padding is an empty string and width is < width', || {
+        expect('Hello'.padRight(10, '')).toEqual('Hello     ')
+      })
+
+      it('should pad the string with passed padding if the width is < width', || {
+        expect('Hello'.padRight(10, '*')).toEqual('Hello*****')
+        expect('Hello'.padRight(10, '**')).toEqual('Hello******')
+      })
+    })
+
+    describe('toLowerCase', || {
+      it('should convert characters to lower case', || {
+        expect('abcABCåäöÅÄÖ'.toLowerCase()).toEqual('abcabcåäöåäö')
+      })
+    })
+
+    describe('toUpperCase', || {
+      it('should convert characters to upper case', || {
+        expect('abcABCåäöÅÄÖ'.toUpperCase()).toEqual('ABCABCÅÄÖÅÄÖ')
+      })
+    })
+
+    describe('trim', || {
+      it('should remove whitespace', || {
+        expect(''.trim()).toEqual('')
+        expect('   Hello'.trim()).toEqual('Hello')
+        expect('Hello   '.trim()).toEqual('Hello')
+        expect('   Hello   '.trim()).toEqual('Hello')
+      })
+    })
+
+    describe('trimLeft', || {
+      it('should remove leading whitespace', || {
+        expect(''.trimLeft()).toEqual('')
+        expect('   Hello'.trimLeft()).toEqual('Hello')
+        expect('Hello   '.trimLeft()).toEqual('Hello   ')
+        expect('   Hello   '.trimLeft()).toEqual('Hello   ')
+      })
+    })
+
+    describe('trimRight', || {
+      it('should remove trailing whitespace', || {
+        expect(''.trimRight()).toEqual('')
+        expect('   Hello'.trimRight()).toEqual('   Hello')
+        expect('Hello   '.trimRight()).toEqual('Hello')
+        expect('   Hello   '.trimRight()).toEqual('   Hello')
       })
     })
   })
@@ -47,46 +265,53 @@ describe('core', || {
 
     describe('andThen', || {
       it('should map the value if Some(value) and returns Some(newValue)', || {
-        expect(any(Some(1).andThen(|value| Some(value + value)))).toEqual(any(Some(2)))
+        expect(Some(1).andThen(|value| Some(value + value))).toEqual(Some(2))
       })
 
       it('should not call the map function if None', || {
-        expect(any(None.andThen(|value| expect('andThen').toBe('not called')))).toEqual(any(None))
+        expect(None.andThen(|value| expect('andThen').toBe('not called'))).toEqual(None)
       })
 
       it('should return None if Some(value) and returns None', || {
-        expect(any(Some(1).andThen(|value| None))).toEqual(any(None))
+        expect(Some(1).andThen(|value| None)).toEqual(None)
       })
     })
 
     describe('map', || {
       it('should map the value if Some(value)', || {
-        expect(any(Some(1).map(|value| value + value))).toEqual(any(Some(2)))
+        expect(Some(1).map(|value| value + value)).toEqual(Some(2))
         expect(Some(2).map(|value| value + value).unwrap()).toBe(4)
       })
 
       it('should not call the map function if None', || {
-        expect(any(None.map(|value| expect('map').toBe('not called')))).toEqual(any(None))
+        expect(None.map(|value| expect('map').toBe('not called'))).toEqual(None)
       })
     })
 
     describe('mapOr', || {
       it('should map the value if Some(value)', || {
-        expect(any(Some(1).mapOr(5, |value| value + value))).toBe(2)
+        expect(Some(1).mapOr(5, |value| value + value)).toBe(2)
       })
 
       it('should return the default value if None', || {
-        expect(any(None.mapOr(5, |value| expect('map').toBe('not called')))).toBe(5)
+        expect(None.mapOr(5, |value| expect('map').toBe('not called'))).toBe(5)
       })
     })
 
     describe('mapOrElse', || {
       it('should map the value if Some(value)', || {
-        expect(any(Some(1).mapOrElse(|| expect('orElse').toBe('not called'), |value| value + value))).toBe(2)
+        expect(
+          Some(1)
+          .mapOrElse(|| {
+            expect('orElse').toBe('not called')
+            0
+          }
+          |value| value + value)
+        ).toBe(2)
       })
 
       it('should return the result of the default function if None', || {
-        expect(any(None.mapOrElse(|| 5, |value| expect('map').toBe('not called')))).toBe(5)
+        expect(None.mapOrElse(|| 5, |value| expect('map').toBe('not called'))).toBe(5)
       })
     })
 
@@ -96,7 +321,7 @@ describe('core', || {
       })
 
       it('should panic if None', || {
-        expect(any(|| None.unwrap())).toThrow()
+        expect(|| None.unwrap()).toThrow()
       })
     })
 
@@ -144,37 +369,42 @@ describe('core', || {
 
     describe('andThen', || {
       it('should map the value if Ok(value) and returns Ok(newValue)', || {
-        expect(any(Ok(1).andThen(|value| Ok(value + value)))).toEqual(any(Ok(2)))
+        expect(Ok(1).andThen(|value| Ok(value + value))).toEqual(Ok(2))
       })
 
       it('should not call the map function if Err(err)', || {
-        expect(any(Err(2).andThen(|value| expect('andThen').toBe('not called')))).toEqual(any(Err(2)))
+        expect(
+          Err(2).andThen(|_| {
+            expect('andThen').toBe('not called')
+            any(Err(0))
+          })
+        ).toEqual(any(Err(2)))
       })
 
       it('should return the error if Ok(value) and returns Err(error)', || {
-        expect(any(Ok(1).andThen(|value| Err('error')))).toEqual(any(Err('error')))
+        expect(Ok(1).andThen(|_| Err('error'))).toEqual(any(Err('error')))
       })
     })
 
     describe('map', || {
       it('should map the value if Ok(value)', || {
-        expect(any(Ok(1).map(|value| value + value))).toEqual(any(Ok(2)))
+        expect(Ok(1).map(|value| value + value)).toEqual(Ok(2))
         expect(Ok(2).map(|value| value + value).unwrap()).toBe(4)
       })
 
       it('should not call the map function if Err(err)', || {
-        expect(any(Err(2).map(|value| expect('map').toBe('not called')))).toEqual(any(Err(2)))
+        expect(Err(2).map(|_| expect('map').toBe('not called'))).toEqual(any(Err(2)))
       })
     })
 
     describe('mapErr', || {
       it('should map the value if Ok(value)', || {
-        expect(any(Err(1).mapErr(|value| value + value))).toEqual(any(Err(2)))
+        expect(Err(1).mapErr(|value| value + value)).toEqual(any(Err(2)))
         expect(Err(2).mapErr(|value| value + value).unwrapErr()).toBe(4)
       })
 
       it('should not call the mapErr function if Err(err)', || {
-        expect(any(Ok(2).mapErr(|value| expect('mapErr').toBe('not called')))).toEqual(any(Ok(2)))
+        expect(Ok(2).mapErr(|value| expect('mapErr').toBe('not called'))).toEqual(Ok(2))
       })
     })
 
@@ -184,13 +414,13 @@ describe('core', || {
       })
 
       it('should panic if Err(err)', || {
-        expect(any(|| Err('err').unwrap())).toThrow()
+        expect(|| Err('err').unwrap()).toThrow()
       })
     })
 
     describe('unwrapErr', || {
       it('should panic if Ok(value)', || {
-        expect(any(|| Ok('value').unwrapErr())).toThrow()
+        expect(|| Ok('value').unwrapErr()).toThrow()
       })
 
       it('should return the error if Err(err)', || {

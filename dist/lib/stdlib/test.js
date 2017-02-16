@@ -3,7 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.expect = exports.ExpectationObject = undefined;
+exports.ExpectationObject = undefined;
+exports.expect = expect;
 exports.describe = describe;
 exports.ddescribe = ddescribe;
 exports.xdescribe = xdescribe;
@@ -21,7 +22,9 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 var ExpectationObject = exports.ExpectationObject = function ExpectationObject(object) {
   return object;
 };
-var expect = exports.expect = $unwrapTraitObject(_js.global).expect;
+function expect(value) {
+  return $unwrapTraitObject(_js.global).expect(value);
+};
 function describe(message, group) {
   return $unwrapTraitObject(_js.global).describe(message, group);
 };
