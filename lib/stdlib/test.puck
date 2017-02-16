@@ -1,8 +1,8 @@
 import 'puck:js' as {RegExp, global}
 
-export type ExpectationObject {
-  toBe: ({}) -> ()
-  toEqual: ({}) -> ()
+export type ExpectationObject<T> {
+  toBe: (T) -> ()
+  toEqual: (T) -> ()
 
   toHaveBeenCalled: () -> ()
   toHaveBeenCalledTimes: (Num) -> ()
@@ -13,7 +13,7 @@ export type ExpectationObject {
   toBeLessThan: (Num) -> ()
   toBeLessThanOrEqual: (Num) -> ()
 
-  toContain: ({}) -> ()
+  toContain: (T) -> ()
   toHaveLength: (Num) -> ()
 
   // toMatch: (RegExp) -> ()
@@ -23,7 +23,11 @@ export type ExpectationObject {
   toThrowErrorMatchingSnapshot: () -> ()
 }
 
-export let expect: ({}) -> ExpectationObject = global.expect
+export fn expect<T>(value: T) -> ExpectationObject<T> {
+  global.expect(value)
+}
+
+// export let expect = global.expect
 
 export fn describe(message: String, group: () -> ()) -> () {
   global.describe(message, group)
