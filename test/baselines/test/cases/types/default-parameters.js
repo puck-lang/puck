@@ -8,8 +8,8 @@ var Default = function Default(object) {
 var DefaultTrait = {
   method: function method() {}
 };
-DefaultTrait['$Default<Num>'] = {
+DefaultTrait["$impl_test/cases/types/default-parameters.puck:DefaultTrait$test/cases/types/default-parameters.puck:Default"] = {
   method: DefaultTrait.method
 };
 var a = { value: 5 };
-DefaultTrait['$Default<Num>'].method.call({ type: '$Default<Num>', value: a, $isTraitObject: true });
+DefaultTrait["$impl_test/cases/types/default-parameters.puck:DefaultTrait$test/cases/types/default-parameters.puck:Default"].method.call({ type: '$impl_test/cases/types/default-parameters.puck:DefaultTrait$test/cases/types/default-parameters.puck:Default', value: a, $isTraitObject: true });

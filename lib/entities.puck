@@ -4,6 +4,7 @@ import 'ast/ast.puck' as {
   Module
   Identifier
   TypePath
+  TypeParameter: AstTypeParameter
 }
 import 'ast/span.puck' as {Span, ToSpan}
 import 'typeck/src/range.puck' as {getRange}
@@ -66,6 +67,7 @@ fn getGenericName(name: String, type_: Type, showClassParameters = false) {
 }
 
 export type Type {
+  id: Option<String>
   displayName: Option<String>
   name: Option<String>
   kind: TypeKind
@@ -78,10 +80,12 @@ export type Type {
   /// If this type is a member of an enum, enumMember will contain the
   /// member name and a pointer to the enum type
   enumMember: Option<(String, Type)>
+  complete: Bool
 }
 
 impl Type {
   fn empty() -> Type {{
+    id: None
     displayName: Some('()')
     name: None
     kind: TypeKind::Struct({
@@ -92,9 +96,11 @@ impl Type {
     instance: None
     providesType: None
     enumMember: None
+    complete: true
   }}
 
   fn provides(mut type_: Type) -> Type {{
+    id: None
     displayName: type_.displayName
     name: type_.name
     kind: TypeKind::Struct({
@@ -105,9 +111,11 @@ impl Type {
     instance: type_.instance
     providesType: Some(type_)
     enumMember: None
+    complete: true
   }}
 
   fn unused() -> Type {{
+    id: None
     displayName: Some('_')
     name: None
     kind: TypeKind::Parameter({
@@ -117,6 +125,7 @@ impl Type {
     instance: None
     providesType: None
     enumMember: None
+    complete: true
   }}
 
   fn displayName(self) -> String {
@@ -276,7 +285,7 @@ export type TypeClass {
   instances: List<Type>
 }
 impl TypeClass {
-  fn fromAstNode(astNode: {typeParameters: List<TypeParameter>}, reportError: (ToSpan, String) -> {}) -> Option<TypeClass> {
+  fn fromAstNode(astNode: {typeParameters: List<AstTypeParameter>}, reportError: (ToSpan, String) -> {}) -> Option<TypeClass> {
     if astNode.typeParameters and astNode.typeParameters.length {
       let parameterRange = getRange(
         astNode.typeParameters

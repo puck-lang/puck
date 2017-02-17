@@ -5,8 +5,8 @@ import 'ast/span.puck' as {ToSpan}
 import 'compiler.puck' as {createContext}
 import 'entities.puck' as {File, UnparsedFile}
 
-export fn createServer(sendDiagnostic) {
-  let mut context = createContext()
+export fn createServer(projectPath: String, sendDiagnostic) {
+  let mut context = createContext(projectPath)
   context.reportError = fn (file: File, token: ToSpan, message) {
     let span = token.span()
     sendDiagnostic(file.absolutePath, {

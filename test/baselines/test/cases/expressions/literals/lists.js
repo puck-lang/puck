@@ -19,10 +19,10 @@ if (false) {
   __PUCK__value__2 = [a, a, a];
 };
 var e = [__PUCK__value__1, __PUCK__value__2];
-_core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: b, $isTraitObject: true });
-_core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: [], $isTraitObject: true });
+_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: b, $isTraitObject: true });
+_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: [], $isTraitObject: true });
 [(0, _core.Some)(5), (0, _core.Some)(5), _core.None];
-_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: ["b"], $isTraitObject: true }, function (e) {
+_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ["b"], $isTraitObject: true }, function (e) {
   return _core.String.contains.call(e, "a");
 });
 [(0, _core.Ok)(5), (0, _core.Err)("hi")];

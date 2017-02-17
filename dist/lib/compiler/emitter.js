@@ -8,7 +8,6 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 var ast_1 = require("./ast");
-var entities_1 = require("../entities");
 var impls_1 = require("../typeck/src/impls");
 var scope_1 = require("../typeck/src/scope");
 var jsKeywords = [
@@ -112,22 +111,16 @@ function Emitter() {
         else
             return type;
     }
-    function getTypeProp(type, trait) {
-        if (trait) {
-            var impls = impls_1.getImplementationsForInstance(type);
-            impls = impls_1.getImplementationsForTrait(type, trait, impls);
-            if (impls.length > 1) {
-                impls = impls_1.getMostSpecificImplementations(type, impls);
-            }
-            type = impls[0].type_;
+    function getImplId(type, trait) {
+        var impls = impls_1.getImplementationsForInstance(type);
+        impls = impls_1.getImplementationsForTrait(type, trait, impls);
+        if (impls.length > 1) {
+            impls = impls_1.getMostSpecificImplementations(type, impls);
         }
-        else {
-            type = getTypeClass(type);
-        }
-        if (type && type.name && type.name.kind) {
-            return "'$" + entities_1.Type.displayName.call(type) + "'";
-        }
-        return "'$" + type.name + "'";
+        return impls[0].id;
+    }
+    function implProp(impl) {
+        return "[" + JSON.stringify(impl.id) + "]";
     }
     function emitExpressions(block, inContext, assignedTo_) {
         if (inContext === void 0) { inContext = context; }
@@ -298,7 +291,7 @@ function Emitter() {
                 var expressionType = getType(expression);
                 if (assignedTo && expressionType && (context == Context.Return || context == Context.Value)) {
                     if (assignedTo.kind.kind === 'Trait' && getType(expression).kind.kind !== 'Trait') {
-                        scalarExpression = "{type: " + getTypeProp(expressionType, assignedTo) + ", value: " + scalarExpression + ", $isTraitObject: true}";
+                        scalarExpression = "{type: '" + getImplId(expressionType, assignedTo) + "', value: " + scalarExpression + ", $isTraitObject: true}";
                     }
                     else if (assignedTo.kind.kind !== 'Trait') {
                         scalarExpression = unwrap(scalarExpression, expression);
@@ -426,7 +419,7 @@ function Emitter() {
     function emitImplDeclaration(i) {
         var functions = Object['assign']({}, i.trait_.value[0].type_.kind.value[0].functions);
         i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m); });
-        return emitTypePath(i.trait_.value[0].path) + "[" + getTypeProp(i.type_.value[0].type_) + "] = {\n" + indent(Object.keys(functions).map(function (f) {
+        return "" + emitTypePath(i.trait_.value[0].path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(functions).map(function (f) {
             return emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
                 : emitTypePath(i.trait_.value[0].path) + "." + emitIdentifier({ name: f }));
@@ -457,7 +450,7 @@ function Emitter() {
                 value = '(...members) => members';
             }
             else {
-                throw "Unsupproted type bound " + ast_1.SyntaxKind[t.bound.kind] + ", " + t.bound.kind;
+                throw "Unsupported type bound " + ast_1.SyntaxKind[t.bound.kind] + ", " + t.bound.kind;
             }
         }
         else {
@@ -608,7 +601,7 @@ function Emitter() {
             }
             functionName = "" + fn.traitName + ((fn.isShorthand || selfBinding.kind === 'None') ? "" :
                 fn.isTraitObject ? "[" + emitIdentifier({ name: valueVariable }) + ".type]"
-                    : "[" + getTypeProp(fn.implementationType) + "]") + "." + emitIdentifier(fn.func.value[0].member);
+                    : "" + implProp(fn.implementation)) + "." + emitIdentifier(fn.func.value[0].member);
             if (selfBinding.kind === 'Some') {
                 if (fn.isTraitObject) {
                     fn.argumentList.unshift({

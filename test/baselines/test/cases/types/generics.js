@@ -6,7 +6,7 @@ var User = function User(object) {
   return object;
 };
 var argv = [];
-var __PUCK__value__1 = _core.Iterable['$List<E>'].skipUntil.call({ type: '$List<E>', value: argv, $isTraitObject: true }, function (arg) {
+var __PUCK__value__1 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "puck");
 });
 var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__1, 1);

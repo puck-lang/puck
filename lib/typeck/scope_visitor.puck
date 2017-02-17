@@ -373,6 +373,7 @@ export fn ScopeVisitor(context, file) {
     }
     visitCallExpression: |mut self, mut e: CallExpression| {
       e.scope = self.scope
+      let scope: Scope = e.scope
       self.visitExpression(e.func)
 
       let mut functionType = e.func.getType()
@@ -413,7 +414,7 @@ export fn ScopeVisitor(context, file) {
                 reportError(e, providesType.displayName() + '::$name takes a self parameter and can\'t be called directly')
               }
               else {
-                e.traitName = providesType.name.unwrap()
+                e.traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
                 e.isTraitObject =  true
               }
             }
@@ -427,8 +428,14 @@ export fn ScopeVisitor(context, file) {
                 let function = functionType.getFunction()
 
                 if function.selfBinding.isSome() {
-                  e.traitName = objectType.name.unwrap()
-                  e.isTraitObject =  true
+                  if let Some(binding) = scope.getBindingByTypeId(objectType.id.unwrap()) {
+                    e.traitName = binding.name
+                    e.isTraitObject =  true
+                  }
+                  else {
+                    let typeName = objectType.name.unwrap()
+                    reportError(e, 'The function $name is defined in trait $typeName but it is not in scope')
+                  }
                 }
               }
             }
@@ -437,16 +444,19 @@ export fn ScopeVisitor(context, file) {
                 if let Option::Some(instance) = implementation.trait_.instance
                   then instance.class
                   else implementation.trait_
-              let traitName = trait_.name.unwrap()
-              let scope: Scope = e.scope
-              if scope.getBinding(traitName).isNone()
-                then reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
 
-              e.traitName = traitName
-              e.isShorthand =  trait_.getTrait().isShorthand
-              e.implementationType = implementation.type_
+              if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap()) {
+                e.traitName = binding.name
+                e.isShorthand =  trait_.getTrait().isShorthand
+                e.implementation = implementation
 
-              functionType = asType(implementation.trait_).getTrait().functions[name]
+                functionType = asType(implementation.trait_).getTrait().functions[name]
+              }
+              else {
+                let traitName = trait_.name.unwrap()
+                let id = trait_.id.unwrap()
+                reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
+              }
             }
 
             if let Option::Some(instance) = objectType.instance {
@@ -514,18 +524,7 @@ export fn ScopeVisitor(context, file) {
               )
             }
           }
-          else {{
-            displayName: None
-            name: None
-            kind: TypeKind::Struct({
-              implementations: []
-              kind: StructKind::Tuple({properties: []})
-            })
-            class: None
-            instance: None
-            providesType: None
-            enumMember: None
-          }}
+          else Type.empty()
       }
       self.scope = parentScope
     }
@@ -558,18 +557,7 @@ export fn ScopeVisitor(context, file) {
               )
             }
           }
-          else {{
-            displayName: None
-            name: None
-            kind: TypeKind::Struct({
-              implementations: []
-              kind: StructKind::Tuple({properties: []})
-            })
-            class: None
-            instance: None
-            providesType: None
-            enumMember: None
-          }}
+          else Type.empty()
       }
       self.scope = parentScope
     }
@@ -595,18 +583,7 @@ export fn ScopeVisitor(context, file) {
               Result::Err(_) => reportError(e, 'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm.type_).displayName()).join(', '))
             }
           }
-          else {{
-            displayName: None
-            name: None
-            kind: TypeKind::Struct({
-              implementations: []
-              kind: StructKind::Tuple({properties: []})
-            })
-            class: None
-            instance: None
-            providesType: None
-            enumMember: None
-          }}
+          else Type.empty()
       }
 
       matchExpression = oldMatchExpression
@@ -648,11 +625,21 @@ export fn ScopeVisitor(context, file) {
       visit.walkUnaryExpression(self, e)
 
       if e.operator.kind == SyntaxKind.NotKeyword {
-        e.type_ = scope.getBinding('Bool').unwrap().type_.providesType.unwrap()
+        if let Some(binding) = scope.getBindingByTypeId('Bool') {
+          e.type_ = binding.type_.providesType.unwrap()
+        }
+        else reportError(e
+          'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
+        )
       }
       else if e.operator.kind == SyntaxKind.MinusToken
             or e.operator.kind == SyntaxKind.PlusToken {
-        e.type_ = scope.getBinding('Num').unwrap().type_.providesType.unwrap()
+        if let Some(binding) = scope.getBindingByTypeId('Num') {
+          e.type_ = binding.type_.providesType.unwrap()
+        }
+        else reportError(e
+          'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+        )
       }
       ()
     }
@@ -677,12 +664,23 @@ export fn ScopeVisitor(context, file) {
     visitBooleanLiteral: |self, mut l: BooleanLiteral| {
       let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = scope.getBinding('Bool').unwrap().type_.providesType.unwrap()
+      if let Some(binding) = scope.getBindingByTypeId('Bool') {
+        l.type_ = binding.type_.providesType.unwrap()
+      }
+      else reportError(l
+        'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
+      )
       visit.walkBooleanLiteral(self, l)
     }
     visitListLiteral: |self, mut l: ListLiteral| {
       let scope: Scope = self.scope
-      let mut listType = scope.getBinding('List').unwrap().type_.providesType.unwrap()
+      let mut listType =
+        if let Some(binding) = scope.getBindingByTypeId('List') {
+          binding.type_.providesType.unwrap()
+        }
+        else return reportError(l
+          'puck:core::List is not in scope. Please import List from puck:core to use list literals.'
+        )
       l.scope = self.scope
       visit.walkListLiteral(self, l)
       if l.members.length >= 1 {
@@ -706,7 +704,12 @@ export fn ScopeVisitor(context, file) {
     visitNumberLiteral: |self, mut l: NumberLiteral| {
       let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = scope.getBinding('Num').unwrap().type_.providesType.unwrap()
+      if let Some(binding) = scope.getBindingByTypeId('Num') {
+        l.type_ = binding.type_.providesType.unwrap()
+      }
+      else reportError(l
+        'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+      )
       visit.walkNumberLiteral(self, l)
     }
     visitRecordLiteral: |self, mut l: RecordLiteral| {
@@ -714,7 +717,8 @@ export fn ScopeVisitor(context, file) {
       l.members.forEach(|m| {
         self.visitExpression(m.value)
       })
-      l.type_ = {
+      l.type_ = Type({
+        id: None
         displayName: None
         name: None
         kind: TypeKind::Struct({
@@ -729,18 +733,25 @@ export fn ScopeVisitor(context, file) {
         instance: None
         providesType: None
         enumMember: None
-      }
+        complete: true
+      })
     }
     visitStringLiteral: |self, mut l: StringLiteral| {
       let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = scope.getBinding('String').unwrap().type_.providesType.unwrap()
+      if let Some(binding) = scope.getBindingByTypeId('String') {
+        l.type_ = binding.type_.providesType.unwrap()
+      }
+      else reportError(l
+        'puck:core::String is not in scope. Please import String from puck:core to use string literals.'
+      )
       visit.walkStringLiteral(self, l)
     }
     visitTupleLiteral: |self, mut l: TupleLiteral| {
       l.scope = self.scope
       visit.walkTupleLiteral(self, l)
-      l.type_ = {
+      l.type_ = Type({
+        id: None
         displayName: None
         name: None
         kind: TypeKind::Struct({
@@ -753,7 +764,8 @@ export fn ScopeVisitor(context, file) {
         instance: None
         providesType: None
         enumMember: None
-      }
+        complete: true
+      })
     }
 
     visitPattern: |self, mut p: Pattern| {
@@ -784,7 +796,8 @@ export fn ScopeVisitor(context, file) {
     visitRecordPattern: |self, mut p: RecordPattern| {
       p.scope = self.scope
       visit.walkRecordPattern(self, p)
-      p.type_ = {
+      p.type_ = Type({
+        id: None
         displayName: None
         name: None
         kind: TypeKind::Struct({
@@ -797,12 +810,14 @@ export fn ScopeVisitor(context, file) {
         class: None
         providesType: None
         enumMember: None
-      }
+        complete: true
+      })
     }
     visitTuplePattern: |self, mut p: TuplePattern| {
       p.scope = self.scope
       visit.walkTuplePattern(self, p)
-      p.type_ = {
+      p.type_ = Type({
+        id: None
         displayName: None
         name: None
         kind: TypeKind::Struct({
@@ -813,7 +828,8 @@ export fn ScopeVisitor(context, file) {
         class: None
         providesType: None
         enumMember: None
-      }
+        complete: true
+      })
     }
   })
 }

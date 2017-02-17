@@ -36,4 +36,5 @@ export type Tuple = {
 export type Implementation = {
   type_: Type
   trait_: Type
+  id: string
 }

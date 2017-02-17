@@ -27,7 +27,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 };
 
 var argv = $unwrapTraitObject(_js.process).argv;
-var __PUCK__value__1 = _core.Iterable['$List<E>'].skipUntil.call({ type: '$List<E>', value: argv, $isTraitObject: true }, function (arg) {
+var __PUCK__value__1 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "puck");
 });
 var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__1, 1);
@@ -40,7 +40,7 @@ function normalizeBinName(file) {
 };
 if (command == "build") {
   var outDir = _arguments.value[1];
-  var __PUCK__value__3 = _core.Iterable['$List<E>'].filter.call({ type: '$List<E>', value: (0, _helpers.walkSync)("bin"), $isTraitObject: true }, function (f) {
+  var __PUCK__value__3 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: (0, _helpers.walkSync)("bin"), $isTraitObject: true }, function (f) {
     return $unwrapTraitObject(puckPattern).test(f);
   });
   var __PUCK__value__2 = _core.Iterable[__PUCK__value__3.type].map.call(__PUCK__value__3, function (file) {
@@ -51,7 +51,7 @@ if (command == "build") {
     };
   });
   var binFiles = _core.Iterable[__PUCK__value__2.type].toList.call(__PUCK__value__2);
-  var __PUCK__value__5 = _core.Iterable['$List<E>'].filter.call({ type: '$List<E>', value: (0, _helpers.walkSync)("lib"), $isTraitObject: true }, function (f) {
+  var __PUCK__value__5 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: (0, _helpers.walkSync)("lib"), $isTraitObject: true }, function (f) {
     return $unwrapTraitObject(puckPattern).test(f);
   });
   var __PUCK__value__4 = _core.Iterable[__PUCK__value__5.type].map.call(__PUCK__value__5, function (file) {
@@ -62,8 +62,10 @@ if (command == "build") {
     };
   });
   var libFiles = _core.Iterable[__PUCK__value__4.type].toList.call(__PUCK__value__4);
-  (0, _compiler.build)(binFiles);
-  (0, _compiler.build)(libFiles);
+  var projectPath = fs.realpathSync(".");
+  var context = (0, _compiler.createContext)(projectPath);
+  (0, _compiler.build)(libFiles, context);
+  (0, _compiler.build)(binFiles, context);
   (0, _core.print)("done");
 } else {
   if (command == "test") {

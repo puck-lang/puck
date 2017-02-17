@@ -1,0 +1,16 @@
+import 'puck:core' as {
+  Bool: CoreBool
+  List: CoreList
+  Num: CoreNum
+  String: CoreString
+}
+
+type Bool {}
+type List {}
+type Num {}
+type String {}
+
+let a: CoreBool = true
+let b: CoreList<String> = []
+let c: CoreNum = 1
+let d: CoreString = ''

@@ -64,7 +64,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
         mutable
         allowRedeclare: true
         type_
-        importedFrom: None
+        completeType: None
         previous: None
       }) {
         Result::Ok(binding) => {

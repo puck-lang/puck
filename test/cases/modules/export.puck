@@ -5,3 +5,30 @@ export fn a() {
 export let b = 'exported'
 
 export let q = ''
+
+export type Type(Num)
+
+export trait Trait {
+  fn static() -> Type {
+    Type(5)
+  }
+  fn implemented(self) -> ()
+  fn default(self) -> () {
+    print(self)
+  }
+}
+
+impl Trait for Type {
+  fn implemented(self) -> () {}
+}
+
+export trait OtherTrait {
+  fn other(self) -> () {}
+}
+
+impl OtherTrait for Type {}
+
+export enum Enum {
+  A
+  B
+}

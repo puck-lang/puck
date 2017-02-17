@@ -57,7 +57,7 @@ function InputStream(context, file) {
         column: column + 1
       }
     };
-    var token = { type: '$Span', value: span, $isTraitObject: true };
+    var token = { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: span, $isTraitObject: true };
     $unwrapTraitObject(context).reportError(file, token, message);
     throw "Syntax Error";
   };

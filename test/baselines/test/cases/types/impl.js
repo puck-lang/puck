@@ -8,7 +8,7 @@ var Type = function Type(object) {
 var Trait = {
   a: function a() {}
 };
-Trait['$Type'] = {
+Trait["$impl_test/cases/types/impl.puck:Trait$test/cases/types/impl.puck:Type"] = {
   a: function a() {}
 };
 Type.isAnswer = function isAnswer() {

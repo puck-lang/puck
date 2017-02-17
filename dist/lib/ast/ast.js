@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TypeBound = exports.Pattern = exports.StringLiteralPart = exports.TypePath = exports.ImportSpecifier = exports.ExportedStatement = exports.Expression = exports.BlockLevelStatement = exports.TopLevelStatement = exports.TypeParameter = exports.TupleTypeBound = exports.RecordTypeBoundMember = exports.RecordTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.TupleLiteral = exports.StringLiteral = exports.RecordLiteralMember = exports.RecordLiteral = exports.NumberLiteral = exports.ListLiteral = exports.BooleanLiteral = exports.MemberAccess = exports.IndexAccess = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.IfLetExpression = exports.IfExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.VariableDeclaration = exports.FunctionDeclaration = exports.Identifier = exports.Comment = exports.WhileLoop = exports.ReturnStatement = exports.BreakStatement = exports.Block = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.ImportDirective = exports.ExportDirective = exports.TypeDeclaration = exports.TraitDeclaration = exports.ImplShorthandDeclaration = exports.ImplDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Module = exports.Token = exports.SyntaxKind = undefined;
+exports.TypeBound = exports.Pattern = exports.StringLiteralPart = exports.TypePath = exports.AttributeData = exports.ImportSpecifier = exports.ExportedStatement = exports.SimpleLiteral = exports.Expression = exports.BlockLevelStatement = exports.TopLevelStatement = exports.TypeParameter = exports.TupleTypeBound = exports.RecordTypeBoundMember = exports.RecordTypeBound = exports.NamedTypeBound = exports.FunctionTypeBound = exports.TuplePattern = exports.RecordPatternMember = exports.RecordPattern = exports.TupleLiteral = exports.SimpleStringLiteral = exports.StringLiteral = exports.RecordLiteralMember = exports.RecordLiteral = exports.NumberLiteral = exports.ListLiteral = exports.BooleanLiteral = exports.MemberAccess = exports.IndexAccess = exports.UnaryExpression = exports.TypePathExpression = exports.MatchArm = exports.MatchExpression = exports.IfLetExpression = exports.IfExpression = exports.CallExpression = exports.BinaryExpression = exports.AssignmentExpression = exports.VariableDeclaration = exports.FunctionDeclaration = exports.Identifier = exports.AttributeArgument = exports.Attribute = exports.Comment = exports.WhileLoop = exports.ReturnStatement = exports.BreakStatement = exports.Block = exports.ObjectDestructureMember = exports.ObjectDestructure = exports.ImportDirective = exports.ExportDirective = exports.TypeDeclaration = exports.TraitDeclaration = exports.ImplShorthandDeclaration = exports.ImplDeclaration = exports.EnumMember = exports.EnumDeclaration = exports.Module = exports.Token = exports.SyntaxKind = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -70,6 +70,12 @@ var WhileLoop = exports.WhileLoop = function WhileLoop(object) {
 var Comment = exports.Comment = function Comment(object) {
   return object;
 };
+var Attribute = exports.Attribute = function Attribute(object) {
+  return object;
+};
+var AttributeArgument = exports.AttributeArgument = function AttributeArgument(object) {
+  return object;
+};
 var Identifier = exports.Identifier = function Identifier(object) {
   return object;
 };
@@ -128,6 +134,9 @@ var RecordLiteralMember = exports.RecordLiteralMember = function RecordLiteralMe
   return object;
 };
 var StringLiteral = exports.StringLiteral = function StringLiteral(object) {
+  return object;
+};
+var SimpleStringLiteral = exports.SimpleStringLiteral = function SimpleStringLiteral(object) {
   return object;
 };
 var TupleLiteral = exports.TupleLiteral = function TupleLiteral(object) {
@@ -404,38 +413,61 @@ var Expression = exports.Expression = {
     return { kind: 'TupleLiteral', value: members };
   }
 };
-var ExportedStatement = exports.ExportedStatement = {
-  EnumDeclaration: function EnumDeclaration() {
+var SimpleLiteral = exports.SimpleLiteral = {
+  BooleanLiteral: function BooleanLiteral() {
     for (var _len35 = arguments.length, members = Array(_len35), _key35 = 0; _key35 < _len35; _key35++) {
       members[_key35] = arguments[_key35];
+    }
+
+    return { kind: 'BooleanLiteral', value: members };
+  },
+  NumberLiteral: function NumberLiteral() {
+    for (var _len36 = arguments.length, members = Array(_len36), _key36 = 0; _key36 < _len36; _key36++) {
+      members[_key36] = arguments[_key36];
+    }
+
+    return { kind: 'NumberLiteral', value: members };
+  },
+  StringLiteral: function StringLiteral() {
+    for (var _len37 = arguments.length, members = Array(_len37), _key37 = 0; _key37 < _len37; _key37++) {
+      members[_key37] = arguments[_key37];
+    }
+
+    return { kind: 'StringLiteral', value: members };
+  }
+};
+var ExportedStatement = exports.ExportedStatement = {
+  EnumDeclaration: function EnumDeclaration() {
+    for (var _len38 = arguments.length, members = Array(_len38), _key38 = 0; _key38 < _len38; _key38++) {
+      members[_key38] = arguments[_key38];
     }
 
     return { kind: 'EnumDeclaration', value: members };
   },
   TraitDeclaration: function TraitDeclaration() {
-    for (var _len36 = arguments.length, members = Array(_len36), _key36 = 0; _key36 < _len36; _key36++) {
-      members[_key36] = arguments[_key36];
+    for (var _len39 = arguments.length, members = Array(_len39), _key39 = 0; _key39 < _len39; _key39++) {
+      members[_key39] = arguments[_key39];
     }
 
     return { kind: 'TraitDeclaration', value: members };
   },
   TypeDeclaration: function TypeDeclaration() {
-    for (var _len37 = arguments.length, members = Array(_len37), _key37 = 0; _key37 < _len37; _key37++) {
-      members[_key37] = arguments[_key37];
+    for (var _len40 = arguments.length, members = Array(_len40), _key40 = 0; _key40 < _len40; _key40++) {
+      members[_key40] = arguments[_key40];
     }
 
     return { kind: 'TypeDeclaration', value: members };
   },
   FunctionDeclaration: function FunctionDeclaration() {
-    for (var _len38 = arguments.length, members = Array(_len38), _key38 = 0; _key38 < _len38; _key38++) {
-      members[_key38] = arguments[_key38];
+    for (var _len41 = arguments.length, members = Array(_len41), _key41 = 0; _key41 < _len41; _key41++) {
+      members[_key41] = arguments[_key41];
     }
 
     return { kind: 'FunctionDeclaration', value: members };
   },
   VariableDeclaration: function VariableDeclaration() {
-    for (var _len39 = arguments.length, members = Array(_len39), _key39 = 0; _key39 < _len39; _key39++) {
-      members[_key39] = arguments[_key39];
+    for (var _len42 = arguments.length, members = Array(_len42), _key42 = 0; _key42 < _len42; _key42++) {
+      members[_key42] = arguments[_key42];
     }
 
     return { kind: 'VariableDeclaration', value: members };
@@ -443,38 +475,55 @@ var ExportedStatement = exports.ExportedStatement = {
 };
 var ImportSpecifier = exports.ImportSpecifier = {
   Asterisk: function Asterisk() {
-    for (var _len40 = arguments.length, members = Array(_len40), _key40 = 0; _key40 < _len40; _key40++) {
-      members[_key40] = arguments[_key40];
+    for (var _len43 = arguments.length, members = Array(_len43), _key43 = 0; _key43 < _len43; _key43++) {
+      members[_key43] = arguments[_key43];
     }
 
     return { kind: 'Asterisk', value: members };
   },
   Identifier: function Identifier() {
-    for (var _len41 = arguments.length, members = Array(_len41), _key41 = 0; _key41 < _len41; _key41++) {
-      members[_key41] = arguments[_key41];
+    for (var _len44 = arguments.length, members = Array(_len44), _key44 = 0; _key44 < _len44; _key44++) {
+      members[_key44] = arguments[_key44];
     }
 
     return { kind: 'Identifier', value: members };
   },
   ObjectDestructure: function ObjectDestructure() {
-    for (var _len42 = arguments.length, members = Array(_len42), _key42 = 0; _key42 < _len42; _key42++) {
-      members[_key42] = arguments[_key42];
+    for (var _len45 = arguments.length, members = Array(_len45), _key45 = 0; _key45 < _len45; _key45++) {
+      members[_key45] = arguments[_key45];
     }
 
     return { kind: 'ObjectDestructure', value: members };
   }
 };
+var AttributeData = exports.AttributeData = {
+  None: { kind: 'None', value: Symbol('None') },
+  Value: function Value() {
+    for (var _len46 = arguments.length, members = Array(_len46), _key46 = 0; _key46 < _len46; _key46++) {
+      members[_key46] = arguments[_key46];
+    }
+
+    return { kind: 'Value', value: members };
+  },
+  Arguments: function Arguments() {
+    for (var _len47 = arguments.length, members = Array(_len47), _key47 = 0; _key47 < _len47; _key47++) {
+      members[_key47] = arguments[_key47];
+    }
+
+    return { kind: 'Arguments', value: members };
+  }
+};
 var TypePath = exports.TypePath = {
   _Object: function _Object() {
-    for (var _len43 = arguments.length, members = Array(_len43), _key43 = 0; _key43 < _len43; _key43++) {
-      members[_key43] = arguments[_key43];
+    for (var _len48 = arguments.length, members = Array(_len48), _key48 = 0; _key48 < _len48; _key48++) {
+      members[_key48] = arguments[_key48];
     }
 
     return { kind: '_Object', value: members };
   },
   Member: function Member() {
-    for (var _len44 = arguments.length, members = Array(_len44), _key44 = 0; _key44 < _len44; _key44++) {
-      members[_key44] = arguments[_key44];
+    for (var _len49 = arguments.length, members = Array(_len49), _key49 = 0; _key49 < _len49; _key49++) {
+      members[_key49] = arguments[_key49];
     }
 
     return { kind: 'Member', value: members };
@@ -482,15 +531,15 @@ var TypePath = exports.TypePath = {
 };
 var StringLiteralPart = exports.StringLiteralPart = {
   Literal: function Literal() {
-    for (var _len45 = arguments.length, members = Array(_len45), _key45 = 0; _key45 < _len45; _key45++) {
-      members[_key45] = arguments[_key45];
+    for (var _len50 = arguments.length, members = Array(_len50), _key50 = 0; _key50 < _len50; _key50++) {
+      members[_key50] = arguments[_key50];
     }
 
     return { kind: 'Literal', value: members };
   },
   Identifier: function Identifier() {
-    for (var _len46 = arguments.length, members = Array(_len46), _key46 = 0; _key46 < _len46; _key46++) {
-      members[_key46] = arguments[_key46];
+    for (var _len51 = arguments.length, members = Array(_len51), _key51 = 0; _key51 < _len51; _key51++) {
+      members[_key51] = arguments[_key51];
     }
 
     return { kind: 'Identifier', value: members };
@@ -498,50 +547,50 @@ var StringLiteralPart = exports.StringLiteralPart = {
 };
 var Pattern = exports.Pattern = {
   CatchAll: function CatchAll() {
-    for (var _len47 = arguments.length, members = Array(_len47), _key47 = 0; _key47 < _len47; _key47++) {
-      members[_key47] = arguments[_key47];
+    for (var _len52 = arguments.length, members = Array(_len52), _key52 = 0; _key52 < _len52; _key52++) {
+      members[_key52] = arguments[_key52];
     }
 
     return { kind: 'CatchAll', value: members };
   },
   Identifier: function Identifier() {
-    for (var _len48 = arguments.length, members = Array(_len48), _key48 = 0; _key48 < _len48; _key48++) {
-      members[_key48] = arguments[_key48];
+    for (var _len53 = arguments.length, members = Array(_len53), _key53 = 0; _key53 < _len53; _key53++) {
+      members[_key53] = arguments[_key53];
     }
 
     return { kind: 'Identifier', value: members };
   },
   Record: function Record() {
-    for (var _len49 = arguments.length, members = Array(_len49), _key49 = 0; _key49 < _len49; _key49++) {
-      members[_key49] = arguments[_key49];
+    for (var _len54 = arguments.length, members = Array(_len54), _key54 = 0; _key54 < _len54; _key54++) {
+      members[_key54] = arguments[_key54];
     }
 
     return { kind: 'Record', value: members };
   },
   Tuple: function Tuple() {
-    for (var _len50 = arguments.length, members = Array(_len50), _key50 = 0; _key50 < _len50; _key50++) {
-      members[_key50] = arguments[_key50];
+    for (var _len55 = arguments.length, members = Array(_len55), _key55 = 0; _key55 < _len55; _key55++) {
+      members[_key55] = arguments[_key55];
     }
 
     return { kind: 'Tuple', value: members };
   },
   RecordType: function RecordType() {
-    for (var _len51 = arguments.length, members = Array(_len51), _key51 = 0; _key51 < _len51; _key51++) {
-      members[_key51] = arguments[_key51];
+    for (var _len56 = arguments.length, members = Array(_len56), _key56 = 0; _key56 < _len56; _key56++) {
+      members[_key56] = arguments[_key56];
     }
 
     return { kind: 'RecordType', value: members };
   },
   TupleType: function TupleType() {
-    for (var _len52 = arguments.length, members = Array(_len52), _key52 = 0; _key52 < _len52; _key52++) {
-      members[_key52] = arguments[_key52];
+    for (var _len57 = arguments.length, members = Array(_len57), _key57 = 0; _key57 < _len57; _key57++) {
+      members[_key57] = arguments[_key57];
     }
 
     return { kind: 'TupleType', value: members };
   },
   UnitType: function UnitType() {
-    for (var _len53 = arguments.length, members = Array(_len53), _key53 = 0; _key53 < _len53; _key53++) {
-      members[_key53] = arguments[_key53];
+    for (var _len58 = arguments.length, members = Array(_len58), _key58 = 0; _key58 < _len58; _key58++) {
+      members[_key58] = arguments[_key58];
     }
 
     return { kind: 'UnitType', value: members };
@@ -549,35 +598,35 @@ var Pattern = exports.Pattern = {
 };
 var TypeBound = exports.TypeBound = {
   FunctionTypeBound: function FunctionTypeBound() {
-    for (var _len54 = arguments.length, members = Array(_len54), _key54 = 0; _key54 < _len54; _key54++) {
-      members[_key54] = arguments[_key54];
+    for (var _len59 = arguments.length, members = Array(_len59), _key59 = 0; _key59 < _len59; _key59++) {
+      members[_key59] = arguments[_key59];
     }
 
     return { kind: 'FunctionTypeBound', value: members };
   },
   NamedTypeBound: function NamedTypeBound() {
-    for (var _len55 = arguments.length, members = Array(_len55), _key55 = 0; _key55 < _len55; _key55++) {
-      members[_key55] = arguments[_key55];
+    for (var _len60 = arguments.length, members = Array(_len60), _key60 = 0; _key60 < _len60; _key60++) {
+      members[_key60] = arguments[_key60];
     }
 
     return { kind: 'NamedTypeBound', value: members };
   },
   RecordTypeBound: function RecordTypeBound() {
-    for (var _len56 = arguments.length, members = Array(_len56), _key56 = 0; _key56 < _len56; _key56++) {
-      members[_key56] = arguments[_key56];
+    for (var _len61 = arguments.length, members = Array(_len61), _key61 = 0; _key61 < _len61; _key61++) {
+      members[_key61] = arguments[_key61];
     }
 
     return { kind: 'RecordTypeBound', value: members };
   },
   TupleTypeBound: function TupleTypeBound() {
-    for (var _len57 = arguments.length, members = Array(_len57), _key57 = 0; _key57 < _len57; _key57++) {
-      members[_key57] = arguments[_key57];
+    for (var _len62 = arguments.length, members = Array(_len62), _key62 = 0; _key62 < _len62; _key62++) {
+      members[_key62] = arguments[_key62];
     }
 
     return { kind: 'TupleTypeBound', value: members };
   }
 };
-_span3.ToSpan['$BlockLevelStatement'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement"] = {
   span: function span() {
     var self = this;
     var __PUCK__value__1 = self;
@@ -587,7 +636,7 @@ _span3.ToSpan['$BlockLevelStatement'] = {
           _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
           e = _$unwrapTraitObject$v[0];
 
-      return _span3.ToSpan['$Block'].span.call({ type: '$Block', value: e, $isTraitObject: true });
+      return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e, $isTraitObject: true });
     } else {
       var __PUCK__value__3 = __PUCK__value__1;
       if ($unwrapTraitObject(__PUCK__value__3).kind == "BreakStatement") {
@@ -619,7 +668,7 @@ _span3.ToSpan['$BlockLevelStatement'] = {
                   _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
                   _e4 = _$unwrapTraitObject5$[0];
 
-              return _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: _e4, $isTraitObject: true });
+              return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: _e4, $isTraitObject: true });
             };
           };
         };
@@ -627,7 +676,7 @@ _span3.ToSpan['$BlockLevelStatement'] = {
     };
   }
 };
-_span3.ToSpan['$Expression'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"] = {
   span: function span() {
     var self = this;
     var __PUCK__value__7 = self;
@@ -637,7 +686,7 @@ _span3.ToSpan['$Expression'] = {
           _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
           e = _$unwrapTraitObject6$[0];
 
-      return _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: e.expression, $isTraitObject: true });
+      return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true });
     } else {
       var __PUCK__value__9 = __PUCK__value__7;
       if ($unwrapTraitObject(__PUCK__value__9).kind == "Comment") {
@@ -653,7 +702,7 @@ _span3.ToSpan['$Expression'] = {
               _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
               _e5 = _$unwrapTraitObject8$[0];
 
-          return _span3.ToSpan['$Identifier'].span.call({ type: '$Identifier', value: _e5, $isTraitObject: true });
+          return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: _e5, $isTraitObject: true });
         } else {
           var __PUCK__value__12 = __PUCK__value__7;
           if ($unwrapTraitObject(__PUCK__value__12).kind == "FunctionDeclaration") {
@@ -661,7 +710,7 @@ _span3.ToSpan['$Expression'] = {
                 _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
                 _e6 = _$unwrapTraitObject9$[0];
 
-            return _span3.ToSpan['$FunctionDeclaration'].span.call({ type: '$FunctionDeclaration', value: _e6, $isTraitObject: true });
+            return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: _e6, $isTraitObject: true });
           } else {
             var __PUCK__value__13 = __PUCK__value__7;
             if ($unwrapTraitObject(__PUCK__value__13).kind == "VariableDeclaration") {
@@ -669,7 +718,7 @@ _span3.ToSpan['$Expression'] = {
                   _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
                   _e7 = _$unwrapTraitObject11[0];
 
-              return _span3.ToSpan['$VariableDeclaration'].span.call({ type: '$VariableDeclaration', value: _e7, $isTraitObject: true });
+              return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: _e7, $isTraitObject: true });
             } else {
               var __PUCK__value__14 = __PUCK__value__7;
               if ($unwrapTraitObject(__PUCK__value__14).kind == "AssignmentExpression") {
@@ -677,7 +726,7 @@ _span3.ToSpan['$Expression'] = {
                     _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
                     _e8 = _$unwrapTraitObject13[0];
 
-                return _span3.ToSpan['$AssignmentExpression'].span.call({ type: '$AssignmentExpression', value: _e8, $isTraitObject: true });
+                return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression', value: _e8, $isTraitObject: true });
               } else {
                 var __PUCK__value__15 = __PUCK__value__7;
                 if ($unwrapTraitObject(__PUCK__value__15).kind == "BinaryExpression") {
@@ -693,7 +742,7 @@ _span3.ToSpan['$Expression'] = {
                         _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject16.value, 1),
                         _e10 = _$unwrapTraitObject17[0];
 
-                    return _span3.ToSpan['$CallExpression'].span.call({ type: '$CallExpression', value: _e10, $isTraitObject: true });
+                    return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: _e10, $isTraitObject: true });
                   } else {
                     var __PUCK__value__17 = __PUCK__value__7;
                     if ($unwrapTraitObject(__PUCK__value__17).kind == "IfExpression") {
@@ -701,7 +750,7 @@ _span3.ToSpan['$Expression'] = {
                           _$unwrapTraitObject19 = _slicedToArray(_$unwrapTraitObject18.value, 1),
                           _e11 = _$unwrapTraitObject19[0];
 
-                      return _span3.ToSpan['$IfExpression'].span.call({ type: '$IfExpression', value: _e11, $isTraitObject: true });
+                      return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: _e11, $isTraitObject: true });
                     } else {
                       var __PUCK__value__18 = __PUCK__value__7;
                       if ($unwrapTraitObject(__PUCK__value__18).kind == "IfLetExpression") {
@@ -709,7 +758,7 @@ _span3.ToSpan['$Expression'] = {
                             _$unwrapTraitObject21 = _slicedToArray(_$unwrapTraitObject20.value, 1),
                             _e12 = _$unwrapTraitObject21[0];
 
-                        return _span3.ToSpan['$IfLetExpression'].span.call({ type: '$IfLetExpression', value: _e12, $isTraitObject: true });
+                        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: _e12, $isTraitObject: true });
                       } else {
                         var __PUCK__value__19 = __PUCK__value__7;
                         if ($unwrapTraitObject(__PUCK__value__19).kind == "MatchExpression") {
@@ -717,7 +766,7 @@ _span3.ToSpan['$Expression'] = {
                               _$unwrapTraitObject23 = _slicedToArray(_$unwrapTraitObject22.value, 1),
                               _e13 = _$unwrapTraitObject23[0];
 
-                          return _span3.ToSpan['$MatchExpression'].span.call({ type: '$MatchExpression', value: _e13, $isTraitObject: true });
+                          return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: _e13, $isTraitObject: true });
                         } else {
                           var __PUCK__value__20 = __PUCK__value__7;
                           if ($unwrapTraitObject(__PUCK__value__20).kind == "TypePathExpression") {
@@ -725,7 +774,7 @@ _span3.ToSpan['$Expression'] = {
                                 _$unwrapTraitObject25 = _slicedToArray(_$unwrapTraitObject24.value, 1),
                                 _e14 = _$unwrapTraitObject25[0];
 
-                            return _span3.ToSpan['$TypePathExpression'].span.call({ type: '$TypePathExpression', value: _e14, $isTraitObject: true });
+                            return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression', value: _e14, $isTraitObject: true });
                           } else {
                             var __PUCK__value__21 = __PUCK__value__7;
                             if ($unwrapTraitObject(__PUCK__value__21).kind == "UnaryExpression") {
@@ -733,7 +782,7 @@ _span3.ToSpan['$Expression'] = {
                                   _$unwrapTraitObject27 = _slicedToArray(_$unwrapTraitObject26.value, 1),
                                   _e15 = _$unwrapTraitObject27[0];
 
-                              return _e15.span();
+                              return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression', value: _e15, $isTraitObject: true });
                             } else {
                               var __PUCK__value__22 = __PUCK__value__7;
                               if ($unwrapTraitObject(__PUCK__value__22).kind == "IndexAccess") {
@@ -741,7 +790,7 @@ _span3.ToSpan['$Expression'] = {
                                     _$unwrapTraitObject29 = _slicedToArray(_$unwrapTraitObject28.value, 1),
                                     _e16 = _$unwrapTraitObject29[0];
 
-                                return _span3.ToSpan['$IndexAccess'].span.call({ type: '$IndexAccess', value: _e16, $isTraitObject: true });
+                                return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess', value: _e16, $isTraitObject: true });
                               } else {
                                 var __PUCK__value__23 = __PUCK__value__7;
                                 if ($unwrapTraitObject(__PUCK__value__23).kind == "MemberAccess") {
@@ -749,7 +798,7 @@ _span3.ToSpan['$Expression'] = {
                                       _$unwrapTraitObject31 = _slicedToArray(_$unwrapTraitObject30.value, 1),
                                       _e17 = _$unwrapTraitObject31[0];
 
-                                  return _span3.ToSpan['$MemberAccess'].span.call({ type: '$MemberAccess', value: _e17, $isTraitObject: true });
+                                  return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: _e17, $isTraitObject: true });
                                 } else {
                                   var __PUCK__value__24 = __PUCK__value__7;
                                   if ($unwrapTraitObject(__PUCK__value__24).kind == "BooleanLiteral") {
@@ -757,7 +806,7 @@ _span3.ToSpan['$Expression'] = {
                                         _$unwrapTraitObject33 = _slicedToArray(_$unwrapTraitObject32.value, 1),
                                         _e18 = _$unwrapTraitObject33[0];
 
-                                    return _span3.ToSpan['$BooleanLiteral'].span.call({ type: '$BooleanLiteral', value: _e18, $isTraitObject: true });
+                                    return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: _e18, $isTraitObject: true });
                                   } else {
                                     var __PUCK__value__25 = __PUCK__value__7;
                                     if ($unwrapTraitObject(__PUCK__value__25).kind == "ListLiteral") {
@@ -765,7 +814,7 @@ _span3.ToSpan['$Expression'] = {
                                           _$unwrapTraitObject35 = _slicedToArray(_$unwrapTraitObject34.value, 1),
                                           _e19 = _$unwrapTraitObject35[0];
 
-                                      return _span3.ToSpan['$ListLiteral'].span.call({ type: '$ListLiteral', value: _e19, $isTraitObject: true });
+                                      return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: _e19, $isTraitObject: true });
                                     } else {
                                       var __PUCK__value__26 = __PUCK__value__7;
                                       if ($unwrapTraitObject(__PUCK__value__26).kind == "NumberLiteral") {
@@ -781,7 +830,7 @@ _span3.ToSpan['$Expression'] = {
                                               _$unwrapTraitObject39 = _slicedToArray(_$unwrapTraitObject38.value, 1),
                                               _e21 = _$unwrapTraitObject39[0];
 
-                                          return _span3.ToSpan['$RecordLiteral'].span.call({ type: '$RecordLiteral', value: _e21, $isTraitObject: true });
+                                          return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: _e21, $isTraitObject: true });
                                         } else {
                                           var __PUCK__value__28 = __PUCK__value__7;
                                           if ($unwrapTraitObject(__PUCK__value__28).kind == "StringLiteral") {
@@ -789,7 +838,7 @@ _span3.ToSpan['$Expression'] = {
                                                 _$unwrapTraitObject41 = _slicedToArray(_$unwrapTraitObject40.value, 1),
                                                 _e22 = _$unwrapTraitObject41[0];
 
-                                            return _span3.ToSpan['$StringLiteral'].span.call({ type: '$StringLiteral', value: _e22, $isTraitObject: true });
+                                            return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: _e22, $isTraitObject: true });
                                           } else {
                                             var __PUCK__value__29 = __PUCK__value__7;
                                             if ($unwrapTraitObject(__PUCK__value__29).kind == "TupleLiteral") {
@@ -797,7 +846,7 @@ _span3.ToSpan['$Expression'] = {
                                                   _$unwrapTraitObject43 = _slicedToArray(_$unwrapTraitObject42.value, 1),
                                                   _e23 = _$unwrapTraitObject43[0];
 
-                                              return _span3.ToSpan['$TupleLiteral'].span.call({ type: '$TupleLiteral', value: _e23, $isTraitObject: true });
+                                              return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: _e23, $isTraitObject: true });
                                             };
                                           };
                                         };
@@ -821,7 +870,7 @@ _span3.ToSpan['$Expression'] = {
     };
   }
 };
-_span3.ToSpan['$EnumDeclaration'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration"] = {
   span: function span() {
     var self = this;
     return {
@@ -830,18 +879,18 @@ _span3.ToSpan['$EnumDeclaration'] = {
     };
   }
 };
-_span3.ToSpan['$EnumMember'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumMember"] = {
   span: function span() {
     var self = this;
     return {
       start: self.value.name.span.start,
       end: _core.Option.mapOr.call(self.value.bound, self.value.name.span, function (b) {
-        return _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: b, $isTraitObject: true });
+        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: b, $isTraitObject: true });
       }).end
     };
   }
 };
-_span3.ToSpan['$ImplDeclaration'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplDeclaration"] = {
   span: function span() {
     var self = this;
     return {
@@ -850,7 +899,7 @@ _span3.ToSpan['$ImplDeclaration'] = {
     };
   }
 };
-_span3.ToSpan['$ImplShorthandDeclaration'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplShorthandDeclaration"] = {
   span: function span() {
     var self = this;
     return {
@@ -859,7 +908,7 @@ _span3.ToSpan['$ImplShorthandDeclaration'] = {
     };
   }
 };
-_span3.ToSpan['$TraitDeclaration'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration"] = {
   span: function span() {
     var self = this;
     return {
@@ -868,25 +917,25 @@ _span3.ToSpan['$TraitDeclaration'] = {
     };
   }
 };
-_span3.ToSpan['$TypeDeclaration'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration"] = {
   span: function span() {
     var self = this;
     return {
       start: self.value.keyword.span.start,
-      end: _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: _core.Option.unwrap.call(self.value.bound), $isTraitObject: true }).end
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: _core.Option.unwrap.call(self.value.bound), $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$ImportDirective'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective"] = {
   span: function span() {
     var self = this;
     return {
       start: self.value.importKeyword.span.start,
-      end: _span3.ToSpan['$ImportSpecifier'].span.call({ type: '$ImportSpecifier', value: self.value.specifier, $isTraitObject: true }).end
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier', value: self.value.specifier, $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$ImportSpecifier'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"] = {
   span: function span() {
     var self = this;
     var __PUCK__value__30 = self;
@@ -912,13 +961,13 @@ _span3.ToSpan['$ImportSpecifier'] = {
               _$unwrapTraitObject49 = _slicedToArray(_$unwrapTraitObject48.value, 1),
               objectDestructure = _$unwrapTraitObject49[0];
 
-          return _span3.ToSpan['$ObjectDestructure'].span.call({ type: '$ObjectDestructure', value: objectDestructure, $isTraitObject: true });
+          return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructure"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructure', value: objectDestructure, $isTraitObject: true });
         };
       };
     };
   }
 };
-_span3.ToSpan['$ObjectDestructure'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructure"] = {
   span: function span() {
     var self = this;
     return {
@@ -927,7 +976,7 @@ _span3.ToSpan['$ObjectDestructure'] = {
     };
   }
 };
-_span3.ToSpan['$ObjectDestructureMember'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"] = {
   span: function span() {
     var self = this;
     return {
@@ -936,100 +985,109 @@ _span3.ToSpan['$ObjectDestructureMember'] = {
     };
   }
 };
-_span3.ToSpan['$Block'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"] = {
   span: function span() {
     var self = this;
     return {
       start: _core.Option.mapOrElse.call(self.value.openBrace, function () {
-        return _span3.ToSpan['$BlockLevelStatement'].span.call({ type: '$BlockLevelStatement', value: _core.Option.unwrap.call(_core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: self.value.statements, $isTraitObject: true })), $isTraitObject: true });
+        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement', value: _core.Option.unwrap.call(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.statements, $isTraitObject: true })), $isTraitObject: true });
       }, function (t) {
         return t.span;
       }).start,
       end: _core.Option.mapOrElse.call(self.value.closeBrace, function () {
-        return _span3.ToSpan['$BlockLevelStatement'].span.call({ type: '$BlockLevelStatement', value: _core.Option.unwrap.call(_core.Iterable['$List<E>'].last.call({ type: '$List<E>', value: self.value.statements, $isTraitObject: true })), $isTraitObject: true });
+        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement', value: _core.Option.unwrap.call(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].last.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.statements, $isTraitObject: true })), $isTraitObject: true });
       }, function (t) {
         return t.span;
       }).end
     };
   }
 };
-_span3.ToSpan['$Identifier'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Attribute"] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: self.value.hash.span.start,
+      end: self.value.closeBracket.span.end
+    };
+  }
+};
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"] = {
   span: function span() {
     var self = this;
     return self.value.span;
   }
 };
-_span3.ToSpan['$FunctionDeclaration'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"] = {
   span: function span() {
     var self = this;
     return {
       start: _core.Option.mapOrElse.call(self.value.name, function () {
-        return _core.Option.mapOrElse.call(_core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: self.value.typeParameters, $isTraitObject: true }), function () {
+        return _core.Option.mapOrElse.call(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.typeParameters, $isTraitObject: true }), function () {
           return self.value.openParenOrBar.span;
         }, function (p) {
-          return _span3.ToSpan['$TypeParameter'].span.call({ type: '$TypeParameter', value: p, $isTraitObject: true });
+          return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: p, $isTraitObject: true });
         });
       }, function (i) {
         return i.span;
       }).start,
-      end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: _core.Option.unwrap.call(self.value.body), $isTraitObject: true }).end
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: _core.Option.unwrap.call(self.value.body), $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$VariableDeclaration'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$Pattern'].span.call({ type: '$Pattern', value: self.value.pattern, $isTraitObject: true }).start,
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: self.value.pattern, $isTraitObject: true }).start,
       end: _core.Option.mapOrElse.call(self.value.initializer, function () {
         return _core.Option.mapOrElse.call(self.value.typeBound, function () {
-          return _span3.ToSpan['$Pattern'].span.call({ type: '$Pattern', value: self.value.pattern, $isTraitObject: true });
+          return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: self.value.pattern, $isTraitObject: true });
         }, function (t) {
-          return _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: t, $isTraitObject: true });
+          return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t, $isTraitObject: true });
         });
       }, function (i) {
-        return _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: i, $isTraitObject: true });
+        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: i, $isTraitObject: true });
       }).end
     };
   }
 };
-_span3.ToSpan['$AssignmentExpression'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.lhs, $isTraitObject: true }).start,
-      end: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.rhs, $isTraitObject: true }).end
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.lhs, $isTraitObject: true }).start,
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.rhs, $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$CallExpression'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.func, $isTraitObject: true }).start,
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.func, $isTraitObject: true }).start,
       end: self.value.closeParen.span.end
     };
   }
 };
-_span3.ToSpan['$IfExpression'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"] = {
   span: function span() {
     var self = this;
     return {
       start: self.value.ifKeyword.span.start,
-      end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: _core.Option.unwrapOr.call(self.value.else_, self.value.then_), $isTraitObject: true }).end
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: _core.Option.unwrapOr.call(self.value.else_, self.value.then_), $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$IfLetExpression'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression"] = {
   span: function span() {
     var self = this;
     return {
       start: self.value.ifKeyword.span.start,
-      end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: _core.Option.unwrapOr.call(self.value.else_, self.value.then_), $isTraitObject: true }).end
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: _core.Option.unwrapOr.call(self.value.else_, self.value.then_), $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$MatchExpression'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression"] = {
   span: function span() {
     var self = this;
     return {
@@ -1038,25 +1096,25 @@ _span3.ToSpan['$MatchExpression'] = {
     };
   }
 };
-_span3.ToSpan['$MatchArm'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchArm"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$Pattern'].span.call({ type: '$Pattern', value: self.value.pattern, $isTraitObject: true }).start,
-      end: _span3.ToSpan['$Block'].span.call({ type: '$Block', value: self.value.block, $isTraitObject: true }).end
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: self.value.pattern, $isTraitObject: true }).start,
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: self.value.block, $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$TypePathExpression'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: self.value.typePath, $isTraitObject: true }).start,
-      end: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: self.value.typePath, $isTraitObject: true }).end
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: self.value.typePath, $isTraitObject: true }).start,
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: self.value.typePath, $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$TypePath'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"] = {
   span: function span() {
     var self = this;
     var __PUCK__value__34 = self;
@@ -1069,7 +1127,7 @@ _span3.ToSpan['$TypePath'] = {
 
       return {
         start: identifier.span.start,
-        end: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: typePath, $isTraitObject: true }).end
+        end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true }).end
       };
     } else {
       var __PUCK__value__36 = __PUCK__value__34;
@@ -1083,31 +1141,40 @@ _span3.ToSpan['$TypePath'] = {
     };
   }
 };
-_span3.ToSpan['$IndexAccess'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.object, $isTraitObject: true }).start,
+      start: self.value.operator.span.start,
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.rhs, $isTraitObject: true }).end
+    };
+  }
+};
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"] = {
+  span: function span() {
+    var self = this;
+    return {
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.object, $isTraitObject: true }).start,
       end: self.value.closeBracket.span.end
     };
   }
 };
-_span3.ToSpan['$MemberAccess'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$Expression'].span.call({ type: '$Expression', value: self.value.object, $isTraitObject: true }).start,
-      end: _span3.ToSpan['$Identifier'].span.call({ type: '$Identifier', value: self.value.member, $isTraitObject: true }).end
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.object, $isTraitObject: true }).start,
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: self.value.member, $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$BooleanLiteral'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"] = {
   span: function span() {
     var self = this;
     return self.value.keyword.span;
   }
 };
-_span3.ToSpan['$ListLiteral'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"] = {
   span: function span() {
     var self = this;
     return {
@@ -1116,13 +1183,13 @@ _span3.ToSpan['$ListLiteral'] = {
     };
   }
 };
-_span3.ToSpan['$NumberLiteral'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral"] = {
   span: function span() {
     var self = this;
     return self.value.span;
   }
 };
-_span3.ToSpan['$RecordLiteral'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"] = {
   span: function span() {
     var self = this;
     return {
@@ -1131,16 +1198,16 @@ _span3.ToSpan['$RecordLiteral'] = {
     };
   }
 };
-_span3.ToSpan['$StringLiteral'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$StringLiteralPart'].span.call({ type: '$StringLiteralPart', value: _core.Option.unwrap.call(_core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: self.value.parts, $isTraitObject: true })), $isTraitObject: true }).start,
-      end: _span3.ToSpan['$StringLiteralPart'].span.call({ type: '$StringLiteralPart', value: _core.Option.unwrap.call(_core.Iterable['$List<E>'].last.call({ type: '$List<E>', value: self.value.parts, $isTraitObject: true })), $isTraitObject: true }).end
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart', value: _core.Option.unwrap.call(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.parts, $isTraitObject: true })), $isTraitObject: true }).start,
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart', value: _core.Option.unwrap.call(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].last.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.parts, $isTraitObject: true })), $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$StringLiteralPart'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart"] = {
   span: function span() {
     var self = this;
     var __PUCK__value__37 = self;
@@ -1163,7 +1230,7 @@ _span3.ToSpan['$StringLiteralPart'] = {
     };
   }
 };
-_span3.ToSpan['$TupleLiteral'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"] = {
   span: function span() {
     var self = this;
     return {
@@ -1172,7 +1239,7 @@ _span3.ToSpan['$TupleLiteral'] = {
     };
   }
 };
-_span3.ToSpan['$Pattern'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"] = {
   span: function span() {
     var self = this;
     var __PUCK__value__40 = self;
@@ -1222,7 +1289,7 @@ _span3.ToSpan['$Pattern'] = {
                   _recordPattern = _$unwrapTraitObject67[1];
 
               return {
-                start: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: typePath, $isTraitObject: true }).start,
+                start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true }).start,
                 end: _recordPattern.closeBrace.span.end
               };
             } else {
@@ -1234,7 +1301,7 @@ _span3.ToSpan['$Pattern'] = {
                     _tuplePattern = _$unwrapTraitObject69[1];
 
                 return {
-                  start: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: _typePath, $isTraitObject: true }).start,
+                  start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: _typePath, $isTraitObject: true }).start,
                   end: _tuplePattern.closeParen.span.end
                 };
               } else {
@@ -1244,7 +1311,7 @@ _span3.ToSpan['$Pattern'] = {
                       _$unwrapTraitObject71 = _slicedToArray(_$unwrapTraitObject70.value, 1),
                       _typePath2 = _$unwrapTraitObject71[0];
 
-                  return _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: _typePath2, $isTraitObject: true });
+                  return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: _typePath2, $isTraitObject: true });
                 };
               };
             };
@@ -1254,7 +1321,7 @@ _span3.ToSpan['$Pattern'] = {
     };
   }
 };
-_span3.ToSpan['$TypeBound'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"] = {
   span: function span() {
     var self = this;
     var __PUCK__value__48 = self;
@@ -1264,7 +1331,7 @@ _span3.ToSpan['$TypeBound'] = {
           _$unwrapTraitObject73 = _slicedToArray(_$unwrapTraitObject72.value, 1),
           t = _$unwrapTraitObject73[0];
 
-      return _span3.ToSpan['$FunctionTypeBound'].span.call({ type: '$FunctionTypeBound', value: t, $isTraitObject: true });
+      return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound', value: t, $isTraitObject: true });
     } else {
       var __PUCK__value__50 = __PUCK__value__48;
       if ($unwrapTraitObject(__PUCK__value__50).kind == "NamedTypeBound") {
@@ -1272,7 +1339,7 @@ _span3.ToSpan['$TypeBound'] = {
             _$unwrapTraitObject75 = _slicedToArray(_$unwrapTraitObject74.value, 1),
             _t = _$unwrapTraitObject75[0];
 
-        return _span3.ToSpan['$NamedTypeBound'].span.call({ type: '$NamedTypeBound', value: _t, $isTraitObject: true });
+        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: _t, $isTraitObject: true });
       } else {
         var __PUCK__value__51 = __PUCK__value__48;
         if ($unwrapTraitObject(__PUCK__value__51).kind == "RecordTypeBound") {
@@ -1280,7 +1347,7 @@ _span3.ToSpan['$TypeBound'] = {
               _$unwrapTraitObject77 = _slicedToArray(_$unwrapTraitObject76.value, 1),
               _t2 = _$unwrapTraitObject77[0];
 
-          return _span3.ToSpan['$RecordTypeBound'].span.call({ type: '$RecordTypeBound', value: _t2, $isTraitObject: true });
+          return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound', value: _t2, $isTraitObject: true });
         } else {
           var __PUCK__value__52 = __PUCK__value__48;
           if ($unwrapTraitObject(__PUCK__value__52).kind == "TupleTypeBound") {
@@ -1288,38 +1355,38 @@ _span3.ToSpan['$TypeBound'] = {
                 _$unwrapTraitObject79 = _slicedToArray(_$unwrapTraitObject78.value, 1),
                 _t3 = _$unwrapTraitObject79[0];
 
-            return _span3.ToSpan['$TupleTypeBound'].span.call({ type: '$TupleTypeBound', value: _t3, $isTraitObject: true });
+            return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: _t3, $isTraitObject: true });
           };
         };
       };
     };
   }
 };
-_span3.ToSpan['$FunctionTypeBound'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound"] = {
   span: function span() {
     var self = this;
     return {
-      start: _core.Option.mapOrElse.call(_core.Iterable['$List<E>'].first.call({ type: '$List<E>', value: self.value.typeParameters, $isTraitObject: true }), function () {
-        return _span3.ToSpan['$TupleTypeBound'].span.call({ type: '$TupleTypeBound', value: self.value.parameters, $isTraitObject: true });
+      start: _core.Option.mapOrElse.call(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.typeParameters, $isTraitObject: true }), function () {
+        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: self.value.parameters, $isTraitObject: true });
       }, function (p) {
-        return _span3.ToSpan['$TypeParameter'].span.call({ type: '$TypeParameter', value: p, $isTraitObject: true });
+        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: p, $isTraitObject: true });
       }).start,
-      end: _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: self.value.returnType, $isTraitObject: true }).end
+      end: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: self.value.returnType, $isTraitObject: true }).end
     };
   }
 };
-_span3.ToSpan['$NamedTypeBound'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"] = {
   span: function span() {
     var self = this;
     return {
-      start: _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: self.value.path, $isTraitObject: true }).start,
-      end: _core.Option.mapOr.call(_core.Iterable['$List<E>'].last.call({ type: '$List<E>', value: self.value.typeParameters, $isTraitObject: true }), _span3.ToSpan['$TypePath'].span.call({ type: '$TypePath', value: self.value.path, $isTraitObject: true }), function (p) {
-        return _span3.ToSpan['$TypeBound'].span.call({ type: '$TypeBound', value: p, $isTraitObject: true });
+      start: _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: self.value.path, $isTraitObject: true }).start,
+      end: _core.Option.mapOr.call(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].last.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.typeParameters, $isTraitObject: true }), _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: self.value.path, $isTraitObject: true }), function (p) {
+        return _span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: p, $isTraitObject: true });
       }).end
     };
   }
 };
-_span3.ToSpan['$RecordTypeBound'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound"] = {
   span: function span() {
     var self = this;
     return {
@@ -1328,7 +1395,7 @@ _span3.ToSpan['$RecordTypeBound'] = {
     };
   }
 };
-_span3.ToSpan['$TupleTypeBound'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"] = {
   span: function span() {
     var self = this;
     return {
@@ -1337,7 +1404,7 @@ _span3.ToSpan['$TupleTypeBound'] = {
     };
   }
 };
-_span3.ToSpan['$TypeParameter'] = {
+_span3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"] = {
   span: function span() {
     var self = this;
     return {
@@ -1663,64 +1730,112 @@ Expression.getType = function getType() {
     };
   };
 };
-Pattern.displayName = function displayName() {
+ExportDirective.getType = function getType() {
   var self = this;
-  var __PUCK__value__92 = self;
+  var __PUCK__value__92 = self.statement;
   var __PUCK__value__93 = __PUCK__value__92;
-  if ($unwrapTraitObject(__PUCK__value__93).kind == "CatchAll") {
+  if ($unwrapTraitObject(__PUCK__value__93).kind == "EnumDeclaration") {
     var _$unwrapTraitObject146 = $unwrapTraitObject(__PUCK__value__93),
         _$unwrapTraitObject147 = _slicedToArray(_$unwrapTraitObject146.value, 1),
-        __PUCK__value__94 = _$unwrapTraitObject147[0];
+        d = _$unwrapTraitObject147[0];
+
+    return d.type_;
+  } else {
+    var __PUCK__value__94 = __PUCK__value__92;
+    if ($unwrapTraitObject(__PUCK__value__94).kind == "TraitDeclaration") {
+      var _$unwrapTraitObject148 = $unwrapTraitObject(__PUCK__value__94),
+          _$unwrapTraitObject149 = _slicedToArray(_$unwrapTraitObject148.value, 1),
+          _d = _$unwrapTraitObject149[0];
+
+      return _d.type_;
+    } else {
+      var __PUCK__value__95 = __PUCK__value__92;
+      if ($unwrapTraitObject(__PUCK__value__95).kind == "TypeDeclaration") {
+        var _$unwrapTraitObject150 = $unwrapTraitObject(__PUCK__value__95),
+            _$unwrapTraitObject151 = _slicedToArray(_$unwrapTraitObject150.value, 1),
+            _d2 = _$unwrapTraitObject151[0];
+
+        return _d2.type_;
+      } else {
+        var __PUCK__value__96 = __PUCK__value__92;
+        if ($unwrapTraitObject(__PUCK__value__96).kind == "FunctionDeclaration") {
+          var _$unwrapTraitObject152 = $unwrapTraitObject(__PUCK__value__96),
+              _$unwrapTraitObject153 = _slicedToArray(_$unwrapTraitObject152.value, 1),
+              _d3 = _$unwrapTraitObject153[0];
+
+          return _d3.type_;
+        } else {
+          var __PUCK__value__97 = __PUCK__value__92;
+          if ($unwrapTraitObject(__PUCK__value__97).kind == "VariableDeclaration") {
+            var _$unwrapTraitObject154 = $unwrapTraitObject(__PUCK__value__97),
+                _$unwrapTraitObject155 = _slicedToArray(_$unwrapTraitObject154.value, 1),
+                _d4 = _$unwrapTraitObject155[0];
+
+            return _d4.type_;
+          };
+        };
+      };
+    };
+  };
+};
+Pattern.displayName = function displayName() {
+  var self = this;
+  var __PUCK__value__98 = self;
+  var __PUCK__value__99 = __PUCK__value__98;
+  if ($unwrapTraitObject(__PUCK__value__99).kind == "CatchAll") {
+    var _$unwrapTraitObject156 = $unwrapTraitObject(__PUCK__value__99),
+        _$unwrapTraitObject157 = _slicedToArray(_$unwrapTraitObject156.value, 1),
+        __PUCK__value__100 = _$unwrapTraitObject157[0];
 
     return "_";
   } else {
-    var __PUCK__value__95 = __PUCK__value__92;
-    if ($unwrapTraitObject(__PUCK__value__95).kind == "Identifier") {
-      var _$unwrapTraitObject148 = $unwrapTraitObject(__PUCK__value__95),
-          _$unwrapTraitObject149 = _slicedToArray(_$unwrapTraitObject148.value, 1),
-          identifier = _$unwrapTraitObject149[0];
+    var __PUCK__value__101 = __PUCK__value__98;
+    if ($unwrapTraitObject(__PUCK__value__101).kind == "Identifier") {
+      var _$unwrapTraitObject158 = $unwrapTraitObject(__PUCK__value__101),
+          _$unwrapTraitObject159 = _slicedToArray(_$unwrapTraitObject158.value, 1),
+          identifier = _$unwrapTraitObject159[0];
 
       return identifier.name;
     } else {
-      var __PUCK__value__96 = __PUCK__value__92;
-      if ($unwrapTraitObject(__PUCK__value__96).kind == "Record") {
-        var _$unwrapTraitObject150 = $unwrapTraitObject(__PUCK__value__96),
-            _$unwrapTraitObject151 = _slicedToArray(_$unwrapTraitObject150.value, 1),
-            recordPattern = _$unwrapTraitObject151[0];
+      var __PUCK__value__102 = __PUCK__value__98;
+      if ($unwrapTraitObject(__PUCK__value__102).kind == "Record") {
+        var _$unwrapTraitObject160 = $unwrapTraitObject(__PUCK__value__102),
+            _$unwrapTraitObject161 = _slicedToArray(_$unwrapTraitObject160.value, 1),
+            recordPattern = _$unwrapTraitObject161[0];
 
         return RecordPattern.displayName.call(recordPattern);
       } else {
-        var __PUCK__value__97 = __PUCK__value__92;
-        if ($unwrapTraitObject(__PUCK__value__97).kind == "Tuple") {
-          var _$unwrapTraitObject152 = $unwrapTraitObject(__PUCK__value__97),
-              _$unwrapTraitObject153 = _slicedToArray(_$unwrapTraitObject152.value, 1),
-              tuplePattern = _$unwrapTraitObject153[0];
+        var __PUCK__value__103 = __PUCK__value__98;
+        if ($unwrapTraitObject(__PUCK__value__103).kind == "Tuple") {
+          var _$unwrapTraitObject162 = $unwrapTraitObject(__PUCK__value__103),
+              _$unwrapTraitObject163 = _slicedToArray(_$unwrapTraitObject162.value, 1),
+              tuplePattern = _$unwrapTraitObject163[0];
 
           return TuplePattern.displayName.call(tuplePattern);
         } else {
-          var __PUCK__value__98 = __PUCK__value__92;
-          if ($unwrapTraitObject(__PUCK__value__98).kind == "RecordType") {
-            var _$unwrapTraitObject154 = $unwrapTraitObject(__PUCK__value__98),
-                _$unwrapTraitObject155 = _slicedToArray(_$unwrapTraitObject154.value, 2),
-                __PUCK__value__99 = _$unwrapTraitObject155[0],
-                _recordPattern2 = _$unwrapTraitObject155[1];
+          var __PUCK__value__104 = __PUCK__value__98;
+          if ($unwrapTraitObject(__PUCK__value__104).kind == "RecordType") {
+            var _$unwrapTraitObject164 = $unwrapTraitObject(__PUCK__value__104),
+                _$unwrapTraitObject165 = _slicedToArray(_$unwrapTraitObject164.value, 2),
+                __PUCK__value__105 = _$unwrapTraitObject165[0],
+                _recordPattern2 = _$unwrapTraitObject165[1];
 
             return RecordPattern.displayName.call(_recordPattern2);
           } else {
-            var __PUCK__value__100 = __PUCK__value__92;
-            if ($unwrapTraitObject(__PUCK__value__100).kind == "TupleType") {
-              var _$unwrapTraitObject156 = $unwrapTraitObject(__PUCK__value__100),
-                  _$unwrapTraitObject157 = _slicedToArray(_$unwrapTraitObject156.value, 2),
-                  __PUCK__value__101 = _$unwrapTraitObject157[0],
-                  _tuplePattern2 = _$unwrapTraitObject157[1];
+            var __PUCK__value__106 = __PUCK__value__98;
+            if ($unwrapTraitObject(__PUCK__value__106).kind == "TupleType") {
+              var _$unwrapTraitObject166 = $unwrapTraitObject(__PUCK__value__106),
+                  _$unwrapTraitObject167 = _slicedToArray(_$unwrapTraitObject166.value, 2),
+                  __PUCK__value__107 = _$unwrapTraitObject167[0],
+                  _tuplePattern2 = _$unwrapTraitObject167[1];
 
               return TuplePattern.displayName.call(_tuplePattern2);
             } else {
-              var __PUCK__value__102 = __PUCK__value__92;
-              if ($unwrapTraitObject(__PUCK__value__102).kind == "UnitType") {
-                var _$unwrapTraitObject158 = $unwrapTraitObject(__PUCK__value__102),
-                    _$unwrapTraitObject159 = _slicedToArray(_$unwrapTraitObject158.value, 1),
-                    __PUCK__value__103 = _$unwrapTraitObject159[0];
+              var __PUCK__value__108 = __PUCK__value__98;
+              if ($unwrapTraitObject(__PUCK__value__108).kind == "UnitType") {
+                var _$unwrapTraitObject168 = $unwrapTraitObject(__PUCK__value__108),
+                    _$unwrapTraitObject169 = _slicedToArray(_$unwrapTraitObject168.value, 1),
+                    __PUCK__value__109 = _$unwrapTraitObject169[0];
 
                 return "";
               };
@@ -1733,19 +1848,19 @@ Pattern.displayName = function displayName() {
 };
 RecordPattern.displayName = function displayName() {
   var self = this;
-  return "{" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: self.properties, $isTraitObject: true }, function (p) {
-    var __PUCK__value__104 = p.pattern;
-    var __PUCK__value__105 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__104).kind == "Identifier") {
-      var _$unwrapTraitObject160 = $unwrapTraitObject(__PUCK__value__104),
-          _$unwrapTraitObject161 = _slicedToArray(_$unwrapTraitObject160.value, 1),
-          name = _$unwrapTraitObject161[0].name;
+  return "{" + _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.properties, $isTraitObject: true }, function (p) {
+    var __PUCK__value__110 = p.pattern;
+    var __PUCK__value__111 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__110).kind == "Identifier") {
+      var _$unwrapTraitObject170 = $unwrapTraitObject(__PUCK__value__110),
+          _$unwrapTraitObject171 = _slicedToArray(_$unwrapTraitObject170.value, 1),
+          name = _$unwrapTraitObject171[0].name;
 
-      __PUCK__value__105 = name == p.property.name;
+      __PUCK__value__111 = name == p.property.name;
     } else {
-      __PUCK__value__105 = false;
+      __PUCK__value__111 = false;
     };
-    var shorthand = __PUCK__value__105;
+    var shorthand = __PUCK__value__111;
     if (shorthand) {
       return p.property.name;
     } else {
@@ -1755,42 +1870,42 @@ RecordPattern.displayName = function displayName() {
 };
 TuplePattern.displayName = function displayName() {
   var self = this;
-  return "(" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: self.properties, $isTraitObject: true }, function (p) {
+  return "(" + _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.properties, $isTraitObject: true }, function (p) {
     return Pattern.displayName.call(p);
   }).value.join(", ") + ")";
 };
 TypeBound.getType = function getType() {
   var self = this;
-  var __PUCK__value__106 = self;
-  var __PUCK__value__107 = __PUCK__value__106;
-  if ($unwrapTraitObject(__PUCK__value__107).kind == "FunctionTypeBound") {
-    var _$unwrapTraitObject162 = $unwrapTraitObject(__PUCK__value__107),
-        _$unwrapTraitObject163 = _slicedToArray(_$unwrapTraitObject162.value, 1),
-        t = _$unwrapTraitObject163[0];
+  var __PUCK__value__112 = self;
+  var __PUCK__value__113 = __PUCK__value__112;
+  if ($unwrapTraitObject(__PUCK__value__113).kind == "FunctionTypeBound") {
+    var _$unwrapTraitObject172 = $unwrapTraitObject(__PUCK__value__113),
+        _$unwrapTraitObject173 = _slicedToArray(_$unwrapTraitObject172.value, 1),
+        t = _$unwrapTraitObject173[0];
 
     return t.type_;
   } else {
-    var __PUCK__value__108 = __PUCK__value__106;
-    if ($unwrapTraitObject(__PUCK__value__108).kind == "NamedTypeBound") {
-      var _$unwrapTraitObject164 = $unwrapTraitObject(__PUCK__value__108),
-          _$unwrapTraitObject165 = _slicedToArray(_$unwrapTraitObject164.value, 1),
-          _t4 = _$unwrapTraitObject165[0];
+    var __PUCK__value__114 = __PUCK__value__112;
+    if ($unwrapTraitObject(__PUCK__value__114).kind == "NamedTypeBound") {
+      var _$unwrapTraitObject174 = $unwrapTraitObject(__PUCK__value__114),
+          _$unwrapTraitObject175 = _slicedToArray(_$unwrapTraitObject174.value, 1),
+          _t4 = _$unwrapTraitObject175[0];
 
       return _t4.type_;
     } else {
-      var __PUCK__value__109 = __PUCK__value__106;
-      if ($unwrapTraitObject(__PUCK__value__109).kind == "RecordTypeBound") {
-        var _$unwrapTraitObject166 = $unwrapTraitObject(__PUCK__value__109),
-            _$unwrapTraitObject167 = _slicedToArray(_$unwrapTraitObject166.value, 1),
-            _t5 = _$unwrapTraitObject167[0];
+      var __PUCK__value__115 = __PUCK__value__112;
+      if ($unwrapTraitObject(__PUCK__value__115).kind == "RecordTypeBound") {
+        var _$unwrapTraitObject176 = $unwrapTraitObject(__PUCK__value__115),
+            _$unwrapTraitObject177 = _slicedToArray(_$unwrapTraitObject176.value, 1),
+            _t5 = _$unwrapTraitObject177[0];
 
         return _t5.type_;
       } else {
-        var __PUCK__value__110 = __PUCK__value__106;
-        if ($unwrapTraitObject(__PUCK__value__110).kind == "TupleTypeBound") {
-          var _$unwrapTraitObject168 = $unwrapTraitObject(__PUCK__value__110),
-              _$unwrapTraitObject169 = _slicedToArray(_$unwrapTraitObject168.value, 1),
-              _t6 = _$unwrapTraitObject169[0];
+        var __PUCK__value__116 = __PUCK__value__112;
+        if ($unwrapTraitObject(__PUCK__value__116).kind == "TupleTypeBound") {
+          var _$unwrapTraitObject178 = $unwrapTraitObject(__PUCK__value__116),
+              _$unwrapTraitObject179 = _slicedToArray(_$unwrapTraitObject178.value, 1),
+              _t6 = _$unwrapTraitObject179[0];
 
           return _t6.type_;
         };
@@ -1800,36 +1915,36 @@ TypeBound.getType = function getType() {
 };
 TypeBound.getRecordTypeBound = function getRecordTypeBound() {
   var self = this;
-  var __PUCK__value__111 = self;
-  var __PUCK__value__112 = __PUCK__value__111;
-  if ($unwrapTraitObject(__PUCK__value__112).kind == "RecordTypeBound") {
-    var _$unwrapTraitObject170 = $unwrapTraitObject(__PUCK__value__112),
-        _$unwrapTraitObject171 = _slicedToArray(_$unwrapTraitObject170.value, 1),
-        record = _$unwrapTraitObject171[0];
+  var __PUCK__value__117 = self;
+  var __PUCK__value__118 = __PUCK__value__117;
+  if ($unwrapTraitObject(__PUCK__value__118).kind == "RecordTypeBound") {
+    var _$unwrapTraitObject180 = $unwrapTraitObject(__PUCK__value__118),
+        _$unwrapTraitObject181 = _slicedToArray(_$unwrapTraitObject180.value, 1),
+        record = _$unwrapTraitObject181[0];
 
     return record;
   } else {
-    var __PUCK__value__113 = __PUCK__value__111;
+    var __PUCK__value__119 = __PUCK__value__117;
     if (true) {
-      var __PUCK__value__114 = __PUCK__value__113;
+      var __PUCK__value__120 = __PUCK__value__119;
       throw "TypeBound is not a RecordTypeBound";
     };
   };
 };
 TypeBound.getTupleTypeBound = function getTupleTypeBound() {
   var self = this;
-  var __PUCK__value__115 = self;
-  var __PUCK__value__116 = __PUCK__value__115;
-  if ($unwrapTraitObject(__PUCK__value__116).kind == "TupleTypeBound") {
-    var _$unwrapTraitObject172 = $unwrapTraitObject(__PUCK__value__116),
-        _$unwrapTraitObject173 = _slicedToArray(_$unwrapTraitObject172.value, 1),
-        tuple = _$unwrapTraitObject173[0];
+  var __PUCK__value__121 = self;
+  var __PUCK__value__122 = __PUCK__value__121;
+  if ($unwrapTraitObject(__PUCK__value__122).kind == "TupleTypeBound") {
+    var _$unwrapTraitObject182 = $unwrapTraitObject(__PUCK__value__122),
+        _$unwrapTraitObject183 = _slicedToArray(_$unwrapTraitObject182.value, 1),
+        tuple = _$unwrapTraitObject183[0];
 
     return tuple;
   } else {
-    var __PUCK__value__117 = __PUCK__value__115;
+    var __PUCK__value__123 = __PUCK__value__121;
     if (true) {
-      var __PUCK__value__118 = __PUCK__value__117;
+      var __PUCK__value__124 = __PUCK__value__123;
       throw "TypeBound is not a TupleTypeBound";
     };
   };

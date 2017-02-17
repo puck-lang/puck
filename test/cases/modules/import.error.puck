@@ -17,3 +17,22 @@ import 'puck:missing' as a
 
 ///// Invalid import domain unknown
 import 'unknown:module' as a
+
+///// Type is not assignable to type Type
+import 'export.puck' as {Type: RenamedType}
+type Type(String)
+
+let a: RenamedType = ((1))
+let b: Type = a
+
+///// String is not assignable to type Type
+import 'export.puck' as e
+let a: e::Type = ''
+
+///// Enum::A is not assignable to type Type
+import 'export.puck' as e
+let a: e::Type = e::Enum::A
+
+///// String is not assignable to type Num
+import 'export.puck' as e
+let a: Num = e.b

@@ -10,7 +10,10 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
       then enum_.name.map(|name| '$name::$member')
       else type_.displayName
 
-  let mut providedType = type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
+  let mut providedType = type_.enumMember
+    .map(|(_, enum_)| enum_)
+    .orValue(type_.providesType)
+    .unwrapOr(type_)
   let mut returnType: Type =
     if let Option::Some(class) = providedType.class
       then createTypeInstance(providedType, class.typeParameters)
@@ -28,7 +31,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
               mutable: false
               allowRedeclare: false
               type_: type_.providesType.unwrapOr(type_)
-              importedFrom: None
+              completeType: None
               previous: None
             }]
             parameterRange: {start: 1, end: 2}
@@ -46,7 +49,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
               mutable: false
               allowRedeclare: false
               type_: p
-              importedFrom: None
+              completeType: None
               previous: None
             }}).toList()
             parameterRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
@@ -55,7 +58,8 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
           })
         }
 
-        StructKind::Unit => return {
+        StructKind::Unit => return Type({
+          id: returnType.id
           displayName
           name: returnType.name
           kind: returnType.kind
@@ -63,7 +67,8 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
           instance: returnType.instance
           providesType: returnType.providesType
           enumMember: returnType.enumMember
-        }
+          complete: returnType.complete
+        })
       }
       _ => {
         TypeKind::Struct({
@@ -74,6 +79,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
     }
 
   {
+    id: providedType.id
     displayName
     name: type_.name
     kind
@@ -81,5 +87,6 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
     instance: providedType.instance
     providesType: type_.providesType.orValue(Some(type_))
     enumMember: type_.enumMember
+    complete: type_.complete
   }
 }

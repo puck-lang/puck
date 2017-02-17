@@ -322,7 +322,7 @@ var emptyVisitor = exports.emptyVisitor = {
   visitTupleTypeBound: function visitTupleTypeBound() {}
 };
 function walkModule(visitor, m) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: m.statements, $isTraitObject: true }, function (s) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: m.statements, $isTraitObject: true }, function (s) {
     return visitor.visitTopLevelStatement(s);
   });
 };
@@ -641,10 +641,10 @@ function walkExpression(visitor, e) {
   };
 };
 function walkEnumDeclaration(visitor, e) {
-  _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: e.typeParameters, $isTraitObject: true }, function (t) {
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.typeParameters, $isTraitObject: true }, function (t) {
     return visitor.visitTypeParameter(t);
   });
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: e.members, $isTraitObject: true }, function (t) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.members, $isTraitObject: true }, function (t) {
     return visitor.visitEnumMember(t);
   });
 };
@@ -659,26 +659,26 @@ function walkEnumMember(visitor, e) {
   };
 };
 function walkImplDeclaration(visitor, i) {
-  _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
   visitor.visitTypeBound(i.trait_);
   visitor.visitTypeBound(i.type_);
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, $unwrapTraitObject(visitor.visitFunctionDeclaration).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, $unwrapTraitObject(visitor.visitFunctionDeclaration).bind(visitor));
 };
 function walkImplShorthandDeclaration(visitor, i) {
-  _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
   visitor.visitTypeBound(i.type_);
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: i.members, $isTraitObject: true }, $unwrapTraitObject(visitor.visitFunctionDeclaration).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, $unwrapTraitObject(visitor.visitFunctionDeclaration).bind(visitor));
 };
 function walkTraitDeclaration(visitor, t) {
   if (t.typeParameters) {
-    _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
+    _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
   };
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.members, $isTraitObject: true }, function (t) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.members, $isTraitObject: true }, function (t) {
     return visitor.visitFunctionDeclaration(t);
   });
 };
 function walkTypeDeclaration(visitor, t) {
-  _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.typeParameters, $isTraitObject: true }, function (t) {
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.typeParameters, $isTraitObject: true }, function (t) {
     return visitor.visitTypeParameter(t);
   });
   var __PUCK__value__41 = t.bound;
@@ -747,13 +747,13 @@ function walkImportDirective(visitor, i) {
   };
 };
 function walkObjectDestructure(visitor, o) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: o.members, $isTraitObject: true }, function (m) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true }, function (m) {
     visitor.visitIdentifier(m.property);
     return visitor.visitIdentifier(m.local);
   });
 };
 function walkBlock(visitor, b) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: b.statements, $isTraitObject: true }, function (s) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: b.statements, $isTraitObject: true }, function (s) {
     return visitor.visitBlockLevelStatement(s);
   });
 };
@@ -767,9 +767,9 @@ function walkWhileLoop(visitor, e) {
 function walkIdentifier(visitor, i) {};
 function walkFunctionDeclaration(visitor, f) {
   if (f.typeParameters) {
-    _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: f.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
+    _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
   };
-  _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: f.parameterList, $isTraitObject: true }, $unwrapTraitObject(visitor.visitVariableDeclaration).bind(visitor));
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.parameterList, $isTraitObject: true }, $unwrapTraitObject(visitor.visitVariableDeclaration).bind(visitor));
   var __PUCK__value__48 = f.returnType;
   if ($unwrapTraitObject(__PUCK__value__48).kind == "Some") {
     var _$unwrapTraitObject72 = $unwrapTraitObject(__PUCK__value__48),
@@ -816,7 +816,7 @@ function walkBinaryExpression(visitor, e) {
 };
 function walkCallExpression(visitor, e) {
   visitor.visitExpression(e.func);
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: e.argumentList, $isTraitObject: true }, $unwrapTraitObject(visitor.visitExpression).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.argumentList, $isTraitObject: true }, $unwrapTraitObject(visitor.visitExpression).bind(visitor));
 };
 function walkIfExpression(visitor, e) {
   visitor.visitExpression(e.condition);
@@ -845,7 +845,7 @@ function walkIfLetExpression(visitor, e) {
 };
 function walkMatchExpression(visitor, e) {
   visitor.visitExpression(e.expression);
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: e.patterns, $isTraitObject: true }, function (p) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.patterns, $isTraitObject: true }, function (p) {
     return visitor.visitMatchArm(p);
   });
 };
@@ -866,17 +866,17 @@ function walkMemberAccess(visitor, a) {
 };
 function walkBooleanLiteral(visitor, l) {};
 function walkListLiteral(visitor, l) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: l.members, $isTraitObject: true }, $unwrapTraitObject(visitor.visitExpression).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true }, $unwrapTraitObject(visitor.visitExpression).bind(visitor));
 };
 function walkNumberLiteral(visitor, l) {};
 function walkRecordLiteral(visitor, l) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: l.members, $isTraitObject: true }, function (m) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true }, function (m) {
     visitor.visitIdentifier(m.name);
     return visitor.visitExpression(m.value);
   });
 };
 function walkStringLiteral(visitor, l) {
-  var __PUCK__value__54 = _core.Iterable['$List<E>'].filterMap.call({ type: '$List<E>', value: l.parts, $isTraitObject: true }, function (p) {
+  var __PUCK__value__54 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.parts, $isTraitObject: true }, function (p) {
     var __PUCK__value__55 = p;
     var __PUCK__value__56 = __PUCK__value__55;
     if ($unwrapTraitObject(__PUCK__value__56).kind == "Identifier") {
@@ -898,7 +898,7 @@ function walkStringLiteral(visitor, l) {
   });
 };
 function walkTupleLiteral(visitor, l) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: l.expressions, $isTraitObject: true }, $unwrapTraitObject(visitor.visitExpression).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.expressions, $isTraitObject: true }, $unwrapTraitObject(visitor.visitExpression).bind(visitor));
 };
 function walkPattern(visitor, p) {
   var __PUCK__value__59 = p;
@@ -969,12 +969,12 @@ function walkPattern(visitor, p) {
 };
 function walkIdentifierPattern(visitor, p) {};
 function walkRecordPattern(visitor, p) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: p.properties, $isTraitObject: true }, function (p) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: p.properties, $isTraitObject: true }, function (p) {
     return visitor.visitPattern(p.pattern);
   });
 };
 function walkTuplePattern(visitor, p) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: p.properties, $isTraitObject: true }, function (p) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: p.properties, $isTraitObject: true }, function (p) {
     return visitor.visitPattern(p);
   });
 };
@@ -1017,15 +1017,15 @@ function walkTypeBound(visitor, t) {
   };
 };
 function walkFunctionTypeBound(visitor, t) {
-  _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeParameter).bind(visitor));
   visitor.visitTupleTypeBound(t.parameters);
   return visitor.visitTypeBound(t.returnType);
 };
 function walkNamedTypeBound(visitor, t) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeBound).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.typeParameters, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeBound).bind(visitor));
 };
 function walkRecordTypeBound(visitor, t) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, function (t) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.properties, $isTraitObject: true }, function (t) {
     return visitor.visitRecordTypeBoundMember(t);
   });
 };
@@ -1033,7 +1033,7 @@ function walkRecordTypeBoundMember(visitor, t) {
   return visitor.visitTypeBound(t.typeBound);
 };
 function walkTupleTypeBound(visitor, t) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: t.properties, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeBound).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.properties, $isTraitObject: true }, $unwrapTraitObject(visitor.visitTypeBound).bind(visitor));
 };
 function walkTypeParameter(visitor, t) {
   var __PUCK__value__73 = t.defaultValue;

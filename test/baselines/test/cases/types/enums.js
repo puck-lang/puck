@@ -22,7 +22,7 @@ var EnumTrait = exports.EnumTrait = {
     return $unwrapTraitObject(self.value.value).b;
   }
 };
-EnumTrait['$Enum'] = {
+EnumTrait["$impl_test/cases/types/enums.puck:EnumTrait$test/cases/types/enums.puck:Enum"] = {
   getB: EnumTrait.getB
 };
 var five = (0, _core.Some)(5);
@@ -30,4 +30,4 @@ var nothing = _core.None;
 var maybeFive = _core.Option.Some(5);
 var maybeNothing = _core.Option.None;
 var a = Enum.A({ b: 5 });
-EnumTrait['$Enum'].getB.call({ type: '$Enum', value: a, $isTraitObject: true });
+EnumTrait["$impl_test/cases/types/enums.puck:EnumTrait$test/cases/types/enums.puck:Enum"].getB.call({ type: '$impl_test/cases/types/enums.puck:EnumTrait$test/cases/types/enums.puck:Enum', value: a, $isTraitObject: true });

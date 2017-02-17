@@ -83,7 +83,7 @@ function babelTransform(file) {
   })).code;
 };
 function dumpFiles(files, prop) {
-  return _core.Iterable['$List<E>'].forEach.call({ type: '$List<E>', value: files, $isTraitObject: true }, function (file) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
     (0, _core.print)("");
     (0, _core.print)(file.absolutePath);
     var data = file[prop];
@@ -98,12 +98,14 @@ function dumpFiles(files, prop) {
     })).join("\n"));
   });
 };
-function createContext() {
-  var ignoreErrors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+function createContext(projectPath) {
+  var ignoreErrors = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
   return {
-    files: {},
-    deferred: {},
+    projectPath: projectPath,
+    impls: _core.ObjectMap._new(),
+    files: _core.ObjectMap._new(),
+    deferred: _core.ObjectMap._new(),
     runTypeVisitor: function runTypeVisitor() {
       var self = this;
       return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_js._Object).keys($unwrapTraitObject(self).files)).map(function (path) {
@@ -185,7 +187,7 @@ function createContext() {
         __PUCK__value__1 = path.join(path.dirname($unwrapTraitObject(relativeTo).absolutePath), file);
       };
       var filePath = __PUCK__value__1;
-      var absolutePath = path.resolve(path.normalize(filePath));
+      var absolutePath = fs.realpathSync(path.resolve(path.normalize(filePath)));
       var fileName = path.basename(absolutePath);
       return {
         absolutePath: absolutePath,
@@ -227,13 +229,13 @@ function createContext() {
     }
   };
 };
-function buildString(code, filePath) {
+function buildString(code, filePath, projectPath) {
   return (0, _js.asResult)(function () {
-    var context = createContext();
+    var context = createContext(projectPath);
     var file = context.importFile({
       isBin: false,
       fileName: path.basename(filePath),
-      absolutePath: path.resolve(path.normalize(filePath)),
+      absolutePath: fs.realpathSync(path.resolve(path.normalize(filePath))),
       puck: code
     });
     context.runTypeVisitor();
@@ -244,14 +246,13 @@ function buildString(code, filePath) {
     return file;
   });
 };
-function build(files) {
-  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+function build(files, context) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var dump = options.dump;
-  var context = createContext(options.ignoreErrors);
   files = $unwrapTraitObject(files).map(function (f) {
     var fileName = path.basename($unwrapTraitObject(f).file);
-    var absolutePath = path.resolve(path.normalize($unwrapTraitObject(f).file));
+    var absolutePath = fs.realpathSync(path.resolve(path.normalize($unwrapTraitObject(f).file)));
     var outFile = path.normalize($unwrapTraitObject(f).outFile);
     var outDir = path.dirname(outFile);
     return {
@@ -263,23 +264,23 @@ function build(files) {
     };
   });
   files = $unwrapTraitObject(files).map(function (f) {
-    return context.importFile(f);
+    return $unwrapTraitObject(context).importFile(f);
   });
   if (dump == "ast") {
     dumpFiles(files, "ast");
     return _js._undefined;
   };
-  context.runTypeVisitor();
+  $unwrapTraitObject(context).runTypeVisitor();
   if (dump == "typed-ast") {
     dumpFiles(files, "ast");
     return _js._undefined;
   };
-  context.runImplVisitor();
+  $unwrapTraitObject(context).runImplVisitor();
   if (dump == "impl-ast") {
     dumpFiles(files, "ast");
     return _js._undefined;
   };
-  context.runChecker();
+  $unwrapTraitObject(context).runChecker();
   if (dump == "checked-ast") {
     dumpFiles(files, "ast");
     return _js._undefined;

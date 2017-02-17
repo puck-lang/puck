@@ -1,0 +1,15 @@
+///// puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.
+type Bool {}
+let a = true
+
+///// puck:core::List is not in scope. Please import List from puck:core to use list literals.
+type List {}
+let a = []
+
+///// puck:core::Num is not in scope. Please import Num from puck:core to use number literals.
+type Num {}
+let a = 42
+
+///// puck:core::String is not in scope. Please import String from puck:core to use string literals.
+type String {}
+let a = 'Hello'

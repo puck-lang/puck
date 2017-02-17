@@ -106,7 +106,8 @@ fn mapObject<T>(object: ObjectMap<T>, mapper) {
 export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
   if let Option::Some(providedType) = type_.providesType {
     let mut p = providedType
-    return {
+    return Type({
+      id: type_.id
       displayName: type_.displayName
       name: type_.name
       kind: type_.kind
@@ -114,7 +115,8 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
       instance: type_.instance
       providesType: createTypeInstance(p, typeParameters_)
       enumMember: type_.enumMember
-    }
+      complete: type_.complete
+    })
   }
   let mut class: TypeClass = type_.class.unwrap()
   let typeParameters: List<Type> =
@@ -149,6 +151,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
       }))
 
   let mut instance: Type = {
+    id: type_.id
     displayName: type_.displayName
     name: type_.name
     kind: type_.kind
@@ -160,6 +163,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
     })
     providesType: type_.providesType
     enumMember: type_.enumMember
+    complete: type_.complete
   }
   class.instances.push(instance)
 
@@ -174,15 +178,15 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
   instance
 }
 
-fn isSameName(to: Type, subject: Type) {
-  match (to.name, subject.name) {
-    (Option::Some(toName), Option::Some(subjectName)) => toName == subjectName
+fn isSameId(to: Type, subject: Type) {
+  match (to.id, subject.id) {
+    (Some(toId), Some(subjectId)) => toId == subjectId
     _ => true
   }
 }
 
 fn checkTypeParameters(to: Type, subject: Type) {
-  if to.name.isNone() or subject.name.isNone() then return true
+  if to.id.isNone() or subject.id.isNone() then return true
 
   match (to.typeParameters(), subject.typeParameters()) {
     (Some(toParameters), Some(subjectParameters)) => {
@@ -212,7 +216,7 @@ export fn isAssignable(to: Type, subject: Type) {
   match to.kind {
     TypeKind::Enum(toEnum) => match subject.kind {
       TypeKind::Enum(subjectEnum) => {
-        isSameName(to, subject) and
+        isSameId(to, subject) and
         isEnumAssignable(toEnum, subjectEnum) and
         checkTypeParameters(to, subject)
       }
@@ -225,7 +229,7 @@ export fn isAssignable(to: Type, subject: Type) {
     TypeKind::Parameter => true
     TypeKind::Struct(toStruct) => match subject.kind {
       TypeKind::Struct(subjectStruct) => {
-        isSameName(to, subject) and
+        isSameId(to, subject) and
         isStructAssignable(toStruct, subjectStruct) and
         checkTypeParameters(to, subject)
       }
@@ -291,9 +295,10 @@ fn isTraitAssignable(to: Trait, subject: Trait) {
 }
 
 export fn isSameType(a: Type, b: Type) {
-  if let (Option::Some(aName), Option::Some(bName)) = (a.name, b.name)
-    then aName == bName
-    else false
+  match (a.id, b.id) {
+    (Some(aId), Some(bId)) => aId == bId
+    _ => false
+  }
 }
 
 export fn findCommonType(types: List<Type>) -> Result<Type, ()> {

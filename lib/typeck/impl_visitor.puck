@@ -36,7 +36,7 @@ import '../entities.puck' as {
   TypeKind
 }
 
-fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, i: ImplDeclaration, reportError: (ToSpan, String) -> {}) {
+fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, mut i: ImplDeclaration, reportError: (ToSpan, String) -> {}, id: String) {
   let traitName = traitType.displayName()
 
   if implementable.implementations.any(|imp| imp.trait_ == traitType)
@@ -78,11 +78,13 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
       then reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires a self parameter')
   })
 
-  let implementation = {
+  let implementation = Implementation({
+    id
     type_: type_
     trait_: traitType
-  }
+  })
 
+  i.implementation = implementation
   implementable.implementations.push(implementation)
 
   i.members.forEach(|mut functionDeclaration| {
@@ -97,7 +99,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
   })
 }
 
-fn implementShorthand(type_: Type, implementable: {implementations: List<Implementation>}, i: ImplShorthandDeclaration, reportError: (ToSpan, String) -> {}) {
+fn implementShorthand(type_: Type, mut implementable: {implementations: List<Implementation>}, i: ImplShorthandDeclaration, reportError: (ToSpan, String) -> {}) {
   let typeName = type_.displayName()
 
   if implementable.implementations.any(|imp| imp.trait_.getTrait().isShorthand)
@@ -109,9 +111,10 @@ fn implementShorthand(type_: Type, implementable: {implementations: List<Impleme
     )
   )
 
-  implementable.implementations.push({
+  implementable.implementations.add({
     type_: type_
     trait_: {
+      id: type_.id
       displayName: type_.displayName
       name: type_.name
       kind: TypeKind::Trait({
@@ -122,17 +125,28 @@ fn implementShorthand(type_: Type, implementable: {implementations: List<Impleme
       instance: None
       providesType: None
       enumMember: None
+      complete: true
     }
   })
 }
 
-export fn ImplVisitor(context, file) {
+export fn ImplVisitor(mut context, file) {
   let mut importDirective: ImportDirective
   let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
 
-  Object.assign({}, visit.emptyVisitor, structureVisitor(reportError), {
-    reportError
+  fn getImplId(type_: Type, trait_: Type) {
+    let mut id = '\$impl_' + type_.id.unwrap() + '\$' + trait_.id.unwrap()
+    if context.impls[id] {
+      id = '$id\$' + context.impls[id]
+      context.impls[id] += 1
+    }
+    else {
+      context.impls[id] = 1
+    }
+    id
+  }
 
+  Object.assign({}, visit.emptyVisitor, structureVisitor(reportError, 'ImplVisitor'), {
     visitModule: |mut self, mut m: Module| {
       self.scope = m.scope
       m.statements
@@ -157,11 +171,12 @@ export fn ImplVisitor(context, file) {
       let mut structType = i.type_.getType()
       scope.setSelfType(structType)
       i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
+      let id = getImplId(traitType, structType)
 
       if let TypeKind::Trait(trait_) = traitType.kind {
         match structType.kind {
-          TypeKind::Enum(enum_) => implementTrait(traitType, trait_, structType, enum_, i, reportError)
-          TypeKind::Struct(struct) => implementTrait(traitType, trait_, structType, struct, i, reportError)
+          TypeKind::Enum(enum_) => implementTrait(traitType, trait_, structType, enum_, i, reportError, id)
+          TypeKind::Struct(struct) => implementTrait(traitType, trait_, structType, struct, i, reportError, id)
           _ => reportError(i.type_, structType.displayName() + ' is not a struct or an enum')
         }
       }
@@ -182,8 +197,14 @@ export fn ImplVisitor(context, file) {
       i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
 
       match structType.kind {
-        TypeKind::Enum(enum_) => implementShorthand(structType, enum_, i, reportError)
-        TypeKind::Struct(struct) => implementShorthand(structType, struct, i, reportError)
+        TypeKind::Enum(enum_) => {
+          let mut e = enum_
+          implementShorthand(structType, e, i, reportError)
+        }
+        TypeKind::Struct(struct) => {
+          let mut s = struct
+          implementShorthand(structType, s, i, reportError)
+        }
         _ => reportError(i.type_, structType.displayName() + ' is not a struct or an enum')
       }
 

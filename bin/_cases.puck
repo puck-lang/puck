@@ -16,6 +16,7 @@ if command == undefined {
 
   cmd('.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck')
   let buildString = require('puck-lang/.tmp/old/lib/compiler').buildString
+  let projectPath = fs.realpathSync('.')
   failCases.forEach(|file| {
     fs.readFileSync(file, {encoding: 'utf-8'})
       .split('/////')
@@ -30,7 +31,7 @@ if command == undefined {
           process.exit(1)
         }
 
-        let result: Result<{}, {message: String}> = buildString(code, file)
+        let result: Result<{}, {message: String}> = buildString(code, file, projectPath)
 
         match result {
           Result::Ok(_) => {

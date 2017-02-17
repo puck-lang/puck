@@ -122,6 +122,7 @@ var StructKind = exports.StructKind = {
 };
 Type.empty = function empty() {
   return {
+    id: _core.None,
     displayName: (0, _core.Some)("()"),
     name: _core.None,
     kind: TypeKind.Struct({
@@ -131,11 +132,13 @@ Type.empty = function empty() {
     _class: _core.None,
     instance: _core.None,
     providesType: _core.None,
-    enumMember: _core.None
+    enumMember: _core.None,
+    complete: true
   };
 };
 Type.provides = function provides(type_) {
   return {
+    id: _core.None,
     displayName: type_.displayName,
     name: type_.name,
     kind: TypeKind.Struct({
@@ -145,18 +148,21 @@ Type.provides = function provides(type_) {
     _class: type_._class,
     instance: type_.instance,
     providesType: (0, _core.Some)(type_),
-    enumMember: _core.None
+    enumMember: _core.None,
+    complete: true
   };
 };
 Type.unused = function unused() {
   return {
+    id: _core.None,
     displayName: (0, _core.Some)("_"),
     name: _core.None,
     kind: TypeKind.Parameter({ defaultValue: _core.None }),
     _class: _core.None,
     instance: _core.None,
     providesType: _core.None,
-    enumMember: _core.None
+    enumMember: _core.None,
+    complete: true
   };
 };
 Type.displayName = function displayName() {
@@ -229,7 +235,7 @@ Type.displayName = function displayName() {
                         _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
                         _properties = _$unwrapTraitObject7$[0].properties;
 
-                    return getTupleTypeName({ type: '$List<E>', value: _properties, $isTraitObject: true });
+                    return getTupleTypeName({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _properties, $isTraitObject: true });
                   } else {
                     var __PUCK__value__11 = __PUCK__value__8;
                     if ($unwrapTraitObject(__PUCK__value__11).kind == "Unit") {
@@ -310,7 +316,7 @@ Type.verboseName = function verboseName() {
                   _$unwrapTraitObject19 = _slicedToArray(_$unwrapTraitObject18.value, 1),
                   _properties2 = _$unwrapTraitObject19[0].properties;
 
-              return getTupleTypeName({ type: '$List<E>', value: _properties2, $isTraitObject: true });
+              return getTupleTypeName({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _properties2, $isTraitObject: true });
             } else {
               var __PUCK__value__23 = __PUCK__value__20;
               if ($unwrapTraitObject(__PUCK__value__23).kind == "Unit") {
@@ -468,7 +474,7 @@ TypeClass.fromAstNode = function fromAstNode(astNode, reportError) {
   };
 };
 function getFunctionTypeName(_function) {
-  return getTupleTypeName(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _function.parameters, $isTraitObject: true }, function (a) {
+  return getTupleTypeName(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _function.parameters, $isTraitObject: true }, function (a) {
     return a.type_;
   })) + " -> " + (_function.returnType && Type.displayName.call(_function.returnType));
 };
@@ -478,7 +484,7 @@ function getTupleTypeName(properties) {
   }).value.join(", ") + ")";
 };
 function getRecordTypeName(properties) {
-  return "{" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _core.ObjectMap.toList.call(properties), $isTraitObject: true }, function (_ref) {
+  return "{" + _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(properties), $isTraitObject: true }, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         key = _ref2[0],
         type_ = _ref2[1];
@@ -496,7 +502,7 @@ function getGenericName(name, type_) {
         _$unwrapTraitObject35 = _slicedToArray(_$unwrapTraitObject34.value, 1),
         instance = _$unwrapTraitObject35[0];
 
-    __PUCK__value__54 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: instance.typeParameters, $isTraitObject: true }, function (p) {
+    __PUCK__value__54 = "<" + _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true }, function (p) {
       return Type.displayName.call(p);
     }).value.join(", ") + ">";
   } else {
@@ -509,7 +515,7 @@ function getGenericName(name, type_) {
             _$unwrapTraitObject37 = _slicedToArray(_$unwrapTraitObject36.value, 1),
             _class = _$unwrapTraitObject37[0];
 
-        __PUCK__value__57 = "<" + _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _class.typeParameters, $isTraitObject: true }, function (p) {
+        __PUCK__value__57 = "<" + _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true }, function (p) {
           return Type.displayName.call(p);
         }).value.join(", ") + ">";
       } else {

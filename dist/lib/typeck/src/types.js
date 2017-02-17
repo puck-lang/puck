@@ -52,10 +52,10 @@ var resolveTypeParameters = exports.resolveTypeParameters = function resolveType
 
       var i = instance;
       var typeParameters = instance.typeParameters;
-      if (_core.Iterable['$List<E>'].any.call({ type: '$List<E>', value: typeParameters, $isTraitObject: true }, function (parameter) {
+      if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: typeParameters, $isTraitObject: true }, function (parameter) {
         return _entities.Type.isParameter.call(parameter);
       })) {
-        return createTypeInstance(i._class, _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: typeParameters, $isTraitObject: true }, function (p) {
+        return createTypeInstance(i._class, _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: typeParameters, $isTraitObject: true }, function (p) {
           if (_entities.Type.isParameter.call(p)) {
             return _core.Option.unwrapOr.call(_core.ObjectMap.get.call(parameterMap, _core.Option.unwrap.call(p.name)), p);
           } else {
@@ -135,7 +135,7 @@ function resolveTypeParametersEnum(parameterMap, e) {
   return assign(e, { members: _core.ObjectMap.map.call(e.members, resolveTypeParameters(parameterMap)) });
 };
 function resolveTypeParametersFn(parameterMap, func) {
-  var __PUCK__value__16 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: func.parameters, $isTraitObject: true }, function (binding) {
+  var __PUCK__value__16 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: func.parameters, $isTraitObject: true }, function (binding) {
     var __PUCK__value__17 = void 0;
     if (binding.type_) {
       __PUCK__value__17 = resolveTypeParameters(parameterMap, false)(binding.type_);
@@ -169,7 +169,7 @@ function resolveTypeParametersStruct(parameterMap, struct) {
           _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
           _properties = _$unwrapTraitObject7$[0].properties;
 
-      var __PUCK__value__24 = _core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _properties, $isTraitObject: true }, resolveTypeParameters(parameterMap, false));
+      var __PUCK__value__24 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _properties, $isTraitObject: true }, resolveTypeParameters(parameterMap, false));
       __PUCK__value__23 = _entities.StructKind.Tuple({ properties: _core.Iterable[__PUCK__value__24.type].toList.call(__PUCK__value__24) });
     } else {
       var __PUCK__value__25 = __PUCK__value__19;
@@ -198,15 +198,17 @@ function createTypeInstance(type_, typeParameters_) {
         providedType = _$unwrapTraitObject8$[0];
 
     var p = providedType;
-    return {
+    return (0, _entities.Type)({
+      id: type_.id,
       displayName: type_.displayName,
       name: type_.name,
       kind: type_.kind,
       _class: type_._class,
       instance: type_.instance,
       providesType: createTypeInstance(p, typeParameters_),
-      enumMember: type_.enumMember
-    };
+      enumMember: type_.enumMember,
+      complete: type_.complete
+    });
   };
   var _class = _core.Option.unwrap.call(type_._class);
   var __PUCK__value__28 = void 0;
@@ -227,7 +229,7 @@ function createTypeInstance(type_, typeParameters_) {
     __PUCK__value__28 = _core.Iterable[typeParameters_.type].toList.call(typeParameters_);
   };
   var typeParameters = __PUCK__value__28;
-  var __PUCK__value__30 = _core.Iterable['$List<E>'].find.call({ type: '$List<E>', value: _class.instances, $isTraitObject: true }, function (a) {
+  var __PUCK__value__30 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].find.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.instances, $isTraitObject: true }, function (a) {
     var i = _core.Option.unwrap.call(a.instance);
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
       return isSameType(p, typeParameters[$unwrapTraitObject(i)]);
@@ -240,12 +242,13 @@ function createTypeInstance(type_, typeParameters_) {
 
     return cachedInstance;
   };
-  var parameterMap = _core.ObjectMap.fromIter(_core.Iterable['$List<E>'].map.call({ type: '$List<E>', value: _core.List.zip({ type: '$List<E>', value: typeParameters, $isTraitObject: true }, { type: '$List<E>', value: _class.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (p) {
+  var parameterMap = _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: typeParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (p) {
     var typeArgument = p[0];
     var typeParameter = p[1];
     return [_core.Option.unwrap.call(typeParameter.name), typeArgument];
   }));
   var instance = {
+    id: type_.id,
     displayName: type_.displayName,
     name: type_.name,
     kind: type_.kind,
@@ -256,7 +259,8 @@ function createTypeInstance(type_, typeParameters_) {
       parameterMap: parameterMap
     }),
     providesType: type_.providesType,
-    enumMember: type_.enumMember
+    enumMember: type_.enumMember,
+    complete: type_.complete
   };
   _class.instances.push(instance);
   instance.kind = $unwrapTraitObject(resolveTypeParameters(parameterMap)(type_)).kind;
@@ -282,18 +286,18 @@ function createTypeInstance(type_, typeParameters_) {
   };
   return instance;
 };
-function isSameName(to, subject) {
-  var __PUCK__value__34 = [to.name, subject.name];
+function isSameId(to, subject) {
+  var __PUCK__value__34 = [to.id, subject.id];
   var __PUCK__value__35 = __PUCK__value__34;
   if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__35)[$unwrapTraitObject(0)]).kind == "Some" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__35)[$unwrapTraitObject(1)]).kind == "Some") {
     var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__35),
         _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14, 2),
         _$unwrapTraitObject16 = _slicedToArray(_$unwrapTraitObject15[0].value, 1),
-        toName = _$unwrapTraitObject16[0],
+        toId = _$unwrapTraitObject16[0],
         _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject15[1].value, 1),
-        subjectName = _$unwrapTraitObject17[0];
+        subjectId = _$unwrapTraitObject17[0];
 
-    return toName == subjectName;
+    return toId == subjectId;
   } else {
     var __PUCK__value__36 = __PUCK__value__34;
     if (true) {
@@ -303,7 +307,7 @@ function isSameName(to, subject) {
   };
 };
 function checkTypeParameters(to, subject) {
-  if (_core.Option.isNone.call(to.name) || _core.Option.isNone.call(subject.name)) {
+  if (_core.Option.isNone.call(to.id) || _core.Option.isNone.call(subject.id)) {
     return true;
   };
   var __PUCK__value__38 = [_entities.Type.typeParameters.call(to), _entities.Type.typeParameters.call(subject)];
@@ -316,8 +320,8 @@ function checkTypeParameters(to, subject) {
         _$unwrapTraitObject21 = _slicedToArray(_$unwrapTraitObject19[1].value, 1),
         subjectParameters = _$unwrapTraitObject21[0];
 
-    if (_core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: toParameters, $isTraitObject: true }) == _core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: subjectParameters, $isTraitObject: true })) {
-      return _core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: _core.List.zip({ type: '$List<E>', value: toParameters, $isTraitObject: true }, { type: '$List<E>', value: subjectParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref5) {
+    if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toParameters, $isTraitObject: true }) == _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectParameters, $isTraitObject: true })) {
+      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref5) {
         var _ref6 = _slicedToArray(_ref5, 2),
             toParameter = _ref6[0],
             subjectParameter = _ref6[1];
@@ -396,7 +400,7 @@ function isAssignable(to, subject) {
           _$unwrapTraitObject31 = _slicedToArray(_$unwrapTraitObject30.value, 1),
           subjectEnum = _$unwrapTraitObject31[0];
 
-      return isSameName(to, subject) && isEnumAssignable(toEnum, subjectEnum) && checkTypeParameters(to, subject);
+      return isSameId(to, subject) && isEnumAssignable(toEnum, subjectEnum) && checkTypeParameters(to, subject);
     } else {
       var __PUCK__value__54 = __PUCK__value__52;
       if (true) {
@@ -445,7 +449,7 @@ function isAssignable(to, subject) {
                 _$unwrapTraitObject39 = _slicedToArray(_$unwrapTraitObject38.value, 1),
                 subjectStruct = _$unwrapTraitObject39[0];
 
-            return isSameName(to, subject) && isStructAssignable(toStruct, subjectStruct) && checkTypeParameters(to, subject);
+            return isSameId(to, subject) && isStructAssignable(toStruct, subjectStruct) && checkTypeParameters(to, subject);
           } else {
             var __PUCK__value__65 = __PUCK__value__63;
             if (true) {
@@ -475,7 +479,7 @@ function isAssignable(to, subject) {
                     _$unwrapTraitObject45 = _slicedToArray(_$unwrapTraitObject44.value, 1),
                     _subjectEnum = _$unwrapTraitObject45[0];
 
-                return _core.Iterable['$List<E>'].any.call({ type: '$List<E>', value: _subjectEnum.implementations, $isTraitObject: true }, function (implementation) {
+                return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _subjectEnum.implementations, $isTraitObject: true }, function (implementation) {
                   return isAssignable(to, implementation.trait_);
                 });
               } else {
@@ -485,7 +489,7 @@ function isAssignable(to, subject) {
                       _$unwrapTraitObject47 = _slicedToArray(_$unwrapTraitObject46.value, 1),
                       _subjectStruct = _$unwrapTraitObject47[0];
 
-                  return _core.Iterable['$List<E>'].any.call({ type: '$List<E>', value: _subjectStruct.implementations, $isTraitObject: true }, function (implementation) {
+                  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _subjectStruct.implementations, $isTraitObject: true }, function (implementation) {
                     return isAssignable(to, implementation.trait_);
                   });
                 } else {
@@ -505,7 +509,7 @@ function isAssignable(to, subject) {
 };
 function isEnumAssignable(to, subject) {
   if (_core.ObjectMap.size.call(to.members) == _core.ObjectMap.size.call(subject.members)) {
-    return _core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: _core.ObjectMap.toList.call(to.members), $isTraitObject: true }, function (_ref7) {
+    return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(to.members), $isTraitObject: true }, function (_ref7) {
       var _ref8 = _slicedToArray(_ref7, 2),
           name = _ref8[0],
           toMember = _ref8[1];
@@ -520,7 +524,7 @@ function isFunctionAssignable(to, subject) {
   if (!_core.Range.isSubsetOf.call(to.parameterRange, subject.parameterRange)) {
     return false;
   };
-  var __PUCK__value__74 = _core.Iterable['$List<E>'].enumerate.call({ type: '$List<E>', value: to.parameters, $isTraitObject: true });
+  var __PUCK__value__74 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: to.parameters, $isTraitObject: true });
   return _core.Iterable[__PUCK__value__74.type].all.call(__PUCK__value__74, function (_ref9) {
     var _ref10 = _slicedToArray(_ref9, 2),
         toArg = _ref10[0],
@@ -542,7 +546,7 @@ function isStructAssignable(to, subject) {
           subjectProps = _$unwrapTraitObject51[0].properties;
 
       return {
-        v: _core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: _core.ObjectMap.toList.call(toProps), $isTraitObject: true }, function (_ref11) {
+        v: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(toProps), $isTraitObject: true }, function (_ref11) {
           var _ref12 = _slicedToArray(_ref11, 2),
               key = _ref12[0],
               toProp = _ref12[1];
@@ -563,10 +567,10 @@ function isStructAssignable(to, subject) {
           _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject53[1].value, 1),
           subjectProps = _$unwrapTraitObject55[0].properties;
 
-      if (_core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: toProps, $isTraitObject: true }) != _core.Iterable['$List<E>'].size.call({ type: '$List<E>', value: subjectProps, $isTraitObject: true })) {
+      if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toProps, $isTraitObject: true }) != _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectProps, $isTraitObject: true })) {
         return false;
       };
-      return _core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: _core.List.zip({ type: '$List<E>', value: toProps, $isTraitObject: true }, { type: '$List<E>', value: subjectProps, $isTraitObject: true }), $isTraitObject: true }, function (_ref13) {
+      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toProps, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectProps, $isTraitObject: true }), $isTraitObject: true }, function (_ref13) {
         var _ref14 = _slicedToArray(_ref13, 2),
             toProp = _ref14[0],
             subjectProp = _ref14[1];
@@ -592,7 +596,7 @@ function isStructAssignable(to, subject) {
 };
 function isTraitAssignable(to, subject) {
   if (_core.ObjectMap.size.call(to.functions) == _core.ObjectMap.size.call(subject.functions)) {
-    return _core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: _core.ObjectMap.toList.call(to.functions), $isTraitObject: true }, function (_ref15) {
+    return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(to.functions), $isTraitObject: true }, function (_ref15) {
       var _ref16 = _slicedToArray(_ref15, 2),
           name = _ref16[0],
           toFunction = _ref16[1];
@@ -604,18 +608,23 @@ function isTraitAssignable(to, subject) {
   };
 };
 function isSameType(a, b) {
-  var __PUCK__value__81 = [a.name, b.name];
-  if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__81)[$unwrapTraitObject(0)]).kind == "Some" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__81)[$unwrapTraitObject(1)]).kind == "Some") {
-    var _$unwrapTraitObject58 = $unwrapTraitObject(__PUCK__value__81),
+  var __PUCK__value__81 = [a.id, b.id];
+  var __PUCK__value__82 = __PUCK__value__81;
+  if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__82)[$unwrapTraitObject(0)]).kind == "Some" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__82)[$unwrapTraitObject(1)]).kind == "Some") {
+    var _$unwrapTraitObject58 = $unwrapTraitObject(__PUCK__value__82),
         _$unwrapTraitObject59 = _slicedToArray(_$unwrapTraitObject58, 2),
         _$unwrapTraitObject60 = _slicedToArray(_$unwrapTraitObject59[0].value, 1),
-        aName = _$unwrapTraitObject60[0],
+        aId = _$unwrapTraitObject60[0],
         _$unwrapTraitObject61 = _slicedToArray(_$unwrapTraitObject59[1].value, 1),
-        bName = _$unwrapTraitObject61[0];
+        bId = _$unwrapTraitObject61[0];
 
-    return aName == bName;
+    return aId == bId;
   } else {
-    return false;
+    var __PUCK__value__83 = __PUCK__value__81;
+    if (true) {
+      var __PUCK__value__84 = __PUCK__value__83;
+      return false;
+    };
   };
 };
 function findCommonType(types) {
@@ -623,7 +632,7 @@ function findCommonType(types) {
 
   var _loop = function _loop() {
     var type_ = types[index];
-    if (_core.Iterable['$List<E>'].all.call({ type: '$List<E>', value: types, $isTraitObject: true }, function (t) {
+    if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: types, $isTraitObject: true }, function (t) {
       return isAssignable(type_, t);
     })) {
       return {

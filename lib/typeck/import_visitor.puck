@@ -69,18 +69,15 @@ export fn ImportVisitor(context, file: UnparsedFile) {
 
     visitImportDirective: |self, mut i: ImportDirective| {
       if i.domain.isNone() {
-        let importedFile = context.resolvePath(i.path, file)
-        let path = importedFile.absolutePath
-        let result: Result<{}, {}> = asResult(|| statSync(path))
+        let result: Result<UnparsedFile, {}> = asResult(|| context.resolvePath(i.path, file))
         match result {
-          Result::Ok(stat) => {
-            if not stat.isFile()
-              then return reportError(i, 'Imported file $path is not a file')
+          Result::Ok(importedFile) => {
+          if puckFile.test(importedFile.absolutePath)
+            then importModule(i, importedFile)
           }
-          Result::Err(error) => return reportError(i, 'Imported file $path not found')
+          Result::Err(error) => return reportError(i, 'Imported file ' + i.path + ' not found')
         }
 
-        if puckFile.test(path) then importModule(i, importedFile)
       }
       else if i.domain.value[0] == 'puck' {
         if puckModules.indexOf(i.path) == -1

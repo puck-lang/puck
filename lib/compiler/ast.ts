@@ -1,4 +1,4 @@
-import {Type} from '../entities'
+import {Type, Implementation} from '../entities'
 export enum SyntaxKind {
   AndKeyword,
   AsKeyword,
@@ -47,6 +47,7 @@ export enum SyntaxKind {
   ExclamationEqualsToken,
   GreaterThanEqualsToken,
   GreaterThanToken,
+  HashToken,
   LessThanEqualsToken,
   LessThanToken,
   MinusEqualsToken,
@@ -65,6 +66,7 @@ export enum SyntaxKind {
   EndOfFileToken,
 
   Comment,
+  Attribute,
   Block,
   EnumDeclaration,
   Function,
@@ -157,6 +159,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   '::': SyntaxKind.ColonColonToken,
   '.': SyntaxKind.DotToken,
   // '...': SyntaxKind.DotDotDotToken,
+  '#': SyntaxKind.HashToken,
   ';': SyntaxKind.SemicolonToken,
   '_': SyntaxKind.UnderscoreToken,
   '<': SyntaxKind.LessThanToken,
@@ -198,7 +201,7 @@ export const operators = [
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',
-  '=>', '->',
+  '=>', '->', '#'
 ]
 
 export const precedence = {
@@ -316,6 +319,7 @@ export interface Identifier extends SimpleIdentifier {
 }
 
 export interface ImplDeclaration {
+  implementation: Implementation
   trait_: TypeBound
   type_: TypeBound
   members: Array<FunctionDeclaration>
@@ -505,6 +509,7 @@ export interface CallExpression extends Token {
 
   // The resolved trait function (if is trait call)
   functionType: Type
+  implementation: Implementation
 }
 
 export interface ForExpression extends Token {

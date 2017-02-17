@@ -16,6 +16,7 @@ impl RegExp {
   }
 }
 
+#[type_id = 'Bool']
 export type Bool {}
 
 export enum Radix {
@@ -45,6 +46,7 @@ impl Radix {
   }
 }
 
+#[type_id = 'Num']
 export type Num {}
 impl Num {
   fn parseInt(string: String, radix: Radix = Radix::Decimal) -> Result<Num, ()> {
@@ -88,6 +90,7 @@ impl Num {
   }
 }
 
+#[type_id = 'String']
 export type String {}
 impl String {
   fn size(self) -> Num {
@@ -350,6 +353,7 @@ impl<T> Option<T> {
   }
 }
 
+#[type_id = 'List']
 export type List<E> {}
 impl<E> List<E> {
   fn zip<A, B>(a: Iterable<A>, b: Iterable<B>) -> List<(A, B)> {
