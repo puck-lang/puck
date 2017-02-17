@@ -78,6 +78,14 @@ impl Num {
   fn round(self) -> Num {
     js.Math.round(self)
   }
+
+  fn limit(self, range: Range) -> Num {
+    if self < range.start
+      then range.start
+    else if self >= range.end
+      then range.end - 1
+    else self
+  }
 }
 
 export type String {}
@@ -177,6 +185,32 @@ impl String {
   /// Removes trailing whitespace
   fn trimRight(self) -> String {
     anyCast(self).replace(RegExp.new('\\s+$'), '')
+  }
+}
+
+type StringIterator {
+  index: Num
+  string: String
+}
+
+impl Iterator<String> for StringIterator {
+  fn next(mut self) -> Option<Num> {
+    if self.index < self.string.size() {
+      let char = self.string.charAt(self.index)
+      self.index += 1
+      Option::Some(char)
+    }
+    else Option::None
+  }
+}
+
+impl IntoIterator<String> for String {
+  fn iter(self) -> StringIterator {
+    let iterator: StringIterator = {
+      index: 0
+      string: self
+    }
+    iterator
   }
 }
 
@@ -328,6 +362,247 @@ impl<E> List<E> {
   fn add(mut self, element: E) -> () {
     self.push(element)
   }
+
+  fn get(self, index: Num) -> Option<E> {
+    if index >= 0 and index < self.size()
+      then Some(self[index])
+      else None
+  }
+}
+/// Conversion into an Iterator.
+///
+/// By implementing IntoIterator for a type, you define how it will be
+/// converted to an iterator. This is common for types which describe
+/// a collection of some kind.
+///
+/// One benefit of implementing IntoIterator is that your type will work
+/// with the for loop syntax.
+export trait IntoIterator<E> {
+  fn iter(self) -> Iterator<E>
+}
+
+// /// An iterator that maps the values of iter with f.
+// ///
+// /// This struct is created by the map() method on Iterator.
+// type EnumerateIterator<I> {
+//   iter: I
+//   index: Num
+// }
+
+// impl<E> Iterator<E> for EnumerateIterator<Iterator<E>> {
+//   fn next(mut self) -> Option<(E, Num)> {
+//     match self.iter.next() {
+//       Some(value) => {
+//         self.index += 1
+//         Some((value, self.index))
+//       }
+//       None => None
+//     }
+//   }
+// }
+
+/// An iterator that maps the values of iter with f.
+///
+/// This struct is created by the map() method on Iterator.
+type MapIterator<I, F> {
+  iter: I
+  f: F
+}
+
+impl<E, F> Iterator<E> for MapIterator<Iterator<E>, F> {
+  fn next(mut self) -> Option<E> {
+    self.iter.next().map(self.f)
+  }
+}
+
+/// An iterator that filters the elements of iter with predicate.
+///
+/// This struct is created by the filter() method on Iterator.
+type FilterIterator<I, P> {
+  iter: I
+  predicate: P
+}
+
+impl<E, P> Iterator<E> for FilterIterator<Iterator<E>, (E) -> Bool> {
+  fn next(mut self) -> Option<E> {
+    while true {
+      if let Some(value) = self.iter.next() {
+        if self.predicate(value)
+          then return Some(value)
+      }
+      else return None
+    }
+    None
+  }
+}
+
+/// An iterator that uses f to both filter and map elements from iter.
+///
+/// This struct is created by the filterMap() method on Iterator.
+type FilterMapIterator<I, F> {
+  iter: I
+  f: F
+}
+
+impl<E, U, P> Iterator<E> for FilterMapIterator<Iterator<E>, (E) -> Option<U>> {
+  fn next(mut self) -> Option<E> {
+    while true {
+      if let Some(value) = self.iter.next() {
+        if let Some(value) = self.f(value)
+          then return Some(value)
+      }
+      else return None
+    }
+    None
+  }
+}
+
+export trait Iterator<E> {
+  /// Advances the iterator and returns the next value.
+  ///
+  /// Returns None when iteration is finished. Individual iterator implementations
+  /// may choose to resume iteration, and so calling next() again may or may not
+  /// eventually start returning Some(Item) again at some point.
+  fn next(mut self) -> Option<E>
+
+  /// Consumes the iterator, counting the number of iterations and returning it.
+  ///
+  /// This method will evaluate the iterator until its next() returns None.
+  /// Once None is encountered, count() returns the number of times it called next().
+  fn count(mut self) -> Num {
+    let mut count_ = 0
+    while true {
+      if let Some(value) = self.next() {
+        count_ += 1
+      }
+      else return count_
+    }
+    count_
+  }
+
+  fn map<U>(self, f: (E) -> U) -> Iterator<U> {
+    let iter: MapIterator<Self, f> = {
+      iter: self
+      f
+    }
+    iter
+  }
+
+  /// Creates an iterator which uses a closure to determine if an element
+  /// should be yielded.
+  ///
+  /// The closure must return true or false. filter() creates an iterator
+  /// which calls this closure on each element. If the closure returns true,
+  /// then the element is returned. If the closure returns false, it will
+  /// try again, and call the closure on the next element, seeing if it
+  /// passes the test.
+  fn filter(self, predicate: (E) -> Bool) -> Iterator<E> {
+    let iter: FilterIterator<Self, predicate> = {
+      iter: self
+      predicate
+    }
+    iter
+  }
+
+  /// Creates an iterator that both filters and maps.
+  ///
+  /// The closure must return an Option<T>. filterMap() creates an iterator
+  /// which calls this closure on each element. If the closure returns
+  /// Some(element), then that element is returned. If the closure returns
+  /// None, it will try again, and call the closure on the next element,
+  /// seeing if it will return Some.
+  ///
+  /// Why filterMap() and not just filter().map()? The key is in this part:
+  ///
+  ///     If the closure returns Some(element), then that element is returned.
+  ///
+  /// In other words, it removes the Option<T> layer automatically.
+  /// If your mapping is already returning an Option<T> and you want to skip
+  /// over Nones, then filterMap() is much, much nicer to use.
+  fn filterMap<U>(self, f: (E) -> Option<U>) -> Iterator<U> {
+    let iter: FilterMapIterator<Self, f> = {
+      iter: self
+      f
+    }
+    iter
+  }
+
+  /// Creates an iterator which gives the current iteration count
+  /// as well as the next value.
+  ///
+  /// The iterator returned yields pairs (i, val), where i is the
+  /// current index of iteration and val is the value returned by the iterator.
+  fn enumerate(self) -> Iterator<(Num, E)> {
+    let mut index = -1
+    self.map(|e| {
+      index += 1
+      (index, e)
+    })
+  }
+
+  /// Tests if all elements of the iterator matches a predicate.
+  ///
+  /// all() takes a closure that returns true or false. It applies this
+  /// closure to each element of the iterator, and if all of them return
+  /// true, then so does all(). If any of them return false, it returns false.
+  ///
+  /// all() is short-circuting; in other words, it will stop processing
+  /// as soon as it finds a false, given that no matter what else happens,
+  /// the result will also be false.
+  ///
+  /// An empty iterator returns true.
+  fn all(mut self, predicate: (E) -> Bool) -> Bool {
+    while true {
+      if let Some(value) = self.next() {
+        if not predicate(value)
+          then return false
+      }
+      else return true
+    }
+    true
+  }
+
+  /// Tests if any element of the iterator matches a predicate.
+  ///
+  /// any() takes a closure that returns true or false. It applies this
+  /// closure to each element of the iterator, and if any of them return
+  /// true, then so does any(). If they all return false, it returns false.
+  ///
+  /// any() is short-circuting; in other words, it will stop processing
+  /// as soon as it finds a true, given that no matter what else happens,
+  /// the result will also be true.
+  ///
+  /// An empty iterator returns false.
+  fn any(mut self, predicate: (E) -> Bool) -> Bool {
+    while true {
+      if let Some(value) = self.next() {
+        if predicate(value)
+          then return true
+      }
+      else return false
+    }
+    false
+  }
+
+  /// Searches for an element of an iterator that satisfies a predicate.
+  ///
+  /// find() takes a closure that returns true or false. It applies this
+  /// closure to each element of the iterator, and if any of them return
+  /// true, then find() returns Some(element). If they all return false,
+  /// it returns None.
+  ///
+  /// find() is short-circuting; in other words, it will stop processing
+  /// as soon as the closure returns true.
+  fn find(mut self, predicate: (E) -> Bool) -> Option<E> {
+    while true {
+      if let Some(value) = self.next() {
+        if predicate(value)
+          then return Some(value)
+      }
+      else return None
+    }
+    None
+  }
 }
 export trait Iterable<E> {
   fn enumerate(self) -> Iterable<(E, Num)>
@@ -359,6 +634,31 @@ export trait Iterable<E> {
   fn take(self, count: Num) -> Iterable<E>
 
   fn toList(self) -> List<E>
+}
+
+type ListIterator<E> {
+  index: Num
+  list: List<E>
+}
+
+impl<E> Iterator<E> for ListIterator<E> {
+  fn next(mut self) -> Option<E> {
+    let element = self.list.get(self.index)
+    if element.isSome() {
+      self.index += 1
+    }
+    element
+  }
+}
+
+impl<E> IntoIterator<E> for List<E> {
+  fn iter(self) -> ListIterator<E> {
+    let iterator: ListIterator<E> = {
+      index: 0
+      list: self
+    }
+    iterator
+  }
 }
 
 fn asList<E>(a) -> List<E> {a}
@@ -477,6 +777,32 @@ impl<Idx> Range<Idx> {
   }
   fn isSubsetOf(self, other: Range<Idx>) -> Bool {
     self.start >= other.start and other.end >= self.end
+  }
+}
+
+type NumRangeIterator {
+  index: Num
+  end: Num
+}
+
+impl Iterator<Num> for NumRangeIterator {
+  fn next(mut self) -> Option<Num> {
+    let element = self.index
+    if element < self.end {
+      self.index += 1
+      Some(element)
+    }
+    else None
+  }
+}
+
+impl IntoIterator<Num> for Range<Num> {
+  fn iter(self) -> NumRangeIterator {
+    let iterator: NumRangeIterator = {
+      index: self.start
+      end: self.end
+    }
+    iterator
   }
 }
 
