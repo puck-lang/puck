@@ -115,6 +115,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
       instance: type_.instance
       providesType: createTypeInstance(p, typeParameters_)
       enumMember: type_.enumMember
+      complete: type_.complete
     })
   }
   let mut class: TypeClass = type_.class.unwrap()
@@ -162,6 +163,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
     })
     providesType: type_.providesType
     enumMember: type_.enumMember
+    complete: type_.complete
   }
   class.instances.push(instance)
 

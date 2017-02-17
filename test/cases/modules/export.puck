@@ -27,3 +27,8 @@ export trait OtherTrait {
 }
 
 impl OtherTrait for Type {}
+
+export enum Enum {
+  A
+  B
+}

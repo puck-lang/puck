@@ -153,7 +153,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
         mutable: mutable,
         allowRedeclare: true,
         type_: type_,
-        importedFrom: _core.None,
+        completeType: _core.None,
         previous: _core.None
       });
       var __PUCK__value__20 = __PUCK__value__19;

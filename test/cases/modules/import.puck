@@ -27,3 +27,6 @@ type Type(String)
 impl RenamedTrait for Type {
   fn implemented(self) -> () {}
 }
+
+let i: e::Type = RenamedType(3)
+let j: e::Enum = e::Enum::A

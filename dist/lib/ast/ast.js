@@ -1730,64 +1730,112 @@ Expression.getType = function getType() {
     };
   };
 };
-Pattern.displayName = function displayName() {
+ExportDirective.getType = function getType() {
   var self = this;
-  var __PUCK__value__92 = self;
+  var __PUCK__value__92 = self.statement;
   var __PUCK__value__93 = __PUCK__value__92;
-  if ($unwrapTraitObject(__PUCK__value__93).kind == "CatchAll") {
+  if ($unwrapTraitObject(__PUCK__value__93).kind == "EnumDeclaration") {
     var _$unwrapTraitObject146 = $unwrapTraitObject(__PUCK__value__93),
         _$unwrapTraitObject147 = _slicedToArray(_$unwrapTraitObject146.value, 1),
-        __PUCK__value__94 = _$unwrapTraitObject147[0];
+        d = _$unwrapTraitObject147[0];
+
+    return d.type_;
+  } else {
+    var __PUCK__value__94 = __PUCK__value__92;
+    if ($unwrapTraitObject(__PUCK__value__94).kind == "TraitDeclaration") {
+      var _$unwrapTraitObject148 = $unwrapTraitObject(__PUCK__value__94),
+          _$unwrapTraitObject149 = _slicedToArray(_$unwrapTraitObject148.value, 1),
+          _d = _$unwrapTraitObject149[0];
+
+      return _d.type_;
+    } else {
+      var __PUCK__value__95 = __PUCK__value__92;
+      if ($unwrapTraitObject(__PUCK__value__95).kind == "TypeDeclaration") {
+        var _$unwrapTraitObject150 = $unwrapTraitObject(__PUCK__value__95),
+            _$unwrapTraitObject151 = _slicedToArray(_$unwrapTraitObject150.value, 1),
+            _d2 = _$unwrapTraitObject151[0];
+
+        return _d2.type_;
+      } else {
+        var __PUCK__value__96 = __PUCK__value__92;
+        if ($unwrapTraitObject(__PUCK__value__96).kind == "FunctionDeclaration") {
+          var _$unwrapTraitObject152 = $unwrapTraitObject(__PUCK__value__96),
+              _$unwrapTraitObject153 = _slicedToArray(_$unwrapTraitObject152.value, 1),
+              _d3 = _$unwrapTraitObject153[0];
+
+          return _d3.type_;
+        } else {
+          var __PUCK__value__97 = __PUCK__value__92;
+          if ($unwrapTraitObject(__PUCK__value__97).kind == "VariableDeclaration") {
+            var _$unwrapTraitObject154 = $unwrapTraitObject(__PUCK__value__97),
+                _$unwrapTraitObject155 = _slicedToArray(_$unwrapTraitObject154.value, 1),
+                _d4 = _$unwrapTraitObject155[0];
+
+            return _d4.type_;
+          };
+        };
+      };
+    };
+  };
+};
+Pattern.displayName = function displayName() {
+  var self = this;
+  var __PUCK__value__98 = self;
+  var __PUCK__value__99 = __PUCK__value__98;
+  if ($unwrapTraitObject(__PUCK__value__99).kind == "CatchAll") {
+    var _$unwrapTraitObject156 = $unwrapTraitObject(__PUCK__value__99),
+        _$unwrapTraitObject157 = _slicedToArray(_$unwrapTraitObject156.value, 1),
+        __PUCK__value__100 = _$unwrapTraitObject157[0];
 
     return "_";
   } else {
-    var __PUCK__value__95 = __PUCK__value__92;
-    if ($unwrapTraitObject(__PUCK__value__95).kind == "Identifier") {
-      var _$unwrapTraitObject148 = $unwrapTraitObject(__PUCK__value__95),
-          _$unwrapTraitObject149 = _slicedToArray(_$unwrapTraitObject148.value, 1),
-          identifier = _$unwrapTraitObject149[0];
+    var __PUCK__value__101 = __PUCK__value__98;
+    if ($unwrapTraitObject(__PUCK__value__101).kind == "Identifier") {
+      var _$unwrapTraitObject158 = $unwrapTraitObject(__PUCK__value__101),
+          _$unwrapTraitObject159 = _slicedToArray(_$unwrapTraitObject158.value, 1),
+          identifier = _$unwrapTraitObject159[0];
 
       return identifier.name;
     } else {
-      var __PUCK__value__96 = __PUCK__value__92;
-      if ($unwrapTraitObject(__PUCK__value__96).kind == "Record") {
-        var _$unwrapTraitObject150 = $unwrapTraitObject(__PUCK__value__96),
-            _$unwrapTraitObject151 = _slicedToArray(_$unwrapTraitObject150.value, 1),
-            recordPattern = _$unwrapTraitObject151[0];
+      var __PUCK__value__102 = __PUCK__value__98;
+      if ($unwrapTraitObject(__PUCK__value__102).kind == "Record") {
+        var _$unwrapTraitObject160 = $unwrapTraitObject(__PUCK__value__102),
+            _$unwrapTraitObject161 = _slicedToArray(_$unwrapTraitObject160.value, 1),
+            recordPattern = _$unwrapTraitObject161[0];
 
         return RecordPattern.displayName.call(recordPattern);
       } else {
-        var __PUCK__value__97 = __PUCK__value__92;
-        if ($unwrapTraitObject(__PUCK__value__97).kind == "Tuple") {
-          var _$unwrapTraitObject152 = $unwrapTraitObject(__PUCK__value__97),
-              _$unwrapTraitObject153 = _slicedToArray(_$unwrapTraitObject152.value, 1),
-              tuplePattern = _$unwrapTraitObject153[0];
+        var __PUCK__value__103 = __PUCK__value__98;
+        if ($unwrapTraitObject(__PUCK__value__103).kind == "Tuple") {
+          var _$unwrapTraitObject162 = $unwrapTraitObject(__PUCK__value__103),
+              _$unwrapTraitObject163 = _slicedToArray(_$unwrapTraitObject162.value, 1),
+              tuplePattern = _$unwrapTraitObject163[0];
 
           return TuplePattern.displayName.call(tuplePattern);
         } else {
-          var __PUCK__value__98 = __PUCK__value__92;
-          if ($unwrapTraitObject(__PUCK__value__98).kind == "RecordType") {
-            var _$unwrapTraitObject154 = $unwrapTraitObject(__PUCK__value__98),
-                _$unwrapTraitObject155 = _slicedToArray(_$unwrapTraitObject154.value, 2),
-                __PUCK__value__99 = _$unwrapTraitObject155[0],
-                _recordPattern2 = _$unwrapTraitObject155[1];
+          var __PUCK__value__104 = __PUCK__value__98;
+          if ($unwrapTraitObject(__PUCK__value__104).kind == "RecordType") {
+            var _$unwrapTraitObject164 = $unwrapTraitObject(__PUCK__value__104),
+                _$unwrapTraitObject165 = _slicedToArray(_$unwrapTraitObject164.value, 2),
+                __PUCK__value__105 = _$unwrapTraitObject165[0],
+                _recordPattern2 = _$unwrapTraitObject165[1];
 
             return RecordPattern.displayName.call(_recordPattern2);
           } else {
-            var __PUCK__value__100 = __PUCK__value__92;
-            if ($unwrapTraitObject(__PUCK__value__100).kind == "TupleType") {
-              var _$unwrapTraitObject156 = $unwrapTraitObject(__PUCK__value__100),
-                  _$unwrapTraitObject157 = _slicedToArray(_$unwrapTraitObject156.value, 2),
-                  __PUCK__value__101 = _$unwrapTraitObject157[0],
-                  _tuplePattern2 = _$unwrapTraitObject157[1];
+            var __PUCK__value__106 = __PUCK__value__98;
+            if ($unwrapTraitObject(__PUCK__value__106).kind == "TupleType") {
+              var _$unwrapTraitObject166 = $unwrapTraitObject(__PUCK__value__106),
+                  _$unwrapTraitObject167 = _slicedToArray(_$unwrapTraitObject166.value, 2),
+                  __PUCK__value__107 = _$unwrapTraitObject167[0],
+                  _tuplePattern2 = _$unwrapTraitObject167[1];
 
               return TuplePattern.displayName.call(_tuplePattern2);
             } else {
-              var __PUCK__value__102 = __PUCK__value__92;
-              if ($unwrapTraitObject(__PUCK__value__102).kind == "UnitType") {
-                var _$unwrapTraitObject158 = $unwrapTraitObject(__PUCK__value__102),
-                    _$unwrapTraitObject159 = _slicedToArray(_$unwrapTraitObject158.value, 1),
-                    __PUCK__value__103 = _$unwrapTraitObject159[0];
+              var __PUCK__value__108 = __PUCK__value__98;
+              if ($unwrapTraitObject(__PUCK__value__108).kind == "UnitType") {
+                var _$unwrapTraitObject168 = $unwrapTraitObject(__PUCK__value__108),
+                    _$unwrapTraitObject169 = _slicedToArray(_$unwrapTraitObject168.value, 1),
+                    __PUCK__value__109 = _$unwrapTraitObject169[0];
 
                 return "";
               };
@@ -1801,18 +1849,18 @@ Pattern.displayName = function displayName() {
 RecordPattern.displayName = function displayName() {
   var self = this;
   return "{" + _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.properties, $isTraitObject: true }, function (p) {
-    var __PUCK__value__104 = p.pattern;
-    var __PUCK__value__105 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__104).kind == "Identifier") {
-      var _$unwrapTraitObject160 = $unwrapTraitObject(__PUCK__value__104),
-          _$unwrapTraitObject161 = _slicedToArray(_$unwrapTraitObject160.value, 1),
-          name = _$unwrapTraitObject161[0].name;
+    var __PUCK__value__110 = p.pattern;
+    var __PUCK__value__111 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__110).kind == "Identifier") {
+      var _$unwrapTraitObject170 = $unwrapTraitObject(__PUCK__value__110),
+          _$unwrapTraitObject171 = _slicedToArray(_$unwrapTraitObject170.value, 1),
+          name = _$unwrapTraitObject171[0].name;
 
-      __PUCK__value__105 = name == p.property.name;
+      __PUCK__value__111 = name == p.property.name;
     } else {
-      __PUCK__value__105 = false;
+      __PUCK__value__111 = false;
     };
-    var shorthand = __PUCK__value__105;
+    var shorthand = __PUCK__value__111;
     if (shorthand) {
       return p.property.name;
     } else {
@@ -1828,36 +1876,36 @@ TuplePattern.displayName = function displayName() {
 };
 TypeBound.getType = function getType() {
   var self = this;
-  var __PUCK__value__106 = self;
-  var __PUCK__value__107 = __PUCK__value__106;
-  if ($unwrapTraitObject(__PUCK__value__107).kind == "FunctionTypeBound") {
-    var _$unwrapTraitObject162 = $unwrapTraitObject(__PUCK__value__107),
-        _$unwrapTraitObject163 = _slicedToArray(_$unwrapTraitObject162.value, 1),
-        t = _$unwrapTraitObject163[0];
+  var __PUCK__value__112 = self;
+  var __PUCK__value__113 = __PUCK__value__112;
+  if ($unwrapTraitObject(__PUCK__value__113).kind == "FunctionTypeBound") {
+    var _$unwrapTraitObject172 = $unwrapTraitObject(__PUCK__value__113),
+        _$unwrapTraitObject173 = _slicedToArray(_$unwrapTraitObject172.value, 1),
+        t = _$unwrapTraitObject173[0];
 
     return t.type_;
   } else {
-    var __PUCK__value__108 = __PUCK__value__106;
-    if ($unwrapTraitObject(__PUCK__value__108).kind == "NamedTypeBound") {
-      var _$unwrapTraitObject164 = $unwrapTraitObject(__PUCK__value__108),
-          _$unwrapTraitObject165 = _slicedToArray(_$unwrapTraitObject164.value, 1),
-          _t4 = _$unwrapTraitObject165[0];
+    var __PUCK__value__114 = __PUCK__value__112;
+    if ($unwrapTraitObject(__PUCK__value__114).kind == "NamedTypeBound") {
+      var _$unwrapTraitObject174 = $unwrapTraitObject(__PUCK__value__114),
+          _$unwrapTraitObject175 = _slicedToArray(_$unwrapTraitObject174.value, 1),
+          _t4 = _$unwrapTraitObject175[0];
 
       return _t4.type_;
     } else {
-      var __PUCK__value__109 = __PUCK__value__106;
-      if ($unwrapTraitObject(__PUCK__value__109).kind == "RecordTypeBound") {
-        var _$unwrapTraitObject166 = $unwrapTraitObject(__PUCK__value__109),
-            _$unwrapTraitObject167 = _slicedToArray(_$unwrapTraitObject166.value, 1),
-            _t5 = _$unwrapTraitObject167[0];
+      var __PUCK__value__115 = __PUCK__value__112;
+      if ($unwrapTraitObject(__PUCK__value__115).kind == "RecordTypeBound") {
+        var _$unwrapTraitObject176 = $unwrapTraitObject(__PUCK__value__115),
+            _$unwrapTraitObject177 = _slicedToArray(_$unwrapTraitObject176.value, 1),
+            _t5 = _$unwrapTraitObject177[0];
 
         return _t5.type_;
       } else {
-        var __PUCK__value__110 = __PUCK__value__106;
-        if ($unwrapTraitObject(__PUCK__value__110).kind == "TupleTypeBound") {
-          var _$unwrapTraitObject168 = $unwrapTraitObject(__PUCK__value__110),
-              _$unwrapTraitObject169 = _slicedToArray(_$unwrapTraitObject168.value, 1),
-              _t6 = _$unwrapTraitObject169[0];
+        var __PUCK__value__116 = __PUCK__value__112;
+        if ($unwrapTraitObject(__PUCK__value__116).kind == "TupleTypeBound") {
+          var _$unwrapTraitObject178 = $unwrapTraitObject(__PUCK__value__116),
+              _$unwrapTraitObject179 = _slicedToArray(_$unwrapTraitObject178.value, 1),
+              _t6 = _$unwrapTraitObject179[0];
 
           return _t6.type_;
         };
@@ -1867,36 +1915,36 @@ TypeBound.getType = function getType() {
 };
 TypeBound.getRecordTypeBound = function getRecordTypeBound() {
   var self = this;
-  var __PUCK__value__111 = self;
-  var __PUCK__value__112 = __PUCK__value__111;
-  if ($unwrapTraitObject(__PUCK__value__112).kind == "RecordTypeBound") {
-    var _$unwrapTraitObject170 = $unwrapTraitObject(__PUCK__value__112),
-        _$unwrapTraitObject171 = _slicedToArray(_$unwrapTraitObject170.value, 1),
-        record = _$unwrapTraitObject171[0];
+  var __PUCK__value__117 = self;
+  var __PUCK__value__118 = __PUCK__value__117;
+  if ($unwrapTraitObject(__PUCK__value__118).kind == "RecordTypeBound") {
+    var _$unwrapTraitObject180 = $unwrapTraitObject(__PUCK__value__118),
+        _$unwrapTraitObject181 = _slicedToArray(_$unwrapTraitObject180.value, 1),
+        record = _$unwrapTraitObject181[0];
 
     return record;
   } else {
-    var __PUCK__value__113 = __PUCK__value__111;
+    var __PUCK__value__119 = __PUCK__value__117;
     if (true) {
-      var __PUCK__value__114 = __PUCK__value__113;
+      var __PUCK__value__120 = __PUCK__value__119;
       throw "TypeBound is not a RecordTypeBound";
     };
   };
 };
 TypeBound.getTupleTypeBound = function getTupleTypeBound() {
   var self = this;
-  var __PUCK__value__115 = self;
-  var __PUCK__value__116 = __PUCK__value__115;
-  if ($unwrapTraitObject(__PUCK__value__116).kind == "TupleTypeBound") {
-    var _$unwrapTraitObject172 = $unwrapTraitObject(__PUCK__value__116),
-        _$unwrapTraitObject173 = _slicedToArray(_$unwrapTraitObject172.value, 1),
-        tuple = _$unwrapTraitObject173[0];
+  var __PUCK__value__121 = self;
+  var __PUCK__value__122 = __PUCK__value__121;
+  if ($unwrapTraitObject(__PUCK__value__122).kind == "TupleTypeBound") {
+    var _$unwrapTraitObject182 = $unwrapTraitObject(__PUCK__value__122),
+        _$unwrapTraitObject183 = _slicedToArray(_$unwrapTraitObject182.value, 1),
+        tuple = _$unwrapTraitObject183[0];
 
     return tuple;
   } else {
-    var __PUCK__value__117 = __PUCK__value__115;
+    var __PUCK__value__123 = __PUCK__value__121;
     if (true) {
-      var __PUCK__value__118 = __PUCK__value__117;
+      var __PUCK__value__124 = __PUCK__value__123;
       throw "TypeBound is not a TupleTypeBound";
     };
   };

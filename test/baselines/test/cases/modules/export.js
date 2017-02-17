@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.q = exports.b = exports.OtherTrait = exports.Trait = exports.Type = undefined;
+exports.q = exports.b = exports.OtherTrait = exports.Trait = exports.Enum = exports.Type = undefined;
 exports.a = a;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
@@ -14,6 +14,10 @@ var Type = exports.Type = function Type() {
   }
 
   return members;
+};
+var Enum = exports.Enum = {
+  A: { kind: 'A', value: Symbol('A') },
+  B: { kind: 'B', value: Symbol('B') }
 };
 var Trait = exports.Trait = {
   _static: function _static() {

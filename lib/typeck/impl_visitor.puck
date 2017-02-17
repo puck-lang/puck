@@ -125,6 +125,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
       instance: None
       providesType: None
       enumMember: None
+      complete: true
     }
   })
 }

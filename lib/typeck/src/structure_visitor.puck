@@ -77,7 +77,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
           mutable: false
           type_: f.type_
           previous: None
-          importedFrom: None
+          completeType: None
+          complete: true
         })
           then reportError(name, err)
       }
@@ -138,7 +139,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
           mutable: false
           allowRedeclare: true
           type_: t.getType()
-          importedFrom: None
+          completeType: None
           previous: None
         }})
         .toList()
@@ -158,6 +159,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         instance: None
         providesType: None
         enumMember: None
+        complete: true
       })
 
       self.scope = parentScope
@@ -225,6 +227,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         instance: None
         providesType: None
         enumMember: None
+        complete: true
       })
     }
   }
@@ -247,6 +250,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         instance: None
         providesType: None
         enumMember: None
+        complete: true
       })
     }
   }
@@ -265,6 +269,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         instance: None
         providesType: None
         enumMember: None
+        complete: true
       })
       let mut scope: Scope = self.scope
       if let Result::Err(err) = scope.define({
@@ -273,7 +278,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         mutable: false
         allowRedeclare: false
         type_: Type.provides(t.type_)
-        importedFrom: None
+        completeType: None
         previous: None
       })
         then reportError(t.name, err)

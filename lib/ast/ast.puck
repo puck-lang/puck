@@ -285,6 +285,18 @@ export type ExportDirective {
   identifier: Identifier
 }
 
+impl ExportDirective {
+  fn getType(self) -> Type {
+    match self.statement {
+      ExportedStatement::EnumDeclaration(d) => d.type_
+      ExportedStatement::TraitDeclaration(d) => d.type_
+      ExportedStatement::TypeDeclaration(d) => d.type_
+      ExportedStatement::FunctionDeclaration(d) => d.type_
+      ExportedStatement::VariableDeclaration(d) => d.type_
+    }
+  }
+}
+
 export enum ExportedStatement {
   EnumDeclaration(EnumDeclaration)
   TraitDeclaration(TraitDeclaration)

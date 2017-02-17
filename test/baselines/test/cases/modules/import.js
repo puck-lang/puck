@@ -46,3 +46,5 @@ _export.Trait["$impl_test/cases/modules/export.puck:Trait$test/cases/modules/exp
 _export.Trait["$impl_test/cases/modules/export.puck:Trait$test/cases/modules/export.puck:Type"]._default.call({ type: '$impl_test/cases/modules/export.puck:Trait$test/cases/modules/export.puck:Type', value: f, $isTraitObject: true });
 _export.Trait["$impl_test/cases/modules/export.puck:Trait$test/cases/modules/export.puck:Type"].implemented.call({ type: '$impl_test/cases/modules/export.puck:Trait$test/cases/modules/export.puck:Type', value: f, $isTraitObject: true });
 _export.OtherTrait["$impl_test/cases/modules/export.puck:OtherTrait$test/cases/modules/export.puck:Type"].other.call({ type: '$impl_test/cases/modules/export.puck:OtherTrait$test/cases/modules/export.puck:Type', value: f, $isTraitObject: true });
+var i = (0, _export.Type)(3);
+var j = e.Enum.A;

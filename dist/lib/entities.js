@@ -132,7 +132,8 @@ Type.empty = function empty() {
     _class: _core.None,
     instance: _core.None,
     providesType: _core.None,
-    enumMember: _core.None
+    enumMember: _core.None,
+    complete: true
   };
 };
 Type.provides = function provides(type_) {
@@ -147,7 +148,8 @@ Type.provides = function provides(type_) {
     _class: type_._class,
     instance: type_.instance,
     providesType: (0, _core.Some)(type_),
-    enumMember: _core.None
+    enumMember: _core.None,
+    complete: true
   };
 };
 Type.unused = function unused() {
@@ -159,7 +161,8 @@ Type.unused = function unused() {
     _class: _core.None,
     instance: _core.None,
     providesType: _core.None,
-    enumMember: _core.None
+    enumMember: _core.None,
+    complete: true
   };
 };
 Type.displayName = function displayName() {

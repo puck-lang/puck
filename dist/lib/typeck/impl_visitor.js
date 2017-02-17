@@ -143,7 +143,8 @@ function implementShorthand(type_, implementable, i, reportError) {
       _class: _core.None,
       instance: _core.None,
       providesType: _core.None,
-      enumMember: _core.None
+      enumMember: _core.None,
+      complete: true
     }
   });
 };

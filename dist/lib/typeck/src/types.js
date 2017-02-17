@@ -206,7 +206,8 @@ function createTypeInstance(type_, typeParameters_) {
       _class: type_._class,
       instance: type_.instance,
       providesType: createTypeInstance(p, typeParameters_),
-      enumMember: type_.enumMember
+      enumMember: type_.enumMember,
+      complete: type_.complete
     });
   };
   var _class = _core.Option.unwrap.call(type_._class);
@@ -258,7 +259,8 @@ function createTypeInstance(type_, typeParameters_) {
       parameterMap: parameterMap
     }),
     providesType: type_.providesType,
-    enumMember: type_.enumMember
+    enumMember: type_.enumMember,
+    complete: type_.complete
   };
   _class.instances.push(instance);
   instance.kind = $unwrapTraitObject(resolveTypeParameters(parameterMap)(type_)).kind;

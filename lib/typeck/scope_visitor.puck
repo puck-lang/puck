@@ -733,6 +733,7 @@ export fn ScopeVisitor(context, file) {
         instance: None
         providesType: None
         enumMember: None
+        complete: true
       })
     }
     visitStringLiteral: |self, mut l: StringLiteral| {
@@ -763,6 +764,7 @@ export fn ScopeVisitor(context, file) {
         instance: None
         providesType: None
         enumMember: None
+        complete: true
       })
     }
 
@@ -808,6 +810,7 @@ export fn ScopeVisitor(context, file) {
         class: None
         providesType: None
         enumMember: None
+        complete: true
       })
     }
     visitTuplePattern: |self, mut p: TuplePattern| {
@@ -825,6 +828,7 @@ export fn ScopeVisitor(context, file) {
         class: None
         providesType: None
         enumMember: None
+        complete: true
       })
     }
   })

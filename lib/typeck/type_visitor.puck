@@ -109,6 +109,7 @@ export fn TypeVisitor(context, file) {
           instance: None
           providesType: None
           enumMember: None
+          complete: false
         })
         let token: ToSpan = t
         if let Result::Err(error) = parentScope.define({
@@ -118,7 +119,7 @@ export fn TypeVisitor(context, file) {
           allowRedeclare: false
           type_: t.type_
           previous: None
-          importedFrom: None
+          completeType: None
         })
           then reportError(t.name, error)
       }
@@ -155,6 +156,7 @@ export fn TypeVisitor(context, file) {
                 instance: None
                 providesType: None
                 enumMember: Some((p.name.name, type_.providesType.unwrap()))
+                complete: true
               })
               |bound| Type({
                 id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
@@ -165,6 +167,7 @@ export fn TypeVisitor(context, file) {
                 instance: None
                 providesType: None
                 enumMember: Some((p.name.name, type_.providesType.unwrap()))
+                complete: true
               })
             )
           ))
@@ -192,7 +195,7 @@ export fn TypeVisitor(context, file) {
       let mut parentScope: Scope = self.scope
       let type_: Type = t.type_
       if not t.type_ {
-        let mut type_: Type = {
+        t.type_ = Type.provides({
           id: generateTypeId(context, file, t.name.name)
           displayName: None
           name: Some(t.name.name)
@@ -204,8 +207,8 @@ export fn TypeVisitor(context, file) {
           instance: None
           providesType: None
           enumMember: None
-        }
-        t.type_ = Type.provides(type_)
+          complete: false
+        })
         let token: ToSpan = t
         if let Result::Err(error) = parentScope.define({
           name: t.name.name
@@ -214,7 +217,7 @@ export fn TypeVisitor(context, file) {
           allowRedeclare: false
           type_: t.type_
           previous: None
-          importedFrom: None
+          completeType: None
         })
           then reportError(t.name, error)
       }
@@ -301,6 +304,7 @@ export fn TypeVisitor(context, file) {
           instance: None
           providesType: None
           enumMember: None
+          complete: false
         })
         let token: ToSpan = t
         if let Result::Err(error) = parentScope.define({
@@ -310,7 +314,7 @@ export fn TypeVisitor(context, file) {
           allowRedeclare: false
           type_: t.type_
           previous: None
-          importedFrom: None
+          completeType: None
         })
           then reportError(t.name, error)
       }
@@ -371,28 +375,52 @@ export fn TypeVisitor(context, file) {
       match importDirective.specifier {
         ImportSpecifier::Identifier(identifier) => {
           let token: ToSpan = identifier
+          let typeProperties: ObjectMap<Type> =
+            if let Option::Some(module) = importDirective.module {
+              module.exports.map(|exportDirective| exportDirective.getType())
+            }
+            else ObjectMap.new()
+          let mut type_ = Type({
+            id: None
+            displayName: Some(identifier.name)
+            name: None
+            kind: TypeKind::Struct({
+              implementations: []
+              kind: StructKind::Record({
+                properties: typeProperties
+              })
+            })
+            instance: None
+            class: None
+            providesType: None
+            enumMember: None
+            complete: typeProperties.all(|type_| type_ and type_.complete)
+          })
           if let Result::Err(error) = scope.define({
             name: identifier.name
             token
             mutable: false
             allowRedeclare: false
-            type_: {
-              id: None
-              displayName: Some(identifier.name)
-              name: None
-              kind: TypeKind::Struct({
-                implementations: []
-                kind: StructKind::Record({
-                  properties: ObjectMap.new()
-                })
-              })
-              instance: None
-              class: None
-              providesType: None
-              enumMember: None
-            }
+            type_
             previous: None
-            importedFrom: None
+            completeType: importDirective.module.map(|module| |visitor: String| {
+              if visitor == 'TypeVisitor' then return None
+              if visitor == 'ImplVisitor' {
+                context.runTypeVisitorOnFile(module.file)
+              } else {
+                context.runCheckerOnFile(module.file)
+              }
+              let moduleScope: Scope = module.scope
+              let mut typeProperties = module.exports.map(|exportDirective| exportDirective.getType())
+              match type_.kind {
+                TypeKind::Struct({kind: StructKind::Record(record)}) => {
+                  let mut r = record
+                  r.properties = typeProperties
+                }
+                _ => throw 'Unreachable'
+              }
+              Some(type_)
+            })
           })
             then reportError(identifier, error)
         }
@@ -410,7 +438,16 @@ export fn TypeVisitor(context, file) {
                 type_: importedBinding.type_
                 providesType: importedBinding.providesType
                 previous: None
-                importedFrom: importDirective.module
+                completeType: Some(|visitor| {
+                  if visitor == 'TypeVisitor' then return None
+                  if visitor == 'ImplVisitor' {
+                    context.runTypeVisitorOnFile(module.file)
+                  } else {
+                    context.runCheckerOnFile(module.file)
+                  }
+                  let externalBinding = moduleScope.getBinding(m.property.name, visitor)
+                  Some(externalBinding.unwrap().type_)
+                })
               })
                 then reportError(m.local, error)
               imports[m.local.name] = importDirective.file
@@ -424,7 +461,7 @@ export fn TypeVisitor(context, file) {
                 type_: undefined
                 providesType: None
                 previous: None
-                importedFrom: None
+                completeType: None
               })
                 then reportError(m.local, error)
             }

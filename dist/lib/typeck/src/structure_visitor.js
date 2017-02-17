@@ -116,7 +116,8 @@ function structureVisitor(reportError) {
               mutable: false,
               type_: f.type_,
               previous: _core.None,
-              importedFrom: _core.None
+              completeType: _core.None,
+              complete: true
             });
             if ($unwrapTraitObject(__PUCK__value__8).kind == "Err") {
               var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__8),
@@ -212,7 +213,7 @@ function structureVisitor(reportError) {
             mutable: false,
             allowRedeclare: true,
             type_: _ast.TypeBound.getType.call(t),
-            importedFrom: _core.None,
+            completeType: _core.None,
             previous: _core.None
           };
         });
@@ -234,7 +235,8 @@ function structureVisitor(reportError) {
           _class: _entities.TypeClass.fromAstNode(t, reportError),
           instance: _core.None,
           providesType: _core.None,
-          enumMember: _core.None
+          enumMember: _core.None,
+          complete: true
         });
         return $unwrapTraitObject(self).scope = parentScope;
       };
@@ -320,7 +322,8 @@ function structureVisitor(reportError) {
           _class: _core.None,
           instance: _core.None,
           providesType: _core.None,
-          enumMember: _core.None
+          enumMember: _core.None,
+          complete: true
         });
       };
     },
@@ -344,7 +347,8 @@ function structureVisitor(reportError) {
           _class: _core.None,
           instance: _core.None,
           providesType: _core.None,
-          enumMember: _core.None
+          enumMember: _core.None,
+          complete: true
         });
       };
     },
@@ -363,7 +367,8 @@ function structureVisitor(reportError) {
           _class: _core.None,
           instance: _core.None,
           providesType: _core.None,
-          enumMember: _core.None
+          enumMember: _core.None,
+          complete: true
         });
         var scope = $unwrapTraitObject(self).scope;
         var __PUCK__value__21 = _scope.Scope.define.call(scope, {
@@ -372,7 +377,7 @@ function structureVisitor(reportError) {
           mutable: false,
           allowRedeclare: false,
           type_: _entities.Type.provides(t.type_),
-          importedFrom: _core.None,
+          completeType: _core.None,
           previous: _core.None
         });
         if ($unwrapTraitObject(__PUCK__value__21).kind == "Err") {

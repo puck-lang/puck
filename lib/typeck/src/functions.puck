@@ -68,6 +68,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
     instance: None
     providesType: None
     enumMember: None
+    complete: true
   }
 }
 

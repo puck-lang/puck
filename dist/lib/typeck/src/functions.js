@@ -111,7 +111,8 @@ function createFunctionType(scope, f, reportError) {
     _class: _class,
     instance: _core.None,
     providesType: _core.None,
-    enumMember: _core.None
+    enumMember: _core.None,
+    complete: true
   };
 };
 function checkFunctionAssignability(functionName, to, subject) {

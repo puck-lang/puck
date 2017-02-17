@@ -1106,7 +1106,8 @@ function ScopeVisitor(context, file) {
         _class: _core.None,
         instance: _core.None,
         providesType: _core.None,
-        enumMember: _core.None
+        enumMember: _core.None,
+        complete: true
       });
     },
     visitStringLiteral: function visitStringLiteral(l) {
@@ -1143,7 +1144,8 @@ function ScopeVisitor(context, file) {
         _class: _core.None,
         instance: _core.None,
         providesType: _core.None,
-        enumMember: _core.None
+        enumMember: _core.None,
+        complete: true
       });
     },
     visitPattern: function visitPattern(p) {
@@ -1264,7 +1266,8 @@ function ScopeVisitor(context, file) {
         instance: _core.None,
         _class: _core.None,
         providesType: _core.None,
-        enumMember: _core.None
+        enumMember: _core.None,
+        complete: true
       });
     },
     visitTuplePattern: function visitTuplePattern(p) {
@@ -1285,7 +1288,8 @@ function ScopeVisitor(context, file) {
         instance: _core.None,
         _class: _core.None,
         providesType: _core.None,
-        enumMember: _core.None
+        enumMember: _core.None,
+        complete: true
       });
     }
   });

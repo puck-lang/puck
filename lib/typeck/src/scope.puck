@@ -3,7 +3,7 @@ import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {Module, Identifier, TypePath}
 import '../../ast/span.puck' as {Span, ToSpan}
 import '../../compiler/ast.ts' as {SyntaxKind}
-import '../../entities.puck' as {Type}
+import '../../entities.puck' as {StructKind, Type, TypeKind}
 
 export type Binding {
   name: String
@@ -12,7 +12,7 @@ export type Binding {
   allowRedeclare: Bool
   type_: Type
   previous: Option<Binding>
-  importedFrom: Option<Module>
+  completeType: Option<(String) -> Option<Type>>
 }
 
 export type Scope {
@@ -42,19 +42,11 @@ impl Scope {
       .get(name)
       .orElse(|| self.parent.andThen(|p| p.getBinding(name, visitor)))
       .map(|mut binding| {
-        if let Option::Some(module) = binding.importedFrom {
-          if not (binding.type_ and binding.type_.completed) and visitor != 'TypeVisitor' {
-            if visitor == 'ImplVisitor' {
-              self.context.runTypeVisitorOnFile(module.file)
-            } else {
-              self.context.runCheckerOnFile(module.file)
+        if not (binding.type_ and binding.type_.completed) {
+          if let Some(completeType) = binding.completeType {
+            if let Some(type_) = completeType(visitor) {
+              binding.type_ = type_
             }
-            let moduleScope: Scope = module.scope
-            let externalBinding = moduleScope.getBinding(
-              binding.token.property.name
-              visitor
-            )
-            binding.type_ = externalBinding.unwrap().type_
           }
         }
         binding
@@ -66,12 +58,11 @@ impl Scope {
       .get(id)
       .orElse(|| self.parent.andThen(|p| p.getBindingByTypeId(id)))
       .map(|mut binding| {
-        if let Option::Some(module) = binding.importedFrom {
-          if not (binding.type_ and binding.type_.completed) {
-            self.context.runCheckerOnFile(module.file)
-            let moduleScope: Scope = module.scope
-            let externalBinding = moduleScope.getBinding(binding.token.property.name)
-            binding.type_ = externalBinding.unwrap().type_
+        if not (binding.type_ and binding.type_.completed) {
+          if let Some(completeType) = binding.completeType {
+            if let Some(type_) = completeType('') {
+              binding.type_ = type_
+            }
           }
         }
         binding
@@ -98,7 +89,7 @@ impl Scope {
       mutable: binding.mutable
       allowRedeclare: binding.allowRedeclare
       type_: binding.type_
-      importedFrom: binding.importedFrom
+      completeType: binding.completeType
       previous
     }
 
@@ -119,7 +110,7 @@ impl Scope {
       allowRedeclare: false
       type_: Type.provides(selfType)
       previous: None
-      importedFrom: None
+      completeType: None
     })
   }
 
@@ -142,14 +133,16 @@ impl Scope {
 
         while true {
           let mut displayPath = '$name'
+          let providesType = type_.providesType.unwrapOr(type_)
           match path_ {
             TypePath::Member(identifier) => {
               token = identifier
               name = identifier.name
-              match type_.providesType.unwrap().getEnum().members.get(name) {
-                Option::Some(memberType) => type_ = memberType
-                Option::None => return Err('Use of undeclared type $displayPath::$name')
-              }
+              type_ =
+                match getTypeMember(providesType, displayPath, name) {
+                  Ok(type_) => type_
+                  Err(err) => return Err(err)
+                }
               break
             }
             TypePath::Object(identifier, path) => {
@@ -157,9 +150,9 @@ impl Scope {
               name = identifier.name
               path_ = path
               type_ =
-                match type_.getEnum().members.get(name) {
-                  Option::Some(type_) => type_
-                  Option::None => return Err('Use of undeclared type $displayPath::$name')
+                match getTypeMember(providesType, displayPath, name) {
+                  Ok(type_) => type_
+                  Err(err) => return Err(err)
                 }
               displayPath = '$displayPath::$name'
             }
@@ -173,9 +166,27 @@ impl Scope {
           allowRedeclare: binding.allowRedeclare
           type_
           previous: binding.previous
-          importedFrom: binding.importedFrom
+          completeType: binding.completeType
         }))
       }
     }
+  }
+}
+
+fn getTypeMember(type_: Type, displayPath: String, member: String) -> Result<Type, String> {
+  match type_.kind {
+    TypeKind::Enum(enum_) => match enum_.members.get(member) {
+      Option::Some(memberType) => Ok(memberType)
+      Option::None => Err('Use of undeclared type $displayPath::$member')
+    }
+    TypeKind::Struct(struct) => match struct.kind {
+      StructKind::Record(record) => match record.properties.get(member) {
+        Option::Some(propertyType) => Ok(propertyType)
+        Option::None => Err('Use of undeclared type $displayPath::$member')
+      }
+      StructKind::Tuple => Err('Can not access members on a tuple type')
+      StructKind::Unit => Err('Can not access members on a unit type')
+    }
+    _ => Err('Type paths can only access enums or records')
   }
 }

@@ -85,7 +85,7 @@ function enumMemberToFunction(type_) {
           mutable: false,
           allowRedeclare: false,
           type_: _core.Option.unwrapOr.call(type_.providesType, type_),
-          importedFrom: _core.None,
+          completeType: _core.None,
           previous: _core.None
         }],
         parameterRange: {
@@ -115,7 +115,7 @@ function enumMemberToFunction(type_) {
             mutable: false,
             allowRedeclare: false,
             type_: p,
-            importedFrom: _core.None,
+            completeType: _core.None,
             previous: _core.None
           };
         });
@@ -142,7 +142,8 @@ function enumMemberToFunction(type_) {
             _class: returnType._class,
             instance: returnType.instance,
             providesType: returnType.providesType,
-            enumMember: returnType.enumMember
+            enumMember: returnType.enumMember,
+            complete: returnType.complete
           });
         };
         __PUCK__value__13 = __PUCK__value__17;
@@ -173,6 +174,7 @@ function enumMemberToFunction(type_) {
     }),
     instance: providedType.instance,
     providesType: _core.Option.orValue.call(type_.providesType, (0, _core.Some)(type_)),
-    enumMember: type_.enumMember
+    enumMember: type_.enumMember,
+    complete: type_.complete
   };
 }
