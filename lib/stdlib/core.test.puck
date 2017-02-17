@@ -1,5 +1,16 @@
 import 'puck:test' as *
-import 'core.puck' as {Num, Radix, Option, Result, String}
+import 'core.puck' as {
+  IntoIterator
+  Iterator
+  List
+  None
+  Num
+  Radix
+  Option
+  Range
+  Result
+  String
+}
 
 fn any(a) {a}
 
@@ -127,6 +138,27 @@ describe('core', || {
         expect(-10.5.round()).toBe(-11)
       })
     })
+
+    describe('limit', || {
+      it('should return the start of range if the number is less than the start', || {
+        expect(5.limit({start: 10, end: 50})).toBe(10)
+        expect(0.limit({start: 5, end: 50})).toBe(5)
+        expect((-100).limit({start: -50, end: -10})).toBe(-50)
+      })
+
+      it('should return the end of range if the number is greater than the end', || {
+        expect(100.limit({start: 10, end: 50})).toBe(49)
+        expect((-5).limit({start: -50, end: -10})).toBe(-11)
+      })
+
+      it('should return the number if it is with the range', || {
+        expect(11.limit({start: 10, end: 50})).toBe(11)
+        expect(49.limit({start: 10, end: 50})).toBe(49)
+        expect(20.limit({start: 10, end: 50})).toBe(20)
+        expect(0.limit({start: -10, end: 10})).toBe(0)
+        expect((-10).limit({start: -50, end: -5})).toBe(-10)
+      })
+    })
   })
 
   describe('String', || {
@@ -238,6 +270,19 @@ describe('core', || {
         expect('   Hello'.trimRight()).toEqual('   Hello')
         expect('Hello   '.trimRight()).toEqual('Hello')
         expect('   Hello   '.trimRight()).toEqual('   Hello')
+      })
+    })
+
+    describe('IntoIterator', || {
+      it('should return an iterator that iterates over the characters', || {
+        let mut iterator = 'ABCåäö'.iter()
+        expect(iterator.next()).toEqual(Some('A'))
+        expect(iterator.next()).toEqual(Some('B'))
+        expect(iterator.next()).toEqual(Some('C'))
+        expect(iterator.next()).toEqual(Some('å'))
+        expect(iterator.next()).toEqual(Some('ä'))
+        expect(iterator.next()).toEqual(Some('ö'))
+        expect(iterator.next()).toEqual(None)
       })
     })
   })
@@ -425,6 +470,175 @@ describe('core', || {
 
       it('should return the error if Err(err)', || {
         expect(Err('err').unwrapErr()).toBe('err')
+      })
+    })
+  })
+
+  describe('Iterator', || {
+    describe('count', || {
+      it('should count the elements in the iterator', || {
+        expect([].iter().count()).toBe(0)
+        expect([1, 2, 3].iter().count()).toBe(3)
+        expect(['a', 'b'].iter().count()).toBe(2)
+      })
+    })
+
+    describe('EnumerateIterator', || {
+      it('should map index and values on the iterator', || {
+        let mut iterator = [1, 2, 3].iter().enumerate()
+        expect(iterator.next()).toEqual(Some((0, 1)))
+        expect(iterator.next()).toEqual(Some((1, 2)))
+        expect(iterator.next()).toEqual(Some((2, 3)))
+        expect(iterator.next()).toEqual(None)
+      })
+    })
+
+    describe('MapIterator', || {
+      it('should map values on the iterator', || {
+        let mut iterator = [1, 2, 3].iter().map(|i| i * 2)
+        expect(iterator.next()).toEqual(Some(2))
+        expect(iterator.next()).toEqual(Some(4))
+        expect(iterator.next()).toEqual(Some(6))
+        expect(iterator.next()).toEqual(None)
+      })
+
+      it('should map lazily', || {
+        let mut iterator = [1, 2, 3].iter().map(|i| {
+          if i > 1
+            then throw 'Should only be called once'
+          i
+        })
+
+        expect(iterator.next()).toEqual(Some(1))
+      })
+    })
+
+    describe('filter', || {
+      it('should remove elements from the iterator that does not match the predicate', || {
+        let predicate = |i| i < 3
+        let mut iterator = [1, 2, 3].iter().filter(predicate)
+        expect(iterator.next()).toEqual(Some(1))
+        expect(iterator.next()).toEqual(Some(2))
+        expect(iterator.next()).toEqual(None)
+
+        let predicate = |i| i != 2
+        let mut iterator = [1, 2, 3].iter().filter(predicate)
+        expect(iterator.next()).toEqual(Some(1))
+        expect(iterator.next()).toEqual(Some(3))
+        expect(iterator.next()).toEqual(None)
+      })
+
+      it('should correctly count a filtered iterator', || {
+        let predicate = |i| i % 2 == 1
+        let mut iterator = [1, 2, 3, 4].iter().filter(predicate)
+        expect(iterator.count()).toBe(2)
+      })
+    })
+
+    describe('filterMap', || {
+      it('should remove elements from the iterator that does not match the predicate', || {
+        let predicate = |i| if i < 3 then Some(i * 2) else None
+        let mut iterator = [1, 2, 3].iter().filterMap(predicate)
+        expect(iterator.next()).toEqual(Some(2))
+        expect(iterator.next()).toEqual(Some(4))
+        expect(iterator.next()).toEqual(None)
+
+        let predicate = |i| if i != 2 then Some(i * 2) else None
+        let mut iterator = [1, 2, 3].iter().filterMap(predicate)
+        expect(iterator.next()).toEqual(Some(2))
+        expect(iterator.next()).toEqual(Some(6))
+        expect(iterator.next()).toEqual(None)
+      })
+
+      it('should correctly count a filtered iterator', || {
+        let predicate = |i| if i % 2 == 1 then Some(i * 2) else None
+        let mut iterator = [1, 2, 3, 4].iter().filterMap(predicate)
+        expect(iterator.count()).toBe(2)
+      })
+    })
+
+    describe('all', || {
+      it('should return true for empty iterators', || {
+        expect([].iter().all(|_| false)).toBe(true)
+      })
+
+      it('should return true if all elements matches the predicate', || {
+        let mut iterator = [1, 2, 3].iter()
+        let predicate = |i| i > 0
+        expect(iterator.all(predicate)).toBe(true)
+      })
+
+      it('should return false if any of the elements does not match the predicate', || {
+        let predicate = |i| i > 4
+        expect([1, 2, 3].iter().all(predicate)).toBe(false)
+        expect([4, 5, 6].iter().all(predicate)).toBe(false)
+        expect([6, 5, 4].iter().all(predicate)).toBe(false)
+      })
+    })
+
+    describe('any', || {
+      it('should return false for empty iterators', || {
+        expect([].iter().any(|_| true)).toBe(false)
+      })
+
+      it('should return true if any of the elements match the predicate', || {
+        let predicate = |i| i > 4
+        expect([1, 2, 5].iter().any(predicate)).toBe(true)
+        expect([4, 5, 6].iter().any(predicate)).toBe(true)
+        expect([6, 1, 2].iter().any(predicate)).toBe(true)
+      })
+
+      it('should return false if none of the elements match the predicate', || {
+        let mut iterator = [1, 2, 3].iter()
+        let predicate = |i| i > 4
+        expect(iterator.any(predicate)).toBe(false)
+      })
+    })
+
+    describe('find', || {
+      it('should return None for empty iterators', || {
+        expect([].iter().find(|_| true)).toEqual(None)
+      })
+
+      it('should return the first matching element', || {
+        let predicate = |i| i > 4
+        expect([1, 2, 5].iter().find(predicate)).toEqual(Some(5))
+        expect([4, 5, 6].iter().find(predicate)).toEqual(Some(5))
+        expect([6, 1, 2].iter().find(predicate)).toEqual(Some(6))
+      })
+
+      it('should return None if none of the elements match the predicate', || {
+        let mut iterator = [1, 2, 3].iter()
+        let predicate = |i| i > 4
+        expect(iterator.find(predicate)).toEqual(None)
+      })
+    })
+  })
+
+  describe('List', || {
+    describe('IntoIterator', || {
+      it('should return an iterator that iterates over the elements', || {
+        let mut iterator = [1, 2, 3].iter()
+        expect(iterator.next()).toEqual(Some(1))
+        expect(iterator.next()).toEqual(Some(2))
+        expect(iterator.next()).toEqual(Some(3))
+        expect(iterator.next()).toEqual(None)
+      })
+    })
+  })
+
+  describe('Range', || {
+    describe('IntoIterator', || {
+      it('should return an iterator that iterates over the elements', || {
+        let range: Range = {start: -3, end: 3}
+        let mut iterator = range.iter()
+        expect(iterator.next()).toEqual(Some(-3))
+        expect(iterator.next()).toEqual(Some(-2))
+        expect(iterator.next()).toEqual(Some(-1))
+        expect(iterator.next()).toEqual(Some(0))
+        expect(iterator.next()).toEqual(Some(1))
+        expect(iterator.next()).toEqual(Some(2))
+        expect(iterator.next()).toEqual(None)
       })
     })
   })
