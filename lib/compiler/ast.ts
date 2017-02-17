@@ -47,6 +47,7 @@ export enum SyntaxKind {
   ExclamationEqualsToken,
   GreaterThanEqualsToken,
   GreaterThanToken,
+  HashToken,
   LessThanEqualsToken,
   LessThanToken,
   MinusEqualsToken,
@@ -65,6 +66,7 @@ export enum SyntaxKind {
   EndOfFileToken,
 
   Comment,
+  Attribute,
   Block,
   EnumDeclaration,
   Function,
@@ -157,6 +159,7 @@ export const textToToken = Object['assign'](Object.create(null), {
   '::': SyntaxKind.ColonColonToken,
   '.': SyntaxKind.DotToken,
   // '...': SyntaxKind.DotDotDotToken,
+  '#': SyntaxKind.HashToken,
   ';': SyntaxKind.SemicolonToken,
   '_': SyntaxKind.UnderscoreToken,
   '<': SyntaxKind.LessThanToken,
@@ -198,7 +201,7 @@ export const operators = [
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',
-  '=>', '->',
+  '=>', '->', '#'
 ]
 
 export const precedence = {

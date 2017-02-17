@@ -66,6 +66,12 @@ export enum Expression {
   TupleLiteral(TupleLiteral)
 }
 
+export enum SimpleLiteral {
+  BooleanLiteral(BooleanLiteral)
+  NumberLiteral(NumberLiteral)
+  StringLiteral(SimpleStringLiteral)
+}
+
 impl TopLevelStatement {
   fn getType(self) -> Type {
     match self {
@@ -173,6 +179,7 @@ impl ToSpan for Expression {
 }
 
 export type EnumDeclaration {
+  attributes: List<Attribute>
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
@@ -239,6 +246,7 @@ impl ToSpan for ImplShorthandDeclaration {
 }
 
 export type TraitDeclaration {
+  attributes: List<Attribute>
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
@@ -255,6 +263,7 @@ impl ToSpan for TraitDeclaration {
 }
 
 export type TypeDeclaration {
+  attributes: List<Attribute>
   keyword: Token
   name: Identifier
   typeParameters: List<TypeParameter>
@@ -371,6 +380,25 @@ export type WhileLoop {
 
 export type Comment {
   text: String
+}
+
+export type Attribute {
+  hash: Token
+  openBracket: Token
+  name: Identifier
+  data: AttributeData
+  closeBracket: Token
+}
+
+export enum AttributeData {
+  None
+  Value(SimpleLiteral)
+  Arguments(List<AttributeArgument>)
+}
+
+export type AttributeArgument {
+  name: Identifier
+  value: Option<SimpleLiteral>
 }
 
 export type Identifier {
@@ -633,11 +661,13 @@ impl ToSpan for StringLiteral {
   }}
 }
 
+export type SimpleStringLiteral {
+  value: String
+  span: Span
+}
+
 export enum StringLiteralPart {
-  Literal({
-    value: String
-    span: Span
-  })
+  Literal(SimpleStringLiteral)
   Identifier(Identifier)
 }
 
@@ -668,7 +698,7 @@ export enum Pattern {
   Identifier(Identifier)
   // Boolen(BooleanLiteral)
   // Number(NumberLiteral)
-  // String(StringLiteralPart)
+  // String(SimpleStringLiteral)
   Record(RecordPattern)
   Tuple(TuplePattern)
   RecordType(TypePath, RecordPattern)

@@ -5,6 +5,9 @@ import '../ast/ast.puck' as {
   TopLevelStatement
   BlockLevelStatement
   Expression
+  SimpleLiteral
+  Attribute
+  AttributeData
 
   EnumDeclaration
   EnumMember
@@ -48,6 +51,7 @@ import '../ast/ast.puck' as {
   RecordLiteral
   RecordLiteralMember
   StringLiteral
+  StringLiteralPart
   TupleLiteral
 
   Pattern
@@ -126,6 +130,10 @@ export fn parse(input) { // : TokenStream
     let token = input.peek()
     let name = tokenToText[token.kind]
     input.croak('Unexpected token: $name')
+  }
+
+  fn attributeNotSupported() {
+    input.croak('Attributes are only supported on enum, trait and type declarations')
   }
 
   fn consumeSeparator(kind) -> () { // kind: SyntaxKind
@@ -317,7 +325,8 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseTopLevelStatement() {
-    if isToken(SyntaxKind.EnumKeyword) then TopLevelStatement::EnumDeclaration(parseEnumDeclaration())
+    if isToken(SyntaxKind.HashToken) then parseDeclarationWithAttribute()
+    else if isToken(SyntaxKind.EnumKeyword) then TopLevelStatement::EnumDeclaration(parseEnumDeclaration())
     else if isToken(SyntaxKind.ExportKeyword) then TopLevelStatement::ExportDirective(parseExport())
     else if isToken(SyntaxKind.ImplKeyword) then parseImplDeclaration()
     else if isToken(SyntaxKind.ImportKeyword) then TopLevelStatement::ImportDirective(parseImport())
@@ -379,7 +388,64 @@ export fn parse(input) { // : TokenStream
     )
   }
 
-  fn parseEnumDeclaration() -> EnumDeclaration {
+  fn parseSimpleLiteral() {
+    if isToken(SyntaxKind.TrueKeyword)
+    or isToken(SyntaxKind.FalseKeyword)
+      then SimpleLiteral::BooleanLiteral({
+        keyword: input.peek()
+        value: input.next().kind == SyntaxKind.TrueKeyword
+      })
+    else if isToken(SyntaxKind.NumberLiteral)
+      then SimpleLiteral::NumberLiteral(input.next())
+    else if let Some(stringLiteral) = maybeConsumeToken(SyntaxKind.StringLiteral) {
+      if stringLiteral.parts.length > 1 {
+        input.croak('Attributes can only contain simple string literals. Interpolation is not supported.')
+      }
+      let part: StringLiteralPart = stringLiteral.parts[0]
+      match part {
+        StringLiteralPart::Literal(literal) => SimpleLiteral::StringLiteral(literal)
+        _ => unexpected()
+      }
+    }
+    else unexpected()
+  }
+
+  fn parseAttributeArgument() {
+    let name = consumeIdentifier()
+    let value = maybeConsumeToken(SyntaxKind.EqualsToken).map(|_| parseSimpleLiteral())
+
+    {name, value}
+  }
+
+  fn parseAttribute() {
+    let hashToken = consumeToken(SyntaxKind.HashToken)
+    let openBracket = consumeToken(SyntaxKind.OpenBracketToken)
+    let name = consumeIdentifier()
+    let data =
+      if maybeConsumeToken(SyntaxKind.EqualsToken).isSome()
+        then AttributeData::Value(parseSimpleLiteral())
+      else if isToken(SyntaxKind.OpenParenToken)
+        then AttributeData::Arguments(delimited('(', ')', ',', parseAttributeArgument, true))
+      else AttributeData::None
+    let closeBracket = consumeToken(SyntaxKind.CloseBracketToken)
+
+    {hashToken, openBracket, name, data, closeBracket}
+  }
+
+  fn parseDeclarationWithAttribute() {
+    let mut attributes = []
+    while isToken(SyntaxKind.HashToken) {
+      attributes.add(parseAttribute())
+    }
+
+    if isToken(SyntaxKind.EnumKeyword) then TopLevelStatement::EnumDeclaration(parseEnumDeclaration(attributes))
+    else if isToken(SyntaxKind.ExportKeyword) then TopLevelStatement::ExportDirective(parseExport(attributes))
+    else if isToken(SyntaxKind.TraitKeyword) then TopLevelStatement::TraitDeclaration(parseTraitDeclaration(attributes))
+    else if isToken(SyntaxKind.TypeKeyword) then TopLevelStatement::TypeDeclaration(parseTypeDeclaration(attributes))
+    else attributeNotSupported()
+  }
+
+  fn parseEnumDeclaration(attributes: List<Attribute> = []) -> EnumDeclaration {
     let keyword = consumeToken(SyntaxKind.EnumKeyword)
     let name = consumeIdentifier()
     let typeParameters =
@@ -392,6 +458,7 @@ export fn parse(input) { // : TokenStream
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
     {
+      attributes
       keyword
       name
       typeParameters
@@ -470,7 +537,7 @@ export fn parse(input) { // : TokenStream
       })
   }
 
-  fn parseTraitDeclaration() -> TraitDeclaration {
+  fn parseTraitDeclaration(attributes: List<Attribute> = []) -> TraitDeclaration {
     let keyword = consumeToken(SyntaxKind.TraitKeyword)
     let name = consumeIdentifier()
     let typeParameters =
@@ -492,6 +559,7 @@ export fn parse(input) { // : TokenStream
     let closeBrace = consumeToken(SyntaxKind.CloseBraceToken)
 
     {
+      attributes
       keyword
       name
       typeParameters
@@ -501,7 +569,7 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseTypeDeclaration() -> TypeDeclaration {
+  fn parseTypeDeclaration(attributes: List<Attribute> = []) -> TypeDeclaration {
     let keyword = consumeToken(SyntaxKind.TypeKeyword)
     let name = consumeIdentifier()
     let typeParameters =
@@ -517,6 +585,7 @@ export fn parse(input) { // : TokenStream
       else None
 
     {
+      attributes
       keyword
       name
       typeParameters
@@ -525,44 +594,47 @@ export fn parse(input) { // : TokenStream
     }
   }
 
-  fn parseExport() -> ExportDirective {
+  fn parseExport(attributes: List<Attribute> = []) -> ExportDirective {
     let keyword = consumeToken(SyntaxKind.ExportKeyword)
     let mut statement: ExportedStatement
     let mut identifier: Identifier
 
     if isToken(SyntaxKind.EnumKeyword) {
-      let enumDeclaration = parseEnumDeclaration()
+      let enumDeclaration = parseEnumDeclaration(attributes)
       statement = ExportedStatement::EnumDeclaration(enumDeclaration)
       identifier = enumDeclaration.name
     }
-    else if isToken(SyntaxKind.FnKeyword) {
-      let functionDeclaration = parseFunctionDeclaration()
-      statement = ExportedStatement::FunctionDeclaration(functionDeclaration)
-      if let Option::Some(name) = functionDeclaration.name {
-        identifier = name
-      }
-      else input.croak('Can not export function without a name')
-    }
-    else if isToken(SyntaxKind.LetKeyword) {
-      input.next()
-      let variableDeclaration = parseVariableDeclaration()
-      statement = ExportedStatement::VariableDeclaration(variableDeclaration)
-      if let Pattern::Identifier(name) = variableDeclaration.pattern {
-        identifier = name
-      }
-      else input.croak('Can not export a let declaration without a identifier pattern')
-    }
     else if isToken(SyntaxKind.TraitKeyword) {
-      let traitDeclaration = parseTraitDeclaration()
+      let traitDeclaration = parseTraitDeclaration(attributes)
       statement = ExportedStatement::TraitDeclaration(traitDeclaration)
       identifier = traitDeclaration.name
     }
     else if isToken(SyntaxKind.TypeKeyword) {
-      let typeDeclaration = parseTypeDeclaration()
+      let typeDeclaration = parseTypeDeclaration(attributes)
       statement = ExportedStatement::TypeDeclaration(typeDeclaration)
       identifier = typeDeclaration.name
     }
-    else input.croak('Expected trait, type, function or variable declaration after export')
+    else if attributes.isEmpty() {
+      if isToken(SyntaxKind.FnKeyword) {
+        let functionDeclaration = parseFunctionDeclaration()
+        statement = ExportedStatement::FunctionDeclaration(functionDeclaration)
+        if let Option::Some(name) = functionDeclaration.name {
+          identifier = name
+        }
+        else input.croak('Can not export function without a name')
+      }
+      else if isToken(SyntaxKind.LetKeyword) {
+        input.next()
+        let variableDeclaration = parseVariableDeclaration()
+        statement = ExportedStatement::VariableDeclaration(variableDeclaration)
+        if let Pattern::Identifier(name) = variableDeclaration.pattern {
+          identifier = name
+        }
+        else input.croak('Can not export a let declaration without a identifier pattern')
+      }
+      else input.croak('Expected trait, type, function or variable declaration after export')
+    }
+    else attributeNotSupported()
 
     {
       keyword

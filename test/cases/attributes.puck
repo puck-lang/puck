@@ -1,0 +1,10 @@
+#[attribute]
+type Type {}
+
+#[key = 'value']
+#[key = 1]
+#[key = true]
+type Type2 {}
+
+#[arguments(identifier, num = 1, string = 'arg', bool = false)]
+type Type3 {}
