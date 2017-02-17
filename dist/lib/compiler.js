@@ -83,7 +83,7 @@ function babelTransform(file) {
   })).code;
 };
 function dumpFiles(files, prop) {
-  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: files, $isTraitObject: true }, function (file) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
     (0, _core.print)("");
     (0, _core.print)(file.absolutePath);
     var data = file[prop];

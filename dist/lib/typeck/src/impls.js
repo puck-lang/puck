@@ -75,9 +75,9 @@ function getImplementationsForInstance(type_) {
             _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
             objectInstance = _$unwrapTraitObject3$[0];
 
-        var __PUCK__value__10 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: implementations, $isTraitObject: true }, function (i) {
+        var __PUCK__value__10 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }, function (i) {
           var implementationInstance = _core.Option.unwrap.call(i.type_.instance);
-          return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: objectInstance.typeParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: implementationInstance.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref) {
+          return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: objectInstance.typeParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementationInstance.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref) {
             var _ref2 = _slicedToArray(_ref, 2),
                 objectP = _ref2[0],
                 implP = _ref2[1];
@@ -99,7 +99,7 @@ function getImplementationsForInstance(type_) {
   };
 };
 function getImplementationsForTrait(type_, trait_, implementations) {
-  var __PUCK__value__12 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: implementations, $isTraitObject: true }, function (i) {
+  var __PUCK__value__12 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }, function (i) {
     return !_entities.Type.getTrait.call(i.trait_).isShorthand;
   });
   var __PUCK__value__11 = _core.Iterable[__PUCK__value__12.type].filter.call(__PUCK__value__12, function (i) {
@@ -116,7 +116,7 @@ function getMostSpecificImplementations(type_, implementations) {
           objectInstance = _$unwrapTraitObject4$[0];
 
       var maxSpecificity = 0;
-      var __PUCK__value__16 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: implementations, $isTraitObject: true }, function (i) {
+      var __PUCK__value__16 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }, function (i) {
         var specificity = getTypeSpecificity(i.type_);
         maxSpecificity = $unwrapTraitObject($unwrapTraitObject(_js.global).Math).max(maxSpecificity, specificity);
         return [i, specificity];
@@ -179,7 +179,7 @@ function getImplementation(functionName, type_, e, reportError) {
   if (implementations.length > 1) {
     reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true }, "Ambiguous trait call");
   };
-  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: implementations, $isTraitObject: true });
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true });
 };
 function getTypeSpecificity(type_) {
   var __PUCK__value__22 = type_.kind;

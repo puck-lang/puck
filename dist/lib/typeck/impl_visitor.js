@@ -42,23 +42,23 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 
 function implementTrait(traitType, trait_, type_, implementable, i, reportError, id) {
   var traitName = _entities.Type.displayName.call(traitType);
-  if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: implementable.implementations, $isTraitObject: true }, function (imp) {
+  if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementable.implementations, $isTraitObject: true }, function (imp) {
     return imp.trait_ == traitType;
   })) {
     reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplDeclaration', value: i, $isTraitObject: true }, "" + traitName + " has already been implemented for " + _entities.Type.displayName.call(type_));
   };
-  var functions = _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
+  var functions = _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
     return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
   }));
   var traitFunctions = trait_.functions;
-  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: _core.ObjectMap.keys.call(traitFunctions), $isTraitObject: true }, function (name) {
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.keys.call(traitFunctions), $isTraitObject: true }, function (name) {
     var traitFunctionType = traitFunctions[name];
     var traitFunction = _entities.Type.getFunction.call(traitFunctionType);
     if (traitFunction.isAbstract && !functions[name]) {
       return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplDeclaration', value: i, $isTraitObject: true }, "Function " + traitName + "::" + name + " is not implemented for " + _entities.Type.displayName.call(type_));
     };
   });
-  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
     var functionName = _entities.Type.displayName.call(functionDeclaration.type_);
     var _function = _entities.Type.getFunction.call(functionDeclaration.type_);
     var traitFunctionType = traitFunctions[_core.Option.unwrap.call(functionDeclaration.type_.name)];
@@ -104,7 +104,7 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError,
   });
   i.implementation = implementation;
   implementable.implementations.push(implementation);
-  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
     var functionName = _entities.Type.displayName.call(functionDeclaration.type_);
     var traitFunctionType = traitFunctions[_core.Option.unwrap.call(functionDeclaration.type_.name)];
     var traitFunction = _entities.Type.getFunction.call(traitFunctionType);
@@ -122,12 +122,12 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError,
 };
 function implementShorthand(type_, implementable, i, reportError) {
   var typeName = _entities.Type.displayName.call(type_);
-  if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: implementable.implementations, $isTraitObject: true }, function (imp) {
+  if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementable.implementations, $isTraitObject: true }, function (imp) {
     return _entities.Type.getTrait.call(imp.trait_).isShorthand;
   })) {
     reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplShorthandDeclaration', value: i, $isTraitObject: true }, "" + typeName + " has already been implemented");
   };
-  var functions = _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
+  var functions = _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, function (functionDeclaration) {
     return [_core.Option.unwrap.call(functionDeclaration.type_.name), functionDeclaration.type_];
   }));
   return _core.List.add.call(implementable.implementations, {
@@ -164,7 +164,7 @@ function ImplVisitor(context, file) {
     visitModule: function visitModule(m) {
       var self = this;
       $unwrapTraitObject(self).scope = m.scope;
-      var __PUCK__value__6 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: m.statements, $isTraitObject: true }, function (e) {
+      var __PUCK__value__6 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: m.statements, $isTraitObject: true }, function (e) {
         var __PUCK__value__7 = e;
         var __PUCK__value__8 = __PUCK__value__7;
         if ($unwrapTraitObject(__PUCK__value__8).kind == "ImplDeclaration") {
@@ -200,13 +200,13 @@ function ImplVisitor(context, file) {
       var scope = _scope.Scope.createChild.call(parentScope);
       $unwrapTraitObject(self).scope = scope;
       i.scope = scope;
-      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
+      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
       $unwrapTraitObject(self).visitTypeBound(i.trait_);
       $unwrapTraitObject(self).visitTypeBound(i.type_);
       var traitType = _ast.TypeBound.getType.call(i.trait_);
       var structType = _ast.TypeBound.getType.call(i.type_);
       _scope.Scope.setSelfType.call(scope, structType);
-      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.members, $isTraitObject: true }, function (m) {
+      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, function (m) {
         return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
       });
       var id = getImplId(traitType, structType);
@@ -251,11 +251,11 @@ function ImplVisitor(context, file) {
       var scope = _scope.Scope.createChild.call(parentScope);
       $unwrapTraitObject(self).scope = scope;
       i.scope = $unwrapTraitObject(self).scope;
-      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
+      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
       $unwrapTraitObject(self).visitTypeBound(i.type_);
       var structType = _ast.TypeBound.getType.call(i.type_);
       _scope.Scope.setSelfType.call(scope, structType);
-      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.members, $isTraitObject: true }, function (m) {
+      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, function (m) {
         return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
       });
       var __PUCK__value__20 = structType.kind;

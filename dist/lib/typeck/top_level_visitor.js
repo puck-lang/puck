@@ -89,7 +89,7 @@ function TopLevelVisitor(context, file) {
     },
     visitObjectDestructure: function visitObjectDestructure(i) {
       var self = this;
-      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: i.members, $isTraitObject: true }, function (m) {
+      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true }, function (m) {
         return _core.ObjectMap.set.call(declarations, m.local.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: m, $isTraitObject: true });
       });
     },

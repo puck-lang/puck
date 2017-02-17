@@ -614,7 +614,7 @@ function parse(input) {
         type_ = _PUCK__value__.type_;
 
     var openBrace = expect($unwrapTraitObject(_ast2.SyntaxKind).OpenBraceToken);
-    var __PUCK__value__39 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: delimited("{", "}", ";", parseFunctionDeclaration, false), $isTraitObject: true }, function (f) {
+    var __PUCK__value__39 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: delimited("{", "}", ";", parseFunctionDeclaration, false), $isTraitObject: true }, function (f) {
       if (_core.Option.isNone.call(f.name)) {
         $unwrapTraitObject(input).croak("Trait functions must have a name");
       };
@@ -665,7 +665,7 @@ function parse(input) {
     };
     var typeParameters = __PUCK__value__41;
     var openBrace = expect($unwrapTraitObject(_ast2.SyntaxKind).OpenBraceToken);
-    var __PUCK__value__42 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: delimited("{", "}", ";", function () {
+    var __PUCK__value__42 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: delimited("{", "}", ";", function () {
         return parseFunctionDeclaration(true);
       }, false), $isTraitObject: true }, function (f) {
       if (_core.Option.isNone.call(f.name)) {
@@ -743,7 +743,7 @@ function parse(input) {
           statement = _ast.ExportedStatement.TypeDeclaration(typeDeclaration);
           identifier = typeDeclaration.name;
         } else {
-          if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].isEmpty.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: attributes, $isTraitObject: true })) {
+          if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: attributes, $isTraitObject: true })) {
             if (isToken($unwrapTraitObject(_ast2.SyntaxKind).FnKeyword)) {
               var functionDeclaration = parseFunctionDeclaration();
               statement = _ast.ExportedStatement.FunctionDeclaration(functionDeclaration);

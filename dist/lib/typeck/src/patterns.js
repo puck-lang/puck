@@ -237,7 +237,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
             __PUCK__value__23 = _core.ObjectMap._new();
           };
           var props = __PUCK__value__23;
-          var properties = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: record.properties, $isTraitObject: true }, function (p) {
+          var properties = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true }, function (p) {
             return [p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)];
           }).value.reduce(function (acc, _ref3) {
             var _ref4 = _slicedToArray(_ref3, 2),
@@ -343,7 +343,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                 v: (0, _core.Err)(PatternError.NotExhaustive)
               };
             };
-            var properties = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].toList.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: record.properties, $isTraitObject: true }), $isTraitObject: true }, function (p) {
+            var properties = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true }), $isTraitObject: true }, function (p) {
               return [p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)];
             }).value.reduce(function (acc, _ref5) {
               var _ref6 = _slicedToArray(_ref5, 2),
@@ -423,7 +423,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                 __PUCK__value__61 = [];
               };
               var props = __PUCK__value__61;
-              var __PUCK__value__77 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: tuple.properties, $isTraitObject: true });
+              var __PUCK__value__77 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true });
               var __PUCK__value__76 = _core.Iterable[__PUCK__value__77.type].map.call(__PUCK__value__77, function (_ref7) {
                 var _ref8 = _slicedToArray(_ref7, 2),
                     p = _ref8[0],
@@ -531,7 +531,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                     v: (0, _core.Err)(PatternError.NotExhaustive)
                   };
                 };
-                var __PUCK__value__100 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: tuple.properties, $isTraitObject: true });
+                var __PUCK__value__100 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true });
                 var __PUCK__value__99 = _core.Iterable[__PUCK__value__100.type].map.call(__PUCK__value__100, function (_ref9) {
                   var _ref10 = _slicedToArray(_ref9, 2),
                       p = _ref10[0],

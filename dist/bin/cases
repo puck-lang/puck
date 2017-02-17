@@ -23,7 +23,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 };
 
 var argv = $unwrapTraitObject(_js.process).argv;
-var __PUCK__value__1 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: argv, $isTraitObject: true }, function (arg) {
+var __PUCK__value__1 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "cases");
 });
 var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__1, 1);
@@ -33,7 +33,7 @@ if (command == _js._undefined) {
     (0, _test.buildTestCompiler)();
     var failPattern = (0, _js.RegExp)("\\.error\\.puck$", "i");
     var caseFiles = (0, _helpers.walkSync)("test/cases");
-    var failCases = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: caseFiles, $isTraitObject: true }, function (f) {
+    var failCases = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: caseFiles, $isTraitObject: true }, function (f) {
       return $unwrapTraitObject(failPattern).test(f);
     });
     (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");

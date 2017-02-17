@@ -57,7 +57,7 @@ function ImportVisitor(context, file) {
           _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
           o = _$unwrapTraitObject$v[0];
 
-      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: o.members, $isTraitObject: true }, function (m) {
+      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true }, function (m) {
         if (!_module.exports[m.property.name]) {
           return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: m, $isTraitObject: true }, importedFile.fileName + " has no export named " + m.property.name);
         };
@@ -69,7 +69,7 @@ function ImportVisitor(context, file) {
             _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
             token = _$unwrapTraitObject2$[0];
 
-        var __PUCK__value__5 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: _core.ObjectMap.keys.call(_module.exports), $isTraitObject: true }, function (e) {
+        var __PUCK__value__5 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.keys.call(_module.exports), $isTraitObject: true }, function (e) {
           return !_core.ObjectMap.has.call(declarations, e);
         });
         var __PUCK__value__4 = _core.Iterable[__PUCK__value__5.type].map.call(__PUCK__value__5, function (e) {
@@ -100,7 +100,7 @@ function ImportVisitor(context, file) {
     visitModule: function visitModule(m) {
       var self = this;
       declarations = m.declarations;
-      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: m.statements, $isTraitObject: true }, function (s) {
+      _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: m.statements, $isTraitObject: true }, function (s) {
         var __PUCK__value__8 = s;
         if ($unwrapTraitObject(__PUCK__value__8).kind == "ImportDirective") {
           var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__8),

@@ -625,11 +625,21 @@ export fn ScopeVisitor(context, file) {
       visit.walkUnaryExpression(self, e)
 
       if e.operator.kind == SyntaxKind.NotKeyword {
-        e.type_ = scope.getBinding('Bool').unwrap().type_.providesType.unwrap()
+        if let Some(binding) = scope.getBindingByTypeId('Bool') {
+          e.type_ = binding.type_.providesType.unwrap()
+        }
+        else reportError(e
+          'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
+        )
       }
       else if e.operator.kind == SyntaxKind.MinusToken
             or e.operator.kind == SyntaxKind.PlusToken {
-        e.type_ = scope.getBinding('Num').unwrap().type_.providesType.unwrap()
+        if let Some(binding) = scope.getBindingByTypeId('Num') {
+          e.type_ = binding.type_.providesType.unwrap()
+        }
+        else reportError(e
+          'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+        )
       }
       ()
     }
@@ -654,12 +664,23 @@ export fn ScopeVisitor(context, file) {
     visitBooleanLiteral: |self, mut l: BooleanLiteral| {
       let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = scope.getBinding('Bool').unwrap().type_.providesType.unwrap()
+      if let Some(binding) = scope.getBindingByTypeId('Bool') {
+        l.type_ = binding.type_.providesType.unwrap()
+      }
+      else reportError(l
+        'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
+      )
       visit.walkBooleanLiteral(self, l)
     }
     visitListLiteral: |self, mut l: ListLiteral| {
       let scope: Scope = self.scope
-      let mut listType = scope.getBinding('List').unwrap().type_.providesType.unwrap()
+      let mut listType =
+        if let Some(binding) = scope.getBindingByTypeId('List') {
+          binding.type_.providesType.unwrap()
+        }
+        else return reportError(l
+          'puck:core::List is not in scope. Please import List from puck:core to use list literals.'
+        )
       l.scope = self.scope
       visit.walkListLiteral(self, l)
       if l.members.length >= 1 {
@@ -683,7 +704,12 @@ export fn ScopeVisitor(context, file) {
     visitNumberLiteral: |self, mut l: NumberLiteral| {
       let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = scope.getBinding('Num').unwrap().type_.providesType.unwrap()
+      if let Some(binding) = scope.getBindingByTypeId('Num') {
+        l.type_ = binding.type_.providesType.unwrap()
+      }
+      else reportError(l
+        'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+      )
       visit.walkNumberLiteral(self, l)
     }
     visitRecordLiteral: |self, mut l: RecordLiteral| {
@@ -712,7 +738,12 @@ export fn ScopeVisitor(context, file) {
     visitStringLiteral: |self, mut l: StringLiteral| {
       let scope: Scope = self.scope
       l.scope = self.scope
-      l.type_ = scope.getBinding('String').unwrap().type_.providesType.unwrap()
+      if let Some(binding) = scope.getBindingByTypeId('String') {
+        l.type_ = binding.type_.providesType.unwrap()
+      }
+      else reportError(l
+        'puck:core::String is not in scope. Please import String from puck:core to use string literals.'
+      )
       visit.walkStringLiteral(self, l)
     }
     visitTupleLiteral: |self, mut l: TupleLiteral| {

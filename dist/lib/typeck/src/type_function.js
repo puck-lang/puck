@@ -56,7 +56,7 @@ function enumMemberToFunction(type_) {
         _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
         _class = _$unwrapTraitObject2$[0];
 
-    __PUCK__value__5 = (0, _types.createTypeInstance)(providedType, { type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: _class.typeParameters, $isTraitObject: true });
+    __PUCK__value__5 = (0, _types.createTypeInstance)(providedType, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true });
   } else {
     __PUCK__value__5 = providedType;
   };
@@ -103,7 +103,7 @@ function enumMemberToFunction(type_) {
             _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
             tuple = _$unwrapTraitObject5$[0];
 
-        var __PUCK__value__15 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: tuple.properties, $isTraitObject: true });
+        var __PUCK__value__15 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true });
         var __PUCK__value__14 = _core.Iterable[__PUCK__value__15.type].map.call(__PUCK__value__15, function (_ref3) {
           var _ref4 = _slicedToArray(_ref3, 2),
               p = _ref4[0],

@@ -81,10 +81,10 @@ var fruitSallad = {
 (0, _core.print)(fruitSallad.banana2.value.name);
 var fruits = [{ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true }, { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true }, apple2, banana2];
 var fruits2 = [{ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true }];
-_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: fruits, $isTraitObject: true }, function (fruit) {
+_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: fruits, $isTraitObject: true }, function (fruit) {
   return Food[fruit.type].eat.call(fruit);
 });
-_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: fruits2, $isTraitObject: true }, function (fruit) {
+_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: fruits2, $isTraitObject: true }, function (fruit) {
   return Food[fruit.type].eat.call(fruit);
 });
 var apple3 = apple,

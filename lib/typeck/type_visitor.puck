@@ -3,6 +3,8 @@ import 'node:path' as {relative}
 import '../ast/ast.puck' as {
   Module
   TopLevelStatement
+  AttributeData
+  SimpleLiteral
 
   EnumDeclaration
   EnumMember
@@ -270,8 +272,25 @@ export fn TypeVisitor(context, file) {
           }
           else StructKind::Unit
 
+        let id =
+          if let Some(attribute) = t.attributes.find(|a| a.name.name == 'type_id')
+             then match attribute.data {
+              AttributeData::Value(literal) => match literal {
+                SimpleLiteral::StringLiteral({value}) => Some(value)
+                _ => {
+                  reportError(attribute, 'type_id must be a string')
+                  generateTypeId(context, file, t.name.name)
+                }
+              }
+              _ => {
+                reportError(attribute, 'type_id must have a value')
+                generateTypeId(context, file, t.name.name)
+              }
+            }
+            else generateTypeId(context, file, t.name.name)
+
         t.type_ = Type.provides({
-          id: generateTypeId(context, file, t.name.name)
+          id
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Struct({

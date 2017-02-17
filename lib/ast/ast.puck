@@ -390,6 +390,13 @@ export type Attribute {
   closeBracket: Token
 }
 
+impl ToSpan for Attribute {
+  fn span(self) -> Span {{
+    start: self.hash.span.start
+    end: self.closeBracket.span.end
+  }}
+}
+
 export enum AttributeData {
   None
   Value(SimpleLiteral)
@@ -573,6 +580,13 @@ impl ToSpan for TypePath {
 export type UnaryExpression {
   operator: Token
   rhs: Expression
+}
+
+impl ToSpan for UnaryExpression {
+  fn span(self) -> Span {{
+    start: self.operator.span.start
+    end: self.rhs.span().end
+  }}
 }
 
 export type IndexAccess {

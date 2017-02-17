@@ -75,10 +75,10 @@ function structureVisitor(reportError) {
             __PUCK__value__1 = __PUCK__value__3;
           };
           var assignedTo = __PUCK__value__1;
-          _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.typeParameters, $isTraitObject: true }, function (p) {
+          _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.typeParameters, $isTraitObject: true }, function (p) {
             return $unwrapTraitObject(self).visitTypeParameter(p);
           });
-          var __PUCK__value__4 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.parameterList, $isTraitObject: true });
+          var __PUCK__value__4 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.parameterList, $isTraitObject: true });
           _core.Iterable[__PUCK__value__4.type].forEach.call(__PUCK__value__4, function (_ref) {
             var _ref2 = _slicedToArray(_ref, 2),
                 p = _ref2[0],
@@ -140,8 +140,8 @@ function structureVisitor(reportError) {
         var parentScope = $unwrapTraitObject(self).scope;
         $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
         f.scope = $unwrapTraitObject(self).scope;
-        _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
-        var __PUCK__value__9 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.parameterList, $isTraitObject: true });
+        _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
+        var __PUCK__value__9 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.parameterList, $isTraitObject: true });
         if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
           var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__9),
               _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
@@ -174,7 +174,7 @@ function structureVisitor(reportError) {
             };
           };
         };
-        _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: f.parameterList, $isTraitObject: true }, function (p) {
+        _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.parameterList, $isTraitObject: true }, function (p) {
           return $unwrapTraitObject(self).visitVariableDeclaration(p);
         });
         var __PUCK__value__11 = f.returnType;
@@ -200,7 +200,7 @@ function structureVisitor(reportError) {
         $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
         t.scope = $unwrapTraitObject(self).scope;
         visit.walkFunctionTypeBound(self, t);
-        var __PUCK__value__13 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: t.parameters.properties, $isTraitObject: true });
+        var __PUCK__value__13 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.parameters.properties, $isTraitObject: true });
         var __PUCK__value__12 = _core.Iterable[__PUCK__value__13.type].map.call(__PUCK__value__13, function (_ref3) {
           var _ref4 = _slicedToArray(_ref3, 2),
               t = _ref4[0],
@@ -225,8 +225,8 @@ function structureVisitor(reportError) {
             selfBinding: _core.None,
             parameters: parameters,
             parameterRange: {
-              start: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: parameters, $isTraitObject: true }),
-              end: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: parameters, $isTraitObject: true }) + 1
+              start: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameters, $isTraitObject: true }),
+              end: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameters, $isTraitObject: true }) + 1
             },
             returnType: _ast.TypeBound.getType.call(t.returnType),
             isAbstract: false
@@ -293,7 +293,7 @@ function structureVisitor(reportError) {
         visit.walkNamedTypeBound(self, t);
         var __PUCK__value__19 = void 0;
         if (_core.Option.isSome.call(type_._class)) {
-          __PUCK__value__19 = (0, _types.createTypeInstance)(type_, _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: t.typeParameters, $isTraitObject: true }, function (typeBound) {
+          __PUCK__value__19 = (0, _types.createTypeInstance)(type_, _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.typeParameters, $isTraitObject: true }, function (typeBound) {
             return _ast.TypeBound.getType.call(typeBound);
           }));
         } else {
@@ -313,7 +313,7 @@ function structureVisitor(reportError) {
           name: _core.None,
           kind: _entities.TypeKind.Struct({
             implementations: [],
-            kind: _entities.StructKind.Record({ properties: _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: t.properties, $isTraitObject: true }, function (member) {
+            kind: _entities.StructKind.Record({ properties: _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.properties, $isTraitObject: true }, function (member) {
                 return [member.name.name, _ast.TypeBound.getType.call(member.typeBound)];
               })) })
           }),
@@ -330,7 +330,7 @@ function structureVisitor(reportError) {
       if (!t.scope) {
         t.scope = $unwrapTraitObject(self).scope;
         visit.walkTupleTypeBound(self, t);
-        var __PUCK__value__20 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$lib/stdlib/core.puck:List', value: t.properties, $isTraitObject: true }, function (p) {
+        var __PUCK__value__20 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.properties, $isTraitObject: true }, function (p) {
           return _ast.TypeBound.getType.call(p);
         });
         return t.type_ = (0, _entities.Type)({
