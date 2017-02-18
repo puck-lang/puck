@@ -307,7 +307,7 @@ function ScopeVisitor(context, file) {
     visitExpression: function visitExpression(e) {
       var self = this;
       $unwrapTraitObject(self).isUsed = true;
-      return $unwrapTraitObject($unwrapTraitObject(visit.walkingVisitor).visitExpression).call(self, e);
+      return visit.walkingVisitor.visitExpression.call(self, e);
     },
     visitImplDeclaration: function visitImplDeclaration(i) {
       var self = this;
@@ -685,12 +685,12 @@ function ScopeVisitor(context, file) {
           $unwrapTraitObject(self).assignedTo = parentAssignedTo;
         })();
       } else {
-        parentAssignedTo = $unwrapTraitObject(self).assignedTo;
+        var _parentAssignedTo = $unwrapTraitObject(self).assignedTo;
         $unwrapTraitObject(self).assignedTo = _js._undefined;
         _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.argumentList, $isTraitObject: true }, function (a) {
           return $unwrapTraitObject(self).visitExpression(a);
         });
-        $unwrapTraitObject(self).assignedTo = parentAssignedTo;
+        $unwrapTraitObject(self).assignedTo = _parentAssignedTo;
       };
       if (functionType) {
         e.functionType = functionType;
@@ -703,10 +703,10 @@ function ScopeVisitor(context, file) {
     visitIfExpression: function visitIfExpression(e) {
       var self = this;
       var parentScope = $unwrapTraitObject(self).scope;
-      $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
       e.scope = $unwrapTraitObject(self).scope;
       var isUsed = $unwrapTraitObject(self).isUsed;
       $unwrapTraitObject(self).visitExpression(e.condition);
+      $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
       $unwrapTraitObject(self).visitBlock(e.then_, isUsed);
       var __PUCK__value__68 = e.else_;
       if ($unwrapTraitObject(__PUCK__value__68).kind == "Some") {
@@ -714,6 +714,7 @@ function ScopeVisitor(context, file) {
             _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject54.value, 1),
             else_ = _$unwrapTraitObject55[0];
 
+        $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
         $unwrapTraitObject(self).visitBlock(else_, isUsed);
       };
       if (isUsed) {
@@ -756,12 +757,12 @@ function ScopeVisitor(context, file) {
     visitIfLetExpression: function visitIfLetExpression(e) {
       var self = this;
       var parentScope = $unwrapTraitObject(self).scope;
-      $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
       e.scope = $unwrapTraitObject(self).scope;
+      $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
       var isUsed = $unwrapTraitObject(self).isUsed;
       $unwrapTraitObject(self).visitPattern(e.pattern);
       $unwrapTraitObject(self).visitExpression(e.expression);
-      var __PUCK__value__77 = (0, _patterns.declarePatternVariables)(e.scope, self, e.pattern, false, _ast.Expression.getType.call(e.expression), true);
+      var __PUCK__value__77 = (0, _patterns.declarePatternVariables)($unwrapTraitObject(self).scope, self, e.pattern, false, _ast.Expression.getType.call(e.expression), true);
       var __PUCK__value__78 = __PUCK__value__77;
       if ($unwrapTraitObject(__PUCK__value__78).kind == "Ok") {
         var _$unwrapTraitObject62 = $unwrapTraitObject(__PUCK__value__78),
@@ -797,6 +798,8 @@ function ScopeVisitor(context, file) {
           };
         };
       };
+      var expressionScope = $unwrapTraitObject(self).scope;
+      $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(expressionScope);
       $unwrapTraitObject(self).visitBlock(e.then_, isUsed);
       var __PUCK__value__83 = e.else_;
       if ($unwrapTraitObject(__PUCK__value__83).kind == "Some") {
@@ -804,6 +807,7 @@ function ScopeVisitor(context, file) {
             _$unwrapTraitObject73 = _slicedToArray(_$unwrapTraitObject72.value, 1),
             else_ = _$unwrapTraitObject73[0];
 
+        $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(expressionScope);
         $unwrapTraitObject(self).visitBlock(else_, isUsed);
       };
       if (isUsed) {
@@ -951,7 +955,9 @@ function ScopeVisitor(context, file) {
       var typePath = e.typePath;
       $unwrapTraitObject(self).visitTypePath(e.typePath);
       var type_ = e.typePath.type_;
-      return e.type_ = (0, _type_function.enumMemberToFunction)(e.typePath.type_);
+      if (type_) {
+        return e.type_ = (0, _type_function.enumMemberToFunction)(type_);
+      };
     },
     visitUnaryExpression: function visitUnaryExpression(e) {
       var self = this;

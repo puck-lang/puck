@@ -53,7 +53,7 @@ function structureVisitor(reportError) {
   var visitor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
 
   return {
-    visitEnumMember: $unwrapTraitObject(visit.walkingVisitor).visitEnumMember,
+    visitEnumMember: visit.walkingVisitor.visitEnumMember,
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
       if (!f.scope) {
@@ -327,7 +327,7 @@ function structureVisitor(reportError) {
         });
       };
     },
-    visitRecordTypeBoundMember: $unwrapTraitObject(visit.walkingVisitor).visitRecordTypeBoundMember,
+    visitRecordTypeBoundMember: visit.walkingVisitor.visitRecordTypeBoundMember,
     visitTupleTypeBound: function visitTupleTypeBound(t) {
       var self = this;
       if (!t.scope) {

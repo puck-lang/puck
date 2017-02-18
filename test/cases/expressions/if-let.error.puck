@@ -29,3 +29,11 @@ let value =
   if let Option::Some(number) = Option::Some(3)
     then number
     else 'string'
+
+///// Use of undefined variable a
+if let Ok(_) = Ok(true) {
+  let a = 2
+}
+else {
+  a + 2
+}

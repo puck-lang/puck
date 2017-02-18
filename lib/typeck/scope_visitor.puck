@@ -508,12 +508,15 @@ export fn ScopeVisitor(context, file) {
     }
     visitIfExpression: |mut self, mut e: IfExpression| {
       let parentScope: Scope = self.scope
-      self.scope = parentScope.createChild()
       e.scope = self.scope
       let isUsed = self.isUsed
       self.visitExpression(e.condition)
+      self.scope = parentScope.createChild()
       self.visitBlock(e.then_, isUsed)
-      if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
+      if let Option::Some(else_) = e.else_ {
+        self.scope = parentScope.createChild()
+        self.visitBlock(else_, isUsed)
+      }
       if isUsed {
         e.type_ =
           if let Option::Some(else_) = e.else_ {
@@ -530,12 +533,12 @@ export fn ScopeVisitor(context, file) {
     }
     visitIfLetExpression: |mut self, mut e: IfLetExpression| {
       let parentScope: Scope = self.scope
-      self.scope = parentScope.createChild()
       e.scope = self.scope
+      self.scope = parentScope.createChild()
       let isUsed = self.isUsed
       self.visitPattern(e.pattern)
       self.visitExpression(e.expression)
-      match declarePatternVariables(e.scope, self, e.pattern, false, e.expression.getType(), true) {
+      match declarePatternVariables(self.scope, self, e.pattern, false, e.expression.getType(), true) {
         Result::Ok(_) => {}
         Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
           reportError(e.expression, notAssignableError(to, subject))
@@ -545,8 +548,13 @@ export fn ScopeVisitor(context, file) {
           // Allowed in if let expressions
         }
       }
+      let expressionScope: Scope = self.scope
+      self.scope = expressionScope.createChild()
       self.visitBlock(e.then_, isUsed)
-      if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
+      if let Option::Some(else_) = e.else_ {
+        self.scope = expressionScope.createChild()
+        self.visitBlock(else_, isUsed)
+      }
       if isUsed {
         e.type_ =
           if let Option::Some(else_) = e.else_ {
@@ -616,8 +624,10 @@ export fn ScopeVisitor(context, file) {
       e.scope = self.scope
       let typePath = e.typePath
       self.visitTypePath(e.typePath)
-      let type_: Type = e.typePath.type_
-      e.type_ = enumMemberToFunction(e.typePath.type_)
+      let mut type_: Type = e.typePath.type_
+      if type_ {
+        e.type_ = enumMemberToFunction(type_)
+      }
     }
     visitUnaryExpression: |self, mut e: UnaryExpression| {
       let scope: Scope = self.scope
