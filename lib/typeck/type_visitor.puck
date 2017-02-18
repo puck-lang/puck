@@ -446,7 +446,7 @@ export fn TypeVisitor(context, file) {
                     context.runCheckerOnFile(module.file)
                   }
                   let externalBinding = moduleScope.getBinding(m.property.name, visitor)
-                  Some(externalBinding.unwrap().type_)
+                  externalBinding.map(|binding| binding.type_)
                 })
               })
                 then reportError(m.local, error)

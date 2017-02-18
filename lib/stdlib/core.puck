@@ -88,6 +88,14 @@ impl Num {
       then range.end - 1
     else self
   }
+
+  fn cmp(self, other: Num) -> Ordering {
+    if self < other
+      then Ordering::Less
+    else if self > other
+      then Ordering::Greater
+    else Ordering::Equal
+  }
 }
 
 #[type_id = 'String']
@@ -353,6 +361,33 @@ impl<T> Option<T> {
   }
 }
 
+export enum Ordering {
+  Less
+  Equal
+  Greater
+}
+
+impl Ordering {
+  /// Reverse the Ordering.
+  ///
+  /// - Less becomes Greater.
+  /// - Greater becomes Less.
+  /// - Equal becomes Equal.
+  ///
+  /// Example:
+  /// ```
+  /// // sort the array from largest to smallest.
+  /// data.sortBy(|a, b| a.cmp(b).reverse())
+  /// ```
+  fn reverse(self) -> Ordering {
+    match self {
+      Ordering::Less => Ordering::Greater
+      Ordering::Equal => Ordering::Equal
+      Ordering::Greater => Ordering::Less
+    }
+  }
+}
+
 #[type_id = 'List']
 export type List<E> {}
 impl<E> List<E> {
@@ -371,6 +406,38 @@ impl<E> List<E> {
     if index >= 0 and index < self.size()
       then Some(self[index])
       else None
+  }
+
+  /// Binary search a sorted slice with a comparator function.
+  ///
+  /// The comparator function should implement an order consistent with
+  /// the sort order of the underlying slice, returning an order code that
+  /// indicates whether its argument is Less, Equal or Greater the desired target.
+  ///
+  /// If a matching value is found then returns Ok, containing the index for
+  /// the matched element; if no match is found then Err is returned, containing
+  /// the index where a matching element could be inserted while maintaining
+  /// sorted order.
+  fn binarySearchBy(self, f: (E) -> Ordering) -> Result<Num, Num> {
+    let mut min = 0
+    let mut max = self.size() - 1
+    while true {
+      if max < min then return Err(min)
+      let mut guess: Num = ((min + max) / 2)
+      guess = guess.floor()
+
+      match f(self[guess]) {
+        Ordering::Equal => return Ok(guess)
+        Ordering::Less => {
+          min = guess + 1
+        }
+        Ordering::Greater => {
+          max = guess - 1
+        }
+      }
+    }
+
+    Err(0)
   }
 }
 /// Conversion into an Iterator.

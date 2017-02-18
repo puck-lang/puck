@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Iterator = exports.IntoIterator = exports.Never = exports.Option = exports.Result = exports.Radix = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.RegExp = undefined;
+exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Iterator = exports.IntoIterator = exports.Never = exports.Ordering = exports.Option = exports.Result = exports.Radix = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.RegExp = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -90,6 +90,11 @@ var Option = exports.Option = {
     return { kind: 'Some', value: members };
   },
   None: { kind: 'None', value: Symbol('None') }
+};
+var Ordering = exports.Ordering = {
+  Less: { kind: 'Less', value: Symbol('Less') },
+  Equal: { kind: 'Equal', value: Symbol('Equal') },
+  Greater: { kind: 'Greater', value: Symbol('Greater') }
 };
 var Never = exports.Never = {};
 var IntoIterator = exports.IntoIterator = {};
@@ -591,6 +596,18 @@ Num.limit = function limit(range) {
     };
   };
 };
+Num.cmp = function cmp(other) {
+  var self = this;
+  if (self < other) {
+    return Ordering.Less;
+  } else {
+    if (self > other) {
+      return Ordering.Greater;
+    } else {
+      return Ordering.Equal;
+    };
+  };
+};
 String.size = function size() {
   var self = this;
   return self.length;
@@ -889,19 +906,40 @@ Option.unwrapOrElse = function unwrapOrElse(_default) {
     return _default();
   };
 };
+Ordering.reverse = function reverse() {
+  var self = this;
+  var __PUCK__value__38 = self;
+  var __PUCK__value__39 = __PUCK__value__38;
+  if ($unwrapTraitObject(__PUCK__value__39).kind == "Less") {
+    var _undefined10 = $unwrapTraitObject(__PUCK__value__39);
+    return Ordering.Greater;
+  } else {
+    var __PUCK__value__40 = __PUCK__value__38;
+    if ($unwrapTraitObject(__PUCK__value__40).kind == "Equal") {
+      var _undefined11 = $unwrapTraitObject(__PUCK__value__40);
+      return Ordering.Equal;
+    } else {
+      var __PUCK__value__41 = __PUCK__value__38;
+      if ($unwrapTraitObject(__PUCK__value__41).kind == "Greater") {
+        var _undefined12 = $unwrapTraitObject(__PUCK__value__41);
+        return Ordering.Less;
+      };
+    };
+  };
+};
 List.zip = function zip(a, b) {
   if (Iterable[a.type].size.call(a) != Iterable[b.type].size.call(b)) {
     throw (0, _js.Error)("Iterable a and b are not of the same length");
   };
-  var __PUCK__value__39 = Iterable[a.type].enumerate.call(a);
-  var __PUCK__value__38 = Iterable[__PUCK__value__39.type].map.call(__PUCK__value__39, function (_ref) {
+  var __PUCK__value__43 = Iterable[a.type].enumerate.call(a);
+  var __PUCK__value__42 = Iterable[__PUCK__value__43.type].map.call(__PUCK__value__43, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         a = _ref2[0],
         i = _ref2[1];
 
     return [a, b.value[i]];
   });
-  return Iterable[__PUCK__value__38.type].toList.call(__PUCK__value__38);
+  return Iterable[__PUCK__value__42.type].toList.call(__PUCK__value__42);
 };
 List.add = function add(element) {
   var self = this;
@@ -914,6 +952,37 @@ List.get = function get(index) {
   } else {
     return None;
   };
+};
+List.binarySearchBy = function binarySearchBy(f) {
+  var self = this;
+  var min = 0;
+  var max = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self, $isTraitObject: true }) - 1;
+  while (true) {
+    if (max < min) {
+      return Err(min);
+    };
+    var guess = [min + max] / 2;
+    guess = Num.floor.call(guess);
+    var __PUCK__value__44 = f(self[guess]);
+    var __PUCK__value__45 = __PUCK__value__44;
+    if ($unwrapTraitObject(__PUCK__value__45).kind == "Equal") {
+      var _undefined13 = $unwrapTraitObject(__PUCK__value__45);
+      return Ok(guess);
+    } else {
+      var __PUCK__value__46 = __PUCK__value__44;
+      if ($unwrapTraitObject(__PUCK__value__46).kind == "Less") {
+        var _undefined14 = $unwrapTraitObject(__PUCK__value__46);
+        min = guess + 1;
+      } else {
+        var __PUCK__value__47 = __PUCK__value__44;
+        if ($unwrapTraitObject(__PUCK__value__47).kind == "Greater") {
+          var _undefined15 = $unwrapTraitObject(__PUCK__value__47);
+          max = guess - 1;
+        };
+      };
+    };
+  };
+  return Err(0);
 };
 Range.contains = function contains(item) {
   var self = this;

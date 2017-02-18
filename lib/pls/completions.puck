@@ -1,0 +1,183 @@
+import 'node:vscode-languageserver' as {
+  CompletionItemKind
+}
+import '../ast/ast.puck' as {
+  Module
+  TopLevelStatement
+  BlockLevelStatement
+  Expression
+
+  ImplDeclaration
+  ImplShorthandDeclaration
+  TraitDeclaration
+  ExportDirective
+  ExportedStatement
+
+  Block
+  WhileLoop
+  FunctionDeclaration
+}
+import '../ast/span.puck' as {Position, Span, ToSpan}
+import '../typeck/src/scope.puck' as {Scope}
+
+export type Completion {
+  label: String
+  kind: Num
+  data: String
+}
+
+export trait Completions {
+  fn getCompletions(self, position: Position) -> List<Completion>
+}
+
+impl Completions for Module {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions Module')
+    if let Ok(index) = self.statements.binarySearchBy(
+      |statement| statement.span().cmp(position)
+    ) {
+      let statement: TopLevelStatement = self.statements[index]
+
+      match statement {
+        TopLevelStatement::ExportDirective(s) => s.getCompletions(position)
+        TopLevelStatement::ImplDeclaration(s) => s.getCompletions(position)
+        TopLevelStatement::ImplShorthandDeclaration(s) => s.getCompletions(position)
+        TopLevelStatement::TraitDeclaration(s) => s.getCompletions(position)
+        TopLevelStatement::BlockLevelStatement(s) => s.getCompletions(position)
+        _ => {
+          print('statement', statement)
+          []
+        }
+      }
+    }
+    else {
+      print('miss')
+      getScopeCompletions(self)
+    }
+  }
+}
+
+impl Completions for BlockLevelStatement {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions BlockLevelStatement')
+    match self {
+      BlockLevelStatement::Block(s) => s.getCompletions(position)
+      BlockLevelStatement::Expression(s) => s.getCompletions(position)
+      _ => []
+    }
+  }
+}
+
+impl Completions for Expression {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions Expression')
+    match self {
+      Expression::Identifier(e) => getScopeCompletions(e)
+      Expression::FunctionDeclaration(e) => e.getCompletions(position)
+      _ => []
+    }
+  }
+}
+
+impl Completions for ImplDeclaration {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions ImplDeclaration')
+    if let Ok(index) = self.members.binarySearchBy(
+      |member| member.span().cmp(position)
+    ) {
+      let member: FunctionDeclaration = self.members[index]
+      member.getCompletions(position)
+    }
+    else []
+  }
+}
+
+impl Completions for ImplShorthandDeclaration {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions ImplShorthandDeclaration')
+    if let Ok(index) = self.members.binarySearchBy(
+      |member| member.span().cmp(position)
+    ) {
+      let member: FunctionDeclaration = self.members[index]
+      member.getCompletions(position)
+    }
+    else []
+  }
+}
+
+impl Completions for TraitDeclaration {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions TraitDeclaration')
+    if let Ok(index) = self.members.binarySearchBy(
+      |member| member.span().cmp(position)
+    ) {
+      let member: FunctionDeclaration = self.members[index]
+      member.getCompletions(position)
+    }
+    else []
+  }
+}
+
+impl Completions for ExportDirective {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions ExportDirective')
+    match self.statement {
+      ExportedStatement::TraitDeclaration(d) => d.getCompletions(position)
+      ExportedStatement::FunctionDeclaration(d) => d.getCompletions(position)
+      _ => []
+    }
+  }
+}
+
+impl Completions for Block {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions Block')
+    if let Ok(index) = self.statements.binarySearchBy(
+      |statement| statement.span().cmp(position)
+    ) {
+      let statement: BlockLevelStatement = self.statements[index]
+
+      match statement {
+        BlockLevelStatement::WhileLoop(s) => s.getCompletions(position)
+        BlockLevelStatement::Expression(s) => s.getCompletions(position)
+        _ => []
+      }
+    }
+    else getScopeCompletions(self)
+  }
+}
+
+impl Completions for WhileLoop {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions WhileLoop')
+    if self.body.span().cmp(position) == Ordering::Equal
+      then self.body.getCompletions(position)
+      else self.condition.getCompletions(position)
+  }
+}
+
+impl Completions for FunctionDeclaration {
+  fn getCompletions(self, position: Position) -> List<Completion> {
+    print('getCompletions FunctionDeclaration')
+    if let Some(body) = self.body {
+      if body.span().cmp(position) == Ordering::Equal
+        then return body.getCompletions(position)
+    }
+    []
+  }
+}
+
+fn getScopeCompletions(node) -> List<Completion> {
+  if node.scope {
+    let scope: Scope = node.scope
+    scope.getBindings()
+      .values()
+      .map(|binding| {{
+        label: binding.name
+        kind: CompletionItemKind.Text
+        data: binding.name
+      }})
+      .toList()
+  }
+  else []
+}

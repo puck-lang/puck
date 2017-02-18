@@ -18,7 +18,13 @@ var path = _interopRequireWildcard(_path);
 
 var _vscodeLanguageserver = require('vscode-languageserver');
 
+var _ast = require('./ast/ast');
+
 var _span = require('./ast/span');
+
+var _completions = require('./pls/completions');
+
+var _scope = require('./typeck/src/scope');
 
 var _compiler = require('./compiler');
 
@@ -30,26 +36,28 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
 function createServer(projectPath, sendDiagnostic) {
-  var context = (0, _compiler.createContext)(projectPath);
-  context.reportError = function (file, token, message) {
-    var span = _span.ToSpan[token.type].span.call(token);
-    return sendDiagnostic(file.absolutePath, {
-      severity: $unwrapTraitObject(_vscodeLanguageserver.DiagnosticSeverity).Error,
-      range: {
-        start: {
-          line: span.start.line - 1,
-          character: span.start.column - 1
+  var context = void 0;
+  var a = {};
+  a.validateDocument = function (filePath, contents) {
+    context = (0, _compiler.createContext)(projectPath);
+    $unwrapTraitObject(context).reportError = function (file, token, message) {
+      var span = _span.ToSpan[token.type].span.call(token);
+      return sendDiagnostic(file.absolutePath, {
+        severity: $unwrapTraitObject(_vscodeLanguageserver.DiagnosticSeverity).Error,
+        range: {
+          start: {
+            line: span.start.line - 1,
+            character: span.start.column - 1
+          },
+          end: {
+            line: span.end.line - 1,
+            character: span.end.column - 1
+          }
         },
-        end: {
-          line: span.end.line - 1,
-          character: span.end.column - 1
-        }
-      },
-      message: message,
-      source: "puck"
-    });
-  };
-  context.validateDocument = function (filePath, contents) {
+        message: message,
+        source: "puck"
+      });
+    };
     var result = (0, _js.asResult)(function () {
       var file = {
         isBin: false,
@@ -57,15 +65,13 @@ function createServer(projectPath, sendDiagnostic) {
         absolutePath: path.resolve(path.normalize(filePath)),
         puck: contents
       };
-      context.files[file.absolutePath] = _js._undefined;
-      context.deferred[file.absolutePath] = _js._undefined;
-      file = context.importFile(file);
-      context.runTypeVisitorOnFile(file);
-      context.runTypeVisitor();
-      context.runImplVisitorOnFile(file);
-      context.runImplVisitor();
-      context.runCheckerOnFile(file);
-      return context.runChecker();
+      file = $unwrapTraitObject(context).importFile(file);
+      $unwrapTraitObject(context).runTypeVisitorOnFile(file);
+      $unwrapTraitObject(context).runTypeVisitor();
+      $unwrapTraitObject(context).runImplVisitorOnFile(file);
+      $unwrapTraitObject(context).runImplVisitor();
+      $unwrapTraitObject(context).runCheckerOnFile(file);
+      return $unwrapTraitObject(context).runChecker();
     });
     var __PUCK__value__1 = result;
     if ($unwrapTraitObject(__PUCK__value__1).kind == "Err") {
@@ -78,5 +84,41 @@ function createServer(projectPath, sendDiagnostic) {
       };
     };
   };
-  return context;
+  a.onCompletion = function (filePath, position) {
+    (0, _core.print)("onCompletion");
+    if (!context) {
+      return [];
+    };
+    var file = $unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))];
+    if (!file) {
+      return [];
+    };
+    var _module = file.ast;
+    if (!_module) {
+      return [];
+    };
+    var result = (0, _js.asResult)(function () {
+      return _completions.Completions["$impl_lib/pls/completions.puck:Completions$lib/ast/ast.puck:Module"].getCompletions.call({ type: '$impl_lib/pls/completions.puck:Completions$lib/ast/ast.puck:Module', value: _module, $isTraitObject: true }, position);
+    });
+    var __PUCK__value__2 = result;
+    var __PUCK__value__3 = __PUCK__value__2;
+    if ($unwrapTraitObject(__PUCK__value__3).kind == "Ok") {
+      var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+          _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+          completions = _$unwrapTraitObject2$[0];
+
+      return completions;
+    } else {
+      var __PUCK__value__4 = __PUCK__value__2;
+      if ($unwrapTraitObject(__PUCK__value__4).kind == "Err") {
+        var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__4),
+            _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+            error = _$unwrapTraitObject3$[0];
+
+        (0, _core.print)("completions Error:", [error, $unwrapTraitObject(error).stack]);
+        return [];
+      };
+    };
+  };
+  return a;
 }

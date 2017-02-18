@@ -32,3 +32,15 @@ Span.empty = function empty() {
     }
   };
 };
+Span.cmp = function cmp(position) {
+  var self = this;
+  if (position.line < self.start.line || position.line == self.start.line && position.column < self.start.column) {
+    return _core.Ordering.Greater;
+  } else {
+    if (position.line > self.end.line || position.line == self.end.line && position.column > self.end.column) {
+      return _core.Ordering.Less;
+    } else {
+      return _core.Ordering.Equal;
+    };
+  };
+};

@@ -89,6 +89,23 @@ impl TopLevelStatement {
   }
 }
 
+impl ToSpan for TopLevelStatement {
+  fn span(self) -> Span {
+    match self {
+      TopLevelStatement::ExportDirective(e) => e.span()
+      TopLevelStatement::ImportDirective(e) => e.span()
+
+      TopLevelStatement::EnumDeclaration(e) => e.span()
+      TopLevelStatement::ImplDeclaration(e) => e.span()
+      TopLevelStatement::ImplShorthandDeclaration(e) => e.span()
+      TopLevelStatement::TraitDeclaration(e) => e.span()
+      TopLevelStatement::TypeDeclaration(e) => e.span()
+
+      TopLevelStatement::BlockLevelStatement(e) => e.span()
+    }
+  }
+}
+
 impl BlockLevelStatement {
   fn getType(self) -> Type {
     match self {
@@ -297,12 +314,31 @@ impl ExportDirective {
   }
 }
 
+impl ToSpan for ExportDirective {
+  fn span(self) -> Span {{
+    start: self.keyword.span.start
+    end: self.statement.span().end
+  }}
+}
+
 export enum ExportedStatement {
   EnumDeclaration(EnumDeclaration)
   TraitDeclaration(TraitDeclaration)
   TypeDeclaration(TypeDeclaration)
   FunctionDeclaration(FunctionDeclaration)
   VariableDeclaration(VariableDeclaration)
+}
+
+impl ToSpan for ExportedStatement {
+  fn span(self) -> Span {
+    match self {
+      ExportedStatement::EnumDeclaration(d) => d.span()
+      ExportedStatement::TraitDeclaration(d) => d.span()
+      ExportedStatement::TypeDeclaration(d) => d.span()
+      ExportedStatement::FunctionDeclaration(d) => d.span()
+      ExportedStatement::VariableDeclaration(d) => d.span()
+    }
+  }
 }
 
 export type ImportDirective {
@@ -452,7 +488,7 @@ impl ToSpan for FunctionDeclaration {
       }
       |i| i.span
     ).start
-    end: self.body.unwrap().span().end
+    end: self.body.mapOrElse(|| self.returnType.span(), |b| b.span()).end
   }}
 }
 

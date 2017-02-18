@@ -745,7 +745,9 @@ function TypeVisitor(context, file) {
                       $unwrapTraitObject(context).runCheckerOnFile(_module.file);
                     };
                     var externalBinding = _scope.Scope.getBinding.call(moduleScope, m.property.name, visitor);
-                    return (0, _core.Some)(_core.Option.unwrap.call(externalBinding).type_);
+                    return _core.Option.map.call(externalBinding, function (binding) {
+                      return binding.type_;
+                    });
                   })
                 });
                 if ($unwrapTraitObject(__PUCK__value__85).kind == "Err") {
@@ -821,6 +823,6 @@ function TypeVisitor(context, file) {
       };
       return structureVisitorInstance.visitNamedTypeBound.call(self, t);
     },
-    visitTypeProperty: $unwrapTraitObject(visit.walkingVisitor).visitTypeProperty
+    visitTypeProperty: visit.walkingVisitor.visitTypeProperty
   });
 }

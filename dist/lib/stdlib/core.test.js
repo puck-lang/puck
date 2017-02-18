@@ -124,7 +124,7 @@ function any(a) {
         return (0, _test.expect)(-_core2.Num.round.call(10.5)).toBe(-11);
       });
     });
-    return (0, _test.describe)("limit", function () {
+    (0, _test.describe)("limit", function () {
       (0, _test.it)("should return the start of range if the number is less than the start", function () {
         (0, _test.expect)(_core2.Num.limit.call(5, {
           start: 10,
@@ -170,6 +170,23 @@ function any(a) {
           start: -50,
           end: -5
         })).toBe(-10);
+      });
+    });
+    return (0, _test.describe)("cmp", function () {
+      (0, _test.it)("should return less for numbers greater than self", function () {
+        (0, _test.expect)(_core2.Num.cmp.call(5, 10)).toBe(_core2.Ordering.Less);
+        (0, _test.expect)(_core2.Num.cmp.call(0, 1)).toBe(_core2.Ordering.Less);
+        return (0, _test.expect)(_core2.Num.cmp.call(-1, 0)).toBe(_core2.Ordering.Less);
+      });
+      (0, _test.it)("should return greater for numbers less than self", function () {
+        (0, _test.expect)(_core2.Num.cmp.call(10, 5)).toBe(_core2.Ordering.Greater);
+        (0, _test.expect)(_core2.Num.cmp.call(1, 0)).toBe(_core2.Ordering.Greater);
+        return (0, _test.expect)(_core2.Num.cmp.call(0, -1)).toBe(_core2.Ordering.Greater);
+      });
+      return (0, _test.it)("should return equal for equal numbers", function () {
+        (0, _test.expect)(_core2.Num.cmp.call(10, 10)).toBe(_core2.Ordering.Equal);
+        (0, _test.expect)(_core2.Num.cmp.call(0, 0)).toBe(_core2.Ordering.Equal);
+        return (0, _test.expect)(_core2.Num.cmp.call(-1, -1)).toBe(_core2.Ordering.Equal);
       });
     });
   });
@@ -667,13 +684,48 @@ function any(a) {
     });
   });
   (0, _test.describe)("List", function () {
-    return (0, _test.describe)("IntoIterator", function () {
+    (0, _test.describe)("IntoIterator", function () {
       return (0, _test.it)("should return an iterator that iterates over the elements", function () {
         var iterator = _core2.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({ type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [1, 2, 3], $isTraitObject: true });
         (0, _test.expect)(_core2.Iterator[iterator.type].next.call(iterator)).toEqual((0, _core.Some)(1));
         (0, _test.expect)(_core2.Iterator[iterator.type].next.call(iterator)).toEqual((0, _core.Some)(2));
         (0, _test.expect)(_core2.Iterator[iterator.type].next.call(iterator)).toEqual((0, _core.Some)(3));
         return (0, _test.expect)(_core2.Iterator[iterator.type].next.call(iterator)).toEqual(_core2.None);
+      });
+    });
+    return (0, _test.describe)("binarySearchBy", function () {
+      (0, _test.it)("should return Err(0) for empty lists", function () {
+        return (0, _test.expect)(_core2.List.binarySearchBy.call([], function (__PUCK__value__31) {
+          return _core2.Ordering.Less;
+        })).toEqual(any((0, _core.Err)(0)));
+      });
+      (0, _test.it)("should return Err(n - 1) if the value is greater than everying", function () {
+        return (0, _test.expect)(_core2.List.binarySearchBy.call([1, 2, 3], function (val) {
+          return _core2.Num.cmp.call(val, 4);
+        })).toEqual(any((0, _core.Err)(3)));
+      });
+      (0, _test.it)("should return Err(0) if the value is less than everying", function () {
+        return (0, _test.expect)(_core2.List.binarySearchBy.call([1, 2, 3], function (val) {
+          return _core2.Num.cmp.call(val, 0);
+        })).toEqual(any((0, _core.Err)(0)));
+      });
+      return (0, _test.it)("should return Ok(index) if the value is found", function () {
+        return (0, _test.expect)(_core2.List.binarySearchBy.call([1, 2, 3], function (val) {
+          return _core2.Num.cmp.call(val, 2);
+        })).toEqual(any((0, _core.Ok)(1)));
+      });
+    });
+  });
+  (0, _test.describe)("ordering", function () {
+    return (0, _test.describe)("reverse", function () {
+      (0, _test.it)("should return greater for less", function () {
+        return (0, _test.expect)(_core2.Ordering.reverse.call(_core2.Ordering.Less)).toBe(_core2.Ordering.Greater);
+      });
+      (0, _test.it)("should return equal for equal", function () {
+        return (0, _test.expect)(_core2.Ordering.reverse.call(_core2.Ordering.Equal)).toBe(_core2.Ordering.Equal);
+      });
+      return (0, _test.it)("should return less for greater", function () {
+        return (0, _test.expect)(_core2.Ordering.reverse.call(_core2.Ordering.Greater)).toBe(_core2.Ordering.Less);
       });
     });
   });

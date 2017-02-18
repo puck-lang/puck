@@ -1,25 +1,34 @@
 import 'puck:js' as {Error, asResult, undefined}
 import 'node:path' as path
-import 'node:vscode-languageserver' as {DiagnosticSeverity}
-import 'ast/span.puck' as {ToSpan}
+import 'node:vscode-languageserver' as {
+  CompletionItemKind
+  DiagnosticSeverity
+}
+import 'ast/ast.puck' as {Module}
+import 'ast/span.puck' as {Position, ToSpan}
+import 'pls/completions.puck' as {Completions}
+import 'typeck/src/scope.puck' as {Scope}
 import 'compiler.puck' as {createContext}
 import 'entities.puck' as {File, UnparsedFile}
 
 export fn createServer(projectPath: String, sendDiagnostic) {
-  let mut context = createContext(projectPath)
-  context.reportError = fn (file: File, token: ToSpan, message) {
-    let span = token.span()
-    sendDiagnostic(file.absolutePath, {
-      severity: DiagnosticSeverity.Error
-      range: {
-        start: {line: span.start.line - 1, character: span.start.column - 1}
-        end: {line: span.end.line - 1, character: span.end.column - 1}
-      }
-      message
-      source: 'puck'
-    })
-  }
-  context.validateDocument = fn (filePath: String, contents: String) {
+  let mut context
+  let mut a = {}
+  a.validateDocument = fn (filePath: String, contents: String) {
+    context = createContext(projectPath)
+    context.reportError = fn (file: File, token: ToSpan, message) {
+      let span = token.span()
+      sendDiagnostic(file.absolutePath, {
+        severity: DiagnosticSeverity.Error
+        range: {
+          start: {line: span.start.line - 1, character: span.start.column - 1}
+          end: {line: span.end.line - 1, character: span.end.column - 1}
+        }
+        message
+        source: 'puck'
+      })
+    }
+
     let result = asResult(|| {
       let mut file: UnparsedFile = {
         isBin: false
@@ -27,8 +36,6 @@ export fn createServer(projectPath: String, sendDiagnostic) {
         absolutePath: path.resolve(path.normalize(filePath))
         puck: contents
       }
-      context.files[file.absolutePath] = undefined
-      context.deferred[file.absolutePath] = undefined
       file = context.importFile(file)
 
       context.runTypeVisitorOnFile(file)
@@ -45,5 +52,25 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       }
     }
   }
-  context
+  a.onCompletion = fn (filePath: String, position: Position) {
+    print('onCompletion')
+    if not context then return []
+    let file: File = context.files[path.resolve(path.normalize(filePath))]
+    if not file then return []
+    let module: Module = file.ast
+    if not module then return []
+
+    let result = asResult(|| {
+      module.getCompletions(position)
+    })
+
+    match result {
+      Ok(completions) => completions
+      Err(error) => {
+        print('completions Error:', (error, error.stack))
+        []
+      }
+    }
+  }
+  a
 }
