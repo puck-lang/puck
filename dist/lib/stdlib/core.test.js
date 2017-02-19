@@ -10,9 +10,6 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
 
-function any(a) {
-  return a;
-};
 (0, _test.describe)("core", function () {
   (0, _test.describe)("Num", function () {
     (0, _test.describe)("parseInt", function () {
@@ -323,7 +320,7 @@ function any(a) {
       });
       (0, _test.it)("should not call the map function if None", function () {
         return (0, _test.expect)(_core2.Option.andThen.call(_core2.None, function (value) {
-          return (0, _test.expect)("andThen").toBe("not called");
+          return (0, _core.panic)("andThen should not called");
         })).toEqual(_core2.None);
       });
       return (0, _test.it)("should return None if Some(value) and returns None", function () {
@@ -343,7 +340,7 @@ function any(a) {
       });
       return (0, _test.it)("should not call the map function if None", function () {
         return (0, _test.expect)(_core2.Option.map.call(_core2.None, function (value) {
-          return (0, _test.expect)("map").toBe("not called");
+          return (0, _core.panic)("map should not called");
         })).toEqual(_core2.None);
       });
     });
@@ -355,24 +352,23 @@ function any(a) {
       });
       return (0, _test.it)("should return the default value if None", function () {
         return (0, _test.expect)(_core2.Option.mapOr.call(_core2.None, 5, function (value) {
-          return (0, _test.expect)("map").toBe("not called");
+          return (0, _core.panic)("map should not called");
         })).toBe(5);
       });
     });
     (0, _test.describe)("mapOrElse", function () {
       (0, _test.it)("should map the value if Some(value)", function () {
-        return (0, _test.expect)(_core2.Option.mapOrElse.call((0, _core.Some)(1), function () {
-          (0, _test.expect)("orElse").toBe("not called");
-          return 0;
+        return (0, _test.expect)($unwrapTraitObject(_core2.Option.mapOrElse.call((0, _core.Some)(1), function () {
+          return (0, _core.panic)("orElse should not called");
         }, function (value) {
           return value + value;
-        })).toBe(2);
+        }))).toBe(2);
       });
       return (0, _test.it)("should return the result of the default function if None", function () {
         return (0, _test.expect)(_core2.Option.mapOrElse.call(_core2.None, function () {
           return 5;
         }, function (value) {
-          return (0, _test.expect)("map").toBe("not called");
+          return (0, _core.panic)("map should not called");
         })).toBe(5);
       });
     });
@@ -397,7 +393,7 @@ function any(a) {
     return (0, _test.describe)("unwrapOrElse", function () {
       (0, _test.it)("should return the value if Some(value)", function () {
         return (0, _test.expect)(_core2.Option.unwrapOrElse.call((0, _core.Some)("value"), function () {
-          return (0, _test.expect)("orElse").toBe("not called");
+          return (0, _core.panic)("orElse should not called");
         })).toBe("value");
       });
       return (0, _test.it)("should return the result of the default function if None", function () {
@@ -432,14 +428,14 @@ function any(a) {
       });
       (0, _test.it)("should not call the map function if Err(err)", function () {
         return (0, _test.expect)(_core2.Result.andThen.call((0, _core.Err)(2), function (__PUCK__value__1) {
-          (0, _test.expect)("andThen").toBe("not called");
-          return any((0, _core.Err)(0));
-        })).toEqual(any((0, _core.Err)(2)));
+          (0, _core.panic)("andThen should not called");
+          return (0, _core.Err)(0);
+        })).toEqual((0, _core.Err)(2));
       });
       return (0, _test.it)("should return the error if Ok(value) and returns Err(error)", function () {
         return (0, _test.expect)(_core2.Result.andThen.call((0, _core.Ok)(1), function (__PUCK__value__2) {
           return (0, _core.Err)("error");
-        })).toEqual(any((0, _core.Err)("error")));
+        })).toEqual((0, _core.Err)("error"));
       });
     });
     (0, _test.describe)("map", function () {
@@ -453,22 +449,22 @@ function any(a) {
       });
       return (0, _test.it)("should not call the map function if Err(err)", function () {
         return (0, _test.expect)(_core2.Result.map.call((0, _core.Err)(2), function (__PUCK__value__3) {
-          return (0, _test.expect)("map").toBe("not called");
-        })).toEqual(any((0, _core.Err)(2)));
+          return (0, _core.panic)("map should not called");
+        })).toEqual((0, _core.Err)(2));
       });
     });
     (0, _test.describe)("mapErr", function () {
       (0, _test.it)("should map the value if Ok(value)", function () {
         (0, _test.expect)(_core2.Result.mapErr.call((0, _core.Err)(1), function (value) {
           return value + value;
-        })).toEqual(any((0, _core.Err)(2)));
+        })).toEqual((0, _core.Err)(2));
         return (0, _test.expect)($unwrapTraitObject(_core2.Result.unwrapErr.call(_core2.Result.mapErr.call((0, _core.Err)(2), function (value) {
           return value + value;
         })))).toBe(4);
       });
       return (0, _test.it)("should not call the mapErr function if Err(err)", function () {
         return (0, _test.expect)(_core2.Result.mapErr.call((0, _core.Ok)(2), function (value) {
-          return (0, _test.expect)("mapErr").toBe("not called");
+          return (0, _core.panic)("mapErr should not called");
         })).toEqual((0, _core.Ok)(2));
       });
     });
@@ -697,22 +693,22 @@ function any(a) {
       (0, _test.it)("should return Err(0) for empty lists", function () {
         return (0, _test.expect)(_core2.List.binarySearchBy.call([], function (__PUCK__value__31) {
           return _core2.Ordering.Less;
-        })).toEqual(any((0, _core.Err)(0)));
+        })).toEqual((0, _core.Err)(0));
       });
       (0, _test.it)("should return Err(n - 1) if the value is greater than everying", function () {
         return (0, _test.expect)(_core2.List.binarySearchBy.call([1, 2, 3], function (val) {
           return _core2.Num.cmp.call(val, 4);
-        })).toEqual(any((0, _core.Err)(3)));
+        })).toEqual((0, _core.Err)(3));
       });
       (0, _test.it)("should return Err(0) if the value is less than everying", function () {
         return (0, _test.expect)(_core2.List.binarySearchBy.call([1, 2, 3], function (val) {
           return _core2.Num.cmp.call(val, 0);
-        })).toEqual(any((0, _core.Err)(0)));
+        })).toEqual((0, _core.Err)(0));
       });
       return (0, _test.it)("should return Ok(index) if the value is found", function () {
         return (0, _test.expect)(_core2.List.binarySearchBy.call([1, 2, 3], function (val) {
           return _core2.Num.cmp.call(val, 2);
-        })).toEqual(any((0, _core.Ok)(1)));
+        })).toEqual((0, _core.Ok)(1));
       });
     });
   });

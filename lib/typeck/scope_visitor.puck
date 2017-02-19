@@ -138,40 +138,6 @@ export fn ScopeVisitor(context, file) {
       return function
     }
 
-    let function: Function =
-      if let Option::Some(class) = functionType.class {
-        let mut parameterMap = ObjectMap.new()
-
-        function.parameters.enumerate().forEach(|(parameter, i): (Binding, Num)| {
-          let argument: Expression =
-            if i < c.argumentList.length
-              then c.argumentList[i]
-              else parameter
-
-          if parameter.type_ and argument.getType() {
-            if let TypeKind::Parameter = parameter.type_.kind {
-              if parameterMap[parameter.type_.name.unwrap()] {
-                let existingMapping = parameterMap[parameter.type_.name.unwrap()]
-                if not isAssignable(existingMapping, argument.getType()) {
-                  if isAssignable(argument.getType(), existingMapping) {
-                    parameterMap[parameter.type_.name.unwrap()] = argument.getType()
-                  }
-                  else reportError(argument, notAssignableError(existingMapping, argument.getType()))
-                }
-              }
-              else {
-                parameterMap[parameter.type_.name.unwrap()] = argument.getType()
-                ()
-              }
-            }
-          }
-        })
-        let resolvedFunction: Type = resolveTypeParameters(parameterMap)(functionType)
-
-        resolvedFunction.getFunction()
-      }
-      else function
-
     c.argumentList.enumerate().forEach(|(argument, i): (Expression, Num)| {
       let parameter = function.parameters.get(i).unwrap()
       let parameterName = parameter.name
@@ -388,6 +354,7 @@ export fn ScopeVisitor(context, file) {
           let name = access.member.name
           let objectType: Type = access.object.getType()
 
+          // If the call is directly on the type, for example Num.parse()
           if let Option::Some(providesType) = objectType.providesType {
             match providesType.kind {
               TypeKind::Enum(enum_) => {
@@ -425,6 +392,7 @@ export fn ScopeVisitor(context, file) {
             }
             else reportError(e, providesType.displayName() + ' has no function named $name')
           }
+          // It is a normal trait call, for example 'hello'.toUpperCase()
           else {
             if let TypeKind::Trait(trait_) = objectType.kind {
               functionType = trait_.functions[name]
@@ -464,8 +432,10 @@ export fn ScopeVisitor(context, file) {
               }
             }
 
-            if let Option::Some(instance) = objectType.instance {
-              functionType = resolveTypeParameters(instance.parameterMap)(functionType)
+            if e.traitName {
+              if let Option::Some(instance) = objectType.instance {
+                functionType = resolveTypeParameters(instance.parameterMap)(functionType)
+              }
             }
           }
         }
@@ -474,7 +444,7 @@ export fn ScopeVisitor(context, file) {
       let mut parentAssignedTo
       if functionType and functionType.isFunction() {
         let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
-        let mut callParameterMap = ObjectMap.new()
+        let mut callParameterMap: ObjectMap<Type> = ObjectMap.new()
         let parentAssignedTo = self.assignedTo
         let functionKind = functionType.getFunction()
         e.argumentList.enumerate()

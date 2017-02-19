@@ -13,8 +13,6 @@ import 'core.puck' as {
   String
 }
 
-fn any(a) {a}
-
 describe('core', || {
   describe('Num', || {
     describe('parseInt', || {
@@ -335,7 +333,7 @@ describe('core', || {
       })
 
       it('should not call the map function if None', || {
-        expect(None.andThen(|value| expect('andThen').toBe('not called'))).toEqual(None)
+        expect(None.andThen(|value| panic('andThen should not called'))).toEqual(None)
       })
 
       it('should return None if Some(value) and returns None', || {
@@ -350,7 +348,7 @@ describe('core', || {
       })
 
       it('should not call the map function if None', || {
-        expect(None.map(|value| expect('map').toBe('not called'))).toEqual(None)
+        expect(None.map(|value| panic('map should not called'))).toEqual(None)
       })
     })
 
@@ -360,24 +358,22 @@ describe('core', || {
       })
 
       it('should return the default value if None', || {
-        expect(None.mapOr(5, |value| expect('map').toBe('not called'))).toBe(5)
+        expect(None.mapOr(5, |value| panic('map should not called'))).toBe(5)
       })
     })
 
     describe('mapOrElse', || {
       it('should map the value if Some(value)', || {
         expect(
-          Some(1)
-          .mapOrElse(|| {
-            expect('orElse').toBe('not called')
-            0
-          }
-          |value| value + value)
+          Some(1).mapOrElse(
+            || panic('orElse should not called')
+            |value| value + value
+          )
         ).toBe(2)
       })
 
       it('should return the result of the default function if None', || {
-        expect(None.mapOrElse(|| 5, |value| expect('map').toBe('not called'))).toBe(5)
+        expect(None.mapOrElse(|| 5, |value| panic('map should not called'))).toBe(5)
       })
     })
 
@@ -403,7 +399,7 @@ describe('core', || {
 
     describe('unwrapOrElse', || {
       it('should return the value if Some(value)', || {
-        expect(Some('value').unwrapOrElse(|| expect('orElse').toBe('not called'))).toBe('value')
+        expect(Some('value').unwrapOrElse(|| panic('orElse should not called'))).toBe('value')
       })
 
       it('should return the result of the default function if None', || {
@@ -441,14 +437,14 @@ describe('core', || {
       it('should not call the map function if Err(err)', || {
         expect(
           Err(2).andThen(|_| {
-            expect('andThen').toBe('not called')
-            any(Err(0))
+            panic('andThen should not called')
+            Err(0)
           })
-        ).toEqual(any(Err(2)))
+        ).toEqual(Err(2))
       })
 
       it('should return the error if Ok(value) and returns Err(error)', || {
-        expect(Ok(1).andThen(|_| Err('error'))).toEqual(any(Err('error')))
+        expect(Ok(1).andThen(|_| Err('error'))).toEqual(Err('error'))
       })
     })
 
@@ -459,18 +455,18 @@ describe('core', || {
       })
 
       it('should not call the map function if Err(err)', || {
-        expect(Err(2).map(|_| expect('map').toBe('not called'))).toEqual(any(Err(2)))
+        expect(Err(2).map(|_| panic('map should not called'))).toEqual(Err(2))
       })
     })
 
     describe('mapErr', || {
       it('should map the value if Ok(value)', || {
-        expect(Err(1).mapErr(|value| value + value)).toEqual(any(Err(2)))
+        expect(Err(1).mapErr(|value| value + value)).toEqual(Err(2))
         expect(Err(2).mapErr(|value| value + value).unwrapErr()).toBe(4)
       })
 
       it('should not call the mapErr function if Err(err)', || {
-        expect(Ok(2).mapErr(|value| expect('mapErr').toBe('not called'))).toEqual(Ok(2))
+        expect(Ok(2).mapErr(|value| panic('mapErr should not called'))).toEqual(Ok(2))
       })
     })
 
@@ -649,19 +645,19 @@ describe('core', || {
 
     describe('binarySearchBy', || {
       it('should return Err(0) for empty lists', || {
-        expect([].binarySearchBy(|_| Ordering::Less)).toEqual(any(Err(0)))
+        expect([].binarySearchBy(|_| Ordering::Less)).toEqual(Err(0))
       })
 
       it('should return Err(n - 1) if the value is greater than everying', || {
-        expect([1, 2, 3].binarySearchBy(|val| val.cmp(4))).toEqual(any(Err(3)))
+        expect([1, 2, 3].binarySearchBy(|val| val.cmp(4))).toEqual(Err(3))
       })
 
       it('should return Err(0) if the value is less than everying', || {
-        expect([1, 2, 3].binarySearchBy(|val| val.cmp(0))).toEqual(any(Err(0)))
+        expect([1, 2, 3].binarySearchBy(|val| val.cmp(0))).toEqual(Err(0))
       })
 
       it('should return Ok(index) if the value is found', || {
-        expect([1, 2, 3].binarySearchBy(|val| val.cmp(2))).toEqual(any(Ok(1)))
+        expect([1, 2, 3].binarySearchBy(|val| val.cmp(2))).toEqual(Ok(1))
       })
     })
   })

@@ -82,7 +82,7 @@ function getImplementationsForInstance(type_) {
                 objectP = _ref2[0],
                 implP = _ref2[1];
 
-            return (0, _types.isAssignable)($unwrapTraitObject(implP), $unwrapTraitObject(objectP));
+            return (0, _types.isAssignable)(implP, objectP);
           });
         });
         return {

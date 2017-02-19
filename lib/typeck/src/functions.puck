@@ -7,7 +7,7 @@ import '../../ast/ast.puck' as {
   TypeParameter
 }
 import '../../ast/span.puck' as {ToSpan}
-import '../../entities.puck' as {Function, Type, TypeKind}
+import '../../entities.puck' as {Function, StructKind, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
 import 'scope.puck' as {Binding, Scope}
 import 'types.puck' as {isAssignable}
@@ -118,7 +118,8 @@ export fn checkFunctionAssignability(functionName: String, to: Function, subject
     else Ok(())
 }
 
-export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeParameters: List<Type>, parameterType: Type, argumentType: Type) {
+export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeParameters: List<Type>, parameterType: Type, argumentType: Type, allowedToFollowFunction = true) {
+  if not parameterType or not argumentType or argumentType.isNever() then return ()
   match parameterType.kind {
     TypeKind::Parameter(_) => {
       let name = parameterType.name.unwrap()
@@ -128,15 +129,68 @@ export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeP
         }
       }
     }
+    TypeKind::Struct(struct) => match struct.kind {
+      StructKind::Record(parameterRecord) => {
+        if let TypeKind::Struct({kind: StructKind::Record(argumentRecord)}) = argumentType.kind {
+          parameterRecord.properties.forEach(|(name, parameterType)| {
+            if let Some(argumentType) = argumentRecord.properties.get(name) {
+              resolveFunctionTypeParameters(
+                parameterMap
+                typeParameters
+                parameterType
+                argumentType
+              )
+            }
+          })
+        }
+      }
+      StructKind::Tuple(parameterTuple) => {
+        if let TypeKind::Struct({kind: StructKind::Tuple(argumentTuple)}) = argumentType.kind {
+          parameterTuple.properties.enumerate().forEach(|(parameterType, i)| {
+            if let Some(argumentType) = argumentTuple.properties.get(i) {
+              resolveFunctionTypeParameters(
+                parameterMap
+                typeParameters
+                parameterType
+                argumentType
+              )
+            }
+          })
+        }
+      }
+      _ => {}
+    }
     TypeKind::Function(parameterFunction) => {
-      if parameterFunction.returnType {
+      if allowedToFollowFunction and parameterFunction.returnType {
         if let TypeKind::Function(argumentFunction) = argumentType.kind {
           if argumentFunction.returnType {
-            resolveFunctionTypeParameters(parameterMap, typeParameters, parameterFunction.returnType, argumentFunction.returnType)
+            resolveFunctionTypeParameters(
+              parameterMap
+              typeParameters
+              parameterFunction.returnType
+              argumentFunction.returnType
+            )
           }
         }
       }
     }
-    _ => ()
+    _ => {}
+  }
+
+  match (parameterType.typeParameters(), argumentType.typeParameters()) {
+    (Some(parameterParameters), Some(argumentParameters)) => {
+      parameterParameters.enumerate().forEach(|(parameterType, i)| {
+        if let Some(argumentType) = argumentParameters.get(i) {
+          resolveFunctionTypeParameters(
+            parameterMap
+            typeParameters
+            parameterType
+            argumentType
+            false
+          )
+        }
+      })
+    }
+    _ => {}
   }
 }

@@ -1003,6 +1003,18 @@ ObjectMap.fromIter = function fromIter(list) {
   });
   return object;
 };
+ObjectMap.size = function size() {
+  var self = this;
+  return $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).length;
+};
+ObjectMap.isEmpty = function isEmpty() {
+  var self = this;
+  return ObjectMap.size.call(self) == 0;
+};
+ObjectMap.isNotEmpty = function isNotEmpty() {
+  var self = this;
+  return ObjectMap.size.call(self) > 0;
+};
 ObjectMap.keys = function keys() {
   var self = this;
   return $unwrapTraitObject(_js._Object).keys(self);
@@ -1084,11 +1096,6 @@ ObjectMap.get = function get(key) {
 ObjectMap.set = function set(key, value) {
   var self = this;
   self[key] = value;
-  [];
-};
-ObjectMap.size = function size() {
-  var self = this;
-  return $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).length;
 };
 function anyCast(a) {
   return a;

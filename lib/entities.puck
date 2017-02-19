@@ -208,6 +208,13 @@ impl Type {
     }
   }
 
+  fn isNever(self) -> Bool {
+    match self.kind {
+      TypeKind::Enum(enum_) => enum_.members.isEmpty()
+      _ => false
+    }
+  }
+
   fn isEnum(self) -> Bool {
     match self.kind {
       TypeKind::Enum(_) => true
@@ -299,7 +306,7 @@ impl TypeClass {
     if astNode.typeParameters and astNode.typeParameters.length {
       let parameterRange = getRange(
         astNode.typeParameters
-        |p: TypeParameter| p.defaultValue.isSome()
+        |p: AstTypeParameter| p.defaultValue.isSome()
         reportError
         'type parameter'
       )

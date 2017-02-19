@@ -298,7 +298,7 @@ impl<T> Option<T> {
   }
 
   /// Returns None if the option is None, otherwise returns optb.
-  fn andValue(self, optb: Option<T>) -> Option<T> {
+  fn andValue<U>(self, optb: Option<U>) -> Option<U> {
     if self.isNone()
       then self
       else optb
@@ -451,26 +451,6 @@ impl<E> List<E> {
 export trait IntoIterator<E> {
   fn iter(self) -> Iterator<E>
 }
-
-// /// An iterator that maps the values of iter with f.
-// ///
-// /// This struct is created by the map() method on Iterator.
-// type EnumerateIterator<I> {
-//   iter: I
-//   index: Num
-// }
-
-// impl<E> Iterator<E> for EnumerateIterator<Iterator<E>> {
-//   fn next(mut self) -> Option<(E, Num)> {
-//     match self.iter.next() {
-//       Some(value) => {
-//         self.index += 1
-//         Some((value, self.index))
-//       }
-//       None => None
-//     }
-//   }
-// }
 
 /// An iterator that maps the values of iter with f.
 ///
@@ -897,6 +877,18 @@ impl<T> ObjectMap<T> {
     object
   }
 
+  fn size(self) -> Num {
+    Object.keys(self).length
+  }
+
+  fn isEmpty(self) -> Bool {
+    self.size() == 0
+  }
+
+  fn isNotEmpty(self) -> Bool {
+    self.size() > 0
+  }
+
   fn keys(self) -> List<String> {
     Object.keys(self)
   }
@@ -964,11 +956,6 @@ impl<T> ObjectMap<T> {
 
   fn set(mut self, key: String, value: T) -> () {
     self[key] = value
-    ()
-  }
-
-  fn size(self) -> Num {
-    Object.keys(self).length
   }
 }
 

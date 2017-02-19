@@ -6,3 +6,29 @@ let nested: Option<List<String>> = inferNested
 ///// Option<List<String>> is not assignable to type Option<List<{name: String}>>
 let inferNested = Some(['Anna', 'Carl'])
 let nested: Option<List<{name: String}>> = inferNested
+
+///// List<User> is not assignable to type List<String>
+type User {name: String}
+let a: ObjectMap<User> = ObjectMap.new()
+let c = a.toList()
+let b: List<String> = a.toList().map(|(_, user)| user).toList()
+
+///// String is not assignable to type Num
+fn a<T>(a: {a: T}) {a.a}
+let b: Num = a({a: ''})
+
+///// Num is not assignable to type String in parameter b of function a
+fn a<T>(a: {a: T}, b: T) {a.a}
+a({a: ''}, 2)
+
+///// Option<String> is not assignable to type Option<Num>
+let a: Option<Num> = Some(true).andValue(Some(''))
+
+///// Option<String> is not assignable to type Option<Num>
+let a: Option<Num> = Some(true).andThen(|_| Some(''))
+
+///// Option<String> is not assignable to type Option<Bool>
+let a: Option<Num> = Some(true).orValue(Some(''))
+
+///// () -> Option<String> is not assignable to type () -> Option<Bool>
+let a: Option<Num> = Some(true).orElse(|| Some(''))

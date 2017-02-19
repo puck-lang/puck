@@ -419,14 +419,14 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
           pattern = _ref4[0],
           __PUCK__value__76 = _ref4[1];
 
-      return isEnumPattern($unwrapTraitObject(pattern));
+      return isEnumPattern(pattern);
     });
     var enumPatterns = _core.Iterable[__PUCK__value__74.type].map.call(__PUCK__value__74, function (_ref5) {
       var _ref6 = _slicedToArray(_ref5, 2),
           pattern = _ref6[0],
           index = _ref6[1];
 
-      var p = $unwrapTraitObject(pattern);
+      var p = pattern;
       var __PUCK__value__77 = p;
       var __PUCK__value__78 = __PUCK__value__77;
       var __PUCK__value__79 = void 0;

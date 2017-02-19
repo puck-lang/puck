@@ -505,7 +505,7 @@ export fn parse(input) { // : TokenStream
 
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', parseFunctionDeclaration, false)
-      .map(|f: FunctionDeclaration| {
+      .map(|f| {
         if f.name.isNone()
           then input.croak('Trait functions must have a name')
         if f.returnType.isNone()
@@ -547,7 +547,7 @@ export fn parse(input) { // : TokenStream
 
     let openBrace = expect(SyntaxKind.OpenBraceToken)
     let members = delimited('{', '}', ';', || parseFunctionDeclaration(true), false)
-      .map(|f: FunctionDeclaration| {
+      .map(|f| {
         if f.name.isNone()
           then input.croak('Trait functions must have a name')
         if f.returnType.isNone()
