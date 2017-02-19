@@ -1,0 +1,63 @@
+import '../ast/ast.puck' as {
+  Module
+  ImportDirective
+  ObjectDestructureMember
+  Identifier
+}
+import '../ast/span.puck' as {Position, Span, ToSpan}
+import '../typeck/src/scope.puck' as {Binding}
+import '../entities.puck' as {File}
+import 'position_visitor.puck' as {PositionVisitor}
+import 'position_visitor.puck' as visit
+
+export type Definition {
+  file: File
+  span: Span
+}
+
+export type DefinitionVisitor {
+  file: File
+  position: Position
+  definitions: List<Definition>
+  importedModule: Option<Module>
+}
+
+impl DefinitionVisitor {
+  fn new(file: File, position: Position) -> DefinitionVisitor {{
+    file
+    position
+    definitions: []
+    importedModule: None
+  }}
+}
+
+impl PositionVisitor for DefinitionVisitor {
+  fn position(self) -> Position {self.position}
+
+  fn visitImportDirective(mut self, i: ImportDirective) -> () {
+    self.importedModule = i.module
+    visit.walkImportDirective(self, i)
+  }
+  fn visitObjectDestructureMember(mut self, m: ObjectDestructureMember) -> () {
+    if m.property.span().cmp(self.position()) == Ordering::Equal {
+      if let Some(module) = self.importedModule {
+        if let Some(e) = module.exports.get(m.property.name) {
+          self.definitions = [{
+            file: module.file
+            span: e.identifier.span()
+          }]
+        }
+      }
+    }
+  }
+
+  fn visitIdentifier(mut self, i: Identifier) -> () {
+    let binding: Binding = i.binding
+    if binding {
+      self.definitions = [{
+        file: self.file
+        span: binding.token.span()
+      }]
+    }
+  }
+}

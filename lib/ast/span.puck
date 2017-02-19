@@ -30,7 +30,12 @@ impl Span {
 }
 
 export trait ToSpan {
-  fn span(self) -> Span
+  fn span(self) -> Span {{
+    start: self.start()
+    end: self.end()
+  }}
+  fn start(self) -> Position {self.span().start}
+  fn end(self) -> Position {self.span().end}
 }
 
 impl ToSpan for Span {

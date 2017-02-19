@@ -336,7 +336,7 @@ export fn parse(input) { // : TokenStream
   }
 
   fn parseBlockLevelStatement() {
-    if isToken(SyntaxKind.BreakKeyword) then BlockLevelStatement::BreakStatement(input.next())
+    if isToken(SyntaxKind.BreakKeyword) then BlockLevelStatement::BreakStatement({keyword: input.next()})
     else if isToken(SyntaxKind.ReturnKeyword) then BlockLevelStatement::ReturnStatement({
       keyword: input.next()
       expression: parseExpression()

@@ -10,161 +10,158 @@ import '../ast/ast.puck' as {
   ImplDeclaration
   ImplShorthandDeclaration
   TraitDeclaration
+
   ExportDirective
   ExportedStatement
+  ImportDirective
+  ObjectDestructure
+  ObjectDestructureMember
 
   Block
   WhileLoop
+  Identifier
   FunctionDeclaration
+  MemberAccess
+  TypeBound
 }
 import '../ast/span.puck' as {Position, Span, ToSpan}
 import '../typeck/src/scope.puck' as {Scope}
+import '../entities.puck' as {StructKind, Type, TypeKind}
+import 'position_visitor.puck' as {PositionVisitor}
+import 'position_visitor.puck' as visit
 
 export type Completion {
   label: String
   kind: Num
-  data: String
+  insertText: String
 }
 
-export trait Completions {
-  fn getCompletions(self, position: Position) -> List<Completion>
+export type CompletionVisitor {
+  position: Position
+  completions: Option<List<Completion>>
+  importedModule: Option<Module>
 }
 
-impl Completions for Module {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions Module')
-    if let Ok(index) = self.statements.binarySearchBy(
-      |statement| statement.span().cmp(position)
-    ) {
-      let statement: TopLevelStatement = self.statements[index]
+impl CompletionVisitor {
+  fn new(position: Position) -> CompletionVisitor {{
+    position
+    completions: None
+    importedModule: None
+  }}
+}
 
-      match statement {
-        TopLevelStatement::ExportDirective(s) => s.getCompletions(position)
-        TopLevelStatement::ImplDeclaration(s) => s.getCompletions(position)
-        TopLevelStatement::ImplShorthandDeclaration(s) => s.getCompletions(position)
-        TopLevelStatement::TraitDeclaration(s) => s.getCompletions(position)
-        TopLevelStatement::BlockLevelStatement(s) => s.getCompletions(position)
-        _ => {
-          print('statement', statement)
-          []
+impl PositionVisitor for CompletionVisitor {
+  fn position(self) -> Position {self.position}
+
+  fn visitImplDeclaration(mut self, i: ImplDeclaration) -> () {
+    if not visit.walkImplDeclaration(self, i) {
+      let trait_ = i.trait_.getType()
+      if trait_ {
+        match trait_.kind {
+          TypeKind::Trait(trait_) => {
+            self.completions = Some(trait_.functions
+              .toList()
+              .map(|(name, type_): (String, Type)| {
+                let function = type_.getFunction()
+                let mut parameters = function.parameters
+                  .map(|b| {
+                    let typeName = b.type_.displayName()
+                    let typed = b.name + ': $typeName'
+                    if b.mutable
+                      then 'mut $typed'
+                      else typed
+                  })
+                  .toList()
+                if let Some(selfBinding) = function.selfBinding {
+                  if selfBinding.mutable
+                    then parameters.unshift('mut self')
+                    else parameters.unshift('self')
+                }
+                let parameters = parameters.join(', ')
+                let returnType = function.returnType.displayName()
+                let signature = '$name($parameters) -> $returnType'
+                {
+                  label: signature
+                  kind: CompletionItemKind.Method
+                  insertText: signature + ' '
+                }
+              })
+              .toList()
+            )
+          }
+          _ => {}
         }
       }
     }
-    else {
-      print('miss')
-      getScopeCompletions(self)
+  }
+
+  fn visitImportDirective(mut self, i: ImportDirective) -> () {
+    self.importedModule = i.module
+    visit.walkImportDirective(self, i)
+  }
+  fn visitObjectDestructure(mut self, o: ObjectDestructure) -> () {
+    if not visit.walkObjectDestructure(self, o) {
+      print('CompletionVisitor visitObjectDestructure')
+      self.completions = self.importedModule.map(getImportCompletions)
     }
   }
-}
-
-impl Completions for BlockLevelStatement {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions BlockLevelStatement')
-    match self {
-      BlockLevelStatement::Block(s) => s.getCompletions(position)
-      BlockLevelStatement::Expression(s) => s.getCompletions(position)
-      _ => []
+  fn visitObjectDestructureMember(mut self, m: ObjectDestructureMember) -> () {
+    if m.property.span().cmp(self.position()) == Ordering::Equal {
+      print('CompletionVisitor visitObjectDestructureMember')
+      self.completions = self.importedModule.map(getImportCompletions)
     }
   }
-}
 
-impl Completions for Expression {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions Expression')
-    match self {
-      Expression::Identifier(e) => getScopeCompletions(e)
-      Expression::FunctionDeclaration(e) => e.getCompletions(position)
-      _ => []
+  fn visitBlock(mut self, b: Block) -> () {
+    if not visit.walkBlock(self, b) {
+      print('CompletionVisitor visitBlock')
+      self.completions = Some(getScopeCompletions(b))
     }
   }
-}
 
-impl Completions for ImplDeclaration {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions ImplDeclaration')
-    if let Ok(index) = self.members.binarySearchBy(
-      |member| member.span().cmp(position)
-    ) {
-      let member: FunctionDeclaration = self.members[index]
-      member.getCompletions(position)
-    }
-    else []
+  fn visitIdentifier(mut self, i: Identifier) -> () {
+    print('CompletionVisitor visitIdentifier')
+    self.completions = Some(getScopeCompletions(i))
   }
-}
 
-impl Completions for ImplShorthandDeclaration {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions ImplShorthandDeclaration')
-    if let Ok(index) = self.members.binarySearchBy(
-      |member| member.span().cmp(position)
-    ) {
-      let member: FunctionDeclaration = self.members[index]
-      member.getCompletions(position)
-    }
-    else []
-  }
-}
-
-impl Completions for TraitDeclaration {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions TraitDeclaration')
-    if let Ok(index) = self.members.binarySearchBy(
-      |member| member.span().cmp(position)
-    ) {
-      let member: FunctionDeclaration = self.members[index]
-      member.getCompletions(position)
-    }
-    else []
-  }
-}
-
-impl Completions for ExportDirective {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions ExportDirective')
-    match self.statement {
-      ExportedStatement::TraitDeclaration(d) => d.getCompletions(position)
-      ExportedStatement::FunctionDeclaration(d) => d.getCompletions(position)
-      _ => []
-    }
-  }
-}
-
-impl Completions for Block {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions Block')
-    if let Ok(index) = self.statements.binarySearchBy(
-      |statement| statement.span().cmp(position)
-    ) {
-      let statement: BlockLevelStatement = self.statements[index]
-
-      match statement {
-        BlockLevelStatement::WhileLoop(s) => s.getCompletions(position)
-        BlockLevelStatement::Expression(s) => s.getCompletions(position)
-        _ => []
+  fn visitMemberAccess(mut self, a: MemberAccess) -> () {
+    if a.object.span().cmp(self.position()) == Ordering::Less {
+      print('CompletionVisitor visitMemberAccess')
+      let type_ = a.object.getType()
+      if type_ {
+        match type_.kind {
+          TypeKind::Struct({kind: StructKind::Record(record)}) => {
+            self.completions = Some(
+              record.properties
+                .toList()
+                .map(|(property, type_): (String, Type)| {
+                  let typeName = type_.displayName()
+                  {
+                    label: '$property: $typeName'
+                    kind: CompletionItemKind.Text
+                    insertText: property
+                  }
+                })
+                .toList()
+            )
+          }
+          _ => {}
+        }
       }
     }
-    else getScopeCompletions(self)
+    else visit.walkMemberAccess(self, a)
   }
 }
 
-impl Completions for WhileLoop {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions WhileLoop')
-    if self.body.span().cmp(position) == Ordering::Equal
-      then self.body.getCompletions(position)
-      else self.condition.getCompletions(position)
-  }
-}
-
-impl Completions for FunctionDeclaration {
-  fn getCompletions(self, position: Position) -> List<Completion> {
-    print('getCompletions FunctionDeclaration')
-    if let Some(body) = self.body {
-      if body.span().cmp(position) == Ordering::Equal
-        then return body.getCompletions(position)
-    }
-    []
-  }
+fn getImportCompletions(module: Module) -> List<Completion> {
+  module.exports
+    .values()
+    .map(|e| {{
+      label: e.identifier.name
+      kind: CompletionItemKind.Text
+      insertText: e.identifier.name
+    }})
+    .toList()
 }
 
 fn getScopeCompletions(node) -> List<Completion> {
@@ -172,11 +169,14 @@ fn getScopeCompletions(node) -> List<Completion> {
     let scope: Scope = node.scope
     scope.getBindings()
       .values()
-      .map(|binding| {{
-        label: binding.name
-        kind: CompletionItemKind.Text
-        data: binding.name
-      }})
+      .map(|binding| {
+        let typeName = binding.type_.displayName()
+        {
+          label: binding.name + ': $typeName'
+          kind: CompletionItemKind.Text
+          insertText: binding.name
+        }
+      })
       .toList()
   }
   else []

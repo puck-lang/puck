@@ -13,12 +13,30 @@ var Position = exports.Position = function Position(object) {
 var Span = exports.Span = function Span(object) {
   return object;
 };
-var ToSpan = exports.ToSpan = {};
+var ToSpan = exports.ToSpan = {
+  span: function span() {
+    var self = this;
+    return {
+      start: ToSpan[self.type].start.call(self),
+      end: ToSpan[self.type].end.call(self)
+    };
+  },
+  start: function start() {
+    var self = this;
+    return ToSpan[self.type].span.call(self).start;
+  },
+  end: function end() {
+    var self = this;
+    return ToSpan[self.type].span.call(self).end;
+  }
+};
 ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span"] = {
   span: function span() {
     var self = this;
     return self.value;
-  }
+  },
+  start: ToSpan.start,
+  end: ToSpan.end
 };
 Span.empty = function empty() {
   return {

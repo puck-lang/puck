@@ -1,0 +1,231 @@
+import '../ast/ast.puck' as {
+  Expression
+  Identifier
+  FunctionDeclaration
+  VariableDeclaration
+  IfLetExpression
+  MatchExpression
+  MemberAccess
+  RecordLiteral
+  RecordLiteralMember
+  RecordPattern
+  TuplePattern
+  TypePath
+}
+import '../ast/span.puck' as {Position, Span, ToSpan}
+import '../entities.puck' as {StructKind, Type, TypeKind}
+import 'position_visitor.puck' as {PositionVisitor}
+import 'position_visitor.puck' as visit
+
+export type Hover {
+  contents: List<{
+    language: String
+    value: String
+  }>
+  span: Span
+}
+
+impl Hover {
+  fn empty() -> Hover {{
+    contents: []
+    span: Span.empty()
+  }}
+}
+
+fn getTypeContents(type_: Type, detailsl = false) {
+  let name =
+    match type_.kind {
+      TypeKind::Function => type_.verboseName()
+      _ => type_.displayName()
+    }
+
+  [
+    {
+      language: 'puck',
+      value: name
+    }
+  ]
+}
+
+fn getEnumMember(type_: Type, member: String) -> Option<Type> {
+  match type_.kind {
+    TypeKind::Enum(enum_) => {
+      enum_.members.get(member)
+    }
+    _ => None
+  }
+}
+
+fn getPropertyType(type_: Type, property: String) -> Option<Type> {
+  match type_.kind {
+    TypeKind::Struct({kind: StructKind::Record(record)}) => {
+      record.properties.get(property)
+    }
+    _ => None
+  }
+}
+
+fn getTupleType(type_: Type, index: Num) -> Option<Type> {
+  match type_.kind {
+    TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
+      tuple.properties.get(index)
+    }
+    _ => None
+  }
+}
+
+export type HoverVisitor {
+  position: Position
+  hover: Option<Hover>
+  patternType: Option<Type>
+  literalType: Option<Type>
+}
+
+impl HoverVisitor {
+  fn new(position: Position) -> HoverVisitor {{
+    position
+    hover: None
+    patternType: None
+    literalType: None
+  }}
+}
+
+impl PositionVisitor for HoverVisitor {
+  fn position(self) -> Position {self.position}
+
+  fn visitIdentifier(mut self, i: Identifier) -> () {
+    print('onHover visitIdentifier')
+    if i.type_ {
+      let type_: Type = i.type_
+      self.hover = Some({
+        contents: getTypeContents(type_)
+        span: i.span()
+      })
+    }
+  }
+
+  fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {
+    if let Some(name) = f.name {
+      if name.span.cmp(self.position()) == Ordering::Equal {
+        if f.type_ {
+          let type_: Type = f.type_
+          self.hover = Some({
+            contents: getTypeContents(type_)
+            span: name.span
+          })
+          return ()
+        }
+      }
+    }
+    visit.walkFunctionDeclaration(self, f)
+  }
+
+  fn visitVariableDeclaration(mut self, d: VariableDeclaration) -> () {
+    let parent = self.patternType
+    self.patternType = if d.type_ then Some(d.type_) else None
+    visit.walkVariableDeclaration(self, d)
+    self.patternType = parent
+  }
+
+  fn visitIfLetExpression(mut self, e: IfLetExpression) -> () {
+    let parent = self.patternType
+    let expressionType = e.expression.getType()
+    self.patternType = if expressionType then Some(expressionType) else None
+    visit.walkIfLetExpression(self, e)
+    self.patternType = parent
+  }
+  fn visitMatchExpression(mut self, e: MatchExpression) -> () {
+    let parent = self.patternType
+    let expressionType = e.expression.getType()
+    self.patternType = if expressionType then Some(expressionType) else None
+    visit.walkMatchExpression(self, e)
+    self.patternType = parent
+  }
+
+  fn visitMemberAccess(mut self, a: MemberAccess) -> () {
+    if a.member.span().cmp(self.position()) == Ordering::Equal {
+      print('onHover visitMemberAccess')
+      if a.type_ {
+        let type_: Type = a.type_
+        self.hover = Some({
+          contents: getTypeContents(type_)
+          span: a.member.span()
+        })
+      }
+    }
+    else visit.walkMemberAccess(self, a)
+  }
+  fn visitRecordLiteral(mut self, l: RecordLiteral) -> () {
+    let parent = self.literalType
+    self.literalType = if l.type_ then Some(l.type_) else None
+    visit.walkRecordLiteral(self, l)
+    self.literalType = parent
+  }
+  fn visitRecordLiteralMember(mut self, l: RecordLiteralMember) -> () {
+    if l.name.span().cmp(self.position()) == Ordering::Equal {
+      print('onHover visitRecordLiteralMember')
+      self.hover = self.literalType
+        .andThen(|t| getPropertyType(t, l.name.name))
+        .map(|type_| {{
+          contents: getTypeContents(type_)
+          span: l.name.span()
+        }})
+    }
+    else visit.walkRecordLiteralMember(self, l)
+  }
+
+  fn visitIdentifierPattern(mut self, p: Identifier) -> () {
+    print('onHover visitIdentifierPattern?')
+    if let Some(type_) = self.patternType {
+      print('onHover visitIdentifierPattern')
+      self.hover = Some({
+        contents: getTypeContents(type_)
+        span: p.span()
+      })
+    }
+  }
+  fn visitRecordPattern(mut self, p: RecordPattern) -> () {
+    if let Ok(index) = p.properties.binarySearchBy(
+      |prop| prop.span().cmp(self.position())
+    ) {
+      self.patternType = self.patternType
+        .andThen(|t| getPropertyType(t, p.properties[index].property.name))
+      self.visitPattern(p.properties[index].pattern)
+    }
+  }
+  fn visitRecordTypePattern(mut self, t: TypePath, p: RecordPattern) -> () {
+    let type_: Type = t.type_
+    self.patternType =
+      if type_ {
+        type_.enumMember
+          .andThen(|(member, _)| self.patternType.andThen(|t| getEnumMember(t, member)))
+          .orValue(type_.providesType)
+          .orValue(Some(type_))
+      }
+      else None
+    visit.walkTypePath(self, t)
+    self.visitRecordPattern(p)
+  }
+  fn visitTuplePattern(mut self, p: TuplePattern) -> () {
+    if let Ok(index) = p.properties.binarySearchBy(
+      |prop| prop.span().cmp(self.position())
+    ) {
+      self.patternType = self.patternType
+        .andThen(|t| getTupleType(t, index))
+      self.visitPattern(p.properties[index])
+    }
+  }
+  fn visitTupleTypePattern(mut self, t: TypePath, p: TuplePattern) -> () {
+    let type_: Type = t.type_
+    self.patternType =
+      if type_ {
+        type_.enumMember
+          .andThen(|(member, _)| self.patternType.andThen(|t| getEnumMember(t, member)))
+          .orValue(type_.providesType)
+          .orValue(Some(type_))
+      }
+      else None
+    visit.walkTypePath(self, t)
+    self.visitTuplePattern(p)
+  }
+}

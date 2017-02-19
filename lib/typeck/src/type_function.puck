@@ -26,7 +26,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
           TypeKind::Function({
             selfBinding: None
             parameters: [{
-              name: type_.name.unwrapOr('record')
+              name: type_.name.unwrapOr('0')
               token: Span.empty()
               mutable: false
               allowRedeclare: false

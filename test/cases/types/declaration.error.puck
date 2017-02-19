@@ -8,7 +8,7 @@ type Generic<A, B=A> {
   c: Self<A, B>
 }
 
-///// {name: Num} is not assignable to type Record in parameter 0 of function Record
+///// {name: Num} is not assignable to type Record in parameter Record of function Record
 type Record {name: String}
 let record = Record({name: 4})
 

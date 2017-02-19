@@ -173,13 +173,8 @@ export fn ScopeVisitor(context, file) {
       else function
 
     c.argumentList.enumerate().forEach(|(argument, i): (Expression, Num)| {
-      let parameter = function.parameters[i]
-      let parameterName =
-        if parameter.pattern
-          then if let Pattern::Identifier({name}) = parameter.pattern
-            then name
-            else '$i'
-          else '$i'
+      let parameter = function.parameters.get(i).unwrap()
+      let parameterName = parameter.name
       let pType: Type = parameter.type_
 
       if not isAssignable(parameter.type_, argument.getType())
@@ -301,6 +296,7 @@ export fn ScopeVisitor(context, file) {
       i.scope = self.scope
       if let Option::Some(binding) = scope.getBinding(i.name) {
         let mut b = binding
+        i.binding = binding
         i.type_ =
           if binding.type_ and binding.type_.providesType.isSome()
             then enumMemberToFunction(b.type_)

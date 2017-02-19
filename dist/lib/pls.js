@@ -22,7 +22,13 @@ var _ast = require('./ast/ast');
 
 var _span = require('./ast/span');
 
-var _completions = require('./pls/completions');
+var _completions2 = require('./pls/completions');
+
+var _definition = require('./pls/definition');
+
+var _hover = require('./pls/hover');
+
+var _position_visitor = require('./pls/position_visitor');
 
 var _scope = require('./typeck/src/scope');
 
@@ -39,8 +45,10 @@ function createServer(projectPath, sendDiagnostic) {
   var context = void 0;
   var a = {};
   a.validateDocument = function (filePath, contents) {
+    (0, _core.print)("validateDocument");
     context = (0, _compiler.createContext)(projectPath);
     $unwrapTraitObject(context).reportError = function (file, token, message) {
+      (0, _core.print)("reportError", [file.absolutePath, message]);
       var span = _span.ToSpan[token.type].span.call(token);
       return sendDiagnostic(file.absolutePath, {
         severity: $unwrapTraitObject(_vscodeLanguageserver.DiagnosticSeverity).Error,
@@ -66,13 +74,11 @@ function createServer(projectPath, sendDiagnostic) {
         puck: contents
       };
       file = $unwrapTraitObject(context).importFile(file);
-      $unwrapTraitObject(context).runTypeVisitorOnFile(file);
       $unwrapTraitObject(context).runTypeVisitor();
-      $unwrapTraitObject(context).runImplVisitorOnFile(file);
       $unwrapTraitObject(context).runImplVisitor();
-      $unwrapTraitObject(context).runCheckerOnFile(file);
-      return $unwrapTraitObject(context).runChecker();
+      return $unwrapTraitObject(context).runCheckerOnFile(file);
     });
+    (0, _core.print)("validateDocument completed");
     var __PUCK__value__1 = result;
     if ($unwrapTraitObject(__PUCK__value__1).kind == "Err") {
       var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
@@ -97,8 +103,9 @@ function createServer(projectPath, sendDiagnostic) {
     if (!_module) {
       return [];
     };
+    var visitor = _completions2.CompletionVisitor._new(position);
     var result = (0, _js.asResult)(function () {
-      return _completions.Completions["$impl_lib/pls/completions.puck:Completions$lib/ast/ast.puck:Module"].getCompletions.call({ type: '$impl_lib/pls/completions.puck:Completions$lib/ast/ast.puck:Module', value: _module, $isTraitObject: true }, position);
+      return _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].visitModule.call({ type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor', value: visitor, $isTraitObject: true }, _module);
     });
     var __PUCK__value__2 = result;
     var __PUCK__value__3 = __PUCK__value__2;
@@ -107,15 +114,102 @@ function createServer(projectPath, sendDiagnostic) {
           _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
           completions = _$unwrapTraitObject2$[0];
 
-      return completions;
-    } else {
-      var __PUCK__value__4 = __PUCK__value__2;
-      if ($unwrapTraitObject(__PUCK__value__4).kind == "Err") {
+      var __PUCK__value__4 = visitor.completions;
+      if ($unwrapTraitObject(__PUCK__value__4).kind == "Some") {
         var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__4),
             _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
-            error = _$unwrapTraitObject3$[0];
+            _completions = _$unwrapTraitObject3$[0];
+
+        return _completions;
+      } else {
+        return [];
+      };
+    } else {
+      var __PUCK__value__5 = __PUCK__value__2;
+      if ($unwrapTraitObject(__PUCK__value__5).kind == "Err") {
+        var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__5),
+            _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+            error = _$unwrapTraitObject4$[0];
 
         (0, _core.print)("completions Error:", [error, $unwrapTraitObject(error).stack]);
+        return [];
+      };
+    };
+  };
+  a.onHover = function (filePath, position) {
+    (0, _core.print)("onHover");
+    if (!context) {
+      return [];
+    };
+    var file = $unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))];
+    if (!file) {
+      return [];
+    };
+    var _module = file.ast;
+    if (!_module) {
+      return [];
+    };
+    var visitor = _hover.HoverVisitor._new(position);
+    var result = (0, _js.asResult)(function () {
+      return _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].visitModule.call({ type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor', value: visitor, $isTraitObject: true }, _module);
+    });
+    var __PUCK__value__6 = result;
+    var __PUCK__value__7 = __PUCK__value__6;
+    if ($unwrapTraitObject(__PUCK__value__7).kind == "Ok") {
+      var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__7),
+          _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+          __PUCK__value__8 = _$unwrapTraitObject5$[0];
+
+      (0, _core.print)("onHover ok", visitor.hover);
+      return _core.Option.unwrapOrElse.call(visitor.hover, function () {
+        return _hover.Hover.empty();
+      });
+    } else {
+      var __PUCK__value__9 = __PUCK__value__6;
+      if ($unwrapTraitObject(__PUCK__value__9).kind == "Err") {
+        var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__9),
+            _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+            error = _$unwrapTraitObject6$[0];
+
+        (0, _core.print)("onHover Error:", [error, $unwrapTraitObject(error).stack]);
+        return _hover.Hover.empty();
+      };
+    };
+  };
+  a.onDefinition = function (filePath, position) {
+    (0, _core.print)("onDefinition");
+    if (!context) {
+      return [];
+    };
+    var file = $unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))];
+    if (!file) {
+      return [];
+    };
+    var _module = file.ast;
+    if (!_module) {
+      return [];
+    };
+    var visitor = _definition.DefinitionVisitor._new(file, position);
+    var result = (0, _js.asResult)(function () {
+      return _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor"].visitModule.call({ type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor', value: visitor, $isTraitObject: true }, _module);
+    });
+    var __PUCK__value__10 = result;
+    var __PUCK__value__11 = __PUCK__value__10;
+    if ($unwrapTraitObject(__PUCK__value__11).kind == "Ok") {
+      var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__11),
+          _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+          __PUCK__value__12 = _$unwrapTraitObject7$[0];
+
+      (0, _core.print)("onDefinition ok", visitor.definitions);
+      return visitor.definitions;
+    } else {
+      var __PUCK__value__13 = __PUCK__value__10;
+      if ($unwrapTraitObject(__PUCK__value__13).kind == "Err") {
+        var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__13),
+            _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+            error = _$unwrapTraitObject8$[0];
+
+        (0, _core.print)("onDefinition Error:", [error, $unwrapTraitObject(error).stack]);
         return [];
       };
     };

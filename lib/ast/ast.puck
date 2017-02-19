@@ -1,5 +1,5 @@
 import '../entities.puck' as {File, Type}
-import 'span.puck' as {Span, ToSpan}
+import 'span.puck' as {Position, Span, ToSpan}
 
 export type SyntaxKind {}
 
@@ -90,18 +90,32 @@ impl TopLevelStatement {
 }
 
 impl ToSpan for TopLevelStatement {
-  fn span(self) -> Span {
+  fn start(self) -> Position {
     match self {
-      TopLevelStatement::ExportDirective(e) => e.span()
-      TopLevelStatement::ImportDirective(e) => e.span()
+      TopLevelStatement::ExportDirective(e) => e.start()
+      TopLevelStatement::ImportDirective(e) => e.start()
 
-      TopLevelStatement::EnumDeclaration(e) => e.span()
-      TopLevelStatement::ImplDeclaration(e) => e.span()
-      TopLevelStatement::ImplShorthandDeclaration(e) => e.span()
-      TopLevelStatement::TraitDeclaration(e) => e.span()
-      TopLevelStatement::TypeDeclaration(e) => e.span()
+      TopLevelStatement::EnumDeclaration(e) => e.start()
+      TopLevelStatement::ImplDeclaration(e) => e.start()
+      TopLevelStatement::ImplShorthandDeclaration(e) => e.start()
+      TopLevelStatement::TraitDeclaration(e) => e.start()
+      TopLevelStatement::TypeDeclaration(e) => e.start()
 
-      TopLevelStatement::BlockLevelStatement(e) => e.span()
+      TopLevelStatement::BlockLevelStatement(e) => e.start()
+    }
+  }
+  fn end(self) -> Position {
+    match self {
+      TopLevelStatement::ExportDirective(e) => e.end()
+      TopLevelStatement::ImportDirective(e) => e.end()
+
+      TopLevelStatement::EnumDeclaration(e) => e.end()
+      TopLevelStatement::ImplDeclaration(e) => e.end()
+      TopLevelStatement::ImplShorthandDeclaration(e) => e.end()
+      TopLevelStatement::TraitDeclaration(e) => e.end()
+      TopLevelStatement::TypeDeclaration(e) => e.end()
+
+      TopLevelStatement::BlockLevelStatement(e) => e.end()
     }
   }
 }
@@ -120,13 +134,22 @@ impl BlockLevelStatement {
 }
 
 impl ToSpan for BlockLevelStatement {
-  fn span(self) -> Span {
+  fn start(self) -> Position {
     match self {
-      BlockLevelStatement::Block(e) => e.span()
-      BlockLevelStatement::BreakStatement(e) => e.span()
-      BlockLevelStatement::ReturnStatement(e) => e.span()
-      BlockLevelStatement::WhileLoop(e) => e.span()
-      BlockLevelStatement::Expression(e) =>  e.span()
+      BlockLevelStatement::Block(e) => e.start()
+      BlockLevelStatement::BreakStatement(e) => e.start()
+      BlockLevelStatement::ReturnStatement(e) => e.start()
+      BlockLevelStatement::WhileLoop(e) => e.start()
+      BlockLevelStatement::Expression(e) =>  e.start()
+    }
+  }
+  fn end(self) -> Position {
+    match self {
+      BlockLevelStatement::Block(e) => e.end()
+      BlockLevelStatement::BreakStatement(e) => e.end()
+      BlockLevelStatement::ReturnStatement(e) => e.end()
+      BlockLevelStatement::WhileLoop(e) => e.end()
+      BlockLevelStatement::Expression(e) =>  e.end()
     }
   }
 }
@@ -164,33 +187,62 @@ impl Expression {
 }
 
 impl ToSpan for Expression {
-  fn span(self) -> Span {
+  fn start(self) -> Position {
     match self {
-      Expression::ThrowStatement(e) => e.expression.span()
+      Expression::ThrowStatement(e) => e.expression.start()
       Expression::Comment(_) => throw 'No span for Comment'
 
-      Expression::Identifier(e) => e.span()
-      Expression::FunctionDeclaration(e) => e.span()
-      Expression::VariableDeclaration(e) => e.span()
+      Expression::Identifier(e) => e.start()
+      Expression::FunctionDeclaration(e) => e.start()
+      Expression::VariableDeclaration(e) => e.start()
 
-      Expression::AssignmentExpression(e) => e.span()
-      Expression::BinaryExpression(e) => e.span()
-      Expression::CallExpression(e) => e.span()
-      Expression::IfExpression(e) => e.span()
-      Expression::IfLetExpression(e) => e.span()
-      Expression::MatchExpression(e) => e.span()
-      Expression::TypePathExpression(e) => e.span()
-      Expression::UnaryExpression(e) => e.span()
+      Expression::AssignmentExpression(e) => e.start()
+      Expression::BinaryExpression(e) => e.start()
+      Expression::CallExpression(e) => e.start()
+      Expression::IfExpression(e) => e.start()
+      Expression::IfLetExpression(e) => e.start()
+      Expression::MatchExpression(e) => e.start()
+      Expression::TypePathExpression(e) => e.start()
+      Expression::UnaryExpression(e) => e.start()
 
-      Expression::IndexAccess(e) => e.span()
-      Expression::MemberAccess(e) => e.span()
+      Expression::IndexAccess(e) => e.start()
+      Expression::MemberAccess(e) => e.start()
 
-      Expression::BooleanLiteral(e) => e.span()
-      Expression::ListLiteral(e) => e.span()
-      Expression::NumberLiteral(e) => e.span
-      Expression::RecordLiteral(e) => e.span()
-      Expression::StringLiteral(e) => e.span()
-      Expression::TupleLiteral(e) => e.span()
+      Expression::BooleanLiteral(e) => e.start()
+      Expression::ListLiteral(e) => e.start()
+      Expression::NumberLiteral(e) => e.span.start
+      Expression::RecordLiteral(e) => e.start()
+      Expression::StringLiteral(e) => e.start()
+      Expression::TupleLiteral(e) => e.start()
+    }
+  }
+  fn end(self) -> Position {
+    match self {
+      Expression::ThrowStatement(e) => e.expression.end()
+      Expression::Comment(_) => throw 'No span for Comment'
+
+      Expression::Identifier(e) => e.end()
+      Expression::FunctionDeclaration(e) => e.end()
+      Expression::VariableDeclaration(e) => e.end()
+
+      Expression::AssignmentExpression(e) => e.end()
+      Expression::BinaryExpression(e) => e.end()
+      Expression::CallExpression(e) => e.end()
+      Expression::IfExpression(e) => e.end()
+      Expression::IfLetExpression(e) => e.end()
+      Expression::MatchExpression(e) => e.end()
+      Expression::TypePathExpression(e) => e.end()
+      Expression::UnaryExpression(e) => e.end()
+
+      Expression::IndexAccess(e) => e.end()
+      Expression::MemberAccess(e) => e.end()
+
+      Expression::BooleanLiteral(e) => e.end()
+      Expression::ListLiteral(e) => e.end()
+      Expression::NumberLiteral(e) => e.span.end
+      Expression::RecordLiteral(e) => e.end()
+      Expression::StringLiteral(e) => e.end()
+      Expression::TupleLiteral(e) => e.end()
     }
   }
 }
@@ -292,7 +344,7 @@ export type TypeDeclaration {
 impl ToSpan for TypeDeclaration {
   fn span(self) -> Span {{
     start: self.keyword.span.start
-    end: self.bound.unwrap().span().end
+    end: self.bound.unwrap().end()
   }}
 }
 
@@ -317,7 +369,7 @@ impl ExportDirective {
 impl ToSpan for ExportDirective {
   fn span(self) -> Span {{
     start: self.keyword.span.start
-    end: self.statement.span().end
+    end: self.statement.end()
   }}
 }
 
@@ -353,7 +405,7 @@ export type ImportDirective {
 impl ToSpan for ImportDirective {
   fn span(self) -> Span {{
     start: self.importKeyword.span.start
-    end: self.specifier.span().end
+    end: self.specifier.end()
   }}
 }
 
@@ -406,14 +458,26 @@ export type Block {
 }
 
 impl ToSpan for Block {
-  fn span(self) -> Span {{
-    start: self.openBrace.mapOrElse(|| self.statements.first().unwrap().span(), |t| t.span).start
-    end: self.closeBrace.mapOrElse(|| self.statements.last().unwrap().span(), |t| t.span).end
-  }}
+  fn start(self) -> Position {
+    if let Some(openBrace) = self.openBrace
+      then openBrace.span.start
+      else self.statements.first().unwrap().start()
+  }
+  fn end(self) -> Position {
+    if let Some(closeBrace) = self.closeBrace
+      then closeBrace.span.end
+      else self.statements.last().unwrap().end()
+  }
 }
 
 export type BreakStatement {
   keyword: Token
+}
+
+impl ToSpan for BreakStatement {
+  fn span(self) -> Span {
+    self.keyword.span
+  }
 }
 
 export type ReturnStatement {
@@ -421,9 +485,23 @@ export type ReturnStatement {
   expression: Expression
 }
 
+impl ToSpan for ReturnStatement {
+  fn span(self) -> Span {{
+    start: self.keyword.span.start
+    end: self.expression.end()
+  }}
+}
+
 export type WhileLoop {
-  condition: Expression,
-  body: Block,
+  condition: Expression
+  body: Block
+}
+
+impl ToSpan for WhileLoop {
+  fn span(self) -> Span {{
+    start: self.condition.start()
+    end: self.body.end()
+  }}
 }
 
 export type Comment {
@@ -478,18 +556,20 @@ export type FunctionDeclaration {
 }
 
 impl ToSpan for FunctionDeclaration {
-  fn span(self) -> Span {{
-    start: self.name.mapOrElse(
+  fn start(self) -> Position {
+    self.name.mapOrElse(
       || {
         self.typeParameters.first().mapOrElse(
-          || self.openParenOrBar.span
-          |p| p.span()
+          || self.openParenOrBar.span.start
+          |p| p.start()
         )
       }
-      |i| i.span
-    ).start
-    end: self.body.mapOrElse(|| self.returnType.span(), |b| b.span()).end
-  }}
+      |i| i.span.start
+    )
+  }
+  fn end(self) -> Position {
+    self.body.mapOrElse(|| self.returnType.unwrap().end(), |b| b.end())
+  }
 }
 
 export type VariableDeclaration {
@@ -500,10 +580,12 @@ export type VariableDeclaration {
 }
 
 impl ToSpan for VariableDeclaration {
-  fn span(self) -> Span {{
-    start: self.pattern.span().start
-    end: self.initializer.mapOrElse(|| self.typeBound.mapOrElse(|| self.pattern.span(), |t| t.span()), |i| i.span()).end
-  }}
+  fn start(self) -> Position {
+    self.pattern.start()
+  }
+  fn end(self) -> Position {
+    self.initializer.mapOrElse(|| self.typeBound.mapOrElse(|| self.pattern.end(), |t| t.end()), |i| i.end())
+  }
 }
 
 export type AssignmentExpression {
@@ -513,16 +595,27 @@ export type AssignmentExpression {
 }
 
 impl ToSpan for AssignmentExpression {
-  fn span(self) -> Span {{
-    start: self.lhs.span().start
-    end: self.rhs.span().end
-  }}
+  fn start(self) -> Position {
+    self.lhs.start()
+  }
+  fn end(self) -> Position {
+    self.rhs.end()
+  }
 }
 
 export type BinaryExpression {
   lhs: Expression
   operator: Token
   rhs: Expression
+}
+
+impl ToSpan for BinaryExpression {
+  fn start(self) -> Position {
+    self.lhs.start()
+  }
+  fn end(self) -> Position {
+    self.rhs.end()
+  }
 }
 
 export type CallExpression {
@@ -533,10 +626,12 @@ export type CallExpression {
 }
 
 impl ToSpan for CallExpression {
-  fn span(self) -> Span {{
-    start: self.func.span().start
-    end: self.closeParen.span.end
-  }}
+  fn start(self) -> Position {
+    self.func.start()
+  }
+  fn end(self) -> Position {
+    self.closeParen.span.end
+  }
 }
 
 export type IfExpression {
@@ -547,10 +642,12 @@ export type IfExpression {
 }
 
 impl ToSpan for IfExpression {
-  fn span(self) -> Span {{
-    start: self.ifKeyword.span.start
-    end: self.else_.unwrapOr(self.then_).span().end
-  }}
+  fn start(self) -> Position {
+    self.ifKeyword.span.start
+  }
+  fn end(self) -> Position {
+    self.else_.unwrapOr(self.then_).end()
+  }
 }
 
 export type IfLetExpression {
@@ -563,10 +660,12 @@ export type IfLetExpression {
 }
 
 impl ToSpan for IfLetExpression {
-  fn span(self) -> Span {{
-    start: self.ifKeyword.span.start
-    end: self.else_.unwrapOr(self.then_).span().end
-  }}
+  fn start(self) -> Position {
+    self.ifKeyword.span.start
+  }
+  fn end(self) -> Position {
+    self.else_.unwrapOr(self.then_).end()
+  }
 }
 
 export type MatchExpression {
@@ -578,10 +677,12 @@ export type MatchExpression {
 }
 
 impl ToSpan for MatchExpression {
-  fn span(self) -> Span {{
-    start: self.matchKeyword.span.start
-    end: self.closeBrace.span.end
-  }}
+  fn start(self) -> Position {
+    self.matchKeyword.span.start
+  }
+  fn end(self) -> Position {
+    self.closeBrace.span.end
+  }
 }
 
 export type MatchArm {
@@ -591,10 +692,12 @@ export type MatchArm {
 }
 
 impl ToSpan for MatchArm {
-  fn span(self) -> Span {{
-    start: self.pattern.span().start
-    end: self.block.span().end
-  }}
+  fn start(self) -> Position {
+    self.pattern.start()
+  }
+  fn end(self) -> Position {
+    self.block.end()
+  }
 }
 
 export type TypePathExpression {
@@ -603,8 +706,8 @@ export type TypePathExpression {
 
 impl ToSpan for TypePathExpression {
   fn span(self) -> Span {{
-    start: self.typePath.span().start
-    end: self.typePath.span().end
+    start: self.typePath.start()
+    end: self.typePath.end()
   }}
 }
 
@@ -618,7 +721,7 @@ impl ToSpan for TypePath {
     match self {
       TypePath::Object(identifier, typePath) => {{
         start: identifier.span.start
-        end: typePath.span().end
+        end: typePath.end()
       }}
       TypePath::Member(identifier) => identifier.span
     }
@@ -633,7 +736,7 @@ export type UnaryExpression {
 impl ToSpan for UnaryExpression {
   fn span(self) -> Span {{
     start: self.operator.span.start
-    end: self.rhs.span().end
+    end: self.rhs.end()
   }}
 }
 
@@ -646,7 +749,7 @@ export type IndexAccess {
 
 impl ToSpan for IndexAccess {
   fn span(self) -> Span {{
-    start: self.object.span().start
+    start: self.object.start()
     end: self.closeBracket.span.end
   }}
 }
@@ -657,10 +760,12 @@ export type MemberAccess {
 }
 
 impl ToSpan for MemberAccess {
-  fn span(self) -> Span {{
-    start: self.object.span().start
-    end: self.member.span().end
-  }}
+  fn start(self) -> Position {
+    self.object.start()
+  }
+  fn end(self) -> Position {
+    self.member.span.end
+  }
 }
 
 export type BooleanLiteral {
@@ -712,15 +817,26 @@ export type RecordLiteralMember {
   value: Expression
 }
 
+impl ToSpan for RecordLiteralMember {
+  fn start(self) -> Position {
+    self.name.span.start
+  }
+  fn end(self) -> Position {
+    self.value.end()
+  }
+}
+
 export type StringLiteral {
   parts: List<StringLiteralPart>
 }
 
 impl ToSpan for StringLiteral {
-  fn span(self) -> Span {{
-    start: self.parts.first().unwrap().span().start
-    end: self.parts.last().unwrap().span().end
-  }}
+  fn start(self) -> Position {
+    self.parts.first().unwrap().start()
+  }
+  fn end(self) -> Position {
+    self.parts.last().unwrap().end()
+  }
 }
 
 export type SimpleStringLiteral {
@@ -796,11 +912,11 @@ impl ToSpan for Pattern {
         end: tuplePattern.closeParen.span.end
       }}
       Pattern::RecordType(typePath, recordPattern) => {{
-        start: typePath.span().start
+        start: typePath.start()
         end: recordPattern.closeBrace.span.end
       }}
       Pattern::TupleType(typePath, tuplePattern) => {{
-        start: typePath.span().start
+        start: typePath.start()
         end: tuplePattern.closeParen.span.end
       }}
       Pattern::UnitType(typePath) => typePath.span()
@@ -834,6 +950,15 @@ impl RecordPattern {
 export type RecordPatternMember {
   property: Identifier
   pattern: Pattern
+}
+
+impl ToSpan for RecordPatternMember {
+  fn start(self) -> Position {
+    self.property.span.start
+  }
+  fn end(self) -> Position {
+    self.pattern.end()
+  }
 }
 
 export type TuplePattern {
@@ -900,7 +1025,7 @@ export type FunctionTypeBound {
 impl ToSpan for FunctionTypeBound {
   fn span(self) -> Span {{
     start: self.typeParameters.first().mapOrElse(|| self.parameters.span(), |p| p.span()).start
-    end: self.returnType.span().end
+    end: self.returnType.end()
   }}
 }
 
@@ -911,7 +1036,7 @@ export type NamedTypeBound {
 
 impl ToSpan for NamedTypeBound {
   fn span(self) -> Span {{
-    start: self.path.span().start
+    start: self.path.start()
     end: self.typeParameters.last().mapOr(self.path.span(), |p| p.span()).end
   }}
 }

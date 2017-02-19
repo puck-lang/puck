@@ -733,7 +733,6 @@ function TypeVisitor(context, file) {
                   mutable: false,
                   allowRedeclare: false,
                   type_: importedBinding.type_,
-                  providesType: importedBinding.providesType,
                   previous: _core.None,
                   completeType: (0, _core.Some)(function (visitor) {
                     if (visitor == "TypeVisitor") {
@@ -757,6 +756,7 @@ function TypeVisitor(context, file) {
 
                   reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.local, $isTraitObject: true }, error);
                 };
+                m.local.type_ = importedBinding.type_;
                 return {
                   v: imports[m.local.name] = importDirective.file
                 };

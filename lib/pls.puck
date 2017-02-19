@@ -6,7 +6,10 @@ import 'node:vscode-languageserver' as {
 }
 import 'ast/ast.puck' as {Module}
 import 'ast/span.puck' as {Position, ToSpan}
-import 'pls/completions.puck' as {Completions}
+import 'pls/completions.puck' as {CompletionVisitor}
+import 'pls/definition.puck' as {Definition, DefinitionVisitor}
+import 'pls/hover.puck' as {Hover, HoverVisitor}
+import 'pls/position_visitor.puck' as {PositionVisitor}
 import 'typeck/src/scope.puck' as {Scope}
 import 'compiler.puck' as {createContext}
 import 'entities.puck' as {File, UnparsedFile}
@@ -15,8 +18,10 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   let mut context
   let mut a = {}
   a.validateDocument = fn (filePath: String, contents: String) {
+    print('validateDocument')
     context = createContext(projectPath)
     context.reportError = fn (file: File, token: ToSpan, message) {
+      print('reportError', (file.absolutePath, message))
       let span = token.span()
       sendDiagnostic(file.absolutePath, {
         severity: DiagnosticSeverity.Error
@@ -38,13 +43,11 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       }
       file = context.importFile(file)
 
-      context.runTypeVisitorOnFile(file)
       context.runTypeVisitor()
-      context.runImplVisitorOnFile(file)
       context.runImplVisitor()
       context.runCheckerOnFile(file)
-      context.runChecker()
     })
+    print('validateDocument completed')
 
     if let Result::Err(error) = result {
       if error != 'Syntax Error' {
@@ -60,14 +63,70 @@ export fn createServer(projectPath: String, sendDiagnostic) {
     let module: Module = file.ast
     if not module then return []
 
+    let mut visitor = CompletionVisitor.new(position)
+
     let result = asResult(|| {
-      module.getCompletions(position)
+      visitor.visitModule(module)
     })
 
     match result {
-      Ok(completions) => completions
+      Ok(completions) => {
+        if let Some(completions) = visitor.completions {
+          completions
+        }
+        else []
+      }
       Err(error) => {
         print('completions Error:', (error, error.stack))
+        []
+      }
+    }
+  }
+  a.onHover = fn (filePath: String, position: Position) -> Hover {
+    print('onHover')
+    if not context then return []
+    let file: File = context.files[path.resolve(path.normalize(filePath))]
+    if not file then return []
+    let module: Module = file.ast
+    if not module then return []
+
+    let mut visitor = HoverVisitor.new(position)
+
+    let result = asResult(|| {
+      visitor.visitModule(module)
+    })
+
+    match result {
+      Ok(_) => {
+        print('onHover ok', visitor.hover)
+        visitor.hover.unwrapOrElse(|| Hover.empty())
+      }
+      Err(error) => {
+        print('onHover Error:', (error, error.stack))
+        Hover.empty()
+      }
+    }
+  }
+  a.onDefinition = fn (filePath: String, position: Position) -> List<Definition> {
+    print('onDefinition')
+    if not context then return []
+    let file: File = context.files[path.resolve(path.normalize(filePath))]
+    if not file then return []
+    let module: Module = file.ast
+    if not module then return []
+
+    let mut visitor = DefinitionVisitor.new(file, position)
+
+    let result = asResult(|| {
+      visitor.visitModule(module)
+    })
+    match result {
+      Ok(_) => {
+        print('onDefinition ok', visitor.definitions)
+        visitor.definitions
+      }
+      Err(error) => {
+        print('onDefinition Error:', (error, error.stack))
         []
       }
     }

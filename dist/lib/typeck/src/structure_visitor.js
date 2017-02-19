@@ -487,7 +487,7 @@ function structureVisitor(reportError) {
           d.type_ = initializerType;
         } else {
           if (!(0, _types.isAssignable)(d.type_, initializerType)) {
-            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true }, notAssignableError(d.type_, initializerType));
+            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: initializer, $isTraitObject: true }, notAssignableError(d.type_, initializerType));
           };
         };
         if (!(0, _types.isAssignable)(d.pattern.type_, initializerType)) {
