@@ -171,7 +171,7 @@ Scope.define = function define(binding) {
 };
 Scope.setSelfType = function setSelfType(selfType) {
   var self = this;
-  return _core.ObjectMap.set.call(self.bindings, "Self", {
+  _core.ObjectMap.set.call(self.bindings, "Self", {
     name: "Self",
     token: { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: _span.Span.empty(), $isTraitObject: true },
     mutable: false,

@@ -8,6 +8,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 var ast_1 = require("./ast");
+var entities_1 = require("../entities");
 var impls_1 = require("../typeck/src/impls");
 var scope_1 = require("../typeck/src/scope");
 var jsKeywords = [
@@ -400,7 +401,12 @@ function Emitter() {
             ? fn.traitFunctionType.kind.value[0].returnType
             : fn.returnType.kind === 'Some' && fn.returnType.value[0].value[0].type_;
         var code = "function " + name + "(" + parameterList.map(emitFunctionParameter).join(', ') + ") ";
-        code += withContext(Context.Return, function () { return emitBlock(body, undefined, returnType); }, true);
+        if (returnType && entities_1.Type.isEmpty && entities_1.Type.isEmpty.call(returnType)) {
+            code += emitBlock(body, undefined, returnType);
+        }
+        else {
+            code += withContext(Context.Return, function () { return emitBlock(body, undefined, returnType); }, true);
+        }
         typeOverrides = oldTypeOverrides;
         return code;
     }
@@ -797,7 +803,7 @@ function Emitter() {
                     ? { kind: 'Some', value: [{
                                 statements: [{ kind: 'Expression', value: [{ kind: 'IfLetExpression', value: [ifLet] }] }],
                             }] }
-                    : { kind: 'None' }
+                    : { kind: 'None' },
             };
         }
         valueVariable = outerValueVariable;

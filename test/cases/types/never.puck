@@ -1,0 +1,14 @@
+let a =
+  if true
+    then true
+    else panic('Never')
+
+fn b() -> () {
+  true
+}
+
+fn c() -> () {
+  if true
+    then true
+    else 5
+}

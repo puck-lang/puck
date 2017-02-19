@@ -318,12 +318,21 @@ export fn ScopeVisitor(context, file) {
 
         f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
         if let Option::Some(body) = f.body {
-          self.visitBlock(body)
+          let parentAssignedTo = self.assignedTo
+          let mut isUsed = true
+          if let TypeKind::Function(func) = f.type_.kind {
+            self.assignedTo = func.returnType
+            if func.returnType and func.returnType.isEmpty() {
+              isUsed = false
+            }
+          }
+          self.visitBlock(body, isUsed)
+          self.assignedTo = parentAssignedTo
 
           if let TypeKind::Function(func) = f.type_.kind {
-            if func.returnType {
+            if func.returnType and not func.returnType.isEmpty() {
               if not isAssignable(func.returnType, body.type_)
-                then reportError(f, notAssignableError(func.returnType, body.type_) + ' as returnType')
+                then reportError(f, notAssignableError(func.returnType, body.type_))
             }
             else {
               Object.assign(func, {
@@ -344,7 +353,7 @@ export fn ScopeVisitor(context, file) {
           then visitInitializer
           else |e| {
             let parentAssignedTo = self.assignedTo
-            self.assignedTo = d
+            self.assignedTo = d.type_
             self.isUsed = true
             self.visitExpression(e)
             self.assignedTo = parentAssignedTo
@@ -477,7 +486,7 @@ export fn ScopeVisitor(context, file) {
           .take(functionKind.parameters.size())
           .forEach(|(a, i): (Expression, Num)| {
             let parameter = functionKind.parameters[i]
-            self.assignedTo = parameter
+            self.assignedTo = parameter.type_
             self.visitExpression(a)
             if callTypeParameters.isNotEmpty() and parameter.type_ and a.getType() {
               resolveFunctionTypeParameters(

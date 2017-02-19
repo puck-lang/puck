@@ -877,8 +877,12 @@ impl IntoIterator<Num> for Range<Num> {
   }
 }
 
-export fn print<T>(message, extra: T = ()) {
+export fn print<T>(message, extra: T = ()) -> () {
   console.log.apply(console, [message].concat(extra))
+}
+
+export fn panic(reason: String) -> Never {
+  js.panic(reason)
 }
 
 export type ObjectMap<T> {}

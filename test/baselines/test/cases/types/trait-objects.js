@@ -11,7 +11,7 @@ var Banana = function Banana(object) {
 var Food = {
   eat: function eat() {
     var self = this;
-    return (0, _core.print)(self.value.name + " is some kind of food");
+    (0, _core.print)(self.value.name + " is some kind of food");
   },
   passThrough: function passThrough() {
     var self = this;

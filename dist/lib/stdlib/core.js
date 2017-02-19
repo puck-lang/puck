@@ -8,6 +8,7 @@ exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = expo
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 exports.print = print;
+exports.panic = panic;
 
 var _js = require('puck-lang/dist/lib/stdlib/js');
 
@@ -412,7 +413,7 @@ Iterable["$impl_lib/stdlib/core.puck:Iterable$List"] = {
   },
   forEach: function forEach(func) {
     var self = this;
-    return $unwrapTraitObject(anyCast(self)).forEach(func);
+    $unwrapTraitObject(anyCast(self)).forEach(func);
   },
   map: function map(func) {
     var self = this;
@@ -943,7 +944,7 @@ List.zip = function zip(a, b) {
 };
 List.add = function add(element) {
   var self = this;
-  return self.push(element);
+  self.push(element);
 };
 List.get = function get(index) {
   var self = this;
@@ -1066,7 +1067,7 @@ ObjectMap.forEach = function forEach(func) {
   $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).forEach(function (key) {
     return func([key, self[$unwrapTraitObject(key)]]);
   });
-  return [];
+  [];
 };
 ObjectMap.has = function has(key) {
   var self = this;
@@ -1083,7 +1084,7 @@ ObjectMap.get = function get(key) {
 ObjectMap.set = function set(key, value) {
   var self = this;
   self[key] = value;
-  return [];
+  [];
 };
 ObjectMap.size = function size() {
   var self = this;
@@ -1102,5 +1103,8 @@ function asList(a) {
 function print(message) {
   var extra = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-  return $unwrapTraitObject($unwrapTraitObject(_js.console).log).apply(_js.console, [message].concat(extra));
+  $unwrapTraitObject($unwrapTraitObject(_js.console).log).apply(_js.console, [message].concat(extra));
+};
+function panic(reason) {
+  return js.panic(reason);
 }

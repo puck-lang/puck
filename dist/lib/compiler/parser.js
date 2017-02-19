@@ -92,9 +92,9 @@ function parse(input) {
     if (!$unwrapTraitObject(input).eof()) {
       var token = $unwrapTraitObject(input).peek(true);
       if ($unwrapTraitObject(token).kind == $unwrapTraitObject(_ast2.SyntaxKind).NewlineToken || $unwrapTraitObject(token).kind == $unwrapTraitObject(_ast2.SyntaxKind).Comment) {
-        return $unwrapTraitObject(input).next(true);
+        $unwrapTraitObject(input).next(true);
       } else {
-        return consumeToken(kind);
+        consumeToken(kind);
       };
     };
   };

@@ -26,20 +26,20 @@ function expect(value) {
   return $unwrapTraitObject(_js.global).expect(value);
 };
 function describe(message, group) {
-  return $unwrapTraitObject(_js.global).describe(message, group);
+  $unwrapTraitObject(_js.global).describe(message, group);
 };
 function ddescribe(message, group) {
-  return $unwrapTraitObject($unwrapTraitObject(_js.global).describe).only(message, group);
+  $unwrapTraitObject($unwrapTraitObject(_js.global).describe).only(message, group);
 };
 function xdescribe(message, group) {
-  return $unwrapTraitObject($unwrapTraitObject(_js.global).describe).skip(message, group);
+  $unwrapTraitObject($unwrapTraitObject(_js.global).describe).skip(message, group);
 };
 function it(message, test) {
-  return $unwrapTraitObject(_js.global).it(message, test);
+  $unwrapTraitObject(_js.global).it(message, test);
 };
 function iit(message, test) {
-  return $unwrapTraitObject($unwrapTraitObject(_js.global).it).only(message, test);
+  $unwrapTraitObject($unwrapTraitObject(_js.global).it).only(message, test);
 };
 function xit(message, test) {
-  return $unwrapTraitObject($unwrapTraitObject(_js.global).it).skip(message, test);
+  $unwrapTraitObject($unwrapTraitObject(_js.global).it).skip(message, test);
 }

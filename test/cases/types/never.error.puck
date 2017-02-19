@@ -1,0 +1,10 @@
+///// Num is not assignable to type Bool
+let mut a =
+  if true
+    then panic('Never!')
+    else true
+
+a = 5
+
+///// Num is not assignable to type Never
+let mut a: Never = 5

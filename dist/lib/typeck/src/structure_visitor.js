@@ -62,8 +62,8 @@ function structureVisitor(reportError) {
           $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
           f.scope = $unwrapTraitObject(self).scope;
           var __PUCK__value__1 = void 0;
-          if ($unwrapTraitObject(self).assignedTo && $unwrapTraitObject($unwrapTraitObject(self).assignedTo).type_) {
-            var __PUCK__value__2 = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).assignedTo).type_).kind;
+          if ($unwrapTraitObject(self).assignedTo) {
+            var __PUCK__value__2 = $unwrapTraitObject($unwrapTraitObject(self).assignedTo).kind;
             var __PUCK__value__3 = void 0;
             if ($unwrapTraitObject(__PUCK__value__2).kind == "Function") {
               var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),

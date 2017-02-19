@@ -53,8 +53,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
       f.scope = self.scope
 
       let assignedTo =
-        if self.assignedTo and self.assignedTo.type_ then
-          if let TypeKind::Function(func) = self.assignedTo.type_.kind
+        if self.assignedTo
+          then if let TypeKind::Function(func) = self.assignedTo.kind
             then func
 
       f.typeParameters.forEach(|p| self.visitTypeParameter(p))
