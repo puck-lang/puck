@@ -24,17 +24,11 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = 
   if let Option::Some(instance) = type_.instance {
     let mut i = instance
     let typeParameters: List<Type> = instance.typeParameters
-    if typeParameters.any(|parameter| parameter.isParameter()) {
       return createTypeInstance(
         i.class
         typeParameters
-          .map(|p|
-            if p.isParameter()
-              then parameterMap.get(p.name.unwrap()).unwrapOr(p)
-              else p
-          )
+          .map(resolveTypeParameters(parameterMap, false))
       )
-    }
   }
 
   if not enterNamed and not type_.isParameter()
@@ -67,13 +61,9 @@ fn resolveTypeParametersEnum(parameterMap: ObjectMap<Type>, e: Enum) {
 fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, mut func: Function) {
   assign(func, {
     parameters: func.parameters.map(|mut binding| assign(binding, {
-      type_:
-        if binding.type_
-          then resolveTypeParameters(parameterMap, false)(binding.type_)
+      type_: resolveTypeParameters(parameterMap, false)(binding.type_)
     })).toList()
-    returnType:
-      if func.returnType
-        then resolveTypeParameters(parameterMap, false)(func.returnType)
+    returnType: resolveTypeParameters(parameterMap, false)(func.returnType)
   })
 }
 
@@ -134,7 +124,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
     }
     else typeParameters_.toList()
 
-  if let Option::Some(cachedInstance) = class.instances.find(|a: Type| {
+  if let Option::Some(cachedInstance) = class.instances.find(|a| {
       let i = a.instance.unwrap()
       i.typeParameters.length == typeParameters.length and
       i.typeParameters.every(|p, i| isSameType(p, typeParameters[i]))
@@ -143,12 +133,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
 
   let parameterMap = ObjectMap.fromIter(
     List.zip(typeParameters, class.typeParameters)
-      .map(|p| {
-        let typeArgument = p[0]
-        let typeParameter: Type = p[1]
-
-        (typeParameter.name.unwrap(), typeArgument)
-      }))
+      .map(|(typeArgument, typeParameter)| (typeParameter.name.unwrap(), typeArgument)))
 
   let mut instance: Type = {
     id: type_.id
@@ -267,9 +252,13 @@ fn isFunctionAssignable(to: Function, subject: Function) {
   if not to.parameterRange.isSubsetOf(subject.parameterRange)
     then return false
 
-  to.parameters.enumerate().all(|(toArg, i)|
-    isAssignable(toArg.type_, subject.parameters[i].type_)
+  if not to.parameters.enumerate().all(|(toArg, i)|
+    isAssignable(subject.parameters[i].type_, toArg.type_)
   )
+    then return false
+
+  isAssignable(to.returnType, subject.returnType)
+    or to.returnType.isEmpty()
 }
 
 fn isStructAssignable(to: Struct, subject: Struct) {

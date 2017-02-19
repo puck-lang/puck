@@ -11,3 +11,9 @@ let user2 = Option::Some({name: 'Anna'})
 let name2 = user2.map(|user| user.name)
 let name3 = name2.unwrapOr('Guest')
 let containsGuest = name3.contains('Guest')
+
+type ExpectationObject<T> {
+  toEqual: (T) -> ()
+}
+fn expect<T>(value: T) -> ExpectationObject<T> {{toEqual: |_| {}}}
+expect(Some(1).andThen(|value| Some(value + value))).toEqual(Some(2))

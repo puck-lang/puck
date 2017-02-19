@@ -429,7 +429,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                     p = _ref8[0],
                     i = _ref8[1];
 
-                return declarePatternVariables(scope, visitor, $unwrapTraitObject(p), mutable, props[i], allowNotExhaustive);
+                return declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive);
               });
               var properties = _core.Iterable[__PUCK__value__76.type].toList.call(__PUCK__value__76).reduce(function (acc, cur) {
                 return _core.Result.andThen.call(acc, function (__PUCK__value__78) {
@@ -537,7 +537,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                       p = _ref10[0],
                       i = _ref10[1];
 
-                  return declarePatternVariables(scope, visitor, $unwrapTraitObject(p), mutable, props[i], allowNotExhaustive);
+                  return declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive);
                 });
                 var properties = _core.Iterable[__PUCK__value__99.type].toList.call(__PUCK__value__99).reduce(function (acc, cur) {
                   return _core.Result.andThen.call(acc, function (__PUCK__value__101) {

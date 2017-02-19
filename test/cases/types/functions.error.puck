@@ -1,0 +1,6 @@
+///// ({a: String}) -> {a: String} is not assignable to type ({a: String}) -> {a: String, b: String}
+let a: ({a: String}) -> {a: String, b: String} = |a: {a: String}| {{a: ''}}
+
+///// ({a: String, b: String}) -> {a: String} is not assignable to type ({a: String}) -> {a: String}
+let mut a: ({a: String}) -> {a: String}
+a = |a: {a: String, b: String}| {{a: ''}}

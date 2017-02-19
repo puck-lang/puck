@@ -27,7 +27,7 @@ export fn getEnumType(typePath: TypePath, scope: Scope) -> Option<Type> {
       scope
         .getBinding(name)
         .andThen(|binding| binding.type_.providesType)
-        .andThen(|type_: Type| {
+        .andThen(|type_| {
           if type_.isEnum()
             then Some(type_)
             else None

@@ -175,7 +175,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
         return getPropertyType(t, l.name.name);
       }), function (type_) {
         return {
-          contents: getTypeContents($unwrapTraitObject(type_)),
+          contents: getTypeContents(type_),
           span: _span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: l.name, $isTraitObject: true })
         };
       });

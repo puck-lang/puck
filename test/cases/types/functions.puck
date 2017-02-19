@@ -1,0 +1,2 @@
+let a: ({a: String, b: String}) -> {a: String} = |a: {a: String}| {{a: ''}}
+let a: ({a: String}) -> {a: String} = |a: {a: String}| {{a: '', b: ''}}
