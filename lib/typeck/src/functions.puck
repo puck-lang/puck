@@ -1,10 +1,23 @@
 import 'puck:js' as {undefined}
-import '../../ast/ast.puck' as {FunctionDeclaration, VariableDeclaration, TypeBound, TypeParameter}
+import '../../ast/ast.puck' as {
+  FunctionDeclaration
+  VariableDeclaration
+  Pattern
+  TypeBound
+  TypeParameter
+}
 import '../../ast/span.puck' as {ToSpan}
 import '../../entities.puck' as {Function, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
 import 'scope.puck' as {Binding, Scope}
 import 'types.puck' as {isAssignable}
+
+fn getPatternName(pattern: Pattern) -> Option<String> {
+  match pattern {
+    Pattern::Identifier(i) => Some(i.name)
+    _ => None
+  }
+}
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> {}) -> Type {
   let class =
@@ -22,21 +35,29 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
     }
     else None
 
-  let parameters = f.parameterList.map(|p| {{
-    pattern: p.pattern
-    mutable: p.mutable
-    type_: p.type_
-    token: p
-  }}).toList()
+  let parameters: List<Binding> = f.parameterList
+    .enumerate()
+    .map(|(p, i)| {{
+      name: getPatternName(p.pattern).unwrapOr('p$i')
+      token: p
+      mutable: p.mutable
+      allowRedeclare: true
+      type_: p.type_
+      previous: None
+      completeType: None
+    }})
+    .toList()
   let returnType: Type =
     if let Option::Some(returnType) = f.returnType {
       returnType.getType()
     }
     else undefined
-  let selfBinding: Option<Binding> =
-    if parameters.length > 0 and parameters[0].pattern.kind == 'Identifier' and parameters[0].pattern.value[0].name == 'self'
-      then Some(parameters[0].pattern.binding)
-      else None
+  let selfBinding =
+    parameters.first().andThen(|b| {
+      if b.name == 'self'
+        then Some(b)
+        else None
+    })
   let parameters =
     if selfBinding.isSome()
       then parameters.slice(1)

@@ -7,6 +7,7 @@ import 'core.puck' as {
   Num
   Radix
   Option
+  Ordering
   Range
   Result
   String
@@ -157,6 +158,26 @@ describe('core', || {
         expect(20.limit({start: 10, end: 50})).toBe(20)
         expect(0.limit({start: -10, end: 10})).toBe(0)
         expect((-10).limit({start: -50, end: -5})).toBe(-10)
+      })
+    })
+
+    describe('cmp', || {
+      it('should return less for numbers greater than self', || {
+        expect(5.cmp(10)).toBe(Ordering::Less)
+        expect(0.cmp(1)).toBe(Ordering::Less)
+        expect((-1).cmp(0)).toBe(Ordering::Less)
+      })
+
+      it('should return greater for numbers less than self', || {
+        expect(10.cmp(5)).toBe(Ordering::Greater)
+        expect(1.cmp(0)).toBe(Ordering::Greater)
+        expect(0.cmp(-1)).toBe(Ordering::Greater)
+      })
+
+      it('should return equal for equal numbers', || {
+        expect(10.cmp(10)).toBe(Ordering::Equal)
+        expect(0.cmp(0)).toBe(Ordering::Equal)
+        expect((-1).cmp(-1)).toBe(Ordering::Equal)
       })
     })
   })
@@ -623,6 +644,38 @@ describe('core', || {
         expect(iterator.next()).toEqual(Some(2))
         expect(iterator.next()).toEqual(Some(3))
         expect(iterator.next()).toEqual(None)
+      })
+    })
+
+    describe('binarySearchBy', || {
+      it('should return Err(0) for empty lists', || {
+        expect([].binarySearchBy(|_| Ordering::Less)).toEqual(any(Err(0)))
+      })
+
+      it('should return Err(n - 1) if the value is greater than everying', || {
+        expect([1, 2, 3].binarySearchBy(|val| val.cmp(4))).toEqual(any(Err(3)))
+      })
+
+      it('should return Err(0) if the value is less than everying', || {
+        expect([1, 2, 3].binarySearchBy(|val| val.cmp(0))).toEqual(any(Err(0)))
+      })
+
+      it('should return Ok(index) if the value is found', || {
+        expect([1, 2, 3].binarySearchBy(|val| val.cmp(2))).toEqual(any(Ok(1)))
+      })
+    })
+  })
+
+  describe('ordering', || {
+    describe('reverse', || {
+      it('should return greater for less', || {
+        expect(Ordering::Less.reverse()).toBe(Ordering::Greater)
+      })
+      it('should return equal for equal', || {
+        expect(Ordering::Equal.reverse()).toBe(Ordering::Equal)
+      })
+      it('should return less for greater', || {
+        expect(Ordering::Greater.reverse()).toBe(Ordering::Less)
       })
     })
   })

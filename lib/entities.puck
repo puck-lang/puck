@@ -198,6 +198,16 @@ impl Type {
     }
   }
 
+  fn isEmpty(self) -> Bool {
+    match self.kind {
+      TypeKind::Struct(struct) => match struct.kind {
+        StructKind::Tuple(tuple) => tuple.properties.isEmpty()
+        _ => false
+      }
+      _ => false
+    }
+  }
+
   fn isEnum(self) -> Bool {
     match self.kind {
       TypeKind::Enum(_) => true

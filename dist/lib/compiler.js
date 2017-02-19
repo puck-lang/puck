@@ -111,7 +111,7 @@ function createContext(projectPath) {
       return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_js._Object).keys($unwrapTraitObject(self).files)).map(function (path) {
         return $unwrapTraitObject($unwrapTraitObject(self).files)[$unwrapTraitObject(path)];
       })).forEach(function (file) {
-        if (!$unwrapTraitObject(file).typeVisitorStarted) {
+        if (!$unwrapTraitObject(file).typeVisitorStarted && $unwrapTraitObject(file).ast) {
           $unwrapTraitObject(file).typeVisitorStarted = true;
           $unwrapTraitObject((0, _type_visitor.TypeVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
           return $unwrapTraitObject(file).typeVisitorCompleted = true;
@@ -123,7 +123,7 @@ function createContext(projectPath) {
       return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_js._Object).keys($unwrapTraitObject(self).files)).map(function (path) {
         return $unwrapTraitObject($unwrapTraitObject(self).files)[$unwrapTraitObject(path)];
       })).forEach(function (file) {
-        if (!$unwrapTraitObject(file).implVisitorStarted) {
+        if (!$unwrapTraitObject(file).implVisitorStarted && $unwrapTraitObject(file).ast) {
           $unwrapTraitObject(file).implVisitorStarted = true;
           return $unwrapTraitObject((0, _impl_visitor.ImplVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
         };
@@ -134,7 +134,7 @@ function createContext(projectPath) {
       return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_js._Object).keys($unwrapTraitObject(self).files)).map(function (path) {
         return $unwrapTraitObject($unwrapTraitObject(self).files)[$unwrapTraitObject(path)];
       })).forEach(function (file) {
-        if (!$unwrapTraitObject(file).scopeVisitorStarted) {
+        if (!$unwrapTraitObject(file).scopeVisitorStarted && $unwrapTraitObject(file).ast) {
           $unwrapTraitObject(file).scopeVisitorStarted = true;
           return $unwrapTraitObject((0, _scope_visitor.ScopeVisitor)(self, file)).visitModule($unwrapTraitObject(file).ast);
         };

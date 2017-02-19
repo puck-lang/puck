@@ -1,0 +1,626 @@
+import '../ast/ast.puck' as {
+  Module
+  TopLevelStatement
+  BlockLevelStatement
+  Expression
+
+  EnumDeclaration
+  EnumMember
+  ImplDeclaration
+  ImplShorthandDeclaration
+  TraitDeclaration
+
+  ExportDirective
+  ExportedStatement
+  ImportDirective
+  ImportSpecifier
+  ObjectDestructure
+  ObjectDestructureMember
+  TypeDeclaration
+
+  Block
+  BreakStatement
+  ReturnStatement
+  WhileLoop
+
+  Identifier
+  FunctionDeclaration
+  VariableDeclaration
+
+  AssignmentExpression
+  BinaryExpression
+  CallExpression
+  IfExpression
+  IfLetExpression
+  MatchExpression
+  MatchArm
+  TypePathExpression
+  TypePath
+  UnaryExpression
+
+  IndexAccess
+  MemberAccess
+
+  BooleanLiteral
+  ListLiteral
+  NumberLiteral
+  RecordLiteral
+  RecordLiteralMember
+  StringLiteral
+  StringLiteralPart
+  TupleLiteral
+
+  Pattern
+  RecordPattern
+  TuplePattern
+
+  TypeBound
+  FunctionTypeBound
+  NamedTypeBound
+  RecordTypeBound
+  RecordTypeBoundMember
+  TupleTypeBound
+  TypeParameter
+}
+import '../ast/span.puck' as {
+  Position
+  Span
+  ToSpan
+}
+
+/// A visitor that from the outside in visit a specific Position
+export trait PositionVisitor {
+  fn position(self) -> Position
+
+  fn visitModule(mut self, m: Module) -> () {
+    walkModule(self, m)
+  }
+  fn visitTopLevelStatement(mut self, e: TopLevelStatement) -> () {
+    walkTopLevelStatement(self, e)
+  }
+  fn visitBlockLevelStatement(mut self, e: BlockLevelStatement) -> () {
+    walkBlockLevelStatement(self, e)
+  }
+  fn visitExpression(mut self, e: Expression) -> () {
+    walkExpression(self, e)
+  }
+
+  fn visitEnumDeclaration(mut self, e: EnumDeclaration) -> () {
+    walkEnumDeclaration(self, e)
+  }
+  fn visitEnumMember(mut self, e: EnumMember) -> () {
+    walkEnumMember(self, e)
+  }
+  fn visitImplDeclaration(mut self, i: ImplDeclaration) -> () {
+    walkImplDeclaration(self, i)
+  }
+  fn visitImplShorthandDeclaration(mut self, i: ImplShorthandDeclaration) -> () {
+    walkImplShorthandDeclaration(self, i)
+  }
+  fn visitMethodDeclaration(mut self, f: FunctionDeclaration) -> () {
+    walkFunctionDeclaration(self, f)
+  }
+  fn visitTraitDeclaration(mut self, t: TraitDeclaration) -> () {
+    walkTraitDeclaration(self, t)
+  }
+  fn visitTypeDeclaration(mut self, t: TypeDeclaration) -> () {
+    walkTypeDeclaration(self, t)
+  }
+
+  fn visitExportDirective(mut self, e: ExportDirective) -> () {
+    walkExportDirective(self, e)
+  }
+  fn visitImportDirective(mut self, i: ImportDirective) -> () {
+    walkImportDirective(self, i)
+  }
+  fn visitObjectDestructure(mut self, o: ObjectDestructure) -> () {
+    walkObjectDestructure(self, o)
+  }
+  fn visitObjectDestructureMember(mut self, m: ObjectDestructureMember) -> () {
+    walkObjectDestructureMember(self, m)
+  }
+
+  fn visitBlock(mut self, b: Block) -> () {
+    walkBlock(self, b)
+  }
+  fn visitBreakStatement(mut self, b: BreakStatement) -> () {}
+  fn visitReturnStatement(mut self, r: ReturnStatement) -> () {
+    walkReturnStatement(self, r)
+  }
+  fn visitWhileLoop(mut self, e: WhileLoop) -> () {
+    walkWhileLoop(self, e)
+  }
+
+  fn visitIdentifier(mut self, i: Identifier) -> () {}
+  fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {
+    walkFunctionDeclaration(self, f)
+  }
+  fn visitVariableDeclaration(mut self, d: VariableDeclaration) -> () {
+    walkVariableDeclaration(self, d)
+  }
+
+  fn visitAssignmentExpression(mut self, e: AssignmentExpression) -> () {
+    walkAssignmentExpression(self, e)
+  }
+  fn visitBinaryExpression(mut self, e: BinaryExpression) -> () {
+    walkBinaryExpression(self, e)
+  }
+  fn visitCallExpression(mut self, e: CallExpression) -> () {
+    walkCallExpression(self, e)
+  }
+  fn visitIfExpression(mut self, e: IfExpression) -> () {
+    walkIfExpression(self, e)
+  }
+  fn visitIfLetExpression(mut self, e: IfLetExpression) -> () {
+    walkIfLetExpression(self, e)
+  }
+  fn visitMatchExpression(mut self, e: MatchExpression) -> () {
+    walkMatchExpression(self, e)
+  }
+  fn visitMatchArm(mut self, e: MatchArm) -> () {
+    walkMatchArm(self, e)
+  }
+  fn visitTypePath(mut self, e: TypePath) -> () {
+    walkTypePath(self, e)
+  }
+  fn visitTypePathExpression(mut self, e: TypePathExpression) -> () {
+    walkTypePathExpression(self, e)
+  }
+  fn visitUnaryExpression(mut self, e: UnaryExpression) -> () {
+    walkUnaryExpression(self, e)
+  }
+  fn visitIndexAccess(mut self, a: IndexAccess) -> () {
+    walkIndexAccess(self, a)
+  }
+  fn visitMemberAccess(mut self, a: MemberAccess) -> () {
+    walkMemberAccess(self, a)
+  }
+  fn visitListLiteral(mut self, l: ListLiteral) -> () {
+    walkListLiteral(self, l)
+  }
+  fn visitBooleanLiteral(mut self, l: BooleanLiteral) -> () {
+    walkBooleanLiteral(self, l)
+  }
+  fn visitNumberLiteral(mut self, l: NumberLiteral) -> () {
+    walkNumberLiteral(self, l)
+  }
+  fn visitRecordLiteral(mut self, l: RecordLiteral) -> () {
+    walkRecordLiteral(self, l)
+  }
+  fn visitRecordLiteralMember(mut self, l: RecordLiteralMember) -> () {
+    walkRecordLiteralMember(self, l)
+  }
+  fn visitStringLiteral(mut self, l: StringLiteral) -> () {
+    walkStringLiteral(self, l)
+  }
+  fn visitStringLiteralPart(mut self, l: StringLiteralPart) -> () {
+    walkStringLiteralPart(self, l)
+  }
+  fn visitTupleLiteral(mut self, l: TupleLiteral) -> () {
+    walkTupleLiteral(self, l)
+  }
+
+  fn visitPattern(mut self, p: Pattern) -> () {
+    walkPattern(self, p)
+  }
+  fn visitIdentifierPattern(mut self, p: Identifier) -> () {
+    walkIdentifierPattern(self, p)
+  }
+  fn visitRecordPattern(mut self, p: RecordPattern) -> () {
+    walkRecordPattern(self, p)
+  }
+  fn visitRecordTypePattern(mut self, t: TypePath, p: RecordPattern) -> () {
+    walkTypePath(self, t)
+    walkRecordPattern(self, p)
+  }
+  fn visitTuplePattern(mut self, p: TuplePattern) -> () {
+    walkTuplePattern(self, p)
+  }
+  fn visitTupleTypePattern(mut self, t: TypePath, p: TuplePattern) -> () {
+    walkTypePath(self, t)
+    walkTuplePattern(self, p)
+  }
+
+  fn visitTypeBound(mut self, t: TypeBound) -> () {
+    walkTypeBound(self, t)
+  }
+  fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {
+    walkFunctionTypeBound(self, t)
+  }
+  fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {
+    walkNamedTypeBound(self, t)
+  }
+  fn visitRecordTypeBound(mut self, t: RecordTypeBound) -> () {
+    walkRecordTypeBound(self, t)
+  }
+  fn visitRecordTypeBoundMember(mut self, t: RecordTypeBoundMember) -> () {
+    walkRecordTypeBoundMember(self, t)
+  }
+  fn visitTupleTypeBound(mut self, t: TupleTypeBound) -> () {
+    walkTupleTypeBound(self, t)
+  }
+  fn visitTypeParameter(mut self, t: TypeParameter) -> () {
+    walkTypeParameter(self, t)
+  }
+}
+
+export fn walkModule(mut visitor: PositionVisitor, m: Module) -> Bool {
+  if let Ok(index) = m.statements.binarySearchBy(
+    |statement| statement.span().cmp(visitor.position())
+  ) {
+    visitor.visitTopLevelStatement(m.statements[index])
+    true
+  }
+  else false
+}
+export fn walkTopLevelStatement(mut visitor: PositionVisitor, e: TopLevelStatement) -> () {
+  match e {
+    TopLevelStatement::EnumDeclaration(s) => visitor.visitEnumDeclaration(s)
+    TopLevelStatement::ExportDirective(s) => visitor.visitExportDirective(s)
+    TopLevelStatement::ImportDirective(s) => visitor.visitImportDirective(s)
+    TopLevelStatement::ImplDeclaration(s) => visitor.visitImplDeclaration(s)
+    TopLevelStatement::ImplShorthandDeclaration(s) => visitor.visitImplShorthandDeclaration(s)
+    TopLevelStatement::TraitDeclaration(s) => visitor.visitTraitDeclaration(s)
+    TopLevelStatement::TypeDeclaration(s) => visitor.visitTypeDeclaration(s)
+    TopLevelStatement::BlockLevelStatement(s) => visitor.visitBlockLevelStatement(s)
+  }
+}
+export fn walkBlockLevelStatement(mut visitor: PositionVisitor, e: BlockLevelStatement) -> () {
+  match e {
+    BlockLevelStatement::Block(e) => visitor.visitBlock(e)
+    BlockLevelStatement::BreakStatement(e) => visitor.visitBreakStatement(e)
+    BlockLevelStatement::ReturnStatement(e) => visitor.visitReturnStatement(e)
+    BlockLevelStatement::WhileLoop(e) => visitor.visitWhileLoop(e)
+
+    BlockLevelStatement::Expression(e) => walkExpression(visitor, e)
+  }
+}
+export fn walkExpression(mut visitor: PositionVisitor, e: Expression) -> () {
+  match e {
+    Expression::ThrowStatement(e) => visitor.visitExpression(e.expression)
+    Expression::Comment(_) => {}
+
+    Expression::Identifier(e) => visitor.visitIdentifier(e)
+    Expression::FunctionDeclaration(e) => visitor.visitFunctionDeclaration(e)
+    Expression::VariableDeclaration(e) => visitor.visitVariableDeclaration(e)
+
+    Expression::AssignmentExpression(e) => visitor.visitAssignmentExpression(e)
+    Expression::BinaryExpression(e) => visitor.visitBinaryExpression(e)
+    Expression::CallExpression(e) => visitor.visitCallExpression(e)
+    Expression::IfExpression(e) => visitor.visitIfExpression(e)
+    Expression::IfLetExpression(e) => visitor.visitIfLetExpression(e)
+    Expression::MatchExpression(e) => visitor.visitMatchExpression(e)
+    Expression::TypePathExpression(e) => visitor.visitTypePathExpression(e)
+    Expression::UnaryExpression(e) => visitor.visitUnaryExpression(e)
+
+    Expression::IndexAccess(e) => visitor.visitIndexAccess(e)
+    Expression::MemberAccess(e) => visitor.visitMemberAccess(e)
+
+    Expression::BooleanLiteral(e) => visitor.visitBooleanLiteral(e)
+    Expression::ListLiteral(e) => visitor.visitListLiteral(e)
+    Expression::NumberLiteral(e) => visitor.visitNumberLiteral(e)
+    Expression::RecordLiteral(e) => visitor.visitRecordLiteral(e)
+    Expression::StringLiteral(e) => visitor.visitStringLiteral(e)
+    Expression::TupleLiteral(e) => visitor.visitTupleLiteral(e)
+  }
+}
+
+export fn walkEnumDeclaration(mut visitor: PositionVisitor, e: EnumDeclaration) -> Bool {
+  false
+}
+export fn walkEnumMember(mut visitor: PositionVisitor, e: EnumMember) -> () {
+
+}
+export fn walkImplDeclaration(mut visitor: PositionVisitor, i: ImplDeclaration) -> Bool {
+  if let Ok(index) = i.members.binarySearchBy(
+    |member| member.span().cmp(visitor.position())
+  ) {
+    visitor.visitMethodDeclaration(i.members[index])
+    true
+  }
+  else false
+}
+export fn walkImplShorthandDeclaration(mut visitor: PositionVisitor, i: ImplShorthandDeclaration) -> Bool {
+  if let Ok(index) = i.members.binarySearchBy(
+    |member| member.span().cmp(visitor.position())
+  ) {
+    visitor.visitMethodDeclaration(i.members[index])
+    true
+  }
+  else false
+}
+export fn walkMethodDeclaration(mut visitor: PositionVisitor, f: FunctionDeclaration) -> () {
+  visitor.visitFunctionDeclaration(f)
+}
+export fn walkTraitDeclaration(mut visitor: PositionVisitor, t: TraitDeclaration) -> Bool {
+  if let Ok(index) = t.members.binarySearchBy(
+    |member| member.span().cmp(visitor.position())
+  ) {
+    visitor.visitMethodDeclaration(t.members[index])
+    true
+  }
+  else false
+}
+export fn walkTypeDeclaration(mut visitor: PositionVisitor, t: TypeDeclaration) -> () {
+
+}
+
+export fn walkExportDirective(mut visitor: PositionVisitor, e: ExportDirective) -> () {
+  if e.statement.span().cmp(visitor.position()) == Ordering::Equal
+    then match e.statement {
+      ExportedStatement::EnumDeclaration(d) => visitor.visitEnumDeclaration(d)
+      ExportedStatement::TraitDeclaration(d) => visitor.visitTraitDeclaration(d)
+      ExportedStatement::TypeDeclaration(d) => visitor.visitTypeDeclaration(d)
+      ExportedStatement::FunctionDeclaration(d) => visitor.visitFunctionDeclaration(d)
+      ExportedStatement::VariableDeclaration(d) => visitor.visitVariableDeclaration(d)
+    }
+}
+export fn walkImportDirective(mut visitor: PositionVisitor, i: ImportDirective) -> () {
+  if i.specifier.span().cmp(visitor.position()) == Ordering::Equal
+    then match i.specifier {
+      ImportSpecifier::ObjectDestructure(s) => visitor.visitObjectDestructure(s)
+      _ => {}
+    }
+
+}
+export fn walkObjectDestructure(mut visitor: PositionVisitor, o: ObjectDestructure) -> Bool {
+  if let Ok(index) = o.members.binarySearchBy(
+    |member| member.span().cmp(visitor.position())
+  ) {
+    visitor.visitObjectDestructureMember(o.members[index])
+    true
+  }
+  else false
+}
+export fn walkObjectDestructureMember(mut visitor: PositionVisitor, m: ObjectDestructureMember) -> () {
+  if m.property.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitIdentifier(m.property)
+  else if m.local.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitIdentifier(m.local)
+}
+
+export fn walkBlock(mut visitor: PositionVisitor, b: Block) -> Bool {
+  if let Ok(index) = b.statements.binarySearchBy(
+    |statement| statement.span().cmp(visitor.position())
+  ) {
+    visitor.visitBlockLevelStatement(b.statements[index])
+    true
+  }
+  else false
+}
+export fn walkReturnStatement(mut visitor: PositionVisitor, r: ReturnStatement) -> () {
+  if r.expression.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(r.expression)
+}
+export fn walkWhileLoop(mut visitor: PositionVisitor, e: WhileLoop) -> () {
+  if e.body.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitBlock(e.body)
+    else visitor.visitExpression(e.condition)
+}
+
+export fn walkFunctionDeclaration(mut visitor: PositionVisitor, f: FunctionDeclaration) -> () {
+  if let Some(body) = f.body {
+    if body.span().cmp(visitor.position()) == Ordering::Equal
+      then return visitor.visitBlock(body)
+  }
+}
+export fn walkVariableDeclaration(mut visitor: PositionVisitor, d: VariableDeclaration) -> () {
+  if d.pattern.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitPattern(d.pattern)
+  else {
+    if let Some(typeBound) = d.typeBound {
+      if typeBound.span().cmp(visitor.position()) == Ordering::Equal
+        then return visitor.visitTypeBound(typeBound)
+    }
+    if let Some(initializer) = d.initializer {
+      if initializer.span().cmp(visitor.position()) == Ordering::Equal
+        then return visitor.visitExpression(initializer)
+    }
+  }
+}
+
+export fn walkAssignmentExpression(mut visitor: PositionVisitor, e: AssignmentExpression) -> () {
+  if e.lhs.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(e.lhs)
+  else if e.rhs.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(e.rhs)
+}
+export fn walkBinaryExpression(mut visitor: PositionVisitor, e: BinaryExpression) -> () {
+  if e.lhs.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(e.lhs)
+  else if e.rhs.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(e.rhs)
+}
+export fn walkCallExpression(mut visitor: PositionVisitor, e: CallExpression) -> () {
+  if e.func.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(e.func)
+  else {
+    if let Ok(index) = e.argumentList.binarySearchBy(
+      |arg| arg.span().cmp(visitor.position())
+    ) {
+      visitor.visitExpression(e.argumentList[index])
+    }
+  }
+}
+export fn walkIfExpression(mut visitor: PositionVisitor, e: IfExpression) -> () {
+  if e.then_.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitBlock(e.then_)
+  else if e.condition.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(e.condition)
+  else if let Some(else_) = e.else_ {
+    if else_.span().cmp(visitor.position()) == Ordering::Equal
+      then return visitor.visitBlock(else_)
+  }
+}
+export fn walkIfLetExpression(mut visitor: PositionVisitor, e: IfLetExpression) -> () {
+  if e.then_.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitBlock(e.then_)
+  else if e.pattern.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitPattern(e.pattern)
+  else if e.expression.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(e.expression)
+  else if let Some(else_) = e.else_ {
+    if else_.span().cmp(visitor.position()) == Ordering::Equal
+      then return visitor.visitBlock(else_)
+  }
+}
+export fn walkMatchExpression(mut visitor: PositionVisitor, e: MatchExpression) -> Bool {
+  if e.expression.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(e.expression)
+  else {
+    if let Ok(index) = e.patterns.binarySearchBy(
+      |pattern| pattern.span().cmp(visitor.position())
+    ) {
+      visitor.visitMatchArm(e.patterns[index])
+    }
+    else return false
+  }
+  true
+}
+export fn walkMatchArm(mut visitor: PositionVisitor, e: MatchArm) -> () {
+  if e.block.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitBlock(e.block)
+  else if e.pattern.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitPattern(e.pattern)
+}
+export fn walkTypePath(mut visitor: PositionVisitor, e: TypePath) -> () {
+
+}
+export fn walkTypePathExpression(mut visitor: PositionVisitor, e: TypePathExpression) -> () {
+
+}
+export fn walkUnaryExpression(mut visitor: PositionVisitor, e: UnaryExpression) -> () {
+
+}
+
+export fn walkIndexAccess(mut visitor: PositionVisitor, a: IndexAccess) -> () {
+  if a.object.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(a.object)
+  else if a.index.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(a.index)
+}
+export fn walkMemberAccess(mut visitor: PositionVisitor, a: MemberAccess) -> () {
+  if a.object.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(a.object)
+  else if a.member.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitIdentifier(a.member)
+}
+
+export fn walkListLiteral(mut visitor: PositionVisitor, l: ListLiteral) -> () {
+  if let Ok(index) = l.members.binarySearchBy(
+    |member| member.span().cmp(visitor.position())
+  ) {
+    visitor.visitExpression(l.members[index])
+  }
+}
+export fn walkBooleanLiteral(mut visitor: PositionVisitor, l: BooleanLiteral) -> () {
+
+}
+export fn walkNumberLiteral(mut visitor: PositionVisitor, l: NumberLiteral) -> () {
+
+}
+export fn walkRecordLiteral(mut visitor: PositionVisitor, l: RecordLiteral) -> () {
+  if let Ok(index) = l.members.binarySearchBy(
+    |member| member.span().cmp(visitor.position())
+  ) {
+    visitor.visitRecordLiteralMember(l.members[index])
+  }
+}
+export fn walkRecordLiteralMember(mut visitor: PositionVisitor, l: RecordLiteralMember) -> () {
+  if l.value.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(l.value)
+}
+export fn walkStringLiteral(mut visitor: PositionVisitor, l: StringLiteral) -> () {
+  if let Ok(index) = l.parts.binarySearchBy(
+    |part| part.span().cmp(visitor.position())
+  ) {
+    visitor.visitStringLiteralPart(l.parts[index])
+  }
+}
+export fn walkStringLiteralPart(mut visitor: PositionVisitor, l: StringLiteralPart) -> () {
+  match l {
+    StringLiteralPart::Literal => {}
+    StringLiteralPart::Identifier(identifier) => visitor.visitIdentifier(identifier)
+  }
+}
+export fn walkTupleLiteral(mut visitor: PositionVisitor, l: TupleLiteral) -> () {
+  if let Ok(index) = l.expressions.binarySearchBy(
+    |member| member.span().cmp(visitor.position())
+  ) {
+    visitor.visitExpression(l.expressions[index])
+  }
+}
+
+export fn walkPattern(mut visitor: PositionVisitor, p: Pattern) -> () {
+  match p {
+    Pattern::CatchAll(_) => {}
+    Pattern::Identifier(identifier) => visitor.visitIdentifierPattern(identifier)
+    Pattern::Record(recordPattern) => visitor.visitRecordPattern(recordPattern)
+    Pattern::Tuple(tuplePattern) => visitor.visitTuplePattern(tuplePattern)
+    Pattern::RecordType(typePath, recordPattern) => {
+      visitor.visitRecordTypePattern(typePath, recordPattern)
+    }
+    Pattern::TupleType(typePath, tuplePattern) => {
+      visitor.visitTupleTypePattern(typePath, tuplePattern)
+    }
+    Pattern::UnitType(typePath) => visitor.visitTypePath(typePath)
+  }
+}
+export fn walkIdentifierPattern(mut visitor: PositionVisitor, p: Identifier) -> () {
+
+}
+export fn walkRecordPattern(mut visitor: PositionVisitor, p: RecordPattern) -> () {
+  if let Ok(index) = p.properties.binarySearchBy(
+    |prop| prop.span().cmp(visitor.position())
+  ) {
+    visitor.visitPattern(p.properties[index].pattern)
+  }
+}
+export fn walkTuplePattern(mut visitor: PositionVisitor, p: TuplePattern) -> () {
+  if let Ok(index) = p.properties.binarySearchBy(
+    |prop| prop.span().cmp(visitor.position())
+  ) {
+    visitor.visitPattern(p.properties[index])
+  }
+}
+
+export fn walkTypeBound(mut visitor: PositionVisitor, t: TypeBound) -> () {
+  match t {
+    TypeBound::FunctionTypeBound(t) => visitor.visitFunctionTypeBound(t)
+    TypeBound::NamedTypeBound(t) => visitor.visitNamedTypeBound(t)
+    TypeBound::RecordTypeBound(t) => visitor.visitRecordTypeBound(t)
+    TypeBound::TupleTypeBound(t) => visitor.visitTupleTypeBound(t)
+  }
+}
+export fn walkFunctionTypeBound(mut visitor: PositionVisitor, t: FunctionTypeBound) -> () {
+  if t.parameters.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitTupleTypeBound(t.parameters)
+  else if t.returnType.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitTypeBound(t.returnType)
+  else if let Ok(index) = t.typeParameters.binarySearchBy(
+    |t| t.span().cmp(visitor.position())
+  ) {
+    visitor.visitTypeBound(t.typeParameters[index])
+  }
+}
+export fn walkNamedTypeBound(mut visitor: PositionVisitor, t: NamedTypeBound) -> () {
+  if t.path.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitTypePath(t.path)
+  else if let Ok(index) = t.typeParameters.binarySearchBy(
+    |t| t.span().cmp(visitor.position())
+  ) {
+    visitor.visitTypeBound(t.typeParameters[index])
+  }
+}
+export fn walkRecordTypeBound(mut visitor: PositionVisitor, t: RecordTypeBound) -> () {
+
+}
+export fn walkRecordTypeBoundMember(mut visitor: PositionVisitor, t: RecordTypeBoundMember) -> () {
+
+}
+export fn walkTupleTypeBound(mut visitor: PositionVisitor, t: TupleTypeBound) -> () {
+
+}
+export fn walkTypeParameter(mut visitor: PositionVisitor, t: TypeParameter) -> () {
+
+}

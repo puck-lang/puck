@@ -37,6 +37,12 @@ impl Scope {
     bindingsByTypeId: ObjectMap.new()
   }}
 
+  fn getBindings(self) -> ObjectMap<Binding> {
+    if let Some(parent) = self.parent
+      then Object.assign({}, parent.bindings, self.bindings)
+      else self.bindings
+  }
+
   fn getBinding(self, name: String, visitor = '') -> Option<Binding> {
     self.bindings
       .get(name)

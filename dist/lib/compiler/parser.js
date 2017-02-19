@@ -92,9 +92,9 @@ function parse(input) {
     if (!$unwrapTraitObject(input).eof()) {
       var token = $unwrapTraitObject(input).peek(true);
       if ($unwrapTraitObject(token).kind == $unwrapTraitObject(_ast2.SyntaxKind).NewlineToken || $unwrapTraitObject(token).kind == $unwrapTraitObject(_ast2.SyntaxKind).Comment) {
-        return $unwrapTraitObject(input).next(true);
+        $unwrapTraitObject(input).next(true);
       } else {
-        return consumeToken(kind);
+        consumeToken(kind);
       };
     };
   };
@@ -327,7 +327,7 @@ function parse(input) {
   };
   function parseBlockLevelStatement() {
     if (isToken($unwrapTraitObject(_ast2.SyntaxKind).BreakKeyword)) {
-      return _ast.BlockLevelStatement.BreakStatement($unwrapTraitObject(input).next());
+      return _ast.BlockLevelStatement.BreakStatement({ keyword: $unwrapTraitObject(input).next() });
     } else {
       if (isToken($unwrapTraitObject(_ast2.SyntaxKind).ReturnKeyword)) {
         return _ast.BlockLevelStatement.ReturnStatement({

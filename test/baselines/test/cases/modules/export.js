@@ -25,7 +25,7 @@ var Trait = exports.Trait = {
   },
   _default: function _default() {
     var self = this;
-    return (0, _core.print)(self);
+    (0, _core.print)(self);
   }
 };
 var OtherTrait = exports.OtherTrait = {

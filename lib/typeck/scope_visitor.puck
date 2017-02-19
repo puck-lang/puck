@@ -173,13 +173,8 @@ export fn ScopeVisitor(context, file) {
       else function
 
     c.argumentList.enumerate().forEach(|(argument, i): (Expression, Num)| {
-      let parameter = function.parameters[i]
-      let parameterName =
-        if parameter.pattern
-          then if let Pattern::Identifier({name}) = parameter.pattern
-            then name
-            else '$i'
-          else '$i'
+      let parameter = function.parameters.get(i).unwrap()
+      let parameterName = parameter.name
       let pType: Type = parameter.type_
 
       if not isAssignable(parameter.type_, argument.getType())
@@ -301,6 +296,7 @@ export fn ScopeVisitor(context, file) {
       i.scope = self.scope
       if let Option::Some(binding) = scope.getBinding(i.name) {
         let mut b = binding
+        i.binding = binding
         i.type_ =
           if binding.type_ and binding.type_.providesType.isSome()
             then enumMemberToFunction(b.type_)
@@ -318,12 +314,21 @@ export fn ScopeVisitor(context, file) {
 
         f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
         if let Option::Some(body) = f.body {
-          self.visitBlock(body)
+          let parentAssignedTo = self.assignedTo
+          let mut isUsed = true
+          if let TypeKind::Function(func) = f.type_.kind {
+            self.assignedTo = func.returnType
+            if func.returnType and func.returnType.isEmpty() {
+              isUsed = false
+            }
+          }
+          self.visitBlock(body, isUsed)
+          self.assignedTo = parentAssignedTo
 
           if let TypeKind::Function(func) = f.type_.kind {
-            if func.returnType {
+            if func.returnType and not func.returnType.isEmpty() {
               if not isAssignable(func.returnType, body.type_)
-                then reportError(f, notAssignableError(func.returnType, body.type_) + ' as returnType')
+                then reportError(f, notAssignableError(func.returnType, body.type_))
             }
             else {
               Object.assign(func, {
@@ -344,7 +349,7 @@ export fn ScopeVisitor(context, file) {
           then visitInitializer
           else |e| {
             let parentAssignedTo = self.assignedTo
-            self.assignedTo = d
+            self.assignedTo = d.type_
             self.isUsed = true
             self.visitExpression(e)
             self.assignedTo = parentAssignedTo
@@ -477,7 +482,7 @@ export fn ScopeVisitor(context, file) {
           .take(functionKind.parameters.size())
           .forEach(|(a, i): (Expression, Num)| {
             let parameter = functionKind.parameters[i]
-            self.assignedTo = parameter
+            self.assignedTo = parameter.type_
             self.visitExpression(a)
             if callTypeParameters.isNotEmpty() and parameter.type_ and a.getType() {
               resolveFunctionTypeParameters(
@@ -508,12 +513,15 @@ export fn ScopeVisitor(context, file) {
     }
     visitIfExpression: |mut self, mut e: IfExpression| {
       let parentScope: Scope = self.scope
-      self.scope = parentScope.createChild()
       e.scope = self.scope
       let isUsed = self.isUsed
       self.visitExpression(e.condition)
+      self.scope = parentScope.createChild()
       self.visitBlock(e.then_, isUsed)
-      if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
+      if let Option::Some(else_) = e.else_ {
+        self.scope = parentScope.createChild()
+        self.visitBlock(else_, isUsed)
+      }
       if isUsed {
         e.type_ =
           if let Option::Some(else_) = e.else_ {
@@ -530,12 +538,12 @@ export fn ScopeVisitor(context, file) {
     }
     visitIfLetExpression: |mut self, mut e: IfLetExpression| {
       let parentScope: Scope = self.scope
-      self.scope = parentScope.createChild()
       e.scope = self.scope
+      self.scope = parentScope.createChild()
       let isUsed = self.isUsed
       self.visitPattern(e.pattern)
       self.visitExpression(e.expression)
-      match declarePatternVariables(e.scope, self, e.pattern, false, e.expression.getType(), true) {
+      match declarePatternVariables(self.scope, self, e.pattern, false, e.expression.getType(), true) {
         Result::Ok(_) => {}
         Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
           reportError(e.expression, notAssignableError(to, subject))
@@ -545,8 +553,13 @@ export fn ScopeVisitor(context, file) {
           // Allowed in if let expressions
         }
       }
+      let expressionScope: Scope = self.scope
+      self.scope = expressionScope.createChild()
       self.visitBlock(e.then_, isUsed)
-      if let Option::Some(else_) = e.else_ then self.visitBlock(else_, isUsed)
+      if let Option::Some(else_) = e.else_ {
+        self.scope = expressionScope.createChild()
+        self.visitBlock(else_, isUsed)
+      }
       if isUsed {
         e.type_ =
           if let Option::Some(else_) = e.else_ {
@@ -616,8 +629,10 @@ export fn ScopeVisitor(context, file) {
       e.scope = self.scope
       let typePath = e.typePath
       self.visitTypePath(e.typePath)
-      let type_: Type = e.typePath.type_
-      e.type_ = enumMemberToFunction(e.typePath.type_)
+      let mut type_: Type = e.typePath.type_
+      if type_ {
+        e.type_ = enumMemberToFunction(type_)
+      }
     }
     visitUnaryExpression: |self, mut e: UnaryExpression| {
       let scope: Scope = self.scope

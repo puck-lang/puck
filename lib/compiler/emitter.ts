@@ -497,7 +497,12 @@ export function Emitter() {
         ? fn.traitFunctionType.kind.value[0].returnType
         : fn.returnType.kind === 'Some' && fn.returnType.value[0].value[0].type_
     let code = `function ${name}(${parameterList.map(emitFunctionParameter).join(', ')}) `
-    code += withContext(Context.Return, () => emitBlock(body, undefined, returnType), true)
+    if (returnType && Type.isEmpty && Type.isEmpty.call(returnType)) {
+      code += emitBlock(body, undefined, returnType)
+    }
+    else {
+      code += withContext(Context.Return, () => emitBlock(body, undefined, returnType), true)
+    }
 
     typeOverrides = oldTypeOverrides
 
@@ -944,7 +949,7 @@ export function Emitter() {
           ? {kind: 'Some', value: [{
               statements: [{kind: 'Expression', value: [{kind: 'IfLetExpression', value: [ifLet]}]}],
             }]} as Option<BlockNode>
-          : {kind: 'None'} as Option<BlockNode>
+          : {kind: 'None'} as Option<BlockNode>,
       }
     }
 

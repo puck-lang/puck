@@ -165,6 +165,9 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
     enumMember: type_.enumMember
     complete: type_.complete
   }
+  // Place the instance in the class before the instance is resolved
+  // So that types with circles will use the cache and thus share the
+  // type instance. Otherwise the resolver is stuck in an infinite loop.
   class.instances.push(instance)
 
   instance.kind = resolveTypeParameters(parameterMap)(type_).kind
@@ -296,7 +299,20 @@ fn isTraitAssignable(to: Trait, subject: Trait) {
 
 export fn isSameType(a: Type, b: Type) {
   match (a.id, b.id) {
-    (Some(aId), Some(bId)) => aId == bId
+    (Some(aId), Some(bId)) => {
+      if aId != bId then return false
+
+      match (a.typeParameters(), b.typeParameters()) {
+        (Some(aParameters), Some(bParameters)) => {
+          if aParameters.size() == bParameters.size()
+            then List.zip(aParameters, bParameters)
+              .all(|(aParameter, bParameter)| isSameType(aParameter, bParameter))
+            else false
+        }
+        (Option::None, Option::None) => true
+        _ => false
+      }
+    }
     _ => false
   }
 }

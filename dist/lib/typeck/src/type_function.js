@@ -80,7 +80,7 @@ function enumMemberToFunction(type_) {
       __PUCK__value__11 = _entities.TypeKind.Function({
         selfBinding: _core.None,
         parameters: [{
-          name: _core.Option.unwrapOr.call(type_.name, "record"),
+          name: _core.Option.unwrapOr.call(type_.name, "0"),
           token: { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: _span.Span.empty(), $isTraitObject: true },
           mutable: false,
           allowRedeclare: false,

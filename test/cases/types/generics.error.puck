@@ -1,0 +1,8 @@
+///// Option<List<User>> is not assignable to type Option<List<String>>
+type User {name: String}
+let inferNested = Some([User({name: 'Anna'}), User({name: 'Carl'})])
+let nested: Option<List<String>> = inferNested
+
+///// Option<List<String>> is not assignable to type Option<List<{name: String}>>
+let inferNested = Some(['Anna', 'Carl'])
+let nested: Option<List<{name: String}>> = inferNested

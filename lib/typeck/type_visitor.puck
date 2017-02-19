@@ -425,7 +425,7 @@ export fn TypeVisitor(context, file) {
             then reportError(identifier, error)
         }
         ImportSpecifier::ObjectDestructure(d) => {
-          d.members.forEach(|m| {
+          d.members.forEach(|mut m| {
             let token: ToSpan = m
             if let Option::Some(module) = importDirective.module {
               let moduleScope: Scope = module.scope
@@ -436,7 +436,6 @@ export fn TypeVisitor(context, file) {
                 mutable: false
                 allowRedeclare: false
                 type_: importedBinding.type_
-                providesType: importedBinding.providesType
                 previous: None
                 completeType: Some(|visitor| {
                   if visitor == 'TypeVisitor' then return None
@@ -446,10 +445,11 @@ export fn TypeVisitor(context, file) {
                     context.runCheckerOnFile(module.file)
                   }
                   let externalBinding = moduleScope.getBinding(m.property.name, visitor)
-                  Some(externalBinding.unwrap().type_)
+                  externalBinding.map(|binding| binding.type_)
                 })
               })
                 then reportError(m.local, error)
+              m.local.type_ = importedBinding.type_
               imports[m.local.name] = importDirective.file
             }
             else {

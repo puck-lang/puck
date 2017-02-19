@@ -53,7 +53,7 @@ function structureVisitor(reportError) {
   var visitor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
 
   return {
-    visitEnumMember: $unwrapTraitObject(visit.walkingVisitor).visitEnumMember,
+    visitEnumMember: visit.walkingVisitor.visitEnumMember,
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
       if (!f.scope) {
@@ -62,8 +62,8 @@ function structureVisitor(reportError) {
           $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
           f.scope = $unwrapTraitObject(self).scope;
           var __PUCK__value__1 = void 0;
-          if ($unwrapTraitObject(self).assignedTo && $unwrapTraitObject($unwrapTraitObject(self).assignedTo).type_) {
-            var __PUCK__value__2 = $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).assignedTo).type_).kind;
+          if ($unwrapTraitObject(self).assignedTo) {
+            var __PUCK__value__2 = $unwrapTraitObject($unwrapTraitObject(self).assignedTo).kind;
             var __PUCK__value__3 = void 0;
             if ($unwrapTraitObject(__PUCK__value__2).kind == "Function") {
               var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
@@ -327,7 +327,7 @@ function structureVisitor(reportError) {
         });
       };
     },
-    visitRecordTypeBoundMember: $unwrapTraitObject(visit.walkingVisitor).visitRecordTypeBoundMember,
+    visitRecordTypeBoundMember: visit.walkingVisitor.visitRecordTypeBoundMember,
     visitTupleTypeBound: function visitTupleTypeBound(t) {
       var self = this;
       if (!t.scope) {
@@ -487,7 +487,7 @@ function structureVisitor(reportError) {
           d.type_ = initializerType;
         } else {
           if (!(0, _types.isAssignable)(d.type_, initializerType)) {
-            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true }, notAssignableError(d.type_, initializerType));
+            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: initializer, $isTraitObject: true }, notAssignableError(d.type_, initializerType));
           };
         };
         if (!(0, _types.isAssignable)(d.pattern.type_, initializerType)) {

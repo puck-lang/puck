@@ -3,3 +3,11 @@ let value =
   if 2 > 3
     then 5
     else 'string'
+
+///// Use of undefined variable a
+if true {
+  let a = 2
+}
+else {
+  a + 2
+}

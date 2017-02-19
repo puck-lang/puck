@@ -108,7 +108,7 @@ function TopLevelVisitor(context, file) {
       var self = this;
       return visit.walkVariableDeclaration(self, d);
     },
-    visitPattern: $unwrapTraitObject(visit.walkingVisitor).visitPattern,
+    visitPattern: visit.walkingVisitor.visitPattern,
     visitIdentifierPattern: function visitIdentifierPattern(p) {
       var self = this;
       return _core.ObjectMap.set.call(declarations, p.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: p, $isTraitObject: true });

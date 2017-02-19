@@ -1,4 +1,3 @@
-
 export type Position {
   line: Num
   column: Num
@@ -14,10 +13,29 @@ impl Span {
     start: {line: 0, column: 0}
     end: {line: 0, column: 0}
   }}
+
+  fn cmp(self, position: Position) -> Ordering {
+    if position.line < self.start.line or (
+        position.line == self.start.line and
+        position.column < self.start.column
+    )
+      then Ordering::Greater
+    else if position.line > self.end.line or (
+      position.line == self.end.line and
+      position.column > self.end.column
+    )
+      then Ordering::Less
+      else Ordering::Equal
+  }
 }
 
 export trait ToSpan {
-  fn span(self) -> Span
+  fn span(self) -> Span {{
+    start: self.start()
+    end: self.end()
+  }}
+  fn start(self) -> Position {self.span().start}
+  fn end(self) -> Position {self.span().end}
 }
 
 impl ToSpan for Span {

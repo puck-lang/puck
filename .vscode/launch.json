@@ -16,10 +16,9 @@
     {
       "type": "node",
       "request": "attach",
-      "name": "Attach to Process",
-      "port": 5858,
-      "outFiles": [],
-      "sourceMaps": true
+      "name": "Attach to Port",
+      "port": 6009,
+      "verboseDiagnosticLogging": true
     }
   ]
 }

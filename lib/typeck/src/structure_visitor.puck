@@ -53,8 +53,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
       f.scope = self.scope
 
       let assignedTo =
-        if self.assignedTo and self.assignedTo.type_ then
-          if let TypeKind::Function(func) = self.assignedTo.type_.kind
+        if self.assignedTo
+          then if let TypeKind::Function(func) = self.assignedTo.kind
             then func
 
       f.typeParameters.forEach(|p| self.visitTypeParameter(p))
@@ -332,7 +332,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
         d.type_ = initializerType
       }
       else if not isAssignable(d.type_, initializerType)
-        then return reportError(d, notAssignableError(d.type_, initializerType))
+        then return reportError(initializer, notAssignableError(d.type_, initializerType))
       if not isAssignable(d.pattern.type_, initializerType)
         then return reportError(d, notAssignableError(d.pattern.type_, initializerType))
     }
