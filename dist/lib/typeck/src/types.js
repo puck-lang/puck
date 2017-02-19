@@ -618,11 +618,49 @@ function isSameType(a, b) {
         _$unwrapTraitObject61 = _slicedToArray(_$unwrapTraitObject59[1].value, 1),
         bId = _$unwrapTraitObject61[0];
 
-    return aId == bId;
+    if (aId != bId) {
+      return false;
+    };
+    var __PUCK__value__83 = [_entities.Type.typeParameters.call(a), _entities.Type.typeParameters.call(b)];
+    var __PUCK__value__84 = __PUCK__value__83;
+    if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__84)[$unwrapTraitObject(0)]).kind == "Some" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__84)[$unwrapTraitObject(1)]).kind == "Some") {
+      var _$unwrapTraitObject62 = $unwrapTraitObject(__PUCK__value__84),
+          _$unwrapTraitObject63 = _slicedToArray(_$unwrapTraitObject62, 2),
+          _$unwrapTraitObject64 = _slicedToArray(_$unwrapTraitObject63[0].value, 1),
+          aParameters = _$unwrapTraitObject64[0],
+          _$unwrapTraitObject65 = _slicedToArray(_$unwrapTraitObject63[1].value, 1),
+          bParameters = _$unwrapTraitObject65[0];
+
+      if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: aParameters, $isTraitObject: true }) == _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: bParameters, $isTraitObject: true })) {
+        return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: aParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: bParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref17) {
+          var _ref18 = _slicedToArray(_ref17, 2),
+              aParameter = _ref18[0],
+              bParameter = _ref18[1];
+
+          return isSameType($unwrapTraitObject(aParameter), $unwrapTraitObject(bParameter));
+        });
+      } else {
+        return false;
+      };
+    } else {
+      var __PUCK__value__85 = __PUCK__value__83;
+      if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__85)[$unwrapTraitObject(0)]).kind == "None" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__85)[$unwrapTraitObject(1)]).kind == "None") {
+        var _$unwrapTraitObject66 = $unwrapTraitObject(__PUCK__value__85),
+            _$unwrapTraitObject67 = _slicedToArray(_$unwrapTraitObject66, 1);
+
+        return true;
+      } else {
+        var __PUCK__value__86 = __PUCK__value__83;
+        if (true) {
+          var __PUCK__value__87 = __PUCK__value__86;
+          return false;
+        };
+      };
+    };
   } else {
-    var __PUCK__value__83 = __PUCK__value__81;
+    var __PUCK__value__88 = __PUCK__value__81;
     if (true) {
-      var __PUCK__value__84 = __PUCK__value__83;
+      var __PUCK__value__89 = __PUCK__value__88;
       return false;
     };
   };
