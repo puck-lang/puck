@@ -96,3 +96,5 @@ var genericNum = {};
 Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType"].generic.call({ type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType', value: genericNum, $isTraitObject: true }, 5);
 var genericString = {};
 Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1"].generic.call({ type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1', value: genericString, $isTraitObject: true }, "hello");
+Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType"].generic.call({ type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType', value: genericNum, $isTraitObject: true }, 5);
+Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1"].generic.call({ type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1', value: genericString, $isTraitObject: true }, "hello");

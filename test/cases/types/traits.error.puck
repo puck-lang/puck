@@ -116,9 +116,22 @@ let A = true
 import 'traits.puck' as {Functions}
 Functions.missing()
 
-///// Functions::withBody takes a self parameter and can't be called directly
+///// Too few arguments given to withBody, 2 required, 1 given
+import 'traits.puck' as {EmptyType, Functions}
+Functions.withBody(EmptyType({}))
+
+///// Too few arguments given to withBody, 2 required, 0 given
 import 'traits.puck' as {Functions}
-Functions.withBody('a')
+Functions.withBody()
+
+///// Parameter self of function withMutableSelf requires a mutable binding but a is declared as immutable.
+import 'traits.puck' as {SelfAware, FunctionsType}
+let a: FunctionsType = {name: 'a'}
+SelfAware.withMutableSelf(a)
+
+///// SelfAware has not been implemented for type String
+import 'traits.puck' as {SelfAware, FunctionsType}
+SelfAware.withMutableSelf('a')
 
 ///// withMutableSelf can only be called on a mutable binding
 import 'traits.puck' as {SelfAware, FunctionsType}

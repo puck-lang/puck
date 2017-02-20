@@ -1,7 +1,4 @@
 import {Implementation, Type} from '../../entities'
+import {Option} from '../../compiler/ast'
 
-export function getImplementationsForInstance(type_: Type): Array<Implementation>
-
-export function getImplementationsForTrait(type_: Type, trait_: Type, implementations: Array<Implementation>): Array<Implementation>
-
-export function getMostSpecificImplementations(type_: Type, implementations: Array<Implementation>): Array<Implementation>
+export function getImplementationForTrait(type_: Type, trait_: Type): {kind: 'Ok', value: [Option<Implementation>]}

@@ -64,3 +64,6 @@ let genericNum: GenericType<Num> = {}
 genericNum.generic(5)
 let genericString: GenericType<String> = {}
 genericString.generic('hello')
+
+Generic.generic(genericNum, 5)
+Generic.generic(genericString, 'hello')
