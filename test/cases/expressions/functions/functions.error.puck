@@ -54,3 +54,15 @@ fn addFive(num: Num) {num}
 fn func<A>(a: A) {}
 
 func(1, 2)
+
+///// String is not assignable to type Num
+fn func(a: String) -> Num {
+  return a
+}
+
+///// No best common type exists among return expressions. Found String, Num
+fn func(a: String, b: Num) {
+  if true
+    then return a
+    else return b
+}

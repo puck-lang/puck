@@ -139,15 +139,15 @@ function createServer(projectPath, sendDiagnostic) {
   a.onHover = function (filePath, position) {
     (0, _core.print)("onHover");
     if (!context) {
-      return [];
+      return _hover.Hover.empty();
     };
     var file = $unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))];
     if (!file) {
-      return [];
+      return _hover.Hover.empty();
     };
     var _module = file.ast;
     if (!_module) {
-      return [];
+      return _hover.Hover.empty();
     };
     var visitor = _hover.HoverVisitor._new(position);
     var result = (0, _js.asResult)(function () {

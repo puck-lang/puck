@@ -84,11 +84,11 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   }
   a.onHover = fn (filePath: String, position: Position) -> Hover {
     print('onHover')
-    if not context then return []
+    if not context then return Hover.empty()
     let file: File = context.files[path.resolve(path.normalize(filePath))]
-    if not file then return []
+    if not file then return Hover.empty()
     let module: Module = file.ast
-    if not module then return []
+    if not module then return Hover.empty()
 
     let mut visitor = HoverVisitor.new(position)
 

@@ -31,7 +31,7 @@ import '../entities.puck' as {StructKind, TypeClass, TypeKind}
 /// throwed away becouse too little information is known about the imported bindings
 export fn TopLevelVisitor(context, file) {
   let mut declarations: ObjectMap<ToSpan> = ObjectMap.new()
-  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
+  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
 
   Object.assign({}, visit.emptyVisitor, {
 

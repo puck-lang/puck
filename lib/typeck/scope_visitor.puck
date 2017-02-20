@@ -95,7 +95,7 @@ fn asIterable<E>(a: List<E>) -> Iterable<E> {a}
 export fn ScopeVisitor(context, file) {
   let mut importDirective: ImportDirective
   let mut matchExpression: Option<MatchExpression> = None
-  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
+  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
 
   fn getBinding(e: Expression) -> Option<Binding> {
     match e {
@@ -243,9 +243,15 @@ export fn ScopeVisitor(context, file) {
     visitBreak: |self, mut b: BreakStatement| {
       b.scope = self.scope
     }
-    visitReturn: |self, mut r: ReturnStatement| {
-      r.scope = self.scope
+    visitReturn: |mut self, mut r: ReturnStatement| {
       visit.walkReturn(self, r)
+      if let Some(returnType) = self.functionContext.returnType {
+        if not isAssignable(returnType, r.expression.getType())
+          then reportError(r.expression, notAssignableError(returnType, r.expression.getType()))
+      }
+      else if r.expression.getType() {
+        self.functionContext.returnTypes.push(r.expression.getType())
+      }
     }
     visitWhileLoop: |mut self, mut e: WhileLoop| {
       let parentScope: Scope = self.scope
@@ -281,27 +287,54 @@ export fn ScopeVisitor(context, file) {
         f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
         if let Option::Some(body) = f.body {
           let parentAssignedTo = self.assignedTo
+          let parentContext = self.functionContext
           let mut isUsed = true
+          self.functionContext = {
+            returnType: None
+            returnTypes: []
+          }
           if let TypeKind::Function(func) = f.type_.kind {
             self.assignedTo = func.returnType
-            if func.returnType and func.returnType.isEmpty() {
-              isUsed = false
+            if func.returnType {
+              self.functionContext.returnType = Some(func.returnType)
+
+              if func.returnType.isEmpty() {
+                isUsed = false
+              }
             }
           }
           self.visitBlock(body, isUsed)
-          self.assignedTo = parentAssignedTo
+          if let Option::None = self.functionContext {
+          }
 
           if let TypeKind::Function(func) = f.type_.kind {
-            if func.returnType and not func.returnType.isEmpty() {
-              if not isAssignable(func.returnType, body.type_)
+            if func.returnType {
+              if not isAssignable(func.returnType, body.type_) and not func.returnType.isEmpty()
                 then reportError(f, notAssignableError(func.returnType, body.type_))
             }
             else {
-              Object.assign(func, {
-                returnType: body.type_
-              })
+              let mut types: List<Type> = self.functionContext.returnTypes
+              if body.type_ {
+                types.push(body.type_)
+              }
+
+              if types.isNotEmpty() {
+                match findCommonType(types) {
+                  Result::Ok(type_) => {
+                    Object.assign(func, {
+                      returnType: body.type_
+                    })
+                  }
+                  Result::Err(_) => reportError(f,
+                    'No best common type exists among return expressions. Found ' + types.map(|type_| type_.displayName()).join(', ')
+                  )
+                }
+              }
             }
           }
+
+          self.assignedTo = parentAssignedTo
+          self.functionContext = parentContext
         }
 
         self.scope = selfScope
@@ -487,7 +520,7 @@ export fn ScopeVisitor(context, file) {
       let isUsed = self.isUsed
       self.visitExpression(e.condition)
       self.scope = parentScope.createChild()
-      self.visitBlock(e.then_, isUsed)
+      self.visitBlock(e.then_, isUsed and e.else_.isSome())
       if let Option::Some(else_) = e.else_ {
         self.scope = parentScope.createChild()
         self.visitBlock(else_, isUsed)
@@ -497,9 +530,12 @@ export fn ScopeVisitor(context, file) {
           if let Option::Some(else_) = e.else_ {
             match  findCommonType([e.then_.type_, else_.type_]) {
               Result::Ok(type_) => type_
-              Result::Err(_) => reportError(e
-                'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
-              )
+              Result::Err(_) => {
+                reportError(e
+                  'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
+                )
+                Type.empty()
+              }
             }
           }
           else Type.empty()
@@ -535,9 +571,12 @@ export fn ScopeVisitor(context, file) {
           if let Option::Some(else_) = e.else_ {
             match findCommonType([e.then_.type_, else_.type_]) {
               Result::Ok(type_) => type_
-              Result::Err(_) => reportError(e
-                'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
-              )
+              Result::Err(_) => {
+                reportError(e
+                  'Type ' + e.then_.type_.displayName() + ' and ' + asType(else_.type_).displayName() + ' is not compatible'
+                )
+                Type.empty()
+              }
             }
           }
           else Type.empty()
@@ -563,7 +602,12 @@ export fn ScopeVisitor(context, file) {
           if e.patterns.isNotEmpty() {
             match findCommonType(e.patterns.map(|arm| arm.type_).toList()) {
               Result::Ok(type_) => type_
-              Result::Err(_) => reportError(e, 'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm.type_).displayName()).join(', '))
+              Result::Err(_) => {
+                reportError(e
+                  'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm.type_).displayName()).join(', ')
+                )
+                Type.empty()
+              }
             }
           }
           else Type.empty()
@@ -685,6 +729,7 @@ export fn ScopeVisitor(context, file) {
       else {
         l.type_ = listType
       }
+      ()
     }
     visitNumberLiteral: |self, mut l: NumberLiteral| {
       let scope: Scope = self.scope

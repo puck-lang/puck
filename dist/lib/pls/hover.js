@@ -129,7 +129,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     };
     self.value.patternType = __PUCK__value__4;
     visit.walkMatchExpression(self, e);
-    return self.value.patternType = parent;
+    self.value.patternType = parent;
   },
   visitMatchArm: _position_visitor.PositionVisitor.visitMatchArm,
   visitTypePath: _position_visitor.PositionVisitor.visitTypePath,

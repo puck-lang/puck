@@ -30,7 +30,7 @@ Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-obje
 Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"] = {
   eat: function eat() {
     var self = this;
-    return (0, _core.print)(self.value.name + " is a banana");
+    (0, _core.print)(self.value.name + " is a banana");
   },
   passThrough: function passThrough() {
     var self = this;
