@@ -66,3 +66,13 @@ trait Trait {
 impl Trait for Type {
   fn a(self: Num) -> () {}
 }
+
+///// Static trait functions can not be implemented
+type Type {}
+trait Trait {
+  fn a() -> () {}
+}
+
+impl Trait for Type {
+  fn a() -> () {}
+}

@@ -50,12 +50,14 @@ var GenericSelf = exports.GenericSelf = {
 Empty["$impl_test/cases/types/traits.puck:Empty$test/cases/types/traits.puck:EmptyType"] = {};
 Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:EmptyType"] = {
   noBody: function noBody() {
+    var self = this;
     return 5;
   },
   withBody: Functions.withBody
 };
 Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:FunctionsType"] = {
   noBody: function noBody() {
+    var self = this;
     return 5;
   },
   withBody: function withBody(a) {
@@ -87,7 +89,7 @@ SelfAware["$impl_test/cases/types/traits.puck:SelfAware$test/cases/types/traits.
   withImmutableSelf: SelfAware.withImmutableSelf,
   withMutableSelf: SelfAware.withMutableSelf
 };
-Functions.noBody();
+Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:EmptyType"].noBody.call({ type: '$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:EmptyType', value: EmptyType({}), $isTraitObject: true });
 var func = { name: "func" };
 Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:FunctionsType"].withBody.call({ type: '$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:FunctionsType', value: func, $isTraitObject: true }, "body");
 var mutFunc = func;
