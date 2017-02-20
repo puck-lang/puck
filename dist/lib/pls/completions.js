@@ -94,13 +94,11 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
               insertText: signature + " "
             };
           });
-          return self.value.completions = (0, _core.Some)(_core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3));
+          self.value.completions = (0, _core.Some)(_core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3));
         } else {
           var __PUCK__value__6 = __PUCK__value__1;
           if (true) {
-            var __PUCK__value__7 = __PUCK__value__6;;
-            var __PUCK__value__8 = __PUCK__value__7;;
-            return __PUCK__value__7;
+            var __PUCK__value__7 = __PUCK__value__6;
           };
         };
       };
@@ -120,7 +118,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var self = this;
     if (!visit.walkObjectDestructure(self, o)) {
       (0, _core.print)("CompletionVisitor visitObjectDestructure");
-      return self.value.completions = _core.Option.map.call(self.value.importedModule, getImportCompletions);
+      self.value.completions = _core.Option.map.call(self.value.importedModule, getImportCompletions);
     };
   },
   visitObjectDestructureMember: function visitObjectDestructureMember(m) {
@@ -134,7 +132,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var self = this;
     if (!visit.walkBlock(self, b)) {
       (0, _core.print)("CompletionVisitor visitBlock");
-      return self.value.completions = (0, _core.Some)(getScopeCompletions(b));
+      self.value.completions = (0, _core.Some)(getScopeCompletions(b));
     };
   },
   visitBreakStatement: _position_visitor.PositionVisitor.visitBreakStatement,
@@ -164,15 +162,15 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
       (0, _core.print)("CompletionVisitor visitMemberAccess");
       var type_ = _ast.Expression.getType.call(a.object);
       if (type_) {
-        var __PUCK__value__9 = type_.kind;
-        var __PUCK__value__10 = __PUCK__value__9;
-        if ($unwrapTraitObject(__PUCK__value__10).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__10).value)[$unwrapTraitObject(0)]).kind).kind == "Record") {
-          var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__10),
+        var __PUCK__value__8 = type_.kind;
+        var __PUCK__value__9 = __PUCK__value__8;
+        if ($unwrapTraitObject(__PUCK__value__9).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__9).value)[$unwrapTraitObject(0)]).kind).kind == "Record") {
+          var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__9),
               _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
               _$unwrapTraitObject3$2 = _slicedToArray(_$unwrapTraitObject3$[0].kind.value, 1),
               record = _$unwrapTraitObject3$2[0];
 
-          var __PUCK__value__11 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(record.properties), $isTraitObject: true }, function (_ref3) {
+          var __PUCK__value__10 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(record.properties), $isTraitObject: true }, function (_ref3) {
             var _ref4 = _slicedToArray(_ref3, 2),
                 property = _ref4[0],
                 type_ = _ref4[1];
@@ -184,11 +182,11 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
               insertText: property
             };
           });
-          self.value.completions = (0, _core.Some)(_core.Iterable[__PUCK__value__11.type].toList.call(__PUCK__value__11));
+          self.value.completions = (0, _core.Some)(_core.Iterable[__PUCK__value__10.type].toList.call(__PUCK__value__10));
         } else {
-          var __PUCK__value__12 = __PUCK__value__9;
+          var __PUCK__value__11 = __PUCK__value__8;
           if (true) {
-            var __PUCK__value__13 = __PUCK__value__12;
+            var __PUCK__value__12 = __PUCK__value__11;
           };
         };
       };
@@ -226,19 +224,19 @@ CompletionVisitor._new = function _new(position) {
   };
 };
 function getImportCompletions(_module) {
-  var __PUCK__value__14 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.values.call(_module.exports), $isTraitObject: true }, function (e) {
+  var __PUCK__value__13 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.values.call(_module.exports), $isTraitObject: true }, function (e) {
     return {
       label: e.identifier.name,
       kind: $unwrapTraitObject(_vscodeLanguageserver.CompletionItemKind).Text,
       insertText: e.identifier.name
     };
   });
-  return _core.Iterable[__PUCK__value__14.type].toList.call(__PUCK__value__14);
+  return _core.Iterable[__PUCK__value__13.type].toList.call(__PUCK__value__13);
 };
 function getScopeCompletions(node) {
   if ($unwrapTraitObject(node).scope) {
     var scope = $unwrapTraitObject(node).scope;
-    var __PUCK__value__15 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.values.call(_scope.Scope.getBindings.call(scope)), $isTraitObject: true }, function (binding) {
+    var __PUCK__value__14 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.values.call(_scope.Scope.getBindings.call(scope)), $isTraitObject: true }, function (binding) {
       var typeName = _entities.Type.displayName.call(binding.type_);
       return {
         label: binding.name + ": " + typeName + "",
@@ -246,7 +244,7 @@ function getScopeCompletions(node) {
         insertText: binding.name
       };
     });
-    return _core.Iterable[__PUCK__value__15.type].toList.call(__PUCK__value__15);
+    return _core.Iterable[__PUCK__value__14.type].toList.call(__PUCK__value__14);
   } else {
     return [];
   };

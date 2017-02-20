@@ -19,7 +19,7 @@ fn getPatternName(pattern: Pattern) -> Option<String> {
   }
 }
 
-export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> {}) -> Type {
+export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> ()) -> Type {
   let class =
     if f.typeParameters.length {
       Some({

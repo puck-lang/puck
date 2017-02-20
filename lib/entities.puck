@@ -302,7 +302,7 @@ export type TypeClass {
   instances: List<Type>
 }
 impl TypeClass {
-  fn fromAstNode(astNode: {typeParameters: List<AstTypeParameter>}, reportError: (ToSpan, String) -> {}) -> Option<TypeClass> {
+  fn fromAstNode(astNode: {typeParameters: List<AstTypeParameter>}, reportError: (ToSpan, String) -> ()) -> Option<TypeClass> {
     if astNode.typeParameters and astNode.typeParameters.length {
       let parameterRange = getRange(
         astNode.typeParameters

@@ -17,7 +17,7 @@ let puckFile = RegExp('\\.puck$', 'i')
 let puckModules = ['core', 'js', 'test']
 
 export fn ImportVisitor(context, file: UnparsedFile) {
-  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
+  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
   let mut declarations: ObjectMap<ToSpan>
 
   fn importModule(mut i: ImportDirective, importedFile: UnparsedFile) {

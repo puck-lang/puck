@@ -59,7 +59,7 @@ fn generateTypeId(context, file: File, name: String) {
 /// bodies visited and properties or functions are defined.
 /// This assures that the hoisting rules is followed and all required information is known.
 export fn TypeVisitor(context, file) {
-  let reportError: (ToSpan, String) -> {} = context.reportError.bind(context, file)
+  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
   let mut imports: ObjectMap<File> = ObjectMap.new()
 
   let structureVisitorInstance = structureVisitor(reportError, 'TypeVisitor')

@@ -44,7 +44,7 @@ export fn notAssignableError(to: Type, subject: Type) {
   subject.displayName() + ' is not assignable to type ' + to.displayName()
 }
 
-export fn structureVisitor(reportError: (ToSpan, String) -> {}, visitor = '') {{
+export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
   visitEnumMember: visit.walkingVisitor.visitEnumMember
   visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
     if not f.scope {

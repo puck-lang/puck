@@ -39,7 +39,7 @@ function h(a, b) {
 };
 function i(a, b) {
   if (a > 0) {
-    return b;
+    return b != a;
   };
   return a == b;
 };

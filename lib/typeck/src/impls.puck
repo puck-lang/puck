@@ -73,7 +73,7 @@ export fn getMostSpecificImplementations(type_: Type, implementations: List<Impl
   else implementations
 }
 
-export fn getImplementation(functionName: String, type_: Type, e: CallExpression, reportError: (ToSpan, String) -> {}) -> Option<Implementation> {
+export fn getImplementation(functionName: String, type_: Type, e: CallExpression, reportError: (ToSpan, String) -> ()) -> Option<Implementation> {
   // Implementations implemented for the correct type instance (generics)
   let implementations = getImplementationsForInstance(type_)
 

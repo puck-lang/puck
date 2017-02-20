@@ -18,7 +18,7 @@ export fn TokenStream(input) {
     if curr.length > longest then curr.length else longest
   }, 0)
 
-  fn tryParseOperator() -> Option<Token> {
+  fn tryParseOperator() {
     let mut length = 0
     let mut searchString = ''
     let mut found
@@ -88,7 +88,7 @@ export fn TokenStream(input) {
     str
   }
 
-  fn readNumber() -> NumberLiteral {
+  fn readNumber() {
     let mut hasDot = false
     let start = input.getPosition()
     let number = readWhile(fn (ch) {
@@ -143,7 +143,7 @@ export fn TokenStream(input) {
     }}
   }
 
-  fn readString() -> StringLiteral {
+  fn readString() {
     let mut escaped = false
     let mut parts = []
     let mut str = ''
@@ -182,7 +182,7 @@ export fn TokenStream(input) {
     {kind: SyntaxKind.StringLiteral, parts}
   }
 
-  fn readComment() -> Comment {
+  fn readComment() {
     let start = input.getPosition()
     input.next()
     input.next()
