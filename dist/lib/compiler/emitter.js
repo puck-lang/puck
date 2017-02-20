@@ -113,12 +113,11 @@ function Emitter() {
             return type;
     }
     function getImplId(type, trait) {
-        var impls = impls_1.getImplementationsForInstance(type);
-        impls = impls_1.getImplementationsForTrait(type, trait, impls);
-        if (impls.length > 1) {
-            impls = impls_1.getMostSpecificImplementations(type, impls);
+        var opt = impls_1.getImplementationForTrait(type, trait).value[0];
+        if (opt.kind == 'None') {
+            throw 'No impl';
         }
-        return impls[0].id;
+        return opt.value[0].id;
     }
     function implProp(impl) {
         return "[" + JSON.stringify(impl.id) + "]";
@@ -605,7 +604,7 @@ function Emitter() {
                     hoist("let " + valueVariable + " = " + emitExpression(fn.func.value[0].object) + "\n");
                 }
             }
-            functionName = "" + fn.traitName + ((fn.isShorthand || selfBinding.kind === 'None') ? "" :
+            functionName = "" + fn.traitName + ((fn.isShorthand || (selfBinding.kind === 'None' && !fn.isDirectTraitCall)) ? "" :
                 fn.isTraitObject ? "[" + emitIdentifier({ name: valueVariable }) + ".type]"
                     : "" + implProp(fn.implementation)) + "." + emitIdentifier(fn.func.value[0].member);
             if (selfBinding.kind === 'Some') {
@@ -621,6 +620,9 @@ function Emitter() {
                 else {
                     fn.argumentList.unshift(fn.func.value[0].object);
                 }
+                functionName += '.call';
+            }
+            else if (fn.isDirectTraitCall) {
                 functionName += '.call';
             }
             valueVariable = outerValueVariable;

@@ -92,6 +92,11 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       self.scope = parentScope.createChild()
       f.scope = self.scope
 
+      if f.name.isNone()
+        then reportError(f, 'Trait functions must have a name')
+      if f.returnType.isNone()
+        then reportError(f, 'Trait functions must have a return type')
+
       f.typeParameters.forEach(self.visitTypeParameter.bind(self))
 
       if let Option::Some(first) = f.parameterList.first() {

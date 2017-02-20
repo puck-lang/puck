@@ -14,13 +14,13 @@ impl Empty for FunctionsType {}
 ///// Trait functions must have a return type
 import 'traits.puck' as {Functions, FunctionsType}
 impl Functions for FunctionsType {
-  fn noBody() {1}
+  fn noBody(self) {1}
 }
 
 ///// Functions has already been implemented for FunctionsType
 import 'traits.puck' as {Functions, FunctionsType}
 impl Functions for FunctionsType {
-  fn noBody() -> Num {1}
+  fn noBody(self) -> Num {1}
 }
 
 ///// Generic<String> has already been implemented for FunctionsType
@@ -60,22 +60,16 @@ impl Empty for FunctionsType {
   fn anotherFunction() -> () {}
 }
 
-///// Function SelfAware::static is static
-import 'traits.puck' as {SelfAware, EmptyType}
-impl SelfAware for EmptyType {
-  fn static(self) -> Num {5}
+///// Too many arguments given to generic, 1 required, 2 given
+import 'traits.puck' as {Generic, GenericType}
+impl Generic<Num> for GenericType<Num> {
+  fn generic(self, a: Num, b: Num) -> Num {a}
 }
 
-///// Too many arguments given to static, 0 required, 1 given
+///// Return type Num is not assignable to String
 import 'traits.puck' as {SelfAware, EmptyType}
 impl SelfAware for EmptyType {
-  fn static(a: Num) -> Num {a}
-}
-
-///// Return type String is not assignable to Num
-import 'traits.puck' as {SelfAware, EmptyType}
-impl SelfAware for EmptyType {
-  fn static() -> String {''}
+  fn withImmutableSelf(self, a: String) -> Num {0}
 }
 
 ///// Function SelfAware::withImmutableSelf requires a self parameter
@@ -116,9 +110,22 @@ let A = true
 import 'traits.puck' as {Functions}
 Functions.missing()
 
-///// Functions::withBody takes a self parameter and can't be called directly
+///// Too few arguments given to withBody, 2 required, 1 given
+import 'traits.puck' as {EmptyType, Functions}
+Functions.withBody(EmptyType({}))
+
+///// Too few arguments given to withBody, 2 required, 0 given
 import 'traits.puck' as {Functions}
-Functions.withBody('a')
+Functions.withBody()
+
+///// Parameter self of function withMutableSelf requires a mutable binding but a is declared as immutable.
+import 'traits.puck' as {SelfAware, FunctionsType}
+let a: FunctionsType = {name: 'a'}
+SelfAware.withMutableSelf(a)
+
+///// SelfAware has not been implemented for type String
+import 'traits.puck' as {SelfAware, FunctionsType}
+SelfAware.withMutableSelf('a')
 
 ///// withMutableSelf can only be called on a mutable binding
 import 'traits.puck' as {SelfAware, FunctionsType}
@@ -169,4 +176,9 @@ trait Trait {
 ///// Trait is not assignable to type Num
 trait Trait {
   fn a(self: Num) -> () {}
+}
+
+///// Static trait functions can not be abstract
+trait Trait {
+  fn a() -> String
 }

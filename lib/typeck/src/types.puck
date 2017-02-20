@@ -223,8 +223,12 @@ export fn isAssignable(to: Type, subject: Type) {
       }
       _ => false
     }
-    TypeKind::Trait(toTrait) => match subject.kind {
-      TypeKind::Trait(subjectTrait) => isTraitAssignable(toTrait, subjectTrait)
+    TypeKind::Trait => match subject.kind {
+      // TypeKind::Trait(subjectTrait) => isTraitAssignable(toTrait, subjectTrait)
+      TypeKind::Trait => {
+        isSameId(to, subject) and
+        checkTypeParameters(to, subject)
+      }
       TypeKind::Enum(subjectEnum) => {
         subjectEnum.implementations.any(|implementation|
           isAssignable(to, implementation.trait_)

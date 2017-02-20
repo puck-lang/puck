@@ -66,7 +66,7 @@ import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/enums.puck' as {checkExhaustive}
 import 'src/functions.puck' as {resolveFunctionTypeParameters}
-import 'src/impls.puck' as {getImplementation}
+import 'src/impls.puck' as {getImplementation, getImplementationForTrait}
 import 'src/patterns.puck' as {PatternError, declarePatternVariables}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {Binding, Scope}
@@ -381,6 +381,9 @@ export fn ScopeVisitor(context, file) {
       self.visitExpression(e.func)
 
       let mut functionType = e.func.getType()
+      // If it's a direct trait call the first argument is walked when
+      // resolving the implementation
+      let mut skipFirstArgument = false
 
       if let Expression::MemberAccess(access) = e.func {
         if access.object.getType() {
@@ -415,8 +418,46 @@ export fn ScopeVisitor(context, file) {
             if functionType {
               let function = functionType.getFunction()
 
-              if function.selfBinding.isSome() {
-                reportError(e, providesType.displayName() + '::$name takes a self parameter and can\'t be called directly')
+              if let Some(selfBinding) = function.selfBinding {
+                functionType = {
+                  id: functionType.id
+                  displayName: functionType.displayName
+                  name: functionType.name
+                  kind: TypeKind::Function({
+                    selfBinding: None
+                    parameters: [selfBinding].concat(function.parameters)
+                    parameterRange: {start: function.parameterRange.start + 1, end: function.parameterRange.end + 1}
+                    returnType: function.returnType
+                    isAbstract: function.isAbstract
+                  })
+                  class: functionType.class
+                  instance: functionType.instance
+                  providesType: functionType.providesType
+                  enumMember: functionType.enumMember
+                  complete: functionType.complete
+                }
+                if let Some(selfArgument) = e.argumentList.first() {
+                  skipFirstArgument = true
+                  self.visitExpression(selfArgument)
+                  if not selfArgument.getType() {
+                    reportError(selfArgument, 'selfArgument has no type')
+                  }
+                  match getImplementationForTrait(selfArgument.getType(), objectType.providesType.unwrapOr(objectType)) {
+                    Ok(Some(implementation)) => {
+                      e.traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
+                      e.isDirectTraitCall =  true
+                      e.implementation = implementation
+                    }
+                    Ok(Option::None) => {
+                      reportError(e,
+                        objectType.displayName() + ' has not been implemented for type ' + selfArgument.getType().displayName()
+                      )
+                    }
+                    Err => reportError(e, 'Ambiguous trait call')
+                  }
+                }
+                //
+                // reportError(e, providesType.displayName() + '::$name takes a self parameter and can\'t be called directly')
               }
               else {
                 e.traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
@@ -445,24 +486,28 @@ export fn ScopeVisitor(context, file) {
                 }
               }
             }
-            else if let Option::Some(implementation) = getImplementation(name, objectType, e, reportError) {
-              let trait_: Type =
-                if let Option::Some(instance) = implementation.trait_.instance
-                  then instance.class
-                  else implementation.trait_
+            else match getImplementation(name, objectType, e) {
+              Ok(Some(implementation)) => {
+                let trait_: Type =
+                  if let Option::Some(instance) = implementation.trait_.instance
+                    then instance.class
+                    else implementation.trait_
 
-              if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap()) {
-                e.traitName = binding.name
-                e.isShorthand =  trait_.getTrait().isShorthand
-                e.implementation = implementation
+                if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap()) {
+                  e.traitName = binding.name
+                  e.isShorthand =  trait_.getTrait().isShorthand
+                  e.implementation = implementation
 
-                functionType = asType(implementation.trait_).getTrait().functions[name]
+                  functionType = asType(implementation.trait_).getTrait().functions[name]
+                }
+                else {
+                  let traitName = trait_.name.unwrap()
+                  let id = trait_.id.unwrap()
+                  reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
+                }
               }
-              else {
-                let traitName = trait_.name.unwrap()
-                let id = trait_.id.unwrap()
-                reportError(e, 'The function $name is defined in trait $traitName but it is not in scope')
-              }
+              Ok(None) => {}
+              Err => reportError(e, 'Ambiguous trait call')
             }
 
             if e.traitName {
@@ -486,7 +531,9 @@ export fn ScopeVisitor(context, file) {
           .forEach(|(a, i): (Expression, Num)| {
             let parameter = functionKind.parameters[i]
             self.assignedTo = parameter.type_
-            self.visitExpression(a)
+            if not skipFirstArgument or i > 0 {
+              self.visitExpression(a)
+            }
             if callTypeParameters.isNotEmpty() and parameter.type_ and a.getType() {
               resolveFunctionTypeParameters(
                 callParameterMap

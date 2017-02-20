@@ -66,16 +66,18 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
     let traitFunctionName = traitFunctionType.displayName()
     let traitFunction = traitFunctionType.getFunction()
 
-    if let Option::Some(implSelf) = function.selfBinding {
-      if let Option::Some(traitSelf) = traitFunction.selfBinding {
+    match (function.selfBinding, traitFunction.selfBinding) {
+      (Some(implSelf), Some(traitSelf)) => {
         if implSelf.mutable and not traitSelf.mutable
           then reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires an immutable self parameter')
       }
-      else reportError(functionDeclaration, 'Function $traitName::$traitFunctionName is static')
-      ()
+      (Option::None, Some(_)) => {
+        reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires a self parameter')
+      }
+      (_, Option::None) => {
+        reportError(functionDeclaration, 'Static trait functions can not be implemented')
+      }
     }
-    else if let Option::Some(_) = traitFunction.selfBinding
-      then reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires a self parameter')
   })
 
   let implementation = Implementation({

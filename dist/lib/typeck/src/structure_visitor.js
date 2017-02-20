@@ -141,6 +141,12 @@ function structureVisitor(reportError) {
         var parentScope = $unwrapTraitObject(self).scope;
         $unwrapTraitObject(self).scope = _scope.Scope.createChild.call(parentScope);
         f.scope = $unwrapTraitObject(self).scope;
+        if (_core.Option.isNone.call(f.name)) {
+          reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true }, "Trait functions must have a name");
+        };
+        if (_core.Option.isNone.call(f.returnType)) {
+          reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true }, "Trait functions must have a return type");
+        };
         _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.typeParameters, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(self).visitTypeParameter).bind(self));
         var __PUCK__value__9 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.parameterList, $isTraitObject: true });
         if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
