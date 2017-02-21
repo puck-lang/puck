@@ -444,24 +444,18 @@ function isAssignable(to, subject) {
         } else {
           var __PUCK__value__65 = __PUCK__value__48;
           if ($unwrapTraitObject(__PUCK__value__65).kind == "Trait") {
-            var _$unwrapTraitObject40 = $unwrapTraitObject(__PUCK__value__65),
-                _$unwrapTraitObject41 = _slicedToArray(_$unwrapTraitObject40.value, 1),
-                toTrait = _$unwrapTraitObject41[0];
-
+            var _undefined6 = $unwrapTraitObject(__PUCK__value__65);
             var __PUCK__value__66 = subject.kind;
             var __PUCK__value__67 = __PUCK__value__66;
             if ($unwrapTraitObject(__PUCK__value__67).kind == "Trait") {
-              var _$unwrapTraitObject42 = $unwrapTraitObject(__PUCK__value__67),
-                  _$unwrapTraitObject43 = _slicedToArray(_$unwrapTraitObject42.value, 1),
-                  subjectTrait = _$unwrapTraitObject43[0];
-
-              return isTraitAssignable(toTrait, subjectTrait);
+              var _undefined7 = $unwrapTraitObject(__PUCK__value__67);
+              return isSameId(to, subject) && checkTypeParameters(to, subject);
             } else {
               var __PUCK__value__68 = __PUCK__value__66;
               if ($unwrapTraitObject(__PUCK__value__68).kind == "Enum") {
-                var _$unwrapTraitObject44 = $unwrapTraitObject(__PUCK__value__68),
-                    _$unwrapTraitObject45 = _slicedToArray(_$unwrapTraitObject44.value, 1),
-                    _subjectEnum = _$unwrapTraitObject45[0];
+                var _$unwrapTraitObject40 = $unwrapTraitObject(__PUCK__value__68),
+                    _$unwrapTraitObject41 = _slicedToArray(_$unwrapTraitObject40.value, 1),
+                    _subjectEnum = _$unwrapTraitObject41[0];
 
                 return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _subjectEnum.implementations, $isTraitObject: true }, function (implementation) {
                   return isAssignable(to, implementation.trait_);
@@ -469,9 +463,9 @@ function isAssignable(to, subject) {
               } else {
                 var __PUCK__value__69 = __PUCK__value__66;
                 if ($unwrapTraitObject(__PUCK__value__69).kind == "Struct") {
-                  var _$unwrapTraitObject46 = $unwrapTraitObject(__PUCK__value__69),
-                      _$unwrapTraitObject47 = _slicedToArray(_$unwrapTraitObject46.value, 1),
-                      _subjectStruct = _$unwrapTraitObject47[0];
+                  var _$unwrapTraitObject42 = $unwrapTraitObject(__PUCK__value__69),
+                      _$unwrapTraitObject43 = _slicedToArray(_$unwrapTraitObject42.value, 1),
+                      _subjectStruct = _$unwrapTraitObject43[0];
 
                   return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _subjectStruct.implementations, $isTraitObject: true }, function (implementation) {
                     return isAssignable(to, implementation.trait_);
@@ -525,12 +519,12 @@ function isStructAssignable(to, subject) {
   var __PUCK__value__74 = __PUCK__value__73;
   if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__74)[$unwrapTraitObject(0)]).kind == "Record" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__74)[$unwrapTraitObject(1)]).kind == "Record") {
     var _ret = function () {
-      var _$unwrapTraitObject48 = $unwrapTraitObject(__PUCK__value__74),
-          _$unwrapTraitObject49 = _slicedToArray(_$unwrapTraitObject48, 2),
-          _$unwrapTraitObject50 = _slicedToArray(_$unwrapTraitObject49[0].value, 1),
-          toProps = _$unwrapTraitObject50[0].properties,
-          _$unwrapTraitObject51 = _slicedToArray(_$unwrapTraitObject49[1].value, 1),
-          subjectProps = _$unwrapTraitObject51[0].properties;
+      var _$unwrapTraitObject44 = $unwrapTraitObject(__PUCK__value__74),
+          _$unwrapTraitObject45 = _slicedToArray(_$unwrapTraitObject44, 2),
+          _$unwrapTraitObject46 = _slicedToArray(_$unwrapTraitObject45[0].value, 1),
+          toProps = _$unwrapTraitObject46[0].properties,
+          _$unwrapTraitObject47 = _slicedToArray(_$unwrapTraitObject45[1].value, 1),
+          subjectProps = _$unwrapTraitObject47[0].properties;
 
       return {
         v: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(toProps), $isTraitObject: true }, function (_ref13) {
@@ -547,12 +541,12 @@ function isStructAssignable(to, subject) {
   } else {
     var __PUCK__value__75 = __PUCK__value__73;
     if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__75)[$unwrapTraitObject(0)]).kind == "Tuple" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__75)[$unwrapTraitObject(1)]).kind == "Tuple") {
-      var _$unwrapTraitObject52 = $unwrapTraitObject(__PUCK__value__75),
-          _$unwrapTraitObject53 = _slicedToArray(_$unwrapTraitObject52, 2),
-          _$unwrapTraitObject54 = _slicedToArray(_$unwrapTraitObject53[0].value, 1),
-          toProps = _$unwrapTraitObject54[0].properties,
-          _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject53[1].value, 1),
-          subjectProps = _$unwrapTraitObject55[0].properties;
+      var _$unwrapTraitObject48 = $unwrapTraitObject(__PUCK__value__75),
+          _$unwrapTraitObject49 = _slicedToArray(_$unwrapTraitObject48, 2),
+          _$unwrapTraitObject50 = _slicedToArray(_$unwrapTraitObject49[0].value, 1),
+          toProps = _$unwrapTraitObject50[0].properties,
+          _$unwrapTraitObject51 = _slicedToArray(_$unwrapTraitObject49[1].value, 1),
+          subjectProps = _$unwrapTraitObject51[0].properties;
 
       if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toProps, $isTraitObject: true }) != _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectProps, $isTraitObject: true })) {
         return false;
@@ -567,8 +561,8 @@ function isStructAssignable(to, subject) {
     } else {
       var __PUCK__value__76 = __PUCK__value__73;
       if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__76)[$unwrapTraitObject(0)]).kind == "Unit" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__76)[$unwrapTraitObject(1)]).kind == "Unit") {
-        var _$unwrapTraitObject56 = $unwrapTraitObject(__PUCK__value__76),
-            _$unwrapTraitObject57 = _slicedToArray(_$unwrapTraitObject56, 1);
+        var _$unwrapTraitObject52 = $unwrapTraitObject(__PUCK__value__76),
+            _$unwrapTraitObject53 = _slicedToArray(_$unwrapTraitObject52, 1);
 
         return to.kind.value == subject.kind.value;
       } else {
@@ -598,12 +592,12 @@ function isSameType(a, b) {
   var __PUCK__value__79 = [a.id, b.id];
   var __PUCK__value__80 = __PUCK__value__79;
   if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__80)[$unwrapTraitObject(0)]).kind == "Some" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__80)[$unwrapTraitObject(1)]).kind == "Some") {
-    var _$unwrapTraitObject58 = $unwrapTraitObject(__PUCK__value__80),
-        _$unwrapTraitObject59 = _slicedToArray(_$unwrapTraitObject58, 2),
-        _$unwrapTraitObject60 = _slicedToArray(_$unwrapTraitObject59[0].value, 1),
-        aId = _$unwrapTraitObject60[0],
-        _$unwrapTraitObject61 = _slicedToArray(_$unwrapTraitObject59[1].value, 1),
-        bId = _$unwrapTraitObject61[0];
+    var _$unwrapTraitObject54 = $unwrapTraitObject(__PUCK__value__80),
+        _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject54, 2),
+        _$unwrapTraitObject56 = _slicedToArray(_$unwrapTraitObject55[0].value, 1),
+        aId = _$unwrapTraitObject56[0],
+        _$unwrapTraitObject57 = _slicedToArray(_$unwrapTraitObject55[1].value, 1),
+        bId = _$unwrapTraitObject57[0];
 
     if (aId != bId) {
       return false;
@@ -611,12 +605,12 @@ function isSameType(a, b) {
     var __PUCK__value__81 = [_entities.Type.typeParameters.call(a), _entities.Type.typeParameters.call(b)];
     var __PUCK__value__82 = __PUCK__value__81;
     if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__82)[$unwrapTraitObject(0)]).kind == "Some" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__82)[$unwrapTraitObject(1)]).kind == "Some") {
-      var _$unwrapTraitObject62 = $unwrapTraitObject(__PUCK__value__82),
-          _$unwrapTraitObject63 = _slicedToArray(_$unwrapTraitObject62, 2),
-          _$unwrapTraitObject64 = _slicedToArray(_$unwrapTraitObject63[0].value, 1),
-          aParameters = _$unwrapTraitObject64[0],
-          _$unwrapTraitObject65 = _slicedToArray(_$unwrapTraitObject63[1].value, 1),
-          bParameters = _$unwrapTraitObject65[0];
+      var _$unwrapTraitObject58 = $unwrapTraitObject(__PUCK__value__82),
+          _$unwrapTraitObject59 = _slicedToArray(_$unwrapTraitObject58, 2),
+          _$unwrapTraitObject60 = _slicedToArray(_$unwrapTraitObject59[0].value, 1),
+          aParameters = _$unwrapTraitObject60[0],
+          _$unwrapTraitObject61 = _slicedToArray(_$unwrapTraitObject59[1].value, 1),
+          bParameters = _$unwrapTraitObject61[0];
 
       if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: aParameters, $isTraitObject: true }) == _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: bParameters, $isTraitObject: true })) {
         return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: aParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: bParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref19) {
@@ -632,8 +626,8 @@ function isSameType(a, b) {
     } else {
       var __PUCK__value__83 = __PUCK__value__81;
       if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__83)[$unwrapTraitObject(0)]).kind == "None" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__83)[$unwrapTraitObject(1)]).kind == "None") {
-        var _$unwrapTraitObject66 = $unwrapTraitObject(__PUCK__value__83),
-            _$unwrapTraitObject67 = _slicedToArray(_$unwrapTraitObject66, 1);
+        var _$unwrapTraitObject62 = $unwrapTraitObject(__PUCK__value__83),
+            _$unwrapTraitObject63 = _slicedToArray(_$unwrapTraitObject62, 1);
 
         return true;
       } else {

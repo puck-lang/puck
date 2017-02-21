@@ -28,7 +28,7 @@ import 'types.puck' as {isAssignable}
 
 fn asType(a) -> Type {a}
 
-export fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
+fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
   let implementations = match type_.kind {
     TypeKind::Enum(enum_) => enum_.implementations
     TypeKind::Struct(struct) => struct.implementations
@@ -49,14 +49,7 @@ export fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
     else implementations
 }
 
-export fn getImplementationsForTrait(type_: Type, trait_: Type, implementations: List<Implementation>) -> List<Implementation> {
-  implementations
-    .filter(|i| not i.trait_.getTrait().isShorthand)
-    .filter(|i| isAssignable(trait_, i.trait_))
-    .toList()
-}
-
-export fn getMostSpecificImplementations(type_: Type, implementations: List<Implementation>) -> List<Implementation> {
+fn getMostSpecificImplementations(type_: Type, implementations: List<Implementation>) -> List<Implementation> {
   if let Option::Some(objectInstance) = type_.instance {
     let mut maxSpecificity = 0
 
@@ -73,7 +66,23 @@ export fn getMostSpecificImplementations(type_: Type, implementations: List<Impl
   else implementations
 }
 
-export fn getImplementation(functionName: String, type_: Type, e: CallExpression, reportError: (ToSpan, String) -> ()) -> Option<Implementation> {
+export fn getImplementationForTrait(type_: Type, trait_: Type) -> Result<Option<Implementation>, List<Implementation>> {
+  let implementations = getImplementationsForInstance(type_)
+    .filter(|i| not i.trait_.getTrait().isShorthand)
+    .filter(|i| isAssignable(i.trait_, trait_))
+    .toList()
+
+  let implementations =
+    if implementations.length > 1
+      then getMostSpecificImplementations(type_, implementations)
+      else implementations
+
+  if implementations.length > 1
+    then Err(implementations)
+    else Ok(implementations.first())
+}
+
+export fn getImplementation(functionName: String, type_: Type, e: CallExpression) -> Result<Option<Implementation>, List<Implementation>> {
   // Implementations implemented for the correct type instance (generics)
   let implementations = getImplementationsForInstance(type_)
 
@@ -106,8 +115,8 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
       else implementations
 
   if implementations.length > 1
-    then reportError(e, 'Ambiguous trait call')
-  implementations.first()
+    then Err(implementations)
+    else Ok(implementations.first())
 }
 
 fn getTypeSpecificity(type_: Type) -> Num {

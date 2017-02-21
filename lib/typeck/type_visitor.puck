@@ -240,7 +240,14 @@ export fn TypeVisitor(context, file) {
 
         if let TypeKind::Trait(trait_) = type_.providesType.unwrap().kind {
           Object.assign(trait_.functions, ObjectMap.fromIter(
-            t.members.map(|m| (m.name.value[0].name, m.type_))
+            t.members.map(|m| {
+              if let TypeKind::Function(function) = m.type_.kind {
+                if function.isAbstract and function.selfBinding.isNone() {
+                  reportError(m, 'Static trait functions can not be abstract')
+                }
+              }
+              (m.name.value[0].name, m.type_)
+            })
           ))
 
           if let Option::Some(class) = type_.providesType.unwrap().class {

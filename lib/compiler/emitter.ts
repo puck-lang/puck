@@ -48,11 +48,7 @@ import {
 } from './ast'
 import {SyntaxKind} from '../ast/token'
 import {Type, Record, Tuple, Implementation} from '../entities'
-import {
-  getImplementationsForInstance,
-  getImplementationsForTrait,
-  getMostSpecificImplementations,
-} from '../typeck/src/impls'
+import {getImplementationForTrait} from '../typeck/src/impls'
 import {Scope} from '../typeck/src/scope'
 
 const jsKeywords = [
@@ -165,12 +161,11 @@ export function Emitter() {
   }
 
   function getImplId(type, trait) {
-    let impls = getImplementationsForInstance(type)
-    impls = getImplementationsForTrait(type, trait, impls)
-    if (impls.length > 1) {
-      impls = getMostSpecificImplementations(type, impls)
+    let opt = getImplementationForTrait(type, trait).value[0]
+    if (opt.kind == 'None') {
+      throw 'No impl'
     }
-    return impls[0].id
+    return opt.value[0].id
   }
 
   function implProp(impl: Implementation) {
@@ -703,7 +698,7 @@ export function Emitter() {
   }
 
   function emitCallExpression(fn_: CallExpression) {
-    let fn = fn_ as CallExpression & {traitName: string, isShorthand: boolean, isTraitObject: boolean}
+    let fn = fn_ as CallExpression & {traitName: string, isShorthand: boolean, isTraitObject: boolean, isDirectTraitCall: boolean}
     let functionName
     let functionType = getType(fn.func)
     let parameterBindings = functionType && functionType.kind.value[0].parameters
@@ -724,7 +719,7 @@ export function Emitter() {
         }
       }
       functionName = `${fn.traitName}${
-        (fn.isShorthand || selfBinding.kind === 'None') ? `` :
+        (fn.isShorthand || (selfBinding.kind === 'None' && !fn.isDirectTraitCall)) ? `` :
         fn.isTraitObject ? `[${emitIdentifier({name: valueVariable})}.type]`
         : `${implProp(fn.implementation)}`
       }.${emitIdentifier((fn.func.value[0] as MemberAccess).member)}`
@@ -741,6 +736,9 @@ export function Emitter() {
         else {
           fn.argumentList.unshift((fn.func.value[0] as MemberAccess).object)
         }
+        functionName += '.call'
+      }
+      else if (fn.isDirectTraitCall) {
         functionName += '.call'
       }
       valueVariable = outerValueVariable

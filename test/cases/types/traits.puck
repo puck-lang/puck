@@ -1,6 +1,6 @@
 export trait Empty {}
 export trait Functions {
-  fn noBody() -> Num
+  fn noBody(self) -> Num
 
   fn withBody(self, a: String) -> String {
     let b = a
@@ -31,11 +31,11 @@ export type GenericType<T> {}
 impl Empty for EmptyType {}
 
 impl Functions for EmptyType {
-  fn noBody() -> Num {5}
+  fn noBody(self) -> Num {5}
 }
 
 impl Functions for FunctionsType {
-  fn noBody() -> Num {5}
+  fn noBody(self) -> Num {5}
   fn withBody(self, a: String) -> String {self.name}
 }
 
@@ -53,7 +53,7 @@ impl Generic<String> for GenericType<String> {
 
 impl SelfAware for FunctionsType {}
 
-Functions.noBody()
+Functions.noBody(EmptyType({}))
 let func: FunctionsType = {name: 'func'}
 func.withBody('body')
 
@@ -64,3 +64,6 @@ let genericNum: GenericType<Num> = {}
 genericNum.generic(5)
 let genericString: GenericType<String> = {}
 genericString.generic('hello')
+
+Generic.generic(genericNum, 5)
+Generic.generic(genericString, 'hello')
