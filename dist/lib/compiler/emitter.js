@@ -271,6 +271,8 @@ function Emitter() {
             case 'UnaryExpression': return emitUnaryExpression(expression.value[0]);
             case 'IndexAccess': return emitIndexAccess(expression.value[0]);
             case 'MemberAccess': return emitMemberAccess(expression.value[0]);
+            case 'UnknownAccess': return emitMemberAccess(expression.value[0]);
+            case 'UnknownIndexAccess': return emitIndexAccess(expression.value[0]);
             case 'BooleanLiteral': return emitBooleanLiteral(expression.value[0]);
             case 'ListLiteral': return emitListLiteral(expression.value[0], assignedTo);
             case 'NumberLiteral': return emitNumberLiteral(expression.value[0]);

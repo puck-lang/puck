@@ -1,0 +1,146 @@
+import 'puck:js' as {null, undefined}
+import 'puck:test' as *
+import '../core.puck' as {Unknown, Some, None}
+
+describe('Unknown', || {
+  describe('isNull', || {
+    it('should check if the object is null', || {
+      expect(Unknown.from(null).isNull()).toBe(true)
+      expect(Unknown.from('').isNull()).toBe(false)
+      expect(Unknown.from(0).isNull()).toBe(false)
+      expect(Unknown.from(false).isNull()).toBe(false)
+      expect(Unknown.from(undefined).isNull()).toBe(false)
+    })
+  })
+
+  describe('isUndefined', || {
+    it('should check if the object is undefined', || {
+      expect(Unknown.from(undefined).isUndefined()).toBe(true)
+      expect(Unknown.from('').isUndefined()).toBe(false)
+      expect(Unknown.from(0).isUndefined()).toBe(false)
+      expect(Unknown.from(false).isUndefined()).toBe(false)
+      expect(Unknown.from(null).isUndefined()).toBe(false)
+    })
+  })
+
+  describe('isBool', || {
+    it('should check if the object is a bool', || {
+      expect(Unknown.from(true).isBool()).toBe(true)
+      expect(Unknown.from(false).isBool()).toBe(true)
+      expect(Unknown.from('').isBool()).toBe(false)
+      expect(Unknown.from(0).isBool()).toBe(false)
+      expect(Unknown.from(undefined).isBool()).toBe(false)
+      expect(Unknown.from(null).isBool()).toBe(false)
+    })
+  })
+
+  describe('isNum', || {
+    it('should check if the object is a number', || {
+      expect(Unknown.from(0).isNum()).toBe(true)
+      expect(Unknown.from(-54.2).isNum()).toBe(true)
+      expect(Unknown.from(123).isNum()).toBe(true)
+      expect(Unknown.from('').isNum()).toBe(false)
+      expect(Unknown.from(undefined).isNum()).toBe(false)
+      expect(Unknown.from(null).isNum()).toBe(false)
+    })
+  })
+
+  describe('isString', || {
+    it('should check if the object is a string', || {
+      expect(Unknown.from('').isString()).toBe(true)
+      expect(Unknown.from(0).isString()).toBe(false)
+      expect(Unknown.from(undefined).isString()).toBe(false)
+      expect(Unknown.from(null).isString()).toBe(false)
+    })
+  })
+
+  describe('isList', || {
+    it('should check if the object is a list', || {
+      expect(Unknown.from([]).isList()).toBe(true)
+      expect(Unknown.from(['']).isList()).toBe(true)
+      expect(Unknown.from('').isList()).toBe(false)
+      expect(Unknown.from(0).isList()).toBe(false)
+      expect(Unknown.from(undefined).isList()).toBe(false)
+      expect(Unknown.from(null).isList()).toBe(false)
+    })
+  })
+
+  describe('isObject', || {
+    it('should check if the object is an object', || {
+      expect(Unknown.from({}).isObject()).toBe(true)
+      expect(Unknown.from([]).isObject()).toBe(true)
+      expect(Unknown.from(['']).isObject()).toBe(true)
+      expect(Unknown.from('').isObject()).toBe(false)
+      expect(Unknown.from(0).isObject()).toBe(false)
+      expect(Unknown.from(undefined).isObject()).toBe(false)
+      expect(Unknown.from(null).isObject()).toBe(false)
+    })
+  })
+
+  describe('asBool', || {
+    it('should return the object as a bool', || {
+      expect(Unknown.from(true).asBool()).toEqual(Some(true))
+      expect(Unknown.from(false).asBool()).toEqual(Some(false))
+      expect(Unknown.from('').asBool()).toEqual(None)
+      expect(Unknown.from(0).asBool()).toEqual(None)
+      expect(Unknown.from(undefined).asBool()).toEqual(None)
+      expect(Unknown.from(null).asBool()).toEqual(None)
+    })
+  })
+
+  describe('asNum', || {
+    it('should return the object as a number', || {
+      expect(Unknown.from(0).asNum()).toEqual(Some(0))
+      expect(Unknown.from(-54.2).asNum()).toEqual(Some(-54.2))
+      expect(Unknown.from(123).asNum()).toEqual(Some(123))
+      expect(Unknown.from('').asNum()).toEqual(None)
+      expect(Unknown.from(undefined).asNum()).toEqual(None)
+      expect(Unknown.from(null).asNum()).toEqual(None)
+    })
+  })
+
+  describe('asString', || {
+    it('should return the object as a string', || {
+      expect(Unknown.from('').asString()).toEqual(Some(''))
+      expect(Unknown.from('Hello').asString()).toEqual(Some('Hello'))
+      expect(Unknown.from(0).asString()).toEqual(None)
+      expect(Unknown.from(undefined).asString()).toEqual(None)
+      expect(Unknown.from(null).asString()).toEqual(None)
+    })
+  })
+
+  describe('asList', || {
+    it('should return the object as a list', || {
+      expect(Unknown.from([]).asList()).toEqual(Some([]))
+      expect(Unknown.from(['']).asList()).toEqual(Some([Unknown.from('')]))
+      expect(Unknown.from('').asList()).toEqual(None)
+      expect(Unknown.from(0).asList()).toEqual(None)
+      expect(Unknown.from(undefined).asList()).toEqual(None)
+      expect(Unknown.from(null).asList()).toEqual(None)
+    })
+  })
+
+  describe('getProp', || {
+    it('should read the property if possible', || {
+      expect(Unknown.from([]).getProp('length')).toEqual(Some(Unknown.from(0)))
+      expect(Unknown.from(['']).getProp('length')).toEqual(Some(Unknown.from(1)))
+      expect(Unknown.from('').getProp('length')).toEqual(Some(Unknown.from(0)))
+      expect(Unknown.from('Hello').getProp('length')).toEqual(Some(Unknown.from(5)))
+      expect(Unknown.from(0).getProp('length')).toEqual(None)
+      expect(Unknown.from(undefined).getProp('length')).toEqual(None)
+      expect(Unknown.from(null).getProp('length')).toEqual(None)
+    })
+  })
+
+  describe('transmute', || {
+    it('should return the object as anything', || {
+      expect(Unknown.from({}).transmute()).toEqual({})
+      expect(Unknown.from([]).transmute()).toEqual([])
+      expect(Unknown.from(['']).transmute()).toEqual([''])
+      expect(Unknown.from('').transmute()).toEqual('')
+      expect(Unknown.from(0).transmute()).toEqual(0)
+      expect(Unknown.from(undefined).transmute()).toEqual(undefined)
+      expect(Unknown.from(null).transmute()).toEqual(null)
+    })
+  })
+})

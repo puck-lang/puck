@@ -31,6 +31,8 @@ export type Expression
 
   | {kind: 'IndexAccess', value: [IndexAccess]}
   | {kind: 'MemberAccess', value: [MemberAccess]}
+  | {kind: 'UnknownAccess', value: [MemberAccess]}
+  | {kind: 'UnknownIndexAccess', value: [IndexAccess]}
 
   | {kind: 'BooleanLiteral', value: [BooleanLiteral]}
   | {kind: 'ListLiteral', value: [ListLiteral]}

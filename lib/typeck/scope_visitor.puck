@@ -41,6 +41,8 @@ import '../ast/ast.puck' as {
 
   IndexAccess
   MemberAccess
+  UnknownAccess
+  UnknownIndexAccess
 
   BooleanLiteral
   ListLiteral
@@ -92,22 +94,28 @@ import '../entities.puck' as {
 fn asType(a) -> Type {a}
 fn asIterable<E>(a: List<E>) -> Iterable<E> {a}
 
+fn getBinding(e: Expression) -> Option<Binding> {
+  match e {
+    Expression::Identifier(i) => {
+      let scope: Scope = i.scope
+      scope.getBinding(i.name)
+    }
+    Expression::IndexAccess(i) => getBinding(i.object)
+    Expression::MemberAccess(i) => getBinding(i.object)
+    _ => None
+  }
+}
+
+fn getCoreType(scope: Scope, id: String, description: String) -> Result<Type, String> {
+  if let Some(binding) = scope.getBindingByTypeId(id)
+    then Ok(binding.type_.providesType.unwrap())
+    else Err('puck:core::$id is not in scope. Please import $id from puck:core to use $description.')
+}
+
 export fn ScopeVisitor(context, file) {
   let mut importDirective: ImportDirective
   let mut matchExpression: Option<MatchExpression> = None
   let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
-
-  fn getBinding(e: Expression) -> Option<Binding> {
-    match e {
-      Expression::Identifier(i) => {
-        let scope: Scope = i.scope
-        scope.getBinding(i.name)
-      }
-      Expression::IndexAccess(i) => getBinding(i.object)
-      Expression::MemberAccess(i) => getBinding(i.object)
-      _ => None
-    }
-  }
 
   fn checkFunctionCall(mut functionType: Type, c: CallExpression) {
     if not functionType then return undefined
@@ -381,6 +389,7 @@ export fn ScopeVisitor(context, file) {
       self.visitExpression(e.func)
 
       let mut functionType = e.func.getType()
+      let mut isUnknownCall = false
       // If it's a direct trait call the first argument is walked when
       // resolving the implementation
       let mut skipFirstArgument = false
@@ -518,9 +527,15 @@ export fn ScopeVisitor(context, file) {
           }
         }
       }
+      else if let Expression::UnknownAccess(_) = e.func {
+        isUnknownCall = true
+      }
+      else if let Expression::UnknownIndexAccess(_) = e.func {
+        isUnknownCall = true
+      }
 
       let mut parentAssignedTo
-      if functionType and functionType.isFunction() {
+      if not isUnknownCall and functionType and functionType.isFunction() {
         let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
         let mut callParameterMap: ObjectMap<Type> = ObjectMap.new()
         let parentAssignedTo = self.assignedTo
@@ -547,19 +562,24 @@ export fn ScopeVisitor(context, file) {
           functionType = resolveTypeParameters(callParameterMap)(functionType)
         }
         self.assignedTo = parentAssignedTo
-      } else {
+      }
+      else {
         let parentAssignedTo = self.assignedTo
         self.assignedTo = undefined
         e.argumentList.forEach(|a| self.visitExpression(a))
         self.assignedTo = parentAssignedTo
       }
-      if functionType {
+      if isUnknownCall {
+        e.type_ = functionType
+      }
+      else if functionType {
         e.functionType = functionType
         let function = checkFunctionCall(functionType, e)
         if function {
           e.type_ = function.returnType
         }
       }
+      ()
     }
     visitIfExpression: |mut self, mut e: IfExpression| {
       let parentScope: Scope = self.scope
@@ -745,6 +765,22 @@ export fn ScopeVisitor(context, file) {
           // reportError(a, 'can not read a property on an enum type')
         }
       }
+    }
+    visitUnknownAccess: |self, mut a: UnknownAccess| {
+      visit.walkExpression(self, a.object)
+      match getCoreType(self.scope, 'Unknown', 'unknown access') {
+        Ok(type_) => a.type_ = type_
+        Err(err) => reportError(a, err)
+      }
+      ()
+    }
+    visitUnknownIndexAccess: |self, mut a: UnknownIndexAccess| {
+      visit.walkUnknownIndexAccess(self, a)
+      match getCoreType(self.scope, 'Unknown', 'unknown access') {
+        Ok(type_) => a.type_ = type_
+        Err(err) => reportError(a, err)
+      }
+      ()
     }
 
     visitBooleanLiteral: |self, mut l: BooleanLiteral| {

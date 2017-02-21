@@ -107,6 +107,8 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
   visitUnaryExpression: _position_visitor.PositionVisitor.visitUnaryExpression,
   visitIndexAccess: _position_visitor.PositionVisitor.visitIndexAccess,
   visitMemberAccess: _position_visitor.PositionVisitor.visitMemberAccess,
+  visitUnknownAccess: _position_visitor.PositionVisitor.visitUnknownAccess,
+  visitUnknownIndexAccess: _position_visitor.PositionVisitor.visitUnknownIndexAccess,
   visitListLiteral: _position_visitor.PositionVisitor.visitListLiteral,
   visitBooleanLiteral: _position_visitor.PositionVisitor.visitBooleanLiteral,
   visitNumberLiteral: _position_visitor.PositionVisitor.visitNumberLiteral,

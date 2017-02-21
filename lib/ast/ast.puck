@@ -51,6 +51,8 @@ export enum Expression {
 
   IndexAccess(IndexAccess)
   MemberAccess(MemberAccess)
+  UnknownAccess(UnknownAccess)
+  UnknownIndexAccess(UnknownIndexAccess)
 
   BooleanLiteral(BooleanLiteral)
   ListLiteral(ListLiteral)
@@ -169,6 +171,8 @@ impl Expression {
 
       Expression::IndexAccess(e) => e.type_
       Expression::MemberAccess(e) => e.type_
+      Expression::UnknownAccess(e) => e.type_
+      Expression::UnknownIndexAccess(e) => e.type_
 
       Expression::BooleanLiteral(e) => e.type_
       Expression::ListLiteral(e) => e.type_
@@ -201,6 +205,8 @@ impl ToSpan for Expression {
 
       Expression::IndexAccess(e) => e.start()
       Expression::MemberAccess(e) => e.start()
+      Expression::UnknownAccess(e) => e.start()
+      Expression::UnknownIndexAccess(e) => e.start()
 
       Expression::BooleanLiteral(e) => e.start()
       Expression::ListLiteral(e) => e.start()
@@ -230,6 +236,8 @@ impl ToSpan for Expression {
 
       Expression::IndexAccess(e) => e.end()
       Expression::MemberAccess(e) => e.end()
+      Expression::UnknownAccess(e) => e.end()
+      Expression::UnknownIndexAccess(e) => e.end()
 
       Expression::BooleanLiteral(e) => e.end()
       Expression::ListLiteral(e) => e.end()
@@ -761,6 +769,34 @@ impl ToSpan for MemberAccess {
   fn end(self) -> Position {
     self.member.span.end
   }
+}
+
+export type UnknownAccess {
+  object: Expression
+  member: Identifier
+}
+
+impl ToSpan for UnknownAccess {
+  fn start(self) -> Position {
+    self.object.start()
+  }
+  fn end(self) -> Position {
+    self.member.span.end
+  }
+}
+
+export type UnknownIndexAccess {
+  object: Expression
+  openBracket: SimpleToken
+  index: Expression
+  closeBracket: SimpleToken
+}
+
+impl ToSpan for UnknownIndexAccess {
+  fn span(self) -> Span {{
+    start: self.object.start()
+    end: self.closeBracket.span.end
+  }}
 }
 
 export type BooleanLiteral {

@@ -3,9 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Iterator = exports.IntoIterator = exports.Never = exports.Ordering = exports.Option = exports.Result = exports.Radix = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.RegExp = undefined;
+exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Iterator = exports.IntoIterator = exports.Never = exports.Ordering = exports.Option = exports.Result = exports.Radix = exports.Unknown = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.RegExp = undefined;
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (_js.Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 exports.print = print;
 exports.panic = panic;
@@ -60,6 +60,9 @@ var NumRangeIterator = function NumRangeIterator(object) {
 var ObjectMap = exports.ObjectMap = function ObjectMap(object) {
   return object;
 };
+var Unknown = exports.Unknown = function Unknown(object) {
+  return object;
+};
 var Radix = exports.Radix = {
   Binary: { kind: 'Binary', value: Symbol('Binary') },
   Octal: { kind: 'Octal', value: Symbol('Octal') },
@@ -68,14 +71,14 @@ var Radix = exports.Radix = {
 };
 var Result = exports.Result = {
   Ok: function Ok() {
-    for (var _len = arguments.length, members = Array(_len), _key = 0; _key < _len; _key++) {
+    for (var _len = arguments.length, members = (0, _js.Array)(_len), _key = 0; _key < _len; _key++) {
       members[_key] = arguments[_key];
     }
 
     return { kind: 'Ok', value: members };
   },
   Err: function Err() {
-    for (var _len2 = arguments.length, members = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    for (var _len2 = arguments.length, members = (0, _js.Array)(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       members[_key2] = arguments[_key2];
     }
 
@@ -84,7 +87,7 @@ var Result = exports.Result = {
 };
 var Option = exports.Option = {
   Some: function Some() {
-    for (var _len3 = arguments.length, members = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    for (var _len3 = arguments.length, members = (0, _js.Array)(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       members[_key3] = arguments[_key3];
     }
 
@@ -1100,6 +1103,85 @@ ObjectMap.get = function get(key) {
 ObjectMap.set = function set(key, value) {
   var self = this;
   self[key] = value;
+};
+Unknown.from = function from(value) {
+  return value;
+};
+Unknown.isNull = function isNull() {
+  var self = this;
+  return js.isNull(self);
+};
+Unknown.isUndefined = function isUndefined() {
+  var self = this;
+  return js.isUndefined(self);
+};
+Unknown.isBool = function isBool() {
+  var self = this;
+  return (0, _js._typeof)(self) == "boolean";
+};
+Unknown.isNum = function isNum() {
+  var self = this;
+  return (0, _js._typeof)(self) == "number";
+};
+Unknown.isString = function isString() {
+  var self = this;
+  return (0, _js._typeof)(self) == "string";
+};
+Unknown.isList = function isList() {
+  var self = this;
+  return $unwrapTraitObject(_js.Array).isArray(self);
+};
+Unknown.isObject = function isObject() {
+  var self = this;
+  return self != _js._null && (0, _js._typeof)(self) == "object";
+};
+Unknown.asBool = function asBool() {
+  var self = this;
+  if (Unknown.isBool.call(self)) {
+    return Some($unwrapTraitObject(Unknown.transmute.call(self)));
+  } else {
+    return None;
+  };
+};
+Unknown.asNum = function asNum() {
+  var self = this;
+  if (Unknown.isNum.call(self)) {
+    return Some($unwrapTraitObject(Unknown.transmute.call(self)));
+  } else {
+    return None;
+  };
+};
+Unknown.asString = function asString() {
+  var self = this;
+  if (Unknown.isString.call(self)) {
+    return Some($unwrapTraitObject(Unknown.transmute.call(self)));
+  } else {
+    return None;
+  };
+};
+Unknown.asList = function asList() {
+  var self = this;
+  if (Unknown.isList.call(self)) {
+    return Some($unwrapTraitObject(Unknown.transmute.call(self)));
+  } else {
+    return None;
+  };
+};
+Unknown.getProp = function getProp(property) {
+  var self = this;
+  if (!(Unknown.isNull.call(self) || Unknown.isUndefined.call(self))) {
+    if ($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_js._Object).prototype).hasOwnProperty).call(self, property)) {
+      return Some(self[property]);
+    } else {
+      return None;
+    };
+  } else {
+    return None;
+  };
+};
+Unknown.transmute = function transmute() {
+  var self = this;
+  return self;
 };
 function anyCast(a) {
   return a;
