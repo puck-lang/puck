@@ -12,7 +12,7 @@ var entities_1 = require("../entities");
 var impls_1 = require("../typeck/src/impls");
 var scope_1 = require("../typeck/src/scope");
 var jsKeywords = [
-    'arguments', 'case', 'class', 'default', 'function', 'module', 'new', 'null',
+    'arguments', 'case', 'class', 'default', 'delete', 'function', 'module', 'new', 'null',
     'static', 'Object', 'typeof', 'undefined',
 ];
 var tokenToJs = function (kind) {

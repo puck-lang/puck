@@ -944,6 +944,10 @@ impl<T> ObjectMap<T> {
     (())
   }
 
+  fn delete(mut self, key: String) -> () {
+    js.delete(self, key)
+  }
+
   fn has(self, key: String) -> Bool {
     Object.prototype.hasOwnProperty.call(self, key)
   }
