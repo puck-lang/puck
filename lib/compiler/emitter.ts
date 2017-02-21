@@ -32,7 +32,6 @@ import {
   SimpleIdentifier,
   StringLiteral,
   SimpleStringLiteral,
-  SyntaxKind,
   Token,
   TraitDeclaration,
   TupleLiteral,
@@ -46,28 +45,22 @@ import {
   UnitPatternArm,
   VariableDeclaration,
   WhileLoop,
-  isBlock,
-  isExport,
-  isIdentifier,
-  isMember,
-  precedence,
-  textToToken,
-  tokenToText,
 } from './ast'
+import {SyntaxKind} from '../ast/token'
 import {Type, Record, Tuple, Implementation} from '../entities'
 import {getImplementationForTrait} from '../typeck/src/impls'
 import {Scope} from '../typeck/src/scope'
-import {isTypeScopeDeclaration} from '../helpers'
 
 const jsKeywords = [
   'arguments', 'case', 'class', 'default', 'function', 'module', 'new', 'null',
   'static', 'Object', 'typeof', 'undefined',
 ]
-const tokenToJs = Object['assign'](tokenToText, {
-  [SyntaxKind.AndKeyword]: '&&',
-  [SyntaxKind.OrKeyword]:  '||',
-  [SyntaxKind.NotKeyword]: '!',
-})
+const tokenToJs = kind => {
+  if (kind.kind == 'AndKeyword') return '&&'
+  if (kind.kind == 'OrKeyword')  return '||'
+  if (kind.kind == 'NotKeyword') return '!'
+  return SyntaxKind.name.call(kind)
+}
 
 enum Context {
   Return = 1,
@@ -140,7 +133,7 @@ export function Emitter() {
 
   function withPrecedence(operator: Token, emitter: () => string) {
     const parentPrecedence = currentPrecedence
-    currentPrecedence = precedence[operator.kind]
+    currentPrecedence = SyntaxKind.precedence.call(operator.kind)
     if (parentPrecedence > currentPrecedence)
       return `(${emitter()})`
     else return emitter()
@@ -390,7 +383,7 @@ export function Emitter() {
         case 'IfLetExpression': return emitIfLetExpression(expression.value[0])
         case 'MatchExpression': return emitMatchExpression(expression.value[0])
         default:
-          throw Error(`${SyntaxKind[expression.kind]}, ${expression.kind} is not supported`)
+          throw Error(`${expression.kind} is not supported`)
       }
     } finally {
       valueVariable = currentValueVariableContext
@@ -419,7 +412,7 @@ export function Emitter() {
         value = `(...members) => ({kind: '${emitIdentifier(t.name)}', value: members})`
       }
       else {
-        throw `Unsupported type bound ${SyntaxKind[t.bound.kind]}, ${t.bound.kind}`
+        throw `Unsupported type bound`
       }
     } else {
       value = `{kind: '${emitIdentifier(t.name)}', value: Symbol('${emitIdentifier(t.name)}')}`
@@ -564,7 +557,7 @@ export function Emitter() {
         value = '(...members) => members'
       }
       else {
-        throw `Unsupported type bound ${SyntaxKind[t.bound.kind]}, ${t.bound.kind}`
+        throw `Unsupported type bound`
       }
     } else {
       value = `Symbol('${emitIdentifier(t.name)}')`
@@ -695,12 +688,12 @@ export function Emitter() {
 
   function emitAssignmentExpression(e: AssignmentExpression) {
     let left = emitScalarExpression(e.lhs, null)
-    return `${left} ${tokenToJs[e.token.kind]} ${emitExpression(e.rhs, Context.Value, getType(e.lhs))}`
+    return `${left} ${tokenToJs(e.token.kind)} ${emitExpression(e.rhs, Context.Value, getType(e.lhs))}`
   }
 
   function emitBinaryExpression(e: BinaryExpression) {
     return withPrecedence(e.operator, () =>
-      `${emitExpression(e.lhs)} ${tokenToJs[e.operator.kind]} ${emitExpression(e.rhs)}`
+      `${emitExpression(e.lhs)} ${tokenToJs(e.operator.kind)} ${emitExpression(e.rhs)}`
     )
   }
 
@@ -957,7 +950,7 @@ export function Emitter() {
   }
 
   function emitUnaryExpression(e: UnaryExpression) {
-    return withPrecedence(e.operator, () => `${tokenToJs[e.operator.kind]}${emitExpression(e.rhs)}`)
+    return withPrecedence(e.operator, () => `${tokenToJs(e.operator.kind)}${emitExpression(e.rhs)}`)
   }
 
   function emitWhileLoop(e: WhileLoop) {

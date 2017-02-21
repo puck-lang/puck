@@ -67,7 +67,7 @@ function fileInspect(depth, opts) {
   }), $unwrapTraitObject(_js._Object).assign({}, opts, { depth: $unwrapTraitObject(opts).depth - depth }));
 };
 function parseString(context, file) {
-  var ast = (0, _parser.parse)((0, _token_stream.TokenStream)((0, _input_stream.InputStream)(context, file)));
+  var ast = (0, _parser.parse)(_token_stream.TokenStream._new(_input_stream.InputStream._new(context, file)), file);
   $unwrapTraitObject((0, _top_level_visitor.TopLevelVisitor)(context, file)).visitModule(ast);
   $unwrapTraitObject((0, _import_visitor.ImportVisitor)(context, file)).visitModule(ast);
   return ast;

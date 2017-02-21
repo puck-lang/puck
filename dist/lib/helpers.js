@@ -9,7 +9,6 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 exports.cmd = cmd;
 exports.walkSync = walkSync;
 exports.flag = flag;
-exports.isTypeScopeDeclaration = isTypeScopeDeclaration;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -25,9 +24,7 @@ var _path = require('path');
 
 var path = _interopRequireWildcard(_path);
 
-var _ast = require('./ast/ast');
-
-var _ast2 = require('./compiler/ast');
+var _ast = require('./compiler/ast');
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
@@ -105,7 +102,4 @@ function flag(_arguments, name) {
   } else {
     return defaultValue;
   };
-};
-function isTypeScopeDeclaration(t) {
-  return t.kind == $unwrapTraitObject(_ast2.SyntaxKind).TraitDeclaration || t.kind == $unwrapTraitObject(_ast2.SyntaxKind).TypeDeclaration;
 }

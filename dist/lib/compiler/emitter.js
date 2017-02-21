@@ -7,7 +7,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
-var ast_1 = require("./ast");
+var token_1 = require("../ast/token");
 var entities_1 = require("../entities");
 var impls_1 = require("../typeck/src/impls");
 var scope_1 = require("../typeck/src/scope");
@@ -15,11 +15,15 @@ var jsKeywords = [
     'arguments', 'case', 'class', 'default', 'function', 'module', 'new', 'null',
     'static', 'Object', 'typeof', 'undefined',
 ];
-var tokenToJs = Object['assign'](ast_1.tokenToText, (_a = {},
-    _a[ast_1.SyntaxKind.AndKeyword] = '&&',
-    _a[ast_1.SyntaxKind.OrKeyword] = '||',
-    _a[ast_1.SyntaxKind.NotKeyword] = '!',
-    _a));
+var tokenToJs = function (kind) {
+    if (kind.kind == 'AndKeyword')
+        return '&&';
+    if (kind.kind == 'OrKeyword')
+        return '||';
+    if (kind.kind == 'NotKeyword')
+        return '!';
+    return token_1.SyntaxKind.name.call(kind);
+};
 var Context;
 (function (Context) {
     Context[Context["Return"] = 1] = "Return";
@@ -86,7 +90,7 @@ function Emitter() {
     }
     function withPrecedence(operator, emitter) {
         var parentPrecedence = currentPrecedence;
-        currentPrecedence = ast_1.precedence[operator.kind];
+        currentPrecedence = token_1.SyntaxKind.precedence.call(operator.kind);
         if (parentPrecedence > currentPrecedence)
             return "(" + emitter() + ")";
         else
@@ -313,7 +317,7 @@ function Emitter() {
                 case 'IfLetExpression': return emitIfLetExpression(expression.value[0]);
                 case 'MatchExpression': return emitMatchExpression(expression.value[0]);
                 default:
-                    throw Error(ast_1.SyntaxKind[expression.kind] + ", " + expression.kind + " is not supported");
+                    throw Error(expression.kind + " is not supported");
             }
         }
         finally {
@@ -340,7 +344,7 @@ function Emitter() {
                 value = "(...members) => ({kind: '" + emitIdentifier(t.name) + "', value: members})";
             }
             else {
-                throw "Unsupported type bound " + ast_1.SyntaxKind[t.bound.kind] + ", " + t.bound.kind;
+                throw "Unsupported type bound";
             }
         }
         else {
@@ -455,7 +459,7 @@ function Emitter() {
                 value = '(...members) => members';
             }
             else {
-                throw "Unsupported type bound " + ast_1.SyntaxKind[t.bound.kind] + ", " + t.bound.kind;
+                throw "Unsupported type bound";
             }
         }
         else {
@@ -576,11 +580,11 @@ function Emitter() {
     }
     function emitAssignmentExpression(e) {
         var left = emitScalarExpression(e.lhs, null);
-        return left + " " + tokenToJs[e.token.kind] + " " + emitExpression(e.rhs, Context.Value, getType(e.lhs));
+        return left + " " + tokenToJs(e.token.kind) + " " + emitExpression(e.rhs, Context.Value, getType(e.lhs));
     }
     function emitBinaryExpression(e) {
         return withPrecedence(e.operator, function () {
-            return emitExpression(e.lhs) + " " + tokenToJs[e.operator.kind] + " " + emitExpression(e.rhs);
+            return emitExpression(e.lhs) + " " + tokenToJs(e.operator.kind) + " " + emitExpression(e.rhs);
         });
     }
     function emitCallExpression(fn_) {
@@ -673,7 +677,7 @@ function Emitter() {
                                     },
                                 }]
                         },
-                        operator: { kind: ast_1.SyntaxKind.EqualsEqualsToken },
+                        operator: { kind: token_1.SyntaxKind.EqualsEqualsToken },
                         rhs: {
                             kind: 'StringLiteral',
                             value: [{
@@ -742,7 +746,7 @@ function Emitter() {
             kind: 'BinaryExpression',
             value: [{
                     lhs: acc,
-                    operator: { kind: ast_1.SyntaxKind.AndKeyword },
+                    operator: { kind: token_1.SyntaxKind.AndKeyword },
                     rhs: curr,
                 }]
         }); });
@@ -812,7 +816,7 @@ function Emitter() {
         return emitIfLetExpression(ifLet);
     }
     function emitUnaryExpression(e) {
-        return withPrecedence(e.operator, function () { return "" + tokenToJs[e.operator.kind] + emitExpression(e.rhs); });
+        return withPrecedence(e.operator, function () { return "" + tokenToJs(e.operator.kind) + emitExpression(e.rhs); });
     }
     function emitWhileLoop(e) {
         var body = function () { return emitBlock(e.body, null); };
@@ -935,4 +939,3 @@ function Emitter() {
     return { emitModule: emitModule };
 }
 exports.Emitter = Emitter;
-var _a;

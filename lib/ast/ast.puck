@@ -1,12 +1,6 @@
 import '../entities.puck' as {File, Type}
 import 'span.puck' as {Position, Span, ToSpan}
-
-export type SyntaxKind {}
-
-export type Token {
-  kind: SyntaxKind
-  span: Span
-}
+import 'token.puck' as {SimpleToken}
 
 export type Module {
   fileName: String
@@ -249,12 +243,12 @@ impl ToSpan for Expression {
 
 export type EnumDeclaration {
   attributes: List<Attribute>
-  keyword: Token
+  keyword: SimpleToken
   name: Identifier
   typeParameters: List<TypeParameter>
-  openBrace: Token
+  openBrace: SimpleToken
   members: List<EnumMember>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl ToSpan for EnumDeclaration {
@@ -277,16 +271,16 @@ impl ToSpan for EnumMember {
 }
 
 export type ImplDeclaration {
-  implKeyword: Token
+  implKeyword: SimpleToken
   typeParameters: List<TypeParameter>
 
   trait_: TypeBound
-  forKeyword: Token
+  forKeyword: SimpleToken
   type_: TypeBound
 
-  openBrace: Token
+  openBrace: SimpleToken
   members: List<FunctionDeclaration>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl ToSpan for ImplDeclaration {
@@ -297,14 +291,14 @@ impl ToSpan for ImplDeclaration {
 }
 
 export type ImplShorthandDeclaration {
-  implKeyword: Token
+  implKeyword: SimpleToken
   typeParameters: List<TypeParameter>
 
   type_: TypeBound
 
-  openBrace: Token
+  openBrace: SimpleToken
   members: List<FunctionDeclaration>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl ToSpan for ImplShorthandDeclaration {
@@ -316,12 +310,12 @@ impl ToSpan for ImplShorthandDeclaration {
 
 export type TraitDeclaration {
   attributes: List<Attribute>
-  keyword: Token
+  keyword: SimpleToken
   name: Identifier
   typeParameters: List<TypeParameter>
-  openBrace: Token
+  openBrace: SimpleToken
   members: List<FunctionDeclaration>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl ToSpan for TraitDeclaration {
@@ -333,7 +327,7 @@ impl ToSpan for TraitDeclaration {
 
 export type TypeDeclaration {
   attributes: List<Attribute>
-  keyword: Token
+  keyword: SimpleToken
   name: Identifier
   typeParameters: List<TypeParameter>
   bound: Option<TypeBound>
@@ -349,7 +343,7 @@ impl ToSpan for TypeDeclaration {
 }
 
 export type ExportDirective {
-  keyword: Token
+  keyword: SimpleToken
   statement: ExportedStatement
   identifier: Identifier
 }
@@ -394,10 +388,10 @@ impl ToSpan for ExportedStatement {
 }
 
 export type ImportDirective {
-  importKeyword: Token
+  importKeyword: SimpleToken
   domain: Option<String>
   path: String
-  asKeyword: Token
+  asKeyword: SimpleToken
   specifier: ImportSpecifier
   module: Option<Module>
 }
@@ -410,7 +404,7 @@ impl ToSpan for ImportDirective {
 }
 
 export enum ImportSpecifier {
-  Asterisk(Token)
+  Asterisk(SimpleToken)
   Identifier(Identifier)
   ObjectDestructure(ObjectDestructure)
 }
@@ -426,9 +420,9 @@ impl ToSpan for ImportSpecifier {
 }
 
 export type ObjectDestructure {
-  openBrace: Token
+  openBrace: SimpleToken
   members: List<ObjectDestructureMember>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl ToSpan for ObjectDestructure {
@@ -451,9 +445,9 @@ impl ToSpan for ObjectDestructureMember {
 }
 
 export type Block {
-  openBrace: Option<Token>
+  openBrace: Option<SimpleToken>
   statements: List<BlockLevelStatement>
-  closeBrace: Option<Token>
+  closeBrace: Option<SimpleToken>
   type_: Type
 }
 
@@ -471,7 +465,7 @@ impl ToSpan for Block {
 }
 
 export type BreakStatement {
-  keyword: Token
+  keyword: SimpleToken
 }
 
 impl ToSpan for BreakStatement {
@@ -481,7 +475,7 @@ impl ToSpan for BreakStatement {
 }
 
 export type ReturnStatement {
-  keyword: Token
+  keyword: SimpleToken
   expression: Expression
 }
 
@@ -506,14 +500,15 @@ impl ToSpan for WhileLoop {
 
 export type Comment {
   text: String
+  span: Span
 }
 
 export type Attribute {
-  hash: Token
-  openBracket: Token
+  hash: SimpleToken
+  openBracket: SimpleToken
   name: Identifier
   data: AttributeData
-  closeBracket: Token
+  closeBracket: SimpleToken
 }
 
 impl ToSpan for Attribute {
@@ -546,9 +541,9 @@ impl ToSpan for Identifier {
 export type FunctionDeclaration {
   name: Option<Identifier>
   typeParameters: List<TypeParameter>
-  openParenOrBar: Token
+  openParenOrBar: SimpleToken
   parameterList: List<VariableDeclaration>
-  closeParenOrBar: Token
+  closeParenOrBar: SimpleToken
   returnType: Option<TypeBound>
   body: Option<Block>
 
@@ -590,7 +585,7 @@ impl ToSpan for VariableDeclaration {
 
 export type AssignmentExpression {
   lhs: Expression
-  token: Token
+  token: SimpleToken
   rhs: Expression
 }
 
@@ -605,7 +600,7 @@ impl ToSpan for AssignmentExpression {
 
 export type BinaryExpression {
   lhs: Expression
-  operator: Token
+  operator: SimpleToken
   rhs: Expression
 }
 
@@ -620,9 +615,9 @@ impl ToSpan for BinaryExpression {
 
 export type CallExpression {
   func: Expression
-  openParen: Token
+  openParen: SimpleToken
   argumentList: List<Expression>
-  closeParen: Token
+  closeParen: SimpleToken
 }
 
 impl ToSpan for CallExpression {
@@ -635,7 +630,7 @@ impl ToSpan for CallExpression {
 }
 
 export type IfExpression {
-  ifKeyword: Token
+  ifKeyword: SimpleToken
   condition: Expression
   then_: Block
   else_: Option<Block>
@@ -651,8 +646,8 @@ impl ToSpan for IfExpression {
 }
 
 export type IfLetExpression {
-  ifKeyword: Token
-  letKeyword: Token
+  ifKeyword: SimpleToken
+  letKeyword: SimpleToken
   pattern: Pattern
   expression: Expression
   then_: Block
@@ -669,11 +664,11 @@ impl ToSpan for IfLetExpression {
 }
 
 export type MatchExpression {
-  matchKeyword: Token
+  matchKeyword: SimpleToken
   expression: Expression
-  openBrace: Token
+  openBrace: SimpleToken
   patterns: List<MatchArm>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl ToSpan for MatchExpression {
@@ -687,7 +682,7 @@ impl ToSpan for MatchExpression {
 
 export type MatchArm {
   pattern: Pattern
-  arrow: Token
+  arrow: SimpleToken
   block: Block
 }
 
@@ -729,7 +724,7 @@ impl ToSpan for TypePath {
 }
 
 export type UnaryExpression {
-  operator: Token
+  operator: SimpleToken
   rhs: Expression
 }
 
@@ -742,9 +737,9 @@ impl ToSpan for UnaryExpression {
 
 export type IndexAccess {
   object: Expression
-  openBracket: Token
+  openBracket: SimpleToken
   index: Expression
-  closeBracket: Token
+  closeBracket: SimpleToken
 }
 
 impl ToSpan for IndexAccess {
@@ -769,7 +764,7 @@ impl ToSpan for MemberAccess {
 }
 
 export type BooleanLiteral {
-  keyword: Token
+  keyword: SimpleToken
   value: Bool
 }
 
@@ -778,9 +773,9 @@ impl ToSpan for BooleanLiteral {
 }
 
 export type ListLiteral {
-  openBracket: Token
+  openBracket: SimpleToken
   members: List<Expression>
-  closeBracket: Token
+  closeBracket: SimpleToken
 }
 
 impl ToSpan for ListLiteral {
@@ -800,9 +795,9 @@ impl ToSpan for NumberLiteral {
 }
 
 export type RecordLiteral {
-  openBrace: Token
+  openBrace: SimpleToken
   members: List<RecordLiteralMember>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl ToSpan for RecordLiteral {
@@ -859,9 +854,9 @@ impl ToSpan for StringLiteralPart {
 }
 
 export type TupleLiteral {
-  openParen: Token
+  openParen: SimpleToken
   expressions: List<Expression>
-  closeParen: Token
+  closeParen: SimpleToken
 }
 
 impl ToSpan for TupleLiteral {
@@ -872,7 +867,7 @@ impl ToSpan for TupleLiteral {
 }
 
 export enum Pattern {
-  CatchAll(Token)
+  CatchAll(SimpleToken)
   Identifier(Identifier)
   // Boolen(BooleanLiteral)
   // Number(NumberLiteral)
@@ -925,9 +920,9 @@ impl ToSpan for Pattern {
 }
 
 export type RecordPattern {
-  openBrace: Token
+  openBrace: SimpleToken
   properties: List<RecordPatternMember>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl RecordPattern {
@@ -962,9 +957,9 @@ impl ToSpan for RecordPatternMember {
 }
 
 export type TuplePattern {
-  openParen: Token
+  openParen: SimpleToken
   properties: List<Pattern>
-  closeParen: Token
+  closeParen: SimpleToken
 }
 
 impl TuplePattern {
@@ -1042,9 +1037,9 @@ impl ToSpan for NamedTypeBound {
 }
 
 export type RecordTypeBound {
-  openBrace: Token
+  openBrace: SimpleToken
   properties: List<RecordTypeBoundMember>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
 impl ToSpan for RecordTypeBound {
@@ -1060,9 +1055,9 @@ export type RecordTypeBoundMember {
 }
 
 export type TupleTypeBound {
-  openParen: Token
+  openParen: SimpleToken
   properties: List<TypeBound>
-  closeParen: Token
+  closeParen: SimpleToken
 }
 
 impl ToSpan for TupleTypeBound {

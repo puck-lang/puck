@@ -2,7 +2,6 @@ import 'puck:js' as {Array, asResult, console, process}
 import 'node:child_process' as {execSync}
 import 'node:fs' as fs
 import 'node:path' as path
-import 'ast/ast.puck' as {Token}
 import 'compiler/ast.ts' as {SyntaxKind}
 
 export fn cmd(cmd) {
@@ -59,9 +58,4 @@ export fn flag(arguments, name, defaultValue = '') {
     arguments.splice(index, 2)
     value
   } else defaultValue
-}
-
-export fn isTypeScopeDeclaration(t: Token) {
-  t.kind == SyntaxKind.TraitDeclaration or
-  t.kind == SyntaxKind.TypeDeclaration
 }
