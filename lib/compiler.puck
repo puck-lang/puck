@@ -24,7 +24,7 @@ fn fileInspect(self, depth, opts) {
 }
 
 export fn parseString(context, file: UnparsedFile) {
-  let mut ast = parse(TokenStream(InputStream(context, file)))
+  let mut ast = parse(TokenStream.new(InputStream.new(context, file)), file)
   TopLevelVisitor(context, file).visitModule(ast)
   ImportVisitor(context, file).visitModule(ast)
   ast

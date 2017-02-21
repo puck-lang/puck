@@ -62,8 +62,8 @@ import '../ast/ast.puck' as {
   TypeParameter
 }
 import '../ast/span.puck' as {ToSpan}
+import '../ast/token.puck' as {SyntaxKind}
 import '../ast/visit.puck' as visit
-import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/enums.puck' as {checkExhaustive}
 import 'src/functions.puck' as {resolveFunctionTypeParameters}
 import 'src/impls.puck' as {getImplementation}
@@ -653,22 +653,32 @@ export fn ScopeVisitor(context, file) {
       e.scope = self.scope
       visit.walkUnaryExpression(self, e)
 
-      if e.operator.kind == SyntaxKind.NotKeyword {
-        if let Some(binding) = scope.getBindingByTypeId('Bool') {
-          e.type_ = binding.type_.providesType.unwrap()
+      match e.operator.kind {
+        SyntaxKind::NotKeyword => {
+          if let Some(binding) = scope.getBindingByTypeId('Bool') {
+            e.type_ = binding.type_.providesType.unwrap()
+          }
+          else reportError(e
+            'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
+          )
         }
-        else reportError(e
-          'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
-        )
-      }
-      else if e.operator.kind == SyntaxKind.MinusToken
-            or e.operator.kind == SyntaxKind.PlusToken {
-        if let Some(binding) = scope.getBindingByTypeId('Num') {
-          e.type_ = binding.type_.providesType.unwrap()
+        SyntaxKind::MinusToken => {
+          if let Some(binding) = scope.getBindingByTypeId('Num') {
+            e.type_ = binding.type_.providesType.unwrap()
+          }
+          else reportError(e
+            'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+          )
         }
-        else reportError(e
-          'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
-        )
+        SyntaxKind::PlusToken => {
+          if let Some(binding) = scope.getBindingByTypeId('Num') {
+            e.type_ = binding.type_.providesType.unwrap()
+          }
+          else reportError(e
+            'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+          )
+        }
+        _ => {}
       }
       ()
     }
@@ -733,14 +743,13 @@ export fn ScopeVisitor(context, file) {
     }
     visitNumberLiteral: |self, mut l: NumberLiteral| {
       let scope: Scope = self.scope
-      l.scope = self.scope
       if let Some(binding) = scope.getBindingByTypeId('Num') {
         l.type_ = binding.type_.providesType.unwrap()
+        ()
       }
       else reportError(l
         'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
       )
-      visit.walkNumberLiteral(self, l)
     }
     visitRecordLiteral: |self, mut l: RecordLiteral| {
       l.scope = self.scope

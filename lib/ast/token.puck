@@ -1,1 +1,263 @@
+import 'ast.puck' as {
+  Comment
+  Identifier
+  NumberLiteral
+  StringLiteral
+}
+import 'span.puck' as {Span}
 
+export enum SyntaxKind {
+  AndKeyword
+  AsKeyword
+  BreakKeyword
+  ElseKeyword
+  EnumKeyword
+  ExportKeyword
+  FalseKeyword
+  FnKeyword
+  ForKeyword
+  IfKeyword
+  ImplKeyword
+  ImportKeyword
+  LetKeyword
+  MutKeyword
+  MatchKeyword
+  NotKeyword
+  OrKeyword
+  ReturnKeyword
+  ThenKeyword
+  ThrowKeyword
+  TraitKeyword
+  TrueKeyword
+  TypeKeyword
+  WhileKeyword
+
+  OpenBraceToken
+  CloseBraceToken
+  OpenBracketToken
+  CloseBracketToken
+  OpenParenToken
+  CloseParenToken
+
+  AsteriskAsteriskEqualsToken
+  AsteriskAsteriskToken
+  AsteriskEqualsToken
+  AsteriskToken
+  BarToken
+  ColonToken
+  ColonColonToken
+  CommaToken
+  DotToken
+  EqualsEqualsToken
+  EqualsGreaterThanToken
+  EqualsToken
+  ExclamationEqualsToken
+  GreaterThanEqualsToken
+  GreaterThanToken
+  HashToken
+  LessThanEqualsToken
+  LessThanToken
+  MinusEqualsToken
+  MinusGreaterThanToken
+  MinusToken
+  PercentEqualsToken
+  PercentToken
+  PlusEqualsToken
+  PlusToken
+  SemicolonToken
+  SlashEqualsToken
+  SlashToken
+  UnderscoreToken
+
+  NewlineToken
+  EndOfFileToken
+}
+
+export type SimpleToken {
+  kind: SyntaxKind
+  span: Span
+}
+
+export enum Token {
+  SimpleToken(SimpleToken)
+  Comment(Comment)
+  Identifier(Identifier)
+  NumberLiteral(NumberLiteral)
+  StringLiteral(StringLiteral)
+}
+
+export let operators = [
+  ',', ';', ':', '::', '.', '_', '|',
+  '{', '}', '[', ']', '(', ')',
+  '+', '-', '*', '**', '/', '%',
+  '=', '+=', '-=', '*=', '**=', '/=', '%=',
+  '==', '!=', '<', '<=', '>', '>=',
+  '=>', '->', '#'
+]
+
+impl Token {
+  fn name(self) -> String {
+    match self {
+      Token::SimpleToken(token) => token.kind.name()
+      Token::Comment => 'comment'
+      Token::Identifier({name}) => 'identifier "$name"'
+      Token::NumberLiteral => 'number'
+      Token::StringLiteral => 'string'
+    }
+  }
+}
+
+impl SyntaxKind {
+  fn fromText(text: String) -> Option<SyntaxKind> {
+    // As keyword is missing becouse as is a contextual keyword
+    if text == 'and' then Some(SyntaxKind::AndKeyword)
+    else if text == 'break' then Some(SyntaxKind::BreakKeyword)
+    else if text == 'else' then Some(SyntaxKind::ElseKeyword)
+    else if text == 'enum' then Some(SyntaxKind::EnumKeyword)
+    else if text == 'export' then Some(SyntaxKind::ExportKeyword)
+    else if text == 'false' then Some(SyntaxKind::FalseKeyword)
+    else if text == 'for' then Some(SyntaxKind::ForKeyword)
+    else if text == 'fn' then Some(SyntaxKind::FnKeyword)
+    else if text == 'if' then Some(SyntaxKind::IfKeyword)
+    else if text == 'impl' then Some(SyntaxKind::ImplKeyword)
+    else if text == 'import' then Some(SyntaxKind::ImportKeyword)
+    else if text == 'let' then Some(SyntaxKind::LetKeyword)
+    else if text == 'match' then Some(SyntaxKind::MatchKeyword)
+    else if text == 'mut' then Some(SyntaxKind::MutKeyword)
+    else if text == 'not' then Some(SyntaxKind::NotKeyword)
+    else if text == 'or' then Some(SyntaxKind::OrKeyword)
+    else if text == 'return' then Some(SyntaxKind::ReturnKeyword)
+    else if text == 'throw' then Some(SyntaxKind::ThrowKeyword)
+    else if text == 'true' then Some(SyntaxKind::TrueKeyword)
+    else if text == 'then' then Some(SyntaxKind::ThenKeyword)
+    else if text == 'trait' then Some(SyntaxKind::TraitKeyword)
+    else if text == 'type' then Some(SyntaxKind::TypeKeyword)
+    else if text == 'while' then Some(SyntaxKind::WhileKeyword)
+    else if text == '{' then Some(SyntaxKind::OpenBraceToken)
+    else if text == '}' then Some(SyntaxKind::CloseBraceToken)
+    else if text == '[' then Some(SyntaxKind::OpenBracketToken)
+    else if text == ']' then Some(SyntaxKind::CloseBracketToken)
+    else if text == '(' then Some(SyntaxKind::OpenParenToken)
+    else if text == ')' then Some(SyntaxKind::CloseParenToken)
+    else if text == '|' then Some(SyntaxKind::BarToken)
+    else if text == ',' then Some(SyntaxKind::CommaToken)
+    else if text == ':' then Some(SyntaxKind::ColonToken)
+    else if text == '::' then Some(SyntaxKind::ColonColonToken)
+    else if text == '.' then Some(SyntaxKind::DotToken)
+    else if text == '#' then Some(SyntaxKind::HashToken)
+    else if text == ';' then Some(SyntaxKind::SemicolonToken)
+    else if text == '_' then Some(SyntaxKind::UnderscoreToken)
+    else if text == '<' then Some(SyntaxKind::LessThanToken)
+    else if text == '>' then Some(SyntaxKind::GreaterThanToken)
+    else if text == '<=' then Some(SyntaxKind::LessThanEqualsToken)
+    else if text == '>=' then Some(SyntaxKind::GreaterThanEqualsToken)
+    else if text == '==' then Some(SyntaxKind::EqualsEqualsToken)
+    else if text == '!=' then Some(SyntaxKind::ExclamationEqualsToken)
+    else if text == '=>' then Some(SyntaxKind::EqualsGreaterThanToken)
+    else if text == '->' then Some(SyntaxKind::MinusGreaterThanToken)
+    else if text == '+' then Some(SyntaxKind::PlusToken)
+    else if text == '-' then Some(SyntaxKind::MinusToken)
+    else if text == '*' then Some(SyntaxKind::AsteriskToken)
+    else if text == '**' then Some(SyntaxKind::AsteriskAsteriskToken)
+    else if text == '/' then Some(SyntaxKind::SlashToken)
+    else if text == '%' then Some(SyntaxKind::PercentToken)
+    else if text == '=' then Some(SyntaxKind::EqualsToken)
+    else if text == '+=' then Some(SyntaxKind::PlusEqualsToken)
+    else if text == '-=' then Some(SyntaxKind::MinusEqualsToken)
+    else if text == '*=' then Some(SyntaxKind::AsteriskEqualsToken)
+    else if text == '**=' then Some(SyntaxKind::AsteriskAsteriskEqualsToken)
+    else if text == '/=' then Some(SyntaxKind::SlashEqualsToken)
+    else if text == '%=' then Some(SyntaxKind::PercentEqualsToken)
+    else None
+  }
+
+  fn name(self) -> String {
+    match self {
+      SyntaxKind::AsKeyword => 'as'
+      SyntaxKind::AndKeyword => 'and'
+      SyntaxKind::BreakKeyword => 'break'
+      SyntaxKind::ElseKeyword => 'else'
+      SyntaxKind::EnumKeyword => 'enum'
+      SyntaxKind::ExportKeyword => 'export'
+      SyntaxKind::FalseKeyword => 'false'
+      SyntaxKind::ForKeyword => 'for'
+      SyntaxKind::FnKeyword => 'fn'
+      SyntaxKind::IfKeyword => 'if'
+      SyntaxKind::ImplKeyword => 'impl'
+      SyntaxKind::ImportKeyword => 'import'
+      SyntaxKind::LetKeyword => 'let'
+      SyntaxKind::MatchKeyword => 'match'
+      SyntaxKind::MutKeyword => 'mut'
+      SyntaxKind::NotKeyword => 'not'
+      SyntaxKind::OrKeyword => 'or'
+      SyntaxKind::ReturnKeyword => 'return'
+      SyntaxKind::ThrowKeyword => 'throw'
+      SyntaxKind::TrueKeyword => 'true'
+      SyntaxKind::ThenKeyword => 'then'
+      SyntaxKind::TraitKeyword => 'trait'
+      SyntaxKind::TypeKeyword => 'type'
+      SyntaxKind::WhileKeyword => 'while'
+      SyntaxKind::OpenBraceToken => '{'
+      SyntaxKind::CloseBraceToken => '}'
+      SyntaxKind::OpenBracketToken => '['
+      SyntaxKind::CloseBracketToken => ']'
+      SyntaxKind::OpenParenToken => '('
+      SyntaxKind::CloseParenToken => ')'
+      SyntaxKind::BarToken => '|'
+      SyntaxKind::CommaToken => ','
+      SyntaxKind::ColonToken => ':'
+      SyntaxKind::ColonColonToken => '::'
+      SyntaxKind::DotToken => '.'
+      SyntaxKind::HashToken => '#'
+      SyntaxKind::SemicolonToken => ';'
+      SyntaxKind::UnderscoreToken => '_'
+      SyntaxKind::LessThanToken => '<'
+      SyntaxKind::GreaterThanToken => '>'
+      SyntaxKind::LessThanEqualsToken => '<='
+      SyntaxKind::GreaterThanEqualsToken => '>='
+      SyntaxKind::EqualsEqualsToken => '=='
+      SyntaxKind::ExclamationEqualsToken => '!='
+      SyntaxKind::EqualsGreaterThanToken => '=>'
+      SyntaxKind::MinusGreaterThanToken => '->'
+      SyntaxKind::PlusToken => '+'
+      SyntaxKind::MinusToken => '-'
+      SyntaxKind::AsteriskToken => '*'
+      SyntaxKind::AsteriskAsteriskToken => '**'
+      SyntaxKind::SlashToken => '/'
+      SyntaxKind::PercentToken => '%'
+      SyntaxKind::EqualsToken => '='
+      SyntaxKind::PlusEqualsToken => '+='
+      SyntaxKind::MinusEqualsToken => '-='
+      SyntaxKind::AsteriskEqualsToken => '*='
+      SyntaxKind::AsteriskAsteriskEqualsToken => '**='
+      SyntaxKind::SlashEqualsToken => '/='
+      SyntaxKind::PercentEqualsToken => '%='
+      SyntaxKind::NewlineToken => 'new line'
+      SyntaxKind::EndOfFileToken => 'end of file'
+    }
+  }
+
+  fn precedence(self) -> Num {
+    match self {
+      SyntaxKind::EqualsToken => 1
+      SyntaxKind::PlusEqualsToken => 1.1
+      SyntaxKind::MinusEqualsToken => 1.1
+      SyntaxKind::OrKeyword => 2
+      SyntaxKind::AndKeyword => 3
+      SyntaxKind::NotKeyword => 4
+      SyntaxKind::EqualsEqualsToken => 7
+      SyntaxKind::ExclamationEqualsToken => 7
+      SyntaxKind::GreaterThanToken => 7
+      SyntaxKind::GreaterThanEqualsToken => 7
+      SyntaxKind::LessThanToken => 7
+      SyntaxKind::LessThanEqualsToken => 7
+      SyntaxKind::PlusToken => 10
+      SyntaxKind::MinusToken => 10
+      SyntaxKind::AsteriskToken => 20
+      SyntaxKind::SlashToken => 20
+      SyntaxKind::PercentToken => 20
+      SyntaxKind::AsteriskAsteriskToken => 25
+      _ => panic('no precedence for ' + self.name())
+    }
+  }
+}
