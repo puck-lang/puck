@@ -52,7 +52,7 @@ import {getImplementationForTrait} from '../typeck/src/impls'
 import {Scope} from '../typeck/src/scope'
 
 const jsKeywords = [
-  'arguments', 'case', 'class', 'default', 'function', 'module', 'new', 'null',
+  'arguments', 'case', 'class', 'default', 'delete', 'function', 'module', 'new', 'null',
   'static', 'Object', 'typeof', 'undefined',
 ]
 const tokenToJs = kind => {

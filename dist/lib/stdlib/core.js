@@ -1081,6 +1081,10 @@ ObjectMap.forEach = function forEach(func) {
   });
   [];
 };
+ObjectMap._delete = function _delete(key) {
+  var self = this;
+  js._delete(self, key);
+};
 ObjectMap.has = function has(key) {
   var self = this;
   return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(_js._Object).prototype).hasOwnProperty).call(self, key);

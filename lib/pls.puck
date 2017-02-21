@@ -15,11 +15,15 @@ import 'compiler.puck' as {createContext}
 import 'entities.puck' as {File, UnparsedFile}
 
 export fn createServer(projectPath: String, sendDiagnostic) {
-  let mut context
+  let mut contexts = ObjectMap.new()
   let mut a = {}
+  a.onClose = fn (filePath: String) {
+    contexts.delete(filePath)
+  }
   a.validateDocument = fn (filePath: String, contents: String) {
     print('validateDocument')
-    context = createContext(projectPath)
+    let mut context = createContext(projectPath)
+    contexts.set(filePath, context)
     context.reportError = fn (file: File, token: ToSpan, message) {
       print('reportError', (file.absolutePath, message))
       let span = token.span()
@@ -57,7 +61,10 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   }
   a.onCompletion = fn (filePath: String, position: Position) {
     print('onCompletion')
-    if not context then return []
+    let context = match contexts.get(filePath) {
+      Some(context) => context
+      None => return []
+    }
     let file: File = context.files[path.resolve(path.normalize(filePath))]
     if not file then return []
     let module: Module = file.ast
@@ -84,7 +91,10 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   }
   a.onHover = fn (filePath: String, position: Position) -> Hover {
     print('onHover')
-    if not context then return Hover.empty()
+    let context = match contexts.get(filePath) {
+      Some(context) => context
+      None => return Hover.empty()
+    }
     let file: File = context.files[path.resolve(path.normalize(filePath))]
     if not file then return Hover.empty()
     let module: Module = file.ast
@@ -109,7 +119,10 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   }
   a.onDefinition = fn (filePath: String, position: Position) -> List<Definition> {
     print('onDefinition')
-    if not context then return []
+    let context = match contexts.get(filePath) {
+      Some(context) => context
+      None => return []
+    }
     let file: File = context.files[path.resolve(path.normalize(filePath))]
     if not file then return []
     let module: Module = file.ast
