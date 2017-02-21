@@ -340,43 +340,61 @@ function parse(input, file) {
           return true;
         } else {
           var __PUCK__value__63 = __PUCK__value__56;
-          if (true) {
-            var __PUCK__value__64 = __PUCK__value__63;
-            return false;
+          if ($unwrapTraitObject(__PUCK__value__63).kind == "UnknownAccess") {
+            var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__63),
+                _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+                __PUCK__value__64 = _$unwrapTraitObject11[0];
+
+            return true;
+          } else {
+            var __PUCK__value__65 = __PUCK__value__56;
+            if ($unwrapTraitObject(__PUCK__value__65).kind == "UnknownIndexAccess") {
+              var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__65),
+                  _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
+                  __PUCK__value__66 = _$unwrapTraitObject13[0];
+
+              return true;
+            } else {
+              var __PUCK__value__67 = __PUCK__value__56;
+              if (true) {
+                var __PUCK__value__68 = __PUCK__value__67;
+                return false;
+              };
+            };
           };
         };
       };
     };
   };
   function maybeBinary(left, myPrecedence) {
-    var __PUCK__value__65 = maybeParseOperator();
-    if ($unwrapTraitObject(__PUCK__value__65).kind == "Some") {
-      var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__65),
-          _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
-          operator = _$unwrapTraitObject11[0];
+    var __PUCK__value__69 = maybeParseOperator();
+    if ($unwrapTraitObject(__PUCK__value__69).kind == "Some") {
+      var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__69),
+          _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14.value, 1),
+          operator = _$unwrapTraitObject15[0];
 
       var hisPrecedence = _token3.SyntaxKind.precedence.call(operator.kind);
       if (hisPrecedence > myPrecedence) {
         _token_stream.TokenStream.next.call(input);
         var innerExpression = maybeBinary(parseAtom(), hisPrecedence);
-        var __PUCK__value__66 = void 0;
+        var __PUCK__value__70 = void 0;
         if (isAssignment(operator)) {
           if (!isAssignable(left)) {
             _token_stream.TokenStream.croak.call(input, "Can only assign to an identifier");
           };
-          __PUCK__value__66 = _ast.Expression.AssignmentExpression({
+          __PUCK__value__70 = _ast.Expression.AssignmentExpression({
             lhs: left,
             token: operator,
             rhs: innerExpression
           });
         } else {
-          __PUCK__value__66 = _ast.Expression.BinaryExpression({
+          __PUCK__value__70 = _ast.Expression.BinaryExpression({
             lhs: left,
             operator: operator,
             rhs: innerExpression
           });
         };
-        var e = __PUCK__value__66;
+        var e = __PUCK__value__70;
         return maybeBinary(e, myPrecedence);
       };
     };
@@ -384,7 +402,7 @@ function parse(input, file) {
   };
   function maybeCall(expression) {
     if (isToken(_token3.SyntaxKind.OpenParenToken, true)) {
-      return maybeCall(maybeMemberAccess(_ast.Expression.CallExpression({
+      return maybeCall(maybeAccess(_ast.Expression.CallExpression({
         func: expression,
         openParen: expect(_token3.SyntaxKind.OpenParenToken),
         argumentList: delimited(_token3.SyntaxKind.OpenParenToken, _token3.SyntaxKind.CloseParenToken, _token3.SyntaxKind.CommaToken, parseExpression, false),
@@ -395,7 +413,7 @@ function parse(input, file) {
     };
   };
   function maybeAccess(expression) {
-    return maybeIndexAccess(maybeMemberAccess(expression));
+    return maybeUnknownAccess(maybeIndexAccess(maybeMemberAccess(expression)));
   };
   function maybeMemberAccess(expression) {
     if (isToken(_token3.SyntaxKind.DotToken)) {
@@ -419,6 +437,29 @@ function parse(input, file) {
         index: index,
         closeBracket: closeBracket
       }));
+    } else {
+      return expression;
+    };
+  };
+  function maybeUnknownAccess(expression) {
+    if (isToken(_token3.SyntaxKind.MinusGreaterThanToken)) {
+      _token_stream.TokenStream.next.call(input);
+      if (isToken(_token3.SyntaxKind.OpenBracketToken)) {
+        var openBracket = consumeToken(_token3.SyntaxKind.OpenBracketToken);
+        var index = parseExpression();
+        var closeBracket = consumeToken(_token3.SyntaxKind.CloseBracketToken);
+        return maybeAccess(_ast.Expression.UnknownIndexAccess({
+          object: expression,
+          openBracket: openBracket,
+          index: index,
+          closeBracket: closeBracket
+        }));
+      } else {
+        return maybeAccess(_ast.Expression.UnknownAccess({
+          object: expression,
+          member: consumeIdentifier()
+        }));
+      };
     } else {
       return expression;
     };
@@ -458,11 +499,11 @@ function parse(input, file) {
     while (!_token_stream.TokenStream.eof.call(input)) {
       var statement = parseTopLevelStatement();
       _core.List.add.call(statements, statement);
-      var __PUCK__value__67 = statement;
-      if ($unwrapTraitObject(__PUCK__value__67).kind == "ExportDirective") {
-        var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__67),
-            _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
-            e = _$unwrapTraitObject13[0];
+      var __PUCK__value__71 = statement;
+      if ($unwrapTraitObject(__PUCK__value__71).kind == "ExportDirective") {
+        var _$unwrapTraitObject16 = $unwrapTraitObject(__PUCK__value__71),
+            _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject16.value, 1),
+            e = _$unwrapTraitObject17[0];
 
         exports[e.identifier.name] = e;
       };
@@ -478,52 +519,52 @@ function parse(input, file) {
     };
   };
   function parseTopLevelStatement() {
-    var __PUCK__value__68 = _token_stream.TokenStream.peek.call(input);
-    var __PUCK__value__69 = __PUCK__value__68;
-    if ($unwrapTraitObject(__PUCK__value__69).kind == "SimpleToken") {
-      var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__69),
-          _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14.value, 1),
-          token = _$unwrapTraitObject15[0];
+    var __PUCK__value__72 = _token_stream.TokenStream.peek.call(input);
+    var __PUCK__value__73 = __PUCK__value__72;
+    if ($unwrapTraitObject(__PUCK__value__73).kind == "SimpleToken") {
+      var _$unwrapTraitObject18 = $unwrapTraitObject(__PUCK__value__73),
+          _$unwrapTraitObject19 = _slicedToArray(_$unwrapTraitObject18.value, 1),
+          token = _$unwrapTraitObject19[0];
 
-      var __PUCK__value__70 = token.kind;
-      var __PUCK__value__71 = __PUCK__value__70;
-      if ($unwrapTraitObject(__PUCK__value__71).kind == "HashToken") {
-        var _undefined27 = $unwrapTraitObject(__PUCK__value__71);
+      var __PUCK__value__74 = token.kind;
+      var __PUCK__value__75 = __PUCK__value__74;
+      if ($unwrapTraitObject(__PUCK__value__75).kind == "HashToken") {
+        var _undefined27 = $unwrapTraitObject(__PUCK__value__75);
         return parseDeclarationWithAttribute();
       } else {
-        var __PUCK__value__72 = __PUCK__value__70;
-        if ($unwrapTraitObject(__PUCK__value__72).kind == "EnumKeyword") {
-          var _undefined28 = $unwrapTraitObject(__PUCK__value__72);
+        var __PUCK__value__76 = __PUCK__value__74;
+        if ($unwrapTraitObject(__PUCK__value__76).kind == "EnumKeyword") {
+          var _undefined28 = $unwrapTraitObject(__PUCK__value__76);
           return _ast.TopLevelStatement.EnumDeclaration(parseEnumDeclaration());
         } else {
-          var __PUCK__value__73 = __PUCK__value__70;
-          if ($unwrapTraitObject(__PUCK__value__73).kind == "ExportKeyword") {
-            var _undefined29 = $unwrapTraitObject(__PUCK__value__73);
+          var __PUCK__value__77 = __PUCK__value__74;
+          if ($unwrapTraitObject(__PUCK__value__77).kind == "ExportKeyword") {
+            var _undefined29 = $unwrapTraitObject(__PUCK__value__77);
             return _ast.TopLevelStatement.ExportDirective(parseExport());
           } else {
-            var __PUCK__value__74 = __PUCK__value__70;
-            if ($unwrapTraitObject(__PUCK__value__74).kind == "ImplKeyword") {
-              var _undefined30 = $unwrapTraitObject(__PUCK__value__74);
+            var __PUCK__value__78 = __PUCK__value__74;
+            if ($unwrapTraitObject(__PUCK__value__78).kind == "ImplKeyword") {
+              var _undefined30 = $unwrapTraitObject(__PUCK__value__78);
               return parseImplDeclaration();
             } else {
-              var __PUCK__value__75 = __PUCK__value__70;
-              if ($unwrapTraitObject(__PUCK__value__75).kind == "ImportKeyword") {
-                var _undefined31 = $unwrapTraitObject(__PUCK__value__75);
+              var __PUCK__value__79 = __PUCK__value__74;
+              if ($unwrapTraitObject(__PUCK__value__79).kind == "ImportKeyword") {
+                var _undefined31 = $unwrapTraitObject(__PUCK__value__79);
                 return _ast.TopLevelStatement.ImportDirective(parseImport());
               } else {
-                var __PUCK__value__76 = __PUCK__value__70;
-                if ($unwrapTraitObject(__PUCK__value__76).kind == "TraitKeyword") {
-                  var _undefined32 = $unwrapTraitObject(__PUCK__value__76);
+                var __PUCK__value__80 = __PUCK__value__74;
+                if ($unwrapTraitObject(__PUCK__value__80).kind == "TraitKeyword") {
+                  var _undefined32 = $unwrapTraitObject(__PUCK__value__80);
                   return _ast.TopLevelStatement.TraitDeclaration(parseTraitDeclaration());
                 } else {
-                  var __PUCK__value__77 = __PUCK__value__70;
-                  if ($unwrapTraitObject(__PUCK__value__77).kind == "TypeKeyword") {
-                    var _undefined33 = $unwrapTraitObject(__PUCK__value__77);
+                  var __PUCK__value__81 = __PUCK__value__74;
+                  if ($unwrapTraitObject(__PUCK__value__81).kind == "TypeKeyword") {
+                    var _undefined33 = $unwrapTraitObject(__PUCK__value__81);
                     return _ast.TopLevelStatement.TypeDeclaration(parseTypeDeclaration());
                   } else {
-                    var __PUCK__value__78 = __PUCK__value__70;
+                    var __PUCK__value__82 = __PUCK__value__74;
                     if (true) {
-                      var __PUCK__value__79 = __PUCK__value__78;
+                      var __PUCK__value__83 = __PUCK__value__82;
                       return _ast.TopLevelStatement.BlockLevelStatement(parseBlockLevelStatement());
                     };
                   };
@@ -534,45 +575,45 @@ function parse(input, file) {
         };
       };
     } else {
-      var __PUCK__value__80 = __PUCK__value__68;
+      var __PUCK__value__84 = __PUCK__value__72;
       if (true) {
-        var __PUCK__value__81 = __PUCK__value__80;
+        var __PUCK__value__85 = __PUCK__value__84;
         return _ast.TopLevelStatement.BlockLevelStatement(parseBlockLevelStatement());
       };
     };
   };
   function parseBlockLevelStatement() {
-    var __PUCK__value__82 = _token_stream.TokenStream.peek.call(input);
-    var __PUCK__value__83 = __PUCK__value__82;
-    if ($unwrapTraitObject(__PUCK__value__83).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__83).value)[$unwrapTraitObject(0)]).kind).kind == "BreakKeyword") {
-      var _$unwrapTraitObject16 = $unwrapTraitObject(__PUCK__value__83),
-          _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject16.value, 1),
-          _undefined34 = _$unwrapTraitObject17[0].kind;
+    var __PUCK__value__86 = _token_stream.TokenStream.peek.call(input);
+    var __PUCK__value__87 = __PUCK__value__86;
+    if ($unwrapTraitObject(__PUCK__value__87).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__87).value)[$unwrapTraitObject(0)]).kind).kind == "BreakKeyword") {
+      var _$unwrapTraitObject20 = $unwrapTraitObject(__PUCK__value__87),
+          _$unwrapTraitObject21 = _slicedToArray(_$unwrapTraitObject20.value, 1),
+          _undefined34 = _$unwrapTraitObject21[0].kind;
 
       return _ast.BlockLevelStatement.BreakStatement({ keyword: consumeToken(_token3.SyntaxKind.BreakKeyword) });
     } else {
-      var __PUCK__value__84 = __PUCK__value__82;
-      if ($unwrapTraitObject(__PUCK__value__84).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__84).value)[$unwrapTraitObject(0)]).kind).kind == "ReturnKeyword") {
-        var _$unwrapTraitObject18 = $unwrapTraitObject(__PUCK__value__84),
-            _$unwrapTraitObject19 = _slicedToArray(_$unwrapTraitObject18.value, 1),
-            _undefined35 = _$unwrapTraitObject19[0].kind;
+      var __PUCK__value__88 = __PUCK__value__86;
+      if ($unwrapTraitObject(__PUCK__value__88).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__88).value)[$unwrapTraitObject(0)]).kind).kind == "ReturnKeyword") {
+        var _$unwrapTraitObject22 = $unwrapTraitObject(__PUCK__value__88),
+            _$unwrapTraitObject23 = _slicedToArray(_$unwrapTraitObject22.value, 1),
+            _undefined35 = _$unwrapTraitObject23[0].kind;
 
         return _ast.BlockLevelStatement.ReturnStatement({
           keyword: consumeToken(_token3.SyntaxKind.ReturnKeyword),
           expression: parseExpression()
         });
       } else {
-        var __PUCK__value__85 = __PUCK__value__82;
-        if ($unwrapTraitObject(__PUCK__value__85).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__85).value)[$unwrapTraitObject(0)]).kind).kind == "WhileKeyword") {
-          var _$unwrapTraitObject20 = $unwrapTraitObject(__PUCK__value__85),
-              _$unwrapTraitObject21 = _slicedToArray(_$unwrapTraitObject20.value, 1),
-              _undefined36 = _$unwrapTraitObject21[0].kind;
+        var __PUCK__value__89 = __PUCK__value__86;
+        if ($unwrapTraitObject(__PUCK__value__89).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__89).value)[$unwrapTraitObject(0)]).kind).kind == "WhileKeyword") {
+          var _$unwrapTraitObject24 = $unwrapTraitObject(__PUCK__value__89),
+              _$unwrapTraitObject25 = _slicedToArray(_$unwrapTraitObject24.value, 1),
+              _undefined36 = _$unwrapTraitObject25[0].kind;
 
           return _ast.BlockLevelStatement.WhileLoop(parseWhile());
         } else {
-          var __PUCK__value__86 = __PUCK__value__82;
+          var __PUCK__value__90 = __PUCK__value__86;
           if (true) {
-            var __PUCK__value__87 = __PUCK__value__86;
+            var __PUCK__value__91 = __PUCK__value__90;
             return _ast.BlockLevelStatement.Expression(parseExpression());
           };
         };
@@ -588,258 +629,258 @@ function parse(input, file) {
   function parseAtom() {
     var forceTuple = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
-    var __PUCK__value__88 = _token_stream.TokenStream.peek.call(input);
-    var __PUCK__value__89 = __PUCK__value__88;
-    var __PUCK__value__90 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__89).kind == "SimpleToken") {
-      var _$unwrapTraitObject22 = $unwrapTraitObject(__PUCK__value__89),
-          _$unwrapTraitObject23 = _slicedToArray(_$unwrapTraitObject22.value, 1),
-          token = _$unwrapTraitObject23[0];
+    var __PUCK__value__92 = _token_stream.TokenStream.peek.call(input);
+    var __PUCK__value__93 = __PUCK__value__92;
+    var __PUCK__value__94 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__93).kind == "SimpleToken") {
+      var _$unwrapTraitObject26 = $unwrapTraitObject(__PUCK__value__93),
+          _$unwrapTraitObject27 = _slicedToArray(_$unwrapTraitObject26.value, 1),
+          token = _$unwrapTraitObject27[0];
 
-      var __PUCK__value__91 = token.kind;
-      var __PUCK__value__92 = __PUCK__value__91;
-      var __PUCK__value__93 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__92).kind == "OpenParenToken") {
-        var _undefined37 = $unwrapTraitObject(__PUCK__value__92);
-        __PUCK__value__93 = parseTupleOrExpression(forceTuple);
+      var __PUCK__value__95 = token.kind;
+      var __PUCK__value__96 = __PUCK__value__95;
+      var __PUCK__value__97 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__96).kind == "OpenParenToken") {
+        var _undefined37 = $unwrapTraitObject(__PUCK__value__96);
+        __PUCK__value__97 = parseTupleOrExpression(forceTuple);
       } else {
-        var __PUCK__value__94 = __PUCK__value__91;
-        var __PUCK__value__95 = void 0;
-        if ($unwrapTraitObject(__PUCK__value__94).kind == "OpenBracketToken") {
-          var _undefined38 = $unwrapTraitObject(__PUCK__value__94);
-          __PUCK__value__95 = _ast.Expression.ListLiteral(parseListLiteral());
+        var __PUCK__value__98 = __PUCK__value__95;
+        var __PUCK__value__99 = void 0;
+        if ($unwrapTraitObject(__PUCK__value__98).kind == "OpenBracketToken") {
+          var _undefined38 = $unwrapTraitObject(__PUCK__value__98);
+          __PUCK__value__99 = _ast.Expression.ListLiteral(parseListLiteral());
         } else {
-          var __PUCK__value__96 = __PUCK__value__91;
-          var __PUCK__value__97 = void 0;
-          if ($unwrapTraitObject(__PUCK__value__96).kind == "OpenBraceToken") {
-            var _undefined39 = $unwrapTraitObject(__PUCK__value__96);
-            __PUCK__value__97 = _ast.Expression.RecordLiteral(parseRecordLiteral());
+          var __PUCK__value__100 = __PUCK__value__95;
+          var __PUCK__value__101 = void 0;
+          if ($unwrapTraitObject(__PUCK__value__100).kind == "OpenBraceToken") {
+            var _undefined39 = $unwrapTraitObject(__PUCK__value__100);
+            __PUCK__value__101 = _ast.Expression.RecordLiteral(parseRecordLiteral());
           } else {
-            var __PUCK__value__98 = __PUCK__value__91;
-            var __PUCK__value__99 = void 0;
-            if ($unwrapTraitObject(__PUCK__value__98).kind == "BarToken") {
-              var _undefined40 = $unwrapTraitObject(__PUCK__value__98);
-              __PUCK__value__99 = _ast.Expression.FunctionDeclaration(parseLambda());
+            var __PUCK__value__102 = __PUCK__value__95;
+            var __PUCK__value__103 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__102).kind == "BarToken") {
+              var _undefined40 = $unwrapTraitObject(__PUCK__value__102);
+              __PUCK__value__103 = _ast.Expression.FunctionDeclaration(parseLambda());
             } else {
-              var __PUCK__value__100 = __PUCK__value__91;
-              var __PUCK__value__101 = void 0;
-              if ($unwrapTraitObject(__PUCK__value__100).kind == "IfKeyword") {
-                var _undefined41 = $unwrapTraitObject(__PUCK__value__100);
-                __PUCK__value__101 = parseIf();
+              var __PUCK__value__104 = __PUCK__value__95;
+              var __PUCK__value__105 = void 0;
+              if ($unwrapTraitObject(__PUCK__value__104).kind == "IfKeyword") {
+                var _undefined41 = $unwrapTraitObject(__PUCK__value__104);
+                __PUCK__value__105 = parseIf();
               } else {
-                var __PUCK__value__102 = __PUCK__value__91;
-                var __PUCK__value__103 = void 0;
-                if ($unwrapTraitObject(__PUCK__value__102).kind == "MatchKeyword") {
-                  var _undefined42 = $unwrapTraitObject(__PUCK__value__102);
-                  __PUCK__value__103 = _ast.Expression.MatchExpression(parseMatch());
+                var __PUCK__value__106 = __PUCK__value__95;
+                var __PUCK__value__107 = void 0;
+                if ($unwrapTraitObject(__PUCK__value__106).kind == "MatchKeyword") {
+                  var _undefined42 = $unwrapTraitObject(__PUCK__value__106);
+                  __PUCK__value__107 = _ast.Expression.MatchExpression(parseMatch());
                 } else {
-                  var __PUCK__value__104 = __PUCK__value__91;
-                  var __PUCK__value__105 = void 0;
-                  if ($unwrapTraitObject(__PUCK__value__104).kind == "FnKeyword") {
-                    var _undefined43 = $unwrapTraitObject(__PUCK__value__104);
-                    __PUCK__value__105 = _ast.Expression.FunctionDeclaration(parseFunctionDeclaration());
+                  var __PUCK__value__108 = __PUCK__value__95;
+                  var __PUCK__value__109 = void 0;
+                  if ($unwrapTraitObject(__PUCK__value__108).kind == "FnKeyword") {
+                    var _undefined43 = $unwrapTraitObject(__PUCK__value__108);
+                    __PUCK__value__109 = _ast.Expression.FunctionDeclaration(parseFunctionDeclaration());
                   } else {
-                    var __PUCK__value__106 = __PUCK__value__91;
-                    var __PUCK__value__107 = void 0;
-                    if ($unwrapTraitObject(__PUCK__value__106).kind == "LetKeyword") {
-                      var _undefined44 = $unwrapTraitObject(__PUCK__value__106);
+                    var __PUCK__value__110 = __PUCK__value__95;
+                    var __PUCK__value__111 = void 0;
+                    if ($unwrapTraitObject(__PUCK__value__110).kind == "LetKeyword") {
+                      var _undefined44 = $unwrapTraitObject(__PUCK__value__110);
                       _token_stream.TokenStream.next.call(input);
-                      __PUCK__value__107 = _ast.Expression.VariableDeclaration(parseVariableDeclaration());
+                      __PUCK__value__111 = _ast.Expression.VariableDeclaration(parseVariableDeclaration());
                     } else {
-                      var __PUCK__value__108 = __PUCK__value__91;
-                      var __PUCK__value__109 = void 0;
-                      if ($unwrapTraitObject(__PUCK__value__108).kind == "NotKeyword") {
-                        var _undefined45 = $unwrapTraitObject(__PUCK__value__108);
-                        __PUCK__value__109 = _ast.Expression.UnaryExpression(parseUnaryExpression());
+                      var __PUCK__value__112 = __PUCK__value__95;
+                      var __PUCK__value__113 = void 0;
+                      if ($unwrapTraitObject(__PUCK__value__112).kind == "NotKeyword") {
+                        var _undefined45 = $unwrapTraitObject(__PUCK__value__112);
+                        __PUCK__value__113 = _ast.Expression.UnaryExpression(parseUnaryExpression());
                       } else {
-                        var __PUCK__value__110 = __PUCK__value__91;
-                        var __PUCK__value__111 = void 0;
-                        if ($unwrapTraitObject(__PUCK__value__110).kind == "MinusToken") {
-                          var _undefined46 = $unwrapTraitObject(__PUCK__value__110);
-                          __PUCK__value__111 = _ast.Expression.UnaryExpression(parseUnaryExpression());
+                        var __PUCK__value__114 = __PUCK__value__95;
+                        var __PUCK__value__115 = void 0;
+                        if ($unwrapTraitObject(__PUCK__value__114).kind == "MinusToken") {
+                          var _undefined46 = $unwrapTraitObject(__PUCK__value__114);
+                          __PUCK__value__115 = _ast.Expression.UnaryExpression(parseUnaryExpression());
                         } else {
-                          var __PUCK__value__112 = __PUCK__value__91;
-                          var __PUCK__value__113 = void 0;
-                          if ($unwrapTraitObject(__PUCK__value__112).kind == "PlusToken") {
-                            var _undefined47 = $unwrapTraitObject(__PUCK__value__112);
-                            __PUCK__value__113 = _ast.Expression.UnaryExpression(parseUnaryExpression());
+                          var __PUCK__value__116 = __PUCK__value__95;
+                          var __PUCK__value__117 = void 0;
+                          if ($unwrapTraitObject(__PUCK__value__116).kind == "PlusToken") {
+                            var _undefined47 = $unwrapTraitObject(__PUCK__value__116);
+                            __PUCK__value__117 = _ast.Expression.UnaryExpression(parseUnaryExpression());
                           } else {
-                            var __PUCK__value__114 = __PUCK__value__91;
-                            var __PUCK__value__115 = void 0;
-                            if ($unwrapTraitObject(__PUCK__value__114).kind == "ThrowKeyword") {
-                              var _undefined48 = $unwrapTraitObject(__PUCK__value__114);
+                            var __PUCK__value__118 = __PUCK__value__95;
+                            var __PUCK__value__119 = void 0;
+                            if ($unwrapTraitObject(__PUCK__value__118).kind == "ThrowKeyword") {
+                              var _undefined48 = $unwrapTraitObject(__PUCK__value__118);
                               _token_stream.TokenStream.next.call(input);
-                              __PUCK__value__115 = _ast.Expression.ThrowStatement({ expression: parseExpression() });
+                              __PUCK__value__119 = _ast.Expression.ThrowStatement({ expression: parseExpression() });
                             } else {
-                              var __PUCK__value__116 = __PUCK__value__91;
-                              var __PUCK__value__117 = void 0;
-                              if ($unwrapTraitObject(__PUCK__value__116).kind == "TrueKeyword") {
-                                var _undefined49 = $unwrapTraitObject(__PUCK__value__116);
-                                __PUCK__value__117 = maybeAccess(_ast.Expression.BooleanLiteral({
+                              var __PUCK__value__120 = __PUCK__value__95;
+                              var __PUCK__value__121 = void 0;
+                              if ($unwrapTraitObject(__PUCK__value__120).kind == "TrueKeyword") {
+                                var _undefined49 = $unwrapTraitObject(__PUCK__value__120);
+                                __PUCK__value__121 = maybeAccess(_ast.Expression.BooleanLiteral({
                                   keyword: consumeToken(_token3.SyntaxKind.TrueKeyword),
                                   value: true
                                 }));
                               } else {
-                                var __PUCK__value__118 = __PUCK__value__91;
-                                var __PUCK__value__119 = void 0;
-                                if ($unwrapTraitObject(__PUCK__value__118).kind == "FalseKeyword") {
-                                  var _undefined50 = $unwrapTraitObject(__PUCK__value__118);
-                                  __PUCK__value__119 = maybeAccess(_ast.Expression.BooleanLiteral({
+                                var __PUCK__value__122 = __PUCK__value__95;
+                                var __PUCK__value__123 = void 0;
+                                if ($unwrapTraitObject(__PUCK__value__122).kind == "FalseKeyword") {
+                                  var _undefined50 = $unwrapTraitObject(__PUCK__value__122);
+                                  __PUCK__value__123 = maybeAccess(_ast.Expression.BooleanLiteral({
                                     keyword: consumeToken(_token3.SyntaxKind.FalseKeyword),
                                     value: false
                                   }));
                                 } else {
-                                  var __PUCK__value__120 = __PUCK__value__91;
-                                  var __PUCK__value__121 = void 0;
+                                  var __PUCK__value__124 = __PUCK__value__95;
+                                  var __PUCK__value__125 = void 0;
                                   if (true) {
-                                    var __PUCK__value__122 = __PUCK__value__120;
-                                    __PUCK__value__121 = unexpected();
+                                    var __PUCK__value__126 = __PUCK__value__124;
+                                    __PUCK__value__125 = unexpected();
                                   };
-                                  __PUCK__value__119 = __PUCK__value__121;
+                                  __PUCK__value__123 = __PUCK__value__125;
                                 };
-                                __PUCK__value__117 = __PUCK__value__119;
+                                __PUCK__value__121 = __PUCK__value__123;
                               };
-                              __PUCK__value__115 = __PUCK__value__117;
+                              __PUCK__value__119 = __PUCK__value__121;
                             };
-                            __PUCK__value__113 = __PUCK__value__115;
+                            __PUCK__value__117 = __PUCK__value__119;
                           };
-                          __PUCK__value__111 = __PUCK__value__113;
+                          __PUCK__value__115 = __PUCK__value__117;
                         };
-                        __PUCK__value__109 = __PUCK__value__111;
+                        __PUCK__value__113 = __PUCK__value__115;
                       };
-                      __PUCK__value__107 = __PUCK__value__109;
+                      __PUCK__value__111 = __PUCK__value__113;
                     };
-                    __PUCK__value__105 = __PUCK__value__107;
+                    __PUCK__value__109 = __PUCK__value__111;
                   };
-                  __PUCK__value__103 = __PUCK__value__105;
+                  __PUCK__value__107 = __PUCK__value__109;
                 };
-                __PUCK__value__101 = __PUCK__value__103;
+                __PUCK__value__105 = __PUCK__value__107;
               };
-              __PUCK__value__99 = __PUCK__value__101;
+              __PUCK__value__103 = __PUCK__value__105;
             };
-            __PUCK__value__97 = __PUCK__value__99;
+            __PUCK__value__101 = __PUCK__value__103;
           };
-          __PUCK__value__95 = __PUCK__value__97;
+          __PUCK__value__99 = __PUCK__value__101;
         };
-        __PUCK__value__93 = __PUCK__value__95;
+        __PUCK__value__97 = __PUCK__value__99;
       };
-      __PUCK__value__90 = __PUCK__value__93;
+      __PUCK__value__94 = __PUCK__value__97;
     } else {
-      var __PUCK__value__123 = __PUCK__value__88;
-      var __PUCK__value__124 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__123).kind == "NumberLiteral") {
-        var _$unwrapTraitObject24 = $unwrapTraitObject(__PUCK__value__123),
-            _$unwrapTraitObject25 = _slicedToArray(_$unwrapTraitObject24.value, 1),
-            numberLiteral = _$unwrapTraitObject25[0];
+      var __PUCK__value__127 = __PUCK__value__92;
+      var __PUCK__value__128 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__127).kind == "NumberLiteral") {
+        var _$unwrapTraitObject28 = $unwrapTraitObject(__PUCK__value__127),
+            _$unwrapTraitObject29 = _slicedToArray(_$unwrapTraitObject28.value, 1),
+            numberLiteral = _$unwrapTraitObject29[0];
 
         _token_stream.TokenStream.next.call(input);
-        __PUCK__value__124 = maybeAccess(_ast.Expression.NumberLiteral(numberLiteral));
+        __PUCK__value__128 = maybeAccess(_ast.Expression.NumberLiteral(numberLiteral));
       } else {
-        var __PUCK__value__125 = __PUCK__value__88;
-        var __PUCK__value__126 = void 0;
-        if ($unwrapTraitObject(__PUCK__value__125).kind == "StringLiteral") {
-          var _$unwrapTraitObject26 = $unwrapTraitObject(__PUCK__value__125),
-              _$unwrapTraitObject27 = _slicedToArray(_$unwrapTraitObject26.value, 1),
-              stringLiteral = _$unwrapTraitObject27[0];
+        var __PUCK__value__129 = __PUCK__value__92;
+        var __PUCK__value__130 = void 0;
+        if ($unwrapTraitObject(__PUCK__value__129).kind == "StringLiteral") {
+          var _$unwrapTraitObject30 = $unwrapTraitObject(__PUCK__value__129),
+              _$unwrapTraitObject31 = _slicedToArray(_$unwrapTraitObject30.value, 1),
+              stringLiteral = _$unwrapTraitObject31[0];
 
           _token_stream.TokenStream.next.call(input);
-          __PUCK__value__126 = maybeAccess(_ast.Expression.StringLiteral(stringLiteral));
+          __PUCK__value__130 = maybeAccess(_ast.Expression.StringLiteral(stringLiteral));
         } else {
-          var __PUCK__value__127 = __PUCK__value__88;
-          var __PUCK__value__128 = void 0;
-          if ($unwrapTraitObject(__PUCK__value__127).kind == "Identifier") {
-            var _$unwrapTraitObject28 = $unwrapTraitObject(__PUCK__value__127),
-                _$unwrapTraitObject29 = _slicedToArray(_$unwrapTraitObject28.value, 1),
-                identifier = _$unwrapTraitObject29[0];
+          var __PUCK__value__131 = __PUCK__value__92;
+          var __PUCK__value__132 = void 0;
+          if ($unwrapTraitObject(__PUCK__value__131).kind == "Identifier") {
+            var _$unwrapTraitObject32 = $unwrapTraitObject(__PUCK__value__131),
+                _$unwrapTraitObject33 = _slicedToArray(_$unwrapTraitObject32.value, 1),
+                identifier = _$unwrapTraitObject33[0];
 
-            __PUCK__value__128 = parseIdentifierOrTypePath();
+            __PUCK__value__132 = parseIdentifierOrTypePath();
           } else {
-            var __PUCK__value__129 = __PUCK__value__88;
-            var __PUCK__value__130 = void 0;
-            if ($unwrapTraitObject(__PUCK__value__129).kind == "Comment") {
-              var _undefined51 = $unwrapTraitObject(__PUCK__value__129);
-              __PUCK__value__130 = unexpected();
+            var __PUCK__value__133 = __PUCK__value__92;
+            var __PUCK__value__134 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__133).kind == "Comment") {
+              var _undefined51 = $unwrapTraitObject(__PUCK__value__133);
+              __PUCK__value__134 = unexpected();
             };
-            __PUCK__value__128 = __PUCK__value__130;
+            __PUCK__value__132 = __PUCK__value__134;
           };
-          __PUCK__value__126 = __PUCK__value__128;
+          __PUCK__value__130 = __PUCK__value__132;
         };
-        __PUCK__value__124 = __PUCK__value__126;
+        __PUCK__value__128 = __PUCK__value__130;
       };
-      __PUCK__value__90 = __PUCK__value__124;
+      __PUCK__value__94 = __PUCK__value__128;
     };
-    return maybeCall(__PUCK__value__90);
+    return maybeCall(__PUCK__value__94);
   };
   function parseSimpleLiteral() {
-    var __PUCK__value__131 = _token_stream.TokenStream.next.call(input);
-    var __PUCK__value__132 = __PUCK__value__131;
-    if ($unwrapTraitObject(__PUCK__value__132).kind == "SimpleToken") {
-      var _$unwrapTraitObject30 = $unwrapTraitObject(__PUCK__value__132),
-          _$unwrapTraitObject31 = _slicedToArray(_$unwrapTraitObject30.value, 1),
-          token = _$unwrapTraitObject31[0];
+    var __PUCK__value__135 = _token_stream.TokenStream.next.call(input);
+    var __PUCK__value__136 = __PUCK__value__135;
+    if ($unwrapTraitObject(__PUCK__value__136).kind == "SimpleToken") {
+      var _$unwrapTraitObject34 = $unwrapTraitObject(__PUCK__value__136),
+          _$unwrapTraitObject35 = _slicedToArray(_$unwrapTraitObject34.value, 1),
+          token = _$unwrapTraitObject35[0];
 
-      var __PUCK__value__133 = token.kind;
-      var __PUCK__value__134 = __PUCK__value__133;
-      if ($unwrapTraitObject(__PUCK__value__134).kind == "TrueKeyword") {
-        var _undefined52 = $unwrapTraitObject(__PUCK__value__134);
+      var __PUCK__value__137 = token.kind;
+      var __PUCK__value__138 = __PUCK__value__137;
+      if ($unwrapTraitObject(__PUCK__value__138).kind == "TrueKeyword") {
+        var _undefined52 = $unwrapTraitObject(__PUCK__value__138);
         return _ast.SimpleLiteral.BooleanLiteral({
           keyword: token,
           value: true
         });
       } else {
-        var __PUCK__value__135 = __PUCK__value__133;
-        if ($unwrapTraitObject(__PUCK__value__135).kind == "FalseKeyword") {
-          var _undefined53 = $unwrapTraitObject(__PUCK__value__135);
+        var __PUCK__value__139 = __PUCK__value__137;
+        if ($unwrapTraitObject(__PUCK__value__139).kind == "FalseKeyword") {
+          var _undefined53 = $unwrapTraitObject(__PUCK__value__139);
           return _ast.SimpleLiteral.BooleanLiteral({
             keyword: token,
             value: false
           });
         } else {
-          var __PUCK__value__136 = __PUCK__value__133;
+          var __PUCK__value__140 = __PUCK__value__137;
           if (true) {
-            var __PUCK__value__137 = __PUCK__value__136;
+            var __PUCK__value__141 = __PUCK__value__140;
             return unexpected();
           };
         };
       };
     } else {
-      var __PUCK__value__138 = __PUCK__value__131;
-      if ($unwrapTraitObject(__PUCK__value__138).kind == "NumberLiteral") {
-        var _$unwrapTraitObject32 = $unwrapTraitObject(__PUCK__value__138),
-            _$unwrapTraitObject33 = _slicedToArray(_$unwrapTraitObject32.value, 1),
-            numberLiteral = _$unwrapTraitObject33[0];
+      var __PUCK__value__142 = __PUCK__value__135;
+      if ($unwrapTraitObject(__PUCK__value__142).kind == "NumberLiteral") {
+        var _$unwrapTraitObject36 = $unwrapTraitObject(__PUCK__value__142),
+            _$unwrapTraitObject37 = _slicedToArray(_$unwrapTraitObject36.value, 1),
+            numberLiteral = _$unwrapTraitObject37[0];
 
         return _ast.SimpleLiteral.NumberLiteral(numberLiteral);
       } else {
-        var __PUCK__value__139 = __PUCK__value__131;
-        if ($unwrapTraitObject(__PUCK__value__139).kind == "StringLiteral") {
-          var _$unwrapTraitObject34 = $unwrapTraitObject(__PUCK__value__139),
-              _$unwrapTraitObject35 = _slicedToArray(_$unwrapTraitObject34.value, 1),
-              stringLiteral = _$unwrapTraitObject35[0];
+        var __PUCK__value__143 = __PUCK__value__135;
+        if ($unwrapTraitObject(__PUCK__value__143).kind == "StringLiteral") {
+          var _$unwrapTraitObject38 = $unwrapTraitObject(__PUCK__value__143),
+              _$unwrapTraitObject39 = _slicedToArray(_$unwrapTraitObject38.value, 1),
+              stringLiteral = _$unwrapTraitObject39[0];
 
           if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: stringLiteral.parts, $isTraitObject: true }) > 1) {
             _token_stream.TokenStream.croak.call(input, "Attributes can only contain simple string literals. Interpolation is not supported.");
           };
           var part = stringLiteral.parts[0];
-          var __PUCK__value__140 = part;
-          var __PUCK__value__141 = __PUCK__value__140;
-          if ($unwrapTraitObject(__PUCK__value__141).kind == "Literal") {
-            var _$unwrapTraitObject36 = $unwrapTraitObject(__PUCK__value__141),
-                _$unwrapTraitObject37 = _slicedToArray(_$unwrapTraitObject36.value, 1),
-                literal = _$unwrapTraitObject37[0];
+          var __PUCK__value__144 = part;
+          var __PUCK__value__145 = __PUCK__value__144;
+          if ($unwrapTraitObject(__PUCK__value__145).kind == "Literal") {
+            var _$unwrapTraitObject40 = $unwrapTraitObject(__PUCK__value__145),
+                _$unwrapTraitObject41 = _slicedToArray(_$unwrapTraitObject40.value, 1),
+                literal = _$unwrapTraitObject41[0];
 
             return _ast.SimpleLiteral.StringLiteral(literal);
           } else {
-            var __PUCK__value__142 = __PUCK__value__140;
+            var __PUCK__value__146 = __PUCK__value__144;
             if (true) {
-              var __PUCK__value__143 = __PUCK__value__142;
+              var __PUCK__value__147 = __PUCK__value__146;
               return (0, _core.panic)("String literal does not start with a literal");
             };
           };
         } else {
-          var __PUCK__value__144 = __PUCK__value__131;
+          var __PUCK__value__148 = __PUCK__value__135;
           if (true) {
-            var __PUCK__value__145 = __PUCK__value__144;
+            var __PUCK__value__149 = __PUCK__value__148;
             return unexpected();
           };
         };
@@ -848,7 +889,7 @@ function parse(input, file) {
   };
   function parseAttributeArgument() {
     var name = consumeIdentifier();
-    var value = _core.Option.map.call(maybeConsumeToken(_token3.SyntaxKind.EqualsToken), function (__PUCK__value__146) {
+    var value = _core.Option.map.call(maybeConsumeToken(_token3.SyntaxKind.EqualsToken), function (__PUCK__value__150) {
       return parseSimpleLiteral();
     });
     return {
@@ -860,19 +901,19 @@ function parse(input, file) {
     var hashToken = consumeToken(_token3.SyntaxKind.HashToken);
     var openBracket = consumeToken(_token3.SyntaxKind.OpenBracketToken);
     var name = consumeIdentifier();
-    var __PUCK__value__147 = void 0;
+    var __PUCK__value__151 = void 0;
     if (_core.Option.isSome.call(maybeConsumeToken(_token3.SyntaxKind.EqualsToken))) {
-      __PUCK__value__147 = _ast.AttributeData.Value(parseSimpleLiteral());
+      __PUCK__value__151 = _ast.AttributeData.Value(parseSimpleLiteral());
     } else {
-      var __PUCK__value__148 = void 0;
+      var __PUCK__value__152 = void 0;
       if (isToken(_token3.SyntaxKind.OpenParenToken)) {
-        __PUCK__value__148 = _ast.AttributeData.Arguments(delimited(_token3.SyntaxKind.OpenParenToken, _token3.SyntaxKind.CloseParenToken, _token3.SyntaxKind.CommaToken, parseAttributeArgument, true));
+        __PUCK__value__152 = _ast.AttributeData.Arguments(delimited(_token3.SyntaxKind.OpenParenToken, _token3.SyntaxKind.CloseParenToken, _token3.SyntaxKind.CommaToken, parseAttributeArgument, true));
       } else {
-        __PUCK__value__148 = _ast.AttributeData.None;
+        __PUCK__value__152 = _ast.AttributeData.None;
       };
-      __PUCK__value__147 = __PUCK__value__148;
+      __PUCK__value__151 = __PUCK__value__152;
     };
-    var data = __PUCK__value__147;
+    var data = __PUCK__value__151;
     var closeBracket = consumeToken(_token3.SyntaxKind.CloseBracketToken);
     return {
       hashToken: hashToken,
@@ -910,13 +951,13 @@ function parse(input, file) {
 
     var keyword = consumeToken(_token3.SyntaxKind.EnumKeyword);
     var name = consumeIdentifier();
-    var __PUCK__value__149 = void 0;
+    var __PUCK__value__153 = void 0;
     if (isToken(_token3.SyntaxKind.LessThanToken)) {
-      __PUCK__value__149 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
+      __PUCK__value__153 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
     } else {
-      __PUCK__value__149 = [];
+      __PUCK__value__153 = [];
     };
-    var typeParameters = __PUCK__value__149;
+    var typeParameters = __PUCK__value__153;
     var openBrace = expect(_token3.SyntaxKind.OpenBraceToken);
     var members = delimited(_token3.SyntaxKind.OpenBraceToken, _token3.SyntaxKind.CloseBraceToken, _token3.SyntaxKind.CommaToken, parseEnumMember, false);
     var closeBrace = consumeToken(_token3.SyntaxKind.CloseBraceToken);
@@ -932,19 +973,19 @@ function parse(input, file) {
   };
   function parseEnumMember() {
     var name = consumeIdentifier();
-    var __PUCK__value__150 = void 0;
+    var __PUCK__value__154 = void 0;
     if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__150 = (0, _core.Some)(parseRecordTypeBound());
+      __PUCK__value__154 = (0, _core.Some)(parseRecordTypeBound());
     } else {
-      var __PUCK__value__151 = void 0;
+      var __PUCK__value__155 = void 0;
       if (isToken(_token3.SyntaxKind.OpenParenToken)) {
-        __PUCK__value__151 = (0, _core.Some)(parseTupleTypeBound());
+        __PUCK__value__155 = (0, _core.Some)(parseTupleTypeBound());
       } else {
-        __PUCK__value__151 = _core.None;
+        __PUCK__value__155 = _core.None;
       };
-      __PUCK__value__150 = __PUCK__value__151;
+      __PUCK__value__154 = __PUCK__value__155;
     };
-    var bound = __PUCK__value__150;
+    var bound = __PUCK__value__154;
     return {
       name: name,
       bound: bound
@@ -952,38 +993,38 @@ function parse(input, file) {
   };
   function parseImplDeclaration() {
     var implKeyword = consumeToken(_token3.SyntaxKind.ImplKeyword);
-    var __PUCK__value__152 = void 0;
+    var __PUCK__value__156 = void 0;
     if (isToken(_token3.SyntaxKind.LessThanToken)) {
-      __PUCK__value__152 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
+      __PUCK__value__156 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
     } else {
-      __PUCK__value__152 = [];
+      __PUCK__value__156 = [];
     };
-    var typeParameters = __PUCK__value__152;
+    var typeParameters = __PUCK__value__156;
     var trait_ = parseTypeBound();
-    var __PUCK__value__153 = void 0;
+    var __PUCK__value__157 = void 0;
     if (isToken(_token3.SyntaxKind.ForKeyword)) {
-      __PUCK__value__153 = {
+      __PUCK__value__157 = {
         forKeyword: (0, _core.Some)(consumeToken(_token3.SyntaxKind.ForKeyword)),
         type_: (0, _core.Some)(parseTypeBound())
       };
     } else {
-      __PUCK__value__153 = {
+      __PUCK__value__157 = {
         forKeyword: _core.None,
         type_: _core.None
       };
     };
-    var _PUCK__value__ = __PUCK__value__153,
+    var _PUCK__value__ = __PUCK__value__157,
         forKeyword = _PUCK__value__.forKeyword,
         type_ = _PUCK__value__.type_;
 
     var openBrace = expect(_token3.SyntaxKind.OpenBraceToken);
     var members = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: delimited(_token3.SyntaxKind.OpenBraceToken, _token3.SyntaxKind.CloseBraceToken, _token3.SyntaxKind.SemicolonToken, parseFunctionDeclaration, false), $isTraitObject: true });
     var closeBrace = consumeToken(_token3.SyntaxKind.CloseBraceToken);
-    var __PUCK__value__154 = type_;
-    if ($unwrapTraitObject(__PUCK__value__154).kind == "Some") {
-      var _$unwrapTraitObject38 = $unwrapTraitObject(__PUCK__value__154),
-          _$unwrapTraitObject39 = _slicedToArray(_$unwrapTraitObject38.value, 1),
-          _type_ = _$unwrapTraitObject39[0];
+    var __PUCK__value__158 = type_;
+    if ($unwrapTraitObject(__PUCK__value__158).kind == "Some") {
+      var _$unwrapTraitObject42 = $unwrapTraitObject(__PUCK__value__158),
+          _$unwrapTraitObject43 = _slicedToArray(_$unwrapTraitObject42.value, 1),
+          _type_ = _$unwrapTraitObject43[0];
 
       return _ast.TopLevelStatement.ImplDeclaration({
         implKeyword: implKeyword,
@@ -1011,13 +1052,13 @@ function parse(input, file) {
 
     var keyword = consumeToken(_token3.SyntaxKind.TraitKeyword);
     var name = consumeIdentifier();
-    var __PUCK__value__155 = void 0;
+    var __PUCK__value__159 = void 0;
     if (isToken(_token3.SyntaxKind.LessThanToken)) {
-      __PUCK__value__155 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
+      __PUCK__value__159 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
     } else {
-      __PUCK__value__155 = [];
+      __PUCK__value__159 = [];
     };
-    var typeParameters = __PUCK__value__155;
+    var typeParameters = __PUCK__value__159;
     var openBrace = expect(_token3.SyntaxKind.OpenBraceToken);
     var members = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: delimited(_token3.SyntaxKind.OpenBraceToken, _token3.SyntaxKind.CloseBraceToken, _token3.SyntaxKind.SemicolonToken, function () {
         return parseFunctionDeclaration(true);
@@ -1038,26 +1079,26 @@ function parse(input, file) {
 
     var keyword = consumeToken(_token3.SyntaxKind.TypeKeyword);
     var name = consumeIdentifier();
-    var __PUCK__value__156 = void 0;
+    var __PUCK__value__160 = void 0;
     if (isToken(_token3.SyntaxKind.LessThanToken)) {
-      __PUCK__value__156 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
+      __PUCK__value__160 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
     } else {
-      __PUCK__value__156 = [];
+      __PUCK__value__160 = [];
     };
-    var typeParameters = __PUCK__value__156;
-    var __PUCK__value__157 = void 0;
+    var typeParameters = __PUCK__value__160;
+    var __PUCK__value__161 = void 0;
     if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__157 = (0, _core.Some)(parseRecordTypeBound());
+      __PUCK__value__161 = (0, _core.Some)(parseRecordTypeBound());
     } else {
-      var __PUCK__value__158 = void 0;
+      var __PUCK__value__162 = void 0;
       if (isToken(_token3.SyntaxKind.OpenParenToken)) {
-        __PUCK__value__158 = (0, _core.Some)(parseTupleTypeBound());
+        __PUCK__value__162 = (0, _core.Some)(parseTupleTypeBound());
       } else {
-        __PUCK__value__158 = _core.None;
+        __PUCK__value__162 = _core.None;
       };
-      __PUCK__value__157 = __PUCK__value__158;
+      __PUCK__value__161 = __PUCK__value__162;
     };
-    var bound = __PUCK__value__157;
+    var bound = __PUCK__value__161;
     return {
       attributes: attributes,
       keyword: keyword,
@@ -1092,11 +1133,11 @@ function parse(input, file) {
             if (isToken(_token3.SyntaxKind.FnKeyword)) {
               var functionDeclaration = parseFunctionDeclaration();
               statement = _ast.ExportedStatement.FunctionDeclaration(functionDeclaration);
-              var __PUCK__value__159 = functionDeclaration.name;
-              if ($unwrapTraitObject(__PUCK__value__159).kind == "Some") {
-                var _$unwrapTraitObject40 = $unwrapTraitObject(__PUCK__value__159),
-                    _$unwrapTraitObject41 = _slicedToArray(_$unwrapTraitObject40.value, 1),
-                    name = _$unwrapTraitObject41[0];
+              var __PUCK__value__163 = functionDeclaration.name;
+              if ($unwrapTraitObject(__PUCK__value__163).kind == "Some") {
+                var _$unwrapTraitObject44 = $unwrapTraitObject(__PUCK__value__163),
+                    _$unwrapTraitObject45 = _slicedToArray(_$unwrapTraitObject44.value, 1),
+                    name = _$unwrapTraitObject45[0];
 
                 identifier = name;
               } else {
@@ -1107,11 +1148,11 @@ function parse(input, file) {
                 _token_stream.TokenStream.next.call(input);
                 var variableDeclaration = parseVariableDeclaration();
                 statement = _ast.ExportedStatement.VariableDeclaration(variableDeclaration);
-                var __PUCK__value__160 = variableDeclaration.pattern;
-                if ($unwrapTraitObject(__PUCK__value__160).kind == "Identifier") {
-                  var _$unwrapTraitObject42 = $unwrapTraitObject(__PUCK__value__160),
-                      _$unwrapTraitObject43 = _slicedToArray(_$unwrapTraitObject42.value, 1),
-                      _name = _$unwrapTraitObject43[0];
+                var __PUCK__value__164 = variableDeclaration.pattern;
+                if ($unwrapTraitObject(__PUCK__value__164).kind == "Identifier") {
+                  var _$unwrapTraitObject46 = $unwrapTraitObject(__PUCK__value__164),
+                      _$unwrapTraitObject47 = _slicedToArray(_$unwrapTraitObject46.value, 1),
+                      _name = _$unwrapTraitObject47[0];
 
                   identifier = _name;
                 } else {
@@ -1135,25 +1176,25 @@ function parse(input, file) {
   };
   function parseImport() {
     var importKeyword = consumeToken(_token3.SyntaxKind.ImportKeyword);
-    var __PUCK__value__161 = _token_stream.TokenStream.next.call(input);
-    var __PUCK__value__162 = __PUCK__value__161;
-    var __PUCK__value__163 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__162).kind == "StringLiteral") {
-      var _$unwrapTraitObject44 = $unwrapTraitObject(__PUCK__value__162),
-          _$unwrapTraitObject45 = _slicedToArray(_$unwrapTraitObject44.value, 1),
-          stringLiteral = _$unwrapTraitObject45[0];
+    var __PUCK__value__165 = _token_stream.TokenStream.next.call(input);
+    var __PUCK__value__166 = __PUCK__value__165;
+    var __PUCK__value__167 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__166).kind == "StringLiteral") {
+      var _$unwrapTraitObject48 = $unwrapTraitObject(__PUCK__value__166),
+          _$unwrapTraitObject49 = _slicedToArray(_$unwrapTraitObject48.value, 1),
+          stringLiteral = _$unwrapTraitObject49[0];
 
-      __PUCK__value__163 = stringLiteral;
+      __PUCK__value__167 = stringLiteral;
     } else {
-      var __PUCK__value__164 = __PUCK__value__161;
-      var __PUCK__value__165 = void 0;
+      var __PUCK__value__168 = __PUCK__value__165;
+      var __PUCK__value__169 = void 0;
       if (true) {
-        var __PUCK__value__166 = __PUCK__value__164;
-        __PUCK__value__165 = _token_stream.TokenStream.croak.call(input, "Expected string, " + butGot());
+        var __PUCK__value__170 = __PUCK__value__168;
+        __PUCK__value__169 = _token_stream.TokenStream.croak.call(input, "Expected string, " + butGot());
       };
-      __PUCK__value__163 = __PUCK__value__165;
+      __PUCK__value__167 = __PUCK__value__169;
     };
-    var locator = __PUCK__value__163;
+    var locator = __PUCK__value__167;
     if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: locator.parts, $isTraitObject: true }) != 1) {
       (0, _core.panic)("More than one part in import string");
     };
@@ -1161,34 +1202,34 @@ function parse(input, file) {
     if (parts > 2) {
       _token_stream.TokenStream.croak.call(input, "Illegal token \":\" used in import path");
     };
-    var __PUCK__value__167 = void 0;
+    var __PUCK__value__171 = void 0;
     if ($unwrapTraitObject(parts).length == 2) {
-      __PUCK__value__167 = (0, _core.Some)($unwrapTraitObject(parts)[0]);
+      __PUCK__value__171 = (0, _core.Some)($unwrapTraitObject(parts)[0]);
     } else {
-      __PUCK__value__167 = _core.None;
+      __PUCK__value__171 = _core.None;
     };
-    var domain = __PUCK__value__167;
-    var __PUCK__value__168 = void 0;
+    var domain = __PUCK__value__171;
+    var __PUCK__value__172 = void 0;
     if ($unwrapTraitObject(parts).length == 2) {
-      __PUCK__value__168 = $unwrapTraitObject(parts)[1];
+      __PUCK__value__172 = $unwrapTraitObject(parts)[1];
     } else {
-      __PUCK__value__168 = $unwrapTraitObject(parts)[0];
+      __PUCK__value__172 = $unwrapTraitObject(parts)[0];
     };
-    var path = __PUCK__value__168;
+    var path = __PUCK__value__172;
     var asKeyword = consumeToken(_token3.SyntaxKind.AsKeyword);
-    var __PUCK__value__169 = void 0;
+    var __PUCK__value__173 = void 0;
     if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__169 = _ast.ImportSpecifier.ObjectDestructure(parseObjectDestructure());
+      __PUCK__value__173 = _ast.ImportSpecifier.ObjectDestructure(parseObjectDestructure());
     } else {
-      var __PUCK__value__170 = void 0;
+      var __PUCK__value__174 = void 0;
       if (isToken(_token3.SyntaxKind.AsteriskToken)) {
-        __PUCK__value__170 = _ast.ImportSpecifier.Asterisk(consumeToken(_token3.SyntaxKind.AsteriskToken));
+        __PUCK__value__174 = _ast.ImportSpecifier.Asterisk(consumeToken(_token3.SyntaxKind.AsteriskToken));
       } else {
-        __PUCK__value__170 = _ast.ImportSpecifier.Identifier(consumeIdentifier());
+        __PUCK__value__174 = _ast.ImportSpecifier.Identifier(consumeIdentifier());
       };
-      __PUCK__value__169 = __PUCK__value__170;
+      __PUCK__value__173 = __PUCK__value__174;
     };
-    var specifier = __PUCK__value__169;
+    var specifier = __PUCK__value__173;
     return {
       importKeyword: importKeyword,
       domain: domain,
@@ -1210,14 +1251,14 @@ function parse(input, file) {
   };
   function parseObjectDestructureMember() {
     var property = consumeIdentifier();
-    var __PUCK__value__171 = void 0;
+    var __PUCK__value__175 = void 0;
     if (isToken(_token3.SyntaxKind.ColonToken)) {
       _token_stream.TokenStream.next.call(input);
-      __PUCK__value__171 = consumeIdentifier();
+      __PUCK__value__175 = consumeIdentifier();
     } else {
-      __PUCK__value__171 = property;
+      __PUCK__value__175 = property;
     };
-    var local = __PUCK__value__171;
+    var local = __PUCK__value__175;
     return {
       property: property,
       local: local
@@ -1256,50 +1297,50 @@ function parse(input, file) {
     var optionalBody = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
     consumeToken(_token3.SyntaxKind.FnKeyword);
-    var __PUCK__value__172 = _token_stream.TokenStream.peek.call(input);
-    var __PUCK__value__173 = __PUCK__value__172;
-    var __PUCK__value__174 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__173).kind == "Identifier") {
-      var _$unwrapTraitObject46 = $unwrapTraitObject(__PUCK__value__173),
-          _$unwrapTraitObject47 = _slicedToArray(_$unwrapTraitObject46.value, 1),
-          identifier = _$unwrapTraitObject47[0];
+    var __PUCK__value__176 = _token_stream.TokenStream.peek.call(input);
+    var __PUCK__value__177 = __PUCK__value__176;
+    var __PUCK__value__178 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__177).kind == "Identifier") {
+      var _$unwrapTraitObject50 = $unwrapTraitObject(__PUCK__value__177),
+          _$unwrapTraitObject51 = _slicedToArray(_$unwrapTraitObject50.value, 1),
+          identifier = _$unwrapTraitObject51[0];
 
       _token_stream.TokenStream.next.call(input);
-      __PUCK__value__174 = (0, _core.Some)(identifier);
+      __PUCK__value__178 = (0, _core.Some)(identifier);
     } else {
-      var __PUCK__value__175 = __PUCK__value__172;
-      var __PUCK__value__176 = void 0;
+      var __PUCK__value__179 = __PUCK__value__176;
+      var __PUCK__value__180 = void 0;
       if (true) {
-        var __PUCK__value__177 = __PUCK__value__175;
-        __PUCK__value__176 = _core.None;
+        var __PUCK__value__181 = __PUCK__value__179;
+        __PUCK__value__180 = _core.None;
       };
-      __PUCK__value__174 = __PUCK__value__176;
+      __PUCK__value__178 = __PUCK__value__180;
     };
-    var name = __PUCK__value__174;
-    var __PUCK__value__178 = void 0;
+    var name = __PUCK__value__178;
+    var __PUCK__value__182 = void 0;
     if (isToken(_token3.SyntaxKind.LessThanToken)) {
-      __PUCK__value__178 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
+      __PUCK__value__182 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
     } else {
-      __PUCK__value__178 = [];
+      __PUCK__value__182 = [];
     };
-    var typeParameters = __PUCK__value__178;
+    var typeParameters = __PUCK__value__182;
     var openParenOrBar = expect(_token3.SyntaxKind.OpenParenToken);
     var parameterList = delimited(_token3.SyntaxKind.OpenParenToken, _token3.SyntaxKind.CloseParenToken, _token3.SyntaxKind.CommaToken, parseVariableDeclaration, false);
     var closeParenOrBar = consumeToken(_token3.SyntaxKind.CloseParenToken);
-    var __PUCK__value__179 = void 0;
+    var __PUCK__value__183 = void 0;
     if (_core.Option.isSome.call(maybeConsumeToken(_token3.SyntaxKind.MinusGreaterThanToken))) {
-      __PUCK__value__179 = (0, _core.Some)(parseTypeBound());
+      __PUCK__value__183 = (0, _core.Some)(parseTypeBound());
     } else {
-      __PUCK__value__179 = _core.None;
+      __PUCK__value__183 = _core.None;
     };
-    var returnType = __PUCK__value__179;
-    var __PUCK__value__180 = void 0;
+    var returnType = __PUCK__value__183;
+    var __PUCK__value__184 = void 0;
     if (isToken(_token3.SyntaxKind.OpenBraceToken) || !optionalBody) {
-      __PUCK__value__180 = (0, _core.Some)(parseBlock());
+      __PUCK__value__184 = (0, _core.Some)(parseBlock());
     } else {
-      __PUCK__value__180 = _core.None;
+      __PUCK__value__184 = _core.None;
     };
-    var body = __PUCK__value__180;
+    var body = __PUCK__value__184;
     return {
       name: name,
       typeParameters: typeParameters,
@@ -1315,18 +1356,18 @@ function parse(input, file) {
     var openParenOrBar = expect(_token3.SyntaxKind.BarToken);
     var parameterList = delimited(_token3.SyntaxKind.BarToken, _token3.SyntaxKind.BarToken, _token3.SyntaxKind.CommaToken, parseVariableDeclaration, false);
     var closeParenOrBar = consumeToken(_token3.SyntaxKind.BarToken);
-    var __PUCK__value__181 = void 0;
+    var __PUCK__value__185 = void 0;
     if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__181 = (0, _core.Some)(parseBlock());
+      __PUCK__value__185 = (0, _core.Some)(parseBlock());
     } else {
-      __PUCK__value__181 = (0, _core.Some)({
+      __PUCK__value__185 = (0, _core.Some)({
         openBrace: _core.None,
         statements: [parseBlockLevelStatement()],
         closeBrace: _core.None,
         type_: _js._undefined
       });
     };
-    var body = __PUCK__value__181;
+    var body = __PUCK__value__185;
     return {
       name: _core.None,
       typeParameters: [],
@@ -1344,10 +1385,10 @@ function parse(input, file) {
     return {
       pattern: pattern,
       mutable: mutable,
-      typeBound: _core.Option.map.call(maybeConsumeToken(_token3.SyntaxKind.ColonToken), function (__PUCK__value__182) {
+      typeBound: _core.Option.map.call(maybeConsumeToken(_token3.SyntaxKind.ColonToken), function (__PUCK__value__186) {
         return parseTypeBound();
       }),
-      initializer: _core.Option.map.call(maybeConsumeToken(_token3.SyntaxKind.EqualsToken), function (__PUCK__value__183) {
+      initializer: _core.Option.map.call(maybeConsumeToken(_token3.SyntaxKind.EqualsToken), function (__PUCK__value__187) {
         return parseExpression();
       })
     };
@@ -1362,42 +1403,42 @@ function parse(input, file) {
   };
   function parseIfExpression(ifKeyword) {
     var condition = parseExpression();
-    var __PUCK__value__184 = void 0;
+    var __PUCK__value__188 = void 0;
     if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__184 = parseBlock();
+      __PUCK__value__188 = parseBlock();
     } else {
       consumeToken(_token3.SyntaxKind.ThenKeyword);
-      __PUCK__value__184 = {
+      __PUCK__value__188 = {
         openBrace: _core.None,
         statements: [parseBlockLevelStatement()],
         closeBrace: _core.None,
         type_: _js._undefined
       };
     };
-    var then_ = __PUCK__value__184;
-    var __PUCK__value__185 = void 0;
+    var then_ = __PUCK__value__188;
+    var __PUCK__value__189 = void 0;
     if (isToken(_token3.SyntaxKind.ElseKeyword)) {
       _token_stream.TokenStream.next.call(input);
-      var __PUCK__value__186 = void 0;
+      var __PUCK__value__190 = void 0;
       if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-        __PUCK__value__186 = parseBlock();
+        __PUCK__value__190 = parseBlock();
       } else {
-        __PUCK__value__186 = {
+        __PUCK__value__190 = {
           openBrace: _core.None,
           statements: [parseBlockLevelStatement()],
           closeBrace: _core.None,
           type_: _js._undefined
         };
       };
-      __PUCK__value__185 = (0, _core.Some)(__PUCK__value__186);
+      __PUCK__value__189 = (0, _core.Some)(__PUCK__value__190);
     } else {
-      __PUCK__value__185 = _core.None;
+      __PUCK__value__189 = _core.None;
     };
     return {
       ifKeyword: ifKeyword,
       condition: condition,
       then_: then_,
-      else_: __PUCK__value__185
+      else_: __PUCK__value__189
     };
   };
   function parseIfLetExpression(ifKeyword) {
@@ -1405,36 +1446,36 @@ function parse(input, file) {
     var pattern = parsePattern();
     var equalsToken = consumeToken(_token3.SyntaxKind.EqualsToken);
     var expression = parseExpression();
-    var __PUCK__value__187 = void 0;
+    var __PUCK__value__191 = void 0;
     if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__187 = parseBlock();
+      __PUCK__value__191 = parseBlock();
     } else {
       consumeToken(_token3.SyntaxKind.ThenKeyword);
-      __PUCK__value__187 = {
+      __PUCK__value__191 = {
         openBrace: _core.None,
         statements: [parseBlockLevelStatement()],
         closeBrace: _core.None,
         type_: _js._undefined
       };
     };
-    var then_ = __PUCK__value__187;
-    var __PUCK__value__188 = void 0;
+    var then_ = __PUCK__value__191;
+    var __PUCK__value__192 = void 0;
     if (isToken(_token3.SyntaxKind.ElseKeyword)) {
       _token_stream.TokenStream.next.call(input);
-      var __PUCK__value__189 = void 0;
+      var __PUCK__value__193 = void 0;
       if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-        __PUCK__value__189 = parseBlock();
+        __PUCK__value__193 = parseBlock();
       } else {
-        __PUCK__value__189 = {
+        __PUCK__value__193 = {
           openBrace: _core.None,
           statements: [parseBlockLevelStatement()],
           closeBrace: _core.None,
           type_: _js._undefined
         };
       };
-      __PUCK__value__188 = (0, _core.Some)(__PUCK__value__189);
+      __PUCK__value__192 = (0, _core.Some)(__PUCK__value__193);
     } else {
-      __PUCK__value__188 = _core.None;
+      __PUCK__value__192 = _core.None;
     };
     return {
       ifKeyword: ifKeyword,
@@ -1442,7 +1483,7 @@ function parse(input, file) {
       pattern: pattern,
       expression: expression,
       then_: then_,
-      else_: __PUCK__value__188
+      else_: __PUCK__value__192
     };
   };
   function parseMatch() {
@@ -1457,18 +1498,18 @@ function parse(input, file) {
   function parseMatchArm() {
     var pattern = parsePattern();
     var arrow = consumeToken(_token3.SyntaxKind.EqualsGreaterThanToken);
-    var __PUCK__value__190 = void 0;
+    var __PUCK__value__194 = void 0;
     if (isToken(_token3.SyntaxKind.OpenBraceToken)) {
-      __PUCK__value__190 = parseBlock();
+      __PUCK__value__194 = parseBlock();
     } else {
-      __PUCK__value__190 = {
+      __PUCK__value__194 = {
         openBrace: _core.None,
         statements: [parseBlockLevelStatement()],
         closeBrace: _core.None,
         type_: _js._undefined
       };
     };
-    var block = __PUCK__value__190;
+    var block = __PUCK__value__194;
     return {
       pattern: pattern,
       arrow: arrow,
@@ -1476,50 +1517,50 @@ function parse(input, file) {
     };
   };
   function parseUnaryExpression() {
-    var __PUCK__value__191 = _token_stream.TokenStream.next.call(input);
-    var __PUCK__value__192 = __PUCK__value__191;
-    if ($unwrapTraitObject(__PUCK__value__192).kind == "SimpleToken") {
-      var _$unwrapTraitObject48 = $unwrapTraitObject(__PUCK__value__192),
-          _$unwrapTraitObject49 = _slicedToArray(_$unwrapTraitObject48.value, 1),
-          operator = _$unwrapTraitObject49[0];
+    var __PUCK__value__195 = _token_stream.TokenStream.next.call(input);
+    var __PUCK__value__196 = __PUCK__value__195;
+    if ($unwrapTraitObject(__PUCK__value__196).kind == "SimpleToken") {
+      var _$unwrapTraitObject52 = $unwrapTraitObject(__PUCK__value__196),
+          _$unwrapTraitObject53 = _slicedToArray(_$unwrapTraitObject52.value, 1),
+          operator = _$unwrapTraitObject53[0];
 
-      var __PUCK__value__193 = operator.kind;
-      var __PUCK__value__194 = __PUCK__value__193;
-      if ($unwrapTraitObject(__PUCK__value__194).kind == "NotKeyword") {
-        var _undefined54 = $unwrapTraitObject(__PUCK__value__194);
+      var __PUCK__value__197 = operator.kind;
+      var __PUCK__value__198 = __PUCK__value__197;
+      if ($unwrapTraitObject(__PUCK__value__198).kind == "NotKeyword") {
+        var _undefined54 = $unwrapTraitObject(__PUCK__value__198);
         return {
           operator: operator,
           rhs: parseExpression(_token3.SyntaxKind.precedence.call(operator.kind))
         };
       } else {
-        var __PUCK__value__195 = __PUCK__value__193;
-        if ($unwrapTraitObject(__PUCK__value__195).kind == "MinusToken") {
-          var _undefined55 = $unwrapTraitObject(__PUCK__value__195);
+        var __PUCK__value__199 = __PUCK__value__197;
+        if ($unwrapTraitObject(__PUCK__value__199).kind == "MinusToken") {
+          var _undefined55 = $unwrapTraitObject(__PUCK__value__199);
           return {
             operator: operator,
             rhs: parseExpression(_token3.SyntaxKind.precedence.call(operator.kind))
           };
         } else {
-          var __PUCK__value__196 = __PUCK__value__193;
-          if ($unwrapTraitObject(__PUCK__value__196).kind == "PlusToken") {
-            var _undefined56 = $unwrapTraitObject(__PUCK__value__196);
+          var __PUCK__value__200 = __PUCK__value__197;
+          if ($unwrapTraitObject(__PUCK__value__200).kind == "PlusToken") {
+            var _undefined56 = $unwrapTraitObject(__PUCK__value__200);
             return {
               operator: operator,
               rhs: parseExpression(_token3.SyntaxKind.precedence.call(operator.kind))
             };
           } else {
-            var __PUCK__value__197 = __PUCK__value__193;
+            var __PUCK__value__201 = __PUCK__value__197;
             if (true) {
-              var __PUCK__value__198 = __PUCK__value__197;
+              var __PUCK__value__202 = __PUCK__value__201;
               return unexpected();
             };
           };
         };
       };
     } else {
-      var __PUCK__value__199 = __PUCK__value__191;
+      var __PUCK__value__203 = __PUCK__value__195;
       if (true) {
-        var __PUCK__value__200 = __PUCK__value__199;
+        var __PUCK__value__204 = __PUCK__value__203;
         return unexpected();
       };
     };
@@ -1546,14 +1587,14 @@ function parse(input, file) {
   };
   function parseRecordLiteralMember() {
     var name = consumeIdentifier();
-    var __PUCK__value__201 = void 0;
+    var __PUCK__value__205 = void 0;
     if (isToken(_token3.SyntaxKind.ColonToken)) {
       _token_stream.TokenStream.next.call(input);
-      __PUCK__value__201 = parseExpression();
+      __PUCK__value__205 = parseExpression();
     } else {
-      __PUCK__value__201 = _ast.Expression.Identifier(name);
+      __PUCK__value__205 = _ast.Expression.Identifier(name);
     };
-    var value = __PUCK__value__201;
+    var value = __PUCK__value__205;
     return {
       name: name,
       value: value
@@ -1576,11 +1617,11 @@ function parse(input, file) {
     };
   };
   function parsePattern() {
-    var __PUCK__value__202 = maybeConsumeToken(_token3.SyntaxKind.UnderscoreToken);
-    if ($unwrapTraitObject(__PUCK__value__202).kind == "Some") {
-      var _$unwrapTraitObject50 = $unwrapTraitObject(__PUCK__value__202),
-          _$unwrapTraitObject51 = _slicedToArray(_$unwrapTraitObject50.value, 1),
-          token = _$unwrapTraitObject51[0];
+    var __PUCK__value__206 = maybeConsumeToken(_token3.SyntaxKind.UnderscoreToken);
+    if ($unwrapTraitObject(__PUCK__value__206).kind == "Some") {
+      var _$unwrapTraitObject54 = $unwrapTraitObject(__PUCK__value__206),
+          _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject54.value, 1),
+          token = _$unwrapTraitObject55[0];
 
       return _ast.Pattern.CatchAll(token);
     } else {
@@ -1621,13 +1662,13 @@ function parse(input, file) {
   };
   function parseRecordPatternMember() {
     var property = consumeIdentifier();
-    var __PUCK__value__203 = void 0;
+    var __PUCK__value__207 = void 0;
     if (_core.Option.isSome.call(maybeConsumeToken(_token3.SyntaxKind.ColonToken))) {
-      __PUCK__value__203 = parsePattern();
+      __PUCK__value__207 = parsePattern();
     } else {
-      __PUCK__value__203 = _ast.Pattern.Identifier(property);
+      __PUCK__value__207 = _ast.Pattern.Identifier(property);
     };
-    var pattern = __PUCK__value__203;
+    var pattern = __PUCK__value__207;
     return {
       property: property,
       pattern: pattern
@@ -1664,13 +1705,13 @@ function parse(input, file) {
     };
   };
   function parseFunctionTypeBound(tuple) {
-    var __PUCK__value__204 = void 0;
+    var __PUCK__value__208 = void 0;
     if (_core.Option.isNone.call(tuple) && isToken(_token3.SyntaxKind.LessThanToken)) {
-      __PUCK__value__204 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
+      __PUCK__value__208 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeParameter, true);
     } else {
-      __PUCK__value__204 = [];
+      __PUCK__value__208 = [];
     };
-    var typeParameters = __PUCK__value__204;
+    var typeParameters = __PUCK__value__208;
     var parameters = _ast.TypeBound.getTupleTypeBound.call(_core.Option.unwrapOrElse.call(tuple, parseTupleTypeBound));
     consumeToken(_token3.SyntaxKind.MinusGreaterThanToken);
     var returnType = parseTypeBound();
@@ -1682,13 +1723,13 @@ function parse(input, file) {
   };
   function parseNamedTypeBound() {
     var path = parseTypePath(_core.None);
-    var __PUCK__value__205 = void 0;
+    var __PUCK__value__209 = void 0;
     if (isToken(_token3.SyntaxKind.LessThanToken)) {
-      __PUCK__value__205 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeBound, true);
+      __PUCK__value__209 = delimited(_token3.SyntaxKind.LessThanToken, _token3.SyntaxKind.GreaterThanToken, _token3.SyntaxKind.CommaToken, parseTypeBound, true);
     } else {
-      __PUCK__value__205 = [];
+      __PUCK__value__209 = [];
     };
-    var typeParameters = __PUCK__value__205;
+    var typeParameters = __PUCK__value__209;
     return _ast.TypeBound.NamedTypeBound({
       path: path,
       typeParameters: typeParameters
@@ -1726,14 +1767,14 @@ function parse(input, file) {
   };
   function parseTypeParameter() {
     var name = consumeIdentifier();
-    var __PUCK__value__206 = void 0;
+    var __PUCK__value__210 = void 0;
     if (isToken(_token3.SyntaxKind.EqualsToken)) {
       _token_stream.TokenStream.next.call(input);
-      __PUCK__value__206 = (0, _core.Some)(parseTypeBound());
+      __PUCK__value__210 = (0, _core.Some)(parseTypeBound());
     } else {
-      __PUCK__value__206 = _core.None;
+      __PUCK__value__210 = _core.None;
     };
-    var defaultValue = __PUCK__value__206;
+    var defaultValue = __PUCK__value__210;
     return {
       name: name,
       defaultValue: defaultValue

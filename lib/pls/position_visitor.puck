@@ -40,6 +40,8 @@ import '../ast/ast.puck' as {
 
   IndexAccess
   MemberAccess
+  UnknownAccess
+  UnknownIndexAccess
 
   BooleanLiteral
   ListLiteral
@@ -175,6 +177,12 @@ export trait PositionVisitor {
   fn visitMemberAccess(mut self, a: MemberAccess) -> () {
     walkMemberAccess(self, a)
   }
+  fn visitUnknownAccess(mut self, a: UnknownAccess) -> () {
+    walkUnknownAccess(self, a)
+  }
+  fn visitUnknownIndexAccess(mut self, a: UnknownIndexAccess) -> () {
+    walkUnknownIndexAccess(self, a)
+  }
   fn visitListLiteral(mut self, l: ListLiteral) -> () {
     walkListLiteral(self, l)
   }
@@ -295,6 +303,8 @@ export fn walkExpression(mut visitor: PositionVisitor, e: Expression) -> () {
 
     Expression::IndexAccess(e) => visitor.visitIndexAccess(e)
     Expression::MemberAccess(e) => visitor.visitMemberAccess(e)
+    Expression::UnknownAccess(e) => visitor.visitUnknownAccess(e)
+    Expression::UnknownIndexAccess(e) => visitor.visitUnknownIndexAccess(e)
 
     Expression::BooleanLiteral(e) => visitor.visitBooleanLiteral(e)
     Expression::ListLiteral(e) => visitor.visitListLiteral(e)
@@ -504,6 +514,18 @@ export fn walkMemberAccess(mut visitor: PositionVisitor, a: MemberAccess) -> () 
     then visitor.visitExpression(a.object)
   else if a.member.span().cmp(visitor.position()) == Ordering::Equal
     then visitor.visitIdentifier(a.member)
+}
+export fn walkUnknownAccess(mut visitor: PositionVisitor, a: UnknownAccess) -> () {
+  if a.object.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(a.object)
+  else if a.member.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitIdentifier(a.member)
+}
+export fn walkUnknownIndexAccess(mut visitor: PositionVisitor, a: UnknownIndexAccess) -> () {
+  if a.object.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(a.object)
+  else if a.index.span().cmp(visitor.position()) == Ordering::Equal
+    then visitor.visitExpression(a.index)
 }
 
 export fn walkListLiteral(mut visitor: PositionVisitor, l: ListLiteral) -> () {

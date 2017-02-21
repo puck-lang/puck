@@ -182,6 +182,8 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
       Expression::Identifier(_) => true
       Expression::MemberAccess(_) => true
       Expression::IndexAccess(_) => true
+      Expression::UnknownAccess(_) => true
+      Expression::UnknownIndexAccess(_) => true
       _ => false
     }
   }
@@ -218,7 +220,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
 
   fn maybeCall(expression: Expression) -> Expression {
     if isToken(SyntaxKind::OpenParenToken, true)
-      then maybeCall(maybeMemberAccess(Expression::CallExpression({
+      then maybeCall(maybeAccess(Expression::CallExpression({
         func: expression
         openParen: expect(SyntaxKind::OpenParenToken)
         argumentList: delimited(SyntaxKind::OpenParenToken, SyntaxKind::CloseParenToken, SyntaxKind::CommaToken, parseExpression, false)
@@ -228,7 +230,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
   }
 
   fn maybeAccess(expression: Expression) -> Expression {
-    maybeIndexAccess(maybeMemberAccess(expression))
+    maybeUnknownAccess(maybeIndexAccess(maybeMemberAccess(expression)))
   }
 
   fn maybeMemberAccess(expression: Expression) -> Expression {
@@ -254,6 +256,31 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
         index
         closeBracket
       }))
+    }
+    else expression
+  }
+
+  fn maybeUnknownAccess(expression: Expression) -> Expression {
+    if isToken(SyntaxKind::MinusGreaterThanToken) {
+      input.next()
+      if isToken(SyntaxKind::OpenBracketToken) {
+        let openBracket = consumeToken(SyntaxKind::OpenBracketToken)
+        let index = parseExpression()
+        let closeBracket = consumeToken(SyntaxKind::CloseBracketToken)
+
+        maybeAccess(Expression::UnknownIndexAccess({
+          object: expression
+          openBracket
+          index
+          closeBracket
+        }))
+      }
+      else {
+      maybeAccess(Expression::UnknownAccess({
+        object: expression
+        member: consumeIdentifier()
+      }))
+      }
     }
     else expression
   }

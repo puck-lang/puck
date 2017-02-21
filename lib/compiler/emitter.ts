@@ -337,6 +337,8 @@ export function Emitter() {
 
       case 'IndexAccess': return emitIndexAccess(expression.value[0])
       case 'MemberAccess': return emitMemberAccess(expression.value[0])
+      case 'UnknownAccess': return emitMemberAccess(expression.value[0])
+      case 'UnknownIndexAccess': return emitIndexAccess(expression.value[0])
 
       case 'BooleanLiteral': return emitBooleanLiteral(expression.value[0])
       case 'ListLiteral': return emitListLiteral(expression.value[0], assignedTo)

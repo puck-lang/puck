@@ -37,6 +37,8 @@ import 'ast.puck' as {
 
   IndexAccess
   MemberAccess
+  UnknownAccess
+  UnknownIndexAccess
 
   BooleanLiteral
   ListLiteral
@@ -126,6 +128,8 @@ export let walkingVisitor = {
 
   visitIndexAccess: |self, a: IndexAccess| walkIndexAccess(self, a)
   visitMemberAccess: |self, a: MemberAccess| walkMemberAccess(self, a)
+  visitUnknownAccess: |self, a: UnknownAccess| walkUnknownAccess(self, a)
+  visitUnknownIndexAccess: |self, a: UnknownIndexAccess| walkUnknownIndexAccess(self, a)
 
   visitListLiteral: |self, l: ListLiteral| walkListLiteral(self, l)
   visitBooleanLiteral: |self, l: BooleanLiteral| walkBooleanLiteral(self, l)
@@ -189,6 +193,8 @@ export let emptyVisitor = {
 
   visitIndexAccess: || {}
   visitMemberAccess: || {}
+  visitUnknownAccess: || {}
+  visitUnknownIndexAccess: || {}
 
   visitBooleanLiteral: || {}
   visitListLiteral: || {}
@@ -258,6 +264,8 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
 
     Expression::IndexAccess(e) => visitor.visitIndexAccess(e)
     Expression::MemberAccess(e) => visitor.visitMemberAccess(e)
+    Expression::UnknownAccess(e) => visitor.visitUnknownAccess(e)
+    Expression::UnknownIndexAccess(e) => visitor.visitUnknownIndexAccess(e)
 
     Expression::BooleanLiteral(e) => visitor.visitBooleanLiteral(e)
     Expression::ListLiteral(e) => visitor.visitListLiteral(e)
@@ -388,6 +396,14 @@ export fn walkIndexAccess(visitor: Visitor, a: IndexAccess) {
 export fn walkMemberAccess(visitor: Visitor, a: MemberAccess) {
   visitor.visitExpression(a.object)
   visitor.visitExpression(a.member)
+}
+export fn walkUnknownAccess(visitor: Visitor, a: UnknownAccess) {
+  visitor.visitExpression(a.object)
+  visitor.visitExpression(a.member)
+}
+export fn walkUnknownIndexAccess(visitor: Visitor, a: UnknownIndexAccess) {
+  visitor.visitExpression(a.object)
+  visitor.visitExpression(a.index)
 }
 
 export fn walkBooleanLiteral(visitor: Visitor, l: BooleanLiteral) {}

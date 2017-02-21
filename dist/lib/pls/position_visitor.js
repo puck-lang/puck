@@ -39,6 +39,8 @@ exports.walkTypePathExpression = walkTypePathExpression;
 exports.walkUnaryExpression = walkUnaryExpression;
 exports.walkIndexAccess = walkIndexAccess;
 exports.walkMemberAccess = walkMemberAccess;
+exports.walkUnknownAccess = walkUnknownAccess;
+exports.walkUnknownIndexAccess = walkUnknownIndexAccess;
 exports.walkListLiteral = walkListLiteral;
 exports.walkBooleanLiteral = walkBooleanLiteral;
 exports.walkNumberLiteral = walkNumberLiteral;
@@ -198,6 +200,14 @@ var PositionVisitor = exports.PositionVisitor = {
   visitMemberAccess: function visitMemberAccess(a) {
     var self = this;
     walkMemberAccess(self, a);
+  },
+  visitUnknownAccess: function visitUnknownAccess(a) {
+    var self = this;
+    walkUnknownAccess(self, a);
+  },
+  visitUnknownIndexAccess: function visitUnknownIndexAccess(a) {
+    var self = this;
+    walkUnknownIndexAccess(self, a);
   },
   visitListLiteral: function visitListLiteral(l) {
     var self = this;
@@ -543,52 +553,70 @@ function walkExpression(visitor, e) {
                                 PositionVisitor[visitor.type].visitMemberAccess.call(visitor, _e19);
                               } else {
                                 var __PUCK__value__34 = __PUCK__value__17;
-                                if ($unwrapTraitObject(__PUCK__value__34).kind == "BooleanLiteral") {
+                                if ($unwrapTraitObject(__PUCK__value__34).kind == "UnknownAccess") {
                                   var _$unwrapTraitObject50 = $unwrapTraitObject(__PUCK__value__34),
                                       _$unwrapTraitObject51 = _slicedToArray(_$unwrapTraitObject50.value, 1),
                                       _e20 = _$unwrapTraitObject51[0];
 
-                                  PositionVisitor[visitor.type].visitBooleanLiteral.call(visitor, _e20);
+                                  PositionVisitor[visitor.type].visitUnknownAccess.call(visitor, _e20);
                                 } else {
                                   var __PUCK__value__35 = __PUCK__value__17;
-                                  if ($unwrapTraitObject(__PUCK__value__35).kind == "ListLiteral") {
+                                  if ($unwrapTraitObject(__PUCK__value__35).kind == "UnknownIndexAccess") {
                                     var _$unwrapTraitObject52 = $unwrapTraitObject(__PUCK__value__35),
                                         _$unwrapTraitObject53 = _slicedToArray(_$unwrapTraitObject52.value, 1),
                                         _e21 = _$unwrapTraitObject53[0];
 
-                                    PositionVisitor[visitor.type].visitListLiteral.call(visitor, _e21);
+                                    PositionVisitor[visitor.type].visitUnknownIndexAccess.call(visitor, _e21);
                                   } else {
                                     var __PUCK__value__36 = __PUCK__value__17;
-                                    if ($unwrapTraitObject(__PUCK__value__36).kind == "NumberLiteral") {
+                                    if ($unwrapTraitObject(__PUCK__value__36).kind == "BooleanLiteral") {
                                       var _$unwrapTraitObject54 = $unwrapTraitObject(__PUCK__value__36),
                                           _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject54.value, 1),
                                           _e22 = _$unwrapTraitObject55[0];
 
-                                      PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, _e22);
+                                      PositionVisitor[visitor.type].visitBooleanLiteral.call(visitor, _e22);
                                     } else {
                                       var __PUCK__value__37 = __PUCK__value__17;
-                                      if ($unwrapTraitObject(__PUCK__value__37).kind == "RecordLiteral") {
+                                      if ($unwrapTraitObject(__PUCK__value__37).kind == "ListLiteral") {
                                         var _$unwrapTraitObject56 = $unwrapTraitObject(__PUCK__value__37),
                                             _$unwrapTraitObject57 = _slicedToArray(_$unwrapTraitObject56.value, 1),
                                             _e23 = _$unwrapTraitObject57[0];
 
-                                        PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, _e23);
+                                        PositionVisitor[visitor.type].visitListLiteral.call(visitor, _e23);
                                       } else {
                                         var __PUCK__value__38 = __PUCK__value__17;
-                                        if ($unwrapTraitObject(__PUCK__value__38).kind == "StringLiteral") {
+                                        if ($unwrapTraitObject(__PUCK__value__38).kind == "NumberLiteral") {
                                           var _$unwrapTraitObject58 = $unwrapTraitObject(__PUCK__value__38),
                                               _$unwrapTraitObject59 = _slicedToArray(_$unwrapTraitObject58.value, 1),
                                               _e24 = _$unwrapTraitObject59[0];
 
-                                          PositionVisitor[visitor.type].visitStringLiteral.call(visitor, _e24);
+                                          PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, _e24);
                                         } else {
                                           var __PUCK__value__39 = __PUCK__value__17;
-                                          if ($unwrapTraitObject(__PUCK__value__39).kind == "TupleLiteral") {
+                                          if ($unwrapTraitObject(__PUCK__value__39).kind == "RecordLiteral") {
                                             var _$unwrapTraitObject60 = $unwrapTraitObject(__PUCK__value__39),
                                                 _$unwrapTraitObject61 = _slicedToArray(_$unwrapTraitObject60.value, 1),
                                                 _e25 = _$unwrapTraitObject61[0];
 
-                                            PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, _e25);
+                                            PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, _e25);
+                                          } else {
+                                            var __PUCK__value__40 = __PUCK__value__17;
+                                            if ($unwrapTraitObject(__PUCK__value__40).kind == "StringLiteral") {
+                                              var _$unwrapTraitObject62 = $unwrapTraitObject(__PUCK__value__40),
+                                                  _$unwrapTraitObject63 = _slicedToArray(_$unwrapTraitObject62.value, 1),
+                                                  _e26 = _$unwrapTraitObject63[0];
+
+                                              PositionVisitor[visitor.type].visitStringLiteral.call(visitor, _e26);
+                                            } else {
+                                              var __PUCK__value__41 = __PUCK__value__17;
+                                              if ($unwrapTraitObject(__PUCK__value__41).kind == "TupleLiteral") {
+                                                var _$unwrapTraitObject64 = $unwrapTraitObject(__PUCK__value__41),
+                                                    _$unwrapTraitObject65 = _slicedToArray(_$unwrapTraitObject64.value, 1),
+                                                    _e27 = _$unwrapTraitObject65[0];
+
+                                                PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, _e27);
+                                              };
+                                            };
                                           };
                                         };
                                       };
@@ -616,13 +644,13 @@ function walkEnumDeclaration(visitor, e) {
 };
 function walkEnumMember(visitor, e) {};
 function walkImplDeclaration(visitor, i) {
-  var __PUCK__value__40 = _core.List.binarySearchBy.call(i.members, function (member) {
+  var __PUCK__value__42 = _core.List.binarySearchBy.call(i.members, function (member) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: member, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__40).kind == "Ok") {
-    var _$unwrapTraitObject62 = $unwrapTraitObject(__PUCK__value__40),
-        _$unwrapTraitObject63 = _slicedToArray(_$unwrapTraitObject62.value, 1),
-        index = _$unwrapTraitObject63[0];
+  if ($unwrapTraitObject(__PUCK__value__42).kind == "Ok") {
+    var _$unwrapTraitObject66 = $unwrapTraitObject(__PUCK__value__42),
+        _$unwrapTraitObject67 = _slicedToArray(_$unwrapTraitObject66.value, 1),
+        index = _$unwrapTraitObject67[0];
 
     PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, i.members[index]);
     return true;
@@ -631,13 +659,13 @@ function walkImplDeclaration(visitor, i) {
   };
 };
 function walkImplShorthandDeclaration(visitor, i) {
-  var __PUCK__value__41 = _core.List.binarySearchBy.call(i.members, function (member) {
+  var __PUCK__value__43 = _core.List.binarySearchBy.call(i.members, function (member) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: member, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__41).kind == "Ok") {
-    var _$unwrapTraitObject64 = $unwrapTraitObject(__PUCK__value__41),
-        _$unwrapTraitObject65 = _slicedToArray(_$unwrapTraitObject64.value, 1),
-        index = _$unwrapTraitObject65[0];
+  if ($unwrapTraitObject(__PUCK__value__43).kind == "Ok") {
+    var _$unwrapTraitObject68 = $unwrapTraitObject(__PUCK__value__43),
+        _$unwrapTraitObject69 = _slicedToArray(_$unwrapTraitObject68.value, 1),
+        index = _$unwrapTraitObject69[0];
 
     PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, i.members[index]);
     return true;
@@ -649,13 +677,13 @@ function walkMethodDeclaration(visitor, f) {
   PositionVisitor[visitor.type].visitFunctionDeclaration.call(visitor, f);
 };
 function walkTraitDeclaration(visitor, t) {
-  var __PUCK__value__42 = _core.List.binarySearchBy.call(t.members, function (member) {
+  var __PUCK__value__44 = _core.List.binarySearchBy.call(t.members, function (member) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: member, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__42).kind == "Ok") {
-    var _$unwrapTraitObject66 = $unwrapTraitObject(__PUCK__value__42),
-        _$unwrapTraitObject67 = _slicedToArray(_$unwrapTraitObject66.value, 1),
-        index = _$unwrapTraitObject67[0];
+  if ($unwrapTraitObject(__PUCK__value__44).kind == "Ok") {
+    var _$unwrapTraitObject70 = $unwrapTraitObject(__PUCK__value__44),
+        _$unwrapTraitObject71 = _slicedToArray(_$unwrapTraitObject70.value, 1),
+        index = _$unwrapTraitObject71[0];
 
     PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, t.members[index]);
     return true;
@@ -666,44 +694,44 @@ function walkTraitDeclaration(visitor, t) {
 function walkTypeDeclaration(visitor, t) {};
 function walkExportDirective(visitor, e) {
   if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement', value: e.statement, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
-    var __PUCK__value__43 = e.statement;
-    var __PUCK__value__44 = __PUCK__value__43;
-    if ($unwrapTraitObject(__PUCK__value__44).kind == "EnumDeclaration") {
-      var _$unwrapTraitObject68 = $unwrapTraitObject(__PUCK__value__44),
-          _$unwrapTraitObject69 = _slicedToArray(_$unwrapTraitObject68.value, 1),
-          d = _$unwrapTraitObject69[0];
+    var __PUCK__value__45 = e.statement;
+    var __PUCK__value__46 = __PUCK__value__45;
+    if ($unwrapTraitObject(__PUCK__value__46).kind == "EnumDeclaration") {
+      var _$unwrapTraitObject72 = $unwrapTraitObject(__PUCK__value__46),
+          _$unwrapTraitObject73 = _slicedToArray(_$unwrapTraitObject72.value, 1),
+          d = _$unwrapTraitObject73[0];
 
       PositionVisitor[visitor.type].visitEnumDeclaration.call(visitor, d);
     } else {
-      var __PUCK__value__45 = __PUCK__value__43;
-      if ($unwrapTraitObject(__PUCK__value__45).kind == "TraitDeclaration") {
-        var _$unwrapTraitObject70 = $unwrapTraitObject(__PUCK__value__45),
-            _$unwrapTraitObject71 = _slicedToArray(_$unwrapTraitObject70.value, 1),
-            _d = _$unwrapTraitObject71[0];
+      var __PUCK__value__47 = __PUCK__value__45;
+      if ($unwrapTraitObject(__PUCK__value__47).kind == "TraitDeclaration") {
+        var _$unwrapTraitObject74 = $unwrapTraitObject(__PUCK__value__47),
+            _$unwrapTraitObject75 = _slicedToArray(_$unwrapTraitObject74.value, 1),
+            _d = _$unwrapTraitObject75[0];
 
         PositionVisitor[visitor.type].visitTraitDeclaration.call(visitor, _d);
       } else {
-        var __PUCK__value__46 = __PUCK__value__43;
-        if ($unwrapTraitObject(__PUCK__value__46).kind == "TypeDeclaration") {
-          var _$unwrapTraitObject72 = $unwrapTraitObject(__PUCK__value__46),
-              _$unwrapTraitObject73 = _slicedToArray(_$unwrapTraitObject72.value, 1),
-              _d2 = _$unwrapTraitObject73[0];
+        var __PUCK__value__48 = __PUCK__value__45;
+        if ($unwrapTraitObject(__PUCK__value__48).kind == "TypeDeclaration") {
+          var _$unwrapTraitObject76 = $unwrapTraitObject(__PUCK__value__48),
+              _$unwrapTraitObject77 = _slicedToArray(_$unwrapTraitObject76.value, 1),
+              _d2 = _$unwrapTraitObject77[0];
 
           PositionVisitor[visitor.type].visitTypeDeclaration.call(visitor, _d2);
         } else {
-          var __PUCK__value__47 = __PUCK__value__43;
-          if ($unwrapTraitObject(__PUCK__value__47).kind == "FunctionDeclaration") {
-            var _$unwrapTraitObject74 = $unwrapTraitObject(__PUCK__value__47),
-                _$unwrapTraitObject75 = _slicedToArray(_$unwrapTraitObject74.value, 1),
-                _d3 = _$unwrapTraitObject75[0];
+          var __PUCK__value__49 = __PUCK__value__45;
+          if ($unwrapTraitObject(__PUCK__value__49).kind == "FunctionDeclaration") {
+            var _$unwrapTraitObject78 = $unwrapTraitObject(__PUCK__value__49),
+                _$unwrapTraitObject79 = _slicedToArray(_$unwrapTraitObject78.value, 1),
+                _d3 = _$unwrapTraitObject79[0];
 
             PositionVisitor[visitor.type].visitFunctionDeclaration.call(visitor, _d3);
           } else {
-            var __PUCK__value__48 = __PUCK__value__43;
-            if ($unwrapTraitObject(__PUCK__value__48).kind == "VariableDeclaration") {
-              var _$unwrapTraitObject76 = $unwrapTraitObject(__PUCK__value__48),
-                  _$unwrapTraitObject77 = _slicedToArray(_$unwrapTraitObject76.value, 1),
-                  _d4 = _$unwrapTraitObject77[0];
+            var __PUCK__value__50 = __PUCK__value__45;
+            if ($unwrapTraitObject(__PUCK__value__50).kind == "VariableDeclaration") {
+              var _$unwrapTraitObject80 = $unwrapTraitObject(__PUCK__value__50),
+                  _$unwrapTraitObject81 = _slicedToArray(_$unwrapTraitObject80.value, 1),
+                  _d4 = _$unwrapTraitObject81[0];
 
               PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, _d4);
             };
@@ -715,30 +743,30 @@ function walkExportDirective(visitor, e) {
 };
 function walkImportDirective(visitor, i) {
   if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier', value: i.specifier, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
-    var __PUCK__value__49 = i.specifier;
-    var __PUCK__value__50 = __PUCK__value__49;
-    if ($unwrapTraitObject(__PUCK__value__50).kind == "ObjectDestructure") {
-      var _$unwrapTraitObject78 = $unwrapTraitObject(__PUCK__value__50),
-          _$unwrapTraitObject79 = _slicedToArray(_$unwrapTraitObject78.value, 1),
-          s = _$unwrapTraitObject79[0];
+    var __PUCK__value__51 = i.specifier;
+    var __PUCK__value__52 = __PUCK__value__51;
+    if ($unwrapTraitObject(__PUCK__value__52).kind == "ObjectDestructure") {
+      var _$unwrapTraitObject82 = $unwrapTraitObject(__PUCK__value__52),
+          _$unwrapTraitObject83 = _slicedToArray(_$unwrapTraitObject82.value, 1),
+          s = _$unwrapTraitObject83[0];
 
       PositionVisitor[visitor.type].visitObjectDestructure.call(visitor, s);
     } else {
-      var __PUCK__value__51 = __PUCK__value__49;
+      var __PUCK__value__53 = __PUCK__value__51;
       if (true) {
-        var __PUCK__value__52 = __PUCK__value__51;
+        var __PUCK__value__54 = __PUCK__value__53;
       };
     };
   };
 };
 function walkObjectDestructure(visitor, o) {
-  var __PUCK__value__53 = _core.List.binarySearchBy.call(o.members, function (member) {
+  var __PUCK__value__55 = _core.List.binarySearchBy.call(o.members, function (member) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: member, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__53).kind == "Ok") {
-    var _$unwrapTraitObject80 = $unwrapTraitObject(__PUCK__value__53),
-        _$unwrapTraitObject81 = _slicedToArray(_$unwrapTraitObject80.value, 1),
-        index = _$unwrapTraitObject81[0];
+  if ($unwrapTraitObject(__PUCK__value__55).kind == "Ok") {
+    var _$unwrapTraitObject84 = $unwrapTraitObject(__PUCK__value__55),
+        _$unwrapTraitObject85 = _slicedToArray(_$unwrapTraitObject84.value, 1),
+        index = _$unwrapTraitObject85[0];
 
     PositionVisitor[visitor.type].visitObjectDestructureMember.call(visitor, o.members[index]);
     return true;
@@ -756,13 +784,13 @@ function walkObjectDestructureMember(visitor, m) {
   };
 };
 function walkBlock(visitor, b) {
-  var __PUCK__value__54 = _core.List.binarySearchBy.call(b.statements, function (statement) {
+  var __PUCK__value__56 = _core.List.binarySearchBy.call(b.statements, function (statement) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement', value: statement, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__54).kind == "Ok") {
-    var _$unwrapTraitObject82 = $unwrapTraitObject(__PUCK__value__54),
-        _$unwrapTraitObject83 = _slicedToArray(_$unwrapTraitObject82.value, 1),
-        index = _$unwrapTraitObject83[0];
+  if ($unwrapTraitObject(__PUCK__value__56).kind == "Ok") {
+    var _$unwrapTraitObject86 = $unwrapTraitObject(__PUCK__value__56),
+        _$unwrapTraitObject87 = _slicedToArray(_$unwrapTraitObject86.value, 1),
+        index = _$unwrapTraitObject87[0];
 
     PositionVisitor[visitor.type].visitBlockLevelStatement.call(visitor, b.statements[index]);
     return true;
@@ -783,11 +811,11 @@ function walkWhileLoop(visitor, e) {
   };
 };
 function walkFunctionDeclaration(visitor, f) {
-  var __PUCK__value__55 = f.body;
-  if ($unwrapTraitObject(__PUCK__value__55).kind == "Some") {
-    var _$unwrapTraitObject84 = $unwrapTraitObject(__PUCK__value__55),
-        _$unwrapTraitObject85 = _slicedToArray(_$unwrapTraitObject84.value, 1),
-        body = _$unwrapTraitObject85[0];
+  var __PUCK__value__57 = f.body;
+  if ($unwrapTraitObject(__PUCK__value__57).kind == "Some") {
+    var _$unwrapTraitObject88 = $unwrapTraitObject(__PUCK__value__57),
+        _$unwrapTraitObject89 = _slicedToArray(_$unwrapTraitObject88.value, 1),
+        body = _$unwrapTraitObject89[0];
 
     if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: body, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
       return PositionVisitor[visitor.type].visitBlock.call(visitor, body);
@@ -798,21 +826,21 @@ function walkVariableDeclaration(visitor, d) {
   if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: d.pattern, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
     PositionVisitor[visitor.type].visitPattern.call(visitor, d.pattern);
   } else {
-    var __PUCK__value__56 = d.typeBound;
-    if ($unwrapTraitObject(__PUCK__value__56).kind == "Some") {
-      var _$unwrapTraitObject86 = $unwrapTraitObject(__PUCK__value__56),
-          _$unwrapTraitObject87 = _slicedToArray(_$unwrapTraitObject86.value, 1),
-          typeBound = _$unwrapTraitObject87[0];
+    var __PUCK__value__58 = d.typeBound;
+    if ($unwrapTraitObject(__PUCK__value__58).kind == "Some") {
+      var _$unwrapTraitObject90 = $unwrapTraitObject(__PUCK__value__58),
+          _$unwrapTraitObject91 = _slicedToArray(_$unwrapTraitObject90.value, 1),
+          typeBound = _$unwrapTraitObject91[0];
 
       if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
         return PositionVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
       };
     };
-    var __PUCK__value__57 = d.initializer;
-    if ($unwrapTraitObject(__PUCK__value__57).kind == "Some") {
-      var _$unwrapTraitObject88 = $unwrapTraitObject(__PUCK__value__57),
-          _$unwrapTraitObject89 = _slicedToArray(_$unwrapTraitObject88.value, 1),
-          initializer = _$unwrapTraitObject89[0];
+    var __PUCK__value__59 = d.initializer;
+    if ($unwrapTraitObject(__PUCK__value__59).kind == "Some") {
+      var _$unwrapTraitObject92 = $unwrapTraitObject(__PUCK__value__59),
+          _$unwrapTraitObject93 = _slicedToArray(_$unwrapTraitObject92.value, 1),
+          initializer = _$unwrapTraitObject93[0];
 
       if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: initializer, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
         return PositionVisitor[visitor.type].visitExpression.call(visitor, initializer);
@@ -842,13 +870,13 @@ function walkCallExpression(visitor, e) {
   if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.func, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.func);
   } else {
-    var __PUCK__value__58 = _core.List.binarySearchBy.call(e.argumentList, function (arg) {
+    var __PUCK__value__60 = _core.List.binarySearchBy.call(e.argumentList, function (arg) {
       return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: arg, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
     });
-    if ($unwrapTraitObject(__PUCK__value__58).kind == "Ok") {
-      var _$unwrapTraitObject90 = $unwrapTraitObject(__PUCK__value__58),
-          _$unwrapTraitObject91 = _slicedToArray(_$unwrapTraitObject90.value, 1),
-          index = _$unwrapTraitObject91[0];
+    if ($unwrapTraitObject(__PUCK__value__60).kind == "Ok") {
+      var _$unwrapTraitObject94 = $unwrapTraitObject(__PUCK__value__60),
+          _$unwrapTraitObject95 = _slicedToArray(_$unwrapTraitObject94.value, 1),
+          index = _$unwrapTraitObject95[0];
 
       PositionVisitor[visitor.type].visitExpression.call(visitor, e.argumentList[index]);
     };
@@ -861,11 +889,11 @@ function walkIfExpression(visitor, e) {
     if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.condition, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
       PositionVisitor[visitor.type].visitExpression.call(visitor, e.condition);
     } else {
-      var __PUCK__value__59 = e.else_;
-      if ($unwrapTraitObject(__PUCK__value__59).kind == "Some") {
-        var _$unwrapTraitObject92 = $unwrapTraitObject(__PUCK__value__59),
-            _$unwrapTraitObject93 = _slicedToArray(_$unwrapTraitObject92.value, 1),
-            else_ = _$unwrapTraitObject93[0];
+      var __PUCK__value__61 = e.else_;
+      if ($unwrapTraitObject(__PUCK__value__61).kind == "Some") {
+        var _$unwrapTraitObject96 = $unwrapTraitObject(__PUCK__value__61),
+            _$unwrapTraitObject97 = _slicedToArray(_$unwrapTraitObject96.value, 1),
+            else_ = _$unwrapTraitObject97[0];
 
         if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: else_, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
           return PositionVisitor[visitor.type].visitBlock.call(visitor, else_);
@@ -884,11 +912,11 @@ function walkIfLetExpression(visitor, e) {
       if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
         PositionVisitor[visitor.type].visitExpression.call(visitor, e.expression);
       } else {
-        var __PUCK__value__60 = e.else_;
-        if ($unwrapTraitObject(__PUCK__value__60).kind == "Some") {
-          var _$unwrapTraitObject94 = $unwrapTraitObject(__PUCK__value__60),
-              _$unwrapTraitObject95 = _slicedToArray(_$unwrapTraitObject94.value, 1),
-              else_ = _$unwrapTraitObject95[0];
+        var __PUCK__value__62 = e.else_;
+        if ($unwrapTraitObject(__PUCK__value__62).kind == "Some") {
+          var _$unwrapTraitObject98 = $unwrapTraitObject(__PUCK__value__62),
+              _$unwrapTraitObject99 = _slicedToArray(_$unwrapTraitObject98.value, 1),
+              else_ = _$unwrapTraitObject99[0];
 
           if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: else_, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
             return PositionVisitor[visitor.type].visitBlock.call(visitor, else_);
@@ -902,13 +930,13 @@ function walkMatchExpression(visitor, e) {
   if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.expression);
   } else {
-    var __PUCK__value__61 = _core.List.binarySearchBy.call(e.patterns, function (pattern) {
+    var __PUCK__value__63 = _core.List.binarySearchBy.call(e.patterns, function (pattern) {
       return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchArm"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchArm', value: pattern, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
     });
-    if ($unwrapTraitObject(__PUCK__value__61).kind == "Ok") {
-      var _$unwrapTraitObject96 = $unwrapTraitObject(__PUCK__value__61),
-          _$unwrapTraitObject97 = _slicedToArray(_$unwrapTraitObject96.value, 1),
-          index = _$unwrapTraitObject97[0];
+    if ($unwrapTraitObject(__PUCK__value__63).kind == "Ok") {
+      var _$unwrapTraitObject100 = $unwrapTraitObject(__PUCK__value__63),
+          _$unwrapTraitObject101 = _slicedToArray(_$unwrapTraitObject100.value, 1),
+          index = _$unwrapTraitObject101[0];
 
       PositionVisitor[visitor.type].visitMatchArm.call(visitor, e.patterns[index]);
     } else {
@@ -947,14 +975,32 @@ function walkMemberAccess(visitor, a) {
     };
   };
 };
+function walkUnknownAccess(visitor, a) {
+  if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
+    PositionVisitor[visitor.type].visitExpression.call(visitor, a.object);
+  } else {
+    if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: a.member, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
+      PositionVisitor[visitor.type].visitIdentifier.call(visitor, a.member);
+    };
+  };
+};
+function walkUnknownIndexAccess(visitor, a) {
+  if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
+    PositionVisitor[visitor.type].visitExpression.call(visitor, a.object);
+  } else {
+    if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.index, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
+      PositionVisitor[visitor.type].visitExpression.call(visitor, a.index);
+    };
+  };
+};
 function walkListLiteral(visitor, l) {
-  var __PUCK__value__62 = _core.List.binarySearchBy.call(l.members, function (member) {
+  var __PUCK__value__64 = _core.List.binarySearchBy.call(l.members, function (member) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: member, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__62).kind == "Ok") {
-    var _$unwrapTraitObject98 = $unwrapTraitObject(__PUCK__value__62),
-        _$unwrapTraitObject99 = _slicedToArray(_$unwrapTraitObject98.value, 1),
-        index = _$unwrapTraitObject99[0];
+  if ($unwrapTraitObject(__PUCK__value__64).kind == "Ok") {
+    var _$unwrapTraitObject102 = $unwrapTraitObject(__PUCK__value__64),
+        _$unwrapTraitObject103 = _slicedToArray(_$unwrapTraitObject102.value, 1),
+        index = _$unwrapTraitObject103[0];
 
     PositionVisitor[visitor.type].visitExpression.call(visitor, l.members[index]);
   };
@@ -962,13 +1008,13 @@ function walkListLiteral(visitor, l) {
 function walkBooleanLiteral(visitor, l) {};
 function walkNumberLiteral(visitor, l) {};
 function walkRecordLiteral(visitor, l) {
-  var __PUCK__value__63 = _core.List.binarySearchBy.call(l.members, function (member) {
+  var __PUCK__value__65 = _core.List.binarySearchBy.call(l.members, function (member) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteralMember"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteralMember', value: member, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__63).kind == "Ok") {
-    var _$unwrapTraitObject100 = $unwrapTraitObject(__PUCK__value__63),
-        _$unwrapTraitObject101 = _slicedToArray(_$unwrapTraitObject100.value, 1),
-        index = _$unwrapTraitObject101[0];
+  if ($unwrapTraitObject(__PUCK__value__65).kind == "Ok") {
+    var _$unwrapTraitObject104 = $unwrapTraitObject(__PUCK__value__65),
+        _$unwrapTraitObject105 = _slicedToArray(_$unwrapTraitObject104.value, 1),
+        index = _$unwrapTraitObject105[0];
 
     PositionVisitor[visitor.type].visitRecordLiteralMember.call(visitor, l.members[index]);
   };
@@ -979,100 +1025,100 @@ function walkRecordLiteralMember(visitor, l) {
   };
 };
 function walkStringLiteral(visitor, l) {
-  var __PUCK__value__64 = _core.List.binarySearchBy.call(l.parts, function (part) {
+  var __PUCK__value__66 = _core.List.binarySearchBy.call(l.parts, function (part) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart', value: part, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__64).kind == "Ok") {
-    var _$unwrapTraitObject102 = $unwrapTraitObject(__PUCK__value__64),
-        _$unwrapTraitObject103 = _slicedToArray(_$unwrapTraitObject102.value, 1),
-        index = _$unwrapTraitObject103[0];
+  if ($unwrapTraitObject(__PUCK__value__66).kind == "Ok") {
+    var _$unwrapTraitObject106 = $unwrapTraitObject(__PUCK__value__66),
+        _$unwrapTraitObject107 = _slicedToArray(_$unwrapTraitObject106.value, 1),
+        index = _$unwrapTraitObject107[0];
 
     PositionVisitor[visitor.type].visitStringLiteralPart.call(visitor, l.parts[index]);
   };
 };
 function walkStringLiteralPart(visitor, l) {
-  var __PUCK__value__65 = l;
-  var __PUCK__value__66 = __PUCK__value__65;
-  if ($unwrapTraitObject(__PUCK__value__66).kind == "Literal") {
-    var _undefined = $unwrapTraitObject(__PUCK__value__66);
+  var __PUCK__value__67 = l;
+  var __PUCK__value__68 = __PUCK__value__67;
+  if ($unwrapTraitObject(__PUCK__value__68).kind == "Literal") {
+    var _undefined = $unwrapTraitObject(__PUCK__value__68);
   } else {
-    var __PUCK__value__67 = __PUCK__value__65;
-    if ($unwrapTraitObject(__PUCK__value__67).kind == "Identifier") {
-      var _$unwrapTraitObject104 = $unwrapTraitObject(__PUCK__value__67),
-          _$unwrapTraitObject105 = _slicedToArray(_$unwrapTraitObject104.value, 1),
-          identifier = _$unwrapTraitObject105[0];
+    var __PUCK__value__69 = __PUCK__value__67;
+    if ($unwrapTraitObject(__PUCK__value__69).kind == "Identifier") {
+      var _$unwrapTraitObject108 = $unwrapTraitObject(__PUCK__value__69),
+          _$unwrapTraitObject109 = _slicedToArray(_$unwrapTraitObject108.value, 1),
+          identifier = _$unwrapTraitObject109[0];
 
       PositionVisitor[visitor.type].visitIdentifier.call(visitor, identifier);
     };
   };
 };
 function walkTupleLiteral(visitor, l) {
-  var __PUCK__value__68 = _core.List.binarySearchBy.call(l.expressions, function (member) {
+  var __PUCK__value__70 = _core.List.binarySearchBy.call(l.expressions, function (member) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: member, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__68).kind == "Ok") {
-    var _$unwrapTraitObject106 = $unwrapTraitObject(__PUCK__value__68),
-        _$unwrapTraitObject107 = _slicedToArray(_$unwrapTraitObject106.value, 1),
-        index = _$unwrapTraitObject107[0];
+  if ($unwrapTraitObject(__PUCK__value__70).kind == "Ok") {
+    var _$unwrapTraitObject110 = $unwrapTraitObject(__PUCK__value__70),
+        _$unwrapTraitObject111 = _slicedToArray(_$unwrapTraitObject110.value, 1),
+        index = _$unwrapTraitObject111[0];
 
     PositionVisitor[visitor.type].visitExpression.call(visitor, l.expressions[index]);
   };
 };
 function walkPattern(visitor, p) {
-  var __PUCK__value__69 = p;
-  var __PUCK__value__70 = __PUCK__value__69;
-  if ($unwrapTraitObject(__PUCK__value__70).kind == "CatchAll") {
-    var _$unwrapTraitObject108 = $unwrapTraitObject(__PUCK__value__70),
-        _$unwrapTraitObject109 = _slicedToArray(_$unwrapTraitObject108.value, 1),
-        __PUCK__value__71 = _$unwrapTraitObject109[0];
+  var __PUCK__value__71 = p;
+  var __PUCK__value__72 = __PUCK__value__71;
+  if ($unwrapTraitObject(__PUCK__value__72).kind == "CatchAll") {
+    var _$unwrapTraitObject112 = $unwrapTraitObject(__PUCK__value__72),
+        _$unwrapTraitObject113 = _slicedToArray(_$unwrapTraitObject112.value, 1),
+        __PUCK__value__73 = _$unwrapTraitObject113[0];
   } else {
-    var __PUCK__value__72 = __PUCK__value__69;
-    if ($unwrapTraitObject(__PUCK__value__72).kind == "Identifier") {
-      var _$unwrapTraitObject110 = $unwrapTraitObject(__PUCK__value__72),
-          _$unwrapTraitObject111 = _slicedToArray(_$unwrapTraitObject110.value, 1),
-          identifier = _$unwrapTraitObject111[0];
+    var __PUCK__value__74 = __PUCK__value__71;
+    if ($unwrapTraitObject(__PUCK__value__74).kind == "Identifier") {
+      var _$unwrapTraitObject114 = $unwrapTraitObject(__PUCK__value__74),
+          _$unwrapTraitObject115 = _slicedToArray(_$unwrapTraitObject114.value, 1),
+          identifier = _$unwrapTraitObject115[0];
 
       PositionVisitor[visitor.type].visitIdentifierPattern.call(visitor, identifier);
     } else {
-      var __PUCK__value__73 = __PUCK__value__69;
-      if ($unwrapTraitObject(__PUCK__value__73).kind == "Record") {
-        var _$unwrapTraitObject112 = $unwrapTraitObject(__PUCK__value__73),
-            _$unwrapTraitObject113 = _slicedToArray(_$unwrapTraitObject112.value, 1),
-            recordPattern = _$unwrapTraitObject113[0];
+      var __PUCK__value__75 = __PUCK__value__71;
+      if ($unwrapTraitObject(__PUCK__value__75).kind == "Record") {
+        var _$unwrapTraitObject116 = $unwrapTraitObject(__PUCK__value__75),
+            _$unwrapTraitObject117 = _slicedToArray(_$unwrapTraitObject116.value, 1),
+            recordPattern = _$unwrapTraitObject117[0];
 
         PositionVisitor[visitor.type].visitRecordPattern.call(visitor, recordPattern);
       } else {
-        var __PUCK__value__74 = __PUCK__value__69;
-        if ($unwrapTraitObject(__PUCK__value__74).kind == "Tuple") {
-          var _$unwrapTraitObject114 = $unwrapTraitObject(__PUCK__value__74),
-              _$unwrapTraitObject115 = _slicedToArray(_$unwrapTraitObject114.value, 1),
-              tuplePattern = _$unwrapTraitObject115[0];
+        var __PUCK__value__76 = __PUCK__value__71;
+        if ($unwrapTraitObject(__PUCK__value__76).kind == "Tuple") {
+          var _$unwrapTraitObject118 = $unwrapTraitObject(__PUCK__value__76),
+              _$unwrapTraitObject119 = _slicedToArray(_$unwrapTraitObject118.value, 1),
+              tuplePattern = _$unwrapTraitObject119[0];
 
           PositionVisitor[visitor.type].visitTuplePattern.call(visitor, tuplePattern);
         } else {
-          var __PUCK__value__75 = __PUCK__value__69;
-          if ($unwrapTraitObject(__PUCK__value__75).kind == "RecordType") {
-            var _$unwrapTraitObject116 = $unwrapTraitObject(__PUCK__value__75),
-                _$unwrapTraitObject117 = _slicedToArray(_$unwrapTraitObject116.value, 2),
-                typePath = _$unwrapTraitObject117[0],
-                _recordPattern = _$unwrapTraitObject117[1];
+          var __PUCK__value__77 = __PUCK__value__71;
+          if ($unwrapTraitObject(__PUCK__value__77).kind == "RecordType") {
+            var _$unwrapTraitObject120 = $unwrapTraitObject(__PUCK__value__77),
+                _$unwrapTraitObject121 = _slicedToArray(_$unwrapTraitObject120.value, 2),
+                typePath = _$unwrapTraitObject121[0],
+                _recordPattern = _$unwrapTraitObject121[1];
 
             PositionVisitor[visitor.type].visitRecordTypePattern.call(visitor, typePath, _recordPattern);
           } else {
-            var __PUCK__value__76 = __PUCK__value__69;
-            if ($unwrapTraitObject(__PUCK__value__76).kind == "TupleType") {
-              var _$unwrapTraitObject118 = $unwrapTraitObject(__PUCK__value__76),
-                  _$unwrapTraitObject119 = _slicedToArray(_$unwrapTraitObject118.value, 2),
-                  _typePath = _$unwrapTraitObject119[0],
-                  _tuplePattern = _$unwrapTraitObject119[1];
+            var __PUCK__value__78 = __PUCK__value__71;
+            if ($unwrapTraitObject(__PUCK__value__78).kind == "TupleType") {
+              var _$unwrapTraitObject122 = $unwrapTraitObject(__PUCK__value__78),
+                  _$unwrapTraitObject123 = _slicedToArray(_$unwrapTraitObject122.value, 2),
+                  _typePath = _$unwrapTraitObject123[0],
+                  _tuplePattern = _$unwrapTraitObject123[1];
 
               PositionVisitor[visitor.type].visitTupleTypePattern.call(visitor, _typePath, _tuplePattern);
             } else {
-              var __PUCK__value__77 = __PUCK__value__69;
-              if ($unwrapTraitObject(__PUCK__value__77).kind == "UnitType") {
-                var _$unwrapTraitObject120 = $unwrapTraitObject(__PUCK__value__77),
-                    _$unwrapTraitObject121 = _slicedToArray(_$unwrapTraitObject120.value, 1),
-                    _typePath2 = _$unwrapTraitObject121[0];
+              var __PUCK__value__79 = __PUCK__value__71;
+              if ($unwrapTraitObject(__PUCK__value__79).kind == "UnitType") {
+                var _$unwrapTraitObject124 = $unwrapTraitObject(__PUCK__value__79),
+                    _$unwrapTraitObject125 = _slicedToArray(_$unwrapTraitObject124.value, 1),
+                    _typePath2 = _$unwrapTraitObject125[0];
 
                 PositionVisitor[visitor.type].visitTypePath.call(visitor, _typePath2);
               };
@@ -1085,60 +1131,60 @@ function walkPattern(visitor, p) {
 };
 function walkIdentifierPattern(visitor, p) {};
 function walkRecordPattern(visitor, p) {
-  var __PUCK__value__78 = _core.List.binarySearchBy.call(p.properties, function (prop) {
+  var __PUCK__value__80 = _core.List.binarySearchBy.call(p.properties, function (prop) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPatternMember"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPatternMember', value: prop, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__78).kind == "Ok") {
-    var _$unwrapTraitObject122 = $unwrapTraitObject(__PUCK__value__78),
-        _$unwrapTraitObject123 = _slicedToArray(_$unwrapTraitObject122.value, 1),
-        index = _$unwrapTraitObject123[0];
+  if ($unwrapTraitObject(__PUCK__value__80).kind == "Ok") {
+    var _$unwrapTraitObject126 = $unwrapTraitObject(__PUCK__value__80),
+        _$unwrapTraitObject127 = _slicedToArray(_$unwrapTraitObject126.value, 1),
+        index = _$unwrapTraitObject127[0];
 
     PositionVisitor[visitor.type].visitPattern.call(visitor, $unwrapTraitObject(p.properties[index]).pattern);
   };
 };
 function walkTuplePattern(visitor, p) {
-  var __PUCK__value__79 = _core.List.binarySearchBy.call(p.properties, function (prop) {
+  var __PUCK__value__81 = _core.List.binarySearchBy.call(p.properties, function (prop) {
     return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: prop, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($unwrapTraitObject(__PUCK__value__79).kind == "Ok") {
-    var _$unwrapTraitObject124 = $unwrapTraitObject(__PUCK__value__79),
-        _$unwrapTraitObject125 = _slicedToArray(_$unwrapTraitObject124.value, 1),
-        index = _$unwrapTraitObject125[0];
+  if ($unwrapTraitObject(__PUCK__value__81).kind == "Ok") {
+    var _$unwrapTraitObject128 = $unwrapTraitObject(__PUCK__value__81),
+        _$unwrapTraitObject129 = _slicedToArray(_$unwrapTraitObject128.value, 1),
+        index = _$unwrapTraitObject129[0];
 
     PositionVisitor[visitor.type].visitPattern.call(visitor, p.properties[index]);
   };
 };
 function walkTypeBound(visitor, t) {
-  var __PUCK__value__80 = t;
-  var __PUCK__value__81 = __PUCK__value__80;
-  if ($unwrapTraitObject(__PUCK__value__81).kind == "FunctionTypeBound") {
-    var _$unwrapTraitObject126 = $unwrapTraitObject(__PUCK__value__81),
-        _$unwrapTraitObject127 = _slicedToArray(_$unwrapTraitObject126.value, 1),
-        _t = _$unwrapTraitObject127[0];
+  var __PUCK__value__82 = t;
+  var __PUCK__value__83 = __PUCK__value__82;
+  if ($unwrapTraitObject(__PUCK__value__83).kind == "FunctionTypeBound") {
+    var _$unwrapTraitObject130 = $unwrapTraitObject(__PUCK__value__83),
+        _$unwrapTraitObject131 = _slicedToArray(_$unwrapTraitObject130.value, 1),
+        _t = _$unwrapTraitObject131[0];
 
     PositionVisitor[visitor.type].visitFunctionTypeBound.call(visitor, _t);
   } else {
-    var __PUCK__value__82 = __PUCK__value__80;
-    if ($unwrapTraitObject(__PUCK__value__82).kind == "NamedTypeBound") {
-      var _$unwrapTraitObject128 = $unwrapTraitObject(__PUCK__value__82),
-          _$unwrapTraitObject129 = _slicedToArray(_$unwrapTraitObject128.value, 1),
-          _t2 = _$unwrapTraitObject129[0];
+    var __PUCK__value__84 = __PUCK__value__82;
+    if ($unwrapTraitObject(__PUCK__value__84).kind == "NamedTypeBound") {
+      var _$unwrapTraitObject132 = $unwrapTraitObject(__PUCK__value__84),
+          _$unwrapTraitObject133 = _slicedToArray(_$unwrapTraitObject132.value, 1),
+          _t2 = _$unwrapTraitObject133[0];
 
       PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, _t2);
     } else {
-      var __PUCK__value__83 = __PUCK__value__80;
-      if ($unwrapTraitObject(__PUCK__value__83).kind == "RecordTypeBound") {
-        var _$unwrapTraitObject130 = $unwrapTraitObject(__PUCK__value__83),
-            _$unwrapTraitObject131 = _slicedToArray(_$unwrapTraitObject130.value, 1),
-            _t3 = _$unwrapTraitObject131[0];
+      var __PUCK__value__85 = __PUCK__value__82;
+      if ($unwrapTraitObject(__PUCK__value__85).kind == "RecordTypeBound") {
+        var _$unwrapTraitObject134 = $unwrapTraitObject(__PUCK__value__85),
+            _$unwrapTraitObject135 = _slicedToArray(_$unwrapTraitObject134.value, 1),
+            _t3 = _$unwrapTraitObject135[0];
 
         PositionVisitor[visitor.type].visitRecordTypeBound.call(visitor, _t3);
       } else {
-        var __PUCK__value__84 = __PUCK__value__80;
-        if ($unwrapTraitObject(__PUCK__value__84).kind == "TupleTypeBound") {
-          var _$unwrapTraitObject132 = $unwrapTraitObject(__PUCK__value__84),
-              _$unwrapTraitObject133 = _slicedToArray(_$unwrapTraitObject132.value, 1),
-              _t4 = _$unwrapTraitObject133[0];
+        var __PUCK__value__86 = __PUCK__value__82;
+        if ($unwrapTraitObject(__PUCK__value__86).kind == "TupleTypeBound") {
+          var _$unwrapTraitObject136 = $unwrapTraitObject(__PUCK__value__86),
+              _$unwrapTraitObject137 = _slicedToArray(_$unwrapTraitObject136.value, 1),
+              _t4 = _$unwrapTraitObject137[0];
 
           PositionVisitor[visitor.type].visitTupleTypeBound.call(visitor, _t4);
         };
@@ -1153,13 +1199,13 @@ function walkFunctionTypeBound(visitor, t) {
     if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t.returnType, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
       PositionVisitor[visitor.type].visitTypeBound.call(visitor, t.returnType);
     } else {
-      var __PUCK__value__85 = _core.List.binarySearchBy.call(t.typeParameters, function (t) {
+      var __PUCK__value__87 = _core.List.binarySearchBy.call(t.typeParameters, function (t) {
         return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: t, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
       });
-      if ($unwrapTraitObject(__PUCK__value__85).kind == "Ok") {
-        var _$unwrapTraitObject134 = $unwrapTraitObject(__PUCK__value__85),
-            _$unwrapTraitObject135 = _slicedToArray(_$unwrapTraitObject134.value, 1),
-            index = _$unwrapTraitObject135[0];
+      if ($unwrapTraitObject(__PUCK__value__87).kind == "Ok") {
+        var _$unwrapTraitObject138 = $unwrapTraitObject(__PUCK__value__87),
+            _$unwrapTraitObject139 = _slicedToArray(_$unwrapTraitObject138.value, 1),
+            index = _$unwrapTraitObject139[0];
 
         PositionVisitor[visitor.type].visitTypeBound.call(visitor, t.typeParameters[index]);
       };
@@ -1170,13 +1216,13 @@ function walkNamedTypeBound(visitor, t) {
   if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: t.path, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor)) == _core.Ordering.Equal) {
     PositionVisitor[visitor.type].visitTypePath.call(visitor, t.path);
   } else {
-    var __PUCK__value__86 = _core.List.binarySearchBy.call(t.typeParameters, function (t) {
+    var __PUCK__value__88 = _core.List.binarySearchBy.call(t.typeParameters, function (t) {
       return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t, $isTraitObject: true }), PositionVisitor[visitor.type].position.call(visitor));
     });
-    if ($unwrapTraitObject(__PUCK__value__86).kind == "Ok") {
-      var _$unwrapTraitObject136 = $unwrapTraitObject(__PUCK__value__86),
-          _$unwrapTraitObject137 = _slicedToArray(_$unwrapTraitObject136.value, 1),
-          index = _$unwrapTraitObject137[0];
+    if ($unwrapTraitObject(__PUCK__value__88).kind == "Ok") {
+      var _$unwrapTraitObject140 = $unwrapTraitObject(__PUCK__value__88),
+          _$unwrapTraitObject141 = _slicedToArray(_$unwrapTraitObject140.value, 1),
+          index = _$unwrapTraitObject141[0];
 
       PositionVisitor[visitor.type].visitTypeBound.call(visitor, t.typeParameters[index]);
     };

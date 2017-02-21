@@ -194,6 +194,8 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
       visit.walkMemberAccess(self, a);
     };
   },
+  visitUnknownAccess: _position_visitor.PositionVisitor.visitUnknownAccess,
+  visitUnknownIndexAccess: _position_visitor.PositionVisitor.visitUnknownIndexAccess,
   visitListLiteral: _position_visitor.PositionVisitor.visitListLiteral,
   visitBooleanLiteral: _position_visitor.PositionVisitor.visitBooleanLiteral,
   visitNumberLiteral: _position_visitor.PositionVisitor.visitNumberLiteral,

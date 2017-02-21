@@ -1,5 +1,5 @@
 //#![no_core]
-import 'puck:js' as {Error, Object, console, null, undefined}
+import 'puck:js' as {Array, Error, Object, console, null, typeof, undefined}
 import 'core/js.js' as js
 
 fn anyCast(a) {a}
@@ -964,3 +964,74 @@ impl<T> ObjectMap<T> {
 }
 
 export enum Never {}
+
+#[type_id = 'Unknown']
+export type Unknown {}
+impl Unknown {
+  fn from<T>(value) -> Unknown {value}
+
+  fn isNull(self) -> Bool {
+    js.isNull(self)
+  }
+
+  fn isUndefined(self) -> Bool {
+    js.isUndefined(self)
+  }
+
+  fn isBool(self) -> Bool {
+    typeof(self) == 'boolean'
+  }
+
+  fn isNum(self) -> Bool {
+    typeof(self) == 'number'
+  }
+
+  fn isString(self) -> Bool {
+    typeof(self) == 'string'
+  }
+
+  fn isList(self) -> Bool {
+    Array.isArray(self)
+  }
+
+  fn isObject(self) -> Bool {
+    self != null and typeof(self) == 'object'
+  }
+
+  fn asBool(self) -> Option<Bool> {
+    if self.isBool()
+      then Some(self.transmute())
+      else None
+  }
+
+  fn asNum(self) -> Option<Num> {
+    if self.isNum()
+      then Some(self.transmute())
+      else None
+  }
+
+  fn asString(self) -> Option<String> {
+    if self.isString()
+      then Some(self.transmute())
+      else None
+  }
+
+  fn asList(self) -> Option<List<Unknown>> {
+    if self.isList()
+      then Some(self.transmute())
+      else None
+  }
+
+  fn getProp(self, property: String) -> Option<Unknown> {
+    if not (self.isNull() or self.isUndefined()) {
+      if Object.prototype.hasOwnProperty.call(self, property)
+        then Some(self[property])
+        else None
+    }
+    else None
+  }
+
+  fn transmute<T>(self) -> T {
+    self
+  }
+}

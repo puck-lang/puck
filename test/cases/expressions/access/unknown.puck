@@ -1,0 +1,18 @@
+[]->length
+[]->['length']
+let prop = 'length'
+[]->[prop]
+prop->[prop]
+prop->length
+prop->toUpperCase()
+
+let length: Num = prop->length.transmute()
+
+let message: Option<String> = ['hello', 'world']
+  ->map(|s| s->toUpperCase())
+  ->join(', ')
+  .asString()
+
+let a = {}
+a->a = 'a'
+a->['b'] = 'b'
