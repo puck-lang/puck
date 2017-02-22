@@ -10,6 +10,7 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 exports.getImplementationForTrait = getImplementationForTrait;
 exports.getImplementation = getImplementation;
+exports.resolveImplTypeParameters = resolveImplTypeParameters;
 
 var _core = require('puck-lang/dist/lib/stdlib/core');
 
@@ -218,4 +219,88 @@ function getTypeSpecificity(type_) {
       return 1;
     };
   };
+};
+function resolveImplTypeParameters(implementation, objectType) {
+  var parameterMap = _core.ObjectMap._new();
+  var __PUCK__value__28 = implementation.type_.instance;
+  if ($unwrapTraitObject(__PUCK__value__28).kind == "Some") {
+    var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__28),
+        _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+        instance = _$unwrapTraitObject7$[0];
+
+    _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true }, function (p) {
+      return _core.ObjectMap.set.call(parameterMap, _core.Option.unwrap.call(p.name), p);
+    });
+    var iter = _core.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({ type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true }, _core.Option.unwrap.call(_entities.Type.typeParameters.call(objectType))), $isTraitObject: true });
+    while (true) {
+      var __PUCK__value__29 = _core.Iterator[iter.type].next.call(iter);
+      if ($unwrapTraitObject(__PUCK__value__29).kind == "Some") {
+        var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__29),
+            _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+            _$unwrapTraitObject8$2 = _slicedToArray(_$unwrapTraitObject8$[0], 2),
+            ip = _$unwrapTraitObject8$2[0],
+            op = _$unwrapTraitObject8$2[1];
+
+        var __PUCK__value__30 = collectTypeParameters(parameterMap, ip, op);
+        if ($unwrapTraitObject(__PUCK__value__30).kind == "Err") {
+          var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__30),
+              _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+              err = _$unwrapTraitObject9$[0];
+
+          return (0, _core.Err)(err);
+        };
+      } else {
+        break;
+      };
+    };
+  };
+  return (0, _core.Ok)((0, _types.resolveTypeParameters)(parameterMap)(implementation.trait_));
+};
+function collectTypeParameters(parameterMap, ip, op) {
+  var __PUCK__value__31 = ip.kind;
+  var __PUCK__value__32 = __PUCK__value__31;
+  if ($unwrapTraitObject(__PUCK__value__32).kind == "Parameter") {
+    var _undefined2 = $unwrapTraitObject(__PUCK__value__32);
+    var name = _core.Option.unwrap.call(ip.name);
+    if ((0, _types.isAssignable)(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: parameterMap, $isTraitObject: true }, name), op)) {
+      parameterMap[name] = op;
+    } else {
+      return (0, _core.Err)([_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: parameterMap, $isTraitObject: true }, name), op]);
+    };
+  } else {
+    var __PUCK__value__33 = __PUCK__value__31;
+    if (true) {
+      var __PUCK__value__34 = __PUCK__value__33;
+      var __PUCK__value__35 = ip.instance;
+      if ($unwrapTraitObject(__PUCK__value__35).kind == "Some") {
+        var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__35),
+            _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
+            instance = _$unwrapTraitObject11[0];
+
+        var iter = _core.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({ type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true }, _core.Option.unwrap.call(op.instance).typeParameters), $isTraitObject: true });
+        while (true) {
+          var __PUCK__value__36 = _core.Iterator[iter.type].next.call(iter);
+          if ($unwrapTraitObject(__PUCK__value__36).kind == "Some") {
+            var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__36),
+                _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
+                _$unwrapTraitObject14 = _slicedToArray(_$unwrapTraitObject13[0], 2),
+                _ip = _$unwrapTraitObject14[0],
+                _op = _$unwrapTraitObject14[1];
+
+            var __PUCK__value__37 = collectTypeParameters(parameterMap, _ip, _op);
+            if ($unwrapTraitObject(__PUCK__value__37).kind == "Err") {
+              var _$unwrapTraitObject15 = $unwrapTraitObject(__PUCK__value__37),
+                  _$unwrapTraitObject16 = _slicedToArray(_$unwrapTraitObject15.value, 1),
+                  err = _$unwrapTraitObject16[0];
+
+              return (0, _core.Err)(err);
+            };
+          } else {
+            break;
+          };
+        };
+      };
+    };
+  };
+  return (0, _core.Ok)([]);
 }

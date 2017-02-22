@@ -861,7 +861,7 @@ function parse(input, file) {
           if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: stringLiteral.parts, $isTraitObject: true }) > 1) {
             _token_stream.TokenStream.croak.call(input, "Attributes can only contain simple string literals. Interpolation is not supported.");
           };
-          var part = $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: stringLiteral.parts, $isTraitObject: true }, 0));
+          var part = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: stringLiteral.parts, $isTraitObject: true }, 0);
           var __PUCK__value__144 = part;
           var __PUCK__value__145 = __PUCK__value__144;
           if ($unwrapTraitObject(__PUCK__value__145).kind == "Literal") {
@@ -1223,7 +1223,7 @@ function parse(input, file) {
     };
     var __PUCK__value__177 = void 0;
     if (parts.length == 2) {
-      __PUCK__value__177 = (0, _core.Some)($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: parts, $isTraitObject: true }, 0)));
+      __PUCK__value__177 = (0, _core.Some)(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: parts, $isTraitObject: true }, 0));
     } else {
       __PUCK__value__177 = _core.None;
     };
@@ -1252,7 +1252,7 @@ function parse(input, file) {
     return {
       importKeyword: importKeyword,
       domain: domain,
-      path: $unwrapTraitObject(path),
+      path: path,
       asKeyword: asKeyword,
       specifier: specifier,
       _module: _core.None

@@ -292,6 +292,7 @@ export type Tuple {
 export type Implementation {
   type_: Type
   trait_: Type
+  typeParameters: List<Type>
 }
 
 /// Represents a generic type like List<T>

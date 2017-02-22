@@ -214,7 +214,7 @@ function createTypeInstance(type_, typeParameters_) {
   var __PUCK__value__28 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].find.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.instances, $isTraitObject: true }, function (a) {
     var i = _core.Option.unwrap.call(a.instance);
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
-      return isSameType(p, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: typeParameters, $isTraitObject: true }, i)));
+      return isSameType(p, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: typeParameters, $isTraitObject: true }, i));
     });
   });
   if ($unwrapTraitObject(__PUCK__value__28).kind == "Some") {
@@ -492,7 +492,7 @@ function isEnumAssignable(to, subject) {
           name = _ref10[0],
           toMember = _ref10[1];
 
-      return isAssignable(toMember, $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subject.members, $isTraitObject: true }, name)));
+      return isAssignable(toMember, _core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subject.members, $isTraitObject: true }, name));
     });
   } else {
     return false;
@@ -508,7 +508,7 @@ function isFunctionAssignable(to, subject) {
         toArg = _ref12[0],
         i = _ref12[1];
 
-    return isAssignable($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: subject.parameters, $isTraitObject: true }, i)).type_, toArg.type_);
+    return isAssignable(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: subject.parameters, $isTraitObject: true }, i).type_, toArg.type_);
   })) {
     return false;
   };
@@ -532,7 +532,7 @@ function isStructAssignable(to, subject) {
               key = _ref14[0],
               toProp = _ref14[1];
 
-          return _core.ObjectMap.has.call(subjectProps, key) && isAssignable(toProp, $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subjectProps, $isTraitObject: true }, key)));
+          return _core.ObjectMap.has.call(subjectProps, key) && isAssignable(toProp, _core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subjectProps, $isTraitObject: true }, key));
         })
       };
     }();
@@ -582,7 +582,7 @@ function isTraitAssignable(to, subject) {
           name = _ref18[0],
           toFunction = _ref18[1];
 
-      return isAssignable(toFunction, $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subject.functions, $isTraitObject: true }, name)));
+      return isAssignable(toFunction, _core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subject.functions, $isTraitObject: true }, name));
     });
   } else {
     return false;
@@ -650,12 +650,12 @@ function findCommonType(types) {
   var index = 0;
 
   var _loop = function _loop() {
-    var type_ = $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: types, $isTraitObject: true }, index));
+    var type_ = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: types, $isTraitObject: true }, index);
     if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: types, $isTraitObject: true }, function (t) {
-      return isAssignable($unwrapTraitObject(type_), t);
+      return isAssignable(type_, t);
     })) {
       return {
-        v: (0, _core.Ok)($unwrapTraitObject(type_))
+        v: (0, _core.Ok)(type_)
       };
     };
     index += 1;

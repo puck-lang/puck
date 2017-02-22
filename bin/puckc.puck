@@ -15,8 +15,8 @@ let outDir = flag(arguments, '--out-dir', 'dist')
 let outFile = flag(arguments, '--out-file')
 let dump = flag(arguments, '--dump')
 let extension = if flag(arguments, '--skip-extension') then '' else '.js'
-let ignoreErrors = flag(arguments, '--ignore-errors')
-let isBinary = flag(arguments, '--is-binary')
+let ignoreErrors = if flag(arguments, '--ignore-errors') != '' then true else false
+let isBinary = if flag(arguments, '--is-binary') != '' then true else false
 
 if arguments.length > 1 and outFile {
   console.error("Can't specify --out-file with more than one input file")

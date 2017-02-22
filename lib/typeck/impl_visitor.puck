@@ -83,6 +83,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
     id
     type_: type_
     trait_: traitType
+    typeParameters: i.typeParameters.map(|p| p.type_).toList()
   })
 
   i.implementation = implementation
@@ -128,6 +129,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
       enumMember: None
       complete: true
     }
+    typeParameters: i.typeParameters.map(|p| p.type_).toList()
   })
 }
 

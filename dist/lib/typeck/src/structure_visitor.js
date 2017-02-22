@@ -165,7 +165,7 @@ function structureVisitor(reportError) {
             if (name == "self") {
               var selfTypeBound = first.typeBound;
               if (_core.Option.isNone.call(selfTypeBound)) {
-                $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: f.parameterList, $isTraitObject: true }, 0)).typeBound = (0, _core.Some)(_ast.TypeBound.NamedTypeBound({
+                _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: f.parameterList, $isTraitObject: true }, 0).typeBound = (0, _core.Some)(_ast.TypeBound.NamedTypeBound({
                   path: _ast.TypePath.Member({
                     name: "Self",
                     span: span

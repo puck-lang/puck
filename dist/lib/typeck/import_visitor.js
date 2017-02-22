@@ -73,7 +73,7 @@ function ImportVisitor(context, file) {
           return !_core.ObjectMap.has.call(declarations, e);
         });
         var __PUCK__value__4 = _core.Iterable[__PUCK__value__5.type].map.call(__PUCK__value__5, function (e) {
-          var property = $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: _module.exports, $isTraitObject: true }, e)).identifier;
+          var property = _core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: _module.exports, $isTraitObject: true }, e).identifier;
           return {
             property: property,
             local: property

@@ -68,7 +68,7 @@ import '../ast/token.puck' as {SyntaxKind}
 import '../ast/visit.puck' as visit
 import 'src/enums.puck' as {checkExhaustive}
 import 'src/functions.puck' as {resolveFunctionTypeParameters}
-import 'src/impls.puck' as {getImplementation, getImplementationForTrait}
+import 'src/impls.puck' as {getImplementation, getImplementationForTrait, resolveImplTypeParameters}
 import 'src/patterns.puck' as {PatternError, declarePatternVariables}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {Binding, Scope}
@@ -458,6 +458,15 @@ export fn ScopeVisitor(context, file) {
                       e.traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
                       e.isDirectTraitCall =  true
                       e.implementation = implementation
+                      if providesType.class.isSome() {
+                        match resolveImplTypeParameters(e.implementation, selfArgument.getType()) {
+                          Ok(resolvedTrait) => {
+                            let mut parameterMap = resolvedTrait.instance.unwrap().parameterMap
+                            functionType = resolveTypeParameters(parameterMap)(functionType)
+                          }
+                          Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
+                        }
+                      }
                     }
                     Ok(Option::None) => {
                       reportError(e,

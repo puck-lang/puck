@@ -32,7 +32,7 @@ var __PUCK__value__2 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"
 });
 var __PUCK__value__1 = _core.Iterable[__PUCK__value__2.type].skip.call(__PUCK__value__2, 1);
 var _arguments = _core.Iterable[__PUCK__value__1.type].toList.call(__PUCK__value__1);
-var command = $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, 0));
+var command = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, 0);
 var puckPattern = (0, _js.RegExp)("\\.puck$", "i");
 function normalizeBinName(file) {
   var dirname = path.dirname(file);
