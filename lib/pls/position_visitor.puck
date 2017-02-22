@@ -622,7 +622,7 @@ export fn walkFunctionTypeBound(mut visitor: PositionVisitor, t: FunctionTypeBou
   else if let Ok(index) = t.typeParameters.binarySearchBy(
     |t| t.span().cmp(visitor.position())
   ) {
-    visitor.visitTypeBound(t.typeParameters[index])
+    visitor.visitTypeParameter(t.typeParameters[index])
   }
 }
 export fn walkNamedTypeBound(mut visitor: PositionVisitor, t: NamedTypeBound) -> () {

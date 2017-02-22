@@ -395,7 +395,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
         if (!_core.ObjectMap.has.call(enumArmsMap, member)) {
           enumArmsMap[$unwrapTraitObject(member)] = [];
         };
-        $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: enumArmsMap, $isTraitObject: true }, member)).push(pattern);
+        _core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: enumArmsMap, $isTraitObject: true }, member).push(pattern);
       };
     };
     return false;
@@ -413,7 +413,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
         member = _ref2[0],
         patterns = _ref2[1];
 
-    var __PUCK__value__75 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getSubPatterns($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: patterns, $isTraitObject: true }, 0))), $isTraitObject: true });
+    var __PUCK__value__75 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getSubPatterns(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: patterns, $isTraitObject: true }, 0)), $isTraitObject: true });
     var __PUCK__value__74 = _core.Iterable[__PUCK__value__75.type].filter.call(__PUCK__value__75, function (_ref3) {
       var _ref4 = _slicedToArray(_ref3, 2),
           pattern = _ref4[0],

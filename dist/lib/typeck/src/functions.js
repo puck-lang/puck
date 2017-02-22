@@ -157,7 +157,7 @@ function checkFunctionAssignability(functionName, to, subject) {
         subjectParameter = _ref4[0],
         i = _ref4[1];
 
-    var toParameter = $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: to.parameters, $isTraitObject: true }, i));
+    var toParameter = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: to.parameters, $isTraitObject: true }, i);
     if (!(0, _types.isAssignable)(toParameter.type_, subjectParameter.type_)) {
       return errors.push("Types of parameter #" + i + " does not match. " + _entities.Type.displayName.call(subjectParameter.type_) + " is not assignable to " + _entities.Type.displayName.call(toParameter.type_));
     } else {

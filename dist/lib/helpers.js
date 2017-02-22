@@ -96,7 +96,7 @@ function flag(_arguments, name) {
 
   var index = _arguments.indexOf(name);
   if (index >= 0) {
-    var value = $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, index + 1));
+    var value = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, index + 1);
     _arguments.splice(index, 2);
     return value;
   } else {

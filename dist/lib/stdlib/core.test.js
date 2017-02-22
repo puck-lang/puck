@@ -682,9 +682,9 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   (0, _test.describe)("List", function () {
     (0, _test.describe)("Index<Num>", function () {
       (0, _test.it)("should return the specified index", function () {
-        (0, _test.expect)($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: [1, 2, 3], $isTraitObject: true }, 0))).toEqual(1);
-        (0, _test.expect)($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: [1, 2, 3], $isTraitObject: true }, 1))).toEqual(2);
-        return (0, _test.expect)($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: [1, 2, 3], $isTraitObject: true }, 2))).toEqual(3);
+        (0, _test.expect)(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: [1, 2, 3], $isTraitObject: true }, 0)).toEqual(1);
+        (0, _test.expect)(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: [1, 2, 3], $isTraitObject: true }, 1)).toEqual(2);
+        return (0, _test.expect)(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: [1, 2, 3], $isTraitObject: true }, 2)).toEqual(3);
       });
       return (0, _test.it)("should panic for out of bounds", function () {
         (0, _test.expect)(function () {

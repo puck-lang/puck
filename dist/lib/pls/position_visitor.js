@@ -305,7 +305,7 @@ function walkModule(visitor, m) {
         _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
         index = _$unwrapTraitObject$v[0];
 
-    PositionVisitor[visitor.type].visitTopLevelStatement.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: m.statements, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitTopLevelStatement.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: m.statements, $isTraitObject: true }, index));
     return true;
   } else {
     return false;
@@ -652,7 +652,7 @@ function walkImplDeclaration(visitor, i) {
         _$unwrapTraitObject67 = _slicedToArray(_$unwrapTraitObject66.value, 1),
         index = _$unwrapTraitObject67[0];
 
-    PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: i.members, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: i.members, $isTraitObject: true }, index));
     return true;
   } else {
     return false;
@@ -667,7 +667,7 @@ function walkImplShorthandDeclaration(visitor, i) {
         _$unwrapTraitObject69 = _slicedToArray(_$unwrapTraitObject68.value, 1),
         index = _$unwrapTraitObject69[0];
 
-    PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: i.members, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: i.members, $isTraitObject: true }, index));
     return true;
   } else {
     return false;
@@ -685,7 +685,7 @@ function walkTraitDeclaration(visitor, t) {
         _$unwrapTraitObject71 = _slicedToArray(_$unwrapTraitObject70.value, 1),
         index = _$unwrapTraitObject71[0];
 
-    PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: t.members, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: t.members, $isTraitObject: true }, index));
     return true;
   } else {
     return false;
@@ -768,7 +768,7 @@ function walkObjectDestructure(visitor, o) {
         _$unwrapTraitObject85 = _slicedToArray(_$unwrapTraitObject84.value, 1),
         index = _$unwrapTraitObject85[0];
 
-    PositionVisitor[visitor.type].visitObjectDestructureMember.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: o.members, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitObjectDestructureMember.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: o.members, $isTraitObject: true }, index));
     return true;
   } else {
     return false;
@@ -792,7 +792,7 @@ function walkBlock(visitor, b) {
         _$unwrapTraitObject87 = _slicedToArray(_$unwrapTraitObject86.value, 1),
         index = _$unwrapTraitObject87[0];
 
-    PositionVisitor[visitor.type].visitBlockLevelStatement.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: b.statements, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitBlockLevelStatement.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: b.statements, $isTraitObject: true }, index));
     return true;
   } else {
     return false;
@@ -878,7 +878,7 @@ function walkCallExpression(visitor, e) {
           _$unwrapTraitObject95 = _slicedToArray(_$unwrapTraitObject94.value, 1),
           index = _$unwrapTraitObject95[0];
 
-      PositionVisitor[visitor.type].visitExpression.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: e.argumentList, $isTraitObject: true }, index)));
+      PositionVisitor[visitor.type].visitExpression.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: e.argumentList, $isTraitObject: true }, index));
     };
   };
 };
@@ -938,7 +938,7 @@ function walkMatchExpression(visitor, e) {
           _$unwrapTraitObject101 = _slicedToArray(_$unwrapTraitObject100.value, 1),
           index = _$unwrapTraitObject101[0];
 
-      PositionVisitor[visitor.type].visitMatchArm.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: e.patterns, $isTraitObject: true }, index)));
+      PositionVisitor[visitor.type].visitMatchArm.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: e.patterns, $isTraitObject: true }, index));
     } else {
       return false;
     };
@@ -1002,7 +1002,7 @@ function walkListLiteral(visitor, l) {
         _$unwrapTraitObject103 = _slicedToArray(_$unwrapTraitObject102.value, 1),
         index = _$unwrapTraitObject103[0];
 
-    PositionVisitor[visitor.type].visitExpression.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: l.members, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitExpression.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: l.members, $isTraitObject: true }, index));
   };
 };
 function walkBooleanLiteral(visitor, l) {};
@@ -1016,7 +1016,7 @@ function walkRecordLiteral(visitor, l) {
         _$unwrapTraitObject105 = _slicedToArray(_$unwrapTraitObject104.value, 1),
         index = _$unwrapTraitObject105[0];
 
-    PositionVisitor[visitor.type].visitRecordLiteralMember.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: l.members, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitRecordLiteralMember.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: l.members, $isTraitObject: true }, index));
   };
 };
 function walkRecordLiteralMember(visitor, l) {
@@ -1033,7 +1033,7 @@ function walkStringLiteral(visitor, l) {
         _$unwrapTraitObject107 = _slicedToArray(_$unwrapTraitObject106.value, 1),
         index = _$unwrapTraitObject107[0];
 
-    PositionVisitor[visitor.type].visitStringLiteralPart.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: l.parts, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitStringLiteralPart.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: l.parts, $isTraitObject: true }, index));
   };
 };
 function walkStringLiteralPart(visitor, l) {
@@ -1061,7 +1061,7 @@ function walkTupleLiteral(visitor, l) {
         _$unwrapTraitObject111 = _slicedToArray(_$unwrapTraitObject110.value, 1),
         index = _$unwrapTraitObject111[0];
 
-    PositionVisitor[visitor.type].visitExpression.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: l.expressions, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitExpression.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: l.expressions, $isTraitObject: true }, index));
   };
 };
 function walkPattern(visitor, p) {
@@ -1139,7 +1139,7 @@ function walkRecordPattern(visitor, p) {
         _$unwrapTraitObject127 = _slicedToArray(_$unwrapTraitObject126.value, 1),
         index = _$unwrapTraitObject127[0];
 
-    PositionVisitor[visitor.type].visitPattern.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: p.properties, $isTraitObject: true }, index)).pattern);
+    PositionVisitor[visitor.type].visitPattern.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: p.properties, $isTraitObject: true }, index).pattern);
   };
 };
 function walkTuplePattern(visitor, p) {
@@ -1151,7 +1151,7 @@ function walkTuplePattern(visitor, p) {
         _$unwrapTraitObject129 = _slicedToArray(_$unwrapTraitObject128.value, 1),
         index = _$unwrapTraitObject129[0];
 
-    PositionVisitor[visitor.type].visitPattern.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: p.properties, $isTraitObject: true }, index)));
+    PositionVisitor[visitor.type].visitPattern.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: p.properties, $isTraitObject: true }, index));
   };
 };
 function walkTypeBound(visitor, t) {
@@ -1207,7 +1207,7 @@ function walkFunctionTypeBound(visitor, t) {
             _$unwrapTraitObject139 = _slicedToArray(_$unwrapTraitObject138.value, 1),
             index = _$unwrapTraitObject139[0];
 
-        PositionVisitor[visitor.type].visitTypeBound.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true }, index)));
+        PositionVisitor[visitor.type].visitTypeParameter.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true }, index));
       };
     };
   };
@@ -1224,7 +1224,7 @@ function walkNamedTypeBound(visitor, t) {
           _$unwrapTraitObject141 = _slicedToArray(_$unwrapTraitObject140.value, 1),
           index = _$unwrapTraitObject141[0];
 
-      PositionVisitor[visitor.type].visitTypeBound.call(visitor, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true }, index)));
+      PositionVisitor[visitor.type].visitTypeBound.call(visitor, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true }, index));
     };
   };
 };

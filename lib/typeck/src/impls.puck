@@ -24,7 +24,7 @@ import '../../entities.puck' as {
   TypeKind
 }
 import 'scope.puck' as {Scope}
-import 'types.puck' as {isAssignable}
+import 'types.puck' as {findCommonType, isAssignable, resolveTypeParameters}
 
 fn asType(a) -> Type {a}
 
@@ -129,4 +129,54 @@ fn getTypeSpecificity(type_: Type) -> Num {
     }
     Option::None => 1
   }
+}
+
+export fn resolveImplTypeParameters(mut implementation: Implementation, objectType: Type) -> Result<Type, (Type, Type)> {
+  let mut parameterMap: ObjectMap<Type> = ObjectMap.new()
+
+  if let Some(instance) = implementation.type_.instance {
+    instance.typeParameters.forEach(|p| {
+      parameterMap.set(p.name.unwrap(), p)
+    })
+
+    let mut iter = List.zip(instance.typeParameters, objectType.typeParameters().unwrap()).iter()
+    while true {
+      if let Some((ip, op)) = iter.next() {
+        if let Err(err) = collectTypeParameters(parameterMap, ip, op)
+          then return Err(err)
+      }
+      else break
+    }
+  }
+
+  Ok(resolveTypeParameters(parameterMap)(implementation.trait_))
+}
+
+fn collectTypeParameters(mut parameterMap: ObjectMap<Type>, ip: Type, op: Type) -> Result<(), (Type, Type)> {
+  match ip.kind {
+    TypeKind::Parameter => {
+      let name = ip.name.unwrap()
+      // TODO: Use findCommonType when it handles generics correctly
+      // match findCommonType([parameterMap[name], op]) {
+      //   Ok(type_) => parameterMap[name] = type_
+      //   Err(_) => return Err((parameterMap[name], op))
+      // }
+      if isAssignable(parameterMap[name], op)
+        then parameterMap[name] = op
+        else return Err((parameterMap[name], op))
+    }
+    _ => {
+      if let Some(instance) = ip.instance {
+        let mut iter = List.zip(instance.typeParameters, op.instance.unwrap().typeParameters).iter()
+        while true {
+          if let Some((ip, op)) = iter.next() {
+            if let Err(err) = collectTypeParameters(parameterMap, ip, op)
+              then return Err(err)
+          }
+          else break
+        }
+      }
+    }
+  }
+  Ok(())
 }

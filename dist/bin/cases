@@ -91,8 +91,8 @@ if ($unwrapTraitObject(__PUCK__value__4).kind == "None") {
         _command = _$unwrapTraitObject3$[0];
 
     if (_command == "file") {
-      var file = $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, 1));
-      var built = $unwrapTraitObject(file).replace((0, _js.RegExp)("\\.puck$"), ".js");
+      var file = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, 1);
+      var built = file.replace((0, _js.RegExp)("\\.puck$"), ".js");
       (0, _test.buildTestCompiler)();
       (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases " + file + "");
       (0, _helpers.cmd)("diff -Nr test/baselines/" + built + " .tmp/cases/" + built + "");

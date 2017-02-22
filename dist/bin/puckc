@@ -28,9 +28,9 @@ var __PUCK__value__2 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"
 });
 var __PUCK__value__1 = _core.Iterable[__PUCK__value__2.type].skip.call(__PUCK__value__2, 1);
 var _arguments = _core.Iterable[__PUCK__value__1.type].toList.call(__PUCK__value__1);
-var outDir = $unwrapTraitObject((0, _helpers.flag)(_arguments, "--out-dir", "dist"));
-var outFile = $unwrapTraitObject((0, _helpers.flag)(_arguments, "--out-file"));
-var dump = $unwrapTraitObject((0, _helpers.flag)(_arguments, "--dump"));
+var outDir = (0, _helpers.flag)(_arguments, "--out-dir", "dist");
+var outFile = (0, _helpers.flag)(_arguments, "--out-file");
+var dump = (0, _helpers.flag)(_arguments, "--dump");
 var __PUCK__value__3 = void 0;
 if ((0, _helpers.flag)(_arguments, "--skip-extension")) {
   __PUCK__value__3 = "";
@@ -38,8 +38,20 @@ if ((0, _helpers.flag)(_arguments, "--skip-extension")) {
   __PUCK__value__3 = ".js";
 };
 var extension = __PUCK__value__3;
-var ignoreErrors = $unwrapTraitObject((0, _helpers.flag)(_arguments, "--ignore-errors"));
-var isBinary = $unwrapTraitObject((0, _helpers.flag)(_arguments, "--is-binary"));
+var __PUCK__value__4 = void 0;
+if ((0, _helpers.flag)(_arguments, "--ignore-errors") != "") {
+  __PUCK__value__4 = true;
+} else {
+  __PUCK__value__4 = false;
+};
+var ignoreErrors = __PUCK__value__4;
+var __PUCK__value__5 = void 0;
+if ((0, _helpers.flag)(_arguments, "--is-binary") != "") {
+  __PUCK__value__5 = true;
+} else {
+  __PUCK__value__5 = false;
+};
+var isBinary = __PUCK__value__5;
 if (_arguments.length > 1 && outFile) {
   $unwrapTraitObject(_js2.console).error("Can't specify --out-file with more than one input file");
   $unwrapTraitObject(_js2.process).exit(1);
@@ -49,14 +61,14 @@ if (_arguments.length == 0) {
   $unwrapTraitObject(_js2.process).exit(1);
 } else {
   var projectPath = (0, _fs.realpathSync)(".");
-  var context = (0, _compiler.createContext)(projectPath, $unwrapTraitObject(ignoreErrors));
-  var __PUCK__value__4 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true }, function (file) {
+  var context = (0, _compiler.createContext)(projectPath, ignoreErrors);
+  var __PUCK__value__6 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true }, function (file) {
     return {
       isBin: isBinary,
       file: file,
       outFile: outFile || (0, _path.join)(outDir, file.replace((0, _js2.RegExp)("\\.puck$"), extension))
     };
   });
-  var files = _core.Iterable[__PUCK__value__4.type].toList.call(__PUCK__value__4);
+  var files = _core.Iterable[__PUCK__value__6.type].toList.call(__PUCK__value__6);
   (0, _compiler.build)(files, context, { dump: dump });
 }

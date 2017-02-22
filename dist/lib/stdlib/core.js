@@ -1065,7 +1065,7 @@ ObjectMap.all = function all(predicate) {
   var i = 0;
   var keys = $unwrapTraitObject(Unknown.transmute.call($unwrapTraitObject(_js._Object).keys(self)));
   while (i < keys.length) {
-    if (!predicate($unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, $unwrapTraitObject(Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: keys, $isTraitObject: true }, i)))))) {
+    if (!predicate($unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: keys, $isTraitObject: true }, i))))) {
       return false;
     };
     i += 1;
@@ -1077,7 +1077,7 @@ ObjectMap.any = function any(predicate) {
   var i = 0;
   var keys = $unwrapTraitObject(Unknown.transmute.call($unwrapTraitObject(_js._Object).keys(self)));
   while (i < keys.length) {
-    if (predicate($unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, $unwrapTraitObject(Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: keys, $isTraitObject: true }, i)))))) {
+    if (predicate($unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: keys, $isTraitObject: true }, i))))) {
       return true;
     };
     i += 1;

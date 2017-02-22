@@ -1,0 +1,2 @@
+///// String is not assignable to type Num
+[1, 2, 3]['string']
