@@ -88,7 +88,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
           else ObjectMap.new()
 
       let properties: Result<(), PatternError> = record.properties
-        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)))
+        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props->[p.property.name].transmute(), allowNotExhaustive)))
         .reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
           acc.andThen(|_| type_)
         }, Ok(()))
@@ -117,7 +117,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
 
       let properties: Result<(), PatternError> = record.properties
         .toList()
-        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)))
+        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props->[p.property.name].transmute(), allowNotExhaustive)))
         .reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
           acc.andThen(|_| type_)
         }, Ok(()))
@@ -139,7 +139,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
 
       let properties: Result<(), PatternError> = tuple.properties
         .enumerate()
-        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
+        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive))
         .toList()
         .reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
           acc.andThen(|_| cur)
@@ -169,7 +169,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
 
       let properties: Result<(), PatternError> = tuple.properties
         .enumerate()
-        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive))
+        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive))
         .toList()
         .reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
           acc.andThen(|_| cur)

@@ -63,7 +63,7 @@ import '../ast/ast.puck' as {
   TupleTypeBound
   TypeParameter
 }
-import '../ast/span.puck' as {ToSpan}
+import '../ast/span.puck' as {Span, ToSpan}
 import '../ast/token.puck' as {SyntaxKind}
 import '../ast/visit.puck' as visit
 import 'src/enums.puck' as {checkExhaustive}
@@ -106,9 +106,9 @@ fn getBinding(e: Expression) -> Option<Binding> {
   }
 }
 
-fn getCoreType(scope: Scope, id: String, description: String) -> Result<Type, String> {
+fn getCoreType(scope: Scope, id: String, description: String) -> Result<(Type, Binding), String> {
   if let Some(binding) = scope.getBindingByTypeId(id)
-    then Ok(binding.type_.providesType.unwrap())
+    then Ok((binding.type_.providesType.unwrap(), binding))
     else Err('puck:core::$id is not in scope. Please import $id from puck:core to use $description.')
 }
 
@@ -368,7 +368,13 @@ export fn ScopeVisitor(context, file) {
 
     visitAssignmentExpression: |self, mut e: AssignmentExpression| {
       e.scope = self.scope
-      visit.walkAssignmentExpression(self, e)
+      if let Expression::IndexAccess(a) = e.lhs {
+        visit.walkIndexAccess(self, a)
+        visit.walkExpression(self, e.rhs)
+      }
+      else {
+        visit.walkAssignmentExpression(self, e)
+      }
       if let Option::Some(binding) = getBinding(e.lhs) {
         if not binding.mutable
           then reportError(e, "Can't assign to immutable variable " + binding.name)
@@ -405,21 +411,17 @@ export fn ScopeVisitor(context, file) {
               TypeKind::Enum(enum_) => {
                 functionType = enum_.implementations
                   .find(|{trait_}| trait_.getTrait().isShorthand)
-                  .map(|{trait_}| {
-                    trait_.getTrait().functions[name]
-                  })
+                  .andThen(|{trait_}| trait_.getTrait().functions.get(name))
                   .unwrapOr(undefined)
               }
               TypeKind::Struct(struct) => {
                 functionType = struct.implementations
                   .find(|{trait_}| trait_.getTrait().isShorthand)
-                  .map(|{trait_}| {
-                    trait_.getTrait().functions[name]
-                  })
+                  .andThen(|{trait_}| trait_.getTrait().functions.get(name))
                   .unwrapOr(undefined)
               }
               TypeKind::Trait(trait_) => {
-                functionType = trait_.functions[name]
+                functionType = trait_.functions.get(name).unwrapOr(undefined)
               }
               _ => {}
             }
@@ -465,8 +467,6 @@ export fn ScopeVisitor(context, file) {
                     Err => reportError(e, 'Ambiguous trait call')
                   }
                 }
-                //
-                // reportError(e, providesType.displayName() + '::$name takes a self parameter and can\'t be called directly')
               }
               else {
                 e.traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
@@ -478,9 +478,8 @@ export fn ScopeVisitor(context, file) {
           // It is a normal trait call, for example 'hello'.toUpperCase()
           else {
             if let TypeKind::Trait(trait_) = objectType.kind {
-              functionType = trait_.functions[name]
-
-              if functionType {
+              if let Some(func) = trait_.functions.get(name) {
+                functionType = func
                 let function = functionType.getFunction()
 
                 if function.selfBinding.isSome() {
@@ -751,15 +750,33 @@ export fn ScopeVisitor(context, file) {
     }
 
     visitIndexAccess: |self, mut a: IndexAccess| {
-      a.scope = self.scope
-      visit.walkIndexAccess(self, a)
+      match getCoreType(self.scope, 'Index', 'index access') {
+        Ok((_, binding)) => {
+          let mut call = CallExpression({
+            func: Expression::MemberAccess({
+              object: Expression::Identifier({name: binding.name, span: a.object.span()})
+              member: {name: 'index', span: {start: a.openBracket.start, end: a.closeBracket.end}}
+            })
+            openParen: a.openBracket
+            argumentList: [a.object, a.index]
+            closeParen: a.closeBracket
+          })
+          self.visitCallExpression(call)
+          a.call = call
+          a.type_ = call.type_
+          ()
+        }
+        Err(err) => reportError(a, err)
+      }
     }
     visitMemberAccess: |self, mut a: MemberAccess| {
       a.scope = self.scope
       visit.walkExpression(self, a.object)
       if a.object.getType() {
         if let TypeKind::Struct({kind: StructKind::Record(record)}) = a.object.getType().kind {
-          a.type_ = record.properties[a.member.name]
+          if let Some(type_) = record.properties.get(a.member.name) {
+            a.type_ = type_
+          }
         } else {
           // TODO: Enable this check when possible
           // reportError(a, 'can not read a property on an enum type')
@@ -769,7 +786,7 @@ export fn ScopeVisitor(context, file) {
     visitUnknownAccess: |self, mut a: UnknownAccess| {
       visit.walkExpression(self, a.object)
       match getCoreType(self.scope, 'Unknown', 'unknown access') {
-        Ok(type_) => a.type_ = type_
+        Ok((type_, _)) => a.type_ = type_
         Err(err) => reportError(a, err)
       }
       ()
@@ -777,7 +794,7 @@ export fn ScopeVisitor(context, file) {
     visitUnknownIndexAccess: |self, mut a: UnknownIndexAccess| {
       visit.walkUnknownIndexAccess(self, a)
       match getCoreType(self.scope, 'Unknown', 'unknown access') {
-        Ok(type_) => a.type_ = type_
+        Ok((type_, _)) => a.type_ = type_
         Err(err) => reportError(a, err)
       }
       ()

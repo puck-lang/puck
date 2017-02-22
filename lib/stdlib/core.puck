@@ -262,16 +262,16 @@ impl<T, E> Result<T, E> {
 
   fn unwrap(self) -> T {
     if self.isErr()
-      then throw Error(self.value[0])
+      then throw Error(self->value->[0].transmute())
 
-    self.value[0]
+    self->value->[0].transmute()
   }
 
   fn unwrapErr(self) -> E {
     if self.isOk()
-      then throw Error(self.value[0])
+      then throw Error(self.value->[0].transmute())
 
-    self.value[0]
+    self->value->[0].transmute()
   }
 }
 
@@ -345,7 +345,7 @@ impl<T> Option<T> {
     if self.isNone()
       then throw Error('Can not unwrap empty Option')
 
-    self.value[0]
+    self->value->[0].transmute()
   }
 
   fn unwrapOr(self, default: T) -> T {
@@ -391,7 +391,7 @@ impl Ordering {
 #[type_id = 'List']
 export type List<E> {}
 impl<E> List<E> {
-  fn zip<A, B>(a: Iterable<A>, b: Iterable<B>) -> List<(A, B)> {
+  fn zip<A, B>(a: Iterable<A>, b: List<B>) -> List<(A, B)> {
     if a.size() != b.size()
       then throw Error('Iterable a and b are not of the same length')
 
@@ -873,7 +873,7 @@ impl<T> ObjectMap<T> {
 
   fn fromIter<T>(list: Iterable<(String, T)>) -> ObjectMap<T> {
     let mut object = Object.create(null)
-    list.forEach(|item| object[item[0]] = item[1])
+    list.forEach(|(key, item)| object->[key] = item)
     object
   }
 
@@ -894,16 +894,16 @@ impl<T> ObjectMap<T> {
   }
 
   fn values(self) -> List<T> {
-    Object.keys(self).map(|key| self[key])
+    Object.keys(self).map(|key| self->[key].transmute())
   }
 
   fn toList(self) -> List<(String, T)> {
-    Object.keys(self).map(|key| (key, self[key]))
+    Object.keys(self).map(|key| (key, self->[key].transmute()))
   }
 
   fn all(self, predicate: (T) -> Bool) -> Bool {
     let mut i = 0
-    let keys = Object.keys(self)
+    let keys: List<String> = Object->keys(self).transmute()
     while i < keys.length {
       if not predicate(self[keys[i]]) then return false
       i += 1
@@ -913,7 +913,7 @@ impl<T> ObjectMap<T> {
 
   fn any(self, predicate: (T) -> Bool) -> Bool {
     let mut i = 0
-    let keys = Object.keys(self)
+    let keys: List<String> = Object->keys(self).transmute()
     while i < keys.length {
       if predicate(self[keys[i]]) then return true
       i += 1
@@ -923,25 +923,27 @@ impl<T> ObjectMap<T> {
 
   fn map<U>(self, mapper: (T) -> U) -> ObjectMap<U> {
     let mut new = ObjectMap.new()
-    Object.keys(self).forEach(|key| {
+    let keys: List<String> = Object->keys(self).transmute()
+    keys.forEach(|key| {
       new[key] = mapper(self[key])
     })
     new
   }
 
   fn find(self, predicate: ((String, T)) -> Bool) -> Option<(String, T)> {
-    let key = Object.keys(self).find(|key| predicate((key, self[key])))
+    let keys: List<String> = Object->keys(self).transmute()
+    let key = keys.find(|key| predicate((key, self[key])))
 
-    if key
+    if let Some(key) = key
       then Some((key, self[key]))
       else None
   }
 
   fn forEach(self, func: ((String, T)) -> ()) -> () {
-    Object.keys(self).forEach(|key| {
+    let keys: List<String> = Object->keys(self).transmute()
+    keys.forEach(|key| {
       func((key, self[key]))
-    });
-    (())
+    })
   }
 
   fn delete(mut self, key: String) -> () {
@@ -1025,7 +1027,7 @@ impl Unknown {
   fn getProp(self, property: String) -> Option<Unknown> {
     if not (self.isNull() or self.isUndefined()) {
       if Object.prototype.hasOwnProperty.call(self, property)
-        then Some(self[property])
+        then Some(self->[property])
         else None
     }
     else None
@@ -1033,5 +1035,31 @@ impl Unknown {
 
   fn transmute<T>(self) -> T {
     self
+  }
+}
+
+/// The Index trait is used to specify the functionality
+/// of indexing operations like list[idx].
+#[type_id = 'Index']
+export trait Index<Idx, Out> {
+  fn index(self, index: Idx) -> Out
+}
+
+impl<E> Index<Num, E> for List<E> {
+  fn index(self, index: Num) -> E {
+    if index < 0 then panic('index out of bounds: index must be positive but is $index')
+    if index >= self.size() {
+      panic('index out of bounds: the length is ' + self.size() + ' but the index is $index')
+    }
+
+    self->[index].transmute()
+  }
+}
+
+impl<T> Index<String, T> for ObjectMap<T> {
+  fn index(self, key: String) -> T {
+    if not self.has(key) then panic('The key $key is missing')
+
+    self->[key].transmute()
   }
 }

@@ -214,7 +214,7 @@ function createTypeInstance(type_, typeParameters_) {
   var __PUCK__value__28 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].find.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.instances, $isTraitObject: true }, function (a) {
     var i = _core.Option.unwrap.call(a.instance);
     return i.typeParameters.length == typeParameters.length && i.typeParameters.every(function (p, i) {
-      return isSameType(p, typeParameters[$unwrapTraitObject(i)]);
+      return isSameType(p, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: typeParameters, $isTraitObject: true }, i)));
     });
   });
   if ($unwrapTraitObject(__PUCK__value__28).kind == "Some") {
@@ -224,7 +224,7 @@ function createTypeInstance(type_, typeParameters_) {
 
     return cachedInstance;
   };
-  var parameterMap = _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: typeParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref) {
+  var parameterMap = _core.ObjectMap.fromIter(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: typeParameters, $isTraitObject: true }, _class.typeParameters), $isTraitObject: true }, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
         typeArgument = _ref2[0],
         typeParameter = _ref2[1];
@@ -305,7 +305,7 @@ function checkTypeParameters(to, subject) {
         subjectParameters = _$unwrapTraitObject21[0];
 
     if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toParameters, $isTraitObject: true }) == _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectParameters, $isTraitObject: true })) {
-      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref7) {
+      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toParameters, $isTraitObject: true }, subjectParameters), $isTraitObject: true }, function (_ref7) {
         var _ref8 = _slicedToArray(_ref7, 2),
             toParameter = _ref8[0],
             subjectParameter = _ref8[1];
@@ -492,7 +492,7 @@ function isEnumAssignable(to, subject) {
           name = _ref10[0],
           toMember = _ref10[1];
 
-      return isAssignable(toMember, subject.members[name]);
+      return isAssignable(toMember, $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subject.members, $isTraitObject: true }, name)));
     });
   } else {
     return false;
@@ -508,7 +508,7 @@ function isFunctionAssignable(to, subject) {
         toArg = _ref12[0],
         i = _ref12[1];
 
-    return isAssignable($unwrapTraitObject(subject.parameters[i]).type_, toArg.type_);
+    return isAssignable($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: subject.parameters, $isTraitObject: true }, i)).type_, toArg.type_);
   })) {
     return false;
   };
@@ -532,7 +532,7 @@ function isStructAssignable(to, subject) {
               key = _ref14[0],
               toProp = _ref14[1];
 
-          return _core.ObjectMap.has.call(subjectProps, key) && isAssignable(toProp, subjectProps[key]);
+          return _core.ObjectMap.has.call(subjectProps, key) && isAssignable(toProp, $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subjectProps, $isTraitObject: true }, key)));
         })
       };
     }();
@@ -551,7 +551,7 @@ function isStructAssignable(to, subject) {
       if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toProps, $isTraitObject: true }) != _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectProps, $isTraitObject: true })) {
         return false;
       };
-      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toProps, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectProps, $isTraitObject: true }), $isTraitObject: true }, function (_ref15) {
+      return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: toProps, $isTraitObject: true }, subjectProps), $isTraitObject: true }, function (_ref15) {
         var _ref16 = _slicedToArray(_ref15, 2),
             toProp = _ref16[0],
             subjectProp = _ref16[1];
@@ -582,7 +582,7 @@ function isTraitAssignable(to, subject) {
           name = _ref18[0],
           toFunction = _ref18[1];
 
-      return isAssignable(toFunction, subject.functions[name]);
+      return isAssignable(toFunction, $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: subject.functions, $isTraitObject: true }, name)));
     });
   } else {
     return false;
@@ -613,7 +613,7 @@ function isSameType(a, b) {
           bParameters = _$unwrapTraitObject61[0];
 
       if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: aParameters, $isTraitObject: true }) == _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: bParameters, $isTraitObject: true })) {
-        return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: aParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: bParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref19) {
+        return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: aParameters, $isTraitObject: true }, bParameters), $isTraitObject: true }, function (_ref19) {
           var _ref20 = _slicedToArray(_ref19, 2),
               aParameter = _ref20[0],
               bParameter = _ref20[1];
@@ -650,12 +650,12 @@ function findCommonType(types) {
   var index = 0;
 
   var _loop = function _loop() {
-    var type_ = types[index];
+    var type_ = $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: types, $isTraitObject: true }, index));
     if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: types, $isTraitObject: true }, function (t) {
-      return isAssignable(type_, t);
+      return isAssignable($unwrapTraitObject(type_), t);
     })) {
       return {
-        v: (0, _core.Ok)(type_)
+        v: (0, _core.Ok)($unwrapTraitObject(type_))
       };
     };
     index += 1;

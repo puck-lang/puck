@@ -633,6 +633,20 @@ describe('core', || {
   })
 
   describe('List', || {
+    describe('Index<Num>', || {
+      it('should return the specified index', || {
+        expect([1, 2, 3][0]).toEqual(1)
+        expect([1, 2, 3][1]).toEqual(2)
+        expect([1, 2, 3][2]).toEqual(3)
+      })
+
+      it('should panic for out of bounds', || {
+        expect(|| [][0]).toThrow()
+        expect(|| [1, 2, 3][3]).toThrow()
+        expect(|| [1, 2, 3][-1]).toThrow()
+      })
+    })
+
     describe('IntoIterator', || {
       it('should return an iterator that iterates over the elements', || {
         let mut iterator = [1, 2, 3].iter()

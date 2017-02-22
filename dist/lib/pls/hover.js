@@ -217,9 +217,9 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
             index = _$unwrapTraitObject3$[0];
 
         self.value.patternType = _core.Option.andThen.call(self.value.patternType, function (t) {
-          return getPropertyType(t, $unwrapTraitObject($unwrapTraitObject(p.properties[index]).property).name);
+          return getPropertyType(t, $unwrapTraitObject($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: p.properties, $isTraitObject: true }, index)).property).name);
         });
-        _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].visitPattern.call(self, $unwrapTraitObject(p.properties[index]).pattern);
+        _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].visitPattern.call(self, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: p.properties, $isTraitObject: true }, index)).pattern);
       })();
     };
   },
@@ -258,7 +258,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
         self.value.patternType = _core.Option.andThen.call(self.value.patternType, function (t) {
           return getTupleType(t, index);
         });
-        _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].visitPattern.call(self, p.properties[index]);
+        _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].visitPattern.call(self, $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: p.properties, $isTraitObject: true }, index)));
       })();
     };
   },

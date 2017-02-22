@@ -962,6 +962,9 @@ export function Emitter() {
   }
 
   function emitIndexAccess(e: IndexAccess) {
+    if (e.call) {
+      return emitCallExpression(e.call)
+    }
     return `${unwrap(emitExpression(e.object), e.object)}[${unwrap(emitExpression(e.index, Context.Value), e.index)}]`
   }
 

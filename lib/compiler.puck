@@ -48,9 +48,9 @@ fn dumpFiles(files: List<File>, prop: String) {
   files.forEach(|file| {
     print('')
     print(file.absolutePath)
-    let mut data = file[prop]
-    if typeof(data) != 'string' {
-      data = inspect(data, {colors: false, depth: 25})
+    let data = match file->[prop].asString() {
+      Some(data) => data
+      None => inspect(file->[prop], {colors: false, depth: 25})
     }
     print(data.split('\n').map(|line| '  $line').join('\n'))
   })
@@ -64,7 +64,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
     deferred: ObjectMap.new()
     runTypeVisitor: fn (self) {
       Object.keys(self.files)
-        .map(|path| self.files[path])
+        .map(|path| self.files->[path])
         .forEach(|mut file| {
           if not file.typeVisitorStarted and file.ast {
             file.typeVisitorStarted = true
@@ -75,7 +75,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
     }
     runImplVisitor: fn (mut self) {
       Object.keys(self.files)
-        .map(|path| self.files[path])
+        .map(|path| self.files->[path])
         .forEach(|mut file| {
           if not file.implVisitorStarted and file.ast {
             file.implVisitorStarted = true
@@ -85,7 +85,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
     }
     runChecker: fn (self) {
       Object.keys(self.files)
-        .map(|path| self.files[path])
+        .map(|path| self.files->[path])
         .forEach(|mut file| {
           if not file.scopeVisitorStarted and file.ast {
             file.scopeVisitorStarted = true
@@ -123,10 +123,10 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
       }
     }
     defer: fn (mut self, file, func) {
-      if not self.deferred[file.absolutePath] {
-        self.deferred[file.absolutePath] = []
+      if not self.deferred->[file.absolutePath] {
+        self.deferred->[file.absolutePath] = []
       }
-      self.deferred[file.absolutePath].push(func)
+      self.deferred->[file.absolutePath].push(func)
     }
     resolvePath: fn (file, relativeTo) {
       let filePath =
@@ -138,26 +138,26 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
 
       {absolutePath, fileName, inspect: fileInspect}
     }
-    importFile: fn (mut self, mut file: UnparsedFile) {
-      if self.files[file.absolutePath] and file.outDir and file.outFile {
-        self.files[file.absolutePath].outDir = file.outDir
-        self.files[file.absolutePath].outFile = file.outFile
+    importFile: fn (mut self, mut file: UnparsedFile) -> File {
+      if self.files->[file.absolutePath] and file.outDir and file.outFile {
+        self.files->[file.absolutePath].outDir = file.outDir
+        self.files->[file.absolutePath].outFile = file.outFile
       }
 
-      if not self.files[file.absolutePath] {
-        self.files[file.absolutePath] = file
+      if not self.files->[file.absolutePath] {
+        self.files->[file.absolutePath] = file
 
         if not file.puck
           then file.puck = fs.readFileSync(file.absolutePath, {encoding: 'utf-8'})
         file.ast = parseString(self, file)
 
-        if self.deferred[file.absolutePath] {
-          let callbacks = self.deferred[file.absolutePath]
-          self.deferred[file.absolutePath] = undefined
+        if self.deferred->[file.absolutePath] {
+          let callbacks = self.deferred->[file.absolutePath]
+          self.deferred->[file.absolutePath] = undefined
           callbacks.forEach(|callback| callback())
         }
       }
-      self.files[file.absolutePath]
+      self.files->[file.absolutePath].transmute()
     }
     reportError: fn (self, file: File, token: ToSpan, message: String) {
       if not ignoreErrors {

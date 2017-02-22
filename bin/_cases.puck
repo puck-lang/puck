@@ -4,69 +4,73 @@ import '../lib/helpers.puck' as {cmd, walkSync}
 import '../lib/test.puck' as {buildTestCompiler}
 
 let argv: List<String> = process.argv
-let arguments = argv.skipUntil(|arg| arg.contains('cases')).skip(1)
-let command = arguments[0]
+let arguments = argv.skipUntil(|arg| arg.contains('cases')).skip(1).toList()
+let command = arguments.get(0)
 
-if command == undefined {
-  buildTestCompiler()
+match command {
+  Option::None => {
+    buildTestCompiler()
 
-  let failPattern = RegExp('\\.error\\.puck$', 'i')
-  let caseFiles = walkSync('test/cases')
-  let failCases = caseFiles.filter(|f| failPattern.test(f))
+    let failPattern = RegExp('\\.error\\.puck$', 'i')
+    let caseFiles = walkSync('test/cases')
+    let failCases = caseFiles.filter(|f| failPattern.test(f))
 
-  cmd('.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck')
-  let buildString = require('puck-lang/.tmp/old/lib/compiler').buildString
-  let projectPath = fs.realpathSync('.')
-  failCases.forEach(|file| {
-    fs.readFileSync(file, {encoding: 'utf-8'})
-      .split('/////')
-      .forEach(|test, i| {
-        let firstNewline = test.indexOf('\n')
-        let error = test.substr(0, firstNewline)
-        let code = test.substr(firstNewline)
+    cmd('.tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck')
+    let buildString = require('puck-lang/.tmp/old/lib/compiler').buildString
+    let projectPath = fs.realpathSync('.')
+    failCases.forEach(|file| {
+      fs.readFileSync(file, {encoding: 'utf-8'})
+        .split('/////')
+        .forEach(|test, i| {
+          let firstNewline = test.indexOf('\n')
+          let error = test.substr(0, firstNewline)
+          let code = test.substr(firstNewline)
 
-        if not error and not code then return false
-        if not error or not code or error.substr(0, 1) != ' ' {
-          print('Test $file::$i is invalid, missing error or code')
-          process.exit(1)
-        }
-
-        let result: Result<{}, {message: String}> = buildString(code, file, projectPath)
-
-        match result {
-          Result::Ok(_) => {
-            print('error case did not error for $file::$i\nexpected error:$error')
+          if not error and not code then return false
+          if not error or not code or error.substr(0, 1) != ' ' {
+            print('Test $file::$i is invalid, missing error or code')
             process.exit(1)
           }
-          Result::Err({message}) => {
-            if not message.contains(error.trim()) {
-              print('expected error for $file::$i to include $error\n  but got\n$message')
+
+          let result: Result<{}, {message: String}> = buildString(code, file, projectPath)
+
+          match result {
+            Result::Ok(_) => {
+              print('error case did not error for $file::$i\nexpected error:$error')
               process.exit(1)
             }
+            Result::Err({message}) => {
+              if not message.contains(error.trim()) {
+                print('expected error for $file::$i to include $error\n  but got\n$message')
+                process.exit(1)
+              }
+            }
           }
-        }
-      })
-  })
+        })
+    })
 
-  cmd('diff -Nr test/baselines .tmp/cases')
-  print('done')
-}
-else if command == 'file' {
-  let file = arguments[1]
-  let built = file.replace(RegExp('\\.puck$'), '.js')
-  buildTestCompiler()
+    cmd('diff -Nr test/baselines .tmp/cases')
+    print('done')
+  }
+  Some(command) => {
+    if command == 'file' {
+      let file = arguments[1]
+      let built = file.replace(RegExp('\\.puck$'), '.js')
+      buildTestCompiler()
 
-  cmd('.tmp/old/bin/puckc --out-dir .tmp/cases $file')
+      cmd('.tmp/old/bin/puckc --out-dir .tmp/cases $file')
 
-  cmd('diff -Nr test/baselines/$built .tmp/cases/$built')
-  print('done')
-}
-else if command == 'update-baselines' {
-  buildTestCompiler()
-  cmd('.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck')
-  print('done')
-}
-else {
-  console.error('Unknown command', command)
-  process.exit(1)
+      cmd('diff -Nr test/baselines/$built .tmp/cases/$built')
+      print('done')
+    }
+    else if command == 'update-baselines' {
+      buildTestCompiler()
+      cmd('.tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck')
+      print('done')
+    }
+    else {
+      console.error('Unknown command', command)
+      process.exit(1)
+    }
+  }
 }

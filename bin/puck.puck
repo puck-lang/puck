@@ -6,7 +6,7 @@ import '../lib/compiler.puck' as {build, createContext}
 import '../lib/helpers.puck' as {walkSync}
 
 let argv: List<String> = process.argv
-let arguments = argv.skipUntil(|arg| arg.contains('puck')).skip(1)
+let arguments = argv.skipUntil(|arg| arg.contains('puck')).skip(1).toList()
 let command = arguments[0]
 
 let puckPattern = RegExp('\\.puck$', 'i')
@@ -18,8 +18,6 @@ fn normalizeBinName(file) {
 }
 
 if command == 'build' {
-  let outDir = arguments[1]
-
   let binFiles = walkSync('bin')
     .filter(|f| puckPattern.test(f))
     .map(|file| {{

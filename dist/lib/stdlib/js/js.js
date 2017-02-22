@@ -47,3 +47,7 @@ function wrapAsResult(fn) {
     };
 }
 exports.wrapAsResult = wrapAsResult;
+function hasProperty(object, property) {
+    return property in object;
+}
+exports.hasProperty = hasProperty;

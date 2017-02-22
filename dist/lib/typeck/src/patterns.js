@@ -238,7 +238,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
           };
           var props = __PUCK__value__23;
           var properties = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true }, function (p) {
-            return [p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)];
+            return [p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, $unwrapTraitObject(_core.Unknown.transmute.call(props[p.property.name])), allowNotExhaustive)];
           }).value.reduce(function (acc, _ref3) {
             var _ref4 = _slicedToArray(_ref3, 2),
                 name = _ref4[0],
@@ -344,7 +344,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
               };
             };
             var properties = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true }), $isTraitObject: true }, function (p) {
-              return [p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props[p.property.name], allowNotExhaustive)];
+              return [p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, $unwrapTraitObject(_core.Unknown.transmute.call(props[p.property.name])), allowNotExhaustive)];
             }).value.reduce(function (acc, _ref5) {
               var _ref6 = _slicedToArray(_ref5, 2),
                   name = _ref6[0],
@@ -429,7 +429,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                     p = _ref8[0],
                     i = _ref8[1];
 
-                return declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive);
+                return declarePatternVariables(scope, visitor, p, mutable, $unwrapTraitObject(_core.Unknown.transmute.call(props[i])), allowNotExhaustive);
               });
               var properties = _core.Iterable[__PUCK__value__76.type].toList.call(__PUCK__value__76).reduce(function (acc, cur) {
                 return _core.Result.andThen.call(acc, function (__PUCK__value__78) {
@@ -537,7 +537,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
                       p = _ref10[0],
                       i = _ref10[1];
 
-                  return declarePatternVariables(scope, visitor, p, mutable, props[i], allowNotExhaustive);
+                  return declarePatternVariables(scope, visitor, p, mutable, $unwrapTraitObject(_core.Unknown.transmute.call(props[i])), allowNotExhaustive);
                 });
                 var properties = _core.Iterable[__PUCK__value__99.type].toList.call(__PUCK__value__99).reduce(function (acc, cur) {
                   return _core.Result.andThen.call(acc, function (__PUCK__value__101) {

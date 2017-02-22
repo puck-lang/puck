@@ -58,7 +58,7 @@ function ImportVisitor(context, file) {
           o = _$unwrapTraitObject$v[0];
 
       _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true }, function (m) {
-        if (!_module.exports[m.property.name]) {
+        if (!_core.ObjectMap.has.call(_module.exports, m.property.name)) {
           return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: m, $isTraitObject: true }, importedFile.fileName + " has no export named " + m.property.name);
         };
       });
@@ -73,7 +73,7 @@ function ImportVisitor(context, file) {
           return !_core.ObjectMap.has.call(declarations, e);
         });
         var __PUCK__value__4 = _core.Iterable[__PUCK__value__5.type].map.call(__PUCK__value__5, function (e) {
-          var property = $unwrapTraitObject(_module.exports[e]).identifier;
+          var property = $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: _module.exports, $isTraitObject: true }, e)).identifier;
           return {
             property: property,
             local: property
@@ -114,40 +114,50 @@ function ImportVisitor(context, file) {
     },
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
-      if (_core.Option.isNone.call(i.domain)) {
-        var result = (0, _js.asResult)(function () {
-          return $unwrapTraitObject(context).resolvePath(i.path, file);
-        });
-        var __PUCK__value__9 = result;
-        var __PUCK__value__10 = __PUCK__value__9;
-        if ($unwrapTraitObject(__PUCK__value__10).kind == "Ok") {
-          var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__10),
-              _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
-              importedFile = _$unwrapTraitObject5$[0];
+      var __PUCK__value__9 = i.domain;
+      var __PUCK__value__10 = __PUCK__value__9;
+      if ($unwrapTraitObject(__PUCK__value__10).kind == "Some") {
+        var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__10),
+            _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+            domain = _$unwrapTraitObject5$[0];
 
-          if ($unwrapTraitObject(puckFile).test(importedFile.absolutePath)) {
-            importModule(i, importedFile);
-          };
-        } else {
-          var __PUCK__value__11 = __PUCK__value__9;
-          if ($unwrapTraitObject(__PUCK__value__11).kind == "Err") {
-            var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__11),
-                _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
-                error = _$unwrapTraitObject6$[0];
-
-            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true }, "Imported file " + i.path + " not found");
-          };
-        };
-      } else {
-        if ($unwrapTraitObject(i.domain.value)[0] == "puck") {
+        if (domain == "puck") {
           if (puckModules.indexOf(i.path) == -1) {
             return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true }, "Invalid puck module " + i.path);
           };
-          var _importedFile = $unwrapTraitObject(context).resolvePath(path.join(path.dirname($unwrapTraitObject(_js.require).resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
-          importModule(i, _importedFile);
+          var importedFile = $unwrapTraitObject(context).resolvePath(path.join(path.dirname($unwrapTraitObject(_js.require).resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
+          importModule(i, importedFile);
         } else {
-          if (domains.indexOf($unwrapTraitObject(i.domain.value)[0]) == -1) {
-            reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true }, "Invalid import domain " + $unwrapTraitObject(i.domain.value)[0]);
+          if (domains.indexOf(domain) == -1) {
+            reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true }, "Invalid import domain " + domain + "");
+          };
+        };
+      } else {
+        var __PUCK__value__11 = __PUCK__value__9;
+        if (true) {
+          var _None = __PUCK__value__11;
+          var result = (0, _js.asResult)(function () {
+            return $unwrapTraitObject(context).resolvePath(i.path, file);
+          });
+          var __PUCK__value__12 = result;
+          var __PUCK__value__13 = __PUCK__value__12;
+          if ($unwrapTraitObject(__PUCK__value__13).kind == "Ok") {
+            var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__13),
+                _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+                _importedFile = _$unwrapTraitObject6$[0];
+
+            if ($unwrapTraitObject(puckFile).test(_importedFile.absolutePath)) {
+              importModule(i, _importedFile);
+            };
+          } else {
+            var __PUCK__value__14 = __PUCK__value__12;
+            if ($unwrapTraitObject(__PUCK__value__14).kind == "Err") {
+              var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__14),
+                  _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+                  error = _$unwrapTraitObject7$[0];
+
+              return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true }, "Imported file " + i.path + " not found");
+            };
           };
         };
       };

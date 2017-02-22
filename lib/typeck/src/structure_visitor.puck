@@ -60,8 +60,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       f.typeParameters.forEach(|p| self.visitTypeParameter(p))
       f.parameterList.enumerate().forEach(|(p, i)| {
         let type_: Type =
-          if assignedTo and assignedTo.parameters[i]
-            then assignedTo.parameters[i].type_
+          if assignedTo and assignedTo.parameters->[i]
+            then assignedTo.parameters->[i].type_
             else undefined
         self.visitVariableDeclaration(p, undefined, type_)
       })

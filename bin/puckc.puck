@@ -9,7 +9,7 @@ let mut E = Error
 E.stackTraceLimit = 100;
 
 let argv: List<String> = process.argv
-let arguments = argv.skipUntil(|arg| arg.contains('puckc')).skip(1)
+let arguments = argv.skipUntil(|arg| arg.contains('puckc')).skip(1).toList()
 
 let outDir = flag(arguments, '--out-dir', 'dist')
 let outFile = flag(arguments, '--out-file')
