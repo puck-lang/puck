@@ -28,7 +28,7 @@ export fn ImportVisitor(context, file: UnparsedFile) {
     match i.specifier {
       ImportSpecifier::ObjectDestructure(o) => {
         o.members.forEach(|m| {
-          if not (module.exports[m.property.name])
+          if not module.exports.has(m.property.name)
             then reportError(m, importedFile.fileName + ' has no export named ' + m.property.name)
         })
       }
@@ -68,31 +68,35 @@ export fn ImportVisitor(context, file: UnparsedFile) {
     }
 
     visitImportDirective: |self, mut i: ImportDirective| {
-      if i.domain.isNone() {
-        let result: Result<UnparsedFile, {}> = asResult(|| context.resolvePath(i.path, file))
-        match result {
-          Result::Ok(importedFile) => {
-          if puckFile.test(importedFile.absolutePath)
-            then importModule(i, importedFile)
+      match i.domain {
+        Some(domain) => {
+          if domain == 'puck' {
+            if puckModules.indexOf(i.path) == -1
+              then return reportError(i, 'Invalid puck module ' + i.path)
+            let importedFile = context.resolvePath(
+              path.join(
+                path.dirname(require.resolve('puck-lang/dist/bin/puck'))
+                '../../lib/stdlib/' + i.path + '.puck'
+              )
+              file
+            )
+            importModule(i, importedFile)
           }
-          Result::Err(error) => return reportError(i, 'Imported file ' + i.path + ' not found')
+          else if domains.indexOf(domain) == -1 {
+            reportError(i, 'Invalid import domain $domain')
+          }
         }
-
+        None => {
+          let result: Result<UnparsedFile, {}> = asResult(|| context.resolvePath(i.path, file))
+          match result {
+            Result::Ok(importedFile) => {
+            if puckFile.test(importedFile.absolutePath)
+              then importModule(i, importedFile)
+            }
+            Result::Err(error) => return reportError(i, 'Imported file ' + i.path + ' not found')
+          }
+        }
       }
-      else if i.domain.value[0] == 'puck' {
-        if puckModules.indexOf(i.path) == -1
-          then return reportError(i, 'Invalid puck module ' + i.path)
-        let importedFile = context.resolvePath(
-          path.join(
-            path.dirname(require.resolve('puck-lang/dist/bin/puck'))
-            '../../lib/stdlib/' + i.path + '.puck'
-          )
-          file
-        )
-        importModule(i, importedFile)
-      }
-      else if domains.indexOf(i.domain.value[0]) == -1
-        then reportError(i, 'Invalid import domain ' + i.domain.value[0])
       ()
     }
   })

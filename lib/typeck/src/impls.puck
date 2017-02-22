@@ -88,7 +88,7 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
 
   // Implementations that implements the called function
   let implementations = implementations
-    .filter(|i| asType(i.trait_).getTrait().functions[functionName])
+    .filter(|i| asType(i.trait_).getTrait().functions.has(functionName))
 
   let scope: Scope = e.scope
   // Implementations that are in scope

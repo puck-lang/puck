@@ -50,34 +50,33 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
 
   let traitFunctions = trait_.functions
 
-  traitFunctions.keys().forEach(|name| {
-    let traitFunctionType: Type = traitFunctions[name]
+  traitFunctions.forEach(|(name, traitFunctionType)| {
     let traitFunction = traitFunctionType.getFunction()
-    if traitFunction.isAbstract and not functions[name]
+    if traitFunction.isAbstract and not functions.has(name)
       then reportError(i, 'Function $traitName::$name is not implemented for ' + type_.displayName())
   })
 
   i.members.forEach(|functionDeclaration| {
     let functionName = functionDeclaration.type_.displayName()
     let function = functionDeclaration.type_.getFunction()
-    let traitFunctionType: Type = traitFunctions[functionDeclaration.type_.name.unwrap()]
-    if not traitFunctionType
-      then reportError(i, 'Function $functionName is not defined by $traitName')
-    let traitFunctionName = traitFunctionType.displayName()
-    let traitFunction = traitFunctionType.getFunction()
+    if let Some(traitFunctionType) = traitFunctions.get(functionDeclaration.type_.name.unwrap()) {
+      let traitFunctionName = traitFunctionType.displayName()
+      let traitFunction = traitFunctionType.getFunction()
 
-    match (function.selfBinding, traitFunction.selfBinding) {
-      (Some(implSelf), Some(traitSelf)) => {
-        if implSelf.mutable and not traitSelf.mutable
-          then reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires an immutable self parameter')
-      }
-      (Option::None, Some(_)) => {
-        reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires a self parameter')
-      }
-      (_, Option::None) => {
-        reportError(functionDeclaration, 'Static trait functions can not be implemented')
+      match (function.selfBinding, traitFunction.selfBinding) {
+        (Some(implSelf), Some(traitSelf)) => {
+          if implSelf.mutable and not traitSelf.mutable
+            then reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires an immutable self parameter')
+        }
+        (Option::None, Some(_)) => {
+          reportError(functionDeclaration, 'Function $traitName::$traitFunctionName requires a self parameter')
+        }
+        (_, Option::None) => {
+          reportError(functionDeclaration, 'Static trait functions can not be implemented')
+        }
       }
     }
+    else reportError(i, 'Function $functionName is not defined by $traitName')
   })
 
   let implementation = Implementation({
@@ -138,12 +137,12 @@ export fn ImplVisitor(mut context, file) {
 
   fn getImplId(type_: Type, trait_: Type) {
     let mut id = '\$impl_' + type_.id.unwrap() + '\$' + trait_.id.unwrap()
-    if context.impls[id] {
-      id = '$id\$' + context.impls[id]
-      context.impls[id] += 1
+    if context.impls->[id] {
+      id = '$id\$' + context.impls->[id]
+      context.impls->[id] += 1
     }
     else {
-      context.impls[id] = 1
+      context.impls->[id] = 1
     }
     id
   }

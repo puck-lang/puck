@@ -6,7 +6,7 @@ let e = 1.toString()
 let f = 1.0.toString()
 let g = -1.toString()
 let h = -1.0.toString()
-let i = 1['toString']()
+let i = 1->['toString']()
 
 1.round()
 1.1.round()

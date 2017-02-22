@@ -1,5 +1,5 @@
-let mut a
-a = {}
+let mut a: {b: List<Num>}
+a = {b: []}
 a.b = [1, 2]
 a.b[0] = 4
 

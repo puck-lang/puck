@@ -75,7 +75,7 @@ function getImplementationsForInstance(type_) {
 
         var __PUCK__value__10 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }, function (i) {
           var implementationInstance = _core.Option.unwrap.call(i.type_.instance);
-          return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: objectInstance.typeParameters, $isTraitObject: true }, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementationInstance.typeParameters, $isTraitObject: true }), $isTraitObject: true }, function (_ref) {
+          return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.List.zip({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: objectInstance.typeParameters, $isTraitObject: true }, implementationInstance.typeParameters), $isTraitObject: true }, function (_ref) {
             var _ref2 = _slicedToArray(_ref, 2),
                 objectP = _ref2[0],
                 implP = _ref2[1];
@@ -158,7 +158,7 @@ function getImplementationForTrait(type_, trait_) {
 function getImplementation(functionName, type_, e) {
   var implementations = getImplementationsForInstance(type_);
   implementations = $unwrapTraitObject(implementations).filter(function (i) {
-    return _entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions[functionName];
+    return _core.ObjectMap.has.call(_entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions, functionName);
   });
   var scope = e.scope;
   var __PUCK__value__20 = void 0;
@@ -173,7 +173,7 @@ function getImplementation(functionName, type_, e) {
   var __PUCK__value__21 = void 0;
   if ($unwrapTraitObject(implementations).length > 1) {
     __PUCK__value__21 = $unwrapTraitObject(implementations).filter(function (i) {
-      return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions[functionName])).parameterRange, e.argumentList.length);
+      return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: _entities.Type.getTrait.call(asType($unwrapTraitObject(i).trait_)).functions, $isTraitObject: true }, functionName))).parameterRange, e.argumentList.length);
     });
   } else {
     __PUCK__value__21 = implementations;

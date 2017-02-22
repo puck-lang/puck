@@ -94,10 +94,10 @@ function walkSync(directory) {
 function flag(_arguments, name) {
   var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
 
-  var index = $unwrapTraitObject(_arguments).indexOf(name);
+  var index = _arguments.indexOf(name);
   if (index >= 0) {
-    var value = $unwrapTraitObject(_arguments)[$unwrapTraitObject(index + 1)];
-    $unwrapTraitObject(_arguments).splice(index, 2);
+    var value = $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, index + 1));
+    _arguments.splice(index, 2);
     return value;
   } else {
     return defaultValue;

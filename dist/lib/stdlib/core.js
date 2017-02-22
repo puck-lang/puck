@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.None = exports.Some = exports.Err = exports.Ok = exports.Iterable = exports.Iterator = exports.IntoIterator = exports.Never = exports.Ordering = exports.Option = exports.Result = exports.Radix = exports.Unknown = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.RegExp = undefined;
+exports.None = exports.Some = exports.Err = exports.Ok = exports.Index = exports.Iterable = exports.Iterator = exports.IntoIterator = exports.Never = exports.Ordering = exports.Option = exports.Result = exports.Radix = exports.Unknown = exports.ObjectMap = exports.Range = exports.List = exports.String = exports.Num = exports.Bool = exports.RegExp = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (_js.Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -208,6 +208,7 @@ var Iterator = exports.Iterator = {
   }
 };
 var Iterable = exports.Iterable = {};
+var Index = exports.Index = {};
 Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:StringIterator"] = {
   next: function next() {
     var self = this;
@@ -366,7 +367,7 @@ Iterable["$impl_lib/stdlib/core.puck:Iterable$List"] = {
   first: function first() {
     var self = this;
     if (self.value.length > 0) {
-      return Some(self.value[0]);
+      return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, 0)));
     } else {
       return None;
     };
@@ -374,7 +375,7 @@ Iterable["$impl_lib/stdlib/core.puck:Iterable$List"] = {
   last: function last() {
     var self = this;
     if (self.value.length > 0) {
-      return Some(self.value[$unwrapTraitObject(self.value.length - 1)]);
+      return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, self.value.length - 1)));
     } else {
       return None;
     };
@@ -383,7 +384,7 @@ Iterable["$impl_lib/stdlib/core.puck:Iterable$List"] = {
     var self = this;
     var i = 0;
     while (i < self.value.length) {
-      if (!predicate(self.value[i])) {
+      if (!predicate($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, i)))) {
         return false;
       };
       i += 1;
@@ -394,7 +395,7 @@ Iterable["$impl_lib/stdlib/core.puck:Iterable$List"] = {
     var self = this;
     var i = 0;
     while (i < self.value.length) {
-      if (predicate(self.value[i])) {
+      if (predicate($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, i)))) {
         return true;
       };
       i += 1;
@@ -405,7 +406,7 @@ Iterable["$impl_lib/stdlib/core.puck:Iterable$List"] = {
     var self = this;
     var index = self.value.findIndex(predicate);
     if (index >= 0) {
-      return Some(self.value[$unwrapTraitObject(index)]);
+      return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, index)));
     } else {
       return None;
     };
@@ -489,6 +490,27 @@ IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Range
       end: self.value.end
     };
     return { type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:NumRangeIterator', value: iterator, $isTraitObject: true };
+  }
+};
+Index["$impl_Index$List"] = {
+  index: function index(index) {
+    var self = this;
+    if (index < 0) {
+      panic("index out of bounds: index must be positive but is " + index + "");
+    };
+    if (index >= Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self)) {
+      panic("index out of bounds: the length is " + Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self) + " but the index is " + index + "");
+    };
+    return $unwrapTraitObject(Unknown.transmute.call(self.value[$unwrapTraitObject(index)]));
+  }
+};
+Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"] = {
+  index: function index(key) {
+    var self = this;
+    if (!ObjectMap.has.call(self.value, $unwrapTraitObject(key))) {
+      panic("The key " + key + " is missing");
+    };
+    return $unwrapTraitObject(Unknown.transmute.call(self.value[$unwrapTraitObject(key)]));
   }
 };
 RegExp._new = function _new(pattern) {
@@ -756,16 +778,16 @@ Result.mapErr = function mapErr(op) {
 Result.unwrap = function unwrap() {
   var self = this;
   if (Result.isErr.call(self)) {
-    throw (0, _js.Error)($unwrapTraitObject(self.value)[0]);
+    throw (0, _js.Error)(Unknown.transmute.call(self.value[0]));
   };
-  return $unwrapTraitObject(self.value)[0];
+  return $unwrapTraitObject(Unknown.transmute.call(self.value[0]));
 };
 Result.unwrapErr = function unwrapErr() {
   var self = this;
   if (Result.isOk.call(self)) {
-    throw (0, _js.Error)($unwrapTraitObject(self.value)[0]);
+    throw (0, _js.Error)(Unknown.transmute.call($unwrapTraitObject(self.value)[0]));
   };
-  return $unwrapTraitObject(self.value)[0];
+  return $unwrapTraitObject(Unknown.transmute.call(self.value[0]));
 };
 Option.isSome = function isSome() {
   var self = this;
@@ -882,7 +904,7 @@ Option.unwrap = function unwrap() {
   if (Option.isNone.call(self)) {
     throw (0, _js.Error)("Can not unwrap empty Option");
   };
-  return $unwrapTraitObject(self.value)[0];
+  return $unwrapTraitObject(Unknown.transmute.call(self.value[0]));
 };
 Option.unwrapOr = function unwrapOr(_default) {
   var self = this;
@@ -932,7 +954,7 @@ Ordering.reverse = function reverse() {
   };
 };
 List.zip = function zip(a, b) {
-  if (Iterable[a.type].size.call(a) != Iterable[b.type].size.call(b)) {
+  if (Iterable[a.type].size.call(a) != Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: b, $isTraitObject: true })) {
     throw (0, _js.Error)("Iterable a and b are not of the same length");
   };
   var __PUCK__value__43 = Iterable[a.type].enumerate.call(a);
@@ -941,7 +963,7 @@ List.zip = function zip(a, b) {
         a = _ref2[0],
         i = _ref2[1];
 
-    return [a, b.value[i]];
+    return [a, Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: b, $isTraitObject: true }, i)];
   });
   return Iterable[__PUCK__value__42.type].toList.call(__PUCK__value__42);
 };
@@ -952,7 +974,7 @@ List.add = function add(element) {
 List.get = function get(index) {
   var self = this;
   if (index >= 0 && index < Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self, $isTraitObject: true })) {
-    return Some(self[index]);
+    return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: self, $isTraitObject: true }, index)));
   } else {
     return None;
   };
@@ -967,7 +989,7 @@ List.binarySearchBy = function binarySearchBy(f) {
     };
     var guess = [min + max] / 2;
     guess = Num.floor.call(guess);
-    var __PUCK__value__44 = f(self[guess]);
+    var __PUCK__value__44 = f($unwrapTraitObject(Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: self, $isTraitObject: true }, guess)));
     var __PUCK__value__45 = __PUCK__value__44;
     if ($unwrapTraitObject(__PUCK__value__45).kind == "Equal") {
       var _undefined13 = $unwrapTraitObject(__PUCK__value__45);
@@ -1001,8 +1023,12 @@ ObjectMap._new = function _new() {
 };
 ObjectMap.fromIter = function fromIter(list) {
   var object = $unwrapTraitObject(_js._Object).create(_js._null);
-  Iterable[list.type].forEach.call(list, function (item) {
-    return $unwrapTraitObject(object)[$unwrapTraitObject(item[0])] = item[1];
+  Iterable[list.type].forEach.call(list, function (_ref3) {
+    var _ref4 = _slicedToArray(_ref3, 2),
+        key = _ref4[0],
+        item = _ref4[1];
+
+    return $unwrapTraitObject(object)[key] = $unwrapTraitObject(item);
   });
   return object;
 };
@@ -1025,21 +1051,21 @@ ObjectMap.keys = function keys() {
 ObjectMap.values = function values() {
   var self = this;
   return $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).map(function (key) {
-    return self[$unwrapTraitObject(key)];
+    return Unknown.transmute.call(self[$unwrapTraitObject(key)]);
   });
 };
 ObjectMap.toList = function toList() {
   var self = this;
   return $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).map(function (key) {
-    return [key, self[$unwrapTraitObject(key)]];
+    return [key, Unknown.transmute.call(self[$unwrapTraitObject(key)])];
   });
 };
 ObjectMap.all = function all(predicate) {
   var self = this;
   var i = 0;
-  var keys = $unwrapTraitObject(_js._Object).keys(self);
-  while (i < $unwrapTraitObject(keys).length) {
-    if (!predicate(self[$unwrapTraitObject($unwrapTraitObject(keys)[i])])) {
+  var keys = $unwrapTraitObject(Unknown.transmute.call($unwrapTraitObject(_js._Object).keys(self)));
+  while (i < keys.length) {
+    if (!predicate($unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, $unwrapTraitObject(Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: keys, $isTraitObject: true }, i)))))) {
       return false;
     };
     i += 1;
@@ -1049,9 +1075,9 @@ ObjectMap.all = function all(predicate) {
 ObjectMap.any = function any(predicate) {
   var self = this;
   var i = 0;
-  var keys = $unwrapTraitObject(_js._Object).keys(self);
-  while (i < $unwrapTraitObject(keys).length) {
-    if (predicate(self[$unwrapTraitObject($unwrapTraitObject(keys)[i])])) {
+  var keys = $unwrapTraitObject(Unknown.transmute.call($unwrapTraitObject(_js._Object).keys(self)));
+  while (i < keys.length) {
+    if (predicate($unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, $unwrapTraitObject(Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: keys, $isTraitObject: true }, i)))))) {
       return true;
     };
     i += 1;
@@ -1061,28 +1087,35 @@ ObjectMap.any = function any(predicate) {
 ObjectMap.map = function map(mapper) {
   var self = this;
   var _new = ObjectMap._new();
-  $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).forEach(function (key) {
-    return _new[$unwrapTraitObject(key)] = mapper(self[$unwrapTraitObject(key)]);
+  var keys = $unwrapTraitObject(Unknown.transmute.call($unwrapTraitObject(_js._Object).keys(self)));
+  Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true }, function (key) {
+    return _new[key] = mapper($unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, key)));
   });
   return _new;
 };
 ObjectMap.find = function find(predicate) {
   var self = this;
-  var key = $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).find(function (key) {
-    return predicate([key, self[$unwrapTraitObject(key)]]);
+  var keys = $unwrapTraitObject(Unknown.transmute.call($unwrapTraitObject(_js._Object).keys(self)));
+  var key = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].find.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true }, function (key) {
+    return predicate([key, $unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, key))]);
   });
-  if (key) {
-    return Some([key, self[$unwrapTraitObject(key)]]);
+  var __PUCK__value__48 = key;
+  if ($unwrapTraitObject(__PUCK__value__48).kind == "Some") {
+    var _$unwrapTraitObject30 = $unwrapTraitObject(__PUCK__value__48),
+        _$unwrapTraitObject31 = _slicedToArray(_$unwrapTraitObject30.value, 1),
+        _key4 = _$unwrapTraitObject31[0];
+
+    return Some([_key4, Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, _key4)]);
   } else {
     return None;
   };
 };
 ObjectMap.forEach = function forEach(func) {
   var self = this;
-  $unwrapTraitObject($unwrapTraitObject(_js._Object).keys(self)).forEach(function (key) {
-    return func([key, self[$unwrapTraitObject(key)]]);
+  var keys = $unwrapTraitObject(Unknown.transmute.call($unwrapTraitObject(_js._Object).keys(self)));
+  Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true }, function (key) {
+    return func([key, $unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, key))]);
   });
-  [];
 };
 ObjectMap._delete = function _delete(key) {
   var self = this;
@@ -1095,7 +1128,7 @@ ObjectMap.has = function has(key) {
 ObjectMap.get = function get(key) {
   var self = this;
   if (ObjectMap.has.call(self, key)) {
-    return Some(self[key]);
+    return Some($unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true }, key)));
   } else {
     return None;
   };

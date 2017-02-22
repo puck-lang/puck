@@ -3,6 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 exports.parseString = parseString;
 exports.compile = compile;
 exports.createContext = createContext;
@@ -86,16 +89,31 @@ function dumpFiles(files, prop) {
   return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
     (0, _core.print)("");
     (0, _core.print)(file.absolutePath);
-    var data = file[prop];
-    if ((0, _js._typeof)(data) != "string") {
-      data = (0, _util.inspect)(data, {
-        colors: false,
-        depth: 25
-      });
+    var __PUCK__value__1 = _core.Unknown.asString.call(file[prop]);
+    var __PUCK__value__2 = __PUCK__value__1;
+    var __PUCK__value__3 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
+      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+          _data = _$unwrapTraitObject$v[0];
+
+      __PUCK__value__3 = _data;
+    } else {
+      var __PUCK__value__4 = __PUCK__value__1;
+      var __PUCK__value__5 = void 0;
+      if (true) {
+        var _None = __PUCK__value__4;
+        __PUCK__value__5 = (0, _util.inspect)(file[prop], {
+          colors: false,
+          depth: 25
+        });
+      };
+      __PUCK__value__3 = __PUCK__value__5;
     };
-    return (0, _core.print)($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(data).split("\n")).map(function (line) {
+    var data = __PUCK__value__3;
+    return (0, _core.print)(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.String.split.call(data, "\n"), $isTraitObject: true }, function (line) {
       return "  " + line + "";
-    })).join("\n"));
+    }).value.join("\n"));
   });
 };
 function createContext(projectPath) {
@@ -177,16 +195,16 @@ function createContext(projectPath) {
       if (!$unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)]) {
         $unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)] = [];
       };
-      return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)]).push(func);
+      return $unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)].push(func);
     },
     resolvePath: function resolvePath(file, relativeTo) {
-      var __PUCK__value__1 = void 0;
+      var __PUCK__value__6 = void 0;
       if ($unwrapTraitObject(file).substring(0, 1) == "/") {
-        __PUCK__value__1 = file;
+        __PUCK__value__6 = file;
       } else {
-        __PUCK__value__1 = path.join(path.dirname($unwrapTraitObject(relativeTo).absolutePath), file);
+        __PUCK__value__6 = path.join(path.dirname($unwrapTraitObject(relativeTo).absolutePath), file);
       };
-      var filePath = __PUCK__value__1;
+      var filePath = __PUCK__value__6;
       var absolutePath = fs.realpathSync(path.resolve(path.normalize(filePath)));
       var fileName = path.basename(absolutePath);
       return {
@@ -198,8 +216,8 @@ function createContext(projectPath) {
     importFile: function importFile(file) {
       var self = this;
       if ($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath] && file.outDir && file.outFile) {
-        $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath]).outDir = file.outDir;
-        $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath]).outFile = file.outFile;
+        $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath].outDir = file.outDir;
+        $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath].outFile = file.outFile;
       };
       if (!$unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath]) {
         $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath] = file;
@@ -210,12 +228,12 @@ function createContext(projectPath) {
         if ($unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath]) {
           var callbacks = $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath];
           $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath] = _js._undefined;
-          $unwrapTraitObject(callbacks).forEach(function (callback) {
+          callbacks.forEach(function (callback) {
             return callback();
           });
         };
       };
-      return $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath];
+      return $unwrapTraitObject(_core.Unknown.transmute.call($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath]));
     },
     reportError: function reportError(file, token, message) {
       var self = this;
@@ -241,8 +259,8 @@ function buildString(code, filePath, projectPath) {
     context.runTypeVisitor();
     context.runImplVisitor();
     context.runChecker();
-    $unwrapTraitObject(file).js = compile(context, file);
-    $unwrapTraitObject(file).babel = babelTransform(file);
+    file.js = compile(context, file);
+    file.babel = babelTransform(file);
     return file;
   });
 };

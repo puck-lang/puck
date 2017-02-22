@@ -115,7 +115,7 @@ function createServer(projectPath, sendDiagnostic) {
       __PUCK__value__4 = __PUCK__value__6;
     };
     var context = __PUCK__value__4;
-    var file = $unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))];
+    var file = $unwrapTraitObject(_core.Unknown.transmute.call($unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))]));
     if (!file) {
       return [];
     };
@@ -177,7 +177,7 @@ function createServer(projectPath, sendDiagnostic) {
       __PUCK__value__13 = __PUCK__value__15;
     };
     var context = __PUCK__value__13;
-    var file = $unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))];
+    var file = $unwrapTraitObject(_core.Unknown.transmute.call($unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))]));
     if (!file) {
       return _hover.Hover.empty();
     };
@@ -233,7 +233,7 @@ function createServer(projectPath, sendDiagnostic) {
       __PUCK__value__22 = __PUCK__value__24;
     };
     var context = __PUCK__value__22;
-    var file = $unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))];
+    var file = $unwrapTraitObject(_core.Unknown.transmute.call($unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))]));
     if (!file) {
       return [];
     };

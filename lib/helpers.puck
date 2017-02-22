@@ -51,7 +51,7 @@ export fn walkSync(directory, mut filelist = []) -> List<String> {
   filelist
 }
 
-export fn flag(arguments, name, defaultValue = '') {
+export fn flag(arguments: List<String>, name, defaultValue = '') {
   let index = arguments.indexOf(name)
   if index >= 0 {
     let value = arguments[index + 1]

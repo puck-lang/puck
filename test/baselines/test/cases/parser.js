@@ -7,6 +7,6 @@ var b = [];
 a();
 a;
 [];
-b[0];
+_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: b, $isTraitObject: true }, 0);
 b;
 [0];

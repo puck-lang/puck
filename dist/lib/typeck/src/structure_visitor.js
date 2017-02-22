@@ -86,7 +86,7 @@ function structureVisitor(reportError) {
 
             var __PUCK__value__5 = void 0;
             if (assignedTo && $unwrapTraitObject(assignedTo.parameters)[i]) {
-              __PUCK__value__5 = $unwrapTraitObject($unwrapTraitObject(assignedTo.parameters)[i]).type_;
+              __PUCK__value__5 = $unwrapTraitObject(assignedTo.parameters)[i].type_;
             } else {
               __PUCK__value__5 = _js._undefined;
             };
@@ -165,7 +165,7 @@ function structureVisitor(reportError) {
             if (name == "self") {
               var selfTypeBound = first.typeBound;
               if (_core.Option.isNone.call(selfTypeBound)) {
-                $unwrapTraitObject(f.parameterList[0]).typeBound = (0, _core.Some)(_ast.TypeBound.NamedTypeBound({
+                $unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: f.parameterList, $isTraitObject: true }, 0)).typeBound = (0, _core.Some)(_ast.TypeBound.NamedTypeBound({
                   path: _ast.TypePath.Member({
                     name: "Self",
                     span: span

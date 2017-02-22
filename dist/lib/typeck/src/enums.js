@@ -387,15 +387,15 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
       __PUCK__value__55 = __PUCK__value__57;
     };
     var member = __PUCK__value__55;
-    if (!exhaustiveMap[$unwrapTraitObject(member)]) {
+    if (!_core.Option.unwrapOr.call(_core.ObjectMap.get.call(exhaustiveMap, member), false)) {
       var individuallyExhaustive = isIndividuallyExhaustive(pattern);
       var isEnum = isEnumArm(pattern);
       exhaustiveMap[$unwrapTraitObject(member)] = individuallyExhaustive && !isEnum;
       if (isEnum) {
-        if (!enumArmsMap[$unwrapTraitObject(member)]) {
+        if (!_core.ObjectMap.has.call(enumArmsMap, member)) {
           enumArmsMap[$unwrapTraitObject(member)] = [];
         };
-        $unwrapTraitObject(enumArmsMap[$unwrapTraitObject(member)]).push(pattern);
+        $unwrapTraitObject(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: enumArmsMap, $isTraitObject: true }, member)).push(pattern);
       };
     };
     return false;
@@ -413,7 +413,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
         member = _ref2[0],
         patterns = _ref2[1];
 
-    var __PUCK__value__75 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getSubPatterns($unwrapTraitObject(patterns)[0]), $isTraitObject: true });
+    var __PUCK__value__75 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getSubPatterns($unwrapTraitObject(_core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: patterns, $isTraitObject: true }, 0))), $isTraitObject: true });
     var __PUCK__value__74 = _core.Iterable[__PUCK__value__75.type].filter.call(__PUCK__value__75, function (_ref3) {
       var _ref4 = _slicedToArray(_ref3, 2),
           pattern = _ref4[0],
@@ -426,8 +426,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
           pattern = _ref6[0],
           index = _ref6[1];
 
-      var p = pattern;
-      var __PUCK__value__77 = p;
+      var __PUCK__value__77 = pattern;
       var __PUCK__value__78 = __PUCK__value__77;
       var __PUCK__value__79 = void 0;
       if ($unwrapTraitObject(__PUCK__value__78).kind == "RecordType") {
@@ -482,12 +481,14 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
         throw "no type";
       };
       var enum_ = __PUCK__value__90;
-      var subPatterns = $unwrapTraitObject($unwrapTraitObject(patterns).map(getSubPatterns)).map(function (subPatterns) {
-        return $unwrapTraitObject(subPatterns)[index];
+      var __PUCK__value__92 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: patterns, $isTraitObject: true }, getSubPatterns);
+      var __PUCK__value__91 = _core.Iterable[__PUCK__value__92.type].map.call(__PUCK__value__92, function (subPatterns) {
+        return _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: subPatterns, $isTraitObject: true }, index);
       });
+      var subPatterns = _core.Iterable[__PUCK__value__91.type].toList.call(__PUCK__value__91);
       return [_core.Option.unwrap.call(type_), enum_, subPatterns];
     });
-    var __PUCK__value__92 = _core.Iterable[enumPatterns.type].map.call(enumPatterns, function (_ref7) {
+    var __PUCK__value__94 = _core.Iterable[enumPatterns.type].map.call(enumPatterns, function (_ref7) {
       var _ref8 = _slicedToArray(_ref7, 3),
           type_ = _ref8[0],
           enum_ = _ref8[1],
@@ -495,15 +496,15 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
 
       return checkExhaustiveEnum({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subPatterns, $isTraitObject: true }, type_, enum_, scope);
     });
-    var __PUCK__value__91 = _core.Iterable[__PUCK__value__92.type].filter.call(__PUCK__value__92, function (result) {
+    var __PUCK__value__93 = _core.Iterable[__PUCK__value__94.type].filter.call(__PUCK__value__94, function (result) {
       return _core.Result.isErr.call(result);
     });
-    var errors = _core.Iterable[__PUCK__value__91.type].toList.call(__PUCK__value__91);
+    var errors = _core.Iterable[__PUCK__value__93.type].toList.call(__PUCK__value__93);
     innerErrors = innerErrors.concat(errors);
     return exhaustiveMap[member] = errors.length == 0;
   });
   if (innerErrors.length > 0) {
-    return innerErrors[0];
+    return _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: innerErrors, $isTraitObject: true }, 0);
   };
   var mapSize = _core.ObjectMap.size.call(exhaustiveMap);
   var memberCount = _core.ObjectMap.size.call(enum_.members);
@@ -511,28 +512,28 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
     var _Option$unwrap$call3 = _core.Option.unwrap.call(_core.ObjectMap.find.call(enum_.members, function (_ref9) {
       var _ref10 = _slicedToArray(_ref9, 2),
           member = _ref10[0],
-          __PUCK__value__93 = _ref10[1];
+          __PUCK__value__95 = _ref10[1];
 
-      return !exhaustiveMap[member];
+      return !_core.Option.unwrapOr.call(_core.ObjectMap.get.call(exhaustiveMap, member), false);
     })),
         _Option$unwrap$call4 = _slicedToArray(_Option$unwrap$call3, 2),
         missing = _Option$unwrap$call4[0],
-        __PUCK__value__94 = _Option$unwrap$call4[1];
+        __PUCK__value__96 = _Option$unwrap$call4[1];
 
     return (0, _core.Err)("Match is not exhaustive. It is missing a case for " + typeName + "::" + missing + "");
   } else {
     if (mapSize < memberCount) {
       return (0, _core.Err)("Match is not exhaustive.");
     } else {
-      var __PUCK__value__95 = _core.ObjectMap.find.call(exhaustiveMap, function (_ref11) {
+      var __PUCK__value__97 = _core.ObjectMap.find.call(exhaustiveMap, function (_ref11) {
         var _ref12 = _slicedToArray(_ref11, 2),
-            __PUCK__value__96 = _ref12[0],
+            __PUCK__value__98 = _ref12[0],
             exhaustive = _ref12[1];
 
         return !exhaustive;
       });
-      if ($unwrapTraitObject(__PUCK__value__95).kind == "Some") {
-        var _$unwrapTraitObject60 = $unwrapTraitObject(__PUCK__value__95),
+      if ($unwrapTraitObject(__PUCK__value__97).kind == "Some") {
+        var _$unwrapTraitObject60 = $unwrapTraitObject(__PUCK__value__97),
             _$unwrapTraitObject61 = _slicedToArray(_$unwrapTraitObject60.value, 1),
             _$unwrapTraitObject62 = _slicedToArray(_$unwrapTraitObject61[0], 2),
             member = _$unwrapTraitObject62[0],

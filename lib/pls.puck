@@ -39,13 +39,13 @@ export fn createServer(projectPath: String, sendDiagnostic) {
     }
 
     let result = asResult(|| {
-      let mut file: UnparsedFile = {
+      let file: UnparsedFile = {
         isBin: false
         fileName: path.basename(filePath)
         absolutePath: path.resolve(path.normalize(filePath))
         puck: contents
       }
-      file = context.importFile(file)
+      let mut file = context.importFile(file)
 
       context.runTypeVisitor()
       context.runImplVisitor()
@@ -65,7 +65,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       Some(context) => context
       None => return []
     }
-    let file: File = context.files[path.resolve(path.normalize(filePath))]
+    let file: File = context.files->[path.resolve(path.normalize(filePath))].transmute()
     if not file then return []
     let module: Module = file.ast
     if not module then return []
@@ -95,7 +95,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       Some(context) => context
       None => return Hover.empty()
     }
-    let file: File = context.files[path.resolve(path.normalize(filePath))]
+    let file: File = context.files->[path.resolve(path.normalize(filePath))].transmute()
     if not file then return Hover.empty()
     let module: Module = file.ast
     if not module then return Hover.empty()
@@ -123,7 +123,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       Some(context) => context
       None => return []
     }
-    let file: File = context.files[path.resolve(path.normalize(filePath))]
+    let file: File = context.files->[path.resolve(path.normalize(filePath))].transmute()
     if not file then return []
     let module: Module = file.ast
     if not module then return []

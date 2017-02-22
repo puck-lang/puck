@@ -84,8 +84,8 @@ fn getSubPatterns(pattern: Pattern) -> List<Pattern> {
 
 fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, scope: Scope) -> Result<(), String> {
   let typeName = type_.displayName()
-  let mut exhaustiveMap = ObjectMap.new()
-  let mut enumArmsMap = ObjectMap.new()
+  let mut exhaustiveMap: ObjectMap<Bool> = ObjectMap.new()
+  let mut enumArmsMap: ObjectMap<List<Pattern>> = ObjectMap.new()
 
   if let Option::Some(_) = patterns.find(|pattern| {
     let member = match pattern {
@@ -98,14 +98,14 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
       Pattern::UnitType(typePath) => getEnumMember(typePath)
     }
 
-    if not exhaustiveMap[member] {
+    if not exhaustiveMap.get(member).unwrapOr(false) {
       let individuallyExhaustive = isIndividuallyExhaustive(pattern)
       let isEnum = isEnumArm(pattern)
 
       exhaustiveMap[member] = individuallyExhaustive and not isEnum
 
       if isEnum {
-        if not enumArmsMap[member] {
+        if not enumArmsMap.has(member) {
           enumArmsMap[member] = []
         }
         enumArmsMap[member].push(pattern)
@@ -122,8 +122,7 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
       .enumerate()
       .filter(|(pattern, _)| isEnumPattern(pattern))
       .map(|(pattern, index)| {
-        let p: Pattern = pattern
-        let type_: Option<Type> = match p {
+        let type_ = match pattern {
           Pattern::RecordType(typePath, _) => getEnumType(typePath, scope)
           Pattern::TupleType(typePath, _) => getEnumType(typePath, scope)
           Pattern::UnitType(typePath) => getEnumType(typePath, scope)
@@ -136,13 +135,14 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
 
         let subPatterns = patterns
           .map(getSubPatterns)
-          .map(|subPatterns| subPatterns[index]);
+          .map(|subPatterns| subPatterns[index])
+          .toList()
 
         (type_.unwrap(), enum_, subPatterns)
       })
 
     let errors = enumPatterns
-      .map(|(type_, enum_, subPatterns): (Type, Enum, List<Pattern>)| checkExhaustiveEnum(subPatterns, type_, enum_, scope))
+      .map(|(type_, enum_, subPatterns)| checkExhaustiveEnum(subPatterns, type_, enum_, scope))
       .filter(|result| result.isErr())
       .toList()
 
@@ -159,7 +159,7 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
   let memberCount = enum_.members.size()
 
   if mapSize == memberCount - 1 {
-    let mut (missing, _) = enum_.members.find(|(member, _)| not exhaustiveMap[member]).unwrap()
+    let mut (missing, _) = enum_.members.find(|(member, _)| not exhaustiveMap.get(member).unwrapOr(false)).unwrap()
     Err('Match is not exhaustive. It is missing a case for $typeName::$missing')
   }
   else if mapSize < memberCount

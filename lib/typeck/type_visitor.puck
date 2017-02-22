@@ -3,6 +3,7 @@ import 'node:path' as {relative}
 import '../ast/ast.puck' as {
   Module
   TopLevelStatement
+  Attribute
   AttributeData
   SimpleLiteral
 
@@ -47,6 +48,26 @@ fn isTypeScope(e: ExportDirective) {
 fn generateTypeId(context, file: File, name: String) {
   let path = relative(context.projectPath, file.absolutePath)
   Some(path + ':$name')
+}
+
+fn getTypeId(declaration: {attributes: List<Attribute>, name: Identifier}, context, file: File) {
+  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
+
+  if let Some(attribute) = declaration.attributes.find(|a| a.name.name == 'type_id')
+      then match attribute.data {
+      AttributeData::Value(literal) => match literal {
+        SimpleLiteral::StringLiteral({value}) => Some(value)
+        _ => {
+          reportError(attribute, 'type_id must be a string')
+          generateTypeId(context, file, declaration.name.name)
+        }
+      }
+      _ => {
+        reportError(attribute, 'type_id must have a value')
+        generateTypeId(context, file, declaration.name.name)
+      }
+    }
+    else generateTypeId(context, file, declaration.name.name)
 }
 
 /// Visits and declares Enums, Traits and Types
@@ -176,7 +197,7 @@ export fn TypeVisitor(context, file) {
         if t.members.size() != memberMap.size() {
           let mut members = ObjectMap.new()
           t.members.forEach(|p| {
-            if members[p.name.name] then reportError(p, 'Duplicate member ' + p.name.name)
+            if members.has(p.name.name) then reportError(p, 'Duplicate member ' + p.name.name)
             members[p.name.name] = p
           })
         }
@@ -196,7 +217,7 @@ export fn TypeVisitor(context, file) {
       let type_: Type = t.type_
       if not t.type_ {
         t.type_ = Type.provides({
-          id: generateTypeId(context, file, t.name.name)
+          id: getTypeId(t, context, file)
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Trait({
@@ -246,7 +267,7 @@ export fn TypeVisitor(context, file) {
                   reportError(m, 'Static trait functions can not be abstract')
                 }
               }
-              (m.name.value[0].name, m.type_)
+              (m.name.unwrap().name, m.type_)
             })
           ))
 
@@ -282,25 +303,8 @@ export fn TypeVisitor(context, file) {
           }
           else StructKind::Unit
 
-        let id =
-          if let Some(attribute) = t.attributes.find(|a| a.name.name == 'type_id')
-             then match attribute.data {
-              AttributeData::Value(literal) => match literal {
-                SimpleLiteral::StringLiteral({value}) => Some(value)
-                _ => {
-                  reportError(attribute, 'type_id must be a string')
-                  generateTypeId(context, file, t.name.name)
-                }
-              }
-              _ => {
-                reportError(attribute, 'type_id must have a value')
-                generateTypeId(context, file, t.name.name)
-              }
-            }
-            else generateTypeId(context, file, t.name.name)
-
         t.type_ = Type.provides({
-          id
+          id: getTypeId(t, context, file)
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Struct({
