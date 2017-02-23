@@ -54,7 +54,7 @@ function enumMemberToFunction(type_) {
     var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
         _class = _PUCK__value__4$valu[0];
 
-    __PUCK__value__5 = (0, _types.createTypeInstance)(providedType, { type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true });
+    __PUCK__value__5 = (0, _types.createTypeInstance)(providedType, _class.typeParameters);
   } else {
     __PUCK__value__5 = providedType;
   };

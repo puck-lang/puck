@@ -207,7 +207,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
 
       t->type_ =
         if type_.class.isSome()
-          then createTypeInstance(type_, t.typeParameters.map(|typeBound| typeBound.getType()))
+          then createTypeInstance(type_, t.typeParameters.map(|typeBound| typeBound.getType()).toList())
           else type_
     }
   }

@@ -1,16 +1,16 @@
-let mut a1
-let mut a2
-let mut a3
-let mut a4
-let mut a5
-let mut a6
+let mut a1: Num
+let mut a2: String
+let mut a3: Num
+let mut a4: Num
+let mut a5: Num
+let mut a6: Num
 
-let mut b1
-let mut b2
-let mut b3
-let mut b4
-let mut b5
-let mut b6
+let mut b1: Num
+let mut b2: String
+let mut b3: Num
+let mut b4: Num
+let mut b5: Num
+let mut b6: Num
 
 // operator <
 

@@ -38,7 +38,7 @@ ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span"] = {
   start: ToSpan.start,
   end: ToSpan.end
 };
-Span.empty = function empty() {
+Span.empty = function () {
   return {
     start: {
       line: 0,
@@ -50,7 +50,7 @@ Span.empty = function empty() {
     }
   };
 };
-Span.cmp = function cmp(position) {
+Span.cmp = function (position) {
   var self = this;
   if (position.line < self.start.line || position.line == self.start.line && position.column < self.start.column) {
     return _core.Ordering.Greater;

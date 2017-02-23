@@ -92,7 +92,6 @@ import '../entities.puck' as {
 }
 
 fn asType(a: Unknown) -> Type {a.transmute()}
-fn asIterable<E>(a: List<E>) -> Iterable<E> {a}
 
 fn getBinding(e: Expression) -> Option<Binding> {
   match e {
@@ -110,6 +109,27 @@ fn getCoreType(scope: Scope, id: String, description: String) -> Result<(Type, B
   if let Some(binding) = scope.getBindingByTypeId(id)
     then Ok((binding.type_.providesType.unwrap(), binding))
     else Err('puck:core::$id is not in scope. Please import $id from puck:core to use $description.')
+}
+
+fn asTraitCall(visitor, mut e: BinaryExpression, trait_: String, method: String, desription: String) -> Result<(), String> {
+  match getCoreType(visitor.scope, trait_, desription) {
+    Ok((_, binding)) => {
+      let mut call = CallExpression({
+        func: Expression::MemberAccess({
+          object: Expression::Identifier({name: binding.name, span: e.operator.span})
+          member: {name: method, span: {start: e.operator.span.start, end: e.operator.span.end}}
+        })
+        openParen: e.operator
+        argumentList: [e.lhs, e.rhs]
+        closeParen: e.operator
+      })
+      visitor.visitCallExpression(call)
+      e->call = call
+      e->type_ = call->type_
+      Ok(())
+    }
+    Err(err) => Err(err)
+  }
 }
 
 export fn ScopeVisitor(context, file) {
@@ -386,8 +406,23 @@ export fn ScopeVisitor(context, file) {
       e->type_ = e.lhs.getType() or e.rhs.getType()
     }
     visitBinaryExpression: |self, mut e: BinaryExpression| {
-      e->scope = self.scope
-      visit.walkBinaryExpression(self, e)
+      match e.operator.kind {
+        SyntaxKind::LessThanToken => {
+          asTraitCall(self, e, 'PartialOrd', 'lt', 'comparison operators')
+        }
+        SyntaxKind::LessThanEqualsToken => {
+          asTraitCall(self, e, 'PartialOrd', 'le', 'comparison operators')
+        }
+        SyntaxKind::GreaterThanToken => {
+          asTraitCall(self, e, 'PartialOrd', 'gt', 'comparison operators')
+        }
+        SyntaxKind::GreaterThanEqualsToken => {
+          asTraitCall(self, e, 'PartialOrd', 'ge', 'comparison operators')
+        }
+        _ => {
+          visit.walkBinaryExpression(self, e)
+        }
+      }
     }
     visitCallExpression: |mut self, mut e: CallExpression| {
       e->scope = self.scope
@@ -870,7 +905,7 @@ export fn ScopeVisitor(context, file) {
             if not type_ {
               l->type_ = listType
             } else {
-              l->type_ = createTypeInstance(listType, asIterable([type_]))
+              l->type_ = createTypeInstance(listType, [type_])
             }
           }
           Result::Err(_) => reportError(l, 'List contains mixed types')

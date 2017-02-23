@@ -213,7 +213,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
   visitTupleTypeBound: _position_visitor.PositionVisitor.visitTupleTypeBound,
   visitTypeParameter: _position_visitor.PositionVisitor.visitTypeParameter
 };
-CompletionVisitor._new = function _new(position) {
+CompletionVisitor._new = function (position) {
   return {
     position: position,
     completions: _core.None,

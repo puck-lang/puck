@@ -287,13 +287,13 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
   visitTupleTypeBound: _position_visitor.PositionVisitor.visitTupleTypeBound,
   visitTypeParameter: _position_visitor.PositionVisitor.visitTypeParameter
 };
-Hover.empty = function empty() {
+Hover.empty = function () {
   return {
     contents: [],
     span: _span.Span.empty()
   };
 };
-HoverVisitor._new = function _new(position) {
+HoverVisitor._new = function (position) {
   return {
     position: position,
     hover: _core.None,

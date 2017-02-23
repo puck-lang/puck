@@ -19,7 +19,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 var InputStream = exports.InputStream = function InputStream(object) {
   return object;
 };
-InputStream._new = function _new(context, file) {
+InputStream._new = function (context, file) {
   var __PUCK__value__1 = void 0;
   if (file.puck.substring(0, 13) == "//#![no_core]") {
     __PUCK__value__1 = "\n" + file.puck.slice(13);
@@ -35,14 +35,14 @@ InputStream._new = function _new(context, file) {
     column: 0
   };
 };
-InputStream.position = function position() {
+InputStream.position = function () {
   var self = this;
   return {
     line: self.line,
     column: self.column
   };
 };
-InputStream.next = function next() {
+InputStream.next = function () {
   var self = this;
   var ch = $unwrapTraitObject(self.code.charAt(self.pos));
   self.pos += 1;
@@ -54,17 +54,17 @@ InputStream.next = function next() {
   };
   return $unwrapTraitObject(ch);
 };
-InputStream.peek = function peek() {
+InputStream.peek = function () {
   var distance = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
   var self = this;
   return $unwrapTraitObject(self.code.charAt(self.pos + distance));
 };
-InputStream.eof = function eof() {
+InputStream.eof = function () {
   var self = this;
   return InputStream.peek.call(self) == "";
 };
-InputStream.croak = function croak(message) {
+InputStream.croak = function (message) {
   var self = this;
   var span = {
     start: {

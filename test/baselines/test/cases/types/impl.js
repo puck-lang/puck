@@ -11,15 +11,15 @@ var Trait = {
 Trait["$impl_test/cases/types/impl.puck:Trait$test/cases/types/impl.puck:Type"] = {
   a: function a() {}
 };
-Type.isAnswer = function isAnswer() {
+Type.isAnswer = function () {
   var self = this;
   return self.value == 42;
 };
-Type.isNegative = function isNegative(other) {
+Type.isNegative = function (other) {
   var self = this;
   return { value: self.value + other.value };
 };
-Type.isAnswer2 = function isAnswer2() {
+Type.isAnswer2 = function () {
   var self = this;
   return Type.isAnswer.call(self);
 };

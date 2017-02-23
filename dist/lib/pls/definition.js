@@ -129,7 +129,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
   visitTupleTypeBound: _position_visitor.PositionVisitor.visitTupleTypeBound,
   visitTypeParameter: _position_visitor.PositionVisitor.visitTypeParameter
 };
-DefinitionVisitor._new = function _new(file, position) {
+DefinitionVisitor._new = function (file, position) {
   return {
     file: file,
     position: position,
