@@ -74,10 +74,10 @@ impl TopLevelStatement {
       TopLevelStatement::ExportDirective(e) => throw 'type on export'
       TopLevelStatement::ImportDirective(e) => throw 'type on import'
 
-      TopLevelStatement::EnumDeclaration(e) => e.type_
+      TopLevelStatement::EnumDeclaration(e) => e->type_.transmute()
       TopLevelStatement::ImplDeclaration(e) => e.type_
       TopLevelStatement::ImplShorthandDeclaration(e) => e.type_
-      TopLevelStatement::TraitDeclaration(e) => e.type_
+      TopLevelStatement::TraitDeclaration(e) => e->type_.transmute()
       TopLevelStatement::TypeDeclaration(e) => e.type_
 
       TopLevelStatement::BlockLevelStatement(e) => e.getType()
@@ -120,9 +120,9 @@ impl BlockLevelStatement {
   fn getType(self) -> Type {
     match self {
       BlockLevelStatement::Block(e) => e.type_
-      BlockLevelStatement::BreakStatement(e) => e.type_
-      BlockLevelStatement::ReturnStatement(e) => e.type_
-      BlockLevelStatement::WhileLoop(e) => e.type_
+      BlockLevelStatement::BreakStatement(e) => e->type_.transmute()
+      BlockLevelStatement::ReturnStatement(e) => e->type_.transmute()
+      BlockLevelStatement::WhileLoop(e) => e->type_.transmute()
 
       BlockLevelStatement::Expression(e) =>  e.getType()
     }
@@ -153,33 +153,33 @@ impl ToSpan for BlockLevelStatement {
 impl Expression {
   fn getType(self) -> Type {
     match self {
-      Expression::ThrowStatement(e) => e.type_
+      Expression::ThrowStatement(e) => e->type_.transmute()
       Expression::Comment(_) => {}
 
-      Expression::Identifier(e) => e.type_
+      Expression::Identifier(e) => e->type_.transmute()
       Expression::FunctionDeclaration(e) => e.type_
-      Expression::VariableDeclaration(e) => e.type_
+      Expression::VariableDeclaration(e) => e->type_.transmute()
 
-      Expression::AssignmentExpression(e) => e.type_
-      Expression::BinaryExpression(e) => e.type_
-      Expression::CallExpression(e) => e.type_
-      Expression::IfExpression(e) => e.type_
-      Expression::IfLetExpression(e) => e.type_
-      Expression::MatchExpression(e) => e.type_
-      Expression::TypePathExpression(e) => e.type_
-      Expression::UnaryExpression(e) => e.type_
+      Expression::AssignmentExpression(e) => e->type_.transmute()
+      Expression::BinaryExpression(e) => e->type_.transmute()
+      Expression::CallExpression(e) => e->type_.transmute()
+      Expression::IfExpression(e) => e->type_.transmute()
+      Expression::IfLetExpression(e) => e->type_.transmute()
+      Expression::MatchExpression(e) => e->type_.transmute()
+      Expression::TypePathExpression(e) => e->type_.transmute()
+      Expression::UnaryExpression(e) => e->type_.transmute()
 
-      Expression::IndexAccess(e) => e.type_
-      Expression::MemberAccess(e) => e.type_
-      Expression::UnknownAccess(e) => e.type_
-      Expression::UnknownIndexAccess(e) => e.type_
+      Expression::IndexAccess(e) => e->type_.transmute()
+      Expression::MemberAccess(e) => e->type_.transmute()
+      Expression::UnknownAccess(e) => e->type_.transmute()
+      Expression::UnknownIndexAccess(e) => e->type_.transmute()
 
-      Expression::BooleanLiteral(e) => e.type_
-      Expression::ListLiteral(e) => e.type_
-      Expression::NumberLiteral(e) => e.type_
-      Expression::RecordLiteral(e) => e.type_
-      Expression::StringLiteral(e) => e.type_
-      Expression::TupleLiteral(e) => e.type_
+      Expression::BooleanLiteral(e) => e->type_.transmute()
+      Expression::ListLiteral(e) => e->type_.transmute()
+      Expression::NumberLiteral(e) => e->type_.transmute()
+      Expression::RecordLiteral(e) => e->type_.transmute()
+      Expression::StringLiteral(e) => e->type_.transmute()
+      Expression::TupleLiteral(e) => e->type_.transmute()
     }
   }
 }
@@ -359,11 +359,11 @@ export type ExportDirective {
 impl ExportDirective {
   fn getType(self) -> Type {
     match self.statement {
-      ExportedStatement::EnumDeclaration(d) => d.type_
-      ExportedStatement::TraitDeclaration(d) => d.type_
+      ExportedStatement::EnumDeclaration(d) => d->type_.transmute()
+      ExportedStatement::TraitDeclaration(d) => d->type_.transmute()
       ExportedStatement::TypeDeclaration(d) => d.type_
       ExportedStatement::FunctionDeclaration(d) => d.type_
-      ExportedStatement::VariableDeclaration(d) => d.type_
+      ExportedStatement::VariableDeclaration(d) => d->type_.transmute()
     }
   }
 }
@@ -973,7 +973,7 @@ impl RecordPattern {
         if shorthand
           then p.property.name
           else p.property.name + ': ' + p.pattern.displayName()
-      }).join(', ') +
+      })->join(', ') +
     '}'
   }
 }
@@ -1000,7 +1000,7 @@ export type TuplePattern {
 
 impl TuplePattern {
   fn displayName(self) -> String {
-    '(' + self.properties.map(|p| p.displayName()).join(', ') + ')'
+    '(' + self.properties.map(|p| p.displayName())->join(', ') + ')'
   }
 }
 
@@ -1014,10 +1014,10 @@ export enum TypeBound {
 impl TypeBound {
   fn getType(self) -> Type {
     match self {
-      TypeBound::FunctionTypeBound(t) => t.type_
-      TypeBound::NamedTypeBound(t) => t.type_
-      TypeBound::RecordTypeBound(t) => t.type_
-      TypeBound::TupleTypeBound(t) => t.type_
+      TypeBound::FunctionTypeBound(t) => t->type_.transmute()
+      TypeBound::NamedTypeBound(t) => t->type_.transmute()
+      TypeBound::RecordTypeBound(t) => t->type_.transmute()
+      TypeBound::TupleTypeBound(t) => t->type_.transmute()
     }
   }
 

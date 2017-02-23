@@ -314,7 +314,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
     let mut statements = []
     while not input.eof() {
       let statement = parseTopLevelStatement()
-      statements.add(statement)
+      statements.push(statement)
       if let TopLevelStatement::ExportDirective(e) = statement
         then exports[e.identifier.name] = e
 
@@ -478,7 +478,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
   fn parseDeclarationWithAttribute() {
     let mut attributes = []
     while isToken(SyntaxKind::HashToken) {
-      attributes.add(parseAttribute())
+      attributes.push(parseAttribute())
     }
 
     if isToken(SyntaxKind::EnumKeyword) then TopLevelStatement::EnumDeclaration(parseEnumDeclaration(attributes))
@@ -684,8 +684,8 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
       _ => panic('String literal does not start with a literal')
     }
     if parts > 2 then input.croak('Illegal token ":" used in import path')
-    let domain = if parts.length == 2 then Some(parts[0]) else None
-    let path = if parts.length == 2 then parts[1] else parts[0]
+    let domain = if parts.size() == 2 then Some(parts[0]) else None
+    let path = if parts.size() == 2 then parts[1] else parts[0]
 
     let asKeyword = consumeToken(SyntaxKind::AsKeyword)
     let specifier =
@@ -1025,7 +1025,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
     let expressions = delimited(SyntaxKind::OpenParenToken, SyntaxKind::CloseParenToken, SyntaxKind::CommaToken, || parseExpression(0, true), false)
     let closeParen = consumeToken(SyntaxKind::CloseParenToken)
 
-    if not forceTuple and expressions.length == 1
+    if not forceTuple and expressions.size() == 1
       then expressions[0]
       else Expression::TupleLiteral({
         openParen

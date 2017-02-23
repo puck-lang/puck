@@ -47,27 +47,31 @@ export fn notAssignableError(to: Type, subject: Type) {
 export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
   visitEnumMember: visit.walkingVisitor.visitEnumMember
   visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
-    if not f.scope {
+    if not f->scope {
       let mut parentScope: Scope = self.scope
       self.scope = parentScope.createChild()
-      f.scope = self.scope
+      f->scope = self.scope
 
       let assignedTo =
         if self.assignedTo
           then if let TypeKind::Function(func) = self.assignedTo.kind
-            then func
+            then Some(func)
+            else None
+          else None
 
       f.typeParameters.forEach(|p| self.visitTypeParameter(p))
-      f.parameterList.enumerate().forEach(|(p, i)| {
+      f.parameterList.enumerate().forEach(|(i, p)| {
         let type_: Type =
-          if assignedTo and assignedTo.parameters->[i]
-            then assignedTo.parameters->[i].type_
+          if let Some(assignedTo) = assignedTo
+            then if assignedTo.parameters.size() > i
+              then assignedTo.parameters->[i]->type_.transmute()
+              else undefined
             else undefined
         self.visitVariableDeclaration(p, undefined, type_)
       })
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
 
-      f.type_ = createFunctionType(f.scope, f, reportError)
+      f.type_ = createFunctionType(f->scope.transmute(), f, reportError)
       if let Option::Some(name) = f.name {
         let token: ToSpan = f
         if let Result::Err(err) = parentScope.define({
@@ -78,7 +82,6 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
           type_: f.type_
           previous: None
           completeType: None
-          complete: true
         })
           then reportError(name, err)
       }
@@ -87,10 +90,10 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
     }
   }
   visitMethodDeclaration: |mut self, mut f: FunctionDeclaration, selfType: Type| {
-    if not f.scope {
+    if not f->scope {
       let parentScope: Scope = self.scope
       self.scope = parentScope.createChild()
-      f.scope = self.scope
+      f->scope = self.scope
 
       if f.name.isNone()
         then reportError(f, 'Trait functions must have a name')
@@ -111,8 +114,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
             }
             else {
               self.visitVariableDeclaration(first)
-              if not isAssignable(first.type_, selfType)
-                then reportError(first, notAssignableError(first.type_, selfType))
+              if not isAssignable(first->type_.transmute(), selfType)
+                then reportError(first, notAssignableError(first->type_.transmute(), selfType))
             }
           }
         }
@@ -121,7 +124,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
 
-      f.type_ = createFunctionType(f.scope, f, reportError)
+      f.type_ = createFunctionType(f->scope.transmute(), f, reportError)
 
       self.scope = parentScope
     }
@@ -130,15 +133,15 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
     visit.walkTypeBound(self, t)
   }
   visitFunctionTypeBound: |mut self, mut t: FunctionTypeBound| {
-    if not t.scope {
+    if not t->scope {
       let parentScope: Scope = self.scope
       self.scope = parentScope.createChild()
-      t.scope = self.scope
+      t->scope = self.scope
 
       visit.walkFunctionTypeBound(self, t)
       let parameters = t.parameters.properties
         .enumerate()
-        .map(|(t, i): (TypeBound, Num)| {{
+        .map(|(i, t)| {{
           name: '$i'
           token: t
           mutable: false
@@ -149,7 +152,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         }})
         .toList()
 
-      t.type_ = Type({
+      t->type_ = Type({
         id: None
         displayName: None
         name: None
@@ -164,24 +167,23 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         instance: None
         providesType: None
         enumMember: None
-        complete: true
       })
 
       self.scope = parentScope
     }
   }
   visitNamedTypeBound: |self, mut t: NamedTypeBound| {
-    if not t.scope {
-      t.scope = self.scope
+    if not t->scope {
+      t->scope = self.scope
 
       self.visitTypePath(t.path)
-      let mut type_: Type = t.path.providesType
+      let mut type_: Type = t.path->providesType.transmute()
       if not type_ then return ()
 
       let isSelf =
         if let TypePath::Member({name}) = t.path {
           if name == 'Self' {
-            if t.typeParameters.length > 0
+            if t.typeParameters.size() > 0
               then reportError(t, 'Self is not generic')
 
             true
@@ -197,25 +199,25 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
             reportError(t, error)
           }
         }
-        else if t.typeParameters.length > 0
+        else if t.typeParameters.size() > 0
           then reportError(t, 'Type ' + type_.displayName() + ' is not generic')
       }
 
       visit.walkNamedTypeBound(self, t)
 
-      t.type_ =
+      t->type_ =
         if type_.class.isSome()
           then createTypeInstance(type_, t.typeParameters.map(|typeBound| typeBound.getType()))
           else type_
     }
   }
   visitRecordTypeBound: |self, mut t: RecordTypeBound| {
-    if not t.scope {
-      t.scope = self.scope
+    if not t->scope {
+      t->scope = self.scope
 
       visit.walkRecordTypeBound(self, t)
 
-      t.type_ = Type({
+      t->type_ = Type({
         id: None
         displayName: None
         name: None
@@ -232,18 +234,17 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         instance: None
         providesType: None
         enumMember: None
-        complete: true
       })
     }
   }
   visitRecordTypeBoundMember: visit.walkingVisitor.visitRecordTypeBoundMember,
   visitTupleTypeBound: |self, mut t: TupleTypeBound| {
-    if not t.scope {
-      t.scope = self.scope
+    if not t->scope {
+      t->scope = self.scope
 
       visit.walkTupleTypeBound(self, t)
 
-      t.type_ = Type({
+      t->type_ = Type({
         id: None
         displayName: None
         name: None
@@ -255,15 +256,14 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         instance: None
         providesType: None
         enumMember: None
-        complete: true
       })
     }
   }
   visitTypeParameter: |self, mut t: TypeParameter| {
-    if not t.scope {
-      t.scope = self.scope
+    if not t->scope {
+      t->scope = self.scope
       visit.walkTypeParameter(self, t)
-      t.type_ = Type({
+      t->type_ = Type({
         id: Some(t.name.name)
         displayName: None
         name: Some(t.name.name)
@@ -274,7 +274,6 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         instance: None
         providesType: None
         enumMember: None
-        complete: true
       })
       let mut scope: Scope = self.scope
       if let Result::Err(err) = scope.define({
@@ -282,7 +281,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         token: t
         mutable: false
         allowRedeclare: false
-        type_: Type.provides(t.type_)
+        type_: Type.provides(t->type_.transmute())
         completeType: None
         previous: None
       })
@@ -290,31 +289,31 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
     }
   }
   visitTypePath: |self, mut t: TypePath| {
-    if not t.type_ {
-      t.scope = self.scope
+    if not t->type_ {
+      t->scope = self.scope
       let scope: Scope = self.scope
       match scope.getTypePath(t, visitor) {
         Result::Ok(binding) => {
-          t.type_= binding.type_
-          t.providesType = binding.type_.providesType.unwrapOr(binding.type_)
+          t->type_= binding.type_
+          t->providesType = binding.type_.providesType.unwrapOr(binding.type_)
         }
         Result::Err(err) => reportError(t, err)
       }
     }
   }
   visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, type_: Type, allowNotExhaustive = false| {
-    if d.scope then return undefined
-    d.scope = self.scope
+    if d->scope then return ()
+    d->scope = self.scope
     self.visitPattern(d.pattern)
     let type_: Type = d.typeBound.mapOr(type_, |bound| {
       self.visitTypeBound(bound)
       bound.getType() or type_
     })
-    d.type_ = type_
-    if not isAssignable(d.pattern.type_, d.type_)
+    d->type_ = type_
+    if not isAssignable(d.pattern->type_.transmute(), d->type_.transmute())
       then return reportError(d.pattern, type_.displayName() + ' is not assignable to pattern ' + d.pattern.displayName())
 
-    match declarePatternVariables(d.scope, self, d.pattern, d.mutable, d.type_, allowNotExhaustive) {
+    match declarePatternVariables(d->scope.transmute(), self, d.pattern, d.mutable, d->type_.transmute(), allowNotExhaustive) {
       Result::Ok(_) => {}
       Result::Err(PatternError::PatternMismatch(_, to, subject)) => {
         reportError(d, notAssignableError(to, subject))
@@ -332,14 +331,14 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         self.visitExpression(initializer)
       }
       let initializerType = initializer.getType()
-      if not d.type_ and d.pattern.binding {
-        d.pattern.binding.type_ = initializerType
-        d.type_ = initializerType
+      if not d->type_ and d.pattern->binding {
+        d.pattern->binding->type_ = initializerType
+        d->type_ = initializerType
       }
-      else if not isAssignable(d.type_, initializerType)
-        then return reportError(initializer, notAssignableError(d.type_, initializerType))
-      if not isAssignable(d.pattern.type_, initializerType)
-        then return reportError(d, notAssignableError(d.pattern.type_, initializerType))
+      else if not isAssignable(d->type_.transmute(), initializerType)
+        then return reportError(initializer, notAssignableError(d->type_.transmute(), initializerType))
+      if not isAssignable(d.pattern->type_.transmute(), initializerType)
+        then return reportError(d, notAssignableError(d.pattern->type_.transmute(), initializerType))
     }
   }
 }}

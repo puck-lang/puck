@@ -4,7 +4,7 @@ let a = 5
 a = 10
 
 ///// Can't assign to immutable variable b
-let b = {}
+let b = {d: Num}
 b.d = 5
 
 ///// Can't assign to immutable variable c

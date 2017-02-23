@@ -52,7 +52,7 @@ impl PositionVisitor for DefinitionVisitor {
   }
 
   fn visitIdentifier(mut self, i: Identifier) -> () {
-    let binding: Binding = i.binding
+    let binding: Binding = i->binding.transmute()
     if binding {
       self.definitions = [{
         file: self.file

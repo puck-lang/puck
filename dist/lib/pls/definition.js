@@ -59,16 +59,14 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var self = this;
     if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.property, $isTraitObject: true }), _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor"].position.call(self)) == _core.Ordering.Equal) {
       var __PUCK__value__1 = self.value.importedModule;
-      if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
-        var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
-            _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
-            _module = _$unwrapTraitObject$v[0];
+      if (__PUCK__value__1.kind == "Some") {
+        var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+            _module = _PUCK__value__1$valu[0];
 
         var __PUCK__value__2 = _core.ObjectMap.get.call(_module.exports, m.property.name);
-        if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
-          var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__2),
-              _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
-              e = _$unwrapTraitObject2$[0];
+        if (__PUCK__value__2.kind == "Some") {
+          var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+              e = _PUCK__value__2$valu[0];
 
           self.value.definitions = [{
             file: _module.file,
@@ -84,7 +82,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
   visitWhileLoop: _position_visitor.PositionVisitor.visitWhileLoop,
   visitIdentifier: function visitIdentifier(i) {
     var self = this;
-    var binding = i.binding;
+    var binding = $unwrapTraitObject(i.binding);
     if (binding) {
       var __PUCK__value__3 = binding.token;
       self.value.definitions = [{

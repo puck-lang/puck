@@ -22,9 +22,9 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 };
 function jest(watch, rootDir) {
   var moduleNameMapper = _core.ObjectMap._new();
-  moduleNameMapper["^puck-lang/dist/lib/stdlib(.*)$"] = path.resolve($unwrapTraitObject(_js.require).resolve("../core"), "..") + "$1";
+  moduleNameMapper["^puck-lang/dist/lib/stdlib(.*)$"] = path.resolve(_js.require.resolve("../core"), "..") + "$1";
   var transform = _core.ObjectMap._new();
-  transform[".*"] = $unwrapTraitObject(_js.require).resolve("../../test/jest_preprocessor");
+  transform[".*"] = _js.require.resolve("../../test/jest_preprocessor");
   var config = {
     moduleFileExtensions: ["puck", "js"],
     moduleNameMapper: moduleNameMapper,
@@ -36,7 +36,7 @@ function jest(watch, rootDir) {
   };
   var jestArgs = ["--config", $unwrapTraitObject($unwrapTraitObject(_js.global).JSON).stringify(config)];
   if (watch) {
-    _core.List.add.call(jestArgs, "--watch");
+    _core.List.push.call(jestArgs, "--watch");
   };
   return (0, _jest.run)(jestArgs);
 }

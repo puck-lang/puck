@@ -39,19 +39,17 @@ TokenStream.peek = function peek() {
   var self = this;
   if (returnDummy) {
     var __PUCK__value__1 = self.currentDummy;
-    if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
-      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
-          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
-          _token = _$unwrapTraitObject$v[0];
+    if (__PUCK__value__1.kind == "Some") {
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+          _token = _PUCK__value__1$valu[0];
 
       return _token;
     };
   };
   var __PUCK__value__2 = self.current;
-  if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
-    var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__2),
-        _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
-        _token2 = _$unwrapTraitObject2$[0];
+  if (__PUCK__value__2.kind == "Some") {
+    var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+        _token2 = _PUCK__value__2$valu[0];
 
     if (!isDummy(_token2)) {
       return _token2;
@@ -76,10 +74,9 @@ TokenStream.next = function next() {
 
   var self = this;
   var __PUCK__value__3 = self.currentDummy;
-  if ($unwrapTraitObject(__PUCK__value__3).kind == "Some") {
-    var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__3),
-        _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
-        _token3 = _$unwrapTraitObject3$[0];
+  if (__PUCK__value__3.kind == "Some") {
+    var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
+        _token3 = _PUCK__value__3$valu[0];
 
     self.currentDummy = _core.None;
     if (returnDummy) {
@@ -87,10 +84,9 @@ TokenStream.next = function next() {
     };
   };
   var __PUCK__value__4 = self.current;
-  if ($unwrapTraitObject(__PUCK__value__4).kind == "Some") {
-    var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__4),
-        _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
-        _token4 = _$unwrapTraitObject4$[0];
+  if (__PUCK__value__4.kind == "Some") {
+    var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+        _token4 = _PUCK__value__4$valu[0];
 
     self.current = _core.None;
     if (!isDummy(_token4) || returnDummy) {
@@ -106,17 +102,15 @@ TokenStream.next = function next() {
 TokenStream.eof = function eof() {
   var self = this;
   var __PUCK__value__5 = TokenStream.peek.call(self);
-  var __PUCK__value__6 = __PUCK__value__5;
-  if ($unwrapTraitObject(__PUCK__value__6).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__6).value)[$unwrapTraitObject(0)]).kind).kind == "EndOfFileToken") {
-    var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__6),
-        _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
-        _undefined2 = _$unwrapTraitObject5$[0].kind;
+  if ($unwrapTraitObject(__PUCK__value__5).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__5).value)[0]).kind).kind == "EndOfFileToken") {
+    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__5),
+        _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+        _undefined = _$unwrapTraitObject$v[0].kind;
 
     return true;
   } else {
-    var __PUCK__value__7 = __PUCK__value__5;
     if (true) {
-      var __PUCK__value__8 = __PUCK__value__7;
+      var __PUCK__value__6 = __PUCK__value__5;
       return false;
     };
   };
@@ -136,13 +130,14 @@ TokenStream._tryParseOperator = function _tryParseOperator() {
       break;
     };
     searchString += ch;
-    var hasMatches = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _token5.operators, $isTraitObject: true }, function (token) {
-      if (token.length < length) {
+    var __PUCK__value__7 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _token5.operators, $isTraitObject: true }, function (token) {
+      if (_core.String.size.call(token) < length) {
         return false;
       } else {
         return token.substr(0, length + 1) == searchString;
       };
-    }).value.length > 0;
+    });
+    var hasMatches = _core.Iterable[__PUCK__value__7.type].size.call(__PUCK__value__7) > 0;
     if (hasMatches) {
       length += 1;
       found = searchString;
@@ -240,11 +235,10 @@ TokenStream._readIdentifierOrKeyword = function _readIdentifierOrKeyword() {
         span: span
       });
     } else {
-      var __PUCK__value__9 = _token5.SyntaxKind.fromText(id);
-      if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
-        var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__9),
-            _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
-            kind = _$unwrapTraitObject6$[0];
+      var __PUCK__value__8 = _token5.SyntaxKind.fromText(id);
+      if (__PUCK__value__8.kind == "Some") {
+        var _PUCK__value__8$valu = _slicedToArray(__PUCK__value__8.value, 1),
+            kind = _PUCK__value__8$valu[0];
 
         return _token5.Token.SimpleToken({
           kind: kind,
@@ -309,14 +303,14 @@ TokenStream._readString = function _readString() {
       } else {
         if (ch == "$" && isIdStart(_input_stream.InputStream.peek.call(self.input)) && !self.inImport) {
           var _end = _input_stream.InputStream.position.call(self.input);
-          parts.push(_ast.StringLiteralPart.Literal({
+          _core.List.push.call(parts, _ast.StringLiteralPart.Literal({
             span: {
               start: start,
               end: _end
             },
             value: str
           }));
-          parts.push(_ast.StringLiteralPart.Identifier(TokenStream._readIdentifier.call(self)));
+          _core.List.push.call(parts, _ast.StringLiteralPart.Identifier(TokenStream._readIdentifier.call(self)));
           str = "";
           start = _input_stream.InputStream.position.call(self.input);
         } else {
@@ -330,7 +324,7 @@ TokenStream._readString = function _readString() {
     };
   };
   var end = _input_stream.InputStream.position.call(self.input);
-  parts.push(_ast.StringLiteralPart.Literal({
+  _core.List.push.call(parts, _ast.StringLiteralPart.Literal({
     span: {
       start: start,
       end: end
@@ -396,11 +390,10 @@ TokenStream._readNext = function _readNext() {
             if (isIdStart(ch)) {
               return TokenStream._readIdentifierOrKeyword.call(self);
             } else {
-              var __PUCK__value__10 = TokenStream._tryParseOperator.call(self);
-              if ($unwrapTraitObject(__PUCK__value__10).kind == "Some") {
-                var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__10),
-                    _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
-                    operator = _$unwrapTraitObject7$[0];
+              var __PUCK__value__9 = TokenStream._tryParseOperator.call(self);
+              if (__PUCK__value__9.kind == "Some") {
+                var _PUCK__value__9$valu = _slicedToArray(__PUCK__value__9.value, 1),
+                    operator = _PUCK__value__9$valu[0];
 
                 return _token5.Token.SimpleToken(operator);
               } else {
@@ -421,33 +414,30 @@ var longestOperator = _token5.operators.reduce(function (longest, curr) {
   };
 }, 0);
 function isDummy(token) {
-  var __PUCK__value__11 = token;
-  var __PUCK__value__12 = __PUCK__value__11;
-  if ($unwrapTraitObject(__PUCK__value__12).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__12).value)[$unwrapTraitObject(0)]).kind).kind == "NewlineToken") {
-    var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__12),
-        _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
-        _undefined3 = _$unwrapTraitObject8$[0].kind;
+  var __PUCK__value__10 = token;
+  if ($unwrapTraitObject(__PUCK__value__10).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__10).value)[0]).kind).kind == "NewlineToken") {
+    var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__10),
+        _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+        _undefined2 = _$unwrapTraitObject2$[0].kind;
 
     return true;
   } else {
-    var __PUCK__value__13 = __PUCK__value__11;
-    if ($unwrapTraitObject(__PUCK__value__13).kind == "Comment") {
-      var _undefined4 = $unwrapTraitObject(__PUCK__value__13);
+    if ($unwrapTraitObject(__PUCK__value__10).kind == "Comment") {
+      var _undefined3 = $unwrapTraitObject(__PUCK__value__10);
       return true;
     } else {
-      var __PUCK__value__14 = __PUCK__value__11;
       if (true) {
-        var __PUCK__value__15 = __PUCK__value__14;
+        var __PUCK__value__11 = __PUCK__value__10;
         return false;
       };
     };
   };
 };
 function isDigit(ch) {
-  return $unwrapTraitObject((0, _js.RegExp)("^[0-9]$")).test(ch);
+  return _core.RegExp.test.call(_core.RegExp._new("^[0-9]$"), ch);
 };
 function isIdStart(ch) {
-  return $unwrapTraitObject((0, _js.RegExp)("^[a-z_]$", "i")).test(ch);
+  return _core.RegExp.test.call(_core.RegExp._new("^[a-z_]$", "i"), ch);
 };
 function isId(ch) {
   return isIdStart(ch) || isDigit(ch);

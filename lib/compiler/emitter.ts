@@ -46,6 +46,7 @@ import {
   VariableDeclaration,
   WhileLoop,
 } from './ast'
+import {Expression as ExpressionImpl} from '../ast/ast'
 import {SyntaxKind} from '../ast/token'
 import {Type, Record, Tuple, Implementation} from '../entities'
 import {getImplementationForTrait} from '../typeck/src/impls'
@@ -743,6 +744,9 @@ export function Emitter() {
       else if (fn.isDirectTraitCall) {
         functionName += '.call'
       }
+      if (functionName == 'Unknown.transmute.call') {
+        return emitExpression((fn.func.value[0] as MemberAccess).object)
+      }
       valueVariable = outerValueVariable
     }
     else {
@@ -855,7 +859,7 @@ export function Emitter() {
               object: expression,
               index: {
                 kind: 'NumberLiteral',
-                value: [{value: i}],
+                value: [{value: i, type_: {kind: {kind: 'Struct'}}}],
               },
             } as IndexAccess]
           }))
@@ -878,13 +882,18 @@ export function Emitter() {
 
   function emitIfLetExpression(e: IfLetExpression) {
     let outerValueVariable = valueVariable
-    valueVariable = newValueVariable()
-
-    hoist(`let ${valueVariable} = ${emitExpression(e.expression)}`)
+    let initializer: Identifier
+    if (e.expression.kind === 'Identifier' && e.expression.value[0].name.startsWith('__PUCK__value__')) {
+      initializer = e.expression.value[0]
+    } else {
+      valueVariable = newValueVariable()
+      hoist(`let ${valueVariable} = ${emitExpression(e.expression)}`)
+      initializer = {name: valueVariable, type_: {kind: {kind: 'Struct'}} as any}
+    }
 
     let condition = emitPatternComparison(e.pattern, {
       kind: 'Identifier',
-      value: [{name: valueVariable} as Identifier],
+      value: [initializer],
     })
 
     let then_ = {
@@ -902,9 +911,7 @@ export function Emitter() {
                 kind: 'Some',
                 value: [{
                   kind: 'Identifier',
-                  value: [{
-                    name: valueVariable,
-                  } as Identifier],
+                  value: [initializer],
                 }],
               },
             }]

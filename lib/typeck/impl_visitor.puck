@@ -36,7 +36,7 @@ import '../entities.puck' as {
   TypeKind
 }
 
-fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {implementations: List<Implementation>}, mut i: ImplDeclaration, reportError: (ToSpan, String) -> (), id: String) {
+fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable: {implementations: List<Implementation>}, mut i: ImplDeclaration, reportError: (ToSpan, String) -> (), id: String) {
   let traitName = traitType.displayName()
 
   if implementable.implementations.any(|imp| imp.trait_ == traitType)
@@ -83,10 +83,10 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
     id
     type_: type_
     trait_: traitType
-    typeParameters: i.typeParameters.map(|p| p.type_).toList()
+    typeParameters: i.typeParameters.map(|p| p->type_.transmute()).toList()
   })
 
-  i.implementation = implementation
+  i->implementation = implementation
   implementable.implementations.push(implementation)
 
   i.members.forEach(|mut functionDeclaration| {
@@ -94,7 +94,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, implementable: {i
     let traitFunctionType: Type = traitFunctions[functionDeclaration.type_.name.unwrap()]
     let traitFunction = traitFunctionType.getFunction()
     let function = functionDeclaration.type_.getFunction()
-    functionDeclaration.traitFunctionType = traitFunctionType
+    functionDeclaration->traitFunctionType = traitFunctionType
 
     if let Result::Err(error) = checkFunctionAssignability(functionName, traitFunction, function)
       then reportError(functionDeclaration, error)
@@ -113,7 +113,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
     )
   )
 
-  implementable.implementations.add({
+  implementable.implementations.push({
     type_: type_
     trait_: {
       id: type_.id
@@ -127,9 +127,8 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
       instance: None
       providesType: None
       enumMember: None
-      complete: true
     }
-    typeParameters: i.typeParameters.map(|p| p.type_).toList()
+    typeParameters: i.typeParameters.map(|p| p->type_.transmute()).toList()
   })
 }
 
@@ -149,9 +148,9 @@ export fn ImplVisitor(mut context, file) {
     id
   }
 
-  Object.assign({}, visit.emptyVisitor, structureVisitor(reportError, 'ImplVisitor'), {
+  Object->assign({}, visit.emptyVisitor, structureVisitor(reportError, 'ImplVisitor'), {
     visitModule: |mut self, mut m: Module| {
-      self.scope = m.scope
+      self.scope = m->scope
       m.statements
         .filter(|e| match e {
           TopLevelStatement::ImplDeclaration(_) => true
@@ -165,7 +164,6 @@ export fn ImplVisitor(mut context, file) {
       let parentScope: Scope = self.scope
       let mut scope = parentScope.createChild()
       self.scope = scope
-      i.scope = scope
       i.typeParameters.forEach(self.visitTypeParameter.bind(self))
       self.visitTypeBound(i.trait_)
       self.visitTypeBound(i.type_)
@@ -178,8 +176,14 @@ export fn ImplVisitor(mut context, file) {
 
       if let TypeKind::Trait(trait_) = traitType.kind {
         match structType.kind {
-          TypeKind::Enum(enum_) => implementTrait(traitType, trait_, structType, enum_, i, reportError, id)
-          TypeKind::Struct(struct) => implementTrait(traitType, trait_, structType, struct, i, reportError, id)
+          TypeKind::Enum(enum_) => {
+            let mut e = enum_
+            implementTrait(traitType, trait_, structType, e, i, reportError, id)
+          }
+          TypeKind::Struct(struct) => {
+            let mut s = struct
+            implementTrait(traitType, trait_, structType, s, i, reportError, id)
+          }
           _ => reportError(i.type_, structType.displayName() + ' is not a struct or an enum')
         }
       }
@@ -191,7 +195,6 @@ export fn ImplVisitor(mut context, file) {
       let parentScope: Scope = self.scope
       let mut scope = parentScope.createChild()
       self.scope = scope
-      i.scope = self.scope
       i.typeParameters.forEach(self.visitTypeParameter.bind(self))
       self.visitTypeBound(i.type_)
 

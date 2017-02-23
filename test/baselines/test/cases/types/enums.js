@@ -19,7 +19,7 @@ var Enum = {
 var EnumTrait = exports.EnumTrait = {
   getB: function getB() {
     var self = this;
-    return $unwrapTraitObject(self.value.value).b;
+    return $unwrapTraitObject(self.value.value.b);
   }
 };
 EnumTrait["$impl_test/cases/types/enums.puck:EnumTrait$test/cases/types/enums.puck:Enum"] = {

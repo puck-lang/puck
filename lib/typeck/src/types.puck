@@ -15,7 +15,7 @@ import '../../entities.puck' as {
 }
 
 fn assign(a, b) {
-  Object.assign({}, a, b)
+  Object->assign({}, a, b).transmute()
 }
 
 export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = true| fn resolveTypeParametersInner(mut type_: Type) {
@@ -89,10 +89,6 @@ fn resolveTypeParametersTrait(parameterMap: ObjectMap<Type>, t: Trait) {
   })
 }
 
-fn mapObject<T>(object: ObjectMap<T>, mapper) {
-  object.map(mapper)
-}
-
 export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
   if let Option::Some(providedType) = type_.providesType {
     let mut p = providedType
@@ -105,29 +101,30 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
       instance: type_.instance
       providesType: createTypeInstance(p, typeParameters_)
       enumMember: type_.enumMember
-      complete: type_.complete
     })
   }
   let mut class: TypeClass = type_.class.unwrap()
   let typeParameters: List<Type> =
-    if typeParameters_.length < class.parameterRange.end - 1 {
-      typeParameters_.concat(
+    if typeParameters_.size() < class.parameterRange.end - 1 {
+      typeParameters_->concat(
         class.typeParameters
-          .slice(typeParameters_.length)
+          .skip(typeParameters_.size())
           .map(|p| {
             if let TypeKind::Parameter(parameter) = p.kind {
               parameter.defaultValue.unwrapOr(p)
             }
             else throw 'not a type parameter'
           })
+          .toList()
       )
+      .transmute()
     }
     else typeParameters_.toList()
 
   if let Option::Some(cachedInstance) = class.instances.find(|a| {
       let i = a.instance.unwrap()
-      i.typeParameters.length == typeParameters.length and
-      i.typeParameters.every(|p, i| isSameType(p, typeParameters[i]))
+      i.typeParameters.size() == typeParameters.size() and
+      i.typeParameters.enumerate().all(|(i, p)| isSameType(p, typeParameters[i]))
     })
     then return cachedInstance
 
@@ -148,14 +145,13 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
     })
     providesType: type_.providesType
     enumMember: type_.enumMember
-    complete: type_.complete
   }
   // Place the instance in the class before the instance is resolved
   // So that types with circles will use the cache and thus share the
   // type instance. Otherwise the resolver is stuck in an infinite loop.
   class.instances.push(instance)
 
-  instance.kind = resolveTypeParameters(parameterMap)(type_).kind
+  instance.kind = resolveTypeParameters(parameterMap)(type_)->kind.transmute()
 
   if let TypeKind::Enum(enum_) = instance.kind {
     enum_.members.forEach(|mut (_, member)| {
@@ -224,7 +220,6 @@ export fn isAssignable(to: Type, subject: Type) {
       _ => false
     }
     TypeKind::Trait => match subject.kind {
-      // TypeKind::Trait(subjectTrait) => isTraitAssignable(toTrait, subjectTrait)
       TypeKind::Trait => {
         isSameId(to, subject) and
         checkTypeParameters(to, subject)
@@ -256,7 +251,7 @@ fn isFunctionAssignable(to: Function, subject: Function) {
   if not to.parameterRange.isSubsetOf(subject.parameterRange)
     then return false
 
-  if not to.parameters.enumerate().all(|(toArg, i)|
+  if not to.parameters.enumerate().all(|(i, toArg)|
     isAssignable(subject.parameters[i].type_, toArg.type_)
   )
     then return false
@@ -277,17 +272,9 @@ fn isStructAssignable(to: Struct, subject: Struct) {
       List.zip(toProps, subjectProps)
         .all(|(toProp, subjectProp)| isAssignable(toProp, subjectProp))
     }
-    (StructKind::Unit, StructKind::Unit) => to.kind.value == subject.kind.value
+    (StructKind::Unit, StructKind::Unit) => to->kind->value == subject->kind->value
     _ => to.kind == subject.kind
   }
-}
-
-fn isTraitAssignable(to: Trait, subject: Trait) {
-  if to.functions.size() == subject.functions.size()
-    then to.functions.toList().all(|(name, toFunction)|
-      isAssignable(toFunction, subject.functions[name])
-    )
-    else return false
 }
 
 export fn isSameType(a: Type, b: Type) {
@@ -313,7 +300,7 @@ export fn isSameType(a: Type, b: Type) {
 export fn findCommonType(types: List<Type>) -> Result<Type, ()> {
   let mut index = 0
 
-  while index < types.length {
+  while index < types.size() {
     let mut type_ = types[index]
 
     if types.all(|t| isAssignable(type_, t)) {

@@ -1,14 +1,12 @@
-import 'puck:js' as {Error}
+import 'puck:js' as {Error, console, process}
 import 'node:fs' as {realpathSync}
 import 'node:path' as {join}
 import '../lib/helpers.puck' as {cmd, flag}
 import '../lib/compiler.puck' as {createContext, build}
-import '../lib/stdlib/js.puck' as {Array, RegExp, console, process}
 
-let mut E = Error
-E.stackTraceLimit = 100;
+Error->stackTraceLimit = 100
 
-let argv: List<String> = process.argv
+let argv: List<String> = process->argv.transmute()
 let arguments = argv.skipUntil(|arg| arg.contains('puckc')).skip(1).toList()
 
 let outDir = flag(arguments, '--out-dir', 'dist')
@@ -18,16 +16,16 @@ let extension = if flag(arguments, '--skip-extension') then '' else '.js'
 let ignoreErrors = if flag(arguments, '--ignore-errors') != '' then true else false
 let isBinary = if flag(arguments, '--is-binary') != '' then true else false
 
-if arguments.length > 1 and outFile {
-  console.error("Can't specify --out-file with more than one input file")
-  process.exit(1)
+if arguments.size() > 1 and outFile {
+  console->error("Can't specify --out-file with more than one input file")
+  process->exit(1)
 }
 
-if arguments.length == 0 {
+if arguments.size() == 0 {
   print('Usage:
   puckc [--out-file \$file] [--out-dir \$dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] ...files
 ')
-  process.exit(1)
+  process->exit(1)
 } else {
   let projectPath = realpathSync('.')
   let mut context = createContext(projectPath, ignoreErrors)
@@ -35,7 +33,7 @@ if arguments.length == 0 {
     .map(|file| {{
       isBin: isBinary
       file
-      outFile: outFile or join(outDir, file.replace(RegExp('\\.puck$'), extension))
+      outFile: outFile or join(outDir, file->replace(RegExp.new('\\.puck$'), extension))
     }})
     .toList()
   build(files, context, {dump})

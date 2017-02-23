@@ -58,7 +58,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var self = this;
     (0, _core.print)("onHover visitIdentifier");
     if (i.type_) {
-      var type_ = i.type_;
+      var type_ = $unwrapTraitObject(i.type_);
       self.value.hover = (0, _core.Some)({
         contents: getTypeContents(type_),
         span: _span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: i, $isTraitObject: true })
@@ -68,10 +68,9 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
   visitFunctionDeclaration: function visitFunctionDeclaration(f) {
     var self = this;
     var __PUCK__value__1 = f.name;
-    if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
-      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
-          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
-          name = _$unwrapTraitObject$v[0];
+    if (__PUCK__value__1.kind == "Some") {
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+          name = _PUCK__value__1$valu[0];
 
       if (_span.Span.cmp.call(name.span, _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].position.call(self)) == _core.Ordering.Equal) {
         if (f.type_) {
@@ -91,7 +90,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var parent = self.value.patternType;
     var __PUCK__value__2 = void 0;
     if (d.type_) {
-      __PUCK__value__2 = (0, _core.Some)(d.type_);
+      __PUCK__value__2 = (0, _core.Some)($unwrapTraitObject(d.type_));
     } else {
       __PUCK__value__2 = _core.None;
     };
@@ -141,7 +140,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: a.member, $isTraitObject: true }), _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].position.call(self)) == _core.Ordering.Equal) {
       (0, _core.print)("onHover visitMemberAccess");
       if (a.type_) {
-        var type_ = a.type_;
+        var type_ = $unwrapTraitObject(a.type_);
         self.value.hover = (0, _core.Some)({
           contents: getTypeContents(type_),
           span: _span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: a.member, $isTraitObject: true })
@@ -161,7 +160,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var parent = self.value.literalType;
     var __PUCK__value__5 = void 0;
     if (l.type_) {
-      __PUCK__value__5 = (0, _core.Some)(l.type_);
+      __PUCK__value__5 = (0, _core.Some)($unwrapTraitObject(l.type_));
     } else {
       __PUCK__value__5 = _core.None;
     };
@@ -193,10 +192,9 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var self = this;
     (0, _core.print)("onHover visitIdentifierPattern?");
     var __PUCK__value__6 = self.value.patternType;
-    if ($unwrapTraitObject(__PUCK__value__6).kind == "Some") {
-      var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__6),
-          _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
-          type_ = _$unwrapTraitObject2$[0];
+    if (__PUCK__value__6.kind == "Some") {
+      var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+          type_ = _PUCK__value__6$valu[0];
 
       (0, _core.print)("onHover visitIdentifierPattern");
       self.value.hover = (0, _core.Some)({
@@ -210,11 +208,10 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var __PUCK__value__7 = _core.List.binarySearchBy.call(p.properties, function (prop) {
       return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPatternMember"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPatternMember', value: prop, $isTraitObject: true }), _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].position.call(self));
     });
-    if ($unwrapTraitObject(__PUCK__value__7).kind == "Ok") {
+    if (__PUCK__value__7.kind == "Ok") {
       (function () {
-        var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__7),
-            _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
-            index = _$unwrapTraitObject3$[0];
+        var _PUCK__value__7$valu = _slicedToArray(__PUCK__value__7.value, 1),
+            index = _PUCK__value__7$valu[0];
 
         self.value.patternType = _core.Option.andThen.call(self.value.patternType, function (t) {
           return getPropertyType(t, _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: p.properties, $isTraitObject: true }, index).property.name);
@@ -225,7 +222,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
   },
   visitRecordTypePattern: function visitRecordTypePattern(t, p) {
     var self = this;
-    var type_ = t.type_;
+    var type_ = $unwrapTraitObject(t.type_);
     var __PUCK__value__8 = void 0;
     if (type_) {
       __PUCK__value__8 = _core.Option.orValue.call(_core.Option.orValue.call(_core.Option.andThen.call(type_.enumMember, function (_ref) {
@@ -249,11 +246,10 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
     var __PUCK__value__10 = _core.List.binarySearchBy.call(p.properties, function (prop) {
       return _span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: prop, $isTraitObject: true }), _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].position.call(self));
     });
-    if ($unwrapTraitObject(__PUCK__value__10).kind == "Ok") {
+    if (__PUCK__value__10.kind == "Ok") {
       (function () {
-        var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__10),
-            _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
-            index = _$unwrapTraitObject4$[0];
+        var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1),
+            index = _PUCK__value__10$val[0];
 
         self.value.patternType = _core.Option.andThen.call(self.value.patternType, function (t) {
           return getTupleType(t, index);
@@ -264,7 +260,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
   },
   visitTupleTypePattern: function visitTupleTypePattern(t, p) {
     var self = this;
-    var type_ = t.type_;
+    var type_ = $unwrapTraitObject(t.type_);
     var __PUCK__value__11 = void 0;
     if (type_) {
       __PUCK__value__11 = _core.Option.orValue.call(_core.Option.orValue.call(_core.Option.andThen.call(type_.enumMember, function (_ref3) {
@@ -309,75 +305,67 @@ function getTypeContents(type_) {
   var detailsl = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
   var __PUCK__value__13 = type_.kind;
-  var __PUCK__value__14 = __PUCK__value__13;
-  var __PUCK__value__15 = void 0;
-  if ($unwrapTraitObject(__PUCK__value__14).kind == "Function") {
-    var _undefined = $unwrapTraitObject(__PUCK__value__14);
-    __PUCK__value__15 = _entities.Type.verboseName.call(type_);
+  var __PUCK__value__14 = void 0;
+  if ($unwrapTraitObject(__PUCK__value__13).kind == "Function") {
+    var _undefined = $unwrapTraitObject(__PUCK__value__13);
+    __PUCK__value__14 = _entities.Type.verboseName.call(type_);
   } else {
-    var __PUCK__value__16 = __PUCK__value__13;
-    var __PUCK__value__17 = void 0;
+    var __PUCK__value__15 = void 0;
     if (true) {
-      var __PUCK__value__18 = __PUCK__value__16;
-      __PUCK__value__17 = _entities.Type.displayName.call(type_);
+      var __PUCK__value__16 = __PUCK__value__13;
+      __PUCK__value__15 = _entities.Type.displayName.call(type_);
     };
-    __PUCK__value__15 = __PUCK__value__17;
+    __PUCK__value__14 = __PUCK__value__15;
   };
-  var name = __PUCK__value__15;
+  var name = __PUCK__value__14;
   return [{
     language: "puck",
     value: name
   }];
 };
 function getEnumMember(type_, member) {
-  var __PUCK__value__19 = type_.kind;
-  var __PUCK__value__20 = __PUCK__value__19;
-  if ($unwrapTraitObject(__PUCK__value__20).kind == "Enum") {
-    var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__20),
-        _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
-        enum_ = _$unwrapTraitObject5$[0];
+  var __PUCK__value__17 = type_.kind;
+  if ($unwrapTraitObject(__PUCK__value__17).kind == "Enum") {
+    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__17),
+        _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+        enum_ = _$unwrapTraitObject$v[0];
 
     return _core.ObjectMap.get.call(enum_.members, member);
   } else {
-    var __PUCK__value__21 = __PUCK__value__19;
     if (true) {
-      var __PUCK__value__22 = __PUCK__value__21;
+      var __PUCK__value__18 = __PUCK__value__17;
       return _core.None;
     };
   };
 };
 function getPropertyType(type_, property) {
-  var __PUCK__value__23 = type_.kind;
-  var __PUCK__value__24 = __PUCK__value__23;
-  if ($unwrapTraitObject(__PUCK__value__24).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__24).value)[$unwrapTraitObject(0)]).kind).kind == "Record") {
-    var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__24),
-        _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
-        _$unwrapTraitObject6$2 = _slicedToArray(_$unwrapTraitObject6$[0].kind.value, 1),
-        record = _$unwrapTraitObject6$2[0];
+  var __PUCK__value__19 = type_.kind;
+  if ($unwrapTraitObject(__PUCK__value__19).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__19).value)[0]).kind).kind == "Record") {
+    var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__19),
+        _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+        _$unwrapTraitObject2$2 = _slicedToArray(_$unwrapTraitObject2$[0].kind.value, 1),
+        record = _$unwrapTraitObject2$2[0];
 
     return _core.ObjectMap.get.call(record.properties, property);
   } else {
-    var __PUCK__value__25 = __PUCK__value__23;
     if (true) {
-      var __PUCK__value__26 = __PUCK__value__25;
+      var __PUCK__value__20 = __PUCK__value__19;
       return _core.None;
     };
   };
 };
 function getTupleType(type_, index) {
-  var __PUCK__value__27 = type_.kind;
-  var __PUCK__value__28 = __PUCK__value__27;
-  if ($unwrapTraitObject(__PUCK__value__28).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__28).value)[$unwrapTraitObject(0)]).kind).kind == "Tuple") {
-    var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__28),
-        _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
-        _$unwrapTraitObject7$2 = _slicedToArray(_$unwrapTraitObject7$[0].kind.value, 1),
-        tuple = _$unwrapTraitObject7$2[0];
+  var __PUCK__value__21 = type_.kind;
+  if ($unwrapTraitObject(__PUCK__value__21).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__21).value)[0]).kind).kind == "Tuple") {
+    var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__21),
+        _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+        _$unwrapTraitObject3$2 = _slicedToArray(_$unwrapTraitObject3$[0].kind.value, 1),
+        tuple = _$unwrapTraitObject3$2[0];
 
     return _core.List.get.call(tuple.properties, index);
   } else {
-    var __PUCK__value__29 = __PUCK__value__27;
     if (true) {
-      var __PUCK__value__30 = __PUCK__value__29;
+      var __PUCK__value__22 = __PUCK__value__21;
       return _core.None;
     };
   };

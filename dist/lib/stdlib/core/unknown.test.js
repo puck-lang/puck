@@ -132,13 +132,13 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   });
   return (0, _test.describe)("transmute", function () {
     return (0, _test.it)("should return the object as anything", function () {
-      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.transmute.call(_core2.Unknown.from({})))).toEqual({});
-      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.transmute.call(_core2.Unknown.from([])))).toEqual([]);
-      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.transmute.call(_core2.Unknown.from([""])))).toEqual([""]);
-      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.transmute.call(_core2.Unknown.from("")))).toEqual("");
-      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.transmute.call(_core2.Unknown.from(0)))).toEqual(0);
-      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.transmute.call(_core2.Unknown.from(_js._undefined)))).toEqual(_js._undefined);
-      return (0, _test.expect)($unwrapTraitObject(_core2.Unknown.transmute.call(_core2.Unknown.from(_js._null)))).toEqual(_js._null);
+      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.from({}))).toEqual({});
+      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.from([]))).toEqual([]);
+      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.from([""]))).toEqual([""]);
+      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.from(""))).toEqual("");
+      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.from(0))).toEqual(0);
+      (0, _test.expect)($unwrapTraitObject(_core2.Unknown.from(_js._undefined))).toEqual($unwrapTraitObject(_js._undefined));
+      return (0, _test.expect)($unwrapTraitObject(_core2.Unknown.from(_js._null))).toEqual(_js._null);
     });
   });
 });

@@ -21,7 +21,7 @@ fn getPatternName(pattern: Pattern) -> Option<String> {
 
 export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> ()) -> Type {
   let class =
-    if f.typeParameters.length {
+    if f.typeParameters.size() {
       Some({
         parameterRange: getRange(
           f.typeParameters
@@ -30,19 +30,19 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
           'type parameter'
         )
         instances: []
-        typeParameters: f.typeParameters.map(|p| p.type_).toList()
+        typeParameters: f.typeParameters.map(|p| p->type_.transmute()).toList()
       })
     }
     else None
 
   let parameters: List<Binding> = f.parameterList
     .enumerate()
-    .map(|(p, i)| {{
+    .map(|(i, p)| {{
       name: getPatternName(p.pattern).unwrapOr('p$i')
       token: p
       mutable: p.mutable
       allowRedeclare: true
-      type_: p.type_
+      type_: p->type_.transmute()
       previous: None
       completeType: None
     }})
@@ -75,7 +75,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
           then getRange(
             parameters
             |p| {
-              let vd: VariableDeclaration = p.token
+              let vd: VariableDeclaration = p->token.transmute()
               vd.initializer.isSome()
             }
             reportError
@@ -89,7 +89,6 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
     instance: None
     providesType: None
     enumMember: None
-    complete: true
   }
 }
 
@@ -98,7 +97,7 @@ export fn checkFunctionAssignability(functionName: String, to: Function, subject
     then return Err(error)
 
   let mut errors = []
-  subject.parameters.enumerate().forEach(|(subjectParameter, i): (Binding, Num)| {
+  subject.parameters.enumerate().forEach(|(i, subjectParameter)| {
     let toParameter: Binding = to.parameters[i]
 
     if not isAssignable(toParameter.type_, subjectParameter.type_)
@@ -109,9 +108,8 @@ export fn checkFunctionAssignability(functionName: String, to: Function, subject
     else if subjectParameter.mutable and not toParameter.mutable
       then errors.push('Parameter #$i is required to be immutable')
   })
-  if errors.length > 0
+  if errors.size() > 0
     then return Err(errors[0])
-
 
   if not isAssignable(to.returnType, subject.returnType)
     then Err('Return type ' + subject.returnType.displayName() + ' is not assignable to ' + to.returnType.displayName())
@@ -146,7 +144,7 @@ export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeP
       }
       StructKind::Tuple(parameterTuple) => {
         if let TypeKind::Struct({kind: StructKind::Tuple(argumentTuple)}) = argumentType.kind {
-          parameterTuple.properties.enumerate().forEach(|(parameterType, i)| {
+          parameterTuple.properties.enumerate().forEach(|(i, parameterType)| {
             if let Some(argumentType) = argumentTuple.properties.get(i) {
               resolveFunctionTypeParameters(
                 parameterMap
@@ -179,7 +177,7 @@ export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeP
 
   match (parameterType.typeParameters(), argumentType.typeParameters()) {
     (Some(parameterParameters), Some(argumentParameters)) => {
-      parameterParameters.enumerate().forEach(|(parameterType, i)| {
+      parameterParameters.enumerate().forEach(|(i, parameterType)| {
         if let Some(argumentType) = argumentParameters.get(i) {
           resolveFunctionTypeParameters(
             parameterMap

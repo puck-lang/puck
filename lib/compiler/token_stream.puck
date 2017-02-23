@@ -1,4 +1,4 @@
-import 'puck:js' as {RegExp, global, null, undefined}
+import 'puck:js' as {global, null}
 import '../ast/ast.puck' as {
   Comment
   Identifier
@@ -10,7 +10,7 @@ import '../ast/token.puck' as {SyntaxKind, SimpleToken, Token, operators}
 import '../ast/span.puck' as {Span}
 import 'input_stream.puck' as {InputStream}
 
-let longestOperator = operators.reduce(|longest, curr| {
+let longestOperator = operators->reduce(|longest, curr| {
   if curr.length > longest
     then curr.length
     else longest
@@ -25,11 +25,11 @@ fn isDummy(token: Token) -> Bool {
 }
 
 fn isDigit(ch) {
-  RegExp('^[0-9]$').test(ch)
+  RegExp.new('^[0-9]$').test(ch)
 }
 
 fn isIdStart(ch) {
-  RegExp('^[a-z_]$', 'i').test(ch)
+  RegExp.new('^[a-z_]$', 'i').test(ch)
 }
 
 fn isId(ch) {
@@ -132,11 +132,11 @@ impl TokenStream {
 
       let hasMatches = operators
         .filter(fn (token) {
-          if token.length < length
+          if token.size() < length
             then false
-            else token.substr(0, length + 1) == searchString
+            else token->substr(0, length + 1) == searchString
         })
-        .length > 0
+        .size() > 0
 
       if hasMatches {
         length += 1

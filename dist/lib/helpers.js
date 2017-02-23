@@ -34,67 +34,67 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 function cmd(cmd) {
   var result = (0, _js.asResult)(function () {
     return (0, _child_process.execSync)(cmd, {
-      cwd: $unwrapTraitObject(_js.process).cwd(),
+      cwd: _js.process.cwd(),
       shell: "/bin/bash",
       env: {
         BASHOPTS: "globstar:extglob",
-        PATH: $unwrapTraitObject($unwrapTraitObject(_js.process).env).PATH
+        PATH: _js.process.env.PATH
       }
     });
   });
   var __PUCK__value__1 = result;
-  var __PUCK__value__2 = __PUCK__value__1;
-  if ($unwrapTraitObject(__PUCK__value__2).kind == "Ok") {
-    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+  if ($unwrapTraitObject(__PUCK__value__1).kind == "Ok") {
+    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
         _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
         output = _$unwrapTraitObject$v[0];
 
     if (output.toString()) {
-      return $unwrapTraitObject(_js.console).log($unwrapTraitObject(output.toString()).trim());
+      return (0, _core.print)(output.toString().trim());
     };
   } else {
-    var __PUCK__value__3 = __PUCK__value__1;
-    if ($unwrapTraitObject(__PUCK__value__3).kind == "Err") {
-      var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+    if ($unwrapTraitObject(__PUCK__value__1).kind == "Err") {
+      var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__1),
           _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
           error = _$unwrapTraitObject2$[0];
 
-      var stdout = $unwrapTraitObject(error.stdout).toString();
-      var stderr = $unwrapTraitObject(error.stderr).toString();
+      var stdout = $unwrapTraitObject(error.stdout.toString());
+      var stderr = $unwrapTraitObject(error.stderr.toString());
       if (stdout) {
-        $unwrapTraitObject(_js.console).log($unwrapTraitObject(stdout).trim());
+        (0, _core.print)(_core.String.trim.call(stdout));
       };
       if (stderr) {
-        $unwrapTraitObject(_js.console).error($unwrapTraitObject(stderr).trim());
+        $unwrapTraitObject(_js.console).error(_core.String.trim.call(stderr));
       };
       if (error.stack) {
         $unwrapTraitObject(_js.console).error(error.stack);
       };
-      return $unwrapTraitObject(_js.process).exit(1);
+      _js.process.exit(1);
+      return [];
     };
   };
 };
 function walkSync(directory) {
   var filelist = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
-  if (!fs.existsSync(directory) || !$unwrapTraitObject(fs.statSync(directory)).isDirectory()) {
+  if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) {
     return [];
   };
-  var files = fs.readdirSync(directory);
-  $unwrapTraitObject(files).forEach(function (fileName) {
+  var files = $unwrapTraitObject(fs.readdirSync(directory));
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (fileName) {
     var file = path.join(directory, fileName);
-    if ($unwrapTraitObject(fs.statSync(file)).isDirectory()) {
-      return walkSync(file, filelist);
+    if (fs.statSync(file).isDirectory()) {
+      walkSync(file, filelist);
     } else {
-      return filelist.push(file);
+      _core.List.push.call(filelist, file);
     };
+    return [];
   });
   return filelist;
 };
 function flag(_arguments, name) {
   var defaultValue = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
 
-  var index = _arguments.indexOf(name);
+  var index = $unwrapTraitObject(_arguments.indexOf(name));
   if (index >= 0) {
     var value = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, index + 1);
     _arguments.splice(index, 2);

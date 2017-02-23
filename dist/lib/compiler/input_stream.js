@@ -44,7 +44,7 @@ InputStream.position = function position() {
 };
 InputStream.next = function next() {
   var self = this;
-  var ch = self.code.charAt(self.pos);
+  var ch = $unwrapTraitObject(self.code.charAt(self.pos));
   self.pos += 1;
   if (ch == "\n") {
     self.line += 1;
@@ -52,13 +52,13 @@ InputStream.next = function next() {
   } else {
     self.column += 1;
   };
-  return ch;
+  return $unwrapTraitObject(ch);
 };
 InputStream.peek = function peek() {
   var distance = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
   var self = this;
-  return self.code.charAt(self.pos + distance);
+  return $unwrapTraitObject(self.code.charAt(self.pos + distance));
 };
 InputStream.eof = function eof() {
   var self = this;
@@ -77,6 +77,6 @@ InputStream.croak = function croak(message) {
     }
   };
   var token = { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: span, $isTraitObject: true };
-  $unwrapTraitObject(self.context).reportError(self.file, token, message);
+  self.context.reportError(self.file, token, message);
   throw "Syntax Error";
 };

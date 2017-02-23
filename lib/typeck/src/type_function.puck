@@ -43,8 +43,8 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
         StructKind::Tuple(tuple) => {
           TypeKind::Function({
             selfBinding: None
-            parameters: tuple.properties.enumerate().map(|(p, i)| {{
-              name: i.toString()
+            parameters: tuple.properties.enumerate().map(|(i, p)| {{
+              name: '$i'
               token: Span.empty()
               mutable: false
               allowRedeclare: false
@@ -52,7 +52,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
               completeType: None
               previous: None
             }}).toList()
-            parameterRange: {start: tuple.properties.length, end: tuple.properties.length + 1}
+            parameterRange: {start: tuple.properties.size(), end: tuple.properties.size() + 1}
             returnType
             isAbstract: false
           })
@@ -67,7 +67,6 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
           instance: returnType.instance
           providesType: returnType.providesType
           enumMember: returnType.enumMember
-          complete: returnType.complete
         })
       }
       _ => {
@@ -83,10 +82,9 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
     displayName
     name: type_.name
     kind
-    class: providedType.class.map(|class| Object.assign({}, class, {instances: []}))
+    class: providedType.class.map(|class| Object->assign({}, class, {instances: []}).transmute())
     instance: providedType.instance
     providesType: type_.providesType.orValue(Some(type_))
     enumMember: type_.enumMember
-    complete: type_.complete
   }
 }
