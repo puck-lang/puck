@@ -13,6 +13,7 @@ import 'ast.puck' as {
   ExportDirective
   ExportedStatement
   ImportDirective
+  ImportSpecifier
   ObjectDestructure
   TypeDeclaration
 
@@ -61,8 +62,6 @@ import 'ast.puck' as {
   TypeParameter
 }
 import '../compiler/ast.ts' as {SyntaxKind}
-
-export type Visitor {}
 
 // Comments and Design based on [Rust](https://github.com/rust-lang/rust/blob/86dde9bbda92c02c61282b5df5d38338a798ef3b/src/libsyntax/visit.rs)
 
@@ -217,10 +216,10 @@ export let emptyVisitor = {
   visitTupleTypeBound: || {}
 }
 
-export fn walkModule(visitor: Visitor, m: Module) {
+export fn walkModule(visitor, m: Module) {
   m.statements.forEach(|s| visitor.visitTopLevelStatement(s))
 }
-export fn walkTopLevelStatement(visitor: Visitor, s: TopLevelStatement) {
+export fn walkTopLevelStatement(visitor, s: TopLevelStatement) {
   match s {
     TopLevelStatement::ExportDirective(e) => visitor.visitExportDirective(e)
     TopLevelStatement::ImportDirective(e) => visitor.visitImportDirective(e)
@@ -234,7 +233,7 @@ export fn walkTopLevelStatement(visitor: Visitor, s: TopLevelStatement) {
     TopLevelStatement::BlockLevelStatement(e) => walkBlockLevelStatement(visitor, e)
   }
 }
-export fn walkBlockLevelStatement(visitor: Visitor, s: BlockLevelStatement) {
+export fn walkBlockLevelStatement(visitor, s: BlockLevelStatement) {
   match s {
     BlockLevelStatement::Block(e) => visitor.visitBlock(e)
     BlockLevelStatement::BreakStatement(e) => visitor.visitBreak(e)
@@ -244,7 +243,7 @@ export fn walkBlockLevelStatement(visitor: Visitor, s: BlockLevelStatement) {
     BlockLevelStatement::Expression(e) => walkExpression(visitor, e)
   }
 }
-export fn walkExpression(visitor: Visitor, e: Expression) {
+export fn walkExpression(visitor, e: Expression) {
   match e {
     Expression::ThrowStatement(e) => visitor.visitExpression(e.expression)
     Expression::Comment(_) => {}
@@ -276,38 +275,38 @@ export fn walkExpression(visitor: Visitor, e: Expression) {
   }
 }
 
-export fn walkEnumDeclaration(visitor: Visitor, e: EnumDeclaration) {
+export fn walkEnumDeclaration(visitor, e: EnumDeclaration) {
   // visitor.visitIdentifier(e.name)
   e.typeParameters.forEach(|t| visitor.visitTypeParameter(t))
   e.members.forEach(|t| visitor.visitEnumMember(t))
 }
-export fn walkEnumMember(visitor: Visitor, e: EnumMember) {
+export fn walkEnumMember(visitor, e: EnumMember) {
   // visitor.visitIdentifier(e.name)
   if let Option::Some(typeBound) = e.bound then visitor.visitTypeBound(typeBound)
 }
-export fn walkImplDeclaration(visitor: Visitor, i: ImplDeclaration) {
+export fn walkImplDeclaration(visitor, i: ImplDeclaration) {
   i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   visitor.visitTypeBound(i.trait_)
   visitor.visitTypeBound(i.type_)
   i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
 }
-export fn walkImplShorthandDeclaration(visitor: Visitor, i: ImplShorthandDeclaration) {
+export fn walkImplShorthandDeclaration(visitor, i: ImplShorthandDeclaration) {
   i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   visitor.visitTypeBound(i.type_)
   i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
 }
-export fn walkTraitDeclaration(visitor: Visitor, t: TraitDeclaration) {
+export fn walkTraitDeclaration(visitor, t: TraitDeclaration) {
   if t.typeParameters
     then t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   t.members.forEach(|t| visitor.visitFunctionDeclaration(t))
 }
-export fn walkTypeDeclaration(visitor: Visitor, t: TypeDeclaration) {
+export fn walkTypeDeclaration(visitor, t: TypeDeclaration) {
   // visitor.visitIdentifier(t.name)
   t.typeParameters.forEach(|t| visitor.visitTypeParameter(t))
   if let Option::Some(typeBound) = t.bound then visitor.visitTypeBound(typeBound)
 }
 
-export fn walkExportDirective(visitor: Visitor, e: ExportDirective) {
+export fn walkExportDirective(visitor, e: ExportDirective) {
    match e.statement {
     ExportedStatement::EnumDeclaration(d) => visitor.visitEnumDeclaration(d)
     ExportedStatement::FunctionDeclaration(d) => visitor.visitFunctionDeclaration(d)
@@ -316,108 +315,109 @@ export fn walkExportDirective(visitor: Visitor, e: ExportDirective) {
     ExportedStatement::VariableDeclaration(d) => visitor.visitVariableDeclaration(d)
   }
 }
-export fn walkImportDirective(visitor: Visitor, i: ImportDirective) {
-  if i.specifier.kind == SyntaxKind.Identifier
-    then visitor.visitIdentifier(i.specifier)
-  else if i.specifier.kind == SyntaxKind.ObjectDestructure
-    then visitor.visitObjectDestructure(i.specifier)
+export fn walkImportDirective(visitor, i: ImportDirective) {
+  match i.specifier {
+    ImportSpecifier::Identifier(identifier) => visitor.visitIdentifier(identifier)
+    ImportSpecifier::ObjectDestructure(d) => visitor.visitObjectDestructure(d)
+    ImportSpecifier::Asterisk => {}
+  }
 }
-export fn walkObjectDestructure(visitor: Visitor, o: ObjectDestructure) {
+export fn walkObjectDestructure(visitor, o: ObjectDestructure) {
   o.members.forEach(|m| {
     visitor.visitIdentifier(m.property)
     visitor.visitIdentifier(m.local)
   })
 }
 
-export fn walkBlock(visitor: Visitor, b: Block) {
+export fn walkBlock(visitor, b: Block) {
   b.statements.forEach(|s| visitor.visitBlockLevelStatement(s))
 }
-export fn walkReturn(visitor: Visitor, r: ReturnStatement) {
+export fn walkReturn(visitor, r: ReturnStatement) {
   visitor.visitExpression(r.expression)
 }
-export fn walkWhileLoop(visitor: Visitor, e: WhileLoop) {
+export fn walkWhileLoop(visitor, e: WhileLoop) {
   visitor.visitExpression(e.condition)
   visitor.visitBlock(e.body)
 }
 
-export fn walkIdentifier(visitor: Visitor, i: Identifier) {}
-export fn walkFunctionDeclaration(visitor: Visitor, f: FunctionDeclaration) {
+export fn walkIdentifier(visitor, i: Identifier) {}
+export fn walkFunctionDeclaration(visitor, f: FunctionDeclaration) {
   if f.typeParameters
     then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
   if let Option::Some(returnType) = f.returnType then visitor.visitTypeBound(returnType)
   if let Option::Some(body) = f.body then visitor.visitBlock(body)
 }
-export fn walkVariableDeclaration(visitor: Visitor, d: VariableDeclaration) {
+export fn walkVariableDeclaration(visitor, d: VariableDeclaration) {
   visitor.visitPattern(d.pattern)
   if let Option::Some(typeBound) = d.typeBound then visitor.visitTypeBound(typeBound)
   if let Option::Some(initializer) = d.initializer then visitor.visitExpression(initializer)
 }
 
-export fn walkAssignmentExpression(visitor: Visitor, e: AssignmentExpression) {
+export fn walkAssignmentExpression(visitor, e: AssignmentExpression) {
   visitor.visitExpression(e.lhs)
   visitor.visitExpression(e.rhs)
 }
-export fn walkBinaryExpression(visitor: Visitor, e: BinaryExpression) {
+export fn walkBinaryExpression(visitor, e: BinaryExpression) {
   visitor.visitExpression(e.lhs)
   visitor.visitExpression(e.rhs)
 }
-export fn walkCallExpression(visitor: Visitor, e: CallExpression) {
+export fn walkCallExpression(visitor, e: CallExpression) {
   visitor.visitExpression(e.func)
   e.argumentList.forEach(visitor.visitExpression.bind(visitor))
 }
-export fn walkIfExpression(visitor: Visitor, e: IfExpression) {
+export fn walkIfExpression(visitor, e: IfExpression) {
   visitor.visitExpression(e.condition)
   visitor.visitBlock(e.then_)
   if let Option::Some(else_) = e.else_ then visitor.visitBlock(else_)
 }
-export fn walkIfLetExpression(visitor: Visitor, e: IfLetExpression) {
+export fn walkIfLetExpression(visitor, e: IfLetExpression) {
   visitor.visitPattern(e.pattern)
   visitor.visitExpression(e.expression)
   visitor.visitBlock(e.then_)
   if let Option::Some(else_) = e.else_ then visitor.visitBlock(else_)
 }
-export fn walkMatchExpression(visitor: Visitor, e: MatchExpression) {
+export fn walkMatchExpression(visitor, e: MatchExpression) {
   visitor.visitExpression(e.expression)
   e.patterns.forEach(|p| visitor.visitMatchArm(p))
 }
-export fn walkMatchArm(visitor: Visitor, e: MatchArm) {
+export fn walkMatchArm(visitor, e: MatchArm) {
   visitor.visitPattern(e.pattern)
   visitor.visitBlock(e.block)
 }
-export fn walkUnaryExpression(visitor: Visitor, e: UnaryExpression) {
+export fn walkUnaryExpression(visitor, e: UnaryExpression) {
   visitor.visitExpression(e.rhs)
 }
 
-export fn walkIndexAccess(visitor: Visitor, a: IndexAccess) {
+export fn walkIndexAccess(visitor, a: IndexAccess) {
   visitor.visitExpression(a.object)
   visitor.visitExpression(a.index)
 }
-export fn walkMemberAccess(visitor: Visitor, a: MemberAccess) {
+export fn walkMemberAccess(visitor, a: MemberAccess) {
   visitor.visitExpression(a.object)
   visitor.visitExpression(a.member)
 }
-export fn walkUnknownAccess(visitor: Visitor, a: UnknownAccess) {
+export fn walkUnknownAccess(visitor, a: UnknownAccess) {
   visitor.visitExpression(a.object)
   visitor.visitExpression(a.member)
 }
-export fn walkUnknownIndexAccess(visitor: Visitor, a: UnknownIndexAccess) {
+export fn walkUnknownIndexAccess(visitor, a: UnknownIndexAccess) {
   visitor.visitExpression(a.object)
   visitor.visitExpression(a.index)
 }
 
-export fn walkBooleanLiteral(visitor: Visitor, l: BooleanLiteral) {}
-export fn walkListLiteral(visitor: Visitor, l: ListLiteral) {
+export fn walkBooleanLiteral(visitor, l: BooleanLiteral) {}
+export fn walkListLiteral(visitor, l: ListLiteral) {
   l.members.forEach(visitor.visitExpression.bind(visitor))
 }
-export fn walkNumberLiteral(visitor: Visitor, l: NumberLiteral) {}
-export fn walkRecordLiteral(visitor: Visitor, l: RecordLiteral) {
+export fn walkNumberLiteral(visitor, l: NumberLiteral) {}
+export fn walkRecordLiteral(visitor, l: RecordLiteral) {
   l.members.forEach(|m| {
     visitor.visitIdentifier(m.name)
     visitor.visitExpression(m.value)
   })
 }
-export fn walkStringLiteral(visitor: Visitor, l: StringLiteral) {
+export fn walkStringLiteral(visitor, l: StringLiteral) {
   l.parts
     .filterMap(|p| match p {
       StringLiteralPart::Identifier(identifier) => Some(identifier)
@@ -425,11 +425,11 @@ export fn walkStringLiteral(visitor: Visitor, l: StringLiteral) {
     })
     .forEach(|i| visitor.visitIdentifier(i))
 }
-export fn walkTupleLiteral(visitor: Visitor, l: TupleLiteral) {
+export fn walkTupleLiteral(visitor, l: TupleLiteral) {
   l.expressions.forEach(visitor.visitExpression.bind(visitor))
 }
 
-export fn walkPattern(visitor: Visitor, p: Pattern) {
+export fn walkPattern(visitor, p: Pattern) {
   match p {
     Pattern::CatchAll => {}
     Pattern::Identifier(identifier) => visitor.visitIdentifierPattern(identifier)
@@ -448,20 +448,20 @@ export fn walkPattern(visitor: Visitor, p: Pattern) {
     }
   }
 }
-export fn walkIdentifierPattern(visitor: Visitor, p: Identifier) {
+export fn walkIdentifierPattern(visitor, p: Identifier) {
   // visitor.visitIdentifier(p)
 }
-export fn walkRecordPattern(visitor: Visitor, p: RecordPattern) {
+export fn walkRecordPattern(visitor, p: RecordPattern) {
   p.properties.forEach(|p| {
     // visitor.visitIdentifier(p.property)
     visitor.visitPattern(p.pattern)
   })
 }
-export fn walkTuplePattern(visitor: Visitor, p: TuplePattern) {
+export fn walkTuplePattern(visitor, p: TuplePattern) {
   p.properties.forEach(|p| visitor.visitPattern(p))
 }
 
-export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
+export fn walkTypeBound(visitor, t: TypeBound) {
   match t {
     TypeBound::FunctionTypeBound(t) => visitor.visitFunctionTypeBound(t)
     TypeBound::NamedTypeBound(t) => visitor.visitNamedTypeBound(t)
@@ -469,25 +469,25 @@ export fn walkTypeBound(visitor: Visitor, t: TypeBound) {
     TypeBound::TupleTypeBound(t) => visitor.visitTupleTypeBound(t)
   }
 }
-export fn walkFunctionTypeBound(visitor: Visitor, t: FunctionTypeBound) {
+export fn walkFunctionTypeBound(visitor, t: FunctionTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   visitor.visitTupleTypeBound(t.parameters)
   visitor.visitTypeBound(t.returnType)
 }
-export fn walkNamedTypeBound(visitor: Visitor, t: NamedTypeBound) {
+export fn walkNamedTypeBound(visitor, t: NamedTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeBound.bind(visitor))
 }
-export fn walkRecordTypeBound(visitor: Visitor, t: RecordTypeBound) {
+export fn walkRecordTypeBound(visitor, t: RecordTypeBound) {
   t.properties.forEach(|t| visitor.visitRecordTypeBoundMember(t))
 }
-export fn walkRecordTypeBoundMember(visitor: Visitor, t: RecordTypeBoundMember) {
+export fn walkRecordTypeBoundMember(visitor, t: RecordTypeBoundMember) {
   // visitor.visitIdentifier(t.name)
   visitor.visitTypeBound(t.typeBound)
 }
-export fn walkTupleTypeBound(visitor: Visitor, t: TupleTypeBound) {
+export fn walkTupleTypeBound(visitor, t: TupleTypeBound) {
   t.properties.forEach(visitor.visitTypeBound.bind(visitor))
 }
-export fn walkTypeParameter(visitor: Visitor, t: TypeParameter) {
+export fn walkTypeParameter(visitor, t: TypeParameter) {
   // visitor.visitIdentifier(t.name)
   if let Option::Some(defaultValue) = t.defaultValue then visitor.visitTypeBound(defaultValue)
 }

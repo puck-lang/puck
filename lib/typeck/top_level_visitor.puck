@@ -33,10 +33,10 @@ export fn TopLevelVisitor(context, file) {
   let mut declarations: ObjectMap<ToSpan> = ObjectMap.new()
   let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
 
-  Object.assign({}, visit.emptyVisitor, {
+  Object->assign({}, visit.emptyVisitor, {
 
     visitModule: |self, mut m: Module| {
-      m.declarations = declarations
+      m->declarations = declarations
       m.file = file
       visit.walkModule(self, m)
     }

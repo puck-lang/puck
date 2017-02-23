@@ -9,11 +9,11 @@ export fn cmd(cmd) {
     execSync(
       cmd
       {
-        cwd: process.cwd()
+        cwd: process->cwd()
         shell: '/bin/bash'
         env: {
           BASHOPTS: 'globstar:extglob'
-          PATH: process.env.PATH
+          PATH: process->env->PATH
         }
       }
     )
@@ -21,41 +21,43 @@ export fn cmd(cmd) {
 
   match result {
     Result::Ok(output) => {
-      if output.toString()
-        then console.log(output.toString().trim())
+      if output->toString()
+        then print(output->toString()->trim().transmute())
     }
     Result::Err(error) => {
-      let stdout = error.stdout.toString()
-      let stderr = error.stderr.toString()
-      if stdout then console.log(stdout.trim())
-      if stderr then console.error(stderr.trim())
-      if error.stack then console.error(error.stack)
-      process.exit(1)
+      let stdout: String = error->stdout->toString().transmute()
+      let stderr: String = error->stderr->toString().transmute()
+      if stdout then print(stdout.trim())
+      if stderr then console->error(stderr.trim())
+      if error->stack then console->error(error->stack)
+      process->exit(1)
+      ()
     }
   }
 }
 
 /// Recursively and synchronously list all files in [directory]
 export fn walkSync(directory, mut filelist = []) -> List<String> {
-  if not fs.existsSync(directory) or not fs.statSync(directory).isDirectory()
+  if not fs->existsSync(directory) or not fs->statSync(directory)->isDirectory()
     then return []
-  let mut files = fs.readdirSync(directory)
+  let mut files: List<String> = fs->readdirSync(directory).transmute()
 
   files.forEach(|fileName| {
-    let file = path.join(directory, fileName)
-    if fs.statSync(file).isDirectory()
+    let file = path->join(directory, fileName)
+    if fs->statSync(file)->isDirectory()
       then walkSync(file, filelist)
       else filelist.push(file)
+    ()
   })
 
   filelist
 }
 
 export fn flag(arguments: List<String>, name, defaultValue = '') {
-  let index = arguments.indexOf(name)
+  let index: Num = arguments->indexOf(name).transmute()
   if index >= 0 {
     let value = arguments[index + 1]
-    arguments.splice(index, 2)
+    arguments->splice(index, 2)
     value
   } else defaultValue
 }

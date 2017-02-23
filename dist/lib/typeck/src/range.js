@@ -15,13 +15,13 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
 function getRange(parameters, isOptional, reportError, name) {
-  var firstOptional = parameters.length;
+  var firstOptional = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameters, $isTraitObject: true });
   var hasOptional = false;
   var __PUCK__value__1 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameters, $isTraitObject: true });
   _core.Iterable[__PUCK__value__1.type].forEach.call(__PUCK__value__1, function (_ref) {
     var _ref2 = _slicedToArray(_ref, 2),
-        parameter = _ref2[0],
-        i = _ref2[1];
+        i = _ref2[0],
+        parameter = _ref2[1];
 
     if (isOptional($unwrapTraitObject(parameter)) && !hasOptional) {
       hasOptional = true;
@@ -35,11 +35,11 @@ function getRange(parameters, isOptional, reportError, name) {
   });
   return {
     start: firstOptional,
-    end: parameters.length + 1
+    end: _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameters, $isTraitObject: true }) + 1
   };
 };
 function checkRange(_arguments, range, argumentName, subjectName) {
-  var argumentCount = _arguments.length;
+  var argumentCount = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true });
   var max = range.end - 1;
   var min = range.start;
   var __PUCK__value__2 = void 0;

@@ -12,10 +12,10 @@ fn isIndividuallyExhaustive(p: Pattern) {
   match p {
     Pattern::CatchAll => true
     Pattern::Identifier(_) => true
-    Pattern::Record(record) => record.properties.every(|p| isIndividuallyExhaustive(p.pattern))
-    Pattern::RecordType(_, record) => record.properties.every(|p| isIndividuallyExhaustive(p.pattern))
-    Pattern::Tuple(tuple) => tuple.properties.every(isIndividuallyExhaustive)
-    Pattern::TupleType(_, tuple) => tuple.properties.every(isIndividuallyExhaustive)
+    Pattern::Record(record) => record.properties.all(|p| isIndividuallyExhaustive(p.pattern))
+    Pattern::RecordType(_, record) => record.properties.all(|p| isIndividuallyExhaustive(p.pattern))
+    Pattern::Tuple(tuple) => tuple.properties.all(isIndividuallyExhaustive)
+    Pattern::TupleType(_, tuple) => tuple.properties.all(isIndividuallyExhaustive)
     Pattern::UnitType(_) => true
   }
 }
@@ -37,7 +37,7 @@ export fn getEnumType(typePath: TypePath, scope: Scope) -> Option<Type> {
 }
 
 export fn getEnumMember(typePath: TypePath) {
-  let typePathType: Type = typePath.type_
+  let typePathType: Type = typePath->type_.transmute()
   let (member, _) = typePathType.enumMember.unwrap()
 
   member
@@ -60,16 +60,16 @@ fn isEnumArm(p: Pattern) {
     Pattern::CatchAll => false
     Pattern::Identifier(_) => false
     Pattern::Record(record) => false
-    Pattern::RecordType(_, record) => record.properties.some(|p| isEnumPattern(p.pattern))
+    Pattern::RecordType(_, record) => record.properties.any(|p| isEnumPattern(p.pattern))
     Pattern::Tuple(tuple) => false
-    Pattern::TupleType(_, tuple) => tuple.properties.some(isEnumPattern)
+    Pattern::TupleType(_, tuple) => tuple.properties.any(isEnumPattern)
     Pattern::UnitType(_) => false
   }
 }
 
 export fn checkExhaustive(e: MatchExpression) -> Result<(), String> {
   if let TypeKind::Enum(enum_) = e.expression.getType().kind {
-    checkExhaustiveEnum(e.patterns.map(|a| a.pattern), e.expression.getType(), enum_, e.scope)
+    checkExhaustiveEnum(e.patterns.map(|a| a.pattern), e.expression.getType(), enum_, e->scope.transmute())
   }
   else Ok(())
 }
@@ -120,8 +120,8 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
   enumArmsMap.forEach(|(member, patterns)| {
     let enumPatterns = getSubPatterns(patterns[0])
       .enumerate()
-      .filter(|(pattern, _)| isEnumPattern(pattern))
-      .map(|(pattern, index)| {
+      .filter(|(_, pattern)| isEnumPattern(pattern))
+      .map(|(index, pattern)| {
         let type_ = match pattern {
           Pattern::RecordType(typePath, _) => getEnumType(typePath, scope)
           Pattern::TupleType(typePath, _) => getEnumType(typePath, scope)
@@ -146,12 +146,12 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
       .filter(|result| result.isErr())
       .toList()
 
-    innerErrors = innerErrors.concat(errors)
+    innerErrors = innerErrors->concat(errors).transmute()
 
-    exhaustiveMap[member] = errors.length == 0
+    exhaustiveMap[member] = errors.size() == 0
   })
 
-  if (innerErrors.length > 0) {
+  if (innerErrors.size() > 0) {
     return innerErrors[0]
   }
 

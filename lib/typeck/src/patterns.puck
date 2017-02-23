@@ -11,8 +11,8 @@ export enum PatternError {
 }
 
 fn getValueType(typePath: TypePath, type_: Type) -> Result<Type, (Type, Type)> {
-  let typePathType: Type = typePath.type_
-  let typePathProvidesType: Type = typePathType.providesType.unwrapOr(typePath.type_)
+  let typePathType: Type = typePath->type_.transmute()
+  let typePathProvidesType: Type = typePathType.providesType.unwrapOr(typePathType)
   let structType: Type =
     if type_ {
       if let Option::Some((member, typePathEnum)) = typePathType.enumMember {
@@ -40,7 +40,7 @@ fn getValueType(typePath: TypePath, type_: Type) -> Result<Type, (Type, Type)> {
 }
 
 fn isNonExhaustive(typePath: TypePath) -> Bool {
-  let typePathType: Type = typePath.type_
+  let typePathType: Type = typePath->type_.transmute()
   let typePathType: Type = typePathType.enumMember
     .map(|(_, enum_)| enum_)
     .orElse(|| typePathType.providesType)
@@ -68,7 +68,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
         previous: None
       }) {
         Result::Ok(binding) => {
-          p.binding = binding
+          p->binding = binding
           Ok(())
         }
         Result::Err(err) => Err(PatternError::ScopeError(identifier, err))
@@ -80,18 +80,19 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
           then match type_.kind {
             TypeKind::Struct(struct) => match struct.kind {
               StructKind::Record(record) => record.properties
-              _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+              _ => return Err(PatternError::PatternMismatch(p, p->type_.transmute(), type_))
             }
             TypeKind::Parameter => {{}}
-            _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+            _ => return Err(PatternError::PatternMismatch(p, p->type_.transmute(), type_))
           }
           else ObjectMap.new()
 
       let properties: Result<(), PatternError> = record.properties
         .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props->[p.property.name].transmute(), allowNotExhaustive)))
-        .reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
+        ->reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
           acc.andThen(|_| type_)
         }, Ok(()))
+        .transmute()
 
       properties
     }
@@ -106,10 +107,10 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
         match recordType.kind {
           TypeKind::Struct(struct) => match struct.kind {
             StructKind::Record(record) => record.properties
-            _ => return Err(PatternError::PatternMismatch(p, p.type_, recordType))
+            _ => return Err(PatternError::PatternMismatch(p, p->type_.transmute(), recordType))
           }
           TypeKind::Parameter => {{}}
-          _ => return Err(PatternError::PatternMismatch(p, p.type_, recordType))
+          _ => return Err(PatternError::PatternMismatch(p, p->type_.transmute(), recordType))
         }
 
       if not allowNotExhaustive and isNonExhaustive(typePath)
@@ -118,9 +119,10 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
       let properties: Result<(), PatternError> = record.properties
         .toList()
         .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props->[p.property.name].transmute(), allowNotExhaustive)))
-        .reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
+        ->reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
           acc.andThen(|_| type_)
         }, Ok(()))
+        .transmute()
 
       properties
     }
@@ -130,20 +132,21 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
           then match type_.kind {
             TypeKind::Struct(struct) => match struct.kind {
               StructKind::Tuple(tuple) => tuple.properties
-              _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+              _ => return Err(PatternError::PatternMismatch(p, p->type_.transmute(), type_))
             }
             TypeKind::Parameter => []
-            _ => return Err(PatternError::PatternMismatch(p, p.type_, type_))
+            _ => return Err(PatternError::PatternMismatch(p, p->type_.transmute(), type_))
           }
           else []
 
       let properties: Result<(), PatternError> = tuple.properties
         .enumerate()
-        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive))
+        .map(|mut (i, p)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive))
         .toList()
-        .reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
+        ->reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
           acc.andThen(|_| cur)
         }, Ok(()))
+        .transmute()
 
       properties
     }
@@ -158,10 +161,10 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
         match tupleType.kind {
           TypeKind::Struct(struct) => match struct.kind {
             StructKind::Tuple(tuple) => tuple.properties
-            _ => return Err(PatternError::PatternMismatch(p, p.type_, tupleType))
+            _ => return Err(PatternError::PatternMismatch(p, p->type_.transmute(), tupleType))
           }
           TypeKind::Parameter => []
-          _ => return Err(PatternError::PatternMismatch(p, p.type_, tupleType))
+          _ => return Err(PatternError::PatternMismatch(p, p->type_.transmute(), tupleType))
         }
 
       if not allowNotExhaustive and isNonExhaustive(typePath)
@@ -169,11 +172,12 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
 
       let properties: Result<(), PatternError> = tuple.properties
         .enumerate()
-        .map(|mut (p, i)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive))
+        .map(|mut (i, p)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive))
         .toList()
-        .reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
+        ->reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
           acc.andThen(|_| cur)
         }, Ok(()))
+        .transmute()
 
       properties
 

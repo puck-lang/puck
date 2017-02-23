@@ -3,6 +3,8 @@ import '../ast/span.puck' as {Position, Span, ToSpan}
 import '../entities.puck' as {UnparsedFile}
 
 export type InputStream {
+  context: {}
+  file: UnparsedFile
   code: String
   pos: Num
   line: Num
@@ -14,8 +16,8 @@ impl InputStream {
     context
     file
     code:
-      if file.puck.substring(0, 13) == '//#![no_core]'
-        then '\n' + file.puck.slice(13)
+      if file.puck->substring(0, 13) == '//#![no_core]'
+        then '\n' + file.puck->slice(13)
         else "import 'puck:core' as *\n" + file.puck
     pos: 0
     line: 0
@@ -25,7 +27,7 @@ impl InputStream {
   fn position(self) -> Position {{line: self.line, column: self.column}}
 
   fn next(mut self) -> String {
-    let ch = self.code.charAt(self.pos)
+    let ch = self.code->charAt(self.pos).transmute()
     self.pos += 1
     if ch == '\n' {
       self.line += 1
@@ -38,7 +40,7 @@ impl InputStream {
   }
 
   fn peek(self, distance = 0) -> String {
-    self.code.charAt(self.pos + distance)
+    self.code->charAt(self.pos + distance).transmute()
   }
 
   fn eof(self) -> Bool {
@@ -51,7 +53,7 @@ impl InputStream {
       end: {line: self.line, column: self.column + 1}
     }
     let token: ToSpan = span
-    self.context.reportError(self.file, token, message)
+    self->context->reportError(self.file, token, message)
     throw 'Syntax Error'
   }
 }

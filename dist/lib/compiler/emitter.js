@@ -631,6 +631,9 @@ function Emitter() {
             else if (fn.isDirectTraitCall) {
                 functionName += '.call';
             }
+            if (functionName == 'Unknown.transmute.call') {
+                return emitExpression(fn.func.value[0].object);
+            }
             valueVariable = outerValueVariable;
         }
         else {
@@ -735,7 +738,7 @@ function Emitter() {
                             object: expression,
                             index: {
                                 kind: 'NumberLiteral',
-                                value: [{ value: i }],
+                                value: [{ value: i, type_: { kind: { kind: 'Struct' } } }],
                             },
                         }]
                 }); });
@@ -755,11 +758,18 @@ function Emitter() {
     }
     function emitIfLetExpression(e) {
         var outerValueVariable = valueVariable;
-        valueVariable = newValueVariable();
-        hoist("let " + valueVariable + " = " + emitExpression(e.expression));
+        var initializer;
+        if (e.expression.kind === 'Identifier' && e.expression.value[0].name.startsWith('__PUCK__value__')) {
+            initializer = e.expression.value[0];
+        }
+        else {
+            valueVariable = newValueVariable();
+            hoist("let " + valueVariable + " = " + emitExpression(e.expression));
+            initializer = { name: valueVariable, type_: { kind: { kind: 'Struct' } } };
+        }
         var condition = emitPatternComparison(e.pattern, {
             kind: 'Identifier',
-            value: [{ name: valueVariable }],
+            value: [initializer],
         });
         var then_ = {
             statements: [
@@ -776,9 +786,7 @@ function Emitter() {
                                         kind: 'Some',
                                         value: [{
                                                 kind: 'Identifier',
-                                                value: [{
-                                                        name: valueVariable,
-                                                    }],
+                                                value: [initializer],
                                             }],
                                     },
                                 }]

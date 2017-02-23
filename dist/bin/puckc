@@ -14,15 +14,12 @@ var _helpers = require('./../lib/helpers');
 
 var _compiler = require('./../lib/compiler');
 
-var _js2 = require('./../lib/stdlib/js');
-
 var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
 
-var E = _js.Error;
-$unwrapTraitObject(E).stackTraceLimit = 100;
-var argv = $unwrapTraitObject(_js2.process).argv;
+_js.Error.stackTraceLimit = 100;
+var argv = $unwrapTraitObject(_js.process.argv);
 var __PUCK__value__2 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "puckc");
 });
@@ -52,13 +49,13 @@ if ((0, _helpers.flag)(_arguments, "--is-binary") != "") {
   __PUCK__value__5 = false;
 };
 var isBinary = __PUCK__value__5;
-if (_arguments.length > 1 && outFile) {
-  $unwrapTraitObject(_js2.console).error("Can't specify --out-file with more than one input file");
-  $unwrapTraitObject(_js2.process).exit(1);
+if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true }) > 1 && outFile) {
+  $unwrapTraitObject(_js.console).error("Can't specify --out-file with more than one input file");
+  _js.process.exit(1);
 };
-if (_arguments.length == 0) {
+if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true }) == 0) {
   (0, _core.print)("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] ...files\n");
-  $unwrapTraitObject(_js2.process).exit(1);
+  _js.process.exit(1);
 } else {
   var projectPath = (0, _fs.realpathSync)(".");
   var context = (0, _compiler.createContext)(projectPath, ignoreErrors);
@@ -66,7 +63,7 @@ if (_arguments.length == 0) {
     return {
       isBin: isBinary,
       file: file,
-      outFile: outFile || (0, _path.join)(outDir, file.replace((0, _js2.RegExp)("\\.puck$"), extension))
+      outFile: outFile || (0, _path.join)(outDir, file.replace(_core.RegExp._new("\\.puck$"), extension))
     };
   });
   var files = _core.Iterable[__PUCK__value__6.type].toList.call(__PUCK__value__6);

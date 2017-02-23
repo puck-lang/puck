@@ -122,35 +122,30 @@ var Token = exports.Token = {
 Token.name = function name() {
   var self = this;
   var __PUCK__value__1 = self;
-  var __PUCK__value__2 = __PUCK__value__1;
-  if ($unwrapTraitObject(__PUCK__value__2).kind == "SimpleToken") {
-    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+  if ($unwrapTraitObject(__PUCK__value__1).kind == "SimpleToken") {
+    var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
         _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
         token = _$unwrapTraitObject$v[0];
 
     return SyntaxKind.name.call(token.kind);
   } else {
-    var __PUCK__value__3 = __PUCK__value__1;
-    if ($unwrapTraitObject(__PUCK__value__3).kind == "Comment") {
-      var _undefined = $unwrapTraitObject(__PUCK__value__3);
+    if ($unwrapTraitObject(__PUCK__value__1).kind == "Comment") {
+      var _undefined = $unwrapTraitObject(__PUCK__value__1);
       return "comment";
     } else {
-      var __PUCK__value__4 = __PUCK__value__1;
-      if ($unwrapTraitObject(__PUCK__value__4).kind == "Identifier") {
-        var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__4),
+      if ($unwrapTraitObject(__PUCK__value__1).kind == "Identifier") {
+        var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__1),
             _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
             _name = _$unwrapTraitObject2$[0].name;
 
         return "identifier \"" + _name + "\"";
       } else {
-        var __PUCK__value__5 = __PUCK__value__1;
-        if ($unwrapTraitObject(__PUCK__value__5).kind == "NumberLiteral") {
-          var _undefined2 = $unwrapTraitObject(__PUCK__value__5);
+        if ($unwrapTraitObject(__PUCK__value__1).kind == "NumberLiteral") {
+          var _undefined2 = $unwrapTraitObject(__PUCK__value__1);
           return "number";
         } else {
-          var __PUCK__value__6 = __PUCK__value__1;
-          if ($unwrapTraitObject(__PUCK__value__6).kind == "StringLiteral") {
-            var _undefined3 = $unwrapTraitObject(__PUCK__value__6);
+          if ($unwrapTraitObject(__PUCK__value__1).kind == "StringLiteral") {
+            var _undefined3 = $unwrapTraitObject(__PUCK__value__1);
             return "string";
           };
         };
@@ -395,310 +390,249 @@ SyntaxKind.fromText = function fromText(text) {
 };
 SyntaxKind.name = function name() {
   var self = this;
-  var __PUCK__value__7 = self;
-  var __PUCK__value__8 = __PUCK__value__7;
-  if ($unwrapTraitObject(__PUCK__value__8).kind == "AsKeyword") {
-    var _undefined4 = $unwrapTraitObject(__PUCK__value__8);
+  var __PUCK__value__2 = self;
+  if ($unwrapTraitObject(__PUCK__value__2).kind == "AsKeyword") {
+    var _undefined4 = $unwrapTraitObject(__PUCK__value__2);
     return "as";
   } else {
-    var __PUCK__value__9 = __PUCK__value__7;
-    if ($unwrapTraitObject(__PUCK__value__9).kind == "AndKeyword") {
-      var _undefined5 = $unwrapTraitObject(__PUCK__value__9);
+    if ($unwrapTraitObject(__PUCK__value__2).kind == "AndKeyword") {
+      var _undefined5 = $unwrapTraitObject(__PUCK__value__2);
       return "and";
     } else {
-      var __PUCK__value__10 = __PUCK__value__7;
-      if ($unwrapTraitObject(__PUCK__value__10).kind == "BreakKeyword") {
-        var _undefined6 = $unwrapTraitObject(__PUCK__value__10);
+      if ($unwrapTraitObject(__PUCK__value__2).kind == "BreakKeyword") {
+        var _undefined6 = $unwrapTraitObject(__PUCK__value__2);
         return "break";
       } else {
-        var __PUCK__value__11 = __PUCK__value__7;
-        if ($unwrapTraitObject(__PUCK__value__11).kind == "ElseKeyword") {
-          var _undefined7 = $unwrapTraitObject(__PUCK__value__11);
+        if ($unwrapTraitObject(__PUCK__value__2).kind == "ElseKeyword") {
+          var _undefined7 = $unwrapTraitObject(__PUCK__value__2);
           return "else";
         } else {
-          var __PUCK__value__12 = __PUCK__value__7;
-          if ($unwrapTraitObject(__PUCK__value__12).kind == "EnumKeyword") {
-            var _undefined8 = $unwrapTraitObject(__PUCK__value__12);
+          if ($unwrapTraitObject(__PUCK__value__2).kind == "EnumKeyword") {
+            var _undefined8 = $unwrapTraitObject(__PUCK__value__2);
             return "enum";
           } else {
-            var __PUCK__value__13 = __PUCK__value__7;
-            if ($unwrapTraitObject(__PUCK__value__13).kind == "ExportKeyword") {
-              var _undefined9 = $unwrapTraitObject(__PUCK__value__13);
+            if ($unwrapTraitObject(__PUCK__value__2).kind == "ExportKeyword") {
+              var _undefined9 = $unwrapTraitObject(__PUCK__value__2);
               return "export";
             } else {
-              var __PUCK__value__14 = __PUCK__value__7;
-              if ($unwrapTraitObject(__PUCK__value__14).kind == "FalseKeyword") {
-                var _undefined10 = $unwrapTraitObject(__PUCK__value__14);
+              if ($unwrapTraitObject(__PUCK__value__2).kind == "FalseKeyword") {
+                var _undefined10 = $unwrapTraitObject(__PUCK__value__2);
                 return "false";
               } else {
-                var __PUCK__value__15 = __PUCK__value__7;
-                if ($unwrapTraitObject(__PUCK__value__15).kind == "ForKeyword") {
-                  var _undefined11 = $unwrapTraitObject(__PUCK__value__15);
+                if ($unwrapTraitObject(__PUCK__value__2).kind == "ForKeyword") {
+                  var _undefined11 = $unwrapTraitObject(__PUCK__value__2);
                   return "for";
                 } else {
-                  var __PUCK__value__16 = __PUCK__value__7;
-                  if ($unwrapTraitObject(__PUCK__value__16).kind == "FnKeyword") {
-                    var _undefined12 = $unwrapTraitObject(__PUCK__value__16);
+                  if ($unwrapTraitObject(__PUCK__value__2).kind == "FnKeyword") {
+                    var _undefined12 = $unwrapTraitObject(__PUCK__value__2);
                     return "fn";
                   } else {
-                    var __PUCK__value__17 = __PUCK__value__7;
-                    if ($unwrapTraitObject(__PUCK__value__17).kind == "IfKeyword") {
-                      var _undefined13 = $unwrapTraitObject(__PUCK__value__17);
+                    if ($unwrapTraitObject(__PUCK__value__2).kind == "IfKeyword") {
+                      var _undefined13 = $unwrapTraitObject(__PUCK__value__2);
                       return "if";
                     } else {
-                      var __PUCK__value__18 = __PUCK__value__7;
-                      if ($unwrapTraitObject(__PUCK__value__18).kind == "ImplKeyword") {
-                        var _undefined14 = $unwrapTraitObject(__PUCK__value__18);
+                      if ($unwrapTraitObject(__PUCK__value__2).kind == "ImplKeyword") {
+                        var _undefined14 = $unwrapTraitObject(__PUCK__value__2);
                         return "impl";
                       } else {
-                        var __PUCK__value__19 = __PUCK__value__7;
-                        if ($unwrapTraitObject(__PUCK__value__19).kind == "ImportKeyword") {
-                          var _undefined15 = $unwrapTraitObject(__PUCK__value__19);
+                        if ($unwrapTraitObject(__PUCK__value__2).kind == "ImportKeyword") {
+                          var _undefined15 = $unwrapTraitObject(__PUCK__value__2);
                           return "import";
                         } else {
-                          var __PUCK__value__20 = __PUCK__value__7;
-                          if ($unwrapTraitObject(__PUCK__value__20).kind == "LetKeyword") {
-                            var _undefined16 = $unwrapTraitObject(__PUCK__value__20);
+                          if ($unwrapTraitObject(__PUCK__value__2).kind == "LetKeyword") {
+                            var _undefined16 = $unwrapTraitObject(__PUCK__value__2);
                             return "let";
                           } else {
-                            var __PUCK__value__21 = __PUCK__value__7;
-                            if ($unwrapTraitObject(__PUCK__value__21).kind == "MatchKeyword") {
-                              var _undefined17 = $unwrapTraitObject(__PUCK__value__21);
+                            if ($unwrapTraitObject(__PUCK__value__2).kind == "MatchKeyword") {
+                              var _undefined17 = $unwrapTraitObject(__PUCK__value__2);
                               return "match";
                             } else {
-                              var __PUCK__value__22 = __PUCK__value__7;
-                              if ($unwrapTraitObject(__PUCK__value__22).kind == "MutKeyword") {
-                                var _undefined18 = $unwrapTraitObject(__PUCK__value__22);
+                              if ($unwrapTraitObject(__PUCK__value__2).kind == "MutKeyword") {
+                                var _undefined18 = $unwrapTraitObject(__PUCK__value__2);
                                 return "mut";
                               } else {
-                                var __PUCK__value__23 = __PUCK__value__7;
-                                if ($unwrapTraitObject(__PUCK__value__23).kind == "NotKeyword") {
-                                  var _undefined19 = $unwrapTraitObject(__PUCK__value__23);
+                                if ($unwrapTraitObject(__PUCK__value__2).kind == "NotKeyword") {
+                                  var _undefined19 = $unwrapTraitObject(__PUCK__value__2);
                                   return "not";
                                 } else {
-                                  var __PUCK__value__24 = __PUCK__value__7;
-                                  if ($unwrapTraitObject(__PUCK__value__24).kind == "OrKeyword") {
-                                    var _undefined20 = $unwrapTraitObject(__PUCK__value__24);
+                                  if ($unwrapTraitObject(__PUCK__value__2).kind == "OrKeyword") {
+                                    var _undefined20 = $unwrapTraitObject(__PUCK__value__2);
                                     return "or";
                                   } else {
-                                    var __PUCK__value__25 = __PUCK__value__7;
-                                    if ($unwrapTraitObject(__PUCK__value__25).kind == "ReturnKeyword") {
-                                      var _undefined21 = $unwrapTraitObject(__PUCK__value__25);
+                                    if ($unwrapTraitObject(__PUCK__value__2).kind == "ReturnKeyword") {
+                                      var _undefined21 = $unwrapTraitObject(__PUCK__value__2);
                                       return "return";
                                     } else {
-                                      var __PUCK__value__26 = __PUCK__value__7;
-                                      if ($unwrapTraitObject(__PUCK__value__26).kind == "ThrowKeyword") {
-                                        var _undefined22 = $unwrapTraitObject(__PUCK__value__26);
+                                      if ($unwrapTraitObject(__PUCK__value__2).kind == "ThrowKeyword") {
+                                        var _undefined22 = $unwrapTraitObject(__PUCK__value__2);
                                         return "throw";
                                       } else {
-                                        var __PUCK__value__27 = __PUCK__value__7;
-                                        if ($unwrapTraitObject(__PUCK__value__27).kind == "TrueKeyword") {
-                                          var _undefined23 = $unwrapTraitObject(__PUCK__value__27);
+                                        if ($unwrapTraitObject(__PUCK__value__2).kind == "TrueKeyword") {
+                                          var _undefined23 = $unwrapTraitObject(__PUCK__value__2);
                                           return "true";
                                         } else {
-                                          var __PUCK__value__28 = __PUCK__value__7;
-                                          if ($unwrapTraitObject(__PUCK__value__28).kind == "ThenKeyword") {
-                                            var _undefined24 = $unwrapTraitObject(__PUCK__value__28);
+                                          if ($unwrapTraitObject(__PUCK__value__2).kind == "ThenKeyword") {
+                                            var _undefined24 = $unwrapTraitObject(__PUCK__value__2);
                                             return "then";
                                           } else {
-                                            var __PUCK__value__29 = __PUCK__value__7;
-                                            if ($unwrapTraitObject(__PUCK__value__29).kind == "TraitKeyword") {
-                                              var _undefined25 = $unwrapTraitObject(__PUCK__value__29);
+                                            if ($unwrapTraitObject(__PUCK__value__2).kind == "TraitKeyword") {
+                                              var _undefined25 = $unwrapTraitObject(__PUCK__value__2);
                                               return "trait";
                                             } else {
-                                              var __PUCK__value__30 = __PUCK__value__7;
-                                              if ($unwrapTraitObject(__PUCK__value__30).kind == "TypeKeyword") {
-                                                var _undefined26 = $unwrapTraitObject(__PUCK__value__30);
+                                              if ($unwrapTraitObject(__PUCK__value__2).kind == "TypeKeyword") {
+                                                var _undefined26 = $unwrapTraitObject(__PUCK__value__2);
                                                 return "type";
                                               } else {
-                                                var __PUCK__value__31 = __PUCK__value__7;
-                                                if ($unwrapTraitObject(__PUCK__value__31).kind == "WhileKeyword") {
-                                                  var _undefined27 = $unwrapTraitObject(__PUCK__value__31);
+                                                if ($unwrapTraitObject(__PUCK__value__2).kind == "WhileKeyword") {
+                                                  var _undefined27 = $unwrapTraitObject(__PUCK__value__2);
                                                   return "while";
                                                 } else {
-                                                  var __PUCK__value__32 = __PUCK__value__7;
-                                                  if ($unwrapTraitObject(__PUCK__value__32).kind == "OpenBraceToken") {
-                                                    var _undefined28 = $unwrapTraitObject(__PUCK__value__32);
+                                                  if ($unwrapTraitObject(__PUCK__value__2).kind == "OpenBraceToken") {
+                                                    var _undefined28 = $unwrapTraitObject(__PUCK__value__2);
                                                     return "{";
                                                   } else {
-                                                    var __PUCK__value__33 = __PUCK__value__7;
-                                                    if ($unwrapTraitObject(__PUCK__value__33).kind == "CloseBraceToken") {
-                                                      var _undefined29 = $unwrapTraitObject(__PUCK__value__33);
+                                                    if ($unwrapTraitObject(__PUCK__value__2).kind == "CloseBraceToken") {
+                                                      var _undefined29 = $unwrapTraitObject(__PUCK__value__2);
                                                       return "}";
                                                     } else {
-                                                      var __PUCK__value__34 = __PUCK__value__7;
-                                                      if ($unwrapTraitObject(__PUCK__value__34).kind == "OpenBracketToken") {
-                                                        var _undefined30 = $unwrapTraitObject(__PUCK__value__34);
+                                                      if ($unwrapTraitObject(__PUCK__value__2).kind == "OpenBracketToken") {
+                                                        var _undefined30 = $unwrapTraitObject(__PUCK__value__2);
                                                         return "[";
                                                       } else {
-                                                        var __PUCK__value__35 = __PUCK__value__7;
-                                                        if ($unwrapTraitObject(__PUCK__value__35).kind == "CloseBracketToken") {
-                                                          var _undefined31 = $unwrapTraitObject(__PUCK__value__35);
+                                                        if ($unwrapTraitObject(__PUCK__value__2).kind == "CloseBracketToken") {
+                                                          var _undefined31 = $unwrapTraitObject(__PUCK__value__2);
                                                           return "]";
                                                         } else {
-                                                          var __PUCK__value__36 = __PUCK__value__7;
-                                                          if ($unwrapTraitObject(__PUCK__value__36).kind == "OpenParenToken") {
-                                                            var _undefined32 = $unwrapTraitObject(__PUCK__value__36);
+                                                          if ($unwrapTraitObject(__PUCK__value__2).kind == "OpenParenToken") {
+                                                            var _undefined32 = $unwrapTraitObject(__PUCK__value__2);
                                                             return "(";
                                                           } else {
-                                                            var __PUCK__value__37 = __PUCK__value__7;
-                                                            if ($unwrapTraitObject(__PUCK__value__37).kind == "CloseParenToken") {
-                                                              var _undefined33 = $unwrapTraitObject(__PUCK__value__37);
+                                                            if ($unwrapTraitObject(__PUCK__value__2).kind == "CloseParenToken") {
+                                                              var _undefined33 = $unwrapTraitObject(__PUCK__value__2);
                                                               return ")";
                                                             } else {
-                                                              var __PUCK__value__38 = __PUCK__value__7;
-                                                              if ($unwrapTraitObject(__PUCK__value__38).kind == "BarToken") {
-                                                                var _undefined34 = $unwrapTraitObject(__PUCK__value__38);
+                                                              if ($unwrapTraitObject(__PUCK__value__2).kind == "BarToken") {
+                                                                var _undefined34 = $unwrapTraitObject(__PUCK__value__2);
                                                                 return "|";
                                                               } else {
-                                                                var __PUCK__value__39 = __PUCK__value__7;
-                                                                if ($unwrapTraitObject(__PUCK__value__39).kind == "CommaToken") {
-                                                                  var _undefined35 = $unwrapTraitObject(__PUCK__value__39);
+                                                                if ($unwrapTraitObject(__PUCK__value__2).kind == "CommaToken") {
+                                                                  var _undefined35 = $unwrapTraitObject(__PUCK__value__2);
                                                                   return ",";
                                                                 } else {
-                                                                  var __PUCK__value__40 = __PUCK__value__7;
-                                                                  if ($unwrapTraitObject(__PUCK__value__40).kind == "ColonToken") {
-                                                                    var _undefined36 = $unwrapTraitObject(__PUCK__value__40);
+                                                                  if ($unwrapTraitObject(__PUCK__value__2).kind == "ColonToken") {
+                                                                    var _undefined36 = $unwrapTraitObject(__PUCK__value__2);
                                                                     return ":";
                                                                   } else {
-                                                                    var __PUCK__value__41 = __PUCK__value__7;
-                                                                    if ($unwrapTraitObject(__PUCK__value__41).kind == "ColonColonToken") {
-                                                                      var _undefined37 = $unwrapTraitObject(__PUCK__value__41);
+                                                                    if ($unwrapTraitObject(__PUCK__value__2).kind == "ColonColonToken") {
+                                                                      var _undefined37 = $unwrapTraitObject(__PUCK__value__2);
                                                                       return "::";
                                                                     } else {
-                                                                      var __PUCK__value__42 = __PUCK__value__7;
-                                                                      if ($unwrapTraitObject(__PUCK__value__42).kind == "DotToken") {
-                                                                        var _undefined38 = $unwrapTraitObject(__PUCK__value__42);
+                                                                      if ($unwrapTraitObject(__PUCK__value__2).kind == "DotToken") {
+                                                                        var _undefined38 = $unwrapTraitObject(__PUCK__value__2);
                                                                         return ".";
                                                                       } else {
-                                                                        var __PUCK__value__43 = __PUCK__value__7;
-                                                                        if ($unwrapTraitObject(__PUCK__value__43).kind == "HashToken") {
-                                                                          var _undefined39 = $unwrapTraitObject(__PUCK__value__43);
+                                                                        if ($unwrapTraitObject(__PUCK__value__2).kind == "HashToken") {
+                                                                          var _undefined39 = $unwrapTraitObject(__PUCK__value__2);
                                                                           return "#";
                                                                         } else {
-                                                                          var __PUCK__value__44 = __PUCK__value__7;
-                                                                          if ($unwrapTraitObject(__PUCK__value__44).kind == "SemicolonToken") {
-                                                                            var _undefined40 = $unwrapTraitObject(__PUCK__value__44);
+                                                                          if ($unwrapTraitObject(__PUCK__value__2).kind == "SemicolonToken") {
+                                                                            var _undefined40 = $unwrapTraitObject(__PUCK__value__2);
                                                                             return ";";
                                                                           } else {
-                                                                            var __PUCK__value__45 = __PUCK__value__7;
-                                                                            if ($unwrapTraitObject(__PUCK__value__45).kind == "UnderscoreToken") {
-                                                                              var _undefined41 = $unwrapTraitObject(__PUCK__value__45);
+                                                                            if ($unwrapTraitObject(__PUCK__value__2).kind == "UnderscoreToken") {
+                                                                              var _undefined41 = $unwrapTraitObject(__PUCK__value__2);
                                                                               return "_";
                                                                             } else {
-                                                                              var __PUCK__value__46 = __PUCK__value__7;
-                                                                              if ($unwrapTraitObject(__PUCK__value__46).kind == "LessThanToken") {
-                                                                                var _undefined42 = $unwrapTraitObject(__PUCK__value__46);
+                                                                              if ($unwrapTraitObject(__PUCK__value__2).kind == "LessThanToken") {
+                                                                                var _undefined42 = $unwrapTraitObject(__PUCK__value__2);
                                                                                 return "<";
                                                                               } else {
-                                                                                var __PUCK__value__47 = __PUCK__value__7;
-                                                                                if ($unwrapTraitObject(__PUCK__value__47).kind == "GreaterThanToken") {
-                                                                                  var _undefined43 = $unwrapTraitObject(__PUCK__value__47);
+                                                                                if ($unwrapTraitObject(__PUCK__value__2).kind == "GreaterThanToken") {
+                                                                                  var _undefined43 = $unwrapTraitObject(__PUCK__value__2);
                                                                                   return ">";
                                                                                 } else {
-                                                                                  var __PUCK__value__48 = __PUCK__value__7;
-                                                                                  if ($unwrapTraitObject(__PUCK__value__48).kind == "LessThanEqualsToken") {
-                                                                                    var _undefined44 = $unwrapTraitObject(__PUCK__value__48);
+                                                                                  if ($unwrapTraitObject(__PUCK__value__2).kind == "LessThanEqualsToken") {
+                                                                                    var _undefined44 = $unwrapTraitObject(__PUCK__value__2);
                                                                                     return "<=";
                                                                                   } else {
-                                                                                    var __PUCK__value__49 = __PUCK__value__7;
-                                                                                    if ($unwrapTraitObject(__PUCK__value__49).kind == "GreaterThanEqualsToken") {
-                                                                                      var _undefined45 = $unwrapTraitObject(__PUCK__value__49);
+                                                                                    if ($unwrapTraitObject(__PUCK__value__2).kind == "GreaterThanEqualsToken") {
+                                                                                      var _undefined45 = $unwrapTraitObject(__PUCK__value__2);
                                                                                       return ">=";
                                                                                     } else {
-                                                                                      var __PUCK__value__50 = __PUCK__value__7;
-                                                                                      if ($unwrapTraitObject(__PUCK__value__50).kind == "EqualsEqualsToken") {
-                                                                                        var _undefined46 = $unwrapTraitObject(__PUCK__value__50);
+                                                                                      if ($unwrapTraitObject(__PUCK__value__2).kind == "EqualsEqualsToken") {
+                                                                                        var _undefined46 = $unwrapTraitObject(__PUCK__value__2);
                                                                                         return "==";
                                                                                       } else {
-                                                                                        var __PUCK__value__51 = __PUCK__value__7;
-                                                                                        if ($unwrapTraitObject(__PUCK__value__51).kind == "ExclamationEqualsToken") {
-                                                                                          var _undefined47 = $unwrapTraitObject(__PUCK__value__51);
+                                                                                        if ($unwrapTraitObject(__PUCK__value__2).kind == "ExclamationEqualsToken") {
+                                                                                          var _undefined47 = $unwrapTraitObject(__PUCK__value__2);
                                                                                           return "!=";
                                                                                         } else {
-                                                                                          var __PUCK__value__52 = __PUCK__value__7;
-                                                                                          if ($unwrapTraitObject(__PUCK__value__52).kind == "EqualsGreaterThanToken") {
-                                                                                            var _undefined48 = $unwrapTraitObject(__PUCK__value__52);
+                                                                                          if ($unwrapTraitObject(__PUCK__value__2).kind == "EqualsGreaterThanToken") {
+                                                                                            var _undefined48 = $unwrapTraitObject(__PUCK__value__2);
                                                                                             return "=>";
                                                                                           } else {
-                                                                                            var __PUCK__value__53 = __PUCK__value__7;
-                                                                                            if ($unwrapTraitObject(__PUCK__value__53).kind == "MinusGreaterThanToken") {
-                                                                                              var _undefined49 = $unwrapTraitObject(__PUCK__value__53);
+                                                                                            if ($unwrapTraitObject(__PUCK__value__2).kind == "MinusGreaterThanToken") {
+                                                                                              var _undefined49 = $unwrapTraitObject(__PUCK__value__2);
                                                                                               return "->";
                                                                                             } else {
-                                                                                              var __PUCK__value__54 = __PUCK__value__7;
-                                                                                              if ($unwrapTraitObject(__PUCK__value__54).kind == "PlusToken") {
-                                                                                                var _undefined50 = $unwrapTraitObject(__PUCK__value__54);
+                                                                                              if ($unwrapTraitObject(__PUCK__value__2).kind == "PlusToken") {
+                                                                                                var _undefined50 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                 return "+";
                                                                                               } else {
-                                                                                                var __PUCK__value__55 = __PUCK__value__7;
-                                                                                                if ($unwrapTraitObject(__PUCK__value__55).kind == "MinusToken") {
-                                                                                                  var _undefined51 = $unwrapTraitObject(__PUCK__value__55);
+                                                                                                if ($unwrapTraitObject(__PUCK__value__2).kind == "MinusToken") {
+                                                                                                  var _undefined51 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                   return "-";
                                                                                                 } else {
-                                                                                                  var __PUCK__value__56 = __PUCK__value__7;
-                                                                                                  if ($unwrapTraitObject(__PUCK__value__56).kind == "AsteriskToken") {
-                                                                                                    var _undefined52 = $unwrapTraitObject(__PUCK__value__56);
+                                                                                                  if ($unwrapTraitObject(__PUCK__value__2).kind == "AsteriskToken") {
+                                                                                                    var _undefined52 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                     return "*";
                                                                                                   } else {
-                                                                                                    var __PUCK__value__57 = __PUCK__value__7;
-                                                                                                    if ($unwrapTraitObject(__PUCK__value__57).kind == "AsteriskAsteriskToken") {
-                                                                                                      var _undefined53 = $unwrapTraitObject(__PUCK__value__57);
+                                                                                                    if ($unwrapTraitObject(__PUCK__value__2).kind == "AsteriskAsteriskToken") {
+                                                                                                      var _undefined53 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                       return "**";
                                                                                                     } else {
-                                                                                                      var __PUCK__value__58 = __PUCK__value__7;
-                                                                                                      if ($unwrapTraitObject(__PUCK__value__58).kind == "SlashToken") {
-                                                                                                        var _undefined54 = $unwrapTraitObject(__PUCK__value__58);
+                                                                                                      if ($unwrapTraitObject(__PUCK__value__2).kind == "SlashToken") {
+                                                                                                        var _undefined54 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                         return "/";
                                                                                                       } else {
-                                                                                                        var __PUCK__value__59 = __PUCK__value__7;
-                                                                                                        if ($unwrapTraitObject(__PUCK__value__59).kind == "PercentToken") {
-                                                                                                          var _undefined55 = $unwrapTraitObject(__PUCK__value__59);
+                                                                                                        if ($unwrapTraitObject(__PUCK__value__2).kind == "PercentToken") {
+                                                                                                          var _undefined55 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                           return "%";
                                                                                                         } else {
-                                                                                                          var __PUCK__value__60 = __PUCK__value__7;
-                                                                                                          if ($unwrapTraitObject(__PUCK__value__60).kind == "EqualsToken") {
-                                                                                                            var _undefined56 = $unwrapTraitObject(__PUCK__value__60);
+                                                                                                          if ($unwrapTraitObject(__PUCK__value__2).kind == "EqualsToken") {
+                                                                                                            var _undefined56 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                             return "=";
                                                                                                           } else {
-                                                                                                            var __PUCK__value__61 = __PUCK__value__7;
-                                                                                                            if ($unwrapTraitObject(__PUCK__value__61).kind == "PlusEqualsToken") {
-                                                                                                              var _undefined57 = $unwrapTraitObject(__PUCK__value__61);
+                                                                                                            if ($unwrapTraitObject(__PUCK__value__2).kind == "PlusEqualsToken") {
+                                                                                                              var _undefined57 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                               return "+=";
                                                                                                             } else {
-                                                                                                              var __PUCK__value__62 = __PUCK__value__7;
-                                                                                                              if ($unwrapTraitObject(__PUCK__value__62).kind == "MinusEqualsToken") {
-                                                                                                                var _undefined58 = $unwrapTraitObject(__PUCK__value__62);
+                                                                                                              if ($unwrapTraitObject(__PUCK__value__2).kind == "MinusEqualsToken") {
+                                                                                                                var _undefined58 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                                 return "-=";
                                                                                                               } else {
-                                                                                                                var __PUCK__value__63 = __PUCK__value__7;
-                                                                                                                if ($unwrapTraitObject(__PUCK__value__63).kind == "AsteriskEqualsToken") {
-                                                                                                                  var _undefined59 = $unwrapTraitObject(__PUCK__value__63);
+                                                                                                                if ($unwrapTraitObject(__PUCK__value__2).kind == "AsteriskEqualsToken") {
+                                                                                                                  var _undefined59 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                                   return "*=";
                                                                                                                 } else {
-                                                                                                                  var __PUCK__value__64 = __PUCK__value__7;
-                                                                                                                  if ($unwrapTraitObject(__PUCK__value__64).kind == "AsteriskAsteriskEqualsToken") {
-                                                                                                                    var _undefined60 = $unwrapTraitObject(__PUCK__value__64);
+                                                                                                                  if ($unwrapTraitObject(__PUCK__value__2).kind == "AsteriskAsteriskEqualsToken") {
+                                                                                                                    var _undefined60 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                                     return "**=";
                                                                                                                   } else {
-                                                                                                                    var __PUCK__value__65 = __PUCK__value__7;
-                                                                                                                    if ($unwrapTraitObject(__PUCK__value__65).kind == "SlashEqualsToken") {
-                                                                                                                      var _undefined61 = $unwrapTraitObject(__PUCK__value__65);
+                                                                                                                    if ($unwrapTraitObject(__PUCK__value__2).kind == "SlashEqualsToken") {
+                                                                                                                      var _undefined61 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                                       return "/=";
                                                                                                                     } else {
-                                                                                                                      var __PUCK__value__66 = __PUCK__value__7;
-                                                                                                                      if ($unwrapTraitObject(__PUCK__value__66).kind == "PercentEqualsToken") {
-                                                                                                                        var _undefined62 = $unwrapTraitObject(__PUCK__value__66);
+                                                                                                                      if ($unwrapTraitObject(__PUCK__value__2).kind == "PercentEqualsToken") {
+                                                                                                                        var _undefined62 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                                         return "%=";
                                                                                                                       } else {
-                                                                                                                        var __PUCK__value__67 = __PUCK__value__7;
-                                                                                                                        if ($unwrapTraitObject(__PUCK__value__67).kind == "NewlineToken") {
-                                                                                                                          var _undefined63 = $unwrapTraitObject(__PUCK__value__67);
+                                                                                                                        if ($unwrapTraitObject(__PUCK__value__2).kind == "NewlineToken") {
+                                                                                                                          var _undefined63 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                                           return "new line";
                                                                                                                         } else {
-                                                                                                                          var __PUCK__value__68 = __PUCK__value__7;
-                                                                                                                          if ($unwrapTraitObject(__PUCK__value__68).kind == "EndOfFileToken") {
-                                                                                                                            var _undefined64 = $unwrapTraitObject(__PUCK__value__68);
+                                                                                                                          if ($unwrapTraitObject(__PUCK__value__2).kind == "EndOfFileToken") {
+                                                                                                                            var _undefined64 = $unwrapTraitObject(__PUCK__value__2);
                                                                                                                             return "end of file";
                                                                                                                           };
                                                                                                                         };
@@ -764,100 +698,81 @@ SyntaxKind.name = function name() {
 };
 SyntaxKind.precedence = function precedence() {
   var self = this;
-  var __PUCK__value__69 = self;
-  var __PUCK__value__70 = __PUCK__value__69;
-  if ($unwrapTraitObject(__PUCK__value__70).kind == "EqualsToken") {
-    var _undefined65 = $unwrapTraitObject(__PUCK__value__70);
+  var __PUCK__value__3 = self;
+  if ($unwrapTraitObject(__PUCK__value__3).kind == "EqualsToken") {
+    var _undefined65 = $unwrapTraitObject(__PUCK__value__3);
     return 1;
   } else {
-    var __PUCK__value__71 = __PUCK__value__69;
-    if ($unwrapTraitObject(__PUCK__value__71).kind == "PlusEqualsToken") {
-      var _undefined66 = $unwrapTraitObject(__PUCK__value__71);
+    if ($unwrapTraitObject(__PUCK__value__3).kind == "PlusEqualsToken") {
+      var _undefined66 = $unwrapTraitObject(__PUCK__value__3);
       return 1.1;
     } else {
-      var __PUCK__value__72 = __PUCK__value__69;
-      if ($unwrapTraitObject(__PUCK__value__72).kind == "MinusEqualsToken") {
-        var _undefined67 = $unwrapTraitObject(__PUCK__value__72);
+      if ($unwrapTraitObject(__PUCK__value__3).kind == "MinusEqualsToken") {
+        var _undefined67 = $unwrapTraitObject(__PUCK__value__3);
         return 1.1;
       } else {
-        var __PUCK__value__73 = __PUCK__value__69;
-        if ($unwrapTraitObject(__PUCK__value__73).kind == "OrKeyword") {
-          var _undefined68 = $unwrapTraitObject(__PUCK__value__73);
+        if ($unwrapTraitObject(__PUCK__value__3).kind == "OrKeyword") {
+          var _undefined68 = $unwrapTraitObject(__PUCK__value__3);
           return 2;
         } else {
-          var __PUCK__value__74 = __PUCK__value__69;
-          if ($unwrapTraitObject(__PUCK__value__74).kind == "AndKeyword") {
-            var _undefined69 = $unwrapTraitObject(__PUCK__value__74);
+          if ($unwrapTraitObject(__PUCK__value__3).kind == "AndKeyword") {
+            var _undefined69 = $unwrapTraitObject(__PUCK__value__3);
             return 3;
           } else {
-            var __PUCK__value__75 = __PUCK__value__69;
-            if ($unwrapTraitObject(__PUCK__value__75).kind == "NotKeyword") {
-              var _undefined70 = $unwrapTraitObject(__PUCK__value__75);
+            if ($unwrapTraitObject(__PUCK__value__3).kind == "NotKeyword") {
+              var _undefined70 = $unwrapTraitObject(__PUCK__value__3);
               return 4;
             } else {
-              var __PUCK__value__76 = __PUCK__value__69;
-              if ($unwrapTraitObject(__PUCK__value__76).kind == "EqualsEqualsToken") {
-                var _undefined71 = $unwrapTraitObject(__PUCK__value__76);
+              if ($unwrapTraitObject(__PUCK__value__3).kind == "EqualsEqualsToken") {
+                var _undefined71 = $unwrapTraitObject(__PUCK__value__3);
                 return 7;
               } else {
-                var __PUCK__value__77 = __PUCK__value__69;
-                if ($unwrapTraitObject(__PUCK__value__77).kind == "ExclamationEqualsToken") {
-                  var _undefined72 = $unwrapTraitObject(__PUCK__value__77);
+                if ($unwrapTraitObject(__PUCK__value__3).kind == "ExclamationEqualsToken") {
+                  var _undefined72 = $unwrapTraitObject(__PUCK__value__3);
                   return 7;
                 } else {
-                  var __PUCK__value__78 = __PUCK__value__69;
-                  if ($unwrapTraitObject(__PUCK__value__78).kind == "GreaterThanToken") {
-                    var _undefined73 = $unwrapTraitObject(__PUCK__value__78);
+                  if ($unwrapTraitObject(__PUCK__value__3).kind == "GreaterThanToken") {
+                    var _undefined73 = $unwrapTraitObject(__PUCK__value__3);
                     return 7;
                   } else {
-                    var __PUCK__value__79 = __PUCK__value__69;
-                    if ($unwrapTraitObject(__PUCK__value__79).kind == "GreaterThanEqualsToken") {
-                      var _undefined74 = $unwrapTraitObject(__PUCK__value__79);
+                    if ($unwrapTraitObject(__PUCK__value__3).kind == "GreaterThanEqualsToken") {
+                      var _undefined74 = $unwrapTraitObject(__PUCK__value__3);
                       return 7;
                     } else {
-                      var __PUCK__value__80 = __PUCK__value__69;
-                      if ($unwrapTraitObject(__PUCK__value__80).kind == "LessThanToken") {
-                        var _undefined75 = $unwrapTraitObject(__PUCK__value__80);
+                      if ($unwrapTraitObject(__PUCK__value__3).kind == "LessThanToken") {
+                        var _undefined75 = $unwrapTraitObject(__PUCK__value__3);
                         return 7;
                       } else {
-                        var __PUCK__value__81 = __PUCK__value__69;
-                        if ($unwrapTraitObject(__PUCK__value__81).kind == "LessThanEqualsToken") {
-                          var _undefined76 = $unwrapTraitObject(__PUCK__value__81);
+                        if ($unwrapTraitObject(__PUCK__value__3).kind == "LessThanEqualsToken") {
+                          var _undefined76 = $unwrapTraitObject(__PUCK__value__3);
                           return 7;
                         } else {
-                          var __PUCK__value__82 = __PUCK__value__69;
-                          if ($unwrapTraitObject(__PUCK__value__82).kind == "PlusToken") {
-                            var _undefined77 = $unwrapTraitObject(__PUCK__value__82);
+                          if ($unwrapTraitObject(__PUCK__value__3).kind == "PlusToken") {
+                            var _undefined77 = $unwrapTraitObject(__PUCK__value__3);
                             return 10;
                           } else {
-                            var __PUCK__value__83 = __PUCK__value__69;
-                            if ($unwrapTraitObject(__PUCK__value__83).kind == "MinusToken") {
-                              var _undefined78 = $unwrapTraitObject(__PUCK__value__83);
+                            if ($unwrapTraitObject(__PUCK__value__3).kind == "MinusToken") {
+                              var _undefined78 = $unwrapTraitObject(__PUCK__value__3);
                               return 10;
                             } else {
-                              var __PUCK__value__84 = __PUCK__value__69;
-                              if ($unwrapTraitObject(__PUCK__value__84).kind == "AsteriskToken") {
-                                var _undefined79 = $unwrapTraitObject(__PUCK__value__84);
+                              if ($unwrapTraitObject(__PUCK__value__3).kind == "AsteriskToken") {
+                                var _undefined79 = $unwrapTraitObject(__PUCK__value__3);
                                 return 20;
                               } else {
-                                var __PUCK__value__85 = __PUCK__value__69;
-                                if ($unwrapTraitObject(__PUCK__value__85).kind == "SlashToken") {
-                                  var _undefined80 = $unwrapTraitObject(__PUCK__value__85);
+                                if ($unwrapTraitObject(__PUCK__value__3).kind == "SlashToken") {
+                                  var _undefined80 = $unwrapTraitObject(__PUCK__value__3);
                                   return 20;
                                 } else {
-                                  var __PUCK__value__86 = __PUCK__value__69;
-                                  if ($unwrapTraitObject(__PUCK__value__86).kind == "PercentToken") {
-                                    var _undefined81 = $unwrapTraitObject(__PUCK__value__86);
+                                  if ($unwrapTraitObject(__PUCK__value__3).kind == "PercentToken") {
+                                    var _undefined81 = $unwrapTraitObject(__PUCK__value__3);
                                     return 20;
                                   } else {
-                                    var __PUCK__value__87 = __PUCK__value__69;
-                                    if ($unwrapTraitObject(__PUCK__value__87).kind == "AsteriskAsteriskToken") {
-                                      var _undefined82 = $unwrapTraitObject(__PUCK__value__87);
+                                    if ($unwrapTraitObject(__PUCK__value__3).kind == "AsteriskAsteriskToken") {
+                                      var _undefined82 = $unwrapTraitObject(__PUCK__value__3);
                                       return 25;
                                     } else {
-                                      var __PUCK__value__88 = __PUCK__value__69;
                                       if (true) {
-                                        var __PUCK__value__89 = __PUCK__value__88;
+                                        var __PUCK__value__4 = __PUCK__value__3;
                                         return (0, _core.panic)("no precedence for " + SyntaxKind.name.call(self));
                                       };
                                     };

@@ -32,7 +32,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 function TopLevelVisitor(context, file) {
   var declarations = _core.ObjectMap._new();
   var reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
-  return $unwrapTraitObject(_js._Object).assign({}, visit.emptyVisitor, {
+  return _js._Object.assign({}, visit.emptyVisitor, {
     visitModule: function visitModule(m) {
       var self = this;
       m.declarations = declarations;
@@ -58,31 +58,28 @@ function TopLevelVisitor(context, file) {
     visitImportDirective: function visitImportDirective(i) {
       var self = this;
       var __PUCK__value__1 = i.specifier;
-      var __PUCK__value__2 = __PUCK__value__1;
-      if ($unwrapTraitObject(__PUCK__value__2).kind == "Identifier") {
-        var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+      if ($unwrapTraitObject(__PUCK__value__1).kind == "Identifier") {
+        var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
             _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
             identifier = _$unwrapTraitObject$v[0];
 
         return _core.ObjectMap.set.call(declarations, identifier.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true });
       } else {
-        var __PUCK__value__3 = __PUCK__value__1;
-        if ($unwrapTraitObject(__PUCK__value__3).kind == "ObjectDestructure") {
-          var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
+        if ($unwrapTraitObject(__PUCK__value__1).kind == "ObjectDestructure") {
+          var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__1),
               _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
               d = _$unwrapTraitObject2$[0];
 
           return $unwrapTraitObject(self).visitObjectDestructure(d);
         } else {
-          var __PUCK__value__4 = __PUCK__value__1;
-          if ($unwrapTraitObject(__PUCK__value__4).kind == "Asterisk") {
-            var __PUCK__value__5 = $unwrapTraitObject(__PUCK__value__4);;
+          if ($unwrapTraitObject(__PUCK__value__1).kind == "Asterisk") {
+            var __PUCK__value__2 = $unwrapTraitObject(__PUCK__value__1);;
 
-            var _PUCK__value__5$valu = _slicedToArray(__PUCK__value__5.value, 1),
-                __PUCK__value__6 = _PUCK__value__5$valu[0];
+            var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
+                __PUCK__value__3 = _PUCK__value__2$valu[0];
 
             ;
-            return __PUCK__value__5;
+            return __PUCK__value__2;
           };
         };
       };
@@ -95,11 +92,10 @@ function TopLevelVisitor(context, file) {
     },
     visitFunctionDeclaration: function visitFunctionDeclaration(f) {
       var self = this;
-      var __PUCK__value__7 = f.name;
-      if ($unwrapTraitObject(__PUCK__value__7).kind == "Some") {
-        var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__7),
-            _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
-            name = _$unwrapTraitObject3$[0];
+      var __PUCK__value__4 = f.name;
+      if (__PUCK__value__4.kind == "Some") {
+        var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
+            name = _PUCK__value__4$valu[0];
 
         return _core.ObjectMap.set.call(declarations, name.name, { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true });
       };

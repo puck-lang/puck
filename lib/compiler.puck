@@ -18,30 +18,30 @@ import 'entities.puck' as {BuildFile, File, UnparsedFile}
 
 fn fileInspect(self, depth, opts) {
   inspect(
-    Object.assign({}, self, {puck: '[hidden]', ast: '[hidden]', js: '[hidden]', inspect: undefined})
-    Object.assign({}, opts, {depth: opts.depth - depth})
+    Object->assign({}, self, {puck: '[hidden]', ast: '[hidden]', js: '[hidden]', inspect: undefined})
+    Object->assign({}, opts, {depth: opts.depth - depth})
   )
 }
 
 export fn parseString(context, file: UnparsedFile) {
   let mut ast = parse(TokenStream.new(InputStream.new(context, file)), file)
-  TopLevelVisitor(context, file).visitModule(ast)
-  ImportVisitor(context, file).visitModule(ast)
+  TopLevelVisitor(context, file)->visitModule(ast)
+  ImportVisitor(context, file)->visitModule(ast)
   ast
 }
 
 export fn compile(context, file: File) {
-  Emitter(context, file).emitModule(file.ast, file.isBin)
+  Emitter(context, file).emitModule(file->ast, file.isBin)
 }
 
-fn babelTransform(file) {
+fn babelTransform(file) -> String {
   babel
-    .transform(file.js, {
+    ->transform(file.js, {
       filename: file.absolutePath
-      presets: require.resolve('babel-preset-latest')
+      presets: require->resolve('babel-preset-latest')
       babelrc: false
     })
-    .code
+    ->code.transmute()
 }
 
 fn dumpFiles(files: List<File>, prop: String) {
@@ -52,7 +52,7 @@ fn dumpFiles(files: List<File>, prop: String) {
       Some(data) => data
       None => inspect(file->[prop], {colors: false, depth: 25})
     }
-    print(data.split('\n').map(|line| '  $line').join('\n'))
+    print(data.split('\n').map(|line| '  $line')->join('\n'))
   })
 }
 
@@ -63,33 +63,36 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
     files: ObjectMap.new()
     deferred: ObjectMap.new()
     runTypeVisitor: fn (self) {
-      Object.keys(self.files)
+      let keys: List<String> = Object->keys(self.files).transmute()
+      keys
         .map(|path| self.files->[path])
         .forEach(|mut file| {
-          if not file.typeVisitorStarted and file.ast {
-            file.typeVisitorStarted = true
-            TypeVisitor(self, file).visitModule(file.ast)
-            file.typeVisitorCompleted = true
+          if not file->typeVisitorStarted and file->ast {
+            file->typeVisitorStarted = true
+            TypeVisitor(self, file)->visitModule(file->ast)
+            file->typeVisitorCompleted = true
           }
         })
     }
     runImplVisitor: fn (mut self) {
-      Object.keys(self.files)
+      let keys: List<String> = Object->keys(self.files).transmute()
+      keys
         .map(|path| self.files->[path])
         .forEach(|mut file| {
-          if not file.implVisitorStarted and file.ast {
-            file.implVisitorStarted = true
-            ImplVisitor(self, file).visitModule(file.ast)
+          if not file->implVisitorStarted and file->ast {
+            file->implVisitorStarted = true
+            ImplVisitor(self, file)->visitModule(file->ast)
           }
         })
     }
     runChecker: fn (self) {
-      Object.keys(self.files)
+      let keys: List<String> = Object->keys(self.files).transmute()
+      keys
         .map(|path| self.files->[path])
         .forEach(|mut file| {
-          if not file.scopeVisitorStarted and file.ast {
-            file.scopeVisitorStarted = true
-            ScopeVisitor(self, file).visitModule(file.ast)
+          if not file->scopeVisitorStarted and file->ast {
+            file->scopeVisitorStarted = true
+            ScopeVisitor(self, file)->visitModule(file->ast)
           }
         })
     }
@@ -99,7 +102,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
           throw 'Circular import??'
         }
         file.typeVisitorStarted = true
-        TypeVisitor(self, file).visitModule(file.ast)
+        TypeVisitor(self, file)->visitModule(file.ast)
         file.typeVisitorCompleted = true
       }
     }
@@ -111,7 +114,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
         throw Error('runImplVisitorOnFile??')
       }
       file.implVisitorStarted = true
-      ImplVisitor(self, file).visitModule(file.ast)
+      ImplVisitor(self, file)->visitModule(file.ast)
     }
     runCheckerOnFile: fn (self, mut file) {
       if not file.implVisitorStarted {
@@ -119,42 +122,42 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
       }
       if not file.scopeVisitorStarted {
         file.scopeVisitorStarted = true
-        ScopeVisitor(self, file).visitModule(file.ast)
+        ScopeVisitor(self, file)->visitModule(file.ast)
       }
     }
     defer: fn (mut self, file, func) {
       if not self.deferred->[file.absolutePath] {
         self.deferred->[file.absolutePath] = []
       }
-      self.deferred->[file.absolutePath].push(func)
+      self.deferred->[file.absolutePath]->push(func)
     }
     resolvePath: fn (file, relativeTo) {
       let filePath =
         if file.substring(0, 1) == '/'
           then file
-          else path.join(path.dirname(relativeTo.absolutePath), file)
-      let absolutePath = fs.realpathSync(path.resolve(path.normalize(filePath)))
-      let fileName = path.basename(absolutePath)
+          else path->join(path->dirname(relativeTo.absolutePath), file).transmute()
+      let absolutePath = fs->realpathSync(path->resolve(path->normalize(filePath))).transmute()
+      let fileName = path->basename(absolutePath)
 
       {absolutePath, fileName, inspect: fileInspect}
     }
     importFile: fn (mut self, mut file: UnparsedFile) -> File {
-      if self.files->[file.absolutePath] and file.outDir and file.outFile {
-        self.files->[file.absolutePath].outDir = file.outDir
-        self.files->[file.absolutePath].outFile = file.outFile
+      if self.files->[file.absolutePath] and file->outDir and file->outFile {
+        self.files->[file.absolutePath]->outDir = file->outDir
+        self.files->[file.absolutePath]->outFile = file->outFile
       }
 
       if not self.files->[file.absolutePath] {
         self.files->[file.absolutePath] = file
 
         if not file.puck
-          then file.puck = fs.readFileSync(file.absolutePath, {encoding: 'utf-8'})
-        file.ast = parseString(self, file)
+          then file.puck = fs->readFileSync(file.absolutePath, {encoding: 'utf-8'}).transmute()
+        file->ast = parseString(self, file)
 
         if self.deferred->[file.absolutePath] {
           let callbacks = self.deferred->[file.absolutePath]
           self.deferred->[file.absolutePath] = undefined
-          callbacks.forEach(|callback| callback())
+          callbacks->forEach(|callback| callback())
         }
       }
       self.files->[file.absolutePath].transmute()
@@ -173,8 +176,8 @@ export fn buildString(code: String, filePath: String, projectPath: String) -> Re
     let mut context = createContext(projectPath)
     let mut file = context.importFile({
       isBin: false
-      fileName: path.basename(filePath)
-      absolutePath: fs.realpathSync(path.resolve(path.normalize(filePath)))
+      fileName: path->basename(filePath).transmute()
+      absolutePath: fs->realpathSync(path->resolve(path->normalize(filePath))).transmute()
       puck: code
     })
 
@@ -182,20 +185,20 @@ export fn buildString(code: String, filePath: String, projectPath: String) -> Re
     context.runImplVisitor()
     context.runChecker()
     file.js = compile(context, file)
-    file.babel = babelTransform(file)
+    file->babel = babelTransform(file)
 
     file
   })
 }
 
 export fn build(files: List<BuildFile>, mut context, options = {}) {
-  let dump = options.dump
+  let dump = options->dump
 
   let mut files = files.map(|f| {
-    let fileName = path.basename(f.file)
-    let absolutePath =fs.realpathSync(path.resolve(path.normalize(f.file)))
-    let outFile = path.normalize(f.outFile)
-    let outDir = path.dirname(outFile)
+    let fileName = path->basename(f.file).transmute()
+    let absolutePath = fs->realpathSync(path->resolve(path->normalize(f.file))).transmute()
+    let outFile = path->normalize(f.outFile)
+    let outDir = path->dirname(outFile)
 
     {isBin: f.isBin, absolutePath, outFile, outDir, inspect: fileInspect}
   })
@@ -245,7 +248,6 @@ export fn build(files: List<BuildFile>, mut context, options = {}) {
     let outDir = f.outDir
     let outFile = f.outFile
     cmd('mkdir -p $outDir')
-
-    fs.writeFileSync('$outFile', f.babel + '\n', {mode: 511}) // 511 = 0o777
+    fs->writeFileSync('$outFile', f.babel + '\n', {mode: 511}) // 511 = 0o777.transmute()
   })
 }

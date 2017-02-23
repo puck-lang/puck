@@ -39,7 +39,7 @@ impl Scope {
 
   fn getBindings(self) -> ObjectMap<Binding> {
     if let Some(parent) = self.parent
-      then Object.assign({}, parent.bindings, self.bindings)
+      then Object->assign({}, parent.getBindings(), self.bindings).transmute()
       else self.bindings
   }
 
@@ -48,11 +48,9 @@ impl Scope {
       .get(name)
       .orElse(|| self.parent.andThen(|p| p.getBinding(name, visitor)))
       .map(|mut binding| {
-        if not (binding.type_ and binding.type_.completed) {
-          if let Some(completeType) = binding.completeType {
-            if let Some(type_) = completeType(visitor) {
-              binding.type_ = type_
-            }
+        if let Some(completeType) = binding.completeType {
+          if let Some(type_) = completeType(visitor) {
+            binding.type_ = type_
           }
         }
         binding
@@ -64,11 +62,9 @@ impl Scope {
       .get(id)
       .orElse(|| self.parent.andThen(|p| p.getBindingByTypeId(id)))
       .map(|mut binding| {
-        if not (binding.type_ and binding.type_.completed) {
-          if let Some(completeType) = binding.completeType {
-            if let Some(type_) = completeType('') {
-              binding.type_ = type_
-            }
+        if let Some(completeType) = binding.completeType {
+          if let Some(type_) = completeType('') {
+            binding.type_ = type_
           }
         }
         binding

@@ -7,12 +7,12 @@ fn anyCast(a) {a}
 export type RegExp {}
 
 impl RegExp {
-  fn new(pattern) -> RegExp {
-    js.RegExp(pattern)
+  fn new(pattern, flags = '') -> RegExp {
+    js->RegExp(pattern, flags).transmute()
   }
 
   fn test(self, string: String) -> Bool {
-    anyCast(self).test(string)
+    self->test(string).transmute()
   }
 }
 
@@ -29,10 +29,10 @@ export enum Radix {
 impl Radix {
   fn pattern(self) -> RegExp {
     match self {
-      Radix::Binary => js.RegExp('^[-+]?[01]+$')
-      Radix::Octal => js.RegExp('^[-+]?[0-7]+$')
-      Radix::Decimal => js.RegExp('^[-+]?[0-9]+$')
-      Radix::Hex => js.RegExp('^[-+]?[0-9A-Fa-f]+$')
+      Radix::Binary => RegExp.new('^[-+]?[01]+$')
+      Radix::Octal => RegExp.new('^[-+]?[0-7]+$')
+      Radix::Decimal => RegExp.new('^[-+]?[0-9]+$')
+      Radix::Hex => RegExp.new('^[-+]?[0-9A-Fa-f]+$')
     }
   }
 
@@ -51,34 +51,34 @@ export type Num {}
 impl Num {
   fn parseInt(string: String, radix: Radix = Radix::Decimal) -> Result<Num, ()> {
     if radix.pattern().test(string)
-      then Result::Ok(js.parseInt(string, radix.radix()))
+      then Result::Ok(js->parseInt(string, radix.radix()).transmute())
       else Result::Err(())
   }
 
   fn parse(string: String) -> Result<Num, ()> {
-    if js.RegExp('^[-+]?[0-9]+(\\.[0-9]+)?$').test(string)
-      then Result::Ok(js.parseFloat(string, 10))
+    if RegExp.new('^[-+]?[0-9]+(\\.[0-9]+)?$').test(string)
+      then Result::Ok(js->parseFloat(string, 10).transmute())
       else Result::Err(())
   }
 
   fn isNan(self) -> Bool {
-    js.isNaN(self)
+    js->isNaN(self).transmute()
   }
 
   fn isInfinite(self) -> Bool {
-    self == js.infinity or self == -js.infinity
+    self == js->infinity or self == -js->infinity
   }
 
   fn ceil(self) -> Num {
-    js.Math.ceil(self)
+    js->Math->ceil(self).transmute()
   }
 
   fn floor(self) -> Num {
-    js.Math.floor(self)
+    js->Math->floor(self).transmute()
   }
 
   fn round(self) -> Num {
-    js.Math.round(self)
+    js->Math->round(self).transmute()
   }
 
   fn limit(self, range: Range) -> Num {
@@ -102,11 +102,11 @@ impl Num {
 export type String {}
 impl String {
   fn size(self) -> Num {
-    self.length
+    self->length.transmute()
   }
 
   fn contains(self, subStr: String) -> Bool {
-    self.indexOf(subStr) >= 0
+    self->indexOf(subStr).transmute() >= 0
   }
 
   fn split(self, pattern: String = '') -> List<String> {
@@ -205,9 +205,9 @@ type StringIterator {
 }
 
 impl Iterator<String> for StringIterator {
-  fn next(mut self) -> Option<Num> {
+  fn next(mut self) -> Option<String> {
     if self.index < self.string.size() {
-      let char = self.string.charAt(self.index)
+      let char: String = self.string->charAt(self.index).transmute()
       self.index += 1
       Option::Some(char)
     }
@@ -232,7 +232,7 @@ export enum Result<T, E> {
 export let Ok = Result::Ok
 export let Err = Result::Err
 impl<T, E> Result<T, E> {
-  fn isOk(self) -> Bool {self.kind == 'Ok'}
+  fn isOk(self) -> Bool {self->kind.transmute() == 'Ok'}
   fn isErr(self: Result<T, E>) -> Bool {not self.isOk()}
 
   /// Calls op if the result is Ok, otherwise returns the Err value of self.
@@ -261,17 +261,17 @@ impl<T, E> Result<T, E> {
   }
 
   fn unwrap(self) -> T {
-    if self.isErr()
-      then throw Error(self->value->[0].transmute())
-
-    self->value->[0].transmute()
+    match self {
+      Ok(value) => value
+      Err(err) => throw Error(err)
+    }
   }
 
   fn unwrapErr(self) -> E {
-    if self.isOk()
-      then throw Error(self.value->[0].transmute())
-
-    self->value->[0].transmute()
+    match self {
+      Ok(value) => throw Error(value)
+      Err(err) => err
+    }
   }
 }
 
@@ -282,7 +282,7 @@ export enum Option<T> {
 export let Some = Option::Some
 export let None = Option::None
 impl<T> Option<T> {
-  fn isSome(self) -> Bool {self.kind == 'Some'}
+  fn isSome(self) -> Bool {self->kind.transmute() == 'Some'}
   fn isNone(self) -> Bool {not self.isSome()}
 
   fn okOr<E>(self, err: E) -> Result<T, E> {
@@ -342,10 +342,10 @@ impl<T> Option<T> {
   }
 
   fn unwrap(self) -> T {
-    if self.isNone()
-      then throw Error('Can not unwrap empty Option')
-
-    self->value->[0].transmute()
+    match self {
+      Some(value) => value
+      Option::None => throw Error('Can not unwrap empty Option')
+    }
   }
 
   fn unwrapOr(self, default: T) -> T {
@@ -395,17 +395,25 @@ impl<E> List<E> {
     if a.size() != b.size()
       then throw Error('Iterable a and b are not of the same length')
 
-    a.enumerate().map(|(a, i)| (a, b[i])).toList()
+    a.enumerate().map(|(i, a)| (a, b[i])).toList()
   }
 
-  fn add(mut self, element: E) -> () {
-    self.push(element)
+  fn push(mut self, element: E) -> () {
+    self->push(element)
+  }
+
+  fn lpush(mut self, element: E) -> () {
+    self->unshift(element)
   }
 
   fn get(self, index: Num) -> Option<E> {
     if index >= 0 and index < self.size()
       then Some(self[index])
       else None
+  }
+
+  fn contains(self, item: E) -> Bool {
+    self->indexOf(item) != -1
   }
 
   /// Binary search a sorted slice with a comparator function.
@@ -656,7 +664,7 @@ export trait Iterator<E> {
   }
 }
 export trait Iterable<E> {
-  fn enumerate(self) -> Iterable<(E, Num)>
+  fn enumerate(self) -> Iterable<(Num, E)>
 
   fn size(self) -> Num
   fn isEmpty(self) -> Bool
@@ -716,37 +724,37 @@ fn asList<E>(a) -> List<E> {a}
 
 impl<E> Iterable<E> for List<E> {
 
-  fn enumerate(self) -> Iterable<(E, Num)> {
-    asList(anyCast(self).map(|element, index| (element, index)))
+  fn enumerate(self) -> Iterable<(Num, E)> {
+    asList(self->map(|element, index| (index, element)))
   }
 
   fn size(self) -> Num {
-    self.length
+    self->length.transmute()
   }
 
   fn isEmpty(self) -> Bool {
-    self.length == 0
+    self.size() == 0
   }
 
   fn isNotEmpty(self) -> Bool {
-    self.length > 0
+    self.size() > 0
   }
 
   fn first(self) -> Option<E> {
-    if self.length > 0
+    if self.size() > 0
       then Some(self[0])
       else None
   }
 
   fn last(self) -> Option<E> {
-    if self.length > 0
-      then Some(self[self.length - 1])
+    if self.size() > 0
+      then Some(self[self.size() - 1])
       else None
   }
 
   fn all(self, predicate: (E) -> Bool) -> Bool {
     let mut i = 0
-    while i < self.length {
+    while i < self.size() {
       if not predicate(self[i]) then return false
       i += 1
     }
@@ -755,7 +763,7 @@ impl<E> Iterable<E> for List<E> {
 
   fn any(self, predicate: (E) -> Bool) -> Bool {
     let mut i = 0
-    while i < self.length {
+    while i < self.size() {
       if predicate(self[i]) then return true
       i += 1
     }
@@ -763,7 +771,7 @@ impl<E> Iterable<E> for List<E> {
   }
 
   fn find(self, predicate: (E) -> Bool) -> Option<E> {
-    let index = self.findIndex(predicate)
+    let index: Num = self->findIndex(predicate).transmute()
 
     if index >= 0
       then Some(self[index])
@@ -786,27 +794,27 @@ impl<E> Iterable<E> for List<E> {
     let mut newList: List<U> = []
     self.forEach(|element| {
       if let Option::Some(mappedElement) = func(element) {
-        newList.add(mappedElement)
+        newList.push(mappedElement)
       }
     })
     newList
   }
 
   fn skip(self, count: Num) -> Iterable<E> {
-    asList(self.slice(count))
+    asList(self->slice(count))
   }
 
   fn skipUntil(self, predicate: (E) -> Bool) -> Iterable<E> {
-    let index = self.findIndex(predicate)
+    let index: Num = self->findIndex(predicate).transmute()
     asList(
       if index == -1
         then []
-        else self.slice(index)
+        else self->slice(index).transmute()
     )
   }
 
   fn take(self, count: Num) -> Iterable<E> {
-    asList(self.slice(0, count))
+    asList(self->slice(0, count))
   }
 
   fn toList(self) -> List<E> {
@@ -858,27 +866,27 @@ impl IntoIterator<Num> for Range<Num> {
 }
 
 export fn print<T>(message, extra: T = ()) -> () {
-  console.log.apply(console, [message].concat(extra))
+  console.log.apply(console, [message]->concat(extra))
 }
 
 export fn panic(reason: String) -> Never {
-  js.panic(reason)
+  js->panic(reason).transmute()
 }
 
 export type ObjectMap<T> {}
 impl<T> ObjectMap<T> {
   fn new<T>() -> ObjectMap<T> {
-    Object.create(null)
+    Object->create(null).transmute()
   }
 
   fn fromIter<T>(list: Iterable<(String, T)>) -> ObjectMap<T> {
-    let mut object = Object.create(null)
-    list.forEach(|(key, item)| object->[key] = item)
+    let mut object = ObjectMap.new()
+    list.forEach(|(key, item)| object.set(key, item))
     object
   }
 
   fn size(self) -> Num {
-    Object.keys(self).length
+    self.keys()->length.transmute()
   }
 
   fn isEmpty(self) -> Bool {
@@ -890,21 +898,21 @@ impl<T> ObjectMap<T> {
   }
 
   fn keys(self) -> List<String> {
-    Object.keys(self)
+    Object->keys(self).transmute()
   }
 
   fn values(self) -> List<T> {
-    Object.keys(self).map(|key| self->[key].transmute())
+    self.keys().map(|key| self[key]).toList()
   }
 
   fn toList(self) -> List<(String, T)> {
-    Object.keys(self).map(|key| (key, self->[key].transmute()))
+    self.keys().map(|key| (key, self[key])).toList()
   }
 
   fn all(self, predicate: (T) -> Bool) -> Bool {
     let mut i = 0
-    let keys: List<String> = Object->keys(self).transmute()
-    while i < keys.length {
+    let keys = self.keys()
+    while i < keys.size() {
       if not predicate(self[keys[i]]) then return false
       i += 1
     }
@@ -913,8 +921,8 @@ impl<T> ObjectMap<T> {
 
   fn any(self, predicate: (T) -> Bool) -> Bool {
     let mut i = 0
-    let keys: List<String> = Object->keys(self).transmute()
-    while i < keys.length {
+    let keys = self.keys()
+    while i < keys.size() {
       if predicate(self[keys[i]]) then return true
       i += 1
     }
@@ -923,16 +931,14 @@ impl<T> ObjectMap<T> {
 
   fn map<U>(self, mapper: (T) -> U) -> ObjectMap<U> {
     let mut new = ObjectMap.new()
-    let keys: List<String> = Object->keys(self).transmute()
-    keys.forEach(|key| {
+    self.keys().forEach(|key| {
       new[key] = mapper(self[key])
     })
     new
   }
 
   fn find(self, predicate: ((String, T)) -> Bool) -> Option<(String, T)> {
-    let keys: List<String> = Object->keys(self).transmute()
-    let key = keys.find(|key| predicate((key, self[key])))
+    let key = self.keys().find(|key| predicate((key, self[key])))
 
     if let Some(key) = key
       then Some((key, self[key]))
@@ -947,11 +953,11 @@ impl<T> ObjectMap<T> {
   }
 
   fn delete(mut self, key: String) -> () {
-    js.delete(self, key)
+    js->delete(self, key)
   }
 
   fn has(self, key: String) -> Bool {
-    Object.prototype.hasOwnProperty.call(self, key)
+    Object->prototype->hasOwnProperty->call(self, key).transmute()
   }
 
   fn get(self, key: String) -> Option<T> {
@@ -973,11 +979,11 @@ impl Unknown {
   fn from<T>(value) -> Unknown {value}
 
   fn isNull(self) -> Bool {
-    js.isNull(self)
+    js->isNull(self).transmute()
   }
 
   fn isUndefined(self) -> Bool {
-    js.isUndefined(self)
+    js->isUndefined(self).transmute()
   }
 
   fn isBool(self) -> Bool {
@@ -993,7 +999,7 @@ impl Unknown {
   }
 
   fn isList(self) -> Bool {
-    Array.isArray(self)
+    Array->isArray(self).transmute()
   }
 
   fn isObject(self) -> Bool {
@@ -1026,7 +1032,7 @@ impl Unknown {
 
   fn getProp(self, property: String) -> Option<Unknown> {
     if not (self.isNull() or self.isUndefined()) {
-      if Object.prototype.hasOwnProperty.call(self, property)
+      if Object->prototype->hasOwnProperty->call(self, property).transmute()
         then Some(self->[property])
         else None
     }

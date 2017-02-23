@@ -26,22 +26,22 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
 
-var argv = $unwrapTraitObject(_js.process).argv;
+var argv = $unwrapTraitObject(_js.process.argv);
 var __PUCK__value__2 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true }, function (arg) {
   return _core.String.contains.call(arg, "puck");
 });
 var __PUCK__value__1 = _core.Iterable[__PUCK__value__2.type].skip.call(__PUCK__value__2, 1);
 var _arguments = _core.Iterable[__PUCK__value__1.type].toList.call(__PUCK__value__1);
 var command = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, 0);
-var puckPattern = (0, _js.RegExp)("\\.puck$", "i");
+var puckPattern = _core.RegExp._new("\\.puck$", "i");
 function normalizeBinName(file) {
   var dirname = path.dirname(file);
-  var fileName = $unwrapTraitObject(path.basename(file, ".puck")).replace((0, _js.RegExp)("^_"), "");
-  return path.join("dist", dirname, fileName);
+  var fileName = path.basename(file, ".puck").replace(_core.RegExp._new("^_"), "");
+  return $unwrapTraitObject(path.join("dist", dirname, fileName));
 };
 if (command == "build") {
   var __PUCK__value__4 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: (0, _helpers.walkSync)("bin"), $isTraitObject: true }, function (f) {
-    return $unwrapTraitObject(puckPattern).test(f);
+    return _core.RegExp.test.call(puckPattern, f);
   });
   var __PUCK__value__3 = _core.Iterable[__PUCK__value__4.type].map.call(__PUCK__value__4, function (file) {
     return {
@@ -52,28 +52,28 @@ if (command == "build") {
   });
   var binFiles = _core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3);
   var __PUCK__value__6 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: (0, _helpers.walkSync)("lib"), $isTraitObject: true }, function (f) {
-    return $unwrapTraitObject(puckPattern).test(f);
+    return _core.RegExp.test.call(puckPattern, f);
   });
   var __PUCK__value__5 = _core.Iterable[__PUCK__value__6.type].map.call(__PUCK__value__6, function (file) {
     return {
       isBin: false,
       file: file,
-      outFile: path.join("dist", file.replace((0, _js.RegExp)("\\.puck$"), ".js"))
+      outFile: path.join("dist", file.replace(_core.RegExp._new("\\.puck$"), ".js"))
     };
   });
   var libFiles = _core.Iterable[__PUCK__value__5.type].toList.call(__PUCK__value__5);
-  var projectPath = fs.realpathSync(".");
+  var projectPath = $unwrapTraitObject(fs.realpathSync("."));
   var context = (0, _compiler.createContext)(projectPath);
   (0, _compiler.build)(libFiles, context);
   (0, _compiler.build)(binFiles, context);
   (0, _core.print)("done");
 } else {
   if (command == "test") {
-    var watch = !$unwrapTraitObject($unwrapTraitObject(_js.process).env).CI;
-    var rootDir = path.resolve("lib");
+    var watch = !_js.process.env.CI;
+    var rootDir = $unwrapTraitObject(path.resolve("lib"));
     (0, _jest.jest)(watch, rootDir);
   } else {
     $unwrapTraitObject(_js.console).error("Unknown command", command);
-    $unwrapTraitObject(_js.process).exit(1);
+    _js.process.exit(1);
   };
 }

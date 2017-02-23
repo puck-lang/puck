@@ -1,4 +1,4 @@
-import 'puck:js' as {Object, RegExp, asResult, require, undefined}
+import 'puck:js' as {Object, asResult, require, undefined}
 import 'node:fs' as {statSync}
 import 'node:path' as path
 import '../ast/ast.puck' as {
@@ -13,7 +13,7 @@ import '../entities.puck' as {UnparsedFile}
 import '../compiler/ast.ts' as {SyntaxKind}
 
 let domains = ['node', 'puck']
-let puckFile = RegExp('\\.puck$', 'i')
+let puckFile = RegExp.new('\\.puck$', 'i')
 let puckModules = ['core', 'js', 'test']
 
 export fn ImportVisitor(context, file: UnparsedFile) {
@@ -50,39 +50,39 @@ export fn ImportVisitor(context, file: UnparsedFile) {
       }
       ImportSpecifier::Identifier(_) => {}
     }
-    i.file = contextFile
+    i->file = contextFile
     i.module = Some(module)
   }
 
-  Object.assign({}, visit.emptyVisitor, {
+  Object->assign({}, visit.emptyVisitor, {
 
     visitModule: |self, mut m: Module| {
-      declarations = m.declarations
+      declarations = m->declarations.transmute()
       m.statements.forEach(|s| {
         if let TopLevelStatement::ImportDirective(e) = s {
           self.visitImportDirective(e)
         }
       })
       // No need to keep this around after this step
-      m.declarations = undefined
+      m->declarations = undefined
     }
 
     visitImportDirective: |self, mut i: ImportDirective| {
       match i.domain {
         Some(domain) => {
           if domain == 'puck' {
-            if puckModules.indexOf(i.path) == -1
+            if not puckModules.contains(i.path)
               then return reportError(i, 'Invalid puck module ' + i.path)
             let importedFile = context.resolvePath(
-              path.join(
-                path.dirname(require.resolve('puck-lang/dist/bin/puck'))
+              path->join(
+                path->dirname(require->resolve('puck-lang/dist/bin/puck'))
                 '../../lib/stdlib/' + i.path + '.puck'
               )
               file
             )
             importModule(i, importedFile)
           }
-          else if domains.indexOf(domain) == -1 {
+          else if not domains.contains(domain) {
             reportError(i, 'Invalid import domain $domain')
           }
         }

@@ -13,7 +13,7 @@ var prop = "length";
 prop[prop];
 prop.length;
 prop.toUpperCase();
-var length = $unwrapTraitObject(_core.Unknown.transmute.call(prop.length));
+var length = $unwrapTraitObject(prop.length);
 var message = _core.Unknown.asString.call(["hello", "world"].map(function (s) {
   return $unwrapTraitObject(s).toUpperCase();
 }).join(", "));

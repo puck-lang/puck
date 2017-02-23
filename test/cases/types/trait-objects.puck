@@ -1,9 +1,9 @@
 type Apple {}
-type Banana {}
+type Banana {name: String}
 
 trait Food {
   fn eat(self) -> () {
-    print(self.name + ' is some kind of food')
+    print(self->name + ' is some kind of food')
   }
   fn passThrough(self) -> Self {
     self
@@ -62,12 +62,12 @@ let fruitSallad: {
   banana2
 }
 
-print(fruitSallad.apple.name)
+print(fruitSallad.apple->name)
 print(fruitSallad.banana.name)
-print(fruitSallad.appleFood.name)
-print(fruitSallad.bananaFood.name)
-print(fruitSallad.apple2.name)
-print(fruitSallad.banana2.name)
+print(fruitSallad.appleFood->name)
+print(fruitSallad.bananaFood->name)
+print(fruitSallad.apple2->name)
+print(fruitSallad.banana2->name)
 
 let fruits: List<Food> = [apple, banana, apple2, banana2]
 let fruits2: List<Food> = [banana]
@@ -77,12 +77,12 @@ fruits2.forEach(|fruit| fruit.eat())
 let (apple3, banana3, apple4, banana4, apple5, banana5): (Apple, Banana, Food, Food, Food, Food) =
   (apple, banana, apple, banana, apple2, banana2)
 
-print(apple3.name)
+print(apple3->name)
 print(banana3.name)
-print(apple4.name)
-print(banana4.name)
-print(apple5.name)
-print(banana5.name)
+print(apple4->name)
+print(banana4->name)
+print(apple5->name)
+print(banana5->name)
 
 fn passThroughBanana(banana: Banana) {banana}
 fn passThroughFood(food: Food) {food}

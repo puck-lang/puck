@@ -95,8 +95,8 @@ impl PositionVisitor for HoverVisitor {
 
   fn visitIdentifier(mut self, i: Identifier) -> () {
     print('onHover visitIdentifier')
-    if i.type_ {
-      let type_: Type = i.type_
+    if i->type_ {
+      let type_: Type = i->type_.transmute()
       self.hover = Some({
         contents: getTypeContents(type_)
         span: i.span()
@@ -122,7 +122,7 @@ impl PositionVisitor for HoverVisitor {
 
   fn visitVariableDeclaration(mut self, d: VariableDeclaration) -> () {
     let parent = self.patternType
-    self.patternType = if d.type_ then Some(d.type_) else None
+    self.patternType = if d->type_ then Some(d->type_.transmute()) else None
     visit.walkVariableDeclaration(self, d)
     self.patternType = parent
   }
@@ -145,8 +145,8 @@ impl PositionVisitor for HoverVisitor {
   fn visitMemberAccess(mut self, a: MemberAccess) -> () {
     if a.member.span().cmp(self.position()) == Ordering::Equal {
       print('onHover visitMemberAccess')
-      if a.type_ {
-        let type_: Type = a.type_
+      if a->type_ {
+        let type_: Type = a->type_.transmute()
         self.hover = Some({
           contents: getTypeContents(type_)
           span: a.member.span()
@@ -157,7 +157,7 @@ impl PositionVisitor for HoverVisitor {
   }
   fn visitRecordLiteral(mut self, l: RecordLiteral) -> () {
     let parent = self.literalType
-    self.literalType = if l.type_ then Some(l.type_) else None
+    self.literalType = if l->type_ then Some(l->type_.transmute()) else None
     visit.walkRecordLiteral(self, l)
     self.literalType = parent
   }
@@ -194,7 +194,7 @@ impl PositionVisitor for HoverVisitor {
     }
   }
   fn visitRecordTypePattern(mut self, t: TypePath, p: RecordPattern) -> () {
-    let type_: Type = t.type_
+    let type_: Type = t->type_.transmute()
     self.patternType =
       if type_ {
         type_.enumMember
@@ -216,7 +216,7 @@ impl PositionVisitor for HoverVisitor {
     }
   }
   fn visitTupleTypePattern(mut self, t: TypePath, p: TuplePattern) -> () {
-    let type_: Type = t.type_
+    let type_: Type = t->type_.transmute()
     self.patternType =
       if type_ {
         type_.enumMember

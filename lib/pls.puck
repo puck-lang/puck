@@ -17,10 +17,10 @@ import 'entities.puck' as {File, UnparsedFile}
 export fn createServer(projectPath: String, sendDiagnostic) {
   let mut contexts = ObjectMap.new()
   let mut a = {}
-  a.onClose = fn (filePath: String) {
+  a->onClose = fn (filePath: String) {
     contexts.delete(filePath)
   }
-  a.validateDocument = fn (filePath: String, contents: String) {
+  a->validateDocument = fn (filePath: String, contents: String) {
     print('validateDocument')
     let mut context = createContext(projectPath)
     contexts.set(filePath, context)
@@ -41,8 +41,8 @@ export fn createServer(projectPath: String, sendDiagnostic) {
     let result = asResult(|| {
       let file: UnparsedFile = {
         isBin: false
-        fileName: path.basename(filePath)
-        absolutePath: path.resolve(path.normalize(filePath))
+        fileName: path->basename(filePath).transmute()
+        absolutePath: path->resolve(path->normalize(filePath)).transmute()
         puck: contents
       }
       let mut file = context.importFile(file)
@@ -59,15 +59,15 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       }
     }
   }
-  a.onCompletion = fn (filePath: String, position: Position) {
+  a->onCompletion = fn (filePath: String, position: Position) {
     print('onCompletion')
     let context = match contexts.get(filePath) {
       Some(context) => context
       None => return []
     }
-    let file: File = context.files->[path.resolve(path.normalize(filePath))].transmute()
+    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
     if not file then return []
-    let module: Module = file.ast
+    let module: Module = file->ast.transmute()
     if not module then return []
 
     let mut visitor = CompletionVisitor.new(position)
@@ -84,20 +84,20 @@ export fn createServer(projectPath: String, sendDiagnostic) {
         else []
       }
       Err(error) => {
-        print('completions Error:', (error, error.stack))
+        print('completions Error:', (error, error->stack))
         []
       }
     }
   }
-  a.onHover = fn (filePath: String, position: Position) -> Hover {
+  a->onHover = fn (filePath: String, position: Position) -> Hover {
     print('onHover')
     let context = match contexts.get(filePath) {
       Some(context) => context
       None => return Hover.empty()
     }
-    let file: File = context.files->[path.resolve(path.normalize(filePath))].transmute()
+    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
     if not file then return Hover.empty()
-    let module: Module = file.ast
+    let module: Module = file->ast.transmute()
     if not module then return Hover.empty()
 
     let mut visitor = HoverVisitor.new(position)
@@ -112,20 +112,20 @@ export fn createServer(projectPath: String, sendDiagnostic) {
         visitor.hover.unwrapOrElse(|| Hover.empty())
       }
       Err(error) => {
-        print('onHover Error:', (error, error.stack))
+        print('onHover Error:', (error, error->stack))
         Hover.empty()
       }
     }
   }
-  a.onDefinition = fn (filePath: String, position: Position) -> List<Definition> {
+  a->onDefinition = fn (filePath: String, position: Position) -> List<Definition> {
     print('onDefinition')
     let context = match contexts.get(filePath) {
       Some(context) => context
       None => return []
     }
-    let file: File = context.files->[path.resolve(path.normalize(filePath))].transmute()
+    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
     if not file then return []
-    let module: Module = file.ast
+    let module: Module = file->ast.transmute()
     if not module then return []
 
     let mut visitor = DefinitionVisitor.new(file, position)
@@ -139,7 +139,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
         visitor.definitions
       }
       Err(error) => {
-        print('onDefinition Error:', (error, error.stack))
+        print('onDefinition Error:', (error, error->stack))
         []
       }
     }

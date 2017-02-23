@@ -1,20 +1,20 @@
-import 'puck:js' as {RegExp, console, process, require}
+import 'puck:js' as {console, process}
 import 'node:fs' as fs
 import '../lib/test/jest.puck' as {jest}
 import 'node:path' as path
 import '../lib/compiler.puck' as {build, createContext}
 import '../lib/helpers.puck' as {walkSync}
 
-let argv: List<String> = process.argv
+let argv: List<String> = process->argv.transmute()
 let arguments = argv.skipUntil(|arg| arg.contains('puck')).skip(1).toList()
 let command = arguments[0]
 
-let puckPattern = RegExp('\\.puck$', 'i')
+let puckPattern = RegExp.new('\\.puck$', 'i')
 
-fn normalizeBinName(file) {
-  let dirname = path.dirname(file)
-  let fileName = path.basename(file, '.puck').replace(RegExp('^_'), '')
-  path.join('dist', dirname, fileName)
+fn normalizeBinName(file) -> String {
+  let dirname = path->dirname(file)
+  let fileName = path->basename(file, '.puck')->replace(RegExp.new('^_'), '')
+  path->join('dist', dirname, fileName).transmute()
 }
 
 if command == 'build' {
@@ -31,11 +31,11 @@ if command == 'build' {
     .map(|file| {{
       isBin: false
       file
-      outFile: path.join('dist', file.replace(RegExp('\\.puck$'), '.js'))
+      outFile: path->join('dist', file->replace(RegExp.new('\\.puck$'), '.js')).transmute()
     }})
     .toList()
 
-  let projectPath = fs.realpathSync('.')
+  let projectPath: String = fs->realpathSync('.').transmute()
   let mut context = createContext(projectPath)
   build(libFiles, context)
   build(binFiles, context)
@@ -45,12 +45,12 @@ if command == 'build' {
 else if command == 'test' {
 
   // Watch unless on CI
-  let watch = not process.env.CI
-  let rootDir = path.resolve('lib')
+  let watch = not process->env->CI
+  let rootDir: String = path->resolve('lib').transmute()
 
   jest(watch, rootDir)
 }
 else {
-  console.error('Unknown command', command)
-  process.exit(1)
+  console->error('Unknown command', command)
+  process->exit(1)
 }

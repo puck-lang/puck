@@ -74,8 +74,8 @@ impl PositionVisitor for CompletionVisitor {
                   .toList()
                 if let Some(selfBinding) = function.selfBinding {
                   if selfBinding.mutable
-                    then parameters.unshift('mut self')
-                    else parameters.unshift('self')
+                    then parameters.lpush('mut self')
+                    else parameters.lpush('self')
                 }
                 let parameters = parameters.join(', ')
                 let returnType = function.returnType.displayName()

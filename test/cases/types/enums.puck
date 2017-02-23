@@ -10,7 +10,7 @@ let a = Enum::A({b: 5})
 
 export trait EnumTrait {
   fn getB(self) -> Num {
-    self.value.b
+    self->value->b.transmute()
   }
 }
 impl EnumTrait for Enum {}

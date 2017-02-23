@@ -1,8 +1,8 @@
 export fn getRange<T>(parameters: List<T>, isOptional: (T) -> Bool, reportError, name: String) -> Range {
-  let mut firstOptional = parameters.length
+  let mut firstOptional = parameters.size()
   let mut hasOptional = false
 
-  parameters.enumerate().forEach(|(parameter, i)|
+  parameters.enumerate().forEach(|(i, parameter)|
     if isOptional(parameter) and not hasOptional {
       hasOptional = true
       firstOptional = i
@@ -17,12 +17,12 @@ export fn getRange<T>(parameters: List<T>, isOptional: (T) -> Bool, reportError,
 
   {
     start: firstOptional
-    end: parameters.length + 1
+    end: parameters.size() + 1
   }
 }
 
 export fn checkRange<T>(arguments: List<T>, range: Range, argumentName: String, subjectName: String) -> Result<(), String> {
-  let argumentCount = arguments.length
+  let argumentCount = arguments.size()
   let max = range.end - 1
   let min = range.start
   let error: Result<(), String> =

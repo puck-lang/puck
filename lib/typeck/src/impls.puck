@@ -35,7 +35,7 @@ fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
     _ => []
   }
 
-  if implementations.length > 1
+  if implementations.size() > 1
     then if let Option::Some(objectInstance) = type_.instance
       then implementations
         .filter(|i| {
@@ -72,12 +72,12 @@ export fn getImplementationForTrait(type_: Type, trait_: Type) -> Result<Option<
     .filter(|i| isAssignable(i.trait_, trait_))
     .toList()
 
-  let implementations =
-    if implementations.length > 1
+  let implementations: List<Implementation> =
+    if implementations.size() > 1
       then getMostSpecificImplementations(type_, implementations)
       else implementations
 
-  if implementations.length > 1
+  if implementations.size() > 1
     then Err(implementations)
     else Ok(implementations.first())
 }
@@ -90,31 +90,33 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
   let implementations = implementations
     .filter(|i| asType(i.trait_).getTrait().functions.has(functionName))
 
-  let scope: Scope = e.scope
+  let scope: Scope = e->scope.transmute()
   // Implementations that are in scope
-  let implementations =
-    if implementations.length > 1
+  let implementations: List<Implementation> =
+    if implementations.size() > 1
       then implementations
         .filter(|i| scope.getBinding(asType(i.trait_).name.unwrap()).isSome())
+        .toList()
       else implementations
 
   // Implementations that accept the correct number of arguments
-  let implementations =
-    if implementations.length > 1
+  let implementations: List<Implementation> =
+    if implementations.size() > 1
       then implementations
         .filter(|i| asType(asType(i.trait_).getTrait().functions[functionName]).getFunction().parameterRange
-          .contains(e.argumentList.length)
+          .contains(e.argumentList.size())
         )
+        .toList()
       else implementations
 
   // Implementations that are more specific (only for generics)
   // For example an impl for List<String> is more specific than one for List<T>
-  let implementations =
-    if implementations.length > 1 and type_.instance.isSome()
+  let implementations: List<Implementation> =
+    if implementations.size() > 1 and type_.instance.isSome()
       then getMostSpecificImplementations(type_, implementations)
       else implementations
 
-  if implementations.length > 1
+  if implementations.size() > 1
     then Err(implementations)
     else Ok(implementations.first())
 }
@@ -125,7 +127,7 @@ fn getTypeSpecificity(type_: Type) -> Num {
 
   match type_.instance {
     Option::Some(instance) => {
-      instance.typeParameters.reduce(|sum, type_| sum + getTypeSpecificity(type_), 1)
+      instance.typeParameters->reduce(|sum, type_| sum + getTypeSpecificity(type_), 1).transmute()
     }
     Option::None => 1
   }

@@ -73,8 +73,8 @@ function createServer(projectPath, sendDiagnostic) {
     var result = (0, _js.asResult)(function () {
       var file = {
         isBin: false,
-        fileName: path.basename(filePath),
-        absolutePath: path.resolve(path.normalize(filePath)),
+        fileName: $unwrapTraitObject(path.basename(filePath)),
+        absolutePath: $unwrapTraitObject(path.resolve(path.normalize(filePath))),
         puck: contents
       };
       file = context.importFile(file);
@@ -84,10 +84,9 @@ function createServer(projectPath, sendDiagnostic) {
     });
     (0, _core.print)("validateDocument completed");
     var __PUCK__value__1 = result;
-    if ($unwrapTraitObject(__PUCK__value__1).kind == "Err") {
-      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
-          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
-          error = _$unwrapTraitObject$v[0];
+    if (__PUCK__value__1.kind == "Err") {
+      var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
+          error = _PUCK__value__1$valu[0];
 
       if (error != "Syntax Error") {
         return (0, _core.print)("Error:", $unwrapTraitObject(error));
@@ -97,29 +96,27 @@ function createServer(projectPath, sendDiagnostic) {
   a.onCompletion = function (filePath, position) {
     (0, _core.print)("onCompletion");
     var __PUCK__value__2 = _core.ObjectMap.get.call(contexts, filePath);
-    var __PUCK__value__3 = __PUCK__value__2;
-    var __PUCK__value__4 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__3).kind == "Some") {
-      var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__3),
-          _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
-          _context = _$unwrapTraitObject2$[0];
+    var __PUCK__value__3 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__2).kind == "Some") {
+      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__2),
+          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
+          _context = _$unwrapTraitObject$v[0];
 
-      __PUCK__value__4 = _context;
+      __PUCK__value__3 = _context;
     } else {
-      var __PUCK__value__5 = __PUCK__value__2;
-      var __PUCK__value__6 = void 0;
+      var __PUCK__value__4 = void 0;
       if (true) {
-        var _None = __PUCK__value__5;
+        var _None = __PUCK__value__2;
         return [];
       };
-      __PUCK__value__4 = __PUCK__value__6;
+      __PUCK__value__3 = __PUCK__value__4;
     };
-    var context = __PUCK__value__4;
-    var file = $unwrapTraitObject(_core.Unknown.transmute.call($unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))]));
+    var context = __PUCK__value__3;
+    var file = $unwrapTraitObject($unwrapTraitObject(context).files[path.resolve(path.normalize(filePath))]);
     if (!file) {
       return [];
     };
-    var _module = file.ast;
+    var _module = $unwrapTraitObject(file.ast);
     if (!_module) {
       return [];
     };
@@ -127,29 +124,26 @@ function createServer(projectPath, sendDiagnostic) {
     var result = (0, _js.asResult)(function () {
       return _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].visitModule.call({ type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor', value: visitor, $isTraitObject: true }, _module);
     });
-    var __PUCK__value__7 = result;
-    var __PUCK__value__8 = __PUCK__value__7;
-    if ($unwrapTraitObject(__PUCK__value__8).kind == "Ok") {
-      var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__8),
-          _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
-          completions = _$unwrapTraitObject3$[0];
+    var __PUCK__value__5 = result;
+    if ($unwrapTraitObject(__PUCK__value__5).kind == "Ok") {
+      var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__5),
+          _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
+          completions = _$unwrapTraitObject2$[0];
 
-      var __PUCK__value__9 = visitor.completions;
-      if ($unwrapTraitObject(__PUCK__value__9).kind == "Some") {
-        var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__9),
-            _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
-            _completions = _$unwrapTraitObject4$[0];
+      var __PUCK__value__6 = visitor.completions;
+      if (__PUCK__value__6.kind == "Some") {
+        var _PUCK__value__6$valu = _slicedToArray(__PUCK__value__6.value, 1),
+            _completions = _PUCK__value__6$valu[0];
 
         return _completions;
       } else {
         return [];
       };
     } else {
-      var __PUCK__value__10 = __PUCK__value__7;
-      if ($unwrapTraitObject(__PUCK__value__10).kind == "Err") {
-        var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__10),
-            _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
-            error = _$unwrapTraitObject5$[0];
+      if ($unwrapTraitObject(__PUCK__value__5).kind == "Err") {
+        var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__5),
+            _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
+            error = _$unwrapTraitObject3$[0];
 
         (0, _core.print)("completions Error:", [error, $unwrapTraitObject(error).stack]);
         return [];
@@ -158,30 +152,28 @@ function createServer(projectPath, sendDiagnostic) {
   };
   a.onHover = function (filePath, position) {
     (0, _core.print)("onHover");
-    var __PUCK__value__11 = _core.ObjectMap.get.call(contexts, filePath);
-    var __PUCK__value__12 = __PUCK__value__11;
-    var __PUCK__value__13 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__12).kind == "Some") {
-      var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__12),
-          _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
-          _context2 = _$unwrapTraitObject6$[0];
+    var __PUCK__value__7 = _core.ObjectMap.get.call(contexts, filePath);
+    var __PUCK__value__8 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__7).kind == "Some") {
+      var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__7),
+          _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+          _context2 = _$unwrapTraitObject4$[0];
 
-      __PUCK__value__13 = _context2;
+      __PUCK__value__8 = _context2;
     } else {
-      var __PUCK__value__14 = __PUCK__value__11;
-      var __PUCK__value__15 = void 0;
+      var __PUCK__value__9 = void 0;
       if (true) {
-        var _None2 = __PUCK__value__14;
+        var _None2 = __PUCK__value__7;
         return _hover.Hover.empty();
       };
-      __PUCK__value__13 = __PUCK__value__15;
+      __PUCK__value__8 = __PUCK__value__9;
     };
-    var context = __PUCK__value__13;
-    var file = $unwrapTraitObject(_core.Unknown.transmute.call($unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))]));
+    var context = __PUCK__value__8;
+    var file = $unwrapTraitObject($unwrapTraitObject(context).files[path.resolve(path.normalize(filePath))]);
     if (!file) {
       return _hover.Hover.empty();
     };
-    var _module = file.ast;
+    var _module = $unwrapTraitObject(file.ast);
     if (!_module) {
       return _hover.Hover.empty();
     };
@@ -189,23 +181,21 @@ function createServer(projectPath, sendDiagnostic) {
     var result = (0, _js.asResult)(function () {
       return _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].visitModule.call({ type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor', value: visitor, $isTraitObject: true }, _module);
     });
-    var __PUCK__value__16 = result;
-    var __PUCK__value__17 = __PUCK__value__16;
-    if ($unwrapTraitObject(__PUCK__value__17).kind == "Ok") {
-      var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__17),
-          _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
-          __PUCK__value__18 = _$unwrapTraitObject7$[0];
+    var __PUCK__value__10 = result;
+    if ($unwrapTraitObject(__PUCK__value__10).kind == "Ok") {
+      var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__10),
+          _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+          __PUCK__value__11 = _$unwrapTraitObject5$[0];
 
       (0, _core.print)("onHover ok", visitor.hover);
       return _core.Option.unwrapOrElse.call(visitor.hover, function () {
         return _hover.Hover.empty();
       });
     } else {
-      var __PUCK__value__19 = __PUCK__value__16;
-      if ($unwrapTraitObject(__PUCK__value__19).kind == "Err") {
-        var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__19),
-            _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
-            error = _$unwrapTraitObject8$[0];
+      if ($unwrapTraitObject(__PUCK__value__10).kind == "Err") {
+        var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__10),
+            _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
+            error = _$unwrapTraitObject6$[0];
 
         (0, _core.print)("onHover Error:", [error, $unwrapTraitObject(error).stack]);
         return _hover.Hover.empty();
@@ -214,30 +204,28 @@ function createServer(projectPath, sendDiagnostic) {
   };
   a.onDefinition = function (filePath, position) {
     (0, _core.print)("onDefinition");
-    var __PUCK__value__20 = _core.ObjectMap.get.call(contexts, filePath);
-    var __PUCK__value__21 = __PUCK__value__20;
-    var __PUCK__value__22 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__21).kind == "Some") {
-      var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__21),
-          _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
-          _context3 = _$unwrapTraitObject9$[0];
+    var __PUCK__value__12 = _core.ObjectMap.get.call(contexts, filePath);
+    var __PUCK__value__13 = void 0;
+    if ($unwrapTraitObject(__PUCK__value__12).kind == "Some") {
+      var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__12),
+          _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
+          _context3 = _$unwrapTraitObject7$[0];
 
-      __PUCK__value__22 = _context3;
+      __PUCK__value__13 = _context3;
     } else {
-      var __PUCK__value__23 = __PUCK__value__20;
-      var __PUCK__value__24 = void 0;
+      var __PUCK__value__14 = void 0;
       if (true) {
-        var _None3 = __PUCK__value__23;
+        var _None3 = __PUCK__value__12;
         return [];
       };
-      __PUCK__value__22 = __PUCK__value__24;
+      __PUCK__value__13 = __PUCK__value__14;
     };
-    var context = __PUCK__value__22;
-    var file = $unwrapTraitObject(_core.Unknown.transmute.call($unwrapTraitObject($unwrapTraitObject(context).files)[$unwrapTraitObject(path.resolve(path.normalize(filePath)))]));
+    var context = __PUCK__value__13;
+    var file = $unwrapTraitObject($unwrapTraitObject(context).files[path.resolve(path.normalize(filePath))]);
     if (!file) {
       return [];
     };
-    var _module = file.ast;
+    var _module = $unwrapTraitObject(file.ast);
     if (!_module) {
       return [];
     };
@@ -245,21 +233,19 @@ function createServer(projectPath, sendDiagnostic) {
     var result = (0, _js.asResult)(function () {
       return _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor"].visitModule.call({ type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor', value: visitor, $isTraitObject: true }, _module);
     });
-    var __PUCK__value__25 = result;
-    var __PUCK__value__26 = __PUCK__value__25;
-    if ($unwrapTraitObject(__PUCK__value__26).kind == "Ok") {
-      var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__26),
-          _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
-          __PUCK__value__27 = _$unwrapTraitObject11[0];
+    var __PUCK__value__15 = result;
+    if ($unwrapTraitObject(__PUCK__value__15).kind == "Ok") {
+      var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__15),
+          _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 1),
+          __PUCK__value__16 = _$unwrapTraitObject8$[0];
 
       (0, _core.print)("onDefinition ok", visitor.definitions);
       return visitor.definitions;
     } else {
-      var __PUCK__value__28 = __PUCK__value__25;
-      if ($unwrapTraitObject(__PUCK__value__28).kind == "Err") {
-        var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__28),
-            _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
-            error = _$unwrapTraitObject13[0];
+      if ($unwrapTraitObject(__PUCK__value__15).kind == "Err") {
+        var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__15),
+            _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
+            error = _$unwrapTraitObject9$[0];
 
         (0, _core.print)("onDefinition Error:", [error, $unwrapTraitObject(error).stack]);
         return [];

@@ -41,21 +41,21 @@ fn getFunctionTypeName(function: Function) {
 }
 
 fn getTupleTypeName(properties: Iterable<Type>) {
-  '(' + properties.map(|type_| type_.displayName()).join(', ') + ')'
+  '(' + properties.map(|type_| type_.displayName())->join(', ') + ')'
 }
 
 fn getRecordTypeName(properties: ObjectMap<Type>) {
-  '{' + properties.toList().map(|(key, type_): (String, Type)| '$key: ' + type_.displayName()).join(', ') + '}'
+  '{' + properties.toList().map(|(key, type_): (String, Type)| '$key: ' + type_.displayName())->join(', ') + '}'
 }
 
 fn getGenericName(name: String, type_: Type, showClassParameters = false) {
   let parameters =
     if let Option::Some(instance) = type_.instance {
-      '<' + instance.typeParameters.map(|p| p.displayName()).join(', ') + '>'
+      '<' + instance.typeParameters.map(|p| p.displayName())->join(', ') + '>'
     }
     else if showClassParameters
       then if let Option::Some(class) = type_.class {
-        '<' + class.typeParameters.map(|p| p.displayName()).join(', ') + '>'
+        '<' + class.typeParameters.map(|p| p.displayName())->join(', ') + '>'
       }
       else ''
     else ''
@@ -79,7 +79,6 @@ export type Type {
   /// If this type is a member of an enum, enumMember will contain the
   /// member name and a pointer to the enum type
   enumMember: Option<(String, Type)>
-  complete: Bool
 }
 
 impl Type {
@@ -95,7 +94,6 @@ impl Type {
     instance: None
     providesType: None
     enumMember: None
-    complete: true
   }}
 
   fn provides(mut type_: Type) -> Type {{
@@ -110,7 +108,6 @@ impl Type {
     instance: type_.instance
     providesType: Some(type_)
     enumMember: None
-    complete: true
   }}
 
   fn unused() -> Type {{
@@ -124,7 +121,6 @@ impl Type {
     instance: None
     providesType: None
     enumMember: None
-    complete: true
   }}
 
   fn displayName(self) -> String {
@@ -303,7 +299,7 @@ export type TypeClass {
 }
 impl TypeClass {
   fn fromAstNode(astNode: {typeParameters: List<AstTypeParameter>}, reportError: (ToSpan, String) -> ()) -> Option<TypeClass> {
-    if astNode.typeParameters and astNode.typeParameters.length {
+    if astNode.typeParameters and astNode.typeParameters.size() {
       let parameterRange = getRange(
         astNode.typeParameters
         |p: AstTypeParameter| p.defaultValue.isSome()
