@@ -203,7 +203,7 @@ export fn build(files: List<BuildFile>, mut context, options = {}) {
     {isBin: f.isBin, absolutePath, outFile, outDir, inspect: fileInspect}
   })
 
-  let files = files.map(|mut f| context.importFile(f))
+  let files: List<File> = files.map(|mut f| context.importFile(f)).toList()
 
   if dump == 'ast' {
     dumpFiles(files, 'ast')
@@ -241,13 +241,13 @@ export fn build(files: List<BuildFile>, mut context, options = {}) {
   }
 
   files.forEach(|mut file| {
-    file.babel = babelTransform(file)
+    file->babel = babelTransform(file)
   })
 
   files.forEach(|f| {
     let outDir = f.outDir
     let outFile = f.outFile
     cmd('mkdir -p $outDir')
-    fs->writeFileSync('$outFile', f.babel + '\n', {mode: 511}) // 511 = 0o777.transmute()
+    fs->writeFileSync('$outFile', f->babel + '\n', {mode: 511}) // 511 = 0o777
   })
 }

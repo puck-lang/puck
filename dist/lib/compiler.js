@@ -285,9 +285,10 @@ function build(files, context) {
       inspect: fileInspect
     };
   });
-  files = $unwrapTraitObject(files).map(function (f) {
+  var __PUCK__value__8 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (f) {
     return $unwrapTraitObject(context).importFile(f);
   });
+  files = _core.Iterable[__PUCK__value__8.type].toList.call(__PUCK__value__8);
   if (dump == "ast") {
     dumpFiles(files, "ast");
     return _js._undefined;
@@ -307,20 +308,20 @@ function build(files, context) {
     dumpFiles(files, "ast");
     return _js._undefined;
   };
-  $unwrapTraitObject(files).forEach(function (file) {
-    return $unwrapTraitObject(file).js = compile(context, file);
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
+    return file.js = compile(context, file);
   });
   if (dump == "js") {
     dumpFiles(files, "js");
     return _js._undefined;
   };
-  $unwrapTraitObject(files).forEach(function (file) {
-    return $unwrapTraitObject(file).babel = babelTransform(file);
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
+    return file.babel = babelTransform(file);
   });
-  return $unwrapTraitObject(files).forEach(function (f) {
-    var outDir = $unwrapTraitObject(f).outDir;
-    var outFile = $unwrapTraitObject(f).outFile;
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (f) {
+    var outDir = f.outDir;
+    var outFile = f.outFile;
     (0, _helpers.cmd)("mkdir -p " + outDir + "");
-    return fs.writeFileSync("" + outFile + "", $unwrapTraitObject(f).babel + "\n", { mode: 511 });
+    return fs.writeFileSync("" + outFile + "", f.babel + "\n", { mode: 511 });
   });
 }

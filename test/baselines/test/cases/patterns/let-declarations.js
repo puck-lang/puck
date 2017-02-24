@@ -23,7 +23,7 @@ var Enum = {
     return { kind: 'A', value: members };
   }
 };
-var a = 1;
+var _a = 1;
 var b = 2,
     c = 3;
 var __PUCK__value__1 = 2,
@@ -72,4 +72,25 @@ var _Enum$A = Enum.A(1),
     _Enum$A$value = _slicedToArray(_Enum$A.value, 1),
     s = _Enum$A$value[0];
 
-a = 2;
+_a = 2;
+_a = "" + _core.Num.round.call(_a);
+_a = function a(first) {
+  if (first) {
+    return _a(false);
+  } else {
+    return 5;
+  };
+};
+var t = {
+  a: function a() {
+    return t;
+  },
+  b: function b() {
+    return t;
+  }
+};
+var u = function u(u2) {
+  return function (u3) {
+    return u + u2 + u3;
+  };
+};

@@ -108,6 +108,8 @@ Scope.getBindingByTypeId = function (id) {
   });
 };
 Scope.define = function (binding) {
+  var useParentScope = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
   var self = this;
   if (binding.name == "Self") {
     return (0, _core.Err)("Self is a reserved name");
@@ -130,7 +132,31 @@ Scope.define = function (binding) {
     var __PUCK__value__9 = void 0;
     if ($unwrapTraitObject(__PUCK__value__6).kind == "None") {
       var _undefined2 = $unwrapTraitObject(__PUCK__value__6);
-      __PUCK__value__9 = _core.None;
+      var __PUCK__value__10 = void 0;
+      if (useParentScope) {
+        var __PUCK__value__11 = _core.Option.andThen.call(self.parent, function (p) {
+          return _core.ObjectMap.get.call(p.bindings, binding.name);
+        });
+        var __PUCK__value__12 = void 0;
+        if (__PUCK__value__11.kind == "Some") {
+          var _PUCK__value__11$val = _slicedToArray(__PUCK__value__11.value, 1),
+              _previous2 = _PUCK__value__11$val[0];
+
+          var __PUCK__value__13 = void 0;
+          if (_previous2.allowRedeclare) {
+            __PUCK__value__13 = (0, _core.Some)(_previous2);
+          } else {
+            return (0, _core.Err)(binding.name + " is already defined");
+          };
+          __PUCK__value__12 = __PUCK__value__13;
+        } else {
+          __PUCK__value__12 = _core.None;
+        };
+        __PUCK__value__10 = __PUCK__value__12;
+      } else {
+        __PUCK__value__10 = _core.None;
+      };
+      __PUCK__value__9 = __PUCK__value__10;
     };
     __PUCK__value__7 = __PUCK__value__9;
   };
@@ -146,11 +172,11 @@ Scope.define = function (binding) {
   };
   _core.ObjectMap.set.call(self.bindings, binding.name, binding);
   if (binding.type_) {
-    var __PUCK__value__10 = binding.type_.providesType;
-    if (__PUCK__value__10.kind == "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__10.value)[0]).id).kind == "Some") {
-      var _PUCK__value__10$val = _slicedToArray(__PUCK__value__10.value, 1),
-          _PUCK__value__10$val$ = _slicedToArray(_PUCK__value__10$val[0].id.value, 1),
-          id = _PUCK__value__10$val$[0];
+    var __PUCK__value__14 = binding.type_.providesType;
+    if (__PUCK__value__14.kind == "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__14.value)[0]).id).kind == "Some") {
+      var _PUCK__value__14$val = _slicedToArray(__PUCK__value__14.value, 1),
+          _PUCK__value__14$val$ = _slicedToArray(_PUCK__value__14$val[0].id.value, 1),
+          id = _PUCK__value__14$val$[0];
 
       _core.ObjectMap.set.call(self.bindingsByTypeId, id, binding);
     };
@@ -173,16 +199,16 @@ Scope.getTypePath = function (typePath) {
   var visitor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
 
   var self = this;
-  var __PUCK__value__11 = typePath;
-  if ($unwrapTraitObject(__PUCK__value__11).kind == "Member") {
-    var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__11),
+  var __PUCK__value__15 = typePath;
+  if ($unwrapTraitObject(__PUCK__value__15).kind == "Member") {
+    var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__15),
         _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
         name = _$unwrapTraitObject2$[0].name;
 
     return _core.Option.okOr.call(Scope.getBinding.call(self, name, visitor), "Use of undeclared type " + name + "");
   } else {
-    if ($unwrapTraitObject(__PUCK__value__11).kind == "_Object") {
-      var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__11),
+    if ($unwrapTraitObject(__PUCK__value__15).kind == "_Object") {
+      var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__15),
           _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 2),
           identifier = _$unwrapTraitObject3$[0],
           path = _$unwrapTraitObject3$[1];
@@ -190,59 +216,59 @@ Scope.getTypePath = function (typePath) {
       var token = { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true };
       var _name = identifier.name;
       var path_ = path;
-      var __PUCK__value__12 = Scope.getBinding.call(self, _name, visitor);
-      var __PUCK__value__13 = void 0;
-      if ($unwrapTraitObject(__PUCK__value__12).kind == "Some") {
-        var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__12),
+      var __PUCK__value__16 = Scope.getBinding.call(self, _name, visitor);
+      var __PUCK__value__17 = void 0;
+      if ($unwrapTraitObject(__PUCK__value__16).kind == "Some") {
+        var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__16),
             _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
             _binding = _$unwrapTraitObject4$[0];
 
-        __PUCK__value__13 = _binding;
+        __PUCK__value__17 = _binding;
       } else {
-        var __PUCK__value__14 = void 0;
-        if ($unwrapTraitObject(__PUCK__value__12).kind == "None") {
-          var _undefined3 = $unwrapTraitObject(__PUCK__value__12);
+        var __PUCK__value__18 = void 0;
+        if ($unwrapTraitObject(__PUCK__value__16).kind == "None") {
+          var _undefined3 = $unwrapTraitObject(__PUCK__value__16);
           return (0, _core.Err)("Use of undeclared type " + _name + "");
         };
-        __PUCK__value__13 = __PUCK__value__14;
+        __PUCK__value__17 = __PUCK__value__18;
       };
-      var binding = __PUCK__value__13;
+      var binding = __PUCK__value__17;
       var type_ = binding.type_;
       while (true) {
         var displayPath = "" + _name + "";
         var providesType = _core.Option.unwrapOr.call(type_.providesType, type_);
-        var __PUCK__value__15 = path_;
-        if ($unwrapTraitObject(__PUCK__value__15).kind == "Member") {
-          var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__15),
+        var __PUCK__value__19 = path_;
+        if ($unwrapTraitObject(__PUCK__value__19).kind == "Member") {
+          var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__19),
               _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
               _identifier = _$unwrapTraitObject5$[0];
 
           token = { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: _identifier, $isTraitObject: true };
           _name = _identifier.name;
-          var __PUCK__value__16 = getTypeMember(providesType, displayPath, _name);
-          var __PUCK__value__17 = void 0;
-          if ($unwrapTraitObject(__PUCK__value__16).kind == "Ok") {
-            var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__16),
+          var __PUCK__value__20 = getTypeMember(providesType, displayPath, _name);
+          var __PUCK__value__21 = void 0;
+          if ($unwrapTraitObject(__PUCK__value__20).kind == "Ok") {
+            var _$unwrapTraitObject6 = $unwrapTraitObject(__PUCK__value__20),
                 _$unwrapTraitObject6$ = _slicedToArray(_$unwrapTraitObject6.value, 1),
                 _type_ = _$unwrapTraitObject6$[0];
 
-            __PUCK__value__17 = _type_;
+            __PUCK__value__21 = _type_;
           } else {
-            var __PUCK__value__18 = void 0;
-            if ($unwrapTraitObject(__PUCK__value__16).kind == "Err") {
-              var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__16),
+            var __PUCK__value__22 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__20).kind == "Err") {
+              var _$unwrapTraitObject7 = $unwrapTraitObject(__PUCK__value__20),
                   _$unwrapTraitObject7$ = _slicedToArray(_$unwrapTraitObject7.value, 1),
                   err = _$unwrapTraitObject7$[0];
 
               return (0, _core.Err)(err);
             };
-            __PUCK__value__17 = __PUCK__value__18;
+            __PUCK__value__21 = __PUCK__value__22;
           };
-          type_ = __PUCK__value__17;
+          type_ = __PUCK__value__21;
           break;
         } else {
-          if ($unwrapTraitObject(__PUCK__value__15).kind == "_Object") {
-            var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__15),
+          if ($unwrapTraitObject(__PUCK__value__19).kind == "_Object") {
+            var _$unwrapTraitObject8 = $unwrapTraitObject(__PUCK__value__19),
                 _$unwrapTraitObject8$ = _slicedToArray(_$unwrapTraitObject8.value, 2),
                 _identifier2 = _$unwrapTraitObject8$[0],
                 _path = _$unwrapTraitObject8$[1];
@@ -250,26 +276,26 @@ Scope.getTypePath = function (typePath) {
             token = { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: _identifier2, $isTraitObject: true };
             _name = _identifier2.name;
             path_ = _path;
-            var __PUCK__value__19 = getTypeMember(providesType, displayPath, _name);
-            var __PUCK__value__20 = void 0;
-            if ($unwrapTraitObject(__PUCK__value__19).kind == "Ok") {
-              var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__19),
+            var __PUCK__value__23 = getTypeMember(providesType, displayPath, _name);
+            var __PUCK__value__24 = void 0;
+            if ($unwrapTraitObject(__PUCK__value__23).kind == "Ok") {
+              var _$unwrapTraitObject9 = $unwrapTraitObject(__PUCK__value__23),
                   _$unwrapTraitObject9$ = _slicedToArray(_$unwrapTraitObject9.value, 1),
                   _type_2 = _$unwrapTraitObject9$[0];
 
-              __PUCK__value__20 = _type_2;
+              __PUCK__value__24 = _type_2;
             } else {
-              var __PUCK__value__21 = void 0;
-              if ($unwrapTraitObject(__PUCK__value__19).kind == "Err") {
-                var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__19),
+              var __PUCK__value__25 = void 0;
+              if ($unwrapTraitObject(__PUCK__value__23).kind == "Err") {
+                var _$unwrapTraitObject10 = $unwrapTraitObject(__PUCK__value__23),
                     _$unwrapTraitObject11 = _slicedToArray(_$unwrapTraitObject10.value, 1),
                     _err = _$unwrapTraitObject11[0];
 
                 return (0, _core.Err)(_err);
               };
-              __PUCK__value__20 = __PUCK__value__21;
+              __PUCK__value__24 = __PUCK__value__25;
             };
-            type_ = __PUCK__value__20;
+            type_ = __PUCK__value__24;
             displayPath = "" + displayPath + "::" + _name + "";
           };
         };
@@ -286,65 +312,69 @@ Scope.getTypePath = function (typePath) {
     };
   };
 };
+Scope.merge = function (other) {
+  var self = this;
+  _js._Object.assign(self.bindings, other.bindings);
+};
 function getTypeMember(type_, displayPath, member) {
-  var __PUCK__value__22 = type_.kind;
-  if ($unwrapTraitObject(__PUCK__value__22).kind == "Enum") {
-    var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__22),
+  var __PUCK__value__26 = type_.kind;
+  if ($unwrapTraitObject(__PUCK__value__26).kind == "Enum") {
+    var _$unwrapTraitObject12 = $unwrapTraitObject(__PUCK__value__26),
         _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
         enum_ = _$unwrapTraitObject13[0];
 
-    var __PUCK__value__23 = _core.ObjectMap.get.call(enum_.members, member);
-    if ($unwrapTraitObject(__PUCK__value__23).kind == "Some") {
-      var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__23),
+    var __PUCK__value__27 = _core.ObjectMap.get.call(enum_.members, member);
+    if ($unwrapTraitObject(__PUCK__value__27).kind == "Some") {
+      var _$unwrapTraitObject14 = $unwrapTraitObject(__PUCK__value__27),
           _$unwrapTraitObject15 = _slicedToArray(_$unwrapTraitObject14.value, 1),
           memberType = _$unwrapTraitObject15[0];
 
       return (0, _core.Ok)(memberType);
     } else {
-      if ($unwrapTraitObject(__PUCK__value__23).kind == "None") {
-        var _undefined4 = $unwrapTraitObject(__PUCK__value__23);
+      if ($unwrapTraitObject(__PUCK__value__27).kind == "None") {
+        var _undefined4 = $unwrapTraitObject(__PUCK__value__27);
         return (0, _core.Err)("Use of undeclared type " + displayPath + "::" + member + "");
       };
     };
   } else {
-    if ($unwrapTraitObject(__PUCK__value__22).kind == "Struct") {
-      var _$unwrapTraitObject16 = $unwrapTraitObject(__PUCK__value__22),
+    if ($unwrapTraitObject(__PUCK__value__26).kind == "Struct") {
+      var _$unwrapTraitObject16 = $unwrapTraitObject(__PUCK__value__26),
           _$unwrapTraitObject17 = _slicedToArray(_$unwrapTraitObject16.value, 1),
           struct = _$unwrapTraitObject17[0];
 
-      var __PUCK__value__24 = struct.kind;
-      if ($unwrapTraitObject(__PUCK__value__24).kind == "Record") {
-        var _$unwrapTraitObject18 = $unwrapTraitObject(__PUCK__value__24),
+      var __PUCK__value__28 = struct.kind;
+      if ($unwrapTraitObject(__PUCK__value__28).kind == "Record") {
+        var _$unwrapTraitObject18 = $unwrapTraitObject(__PUCK__value__28),
             _$unwrapTraitObject19 = _slicedToArray(_$unwrapTraitObject18.value, 1),
             record = _$unwrapTraitObject19[0];
 
-        var __PUCK__value__25 = _core.ObjectMap.get.call(record.properties, member);
-        if ($unwrapTraitObject(__PUCK__value__25).kind == "Some") {
-          var _$unwrapTraitObject20 = $unwrapTraitObject(__PUCK__value__25),
+        var __PUCK__value__29 = _core.ObjectMap.get.call(record.properties, member);
+        if ($unwrapTraitObject(__PUCK__value__29).kind == "Some") {
+          var _$unwrapTraitObject20 = $unwrapTraitObject(__PUCK__value__29),
               _$unwrapTraitObject21 = _slicedToArray(_$unwrapTraitObject20.value, 1),
               propertyType = _$unwrapTraitObject21[0];
 
           return (0, _core.Ok)(propertyType);
         } else {
-          if ($unwrapTraitObject(__PUCK__value__25).kind == "None") {
-            var _undefined5 = $unwrapTraitObject(__PUCK__value__25);
+          if ($unwrapTraitObject(__PUCK__value__29).kind == "None") {
+            var _undefined5 = $unwrapTraitObject(__PUCK__value__29);
             return (0, _core.Err)("Use of undeclared type " + displayPath + "::" + member + "");
           };
         };
       } else {
-        if ($unwrapTraitObject(__PUCK__value__24).kind == "Tuple") {
-          var _undefined6 = $unwrapTraitObject(__PUCK__value__24);
+        if ($unwrapTraitObject(__PUCK__value__28).kind == "Tuple") {
+          var _undefined6 = $unwrapTraitObject(__PUCK__value__28);
           return (0, _core.Err)("Can not access members on a tuple type");
         } else {
-          if ($unwrapTraitObject(__PUCK__value__24).kind == "Unit") {
-            var _undefined7 = $unwrapTraitObject(__PUCK__value__24);
+          if ($unwrapTraitObject(__PUCK__value__28).kind == "Unit") {
+            var _undefined7 = $unwrapTraitObject(__PUCK__value__28);
             return (0, _core.Err)("Can not access members on a unit type");
           };
         };
       };
     } else {
       if (true) {
-        var __PUCK__value__26 = __PUCK__value__22;
+        var __PUCK__value__30 = __PUCK__value__26;
         return (0, _core.Err)("Type paths can only access enums or records");
       };
     };

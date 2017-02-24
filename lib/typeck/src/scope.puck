@@ -71,7 +71,7 @@ impl Scope {
       })
   }
 
-  fn define(mut self, binding: Binding) -> Result<Binding, String> {
+  fn define(mut self, binding: Binding, useParentScope = false) -> Result<Binding, String> {
     if binding.name == 'Self'
       then return Err('Self is a reserved name')
 
@@ -82,7 +82,17 @@ impl Scope {
             then Some(previous)
             else return Err(binding.name + ' is already defined')
         }
-        Option::None => None
+        Option::None => {
+          if useParentScope {
+            if let Some(previous) = self.parent.andThen(|p| p.bindings.get(binding.name)) {
+              if previous.allowRedeclare
+                then Some(previous)
+                else return Err(binding.name + ' is already defined')
+            }
+            else None
+          }
+          else None
+        }
       }
 
     let binding: Binding = {
@@ -172,6 +182,20 @@ impl Scope {
         }))
       }
     }
+  }
+
+  fn merge(mut self, other: Scope) -> () {
+    // print('merge self', self.getBindings())
+    // print('merge other', other.getBindings())
+    // print('merge self bindings', self.bindings)
+    // print('merge other bindings', other.bindings)
+    // other.bindings.forEach(|mut (name, binding)| {
+    //   if self.bindings.has(name) and binding.previous.isNone() {
+    //     binding.previous = self.bindings.get(name)
+    //   }
+    //   self.bindings[name] = binding
+    // })
+    Object->assign(self.bindings, other.bindings)
   }
 }
 

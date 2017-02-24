@@ -301,7 +301,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       }
     }
   }
-  visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, type_: Type| {
+  visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, type_: Type| {
     if d->scope then return ()
     d->scope = self.scope
     self.visitPattern(d.pattern)
@@ -313,7 +313,13 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
     if not isAssignable(d.pattern->type_.transmute(), type_)
       then return reportError(d.pattern, type_.displayName() + ' is not assignable to pattern ' + d.pattern.displayName())
 
-    match declarePatternVariables(d->scope.transmute(), self, d.pattern, d.mutable, type_, false) {
+    let mut scope: Scope = self.scope
+    let mut childScope =
+      if d.initializer.isSome()
+        then scope.createChild()
+        else scope
+
+    match declarePatternVariables(childScope, self, d.pattern, d.mutable, type_, false, d.initializer.isSome()) {
       Result::Ok(_) => {}
       Result::Err(PatternError::PatternMismatch(_, to, subject)) => {
         reportError(d, notAssignableError(to, subject))
@@ -325,11 +331,18 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
     }
 
     if let Option::Some(initializer) = d.initializer {
+      let parentVariableDeclarationScope = self.variableDeclarationScope
+      self.variableDeclarationScope = childScope
+
       if visitInitializer {
         visitInitializer(initializer)
       } else {
         self.visitExpression(initializer)
       }
+
+      scope.merge(childScope)
+      self.variableDeclarationScope = parentVariableDeclarationScope
+
       let initializerType = initializer.getType()
       if not d->type_ and d.pattern->binding {
         d.pattern->binding->type_ = initializerType

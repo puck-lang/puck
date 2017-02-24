@@ -323,7 +323,32 @@ export fn ScopeVisitor(context, file) {
         let selfScope = self.scope
         self.scope = f->scope
 
-        f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
+        if self.variableDeclarationScope {
+          let vdScope: Scope = self.variableDeclarationScope
+          let mut fScope: Scope = self.scope
+          let mut bindings = fScope.bindings
+          if let Some(vdParent) = vdScope.parent {
+            while true {
+              if let Some(fParent) = fScope.parent {
+                if vdParent == fParent {
+                  break
+                }
+                else {
+                  bindings = Object->assign({}, fParent.bindings, bindings).transmute()
+                  fScope = fParent
+                }
+              }
+              else break
+            }
+          }
+          self.scope = Scope({
+            context: self.scope.context
+            parent: Some(self.variableDeclarationScope)
+            bindings: bindings
+            bindingsByTypeId: self.scope.bindingsByTypeId
+          })
+        }
+
         if let Option::Some(body) = f.body {
           let parentAssignedTo = self.assignedTo
           let parentContext = self.functionContext

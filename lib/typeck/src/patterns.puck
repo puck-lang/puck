@@ -53,7 +53,7 @@ fn isNonExhaustive(typePath: TypePath) -> Bool {
   false
 }
 
-export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool) ->
+export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool, useParentScope = false) ->
     Result<(), PatternError> {
   match p {
     Pattern::CatchAll => Ok(())
@@ -66,7 +66,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
         type_
         completeType: None
         previous: None
-      }) {
+      }, useParentScope) {
         Result::Ok(binding) => {
           p->binding = binding
           Ok(())
