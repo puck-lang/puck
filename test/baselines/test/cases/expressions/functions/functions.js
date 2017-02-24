@@ -78,3 +78,7 @@ var obj = { key: function key() {
     var self = this;
     return self;
   } };
+function r(a, b) {};
+r(5, function (a) {
+  return _core.Num.round.call(a);
+});
