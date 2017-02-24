@@ -195,7 +195,7 @@ function createTypeInstance(type_, typeParameters_) {
     });
     __PUCK__value__18 = typeParameters_.concat(_core.Iterable[__PUCK__value__19.type].toList.call(__PUCK__value__19));
   } else {
-    __PUCK__value__18 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: typeParameters_, $isTraitObject: true });
+    __PUCK__value__18 = typeParameters_;
   };
   var typeParameters = __PUCK__value__18;
   var __PUCK__value__22 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].find.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.instances, $isTraitObject: true }, function (a) {

@@ -59,3 +59,15 @@ let Record {c} = {a: 5, b: 5}
 
 ///// non exhaustive pattern
 let Option::Some(value) = Option::Some(5)
+
+///// Use of undefined variable a
+let a = a
+
+///// Num is not assignable to type String
+let a = 1
+let a: String = a
+
+///// Use of undefined variable a
+let a = {
+  a
+}

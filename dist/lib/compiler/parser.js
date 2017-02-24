@@ -776,8 +776,7 @@ function parse(input, file) {
           if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: stringLiteral.parts, $isTraitObject: true }) > 1) {
             _token_stream.TokenStream.croak.call(input, "Attributes can only contain simple string literals. Interpolation is not supported.");
           };
-          var part = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: stringLiteral.parts, $isTraitObject: true }, 0);
-          var __PUCK__value__61 = part;
+          var __PUCK__value__61 = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: stringLiteral.parts, $isTraitObject: true }, 0);
           if ($unwrapTraitObject(__PUCK__value__61).kind == "Literal") {
             var _$unwrapTraitObject36 = $unwrapTraitObject(__PUCK__value__61),
                 _$unwrapTraitObject37 = _slicedToArray(_$unwrapTraitObject36.value, 1),

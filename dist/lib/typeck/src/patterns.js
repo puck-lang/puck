@@ -127,6 +127,8 @@ function isNonExhaustive(typePath) {
   return false;
 };
 function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive) {
+  var useParentScope = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : false;
+
   var __PUCK__value__11 = p;
   if ($unwrapTraitObject(__PUCK__value__11).kind == "CatchAll") {
     var _undefined2 = $unwrapTraitObject(__PUCK__value__11);
@@ -145,7 +147,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
         type_: type_,
         completeType: _core.None,
         previous: _core.None
-      });
+      }, useParentScope);
       if ($unwrapTraitObject(__PUCK__value__12).kind == "Ok") {
         var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__12),
             _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),

@@ -77,7 +77,7 @@ impl PositionVisitor for CompletionVisitor {
                     then parameters.lpush('mut self')
                     else parameters.lpush('self')
                 }
-                let parameters = parameters.join(', ')
+                let parameters = parameters->join(', ')
                 let returnType = function.returnType.displayName()
                 let signature = '$name($parameters) -> $returnType'
                 {

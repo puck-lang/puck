@@ -38,7 +38,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
     }
 
     let result = asResult(|| {
-      let file: UnparsedFile = {
+      let mut file: UnparsedFile = {
         isBin: false
         fileName: path->basename(filePath).transmute()
         absolutePath: path->resolve(path->normalize(filePath)).transmute()

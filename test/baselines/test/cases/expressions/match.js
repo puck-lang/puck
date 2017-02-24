@@ -174,7 +174,7 @@ if ($unwrapTraitObject(__PUCK__value__31).kind == "Some") {
       _$unwrapTraitObject13 = _slicedToArray(_$unwrapTraitObject12.value, 1),
       name = _$unwrapTraitObject13[0];
 
-  name = $unwrapTraitObject(name).toUpperCase();
+  name = _core.String.toUpperCase.call(name);
   sayHello(name);
 } else {
   if ($unwrapTraitObject(__PUCK__value__31).kind == "None") {

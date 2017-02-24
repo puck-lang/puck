@@ -23,13 +23,13 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = 
 
   if let Option::Some(instance) = type_.instance {
     let mut i = instance
-    let typeParameters: List<Type> = instance.typeParameters
-      return createTypeInstance(
-        i.class
-        typeParameters
-          .map(resolveTypeParameters(parameterMap, false))
-          .toList()
-      )
+    let typeParameters = instance.typeParameters
+    return createTypeInstance(
+      i.class
+      typeParameters
+        .map(resolveTypeParameters(parameterMap, false))
+        .toList()
+    )
   }
 
   if not enterNamed and not type_.isParameter()
@@ -121,7 +121,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
       )
       .transmute()
     }
-    else typeParameters_.toList()
+    else typeParameters_
 
   if let Option::Some(cachedInstance) = class.instances.find(|a| {
       let i = a.instance.unwrap()

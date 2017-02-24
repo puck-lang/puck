@@ -272,22 +272,23 @@ function build(files, context) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var dump = options.dump;
-  files = $unwrapTraitObject(files).map(function (f) {
-    var fileName = $unwrapTraitObject(path.basename($unwrapTraitObject(f).file));
-    var absolutePath = $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize($unwrapTraitObject(f).file))));
-    var outFile = path.normalize($unwrapTraitObject(f).outFile);
+  files = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (f) {
+    var fileName = $unwrapTraitObject(path.basename(f.file));
+    var absolutePath = $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize(f.file))));
+    var outFile = path.normalize(f.outFile);
     var outDir = path.dirname(outFile);
     return {
-      isBin: $unwrapTraitObject(f).isBin,
+      isBin: f.isBin,
       absolutePath: absolutePath,
       outFile: outFile,
       outDir: outDir,
       inspect: fileInspect
     };
   });
-  files = $unwrapTraitObject(files).map(function (f) {
+  var __PUCK__value__8 = _core.Iterable[files.type].map.call(files, function (f) {
     return $unwrapTraitObject(context).importFile(f);
   });
+  files = _core.Iterable[__PUCK__value__8.type].toList.call(__PUCK__value__8);
   if (dump == "ast") {
     dumpFiles(files, "ast");
     return _js._undefined;
@@ -307,20 +308,20 @@ function build(files, context) {
     dumpFiles(files, "ast");
     return _js._undefined;
   };
-  $unwrapTraitObject(files).forEach(function (file) {
-    return $unwrapTraitObject(file).js = compile(context, file);
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
+    return file.js = compile(context, file);
   });
   if (dump == "js") {
     dumpFiles(files, "js");
     return _js._undefined;
   };
-  $unwrapTraitObject(files).forEach(function (file) {
-    return $unwrapTraitObject(file).babel = babelTransform(file);
+  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
+    return file.babel = babelTransform(file);
   });
-  return $unwrapTraitObject(files).forEach(function (f) {
-    var outDir = $unwrapTraitObject(f).outDir;
-    var outFile = $unwrapTraitObject(f).outFile;
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (f) {
+    var outDir = f.outDir;
+    var outFile = f.outFile;
     (0, _helpers.cmd)("mkdir -p " + outDir + "");
-    return fs.writeFileSync("" + outFile + "", $unwrapTraitObject(f).babel + "\n", { mode: 511 });
+    return fs.writeFileSync("" + outFile + "", f.babel + "\n", { mode: 511 });
   });
 }

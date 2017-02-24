@@ -18,3 +18,13 @@ let a = 2
 // TODO: Allow this
 // let (b, c) = (4, 5)
 // let (i, a) = ('new', 'shadow')
+
+let a: String = '' + a.round()
+
+let a = |first: Bool| if first then a(false) else 5
+let t = {
+  a: || t
+  b: || t
+}
+
+let u = |u2| |u3| u + u2 + u3

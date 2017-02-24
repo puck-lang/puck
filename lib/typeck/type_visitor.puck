@@ -379,7 +379,7 @@ export fn TypeVisitor(context, file) {
       match importDirective.specifier {
         ImportSpecifier::Identifier(identifier) => {
           let token: ToSpan = identifier
-          let typeProperties: ObjectMap<Type> =
+          let typeProperties =
             if let Option::Some(module) = importDirective.module {
               module.exports.map(|exportDirective| exportDirective.getType())
             }

@@ -91,7 +91,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
 
   i.members.forEach(|mut functionDeclaration| {
     let functionName = functionDeclaration.type_.displayName()
-    let traitFunctionType: Type = traitFunctions[functionDeclaration.type_.name.unwrap()]
+    let traitFunctionType = traitFunctions[functionDeclaration.type_.name.unwrap()]
     let traitFunction = traitFunctionType.getFunction()
     let function = functionDeclaration.type_.getFunction()
     functionDeclaration->traitFunctionType = traitFunctionType
