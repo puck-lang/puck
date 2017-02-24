@@ -300,16 +300,75 @@ export fn isSameType(a: Type, b: Type) {
 }
 
 export fn findCommonType(types: List<Type>) -> Result<Type, ()> {
+  if types.isEmpty() then return Err(())
+
   let mut index = 0
+  let mut commonType = types[0]
 
   while index < types.size() {
-    let mut type_ = types[index]
+    let type_ = types[index]
 
-    if types.all(|t| isAssignable(type_, t)) {
-      return Ok(type_)
+    if not type_ or type_.isNever() {
+      // Nothing
     }
+    else if not commonType or commonType.isNever() {
+      commonType = type_
+    }
+    else if commonType.isParameter() and not type_.isParameter() {
+      commonType = type_
+    }
+    else if type_.isParameter() {
+      // Nothing
+    }
+    else if let Some((commonId, typeId)) = commonType.id.andThen(|a| type_.id.map(|b| (a, b))) {
+      if commonId != typeId then return Err(())
+
+      match (commonType.typeParameters(), type_.typeParameters()) {
+        (Some(c), Some(typeParameters)) => {
+          let mut commonTypeParameters = c
+          let mut index = 0
+          while index < commonTypeParameters.size() {
+            let commonParameter = commonTypeParameters[index]
+            let typeParameter = typeParameters[index]
+
+            match findCommonType([commonParameter, typeParameter]) {
+              Ok(newCommonParameter) => {
+                if newCommonParameter != commonParameter {
+                  if commonTypeParameters == c {
+                    commonTypeParameters = c.skip(0).toList()
+                  }
+                  commonTypeParameters[index] = newCommonParameter
+                }
+              }
+              Err(err) => return Err(err)
+            }
+
+            index += 1
+          }
+
+          if commonTypeParameters != c {
+            let mut class = commonType.instance.mapOr(commonType, |i| i.class)
+
+            commonType = createTypeInstance(class, commonTypeParameters)
+          }
+        }
+        (Option::None, Option::None) => {
+          // Nothing, keep common as is
+        }
+        _ => panic('The same type both have and don\'t have type parameters')
+      }
+    }
+    else if isAssignable(commonType, type_) {
+      // Nothing, keep common as is
+    }
+    else if isAssignable(type_, commonType) {
+      commonType = type_
+    }
+    // If the type is not assignable in either way
+    else return Err(())
+
     index += 1
   }
 
-  Err(())
+  Ok(commonType)
 }

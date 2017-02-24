@@ -419,8 +419,6 @@ function structureVisitor(reportError) {
       };
     },
     visitVariableDeclaration: function visitVariableDeclaration(d, visitInitializer, type_) {
-      var allowNotExhaustive = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-
       var self = this;
       if (d.scope) {
         return [];
@@ -432,10 +430,10 @@ function structureVisitor(reportError) {
         return _ast.TypeBound.getType.call(bound) || type_;
       });
       d.type_ = type_;
-      if (!(0, _types.isAssignable)($unwrapTraitObject(d.pattern.type_), $unwrapTraitObject(d.type_))) {
+      if (!(0, _types.isAssignable)($unwrapTraitObject(d.pattern.type_), type_)) {
         return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: d.pattern, $isTraitObject: true }, _entities.Type.displayName.call(type_) + " is not assignable to pattern " + _ast.Pattern.displayName.call(d.pattern));
       };
-      var __PUCK__value__26 = (0, _patterns.declarePatternVariables)($unwrapTraitObject(d.scope), self, d.pattern, d.mutable, $unwrapTraitObject(d.type_), allowNotExhaustive);
+      var __PUCK__value__26 = (0, _patterns.declarePatternVariables)($unwrapTraitObject(d.scope), self, d.pattern, d.mutable, type_, false);
       if ($unwrapTraitObject(__PUCK__value__26).kind == "Ok") {
         var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__26),
             _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
@@ -484,8 +482,8 @@ function structureVisitor(reportError) {
           d.pattern.binding.type_ = initializerType;
           d.type_ = initializerType;
         } else {
-          if (!(0, _types.isAssignable)($unwrapTraitObject(d.type_), initializerType)) {
-            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: initializer, $isTraitObject: true }, notAssignableError($unwrapTraitObject(d.type_), initializerType));
+          if (!(0, _types.isAssignable)(type_, initializerType)) {
+            return reportError({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: initializer, $isTraitObject: true }, notAssignableError(type_, initializerType));
           };
         };
         if (!(0, _types.isAssignable)($unwrapTraitObject(d.pattern.type_), initializerType)) {

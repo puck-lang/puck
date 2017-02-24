@@ -25,7 +25,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
       Some({
         parameterRange: getRange(
           f.typeParameters
-          |p: TypeParameter| p.defaultValue.isSome()
+          |p| p.defaultValue.isSome()
           reportError
           'type parameter'
         )
@@ -58,9 +58,9 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
         then Some(b)
         else None
     })
-  let parameters =
+  let parameters: List<Binding> =
     if selfBinding.isSome()
-      then parameters.slice(1)
+      then parameters.skip(1).toList()
       else parameters
 
   {
@@ -127,36 +127,40 @@ export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeP
         }
       }
     }
-    TypeKind::Struct(struct) => match struct.kind {
-      StructKind::Record(parameterRecord) => {
-        if let TypeKind::Struct({kind: StructKind::Record(argumentRecord)}) = argumentType.kind {
-          parameterRecord.properties.forEach(|(name, parameterType)| {
-            if let Some(argumentType) = argumentRecord.properties.get(name) {
-              resolveFunctionTypeParameters(
-                parameterMap
-                typeParameters
-                parameterType
-                argumentType
-              )
+    TypeKind::Struct(struct) => {
+      if not parameterType.id.isSome() {
+        match struct.kind {
+          StructKind::Record(parameterRecord) => {
+            if let TypeKind::Struct({kind: StructKind::Record(argumentRecord)}) = argumentType.kind {
+              parameterRecord.properties.forEach(|(name, parameterType)| {
+                if let Some(argumentType) = argumentRecord.properties.get(name) {
+                  resolveFunctionTypeParameters(
+                    parameterMap
+                    typeParameters
+                    parameterType
+                    argumentType
+                  )
+                }
+              })
             }
-          })
+          }
+          StructKind::Tuple(parameterTuple) => {
+            if let TypeKind::Struct({kind: StructKind::Tuple(argumentTuple)}) = argumentType.kind {
+              parameterTuple.properties.enumerate().forEach(|(i, parameterType)| {
+                if let Some(argumentType) = argumentTuple.properties.get(i) {
+                  resolveFunctionTypeParameters(
+                    parameterMap
+                    typeParameters
+                    parameterType
+                    argumentType
+                  )
+                }
+              })
+            }
+          }
+          _ => {}
         }
       }
-      StructKind::Tuple(parameterTuple) => {
-        if let TypeKind::Struct({kind: StructKind::Tuple(argumentTuple)}) = argumentType.kind {
-          parameterTuple.properties.enumerate().forEach(|(i, parameterType)| {
-            if let Some(argumentType) = argumentTuple.properties.get(i) {
-              resolveFunctionTypeParameters(
-                parameterMap
-                typeParameters
-                parameterType
-                argumentType
-              )
-            }
-          })
-        }
-      }
-      _ => {}
     }
     TypeKind::Function(parameterFunction) => {
       if allowedToFollowFunction and parameterFunction.returnType {

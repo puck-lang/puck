@@ -221,9 +221,18 @@ export fn ScopeVisitor(context, file) {
         self.visitTopLevelStatement(s)
       })
     }
-    visitExpression: |mut self, e: Expression| {
-      self.isUsed = true
-      visit.walkingVisitor.visitExpression->call(self, e)
+    visitBlockLevelStatement: |mut self, s: BlockLevelStatement, assignedTo = undefined, isUsed = true| {
+      match s {
+        BlockLevelStatement::Expression(e) => self.visitExpression(e, assignedTo, isUsed)
+        _ => visit.walkBlockLevelStatement(self, s)
+      }
+    }
+    visitExpression: |mut self, e: Expression, assignedTo = undefined, isUsed = true| {
+      self.isUsed = isUsed
+      let parentAssignedTo = self.assignedTo
+      self.assignedTo = assignedTo
+      visit.walkExpression(self, e)
+      self.assignedTo = parentAssignedTo
     }
 
     visitImplDeclaration: |self, mut i: ImplDeclaration| {
@@ -248,6 +257,7 @@ export fn ScopeVisitor(context, file) {
 
     visitBlock: |mut self, mut b: Block, isUsed = true| {
       b->scope = self.scope
+      let assignedTo = self.assignedTo
 
       // Hoist function declarations
       b.statements.forEach(|s| match s {
@@ -259,8 +269,9 @@ export fn ScopeVisitor(context, file) {
 
       let lastIndex = b.statements.size() - 1
       b.statements.enumerate().forEach(|(index, s)| {
-        self.isUsed = isUsed and index == lastIndex
-        self.visitBlockLevelStatement(s)
+        if index == lastIndex
+          then self.visitBlockLevelStatement(s, assignedTo, isUsed)
+          else self.visitBlockLevelStatement(s, undefined, false)
       })
 
       b->type_ =
@@ -368,21 +379,17 @@ export fn ScopeVisitor(context, file) {
         self.scope = selfScope
       }
     }
-    visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, type_, allowNotExhaustive = false| {
+    visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, type_| {
       structureVisitorInstance.visitVariableDeclaration->call(
         self
         d
         if visitInitializer
           then visitInitializer
           else |e| {
-            let parentAssignedTo = self.assignedTo
-            self.assignedTo = d->type_
             self.isUsed = true
-            self.visitExpression(e)
-            self.assignedTo = parentAssignedTo
+            self.visitExpression(e, d->type_)
           }
         type_
-        allowNotExhaustive
       )
     }
 
@@ -390,7 +397,7 @@ export fn ScopeVisitor(context, file) {
       e->scope = self.scope
       if let Expression::IndexAccess(a) = e.lhs {
         visit.walkIndexAccess(self, a)
-        visit.walkExpression(self, e.rhs)
+        self.visitExpression(e.rhs)
       }
       else {
         visit.walkAssignmentExpression(self, e)
@@ -591,26 +598,29 @@ export fn ScopeVisitor(context, file) {
         }
       }
 
-      let mut parentAssignedTo
       if not isUnknownCall and functionType and functionType.isFunction() {
         let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
         let mut callParameterMap: ObjectMap<Type> = ObjectMap.new()
-        let parentAssignedTo = self.assignedTo
-        let functionKind = functionType.getFunction()
+        let mut functionKind = functionType.getFunction()
+        let resolveParameter = resolveTypeParameters(callParameterMap, false)
+
         e.argumentList.enumerate()
           // If too many arguments are passed e.argumentList will be longer than functionKind.parameters
           .take(functionKind.parameters.size())
           .forEach(|(i, a)| {
-            let parameter = functionKind.parameters[i]
-            self.assignedTo = parameter->type_
+            let mut parameter = functionKind.parameters[i]
+            let parameterType =
+              if not parameter.type_ or callTypeParameters.isEmpty()
+                then parameter.type_
+                else resolveParameter(parameter.type_)
             if not skipFirstArgument or i > 0 {
-              self.visitExpression(a)
+              self.visitExpression(a, parameterType)
             }
-            if callTypeParameters.isNotEmpty() and parameter->type_ and a.getType() {
+            if callTypeParameters.isNotEmpty() and parameterType and a.getType() {
               resolveFunctionTypeParameters(
                 callParameterMap
                 callTypeParameters
-                parameter->type_.transmute()
+                parameterType
                 a.getType()
               )
             }
@@ -618,13 +628,9 @@ export fn ScopeVisitor(context, file) {
         if callTypeParameters.isNotEmpty() {
           functionType = resolveTypeParameters(callParameterMap)(functionType)
         }
-        self.assignedTo = parentAssignedTo
       }
       else {
-        let parentAssignedTo = self.assignedTo
-        self.assignedTo = undefined
         e.argumentList.forEach(|a| self.visitExpression(a))
-        self.assignedTo = parentAssignedTo
       }
       if isUnknownCall {
         e->type_ = functionType
@@ -719,8 +725,6 @@ export fn ScopeVisitor(context, file) {
       e.patterns.forEach(|a| self.visitMatchArm(a, isUsed))
 
       if not e.expression.getType() {
-        print('e.expression', e.expression)
-        print('e.expression value', e.expression->value->[0])
         return reportError(e.expression, 'No type in match expression')
       }
 
@@ -835,7 +839,7 @@ export fn ScopeVisitor(context, file) {
       }
     }
     visitMemberAccess: |self, mut a: MemberAccess, inCallExpression = false| {
-      visit.walkExpression(self, a.object)
+      self.visitExpression(a.object)
       if a.object.getType() {
         if let TypeKind::Struct({kind: StructKind::Record(record)}) = a.object.getType().kind {
           if let Some(type_) = record.properties.get(a.member.name) {
@@ -895,24 +899,36 @@ export fn ScopeVisitor(context, file) {
         else return reportError(l
           'puck:core::List is not in scope. Please import List from puck:core to use list literals.'
         )
-      l->scope = self.scope
-      visit.walkListLiteral(self, l)
-      if l.members.size() >= 1 {
-        let types = l.members.map(|m| m.getType()).toList()
-        let result: Result<Type, ()> = findCommonType(types)
-        match result {
-          Result::Ok(type_) => {
-            if not type_ {
-              l->type_ = listType
-            } else {
-              l->type_ = createTypeInstance(listType, [type_])
-            }
+      let mut type_: Option<Type> = None
+      if self.assignedTo {
+        let a: Type = self.assignedTo
+        if let TypeKind::Struct(_) = a.kind {
+          if a.id.unwrapOr('') == 'List' {
+            type_ = Some(a)
           }
-          Result::Err(_) => reportError(l, 'List contains mixed types')
         }
       }
-      else {
-        l->type_ = listType
+      visit.walkListLiteral(self, l)
+      if let Some(type_) = type_ {
+        l->type_ = type_
+      } else {
+        if l.members.size() >= 1 {
+          let types = l.members.map(|m| m.getType()).toList()
+          let result: Result<Type, ()> = findCommonType(types)
+          match result {
+            Result::Ok(type_) => {
+              if not type_ {
+                l->type_ = listType
+              } else {
+                l->type_ = createTypeInstance(listType, [type_])
+              }
+            }
+            Result::Err(_) => reportError(l, 'List contains mixed types')
+          }
+        }
+        else {
+          l->type_ = listType
+        }
       }
       ()
     }
@@ -987,14 +1003,14 @@ export fn ScopeVisitor(context, file) {
         match p {
           Pattern::CatchAll => Type.unused()
           Pattern::Identifier(identifier) => undefined
-          Pattern::Record(record) => record->type_
+          Pattern::Record(record) => record->type_.transmute()
           Pattern::RecordType(typePath, record) => {
             let type_: Type = typePath->providesType.transmute()
             if not isAssignable(record->type_.transmute(), type_)
               then reportError(p, type_.displayName() + ' is not assignable to pattern ' + record.displayName())
             type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
           }
-          Pattern::Tuple(tuple) => tuple->type_
+          Pattern::Tuple(tuple) => tuple->type_.transmute()
           Pattern::TupleType(typePath, tuple) => {
             let type_: Type = typePath->providesType.transmute()
             if not isAssignable(tuple->type_.transmute(), type_)

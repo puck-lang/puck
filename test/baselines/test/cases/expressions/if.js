@@ -5,6 +5,8 @@ var _core = require('puck-lang/dist/lib/stdlib/core');
 var z = 5;
 function a() {
   var z = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+  return z;
 };
 function b() {
   var z = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -85,7 +87,7 @@ if (z) {
 } else {
   var __PUCK__value__9 = void 0;
   if (z == 0) {
-    __PUCK__value__9 = q6;
+    __PUCK__value__9 = 1;
   } else {
     __PUCK__value__9 = 0;
   };
@@ -130,6 +132,8 @@ function g() {
   } else {
     if (z == 0) {
       return q6;
+    } else {
+      return 3;
     };
   };
 };
@@ -255,6 +259,8 @@ function h() {
     } else {
       if (z == 0) {
         return q6;
+      } else {
+        return 7;
       };
     };
   };

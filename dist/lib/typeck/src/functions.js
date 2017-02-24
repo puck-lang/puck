@@ -198,66 +198,68 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
           _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
           struct = _$unwrapTraitObject3$[0];
 
-      var __PUCK__value__15 = struct.kind;
-      if ($unwrapTraitObject(__PUCK__value__15).kind == "Record") {
-        var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__15),
-            _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
-            parameterRecord = _$unwrapTraitObject4$[0];
+      if (!_core.Option.isSome.call(parameterType.id)) {
+        var __PUCK__value__15 = struct.kind;
+        if ($unwrapTraitObject(__PUCK__value__15).kind == "Record") {
+          var _$unwrapTraitObject4 = $unwrapTraitObject(__PUCK__value__15),
+              _$unwrapTraitObject4$ = _slicedToArray(_$unwrapTraitObject4.value, 1),
+              parameterRecord = _$unwrapTraitObject4$[0];
 
-        var __PUCK__value__16 = argumentType.kind;
-        if (__PUCK__value__16.kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__16.value)[0]).kind).kind == "Record") {
-          (function () {
-            var _PUCK__value__16$val = _slicedToArray(__PUCK__value__16.value, 1),
-                _PUCK__value__16$val$ = _slicedToArray(_PUCK__value__16$val[0].kind.value, 1),
-                argumentRecord = _PUCK__value__16$val$[0];
-
-            _core.ObjectMap.forEach.call(parameterRecord.properties, function (_ref5) {
-              var _ref6 = _slicedToArray(_ref5, 2),
-                  name = _ref6[0],
-                  parameterType = _ref6[1];
-
-              var __PUCK__value__17 = _core.ObjectMap.get.call(argumentRecord.properties, name);
-              if (__PUCK__value__17.kind == "Some") {
-                var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
-                    _argumentType = _PUCK__value__17$val[0];
-
-                return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, _argumentType);
-              };
-            });
-          })();
-        };
-      } else {
-        if ($unwrapTraitObject(__PUCK__value__15).kind == "Tuple") {
-          var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__15),
-              _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
-              parameterTuple = _$unwrapTraitObject5$[0];
-
-          var __PUCK__value__18 = argumentType.kind;
-          if (__PUCK__value__18.kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__18.value)[0]).kind).kind == "Tuple") {
+          var __PUCK__value__16 = argumentType.kind;
+          if (__PUCK__value__16.kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__16.value)[0]).kind).kind == "Record") {
             (function () {
-              var _PUCK__value__18$val = _slicedToArray(__PUCK__value__18.value, 1),
-                  _PUCK__value__18$val$ = _slicedToArray(_PUCK__value__18$val[0].kind.value, 1),
-                  argumentTuple = _PUCK__value__18$val$[0];
+              var _PUCK__value__16$val = _slicedToArray(__PUCK__value__16.value, 1),
+                  _PUCK__value__16$val$ = _slicedToArray(_PUCK__value__16$val[0].kind.value, 1),
+                  argumentRecord = _PUCK__value__16$val$[0];
 
-              var __PUCK__value__19 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameterTuple.properties, $isTraitObject: true });
-              _core.Iterable[__PUCK__value__19.type].forEach.call(__PUCK__value__19, function (_ref7) {
-                var _ref8 = _slicedToArray(_ref7, 2),
-                    i = _ref8[0],
-                    parameterType = _ref8[1];
+              _core.ObjectMap.forEach.call(parameterRecord.properties, function (_ref5) {
+                var _ref6 = _slicedToArray(_ref5, 2),
+                    name = _ref6[0],
+                    parameterType = _ref6[1];
 
-                var __PUCK__value__20 = _core.List.get.call(argumentTuple.properties, i);
-                if (__PUCK__value__20.kind == "Some") {
-                  var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1),
-                      _argumentType2 = _PUCK__value__20$val[0];
+                var __PUCK__value__17 = _core.ObjectMap.get.call(argumentRecord.properties, name);
+                if (__PUCK__value__17.kind == "Some") {
+                  var _PUCK__value__17$val = _slicedToArray(__PUCK__value__17.value, 1),
+                      _argumentType = _PUCK__value__17$val[0];
 
-                  return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, _argumentType2);
+                  return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, _argumentType);
                 };
               });
             })();
           };
         } else {
-          if (true) {
-            var __PUCK__value__21 = __PUCK__value__15;
+          if ($unwrapTraitObject(__PUCK__value__15).kind == "Tuple") {
+            var _$unwrapTraitObject5 = $unwrapTraitObject(__PUCK__value__15),
+                _$unwrapTraitObject5$ = _slicedToArray(_$unwrapTraitObject5.value, 1),
+                parameterTuple = _$unwrapTraitObject5$[0];
+
+            var __PUCK__value__18 = argumentType.kind;
+            if (__PUCK__value__18.kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__18.value)[0]).kind).kind == "Tuple") {
+              (function () {
+                var _PUCK__value__18$val = _slicedToArray(__PUCK__value__18.value, 1),
+                    _PUCK__value__18$val$ = _slicedToArray(_PUCK__value__18$val[0].kind.value, 1),
+                    argumentTuple = _PUCK__value__18$val$[0];
+
+                var __PUCK__value__19 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameterTuple.properties, $isTraitObject: true });
+                _core.Iterable[__PUCK__value__19.type].forEach.call(__PUCK__value__19, function (_ref7) {
+                  var _ref8 = _slicedToArray(_ref7, 2),
+                      i = _ref8[0],
+                      parameterType = _ref8[1];
+
+                  var __PUCK__value__20 = _core.List.get.call(argumentTuple.properties, i);
+                  if (__PUCK__value__20.kind == "Some") {
+                    var _PUCK__value__20$val = _slicedToArray(__PUCK__value__20.value, 1),
+                        _argumentType2 = _PUCK__value__20$val[0];
+
+                    return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, _argumentType2);
+                  };
+                });
+              })();
+            };
+          } else {
+            if (true) {
+              var __PUCK__value__21 = __PUCK__value__15;
+            };
           };
         };
       };

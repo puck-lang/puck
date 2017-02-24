@@ -47,3 +47,6 @@ let bool: Bool = m(1, 2)
 let obj = {
   key: |self| self
 }
+
+fn r<T>(a: T, b: (T) -> ()) {}
+r(5, |a| a.round())

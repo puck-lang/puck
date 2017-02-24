@@ -811,7 +811,9 @@ function walkBinaryExpression(visitor, e) {
 };
 function walkCallExpression(visitor, e) {
   $unwrapTraitObject(visitor).visitExpression(e.func);
-  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.argumentList, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(visitor).visitExpression).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.argumentList, $isTraitObject: true }, function (e) {
+    return $unwrapTraitObject(visitor).visitExpression(e);
+  });
 };
 function walkIfExpression(visitor, e) {
   $unwrapTraitObject(visitor).visitExpression(e.condition);
@@ -867,7 +869,9 @@ function walkUnknownIndexAccess(visitor, a) {
 };
 function walkBooleanLiteral(visitor, l) {};
 function walkListLiteral(visitor, l) {
-  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(visitor).visitExpression).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true }, function (e) {
+    return $unwrapTraitObject(visitor).visitExpression(e);
+  });
 };
 function walkNumberLiteral(visitor, l) {};
 function walkRecordLiteral(visitor, l) {
@@ -897,7 +901,9 @@ function walkStringLiteral(visitor, l) {
   });
 };
 function walkTupleLiteral(visitor, l) {
-  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.expressions, $isTraitObject: true }, $unwrapTraitObject($unwrapTraitObject(visitor).visitExpression).bind(visitor));
+  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.expressions, $isTraitObject: true }, function (e) {
+    return $unwrapTraitObject(visitor).visitExpression(e);
+  });
 };
 function walkPattern(visitor, p) {
   var __PUCK__value__20 = p;

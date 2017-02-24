@@ -590,15 +590,108 @@ function isSameType(a, b) {
   };
 };
 function findCommonType(types) {
+  if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: types, $isTraitObject: true })) {
+    return (0, _core.Err)([]);
+  };
   var index = 0;
+  var commonType = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: types, $isTraitObject: true }, 0);
 
   var _loop = function _loop() {
     var type_ = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: types, $isTraitObject: true }, index);
-    if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: types, $isTraitObject: true }, function (t) {
-      return isAssignable(type_, t);
-    })) {
-      return {
-        v: (0, _core.Ok)(type_)
+    if (!type_ || _entities.Type.isNever.call(type_)) {} else {
+      if (!commonType || _entities.Type.isNever.call(commonType)) {
+        commonType = type_;
+      } else {
+        if (_entities.Type.isParameter.call(commonType) && !_entities.Type.isParameter.call(type_)) {
+          commonType = type_;
+        } else {
+          if (_entities.Type.isParameter.call(type_)) {} else {
+            var __PUCK__value__51 = _core.Option.andThen.call(commonType.id, function (a) {
+              return _core.Option.map.call(type_.id, function (b) {
+                return [a, b];
+              });
+            });
+            if (__PUCK__value__51.kind == "Some") {
+              var _PUCK__value__51$val = _slicedToArray(__PUCK__value__51.value, 1),
+                  _PUCK__value__51$val$ = _slicedToArray(_PUCK__value__51$val[0], 2),
+                  commonId = _PUCK__value__51$val$[0],
+                  typeId = _PUCK__value__51$val$[1];
+
+              if (commonId != typeId) {
+                return {
+                  v: (0, _core.Err)([])
+                };
+              };
+              var __PUCK__value__52 = [_entities.Type.typeParameters.call(commonType), _entities.Type.typeParameters.call(type_)];
+              if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__52)[0]).kind == "Some" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__52)[1]).kind == "Some") {
+                var _$unwrapTraitObject53 = $unwrapTraitObject(__PUCK__value__52),
+                    _$unwrapTraitObject54 = _slicedToArray(_$unwrapTraitObject53, 2),
+                    _$unwrapTraitObject55 = _slicedToArray(_$unwrapTraitObject54[0].value, 1),
+                    c = _$unwrapTraitObject55[0],
+                    _$unwrapTraitObject56 = _slicedToArray(_$unwrapTraitObject54[1].value, 1),
+                    typeParameters = _$unwrapTraitObject56[0];
+
+                var commonTypeParameters = c;
+                var _index = 0;
+                while (_index < _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: commonTypeParameters, $isTraitObject: true })) {
+                  var commonParameter = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: commonTypeParameters, $isTraitObject: true }, _index);
+                  var typeParameter = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: typeParameters, $isTraitObject: true }, _index);
+                  var __PUCK__value__53 = findCommonType([commonParameter, typeParameter]);
+                  if ($unwrapTraitObject(__PUCK__value__53).kind == "Ok") {
+                    var _$unwrapTraitObject57 = $unwrapTraitObject(__PUCK__value__53),
+                        _$unwrapTraitObject58 = _slicedToArray(_$unwrapTraitObject57.value, 1),
+                        newCommonParameter = _$unwrapTraitObject58[0];
+
+                    if (newCommonParameter != commonParameter) {
+                      if (commonTypeParameters == c) {
+                        var __PUCK__value__54 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skip.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: c, $isTraitObject: true }, 0);
+                        commonTypeParameters = _core.Iterable[__PUCK__value__54.type].toList.call(__PUCK__value__54);
+                      };
+                      commonTypeParameters[_index] = newCommonParameter;
+                    };
+                  } else {
+                    if ($unwrapTraitObject(__PUCK__value__53).kind == "Err") {
+                      var _$unwrapTraitObject59 = $unwrapTraitObject(__PUCK__value__53),
+                          _$unwrapTraitObject60 = _slicedToArray(_$unwrapTraitObject59.value, 1),
+                          err = _$unwrapTraitObject60[0];
+
+                      return {
+                        v: (0, _core.Err)(err)
+                      };
+                    };
+                  };
+                  _index += 1;
+                };
+                if (commonTypeParameters != c) {
+                  var _class = _core.Option.mapOr.call(commonType.instance, commonType, function (i) {
+                    return i._class;
+                  });
+                  commonType = createTypeInstance(_class, commonTypeParameters);
+                };
+              } else {
+                if ($unwrapTraitObject($unwrapTraitObject(__PUCK__value__52)[0]).kind == "None" && $unwrapTraitObject($unwrapTraitObject(__PUCK__value__52)[1]).kind == "None") {
+                  var _$unwrapTraitObject61 = $unwrapTraitObject(__PUCK__value__52),
+                      _$unwrapTraitObject62 = _slicedToArray(_$unwrapTraitObject61, 1);
+                } else {
+                  if (true) {
+                    var __PUCK__value__55 = __PUCK__value__52;
+                    (0, _core.panic)("The same type both have and don't have type parameters");
+                  };
+                };
+              };
+            } else {
+              if (isAssignable(commonType, type_)) {} else {
+                if (isAssignable(type_, commonType)) {
+                  commonType = type_;
+                } else {
+                  return {
+                    v: (0, _core.Err)([])
+                  };
+                };
+              };
+            };
+          };
+        };
       };
     };
     index += 1;
@@ -609,5 +702,5 @@ function findCommonType(types) {
 
     if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
   };
-  return (0, _core.Err)([]);
+  return (0, _core.Ok)(commonType);
 }

@@ -75,8 +75,8 @@ impl TopLevelStatement {
       TopLevelStatement::ImportDirective(e) => throw 'type on import'
 
       TopLevelStatement::EnumDeclaration(e) => e->type_.transmute()
-      TopLevelStatement::ImplDeclaration(e) => e.type_
-      TopLevelStatement::ImplShorthandDeclaration(e) => e.type_
+      TopLevelStatement::ImplDeclaration(e) => e.type_.getType()
+      TopLevelStatement::ImplShorthandDeclaration(e) => e.type_.getType()
       TopLevelStatement::TraitDeclaration(e) => e->type_.transmute()
       TopLevelStatement::TypeDeclaration(e) => e.type_
 
@@ -154,7 +154,7 @@ impl Expression {
   fn getType(self) -> Type {
     match self {
       Expression::ThrowStatement(e) => e->type_.transmute()
-      Expression::Comment(_) => {}
+      Expression::Comment(_) => panic('getType on comment')
 
       Expression::Identifier(e) => e->type_.transmute()
       Expression::FunctionDeclaration(e) => e.type_

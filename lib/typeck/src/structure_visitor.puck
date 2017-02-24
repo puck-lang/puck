@@ -301,7 +301,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       }
     }
   }
-  visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, type_: Type, allowNotExhaustive = false| {
+  visitVariableDeclaration: |self, mut d: VariableDeclaration, visitInitializer, type_: Type| {
     if d->scope then return ()
     d->scope = self.scope
     self.visitPattern(d.pattern)
@@ -310,10 +310,10 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       bound.getType() or type_
     })
     d->type_ = type_
-    if not isAssignable(d.pattern->type_.transmute(), d->type_.transmute())
+    if not isAssignable(d.pattern->type_.transmute(), type_)
       then return reportError(d.pattern, type_.displayName() + ' is not assignable to pattern ' + d.pattern.displayName())
 
-    match declarePatternVariables(d->scope.transmute(), self, d.pattern, d.mutable, d->type_.transmute(), allowNotExhaustive) {
+    match declarePatternVariables(d->scope.transmute(), self, d.pattern, d.mutable, type_, false) {
       Result::Ok(_) => {}
       Result::Err(PatternError::PatternMismatch(_, to, subject)) => {
         reportError(d, notAssignableError(to, subject))
@@ -335,8 +335,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         d.pattern->binding->type_ = initializerType
         d->type_ = initializerType
       }
-      else if not isAssignable(d->type_.transmute(), initializerType)
-        then return reportError(initializer, notAssignableError(d->type_.transmute(), initializerType))
+      else if not isAssignable(type_, initializerType)
+        then return reportError(initializer, notAssignableError(type_, initializerType))
       if not isAssignable(d.pattern->type_.transmute(), initializerType)
         then return reportError(d, notAssignableError(d.pattern->type_.transmute(), initializerType))
     }
