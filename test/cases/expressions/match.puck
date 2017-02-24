@@ -109,3 +109,14 @@ enum Object { Object }
 match Object::Object {
   Object::Object => 'Object'
 }
+
+fn func2(error) {
+  if error
+    then Err(5)
+    else Ok('')
+}
+
+match func2(false) {
+  Ok(value) => value.toUpperCase()
+  Err(err) => err.round()
+}

@@ -286,4 +286,27 @@ var __PUCK__value__42 = _Object._Object;
 if ($unwrapTraitObject(__PUCK__value__42).kind == "_Object") {
   var _undefined11 = $unwrapTraitObject(__PUCK__value__42);
   "Object";
+};
+function func2(error) {
+  if (error) {
+    return (0, _core.Err)(5);
+  } else {
+    return (0, _core.Ok)("");
+  };
+};
+var __PUCK__value__43 = func2(false);
+if ($unwrapTraitObject(__PUCK__value__43).kind == "Ok") {
+  var _$unwrapTraitObject27 = $unwrapTraitObject(__PUCK__value__43),
+      _$unwrapTraitObject28 = _slicedToArray(_$unwrapTraitObject27.value, 1),
+      _value3 = _$unwrapTraitObject28[0];
+
+  _core.String.toUpperCase.call(_value3);
+} else {
+  if ($unwrapTraitObject(__PUCK__value__43).kind == "Err") {
+    var _$unwrapTraitObject29 = $unwrapTraitObject(__PUCK__value__43),
+        _$unwrapTraitObject30 = _slicedToArray(_$unwrapTraitObject29.value, 1),
+        _err = _$unwrapTraitObject30[0];
+
+    _core.Num.round.call(_err);
+  };
 }

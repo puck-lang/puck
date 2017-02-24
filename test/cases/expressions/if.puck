@@ -1,5 +1,5 @@
 let z = 5
-fn a(z = 0) {}
+fn a(z = 0) {z}
 fn b(z = 0) {}
 
 if z then a()
@@ -20,7 +20,7 @@ let q6 =
     a(x ** y)
   }
   else if z == 0 {
-    q6
+    1
   }
   else 0
 let q7 = if z {
@@ -48,6 +48,7 @@ fn g() {
   else if z == 0 {
     q6
   }
+  else 3
 }
 
 fn h() {
@@ -97,6 +98,7 @@ fn h() {
     else if z == 0 {
       q6
     }
+    else 7
   }
 }
 
