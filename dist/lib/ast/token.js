@@ -119,7 +119,7 @@ var Token = exports.Token = {
     return { kind: 'StringLiteral', value: members };
   }
 };
-Token.name = function name() {
+Token.name = function () {
   var self = this;
   var __PUCK__value__1 = self;
   if ($unwrapTraitObject(__PUCK__value__1).kind == "SimpleToken") {
@@ -136,9 +136,9 @@ Token.name = function name() {
       if ($unwrapTraitObject(__PUCK__value__1).kind == "Identifier") {
         var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__1),
             _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
-            _name = _$unwrapTraitObject2$[0].name;
+            name = _$unwrapTraitObject2$[0].name;
 
-        return "identifier \"" + _name + "\"";
+        return "identifier \"" + name + "\"";
       } else {
         if ($unwrapTraitObject(__PUCK__value__1).kind == "NumberLiteral") {
           var _undefined2 = $unwrapTraitObject(__PUCK__value__1);
@@ -153,7 +153,7 @@ Token.name = function name() {
     };
   };
 };
-SyntaxKind.fromText = function fromText(text) {
+SyntaxKind.fromText = function (text) {
   if (text == "and") {
     return (0, _core.Some)(SyntaxKind.AndKeyword);
   } else {
@@ -388,7 +388,7 @@ SyntaxKind.fromText = function fromText(text) {
     };
   };
 };
-SyntaxKind.name = function name() {
+SyntaxKind.name = function () {
   var self = this;
   var __PUCK__value__2 = self;
   if ($unwrapTraitObject(__PUCK__value__2).kind == "AsKeyword") {
@@ -696,7 +696,7 @@ SyntaxKind.name = function name() {
     };
   };
 };
-SyntaxKind.precedence = function precedence() {
+SyntaxKind.precedence = function () {
   var self = this;
   var __PUCK__value__3 = self;
   if ($unwrapTraitObject(__PUCK__value__3).kind == "EqualsToken") {

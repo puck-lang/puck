@@ -683,7 +683,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
       Some(StringLiteralPart::Literal({value})) => value.split(':')
       _ => panic('String literal does not start with a literal')
     }
-    if parts > 2 then input.croak('Illegal token ":" used in import path')
+    if parts.size() > 2 then input.croak('Illegal token ":" used in import path')
     let domain = if parts.size() == 2 then Some(parts[0]) else None
     let path = if parts.size() == 2 then parts[1] else parts[0]
 

@@ -7,6 +7,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+var ast_1 = require("../ast/ast");
 var token_1 = require("../ast/token");
 var entities_1 = require("../entities");
 var impls_1 = require("../typeck/src/impls");
@@ -119,7 +120,7 @@ function Emitter() {
     function getImplId(type, trait) {
         var opt = impls_1.getImplementationForTrait(type, trait).value[0];
         if (opt.kind == 'None') {
-            throw 'No impl';
+            throw Error('No impl');
         }
         return opt.value[0].id;
     }
@@ -354,8 +355,9 @@ function Emitter() {
         }
         return emitIdentifier(t.name) + ": " + value + ",";
     }
-    function emitFunctionDeclaration(fn) {
-        var name = fn.name.kind == 'Some' ? emitIdentifier(fn.name.value[0]) : '';
+    function emitFunctionDeclaration(fn, emitName) {
+        if (emitName === void 0) { emitName = true; }
+        var name = (emitName && fn.name.kind == 'Some') ? emitIdentifier(fn.name.value[0]) : '';
         var parameterList = fn.parameterList;
         if (fn.body.kind == 'None')
             throw 'Function without body';
@@ -429,7 +431,7 @@ function Emitter() {
     }
     function emitImplDeclaration(i) {
         var functions = Object['assign']({}, i.trait_.value[0].type_.kind.value[0].functions);
-        i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m); });
+        i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m, false); });
         return "" + emitTypePath(i.trait_.value[0].path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(functions).map(function (f) {
             return emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
@@ -440,14 +442,14 @@ function Emitter() {
     function emitImplShorthandDeclaration(i) {
         return i.members
             .map(function (m) {
-            return emitTypePath(i.type_.value[0].path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m);
+            return emitTypePath(i.type_.value[0].path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m, false);
         })
             .join(';\n');
     }
     function emitTraitDeclaration(t) {
         return "var " + emitIdentifier(t.name) + " = {\n" + indent(t.members
             .filter(function (m) { return m.body.kind === 'Some'; })
-            .map(function (m) { return emitIdentifier(m.name.value[0]) + ": " + emitFunctionDeclaration(m); }))
+            .map(function (m) { return emitIdentifier(m.name.value[0]) + ": " + emitFunctionDeclaration(m, false); }))
             .join(',\n') + "\n}";
     }
     function emitTypeDeclaration(t) {
@@ -585,6 +587,17 @@ function Emitter() {
         return left + " " + tokenToJs(e.token.kind) + " " + emitExpression(e.rhs, Context.Value, getType(e.lhs));
     }
     function emitBinaryExpression(e) {
+        var call = e.call;
+        if (call) {
+            var lhsType = ast_1.Expression.getType.call(e.lhs);
+            var rhsType = ast_1.Expression.getType.call(e.rhs);
+            if (!rhsType || (lhsType.id.value[0] === 'Num' && rhsType.id.value[0] === 'Num')) {
+                call = false;
+            }
+        }
+        if (call) {
+            return emitCallExpression(e.call);
+        }
         return withPrecedence(e.operator, function () {
             return emitExpression(e.lhs) + " " + tokenToJs(e.operator.kind) + " " + emitExpression(e.rhs);
         });

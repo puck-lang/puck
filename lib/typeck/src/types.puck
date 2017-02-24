@@ -28,6 +28,7 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = 
         i.class
         typeParameters
           .map(resolveTypeParameters(parameterMap, false))
+          .toList()
       )
   }
 
@@ -89,7 +90,8 @@ fn resolveTypeParametersTrait(parameterMap: ObjectMap<Type>, t: Trait) {
   })
 }
 
-export fn createTypeInstance(mut type_: Type, typeParameters_: Iterable<Type>) {
+
+export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
   if let Option::Some(providedType) = type_.providesType {
     let mut p = providedType
     return Type({

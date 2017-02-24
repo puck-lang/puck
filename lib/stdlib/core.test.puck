@@ -532,7 +532,7 @@ describe('core', || {
 
     describe('filter', || {
       it('should remove elements from the iterator that does not match the predicate', || {
-        let predicate = |i| i < 3
+        let predicate = |i: Num| i < 3
         let mut iterator = [1, 2, 3].iter().filter(predicate)
         expect(iterator.next()).toEqual(Some(1))
         expect(iterator.next()).toEqual(Some(2))
@@ -554,13 +554,13 @@ describe('core', || {
 
     describe('filterMap', || {
       it('should remove elements from the iterator that does not match the predicate', || {
-        let predicate = |i| if i < 3 then Some(i * 2) else None
+        let predicate = |i: Num| if i < 3 then Some(i * 2) else None
         let mut iterator = [1, 2, 3].iter().filterMap(predicate)
         expect(iterator.next()).toEqual(Some(2))
         expect(iterator.next()).toEqual(Some(4))
         expect(iterator.next()).toEqual(None)
 
-        let predicate = |i| if i != 2 then Some(i * 2) else None
+        let predicate = |i: Num| if i != 2 then Some(i * 2) else None
         let mut iterator = [1, 2, 3].iter().filterMap(predicate)
         expect(iterator.next()).toEqual(Some(2))
         expect(iterator.next()).toEqual(Some(6))
@@ -568,7 +568,7 @@ describe('core', || {
       })
 
       it('should correctly count a filtered iterator', || {
-        let predicate = |i| if i % 2 == 1 then Some(i * 2) else None
+        let predicate = |i: Num| if i % 2 == 1 then Some(i * 2) else None
         let mut iterator = [1, 2, 3, 4].iter().filterMap(predicate)
         expect(iterator.count()).toBe(2)
       })
@@ -581,12 +581,12 @@ describe('core', || {
 
       it('should return true if all elements matches the predicate', || {
         let mut iterator = [1, 2, 3].iter()
-        let predicate = |i| i > 0
+        let predicate = |i: Num| i > 0
         expect(iterator.all(predicate)).toBe(true)
       })
 
       it('should return false if any of the elements does not match the predicate', || {
-        let predicate = |i| i > 4
+        let predicate = |i: Num| i > 4
         expect([1, 2, 3].iter().all(predicate)).toBe(false)
         expect([4, 5, 6].iter().all(predicate)).toBe(false)
         expect([6, 5, 4].iter().all(predicate)).toBe(false)
@@ -599,7 +599,7 @@ describe('core', || {
       })
 
       it('should return true if any of the elements match the predicate', || {
-        let predicate = |i| i > 4
+        let predicate = |i: Num| i > 4
         expect([1, 2, 5].iter().any(predicate)).toBe(true)
         expect([4, 5, 6].iter().any(predicate)).toBe(true)
         expect([6, 1, 2].iter().any(predicate)).toBe(true)
@@ -607,7 +607,7 @@ describe('core', || {
 
       it('should return false if none of the elements match the predicate', || {
         let mut iterator = [1, 2, 3].iter()
-        let predicate = |i| i > 4
+        let predicate = |i: Num| i > 4
         expect(iterator.any(predicate)).toBe(false)
       })
     })
@@ -618,7 +618,7 @@ describe('core', || {
       })
 
       it('should return the first matching element', || {
-        let predicate = |i| i > 4
+        let predicate = |i: Num| i > 4
         expect([1, 2, 5].iter().find(predicate)).toEqual(Some(5))
         expect([4, 5, 6].iter().find(predicate)).toEqual(Some(5))
         expect([6, 1, 2].iter().find(predicate)).toEqual(Some(6))
@@ -626,7 +626,7 @@ describe('core', || {
 
       it('should return None if none of the elements match the predicate', || {
         let mut iterator = [1, 2, 3].iter()
-        let predicate = |i| i > 4
+        let predicate = |i: Num| i > 4
         expect(iterator.find(predicate)).toEqual(None)
       })
     })

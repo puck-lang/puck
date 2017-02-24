@@ -1123,7 +1123,7 @@ function parse(input, file) {
       __PUCK__value__84 = __PUCK__value__85;
     };
     var parts = __PUCK__value__84;
-    if (parts > 2) {
+    if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parts, $isTraitObject: true }) > 2) {
       _token_stream.TokenStream.croak.call(input, "Illegal token \":\" used in import path");
     };
     var __PUCK__value__87 = void 0;

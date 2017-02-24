@@ -1,0 +1,5 @@
+///// Bool is not assignable to type String
+let a: String = 1 > 2
+
+///// String is not assignable to type Num
+let a: Bool = 1 > '2'

@@ -30,7 +30,7 @@ var Binding = exports.Binding = function Binding(object) {
 var Scope = exports.Scope = function Scope(object) {
   return object;
 };
-Scope._new = function _new(context) {
+Scope._new = function (context) {
   return {
     context: context,
     parent: _core.None,
@@ -38,7 +38,7 @@ Scope._new = function _new(context) {
     bindingsByTypeId: _core.ObjectMap._new()
   };
 };
-Scope.createChild = function createChild() {
+Scope.createChild = function () {
   var self = this;
   return {
     context: self.context,
@@ -47,7 +47,7 @@ Scope.createChild = function createChild() {
     bindingsByTypeId: _core.ObjectMap._new()
   };
 };
-Scope.getBindings = function getBindings() {
+Scope.getBindings = function () {
   var self = this;
   var __PUCK__value__1 = self.parent;
   if (__PUCK__value__1.kind == "Some") {
@@ -59,7 +59,7 @@ Scope.getBindings = function getBindings() {
     return self.bindings;
   };
 };
-Scope.getBinding = function getBinding(name) {
+Scope.getBinding = function (name) {
   var visitor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
 
   var self = this;
@@ -84,7 +84,7 @@ Scope.getBinding = function getBinding(name) {
     return binding;
   });
 };
-Scope.getBindingByTypeId = function getBindingByTypeId(id) {
+Scope.getBindingByTypeId = function (id) {
   var self = this;
   return _core.Option.map.call(_core.Option.orElse.call(_core.ObjectMap.get.call(self.bindingsByTypeId, id), function () {
     return _core.Option.andThen.call(self.parent, function (p) {
@@ -107,7 +107,7 @@ Scope.getBindingByTypeId = function getBindingByTypeId(id) {
     return binding;
   });
 };
-Scope.define = function define(binding) {
+Scope.define = function (binding) {
   var self = this;
   if (binding.name == "Self") {
     return (0, _core.Err)("Self is a reserved name");
@@ -157,7 +157,7 @@ Scope.define = function define(binding) {
   };
   return (0, _core.Ok)(binding);
 };
-Scope.setSelfType = function setSelfType(selfType) {
+Scope.setSelfType = function (selfType) {
   var self = this;
   _core.ObjectMap.set.call(self.bindings, "Self", {
     name: "Self",
@@ -169,7 +169,7 @@ Scope.setSelfType = function setSelfType(selfType) {
     completeType: _core.None
   });
 };
-Scope.getTypePath = function getTypePath(typePath) {
+Scope.getTypePath = function (typePath) {
   var visitor = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
 
   var self = this;

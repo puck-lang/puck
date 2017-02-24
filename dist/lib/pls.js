@@ -47,10 +47,9 @@ function createServer(projectPath, sendDiagnostic) {
   a.onClose = function (filePath) {
     return _core.ObjectMap._delete.call(contexts, filePath);
   };
-  a.validateDocument = function (filePath, contents) {
+  a.validateDocument = function (filePath, contents, skipSyntaxErrors) {
     (0, _core.print)("validateDocument");
     var context = (0, _compiler.createContext)(projectPath);
-    _core.ObjectMap.set.call(contexts, filePath, context);
     context.reportError = function (file, token, message) {
       (0, _core.print)("reportError", [file.absolutePath, message]);
       var span = _span.ToSpan[token.type].span.call(token);
@@ -89,8 +88,13 @@ function createServer(projectPath, sendDiagnostic) {
           error = _PUCK__value__1$valu[0];
 
       if (error != "Syntax Error") {
-        return (0, _core.print)("Error:", $unwrapTraitObject(error));
+        (0, _core.print)("Error:", $unwrapTraitObject(error));
       };
+      if (!skipSyntaxErrors) {
+        return _core.ObjectMap.set.call(contexts, filePath, context);
+      };
+    } else {
+      return _core.ObjectMap.set.call(contexts, filePath, context);
     };
   };
   a.onCompletion = function (filePath, position) {

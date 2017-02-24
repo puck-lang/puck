@@ -164,7 +164,7 @@ export function Emitter() {
   function getImplId(type, trait) {
     let opt = getImplementationForTrait(type, trait).value[0]
     if (opt.kind == 'None') {
-      throw 'No impl'
+      throw Error('No impl')
     }
     return opt.value[0].id
   }
@@ -424,8 +424,8 @@ export function Emitter() {
     return `${emitIdentifier(t.name)}: ${value},`
   }
 
-  function emitFunctionDeclaration(fn: FunctionDeclaration) {
-    let name = fn.name.kind == 'Some' ? emitIdentifier(fn.name.value[0]) : ''
+  function emitFunctionDeclaration(fn: FunctionDeclaration, emitName = true) {
+    let name = (emitName && fn.name.kind == 'Some') ? emitIdentifier(fn.name.value[0]) : ''
     let parameterList = fn.parameterList
 
     if (fn.body.kind == 'None') throw 'Function without body'
@@ -516,7 +516,7 @@ export function Emitter() {
 
   function emitImplDeclaration(i: ImplDeclaration) {
     let functions: any = Object['assign']({}, i.trait_.value[0].type_.kind.value[0].functions)
-    i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m))
+    i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m, false))
     return `${emitTypePath(i.trait_.value[0].path)}${implProp(i.implementation)} = {\n${
       indent(
         Object.keys(functions).map(f =>
@@ -533,7 +533,7 @@ export function Emitter() {
   function emitImplShorthandDeclaration(i: ImplShorthandDeclaration) {
     return i.members
       .map(m =>
-        `${emitTypePath(i.type_.value[0].path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m)}`
+        `${emitTypePath(i.type_.value[0].path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m, false)}`
       )
       .join(';\n')
   }
@@ -543,7 +543,7 @@ export function Emitter() {
       indent(
         t.members
           .filter(m => m.body.kind === 'Some')
-          .map(m => `${emitIdentifier((m.name as any).value[0])}: ${emitFunctionDeclaration(m)}`)
+          .map(m => `${emitIdentifier((m.name as any).value[0])}: ${emitFunctionDeclaration(m, false)}`)
       )
       .join(',\n')
     }\n}`
@@ -695,6 +695,18 @@ export function Emitter() {
   }
 
   function emitBinaryExpression(e: BinaryExpression) {
+    let call = e.call
+    if (call) {
+      let lhsType = ExpressionImpl.getType.call(e.lhs)
+      let rhsType = ExpressionImpl.getType.call(e.rhs)
+
+      if (!rhsType || (lhsType.id.value[0] === 'Num' && rhsType.id.value[0] === 'Num')) {
+        call = false
+      }
+    }
+    if (call) {
+      return emitCallExpression(e.call)
+    }
     return withPrecedence(e.operator, () =>
       `${emitExpression(e.lhs)} ${tokenToJs(e.operator.kind)} ${emitExpression(e.rhs)}`
     )

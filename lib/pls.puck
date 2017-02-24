@@ -20,10 +20,9 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   a->onClose = fn (filePath: String) {
     contexts.delete(filePath)
   }
-  a->validateDocument = fn (filePath: String, contents: String) {
+  a->validateDocument = fn (filePath: String, contents: String, skipSyntaxErrors: Bool) {
     print('validateDocument')
     let mut context = createContext(projectPath)
-    contexts.set(filePath, context)
     context.reportError = fn (file: File, token: ToSpan, message) {
       print('reportError', (file.absolutePath, message))
       let span = token.span()
@@ -57,6 +56,12 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       if error != 'Syntax Error' {
         print('Error:', error)
       }
+      if not skipSyntaxErrors {
+        contexts.set(filePath, context)
+      }
+    }
+    else {
+      contexts.set(filePath, context)
     }
   }
   a->onCompletion = fn (filePath: String, position: Position) {

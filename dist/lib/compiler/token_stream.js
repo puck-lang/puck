@@ -25,7 +25,7 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
 var TokenStream = exports.TokenStream = function TokenStream(object) {
   return object;
 };
-TokenStream._new = function _new(input) {
+TokenStream._new = function (input) {
   return {
     input: input,
     current: _core.None,
@@ -33,7 +33,7 @@ TokenStream._new = function _new(input) {
     inImport: false
   };
 };
-TokenStream.peek = function peek() {
+TokenStream.peek = function () {
   var returnDummy = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
   var self = this;
@@ -69,7 +69,7 @@ TokenStream.peek = function peek() {
   };
   return token;
 };
-TokenStream.next = function next() {
+TokenStream.next = function () {
   var returnDummy = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
   var self = this;
@@ -99,7 +99,7 @@ TokenStream.next = function next() {
   };
   return token;
 };
-TokenStream.eof = function eof() {
+TokenStream.eof = function () {
   var self = this;
   var __PUCK__value__5 = TokenStream.peek.call(self);
   if ($unwrapTraitObject(__PUCK__value__5).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__5).value)[0]).kind).kind == "EndOfFileToken") {
@@ -115,11 +115,11 @@ TokenStream.eof = function eof() {
     };
   };
 };
-TokenStream.croak = function croak(reason) {
+TokenStream.croak = function (reason) {
   var self = this;
   return _input_stream.InputStream.croak.call(self.input, reason);
 };
-TokenStream._tryParseOperator = function _tryParseOperator() {
+TokenStream._tryParseOperator = function () {
   var self = this;
   var length = 0;
   var searchString = "";
@@ -137,7 +137,7 @@ TokenStream._tryParseOperator = function _tryParseOperator() {
         return token.substr(0, length + 1) == searchString;
       };
     });
-    var hasMatches = _core.Iterable[__PUCK__value__7.type].size.call(__PUCK__value__7) > 0;
+    var hasMatches = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.Iterable[__PUCK__value__7.type].toList.call(__PUCK__value__7), $isTraitObject: true }) > 0;
     if (hasMatches) {
       length += 1;
       found = searchString;
@@ -162,7 +162,7 @@ TokenStream._tryParseOperator = function _tryParseOperator() {
     };
   });
 };
-TokenStream._readWhile = function _readWhile(predicate) {
+TokenStream._readWhile = function (predicate) {
   var self = this;
   var str = "";
   while (!_input_stream.InputStream.eof.call(self.input) && predicate(_input_stream.InputStream.peek.call(self.input))) {
@@ -170,7 +170,7 @@ TokenStream._readWhile = function _readWhile(predicate) {
   };
   return str;
 };
-TokenStream._readNumber = function _readNumber() {
+TokenStream._readNumber = function () {
   var self = this;
   var hasDot = false;
   var start = _input_stream.InputStream.position.call(self.input);
@@ -199,7 +199,7 @@ TokenStream._readNumber = function _readNumber() {
     }
   };
 };
-TokenStream._readIdentifier = function _readIdentifier() {
+TokenStream._readIdentifier = function () {
   var self = this;
   var start = _input_stream.InputStream.position.call(self.input);
   var id = TokenStream._readWhile.call(self, isId);
@@ -212,7 +212,7 @@ TokenStream._readIdentifier = function _readIdentifier() {
     }
   };
 };
-TokenStream._readIdentifierOrKeyword = function _readIdentifierOrKeyword() {
+TokenStream._readIdentifierOrKeyword = function () {
   var self = this;
   var start = _input_stream.InputStream.position.call(self.input);
   var id = TokenStream._readWhile.call(self, isId);
@@ -253,7 +253,7 @@ TokenStream._readIdentifierOrKeyword = function _readIdentifierOrKeyword() {
     };
   };
 };
-TokenStream._readString = function _readString() {
+TokenStream._readString = function () {
   var self = this;
   var escaped = false;
   var parts = [];
@@ -333,7 +333,7 @@ TokenStream._readString = function _readString() {
   }));
   return { parts: parts };
 };
-TokenStream._readComment = function _readComment() {
+TokenStream._readComment = function () {
   var self = this;
   var start = _input_stream.InputStream.position.call(self.input);
   _input_stream.InputStream.next.call(self.input);
@@ -352,7 +352,7 @@ TokenStream._readComment = function _readComment() {
     }
   };
 };
-TokenStream._readNext = function _readNext() {
+TokenStream._readNext = function () {
   var self = this;
   TokenStream._readWhile.call(self, isWhitespace);
   if (_input_stream.InputStream.eof.call(self.input)) {
@@ -406,13 +406,13 @@ TokenStream._readNext = function _readNext() {
     };
   };
 };
-var longestOperator = _token5.operators.reduce(function (longest, curr) {
-  if ($unwrapTraitObject(curr).length > longest) {
-    return $unwrapTraitObject(curr).length;
+var longestOperator = $unwrapTraitObject(_token5.operators.reduce(function (longest, curr) {
+  if (_core.String.size.call(curr) > longest) {
+    return _core.String.size.call(curr);
   } else {
     return longest;
   };
-}, 0);
+}, 0));
 function isDummy(token) {
   var __PUCK__value__10 = token;
   if ($unwrapTraitObject(__PUCK__value__10).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__10).value)[0]).kind).kind == "NewlineToken") {

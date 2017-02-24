@@ -120,7 +120,7 @@ var StructKind = exports.StructKind = {
   },
   Unit: { kind: 'Unit', value: Symbol('Unit') }
 };
-Type.empty = function empty() {
+Type.empty = function () {
   return {
     id: _core.None,
     displayName: (0, _core.Some)("()"),
@@ -135,7 +135,7 @@ Type.empty = function empty() {
     enumMember: _core.None
   };
 };
-Type.provides = function provides(type_) {
+Type.provides = function (type_) {
   return {
     id: _core.None,
     displayName: type_.displayName,
@@ -150,7 +150,7 @@ Type.provides = function provides(type_) {
     enumMember: _core.None
   };
 };
-Type.unused = function unused() {
+Type.unused = function () {
   return {
     id: _core.None,
     displayName: (0, _core.Some)("_"),
@@ -162,7 +162,7 @@ Type.unused = function unused() {
     enumMember: _core.None
   };
 };
-Type.displayName = function displayName() {
+Type.displayName = function () {
   var self = this;
   if (!self) {
     return "??";
@@ -253,7 +253,7 @@ Type.displayName = function displayName() {
     };
   };
 };
-Type.verboseName = function verboseName() {
+Type.verboseName = function () {
   var self = this;
   if (!self) {
     return "??";
@@ -319,7 +319,7 @@ Type.verboseName = function verboseName() {
     };
   };
 };
-Type.getEnum = function getEnum() {
+Type.getEnum = function () {
   var self = this;
   var __PUCK__value__10 = self.kind;
   if ($unwrapTraitObject(__PUCK__value__10).kind == "Enum") {
@@ -336,7 +336,7 @@ Type.getEnum = function getEnum() {
     };
   };
 };
-Type.getFunction = function getFunction() {
+Type.getFunction = function () {
   var self = this;
   var __PUCK__value__12 = self.kind;
   if ($unwrapTraitObject(__PUCK__value__12).kind == "Function") {
@@ -353,7 +353,7 @@ Type.getFunction = function getFunction() {
     };
   };
 };
-Type.getTrait = function getTrait() {
+Type.getTrait = function () {
   var self = this;
   var __PUCK__value__14 = self.kind;
   if ($unwrapTraitObject(__PUCK__value__14).kind == "Trait") {
@@ -370,7 +370,7 @@ Type.getTrait = function getTrait() {
     };
   };
 };
-Type.isEmpty = function isEmpty() {
+Type.isEmpty = function () {
   var self = this;
   var __PUCK__value__16 = self.kind;
   if ($unwrapTraitObject(__PUCK__value__16).kind == "Struct") {
@@ -398,7 +398,7 @@ Type.isEmpty = function isEmpty() {
     };
   };
 };
-Type.isNever = function isNever() {
+Type.isNever = function () {
   var self = this;
   var __PUCK__value__20 = self.kind;
   if ($unwrapTraitObject(__PUCK__value__20).kind == "Enum") {
@@ -414,7 +414,7 @@ Type.isNever = function isNever() {
     };
   };
 };
-Type.isEnum = function isEnum() {
+Type.isEnum = function () {
   var self = this;
   var __PUCK__value__22 = self.kind;
   if ($unwrapTraitObject(__PUCK__value__22).kind == "Enum") {
@@ -430,7 +430,7 @@ Type.isEnum = function isEnum() {
     };
   };
 };
-Type.isFunction = function isFunction() {
+Type.isFunction = function () {
   var self = this;
   var __PUCK__value__25 = self.kind;
   if ($unwrapTraitObject(__PUCK__value__25).kind == "Function") {
@@ -446,7 +446,7 @@ Type.isFunction = function isFunction() {
     };
   };
 };
-Type.isParameter = function isParameter() {
+Type.isParameter = function () {
   var self = this;
   var __PUCK__value__28 = self.kind;
   if ($unwrapTraitObject(__PUCK__value__28).kind == "Parameter") {
@@ -462,7 +462,7 @@ Type.isParameter = function isParameter() {
     };
   };
 };
-Type.typeParameters = function typeParameters() {
+Type.typeParameters = function () {
   var self = this;
   return _core.Option.orValue.call(_core.Option.map.call(self.instance, function (i) {
     return i.typeParameters;
@@ -470,7 +470,7 @@ Type.typeParameters = function typeParameters() {
     return i.typeParameters;
   }));
 };
-TypeClass.fromAstNode = function fromAstNode(astNode, reportError) {
+TypeClass.fromAstNode = function (astNode, reportError) {
   if (astNode.typeParameters && _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: astNode.typeParameters, $isTraitObject: true })) {
     var parameterRange = (0, _range.getRange)(astNode.typeParameters, function (p) {
       return _core.Option.isSome.call(p.defaultValue);

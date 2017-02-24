@@ -106,7 +106,8 @@ impl String {
   }
 
   fn contains(self, subStr: String) -> Bool {
-    self->indexOf(subStr).transmute() >= 0
+    let index: Num = self->indexOf(subStr).transmute()
+    index >= 0
   }
 
   fn split(self, pattern: String = '') -> List<String> {
@@ -120,7 +121,7 @@ impl String {
   ///
   /// If padding has length different from 1, the result will not have length width.
   fn padLeft(self, width: Num, padding: String = ' ') -> String {
-    let width =
+    let width: Num =
       if width < 0
         then 0
         else width
@@ -151,7 +152,7 @@ impl String {
   ///
   /// If padding has length different from 1, the result will not have length width.
   fn padRight(self, width: Num, padding: String = ' ') -> String {
-    let width =
+    let width: Num =
       if width < 0
         then 0
         else width
@@ -361,6 +362,7 @@ impl<T> Option<T> {
   }
 }
 
+/// An Ordering is the result of a comparison between two values.
 export enum Ordering {
   Less
   Equal
@@ -428,7 +430,7 @@ impl<E> List<E> {
   /// sorted order.
   fn binarySearchBy(self, f: (E) -> Ordering) -> Result<Num, Num> {
     let mut min = 0
-    let mut max = self.size() - 1
+    let mut max: Num = self.size() - 1
     while true {
       if max < min then return Err(min)
       let mut guess: Num = ((min + max) / 2)
@@ -830,11 +832,11 @@ export type Range<Idx=Num> {
   /// The upper bound of the range (exclusive).
   end: Idx
 }
-impl<Idx> Range<Idx> {
-  fn contains(self, item: Idx) -> Bool {
+impl Range<Num> {
+  fn contains(self, item: Num) -> Bool {
     self.start <= item and item < self.end
   }
-  fn isSubsetOf(self, other: Range<Idx>) -> Bool {
+  fn isSubsetOf(self, other: Range<Num>) -> Bool {
     self.start >= other.start and other.end >= self.end
   }
 }
@@ -1067,5 +1069,107 @@ impl<T> Index<String, T> for ObjectMap<T> {
     if not self.has(key) then panic('The key $key is missing')
 
     self->[key].transmute()
+  }
+}
+
+/// Trait for values that can be compared for a sort-order.
+///
+/// The comparison must satisfy, for all a, b and c:
+///
+/// - antisymmetry: if `a < b` then `!(a > b)`, as well as `a > b` implying `!(a < b)`; and
+/// - transitivity: `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
+///
+/// Note that these requirements mean that the trait itself must be
+/// implemented symmetrically and transitively: if T: PartialOrd<U> and U: PartialOrd<V>
+/// then U: PartialOrd<T> and T: PartialOrd<V>.
+///
+/// # How can I implement Ord?
+///
+/// PartialOrd only requires implementation of the partialCmp method,
+/// with the others generated from default implementations.
+///
+/// However it remains possible to implement the others separately for types
+/// which do not have a total order. For example, for floating point  numbers,
+/// `NaN < 0 == false` and `NaN >= 0 == false` (cf. IEEE 754-2008 section 5.11).
+///
+/// PartialOrd requires your type to be PartialEq.
+///
+/// If your type is Ord, you can implement partialCmp() by using cmp()
+#[type_id = 'PartialOrd']
+export trait PartialOrd<Rhs> {
+  fn partialCmp(self, other: Rhs) -> Option<Ordering>
+
+  fn lt(self, other: Rhs) -> Bool {
+    match self.partialCmp(other) {
+      Some(Ordering::Less) => true
+      _ => false
+    }
+  }
+
+  fn le(self, other: Rhs) -> Bool {
+    match self.partialCmp(other) {
+      Some(Ordering::Less) => true
+      Some(Ordering::Equal) => true
+      _ => false
+    }
+  }
+
+  fn gt(self, other: Rhs) -> Bool {
+    match self.partialCmp(other) {
+      Some(Ordering::Greater) => true
+      _ => false
+    }
+  }
+
+  fn ge(self, other: Rhs) -> Bool {
+    match self.partialCmp(other) {
+      Some(Ordering::Greater) => true
+      Some(Ordering::Equal) => true
+      _ => false
+    }
+  }
+}
+
+/// Trait for types that form a [total order](https://en.wikipedia.org/wiki/Total_order).
+///
+/// An order is a total order if it is (for all `a`, `b` and `c`):
+///
+/// - total and antisymmetric: exactly one of `a < b`, `a == b` or `a > b` is true; and
+/// - transitive, `a < b` and `b < c` implies `a < c`. The same must hold for both `==` and `>`.
+export trait Ord {
+  fn cmp(self, other: Self) -> Ordering
+}
+
+impl PartialOrd<Num> for Num {
+  fn partialCmp(self, other: Num) -> Option<Ordering> {
+    let a = self <= other
+    let b = self >= other
+
+    if a and b then Some(Ordering::Equal)
+    else if not a and b then Some(Ordering::Greater)
+    else if a and not b then Some(Ordering::Less)
+    else None
+  }
+
+  fn lt(self, other: Num) -> Bool { self < other }
+  fn le(self, other: Num) -> Bool { self <= other }
+  fn ge(self, other: Num) -> Bool { self >= other }
+  fn gt(self, other: Num) -> Bool { self > other }
+}
+
+impl Ord for String {
+  fn cmp(self, other: String) -> Ordering {
+    let cmp: Num = self->localeCompare(other).transmute()
+
+    if cmp > 0 then Ordering::Greater
+    else if cmp < 0 then Ordering::Less
+    else Ordering::Equal
+  }
+}
+
+impl PartialOrd<String> for String {
+  fn partialCmp(self, other: String) -> Option<Ordering> {
+    let o: String = other
+    Some(self.cmp(o))
   }
 }
