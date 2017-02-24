@@ -32,9 +32,6 @@ var $unwrapTraitObject = function $unwrapTraitObject(obj) {
   return obj && (obj.$isTraitObject ? obj.value : obj);
 };
 
-function asType(a) {
-  return a;
-};
 function getImplementationsForInstance(type_) {
   var __PUCK__value__1 = type_.kind;
   var __PUCK__value__2 = void 0;
@@ -154,14 +151,14 @@ function getImplementationForTrait(type_, trait_) {
 function getImplementation(functionName, type_, e) {
   var implementations = getImplementationsForInstance(type_);
   var __PUCK__value__17 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }, function (i) {
-    return _core.ObjectMap.has.call(_entities.Type.getTrait.call(asType(i.trait_)).functions, functionName);
+    return _core.ObjectMap.has.call(_entities.Type.getTrait.call(i.trait_).functions, functionName);
   });
   implementations = _core.Iterable[__PUCK__value__17.type].toList.call(__PUCK__value__17);
   var scope = $unwrapTraitObject(e.scope);
   var __PUCK__value__18 = void 0;
   if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }) > 1) {
     var __PUCK__value__19 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }, function (i) {
-      return _core.Option.isSome.call(_scope.Scope.getBinding.call(scope, _core.Option.unwrap.call(asType(i.trait_).name)));
+      return _core.Option.isSome.call(_scope.Scope.getBinding.call(scope, _core.Option.unwrap.call(i.trait_.name)));
     });
     __PUCK__value__18 = _core.Iterable[__PUCK__value__19.type].toList.call(__PUCK__value__19);
   } else {
@@ -171,7 +168,7 @@ function getImplementation(functionName, type_, e) {
   var __PUCK__value__20 = void 0;
   if (_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }) > 1) {
     var __PUCK__value__21 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true }, function (i) {
-      return _core.Range.contains.call(_entities.Type.getFunction.call(asType(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: _entities.Type.getTrait.call(asType(i.trait_)).functions, $isTraitObject: true }, functionName))).parameterRange, _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.argumentList, $isTraitObject: true }));
+      return _core.Range.contains.call(_entities.Type.getFunction.call(_core.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({ type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: _entities.Type.getTrait.call(i.trait_).functions, $isTraitObject: true }, functionName)).parameterRange, _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.argumentList, $isTraitObject: true }));
     });
     __PUCK__value__20 = _core.Iterable[__PUCK__value__21.type].toList.call(__PUCK__value__21);
   } else {

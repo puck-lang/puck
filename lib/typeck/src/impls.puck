@@ -26,8 +26,6 @@ import '../../entities.puck' as {
 import 'scope.puck' as {Scope}
 import 'types.puck' as {findCommonType, isAssignable, resolveTypeParameters}
 
-fn asType(a) -> Type {a}
-
 fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
   let implementations = match type_.kind {
     TypeKind::Enum(enum_) => enum_.implementations
@@ -72,7 +70,7 @@ export fn getImplementationForTrait(type_: Type, trait_: Type) -> Result<Option<
     .filter(|i| isAssignable(i.trait_, trait_))
     .toList()
 
-  let implementations: List<Implementation> =
+  let implementations =
     if implementations.size() > 1
       then getMostSpecificImplementations(type_, implementations)
       else implementations
@@ -87,24 +85,24 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
   let implementations = getImplementationsForInstance(type_)
 
   // Implementations that implements the called function
-  let implementations: List<Implementation> = implementations
-    .filter(|i| asType(i.trait_).getTrait().functions.has(functionName))
+  let implementations = implementations
+    .filter(|i| i.trait_.getTrait().functions.has(functionName))
     .toList()
 
   let scope: Scope = e->scope.transmute()
   // Implementations that are in scope
-  let implementations: List<Implementation> =
+  let implementations =
     if implementations.size() > 1
       then implementations
-        .filter(|i| scope.getBinding(asType(i.trait_).name.unwrap()).isSome())
+        .filter(|i| scope.getBinding(i.trait_.name.unwrap()).isSome())
         .toList()
       else implementations
 
   // Implementations that accept the correct number of arguments
-  let implementations: List<Implementation> =
+  let implementations =
     if implementations.size() > 1
       then implementations
-        .filter(|i| asType(asType(i.trait_).getTrait().functions[functionName]).getFunction().parameterRange
+        .filter(|i| i.trait_.getTrait().functions[functionName].getFunction().parameterRange
           .contains(e.argumentList.size())
         )
         .toList()
@@ -112,7 +110,7 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
 
   // Implementations that are more specific (only for generics)
   // For example an impl for List<String> is more specific than one for List<T>
-  let implementations: List<Implementation> =
+  let implementations =
     if implementations.size() > 1 and type_.instance.isSome()
       then getMostSpecificImplementations(type_, implementations)
       else implementations

@@ -1421,8 +1421,7 @@ function ScopeVisitor(context, file) {
             return _ast.Expression.getType.call(m);
           });
           var types = _core.Iterable[__PUCK__value__113.type].toList.call(__PUCK__value__113);
-          var result = (0, _types.findCommonType)(types);
-          var __PUCK__value__114 = result;
+          var __PUCK__value__114 = (0, _types.findCommonType)(types);
           if ($unwrapTraitObject(__PUCK__value__114).kind == "Ok") {
             var _$unwrapTraitObject87 = $unwrapTraitObject(__PUCK__value__114),
                 _$unwrapTraitObject88 = _slicedToArray(_$unwrapTraitObject87.value, 1),

@@ -443,8 +443,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
         if stringLiteral.parts.size() > 1 {
           input.croak('Attributes can only contain simple string literals. Interpolation is not supported.')
         }
-        let part: StringLiteralPart = stringLiteral.parts[0]
-        match part {
+        match stringLiteral.parts[0] {
           StringLiteralPart::Literal(literal) => SimpleLiteral::StringLiteral(literal)
           _ => panic('String literal does not start with a literal')
         }

@@ -472,7 +472,7 @@ export fn ScopeVisitor(context, file) {
 
         if access.object.getType() {
           let name = access.member.name
-          let objectType: Type = access.object.getType()
+          let objectType = access.object.getType()
 
           // If the call is directly on the type, for example Num.parse()
           if let Option::Some(providesType) = objectType.providesType {
@@ -939,8 +939,7 @@ export fn ScopeVisitor(context, file) {
       } else {
         if l.members.size() >= 1 {
           let types = l.members.map(|m| m.getType()).toList()
-          let result: Result<Type, ()> = findCommonType(types)
-          match result {
+          match findCommonType(types) {
             Result::Ok(type_) => {
               if not type_ {
                 l->type_ = listType

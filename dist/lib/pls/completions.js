@@ -83,7 +83,7 @@ _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionV
                 _core.List.lpush.call(parameters, "self");
               };
             };
-            parameters = $unwrapTraitObject(parameters).join(", ");
+            parameters = parameters.join(", ");
             var returnType = _entities.Type.displayName.call(_function.returnType);
             var signature = "" + name + "(" + parameters + ") -> " + returnType + "";
             return {

@@ -35,9 +35,9 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
     }
     else None
 
-  let parameters: List<Binding> = f.parameterList
+  let parameters = f.parameterList
     .enumerate()
-    .map(|(i, p)| {{
+    .map(|(i, p)| Binding({
       name: getPatternName(p.pattern).unwrapOr('p$i')
       token: p
       mutable: p.mutable
@@ -45,7 +45,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
       type_: p->type_.transmute()
       previous: None
       completeType: None
-    }})
+    }))
     .toList()
   let returnType: Type =
     if let Option::Some(returnType) = f.returnType {
@@ -58,7 +58,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
         then Some(b)
         else None
     })
-  let parameters: List<Binding> =
+  let parameters =
     if selfBinding.isSome()
       then parameters.skip(1).toList()
       else parameters
@@ -98,7 +98,7 @@ export fn checkFunctionAssignability(functionName: String, to: Function, subject
 
   let mut errors = []
   subject.parameters.enumerate().forEach(|(i, subjectParameter)| {
-    let toParameter: Binding = to.parameters[i]
+    let toParameter = to.parameters[i]
 
     if not isAssignable(toParameter.type_, subjectParameter.type_)
       then errors.push(

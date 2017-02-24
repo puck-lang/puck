@@ -70,15 +70,15 @@ function createFunctionType(scope, f, reportError) {
         i = _ref2[0],
         p = _ref2[1];
 
-    return {
+    return (0, _scope.Binding)({
       name: _core.Option.unwrapOr.call(getPatternName(p.pattern), "p" + i + ""),
-      token: p,
+      token: { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: p, $isTraitObject: true },
       mutable: p.mutable,
       allowRedeclare: true,
-      type_: p.type_,
+      type_: $unwrapTraitObject(p.type_),
       previous: _core.None,
       completeType: _core.None
-    };
+    });
   });
   var parameters = _core.Iterable[__PUCK__value__5.type].toList.call(__PUCK__value__5);
   var __PUCK__value__7 = f.returnType;

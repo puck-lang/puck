@@ -272,20 +272,20 @@ function build(files, context) {
   var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var dump = options.dump;
-  files = $unwrapTraitObject(files).map(function (f) {
-    var fileName = $unwrapTraitObject(path.basename($unwrapTraitObject(f).file));
-    var absolutePath = $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize($unwrapTraitObject(f).file))));
-    var outFile = path.normalize($unwrapTraitObject(f).outFile);
+  files = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (f) {
+    var fileName = $unwrapTraitObject(path.basename(f.file));
+    var absolutePath = $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize(f.file))));
+    var outFile = path.normalize(f.outFile);
     var outDir = path.dirname(outFile);
     return {
-      isBin: $unwrapTraitObject(f).isBin,
+      isBin: f.isBin,
       absolutePath: absolutePath,
       outFile: outFile,
       outDir: outDir,
       inspect: fileInspect
     };
   });
-  var __PUCK__value__8 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (f) {
+  var __PUCK__value__8 = _core.Iterable[files.type].map.call(files, function (f) {
     return $unwrapTraitObject(context).importFile(f);
   });
   files = _core.Iterable[__PUCK__value__8.type].toList.call(__PUCK__value__8);
