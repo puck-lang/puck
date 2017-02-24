@@ -25,7 +25,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
       Some({
         parameterRange: getRange(
           f.typeParameters
-          |p: TypeParameter| p.defaultValue.isSome()
+          |p| p.defaultValue.isSome()
           reportError
           'type parameter'
         )
@@ -58,9 +58,9 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
         then Some(b)
         else None
     })
-  let parameters =
+  let parameters: List<Binding> =
     if selfBinding.isSome()
-      then parameters.slice(1)
+      then parameters.skip(1).toList()
       else parameters
 
   {
