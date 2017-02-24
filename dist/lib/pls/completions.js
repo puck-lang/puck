@@ -234,7 +234,26 @@ function getScopeCompletions(node) {
   if ($unwrapTraitObject(node).scope) {
     var scope = $unwrapTraitObject(node).scope;
     var __PUCK__value__10 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.values.call(_scope.Scope.getBindings.call(scope)), $isTraitObject: true }, function (binding) {
-      var typeName = _entities.Type.displayName.call(binding.type_);
+      var __PUCK__value__11 = void 0;
+      if (!binding.type_) {
+        __PUCK__value__11 = "??";
+      } else {
+        var __PUCK__value__12 = binding.type_.kind;
+        var __PUCK__value__13 = void 0;
+        if ($unwrapTraitObject(__PUCK__value__12).kind == "Function") {
+          var _undefined = $unwrapTraitObject(__PUCK__value__12);
+          __PUCK__value__13 = _entities.Type.verboseName.call(binding.type_);
+        } else {
+          var __PUCK__value__14 = void 0;
+          if (true) {
+            var __PUCK__value__15 = __PUCK__value__12;
+            __PUCK__value__14 = _entities.Type.displayName.call(binding.type_);
+          };
+          __PUCK__value__13 = __PUCK__value__14;
+        };
+        __PUCK__value__11 = __PUCK__value__13;
+      };
+      var typeName = __PUCK__value__11;
       return {
         label: binding.name + ": " + typeName + "",
         kind: $unwrapTraitObject(_vscodeLanguageserver.CompletionItemKind).Text,
