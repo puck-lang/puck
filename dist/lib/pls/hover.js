@@ -37,10 +37,13 @@ visitWhileLoop: $puck_5.PositionVisitor.visitWhileLoop,
 visitIdentifier: function (i) {
   let self = this;
   $puck_1.print("onHover visitIdentifier");
-  if (i.type_) {
-    const type_ = $unwrapTraitObject(i.type_);
+  let type_ = $unwrapTraitObject(i.type_);
+  if (!type_ && i.binding) {
+    type_ = $unwrapTraitObject(i.binding.type_);
+  };
+  if (type_) {
     self.value.hover = $puck_1.Some({
-      contents: getTypeContents(type_),
+      contents: getTypeContents(type_, self.value.inTypePath),
       span: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: i, $isTraitObject: true}),
     });
   };
@@ -130,7 +133,12 @@ visitMatchExpression: function (e) {
   self.value.patternType = parent;
 },
 visitMatchArm: $puck_5.PositionVisitor.visitMatchArm,
-visitTypePath: $puck_5.PositionVisitor.visitTypePath,
+visitTypePath: function (t) {
+  let self = this;
+  self.value.inTypePath = true;
+  visit.walkTypePath(self, t);
+  self.value.inTypePath = false;
+},
 visitTypePathExpression: $puck_5.PositionVisitor.visitTypePathExpression,
 visitUnaryExpression: $puck_5.PositionVisitor.visitUnaryExpression,
 visitIndexAccess: $puck_5.PositionVisitor.visitIndexAccess,
@@ -285,9 +293,10 @@ HoverVisitor._new = function (position) {
     hover: $puck_1.None,
     patternType: $puck_1.None,
     literalType: $puck_1.None,
+    inTypePath: false,
   };
 };
-function getTypeContents(type_, detailsl = false) {
+function getTypeContents(type_, details = false) {
   let $puck_19 = type_.kind;
   let $puck_20;
   if ($unwrapTraitObject($puck_19).kind == "Function") {
@@ -296,9 +305,24 @@ function getTypeContents(type_, detailsl = false) {
   }
   else {
     let $puck_21;
-    if (true) {
-      let $puck_22 = $puck_19;
-      $puck_21 = $puck_4.Type.displayName.call(type_);
+    if ($unwrapTraitObject($puck_19).kind == "Struct") {
+      let undefined = $unwrapTraitObject($puck_19);
+      let $puck_22;
+      if (details) {
+        $puck_22 = $puck_4.Type.verboseName.call($puck_1.Option.unwrapOr.call(type_.providesType, type_));
+      }
+      else {
+        $puck_22 = $puck_4.Type.displayName.call(type_);
+      };
+      $puck_21 = $puck_22;
+    }
+    else {
+      let $puck_23;
+      if (true) {
+        let $puck_24 = $puck_19;
+        $puck_23 = $puck_4.Type.displayName.call(type_);
+      };
+      $puck_21 = $puck_23;
     };
     $puck_20 = $puck_21;
   };
@@ -309,23 +333,10 @@ function getTypeContents(type_, detailsl = false) {
   }];
 };
 function getEnumMember(type_, member) {
-  let $puck_23 = type_.kind;
-  if ($unwrapTraitObject($puck_23).kind == "Enum") {
-    let {value: [enum_]} = $unwrapTraitObject($puck_23);
-    return $puck_1.ObjectMap.get.call(enum_.members, member);
-  }
-  else {
-    if (true) {
-      let $puck_24 = $puck_23;
-      return $puck_1.None;
-    };
-  };
-};
-function getPropertyType(type_, property) {
   let $puck_25 = type_.kind;
-  if (($unwrapTraitObject($puck_25).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_25).value)[0]).kind).kind == "Record")) {
-    let {value: [{kind: {value: [record]}}]} = $unwrapTraitObject($puck_25);
-    return $puck_1.ObjectMap.get.call(record.properties, property);
+  if ($unwrapTraitObject($puck_25).kind == "Enum") {
+    let {value: [enum_]} = $unwrapTraitObject($puck_25);
+    return $puck_1.ObjectMap.get.call(enum_.members, member);
   }
   else {
     if (true) {
@@ -334,15 +345,28 @@ function getPropertyType(type_, property) {
     };
   };
 };
-function getTupleType(type_, index) {
+function getPropertyType(type_, property) {
   let $puck_27 = type_.kind;
-  if (($unwrapTraitObject($puck_27).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_27).value)[0]).kind).kind == "Tuple")) {
-    let {value: [{kind: {value: [tuple]}}]} = $unwrapTraitObject($puck_27);
-    return $puck_1.List.get.call(tuple.properties, index);
+  if (($unwrapTraitObject($puck_27).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_27).value)[0]).kind).kind == "Record")) {
+    let {value: [{kind: {value: [record]}}]} = $unwrapTraitObject($puck_27);
+    return $puck_1.ObjectMap.get.call(record.properties, property);
   }
   else {
     if (true) {
       let $puck_28 = $puck_27;
+      return $puck_1.None;
+    };
+  };
+};
+function getTupleType(type_, index) {
+  let $puck_29 = type_.kind;
+  if (($unwrapTraitObject($puck_29).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_29).value)[0]).kind).kind == "Tuple")) {
+    let {value: [{kind: {value: [tuple]}}]} = $unwrapTraitObject($puck_29);
+    return $puck_1.List.get.call(tuple.properties, index);
+  }
+  else {
+    if (true) {
+      let $puck_30 = $puck_29;
       return $puck_1.None;
     };
   };

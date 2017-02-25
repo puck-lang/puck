@@ -1096,6 +1096,16 @@ export type RecordTypeBoundMember {
   typeBound: TypeBound
 }
 
+impl ToSpan for RecordTypeBoundMember {
+  fn start(self) -> Position {
+    self.name.span.start
+  }
+
+  fn end(self) -> Position {
+    self.typeBound.end()
+  }
+}
+
 export type TupleTypeBound {
   openParen: SimpleToken
   properties: List<TypeBound>
@@ -1103,10 +1113,13 @@ export type TupleTypeBound {
 }
 
 impl ToSpan for TupleTypeBound {
-  fn span(self) -> Span {{
-    start: self.openParen.span.start
-    end: self.closeParen.span.end
-  }}
+  fn start(self) -> Position {
+    self.openParen.span.start
+  }
+
+  fn end(self) -> Position {
+    self.closeParen.span.end
+  }
 }
 
 export type TypeParameter {
