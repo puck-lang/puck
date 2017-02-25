@@ -338,10 +338,40 @@ TypeClass.fromAstNode = function (astNode, reportError) {
     return $puck_1.None;
   };
 };
+const startWithNumber = $puck_1.RegExp._new("^[0-9]");
 function getFunctionTypeName(_function) {
-  return getTupleTypeName($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _function.parameters, $isTraitObject: true}, function (a) {
-    return a.type_;
-  })) + " -> " + (_function.returnType && Type.displayName.call(_function.returnType));
+  let $puck_37 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _function.parameters, $isTraitObject: true}, function (b) {
+    const typeName = Type.displayName.call(b.type_);
+    let $puck_38;
+    if ($puck_1.RegExp.test.call(startWithNumber, b.name)) {
+      $puck_38 = typeName;
+    }
+    else {
+      $puck_38 = b.name + ": " + typeName + "";
+    };
+    const typed = $puck_38;
+    if (b.mutable) {
+      return "mut " + typed + "";
+    }
+    else {
+      return typed;
+    };
+  })
+;
+  let parameters = $puck_1.Iterable[$puck_37.type].toList.call($puck_37);
+  let $puck_39 = _function.selfBinding;
+  if (($puck_39.kind == "Some")) {
+    let {value: [selfBinding]} = $puck_39;
+    if (selfBinding.mutable) {
+      $puck_1.List.lpush.call(parameters, "mut self");
+    }
+    else {
+      $puck_1.List.lpush.call(parameters, "self");
+    };
+  };
+  parameters = parameters.join(", ");
+  const returnType = Type.displayName.call(_function.returnType);
+  return "(" + parameters + ") -> " + returnType + "";
 };
 function getTupleTypeName(properties) {
   return "(" + $puck_1.Iterable[properties.type].map.call(properties, function (type_) {
@@ -354,36 +384,36 @@ function getRecordTypeName(properties) {
   }).value.join(", ") + "}";
 };
 function getGenericName(name, type_, showClassParameters = false) {
-  let $puck_37 = type_.instance;
-  let $puck_38;
-  if (($puck_37.kind == "Some")) {
-    let {value: [instance]} = $puck_37;
-    $puck_38 = "<" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, function (p) {
+  let $puck_40 = type_.instance;
+  let $puck_41;
+  if (($puck_40.kind == "Some")) {
+    let {value: [instance]} = $puck_40;
+    $puck_41 = "<" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, function (p) {
       return Type.displayName.call(p);
     }).value.join(", ") + ">";
   }
   else {
-    let $puck_39;
+    let $puck_42;
     if (showClassParameters) {
-      let $puck_40 = type_._class;
-      let $puck_41;
-      if (($puck_40.kind == "Some")) {
-        let {value: [_class]} = $puck_40;
-        $puck_41 = "<" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true}, function (p) {
+      let $puck_43 = type_._class;
+      let $puck_44;
+      if (($puck_43.kind == "Some")) {
+        let {value: [_class]} = $puck_43;
+        $puck_44 = "<" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true}, function (p) {
           return Type.displayName.call(p);
         }).value.join(", ") + ">";
       }
       else {
-        $puck_41 = "";
+        $puck_44 = "";
       };
-      $puck_39 = $puck_41;
+      $puck_42 = $puck_44;
     }
     else {
-      $puck_39 = "";
+      $puck_42 = "";
     };
-    $puck_38 = $puck_39;
+    $puck_41 = $puck_42;
   };
-  const parameters = $puck_38;
+  const parameters = $puck_41;
   if (Type.isFunction.call(type_)) {
     return parameters + name;
   }

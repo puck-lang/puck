@@ -35,9 +35,30 @@ export type File {
   js: String
 }
 
+let startWithNumber = RegExp.new('^[0-9]')
+
 fn getFunctionTypeName(function: Function) {
-  getTupleTypeName(function.parameters.map(|a| a.type_)) + ' -> ' +
-    (function.returnType and function.returnType.displayName())
+  let mut parameters = function.parameters
+    .map(|b| {
+      let typeName = b.type_.displayName()
+      let typed =
+        if startWithNumber.test(b.name)
+          then typeName
+          else b.name + ': $typeName'
+      if b.mutable
+        then 'mut $typed'
+        else typed
+    })
+    .toList()
+  if let Some(selfBinding) = function.selfBinding {
+    if selfBinding.mutable
+      then parameters.lpush('mut self')
+      else parameters.lpush('self')
+  }
+  let parameters = parameters->join(', ')
+  let returnType = function.returnType.displayName()
+
+  '($parameters) -> $returnType'
 }
 
 fn getTupleTypeName(properties: Iterable<Type>) {

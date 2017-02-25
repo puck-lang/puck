@@ -233,36 +233,11 @@ function getScopeCompletions(node) {
 };
 function getTraitImplCompletions(trait_) {
   let $puck_22 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(trait_.functions), $isTraitObject: true}, function ([name, type_]) {
-    const _function = $puck_6.Type.getFunction.call(type_);
-    let $puck_23 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _function.parameters, $isTraitObject: true}, function (b) {
-      const typeName = $puck_6.Type.displayName.call(b.type_);
-      const typed = b.name + ": " + typeName + "";
-      if (b.mutable) {
-        return "mut " + typed + "";
-      }
-      else {
-        return typed;
-      };
-    })
-;
-    let parameters = $puck_1.Iterable[$puck_23.type].toList.call($puck_23);
-    let $puck_24 = _function.selfBinding;
-    if (($puck_24.kind == "Some")) {
-      let {value: [selfBinding]} = $puck_24;
-      if (selfBinding.mutable) {
-        $puck_1.List.lpush.call(parameters, "mut self");
-      }
-      else {
-        $puck_1.List.lpush.call(parameters, "self");
-      };
-    };
-    parameters = parameters.join(", ");
-    const returnType = $puck_6.Type.displayName.call(_function.returnType);
-    const signature = "" + name + "(" + parameters + ") -> " + returnType + "";
+    const signature = $puck_6.Type.verboseName.call(type_);
     return {
       label: signature,
       kind: $unwrapTraitObject($puck_2.CompletionItemKind).Method,
-      insertText: signature + " ",
+      insertText: "" + signature + " ",
     };
   })
 ;

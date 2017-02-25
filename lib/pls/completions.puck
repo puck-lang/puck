@@ -190,28 +190,11 @@ fn getTraitImplCompletions(trait_: Trait) {
   trait_.functions
     .toList()
     .map(|(name, type_): (String, Type)| {
-      let function = type_.getFunction()
-      let mut parameters = function.parameters
-        .map(|b| {
-          let typeName = b.type_.displayName()
-          let typed = b.name + ': $typeName'
-          if b.mutable
-            then 'mut $typed'
-            else typed
-        })
-        .toList()
-      if let Some(selfBinding) = function.selfBinding {
-        if selfBinding.mutable
-          then parameters.lpush('mut self')
-          else parameters.lpush('self')
-      }
-      let parameters = parameters->join(', ')
-      let returnType = function.returnType.displayName()
-      let signature = '$name($parameters) -> $returnType'
+      let signature = type_.verboseName()
       {
         label: signature
         kind: CompletionItemKind.Method
-        insertText: signature + ' '
+        insertText: '$signature '
       }
     })
     .toList()
