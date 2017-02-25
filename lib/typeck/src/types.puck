@@ -171,6 +171,10 @@ fn isSameId(to: Type, subject: Type) {
   }
 }
 
+fn bothHasId(to: Type, subject: Type) {
+  to.id.isSome() and subject.id.isSome()
+}
+
 fn checkTypeParameters(to: Type, subject: Type) {
   if to.id.isNone() or subject.id.isNone() then return true
 
@@ -187,11 +191,28 @@ fn checkTypeParameters(to: Type, subject: Type) {
 }
 
 export fn isAssignable(to: Type, subject: Type) {
+  _isAssignable(to, subject, Map.new())
+}
+
+fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
   if to and not subject {
     if let TypeKind::Trait(_) = to.kind then return false
   }
   if not subject or not to then return true
   if to == subject then return true
+
+  if let Some(set) = checked.get(to) {
+    // Avoids infinite loops
+    // We can assume true becouse if not the check fails in the earlier step
+    if set.has(subject) then return true
+    let mut c = set
+    c.add(subject)
+  }
+  else {
+    let mut c = Set.new()
+    c.add(subject)
+    checked.set(to, c)
+  }
 
   match subject.kind {
     TypeKind::Parameter => return true
@@ -202,21 +223,25 @@ export fn isAssignable(to: Type, subject: Type) {
   match to.kind {
     TypeKind::Enum(toEnum) => match subject.kind {
       TypeKind::Enum(subjectEnum) => {
-        isSameId(to, subject) and
-        isEnumAssignable(toEnum, subjectEnum) and
+        isSameId(to, subject) and (
+          bothHasId(to, subject) or
+          isEnumAssignable(toEnum, subjectEnum, checked)
+        ) and
         checkTypeParameters(to, subject)
       }
       _ => false
     }
     TypeKind::Function(toFunc) => match subject.kind {
-      TypeKind::Function(subjectFunc) => isFunctionAssignable(toFunc, subjectFunc)
+      TypeKind::Function(subjectFunc) => isFunctionAssignable(toFunc, subjectFunc, checked)
       _ => false
     }
     TypeKind::Parameter => true
     TypeKind::Struct(toStruct) => match subject.kind {
       TypeKind::Struct(subjectStruct) => {
-        isSameId(to, subject) and
-        isStructAssignable(toStruct, subjectStruct) and
+        isSameId(to, subject) and (
+          bothHasId(to, subject) or
+          isStructAssignable(toStruct, subjectStruct, checked)
+        ) and
         checkTypeParameters(to, subject)
       }
       _ => false
@@ -228,12 +253,12 @@ export fn isAssignable(to: Type, subject: Type) {
       }
       TypeKind::Enum(subjectEnum) => {
         subjectEnum.implementations.any(|implementation|
-          isAssignable(to, implementation.trait_)
+          _isAssignable(to, implementation.trait_, checked)
         )
       }
       TypeKind::Struct(subjectStruct) => {
         subjectStruct.implementations.any(|implementation|
-          isAssignable(to, implementation.trait_)
+          _isAssignable(to, implementation.trait_, checked)
         )
       }
       _ => false
@@ -241,38 +266,38 @@ export fn isAssignable(to: Type, subject: Type) {
   }
 }
 
-fn isEnumAssignable(to: Enum, subject: Enum) {
+fn isEnumAssignable(to: Enum, subject: Enum, mut checked) {
   if to.members.size() == subject.members.size()
     then to.members.toList().all(|(name, toMember)|
-      isAssignable(toMember, subject.members[name])
+      _isAssignable(toMember, subject.members[name], checked)
     )
     else return false
 }
 
-fn isFunctionAssignable(to: Function, subject: Function) {
+fn isFunctionAssignable(to: Function, subject: Function, mut checked) {
   if not to.parameterRange.isSubsetOf(subject.parameterRange)
     then return false
 
   if not to.parameters.enumerate().all(|(i, toArg)|
-    isAssignable(subject.parameters[i].type_, toArg.type_)
+    _isAssignable(subject.parameters[i].type_, toArg.type_, checked)
   )
     then return false
 
-  isAssignable(to.returnType, subject.returnType)
+  _isAssignable(to.returnType, subject.returnType, checked)
     or to.returnType.isEmpty()
 }
 
-fn isStructAssignable(to: Struct, subject: Struct) {
+fn isStructAssignable(to: Struct, subject: Struct, mut checked) {
   match (to.kind, subject.kind) {
     (StructKind::Record({properties: toProps}), StructKind::Record({properties: subjectProps})) => {
       toProps.toList().all(|(key, toProp)| {
-        subjectProps.has(key) and isAssignable(toProp, subjectProps[key])
+        subjectProps.has(key) and _isAssignable(toProp, subjectProps[key], checked)
       })
     }
     (StructKind::Tuple({properties: toProps}), StructKind::Tuple({properties: subjectProps})) => {
       if toProps.size() != subjectProps.size() then return false
       List.zip(toProps, subjectProps)
-        .all(|(toProp, subjectProp)| isAssignable(toProp, subjectProp))
+        .all(|(toProp, subjectProp)| _isAssignable(toProp, subjectProp, checked))
     }
     (StructKind::Unit, StructKind::Unit) => to->kind->value == subject->kind->value
     _ => to.kind == subject.kind
