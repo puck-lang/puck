@@ -1,6 +1,7 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var a = [42, "Zin"];
-var b = [42];
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const a = [
+  42,
+  "Zin",
+];
+const b = [42]

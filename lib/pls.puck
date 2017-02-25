@@ -1,4 +1,4 @@
-import 'puck:js' as {Error, asResult, undefined}
+import 'puck:js' as {Date, Error, asResult, undefined}
 import 'node:path' as path
 import 'node:vscode-languageserver' as {
   CompletionItemKind
@@ -15,41 +15,53 @@ import 'compiler.puck' as {createContext}
 import 'entities.puck' as {File, UnparsedFile}
 
 export fn createServer(projectPath: String, sendDiagnostic) {
-  let mut contexts = ObjectMap.new()
+  // let mut contexts = ObjectMap.new()
+  let mut context = createContext(projectPath)
+  context.reportError = fn (file: File, token: ToSpan, message) {
+    print('reportError', (file.absolutePath, message))
+    let span = token.span()
+    sendDiagnostic(file.absolutePath, {
+      severity: DiagnosticSeverity.Error
+      range: {
+        start: {line: span.start.line - 1, character: span.start.column - 1}
+        end: {line: span.end.line - 1, character: span.end.column - 1}
+      }
+      message
+      source: 'puck'
+    })
+  }
   let mut a = {}
   a->onClose = fn (filePath: String) {
-    contexts.delete(filePath)
+    // contexts.delete(filePath)
   }
   a->validateDocument = fn (filePath: String, contents: String, skipSyntaxErrors: Bool) {
     print('validateDocument')
-    let mut context = createContext(projectPath)
-    context.reportError = fn (file: File, token: ToSpan, message) {
-      print('reportError', (file.absolutePath, message))
-      let span = token.span()
-      sendDiagnostic(file.absolutePath, {
-        severity: DiagnosticSeverity.Error
-        range: {
-          start: {line: span.start.line - 1, character: span.start.column - 1}
-          end: {line: span.end.line - 1, character: span.end.column - 1}
-        }
-        message
-        source: 'puck'
-      })
-    }
+    let startTime = Date->now()
 
     let result = asResult(|| {
+      let startTime = Date->now()
       let mut file: UnparsedFile = {
         isBin: false
         fileName: path->basename(filePath).transmute()
         absolutePath: path->resolve(path->normalize(filePath)).transmute()
         puck: contents
       }
-      let mut file = context.importFile(file)
+      let mut file = context.importFile(file, true)
+      let parseTime = Date->now() - startTime
+      print('Parse time $parseTime')
 
       context.runTypeVisitor()
+      let typeVisitorTime = Date->now() - startTime - parseTime
+      print('Type visitor time $typeVisitorTime')
       context.runImplVisitor()
+      let implVisitorTime = Date->now() - startTime - parseTime - typeVisitorTime
+      print('Impl visitor time $implVisitorTime')
       context.runCheckerOnFile(file)
+      let scopeVisitorTime = Date->now() - startTime - parseTime - typeVisitorTime - implVisitorTime
+      print('Scope visitor time $scopeVisitorTime')
     })
+    let totalTime = Date->now() - startTime
+    print('Total time $totalTime')
     print('validateDocument completed')
 
     if let Result::Err(error) = result {
@@ -57,19 +69,19 @@ export fn createServer(projectPath: String, sendDiagnostic) {
         print('Error:', error)
       }
       if not skipSyntaxErrors {
-        contexts.set(filePath, context)
+        // contexts.set(filePath, context)
       }
     }
     else {
-      contexts.set(filePath, context)
+      // contexts.set(filePath, context)
     }
   }
   a->onCompletion = fn (filePath: String, position: Position) {
     print('onCompletion')
-    let context = match contexts.get(filePath) {
-      Some(context) => context
-      None => return []
-    }
+    // let context = match contexts.get(filePath) {
+    //   Some(context) => context
+    //   None => return []
+    // }
     let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
     if not file then return []
     let module: Module = file->ast.transmute()
@@ -96,10 +108,10 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   }
   a->onHover = fn (filePath: String, position: Position) -> Hover {
     print('onHover')
-    let context = match contexts.get(filePath) {
-      Some(context) => context
-      None => return Hover.empty()
-    }
+    // let context = match contexts.get(filePath) {
+    //   Some(context) => context
+    //   None => return Hover.empty()
+    // }
     let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
     if not file then return Hover.empty()
     let module: Module = file->ast.transmute()
@@ -124,10 +136,10 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   }
   a->onDefinition = fn (filePath: String, position: Position) -> List<Definition> {
     print('onDefinition')
-    let context = match contexts.get(filePath) {
-      Some(context) => context
-      None => return []
-    }
+    // let context = match contexts.get(filePath) {
+    //   Some(context) => context
+    //   None => return []
+    // }
     let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
     if not file then return []
     let module: Module = file->ast.transmute()

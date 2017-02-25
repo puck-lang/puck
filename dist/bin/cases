@@ -1,113 +1,90 @@
 #!/usr/bin/env node
-
 'use strict';
 
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var _js = require('puck-lang/dist/lib/stdlib/js');
-
-var _fs = require('fs');
-
-var fs = _interopRequireWildcard(_fs);
-
-var _helpers = require('./../lib/helpers');
-
-var _test = require('./../lib/test');
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
-
-var argv = $unwrapTraitObject(_js.process.argv);
-var __PUCK__value__2 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true }, function (arg) {
-  return _core.String.contains.call(arg, "cases");
-});
-var __PUCK__value__1 = _core.Iterable[__PUCK__value__2.type].skip.call(__PUCK__value__2, 1);
-var _arguments = _core.Iterable[__PUCK__value__1.type].toList.call(__PUCK__value__1);
-var command = _core.List.get.call(_arguments, 0);
-var __PUCK__value__3 = command;
-if ($unwrapTraitObject(__PUCK__value__3).kind == "None") {
-  (function () {
-    var undefined = $unwrapTraitObject(__PUCK__value__3);
-    (0, _test.buildTestCompiler)();
-    var failPattern = _core.RegExp._new("\\.error\\.puck$", "i");
-    var caseFiles = (0, _helpers.walkSync)("test/cases");
-    var failCases = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: caseFiles, $isTraitObject: true }, function (f) {
-      return _core.RegExp.test.call(failPattern, f);
-    });
-    (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
-    var buildString = $unwrapTraitObject((0, _js.require)("puck-lang/.tmp/old/lib/compiler").buildString);
-    var projectPath = $unwrapTraitObject(fs.realpathSync("."));
-    _core.Iterable[failCases.type].forEach.call(failCases, function (file) {
-      var contents = $unwrapTraitObject(fs.readFileSync(file, { encoding: "utf-8" }));
-      var __PUCK__value__4 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.String.split.call(contents, "/////"), $isTraitObject: true });
-      return _core.Iterable[__PUCK__value__4.type].forEach.call(__PUCK__value__4, function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
-            i = _ref2[0],
-            test = _ref2[1];
-
-        var firstNewline = test.indexOf("\n");
-        var error = test.substr(0, firstNewline);
-        var code = $unwrapTraitObject(test.substr(firstNewline));
-        if (!error && !code) {
-          return [];
-        };
-        if (!error || !code || error.substr(0, 1) != " ") {
-          (0, _core.print)("Test " + file + "::" + i + " is invalid, missing error or code");
-          _js.process.exit(1);
-        };
-        var result = buildString(code, file, projectPath);
-        var __PUCK__value__5 = result;
-        if ($unwrapTraitObject(__PUCK__value__5).kind == "Ok") {
-          var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__5),
-              _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
-              __PUCK__value__6 = _$unwrapTraitObject$v[0];
-
-          (0, _core.print)("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
-          _js.process.exit(1);
-          return [];
-        } else {
-          if ($unwrapTraitObject(__PUCK__value__5).kind == "Err") {
-            var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__5),
-                _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
-                message = _$unwrapTraitObject2$[0].message;
-
-            if (!_core.String.contains.call(message, $unwrapTraitObject(error.trim()))) {
-              (0, _core.print)("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + message + "");
-              return _js.process.exit(1);
-            };
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
+const fs = require("fs");
+const $puck_3 = require("./../lib/helpers");
+const $puck_4 = require("./../lib/test");
+const argv = $unwrapTraitObject($puck_2.process.argv);
+let $puck_6 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true}, function (arg) {
+  return $puck_1.String.contains.call(arg, "cases");
+})
+;
+let $puck_5 = $puck_1.Iterable[$puck_6.type].skip.call($puck_6, 1)
+;
+const _arguments = $puck_1.Iterable[$puck_5.type].toList.call($puck_5);
+const command = $puck_1.List.get.call(_arguments, 0);
+let $puck_7 = command;
+if ($unwrapTraitObject($puck_7).kind == "None") {
+  let undefined = $unwrapTraitObject($puck_7);
+  $puck_4.buildTestCompiler();
+  const failPattern = $puck_1.RegExp._new("\\.error\\.puck$", "i");
+  const caseFiles = $puck_3.walkSync("test/cases");
+  const failCases = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: caseFiles, $isTraitObject: true}, function (f) {
+    return $puck_1.RegExp.test.call(failPattern, f);
+  });
+  $puck_3.cmd(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
+  const buildString = $unwrapTraitObject($puck_2._require("puck-lang/.tmp/old/lib/compiler").buildString);
+  const projectPath = $unwrapTraitObject(fs.realpathSync("."));
+  $puck_1.Iterable[failCases.type].forEach.call(failCases, function (file) {
+    const contents = $unwrapTraitObject(fs.readFileSync(file, {encoding: "utf-8"}));
+    let $puck_8 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.String.split.call(contents, "/////"), $isTraitObject: true})
+;
+    return $puck_1.Iterable[$puck_8.type].forEach.call($puck_8, function ([i, test]) {
+      const firstNewline = test.indexOf("\n");
+      const error = test.substr(0, firstNewline);
+      const code = $unwrapTraitObject(test.substr(firstNewline));
+      if ((!error && !code)) {
+        return [];
+      };
+      if ((!error || !code || error.substr(0, 1) != " ")) {
+        $puck_1.print("Test " + file + "::" + i + " is invalid, missing error or code");
+        $puck_2.process.exit(1);
+      };
+      const result = buildString(code, file, projectPath);
+      let $puck_9 = result;
+      if ($unwrapTraitObject($puck_9).kind == "Ok") {
+        let {value: [$puck_10]} = $unwrapTraitObject($puck_9);
+        $puck_1.print("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
+        $puck_2.process.exit(1);
+        return [];
+      }
+      else {
+        if ($unwrapTraitObject($puck_9).kind == "Err") {
+          let {value: [{message: message}]} = $unwrapTraitObject($puck_9);
+          if ((!$puck_1.String.contains.call(message, $unwrapTraitObject(error.trim())))) {
+            $puck_1.print("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + message + "");
+            return $puck_2.process.exit(1);
           };
         };
-      });
+      };
     });
-    (0, _helpers.cmd)("diff -Nr test/baselines .tmp/cases");
-    (0, _core.print)("done");
-  })();
-} else {
-  if ($unwrapTraitObject(__PUCK__value__3).kind == "Some") {
-    var _$unwrapTraitObject3 = $unwrapTraitObject(__PUCK__value__3),
-        _$unwrapTraitObject3$ = _slicedToArray(_$unwrapTraitObject3.value, 1),
-        _command = _$unwrapTraitObject3$[0];
-
-    if (_command == "file") {
-      var file = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, 1);
-      var built = file.replace(_core.RegExp._new("\\.puck$"), ".js");
-      (0, _test.buildTestCompiler)();
-      (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir .tmp/cases " + file + "");
-      (0, _helpers.cmd)("diff -Nr test/baselines/" + built + " .tmp/cases/" + built + "");
-      (0, _core.print)("done");
-    } else {
-      if (_command == "update-baselines") {
-        (0, _test.buildTestCompiler)();
-        (0, _helpers.cmd)(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
-        (0, _core.print)("done");
-      } else {
-        $unwrapTraitObject(_js.console).error("Unknown command", _command);
-        _js.process.exit(1);
+  });
+  $puck_3.cmd("diff -Nr test/baselines .tmp/cases");
+  $puck_1.print("done");
+}
+else {
+  if ($unwrapTraitObject($puck_7).kind == "Some") {
+    let {value: [command]} = $unwrapTraitObject($puck_7);
+    if (command == "file") {
+      const file = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: _arguments, $isTraitObject: true}, 1);
+      const built = file.replace($puck_1.RegExp._new("\\.puck$"), ".js");
+      $puck_4.buildTestCompiler();
+      $puck_3.cmd(".tmp/old/bin/puckc --out-dir .tmp/cases " + file + "");
+      $puck_3.cmd("diff -Nr test/baselines/" + built + " .tmp/cases/" + built + "");
+      $puck_1.print("done");
+    }
+    else {
+      if (command == "update-baselines") {
+        $puck_4.buildTestCompiler();
+        $puck_3.cmd(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
+        $puck_1.print("done");
+      }
+      else {
+        $unwrapTraitObject($puck_2.console).error("Unknown command", command);
+        $puck_2.process.exit(1);
       };
     };
   };

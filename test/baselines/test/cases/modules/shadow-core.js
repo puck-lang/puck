@@ -1,20 +1,11 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var Bool = function Bool(object) {
-  return object;
-};
-var List = function List(object) {
-  return object;
-};
-var Num = function Num(object) {
-  return object;
-};
-var String = function String(object) {
-  return object;
-};
-var a = true;
-var b = [];
-var c = 1;
-var d = "";
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const $puck_2 = require("puck-lang/dist/lib/stdlib/core");
+var Bool = (object) => object;
+var List = (object) => object;
+var Num = (object) => object;
+var String = (object) => object;
+const a = true;
+const b = [];
+const c = 1;
+const d = ""

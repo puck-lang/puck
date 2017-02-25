@@ -1,327 +1,295 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-exports.parseString = parseString;
-exports.compile = compile;
-exports.createContext = createContext;
-exports.buildString = buildString;
-exports.build = build;
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var _js = require('puck-lang/dist/lib/stdlib/js');
-
-var _babelCore = require('babel-core');
-
-var babel = _interopRequireWildcard(_babelCore);
-
-var _fs = require('fs');
-
-var fs = _interopRequireWildcard(_fs);
-
-var _path = require('path');
-
-var path = _interopRequireWildcard(_path);
-
-var _util = require('util');
-
-var _span = require('./ast/span');
-
-var _emitter = require('./compiler/emitter');
-
-var _input_stream = require('./compiler/input_stream');
-
-var _parser = require('./compiler/parser');
-
-var _token_stream = require('./compiler/token_stream');
-
-var _helpers = require('./helpers');
-
-var _impl_visitor = require('./typeck/impl_visitor');
-
-var _import_visitor = require('./typeck/import_visitor');
-
-var _scope_visitor = require('./typeck/scope_visitor');
-
-var _top_level_visitor = require('./typeck/top_level_visitor');
-
-var _type_visitor = require('./typeck/type_visitor');
-
-var _entities = require('./entities');
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
-
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+exports.parseString = exports.compile = exports.createContext = exports.buildString = exports.buildundefined;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
+const babel = require("babel-core");
+const fs = require("fs");
+const path = require("path");
+const $puck_3 = require("util");
+const $puck_4 = require("./ast/span");
+const $puck_5 = require("./compiler/emitter");
+const $puck_6 = require("./compiler/input_stream");
+const $puck_7 = require("./compiler/parser");
+const $puck_8 = require("./compiler/token_stream");
+const $puck_9 = require("./helpers");
+const $puck_10 = require("./typeck/impl_visitor");
+const $puck_11 = require("./typeck/import_visitor");
+const $puck_12 = require("./typeck/scope_visitor");
+const $puck_13 = require("./typeck/top_level_visitor");
+const $puck_14 = require("./typeck/type_visitor");
+const $puck_15 = require("./entities");
 function fileInspect(depth, opts) {
-  var self = this;
-  return (0, _util.inspect)(_js._Object.assign({}, self, {
+  const self = this;
+  return $puck_3.inspect($puck_2._Object.assign({}, self, {
     puck: "[hidden]",
     ast: "[hidden]",
     js: "[hidden]",
-    inspect: _js._undefined
-  }), _js._Object.assign({}, opts, { depth: $unwrapTraitObject(opts).depth - depth }));
+    inspect: $puck_2._undefined,
+  }), $puck_2._Object.assign({}, opts, {depth: $unwrapTraitObject(opts).depth - depth}));
 };
 function parseString(context, file) {
-  var ast = (0, _parser.parse)(_token_stream.TokenStream._new(_input_stream.InputStream._new(context, file)), file);
-  (0, _top_level_visitor.TopLevelVisitor)(context, file).visitModule(ast);
-  (0, _import_visitor.ImportVisitor)(context, file).visitModule(ast);
+  let ast = $puck_7.parse($puck_8.TokenStream._new($puck_6.InputStream._new(context, file)), file);
+  $puck_13.TopLevelVisitor(context, file).visitModule(ast);
+  $puck_11.ImportVisitor(context, file).visitModule(ast);
   return ast;
 };
+exports.parseString = parseString;
 function compile(context, file) {
-  return $unwrapTraitObject((0, _emitter.Emitter)(context, file)).emitModule(file.ast, file.isBin);
+  return $unwrapTraitObject($puck_5.Emitter(context, file)).emitModule(file.ast, file.isBin);
 };
+exports.compile = compile;
 function babelTransform(file) {
   return $unwrapTraitObject(babel.transform($unwrapTraitObject(file).js, {
     filename: $unwrapTraitObject(file).absolutePath,
-    presets: _js.require.resolve("babel-preset-latest"),
-    babelrc: false
+    presets: $puck_2._require.resolve("babel-preset-latest"),
+    babelrc: false,
   }).code);
 };
 function dumpFiles(files, prop) {
-  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
-    (0, _core.print)("");
-    (0, _core.print)(file.absolutePath);
-    var __PUCK__value__1 = _core.Unknown.asString.call(file[prop]);
-    var __PUCK__value__2 = void 0;
-    if ($unwrapTraitObject(__PUCK__value__1).kind == "Some") {
-      var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
-          _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
-          _data = _$unwrapTraitObject$v[0];
-
-      __PUCK__value__2 = _data;
-    } else {
-      var __PUCK__value__3 = void 0;
+  return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (file) {
+    $puck_1.print("");
+    $puck_1.print(file.absolutePath);
+    let $puck_16 = $puck_1.Unknown.asString.call(file[prop]);
+    let $puck_17;
+    if (($unwrapTraitObject($puck_16).kind == "Some")) {
+      let {value: [data]} = $unwrapTraitObject($puck_16);
+      $puck_17 = data;
+    }
+    else {
+      let $puck_18;
       if (true) {
-        var _None = __PUCK__value__1;
-        __PUCK__value__3 = (0, _util.inspect)(file[prop], {
+        const None = $puck_16;
+        $puck_18 = $puck_3.inspect(file[prop], {
           colors: false,
-          depth: 25
+          depth: 25,
         });
       };
-      __PUCK__value__2 = __PUCK__value__3;
+      $puck_17 = $puck_18;
     };
-    var data = __PUCK__value__2;
-    return (0, _core.print)(_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.String.split.call(data, "\n"), $isTraitObject: true }, function (line) {
+    const data = $puck_17;
+    return $puck_1.print($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.String.split.call(data, "\n"), $isTraitObject: true}, function (line) {
       return "  " + line + "";
     }).value.join("\n"));
   });
 };
-function createContext(projectPath) {
-  var ignoreErrors = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
+function createContext(projectPath, ignoreErrors = false) {
   return {
     projectPath: projectPath,
-    impls: _core.ObjectMap._new(),
-    files: _core.ObjectMap._new(),
-    deferred: _core.ObjectMap._new(),
-    runTypeVisitor: function runTypeVisitor() {
-      var self = this;
-      var keys = $unwrapTraitObject(_js._Object.keys($unwrapTraitObject(self).files));
-      var __PUCK__value__4 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true }, function (path) {
-        return $unwrapTraitObject($unwrapTraitObject(self).files)[path];
-      });
-      return _core.Iterable[__PUCK__value__4.type].forEach.call(__PUCK__value__4, function (file) {
-        if (!file.typeVisitorStarted && file.ast) {
-          file.typeVisitorStarted = true;
-          (0, _type_visitor.TypeVisitor)(self, file).visitModule(file.ast);
-          return file.typeVisitorCompleted = true;
-        };
-      });
-    },
-    runImplVisitor: function runImplVisitor() {
-      var self = this;
-      var keys = $unwrapTraitObject(_js._Object.keys($unwrapTraitObject(self).files));
-      var __PUCK__value__5 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true }, function (path) {
-        return $unwrapTraitObject($unwrapTraitObject(self).files)[path];
-      });
-      return _core.Iterable[__PUCK__value__5.type].forEach.call(__PUCK__value__5, function (file) {
-        if (!file.implVisitorStarted && file.ast) {
-          file.implVisitorStarted = true;
-          return (0, _impl_visitor.ImplVisitor)(self, file).visitModule(file.ast);
-        };
-      });
-    },
-    runChecker: function runChecker() {
-      var self = this;
-      var keys = $unwrapTraitObject(_js._Object.keys($unwrapTraitObject(self).files));
-      var __PUCK__value__6 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true }, function (path) {
-        return $unwrapTraitObject($unwrapTraitObject(self).files)[path];
-      });
-      return _core.Iterable[__PUCK__value__6.type].forEach.call(__PUCK__value__6, function (file) {
-        if (!file.scopeVisitorStarted && file.ast) {
-          file.scopeVisitorStarted = true;
-          return (0, _scope_visitor.ScopeVisitor)(self, file).visitModule(file.ast);
-        };
-      });
-    },
-    runTypeVisitorOnFile: function runTypeVisitorOnFile(file) {
-      var self = this;
-      if (!$unwrapTraitObject(file).typeVisitorCompleted) {
-        if ($unwrapTraitObject(file).typeVisitorStarted) {
-          throw "Circular import??";
-        };
-        $unwrapTraitObject(file).typeVisitorStarted = true;
-        (0, _type_visitor.TypeVisitor)(self, file).visitModule($unwrapTraitObject(file).ast);
-        return $unwrapTraitObject(file).typeVisitorCompleted = true;
+    impls: $puck_1.ObjectMap._new(),
+    files: $puck_1.ObjectMap._new(),
+    deferred: $puck_1.ObjectMap._new(),
+    runTypeVisitor: function () {
+    const self = this;
+    const keys = $unwrapTraitObject($puck_2._Object.keys($unwrapTraitObject(self).files));
+    let $puck_19 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true}, function (path) {
+      return $unwrapTraitObject($unwrapTraitObject(self).files)[path];
+    })
+;
+    return $puck_1.Iterable[$puck_19.type].forEach.call($puck_19, function (file) {
+      if ((!file.typeVisitorStarted && file.ast)) {
+        file.typeVisitorStarted = true;
+        $puck_14.TypeVisitor(self, file).visitModule(file.ast);
+        return file.typeVisitorCompleted = true;
       };
-    },
-    runImplVisitorOnFile: function runImplVisitorOnFile(file) {
-      var self = this;
-      if (!$unwrapTraitObject(file).typeVisitorStarted) {
-        $unwrapTraitObject(self).runTypeVisitorOnFile(file);
+    });
+  },
+    runImplVisitor: function () {
+    let self = this;
+    const keys = $unwrapTraitObject($puck_2._Object.keys($unwrapTraitObject(self).files));
+    let $puck_20 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true}, function (path) {
+      return $unwrapTraitObject($unwrapTraitObject(self).files)[path];
+    })
+;
+    return $puck_1.Iterable[$puck_20.type].forEach.call($puck_20, function (file) {
+      if ((!file.implVisitorStarted && file.ast)) {
+        file.implVisitorStarted = true;
+        return $puck_10.ImplVisitor(self, file).visitModule(file.ast);
       };
-      if ($unwrapTraitObject(file).implVisitorStarted) {
-        throw (0, _js.Error)("runImplVisitorOnFile??");
+    });
+  },
+    runChecker: function () {
+    const self = this;
+    const keys = $unwrapTraitObject($puck_2._Object.keys($unwrapTraitObject(self).files));
+    let $puck_21 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: keys, $isTraitObject: true}, function (path) {
+      return $unwrapTraitObject($unwrapTraitObject(self).files)[path];
+    })
+;
+    return $puck_1.Iterable[$puck_21.type].forEach.call($puck_21, function (file) {
+      if ((!file.scopeVisitorStarted && file.ast)) {
+        file.scopeVisitorStarted = true;
+        return $puck_12.ScopeVisitor(self, file).visitModule(file.ast);
       };
-      $unwrapTraitObject(file).implVisitorStarted = true;
-      return (0, _impl_visitor.ImplVisitor)(self, file).visitModule($unwrapTraitObject(file).ast);
-    },
-    runCheckerOnFile: function runCheckerOnFile(file) {
-      var self = this;
-      if (!$unwrapTraitObject(file).implVisitorStarted) {
-        $unwrapTraitObject(self).runImplVisitorOnFile(file);
+    });
+  },
+    runTypeVisitorOnFile: function (file) {
+    const self = this;
+    if (!$unwrapTraitObject(file).typeVisitorCompleted) {
+      if ($unwrapTraitObject(file).typeVisitorStarted) {
+        throw "Circular import??";
       };
-      if (!$unwrapTraitObject(file).scopeVisitorStarted) {
-        $unwrapTraitObject(file).scopeVisitorStarted = true;
-        return (0, _scope_visitor.ScopeVisitor)(self, file).visitModule($unwrapTraitObject(file).ast);
-      };
-    },
-    defer: function defer(file, func) {
-      var self = this;
-      if (!$unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)]) {
-        $unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)] = [];
-      };
-      return $unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)].push(func);
-    },
-    resolvePath: function resolvePath(file, relativeTo) {
-      var __PUCK__value__7 = void 0;
-      if ($unwrapTraitObject(file).substring(0, 1) == "/") {
-        __PUCK__value__7 = file;
-      } else {
-        __PUCK__value__7 = path.join(path.dirname($unwrapTraitObject(relativeTo).absolutePath), file);
-      };
-      var filePath = __PUCK__value__7;
-      var absolutePath = $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize(filePath))));
-      var fileName = path.basename(absolutePath);
-      return {
-        absolutePath: absolutePath,
-        fileName: fileName,
-        inspect: fileInspect
-      };
-    },
-    importFile: function importFile(file) {
-      var self = this;
-      if ($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath] && file.outDir && file.outFile) {
-        $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath].outDir = file.outDir;
-        $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath].outFile = file.outFile;
-      };
-      if (!$unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath]) {
-        $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath] = file;
-        if (!file.puck) {
-          file.puck = $unwrapTraitObject(fs.readFileSync(file.absolutePath, { encoding: "utf-8" }));
-        };
-        file.ast = parseString(self, file);
-        if ($unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath]) {
-          var callbacks = $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath];
-          $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath] = $unwrapTraitObject(_js._undefined);
-          callbacks.forEach(function (callback) {
-            return callback();
-          });
-        };
-      };
-      return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath]);
-    },
-    reportError: function reportError(file, token, message) {
-      var self = this;
-      if (!ignoreErrors) {
-        var _ToSpan$token$type$sp = _span.ToSpan[token.type].span.call(token).start,
-            line = _ToSpan$token$type$sp.line,
-            column = _ToSpan$token$type$sp.column;
-
-        throw (0, _js.Error)("" + message + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")");
-      };
+      $unwrapTraitObject(file).typeVisitorStarted = true;
+      $puck_14.TypeVisitor(self, file).visitModule($unwrapTraitObject(file).ast);
+      return $unwrapTraitObject(file).typeVisitorCompleted = true;
+    };
+  },
+    runImplVisitorOnFile: function (file) {
+    let self = this;
+    if (!$unwrapTraitObject(file).typeVisitorStarted) {
+      $unwrapTraitObject(self).runTypeVisitorOnFile(file);
+    };
+    if ($unwrapTraitObject(file).implVisitorStarted) {
+      throw $puck_2.Error("runImplVisitorOnFile??");
+    };
+    $unwrapTraitObject(file).implVisitorStarted = true;
+    return $puck_10.ImplVisitor(self, file).visitModule($unwrapTraitObject(file).ast);
+  },
+    runCheckerOnFile: function (file) {
+    const self = this;
+    if (!$unwrapTraitObject(file).implVisitorStarted) {
+      $unwrapTraitObject(self).runImplVisitorOnFile(file);
+    };
+    if (!$unwrapTraitObject(file).scopeVisitorStarted) {
+      $unwrapTraitObject(file).scopeVisitorStarted = true;
+      return $puck_12.ScopeVisitor(self, file).visitModule($unwrapTraitObject(file).ast);
+    };
+  },
+    defer: function (file, func) {
+    let self = this;
+    if (!$unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)]) {
+      $unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)] = [];
+    };
+    return $unwrapTraitObject($unwrapTraitObject(self).deferred)[$unwrapTraitObject($unwrapTraitObject(file).absolutePath)].push(func);
+  },
+    resolvePath: function (file, relativeTo) {
+    let $puck_22;
+    if ($unwrapTraitObject(file).substring(0, 1) == "/") {
+      $puck_22 = file;
     }
+    else {
+      $puck_22 = path.join(path.dirname($unwrapTraitObject(relativeTo).absolutePath), file);
+    };
+    const filePath = $puck_22;
+    const absolutePath = $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize(filePath))));
+    const fileName = path.basename(absolutePath);
+    return {
+      absolutePath: absolutePath,
+      fileName: fileName,
+      inspect: fileInspect,
+    };
+  },
+    importFile: function (file, force = false) {
+    let self = this;
+    if (($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath] && file.outDir && file.outFile)) {
+      $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath].outDir = file.outDir;
+      $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath].outFile = file.outFile;
+    };
+    if ((force || !$unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath])) {
+      $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath] = file;
+      if (!file.puck) {
+        file.puck = $unwrapTraitObject(fs.readFileSync(file.absolutePath, {encoding: "utf-8"}));
+      };
+      file.ast = parseString(self, file);
+      if ($unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath]) {
+        const callbacks = $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath];
+        $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath] = $unwrapTraitObject($puck_2._undefined);
+        callbacks.forEach(function (callback) {
+          return callback();
+        });
+      };
+    };
+    return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath]);
+  },
+    reportError: function (file, token, message) {
+    const self = this;
+    if (!ignoreErrors) {
+      let {line: line, column: column} = $puck_4.ToSpan[token.type].span.call(token).start;
+      throw $puck_2.Error("" + message + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")");
+    };
+  },
   };
 };
-function buildString(code, filePath, projectPath) {
-  return (0, _js.asResult)(function () {
-    var context = createContext(projectPath);
-    var file = context.importFile({
+exports.createContext = createContext;
+function buildString(code, filePath, projectPath, options = {useBabel: false}) {
+  return $puck_2.asResult(function () {
+    let context = createContext(projectPath);
+    let file = context.importFile({
       isBin: false,
       fileName: $unwrapTraitObject(path.basename(filePath)),
       absolutePath: $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize(filePath)))),
-      puck: code
+      puck: code,
     });
     context.runTypeVisitor();
     context.runImplVisitor();
     context.runChecker();
     file.js = compile(context, file);
-    file.babel = babelTransform(file);
+    if (options.useBabel) {
+      file.js = babelTransform(file);
+    };
     return file;
   });
 };
-function build(files, context) {
-  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-  var dump = options.dump;
-  files = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (f) {
-    var fileName = $unwrapTraitObject(path.basename(f.file));
-    var absolutePath = $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize(f.file))));
-    var outFile = path.normalize(f.outFile);
-    var outDir = path.dirname(outFile);
+exports.buildString = buildString;
+function build(files, context, options = {
+  dump: "",
+  useBabel: false,
+}) {
+  const dump = options.dump;
+  files = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (f) {
+    const fileName = $unwrapTraitObject(path.basename(f.file));
+    const absolutePath = $unwrapTraitObject(fs.realpathSync(path.resolve(path.normalize(f.file))));
+    const outFile = path.normalize(f.outFile);
+    const outDir = path.dirname(outFile);
     return {
       isBin: f.isBin,
       absolutePath: absolutePath,
       outFile: outFile,
       outDir: outDir,
-      inspect: fileInspect
+      inspect: fileInspect,
     };
   });
-  var __PUCK__value__8 = _core.Iterable[files.type].map.call(files, function (f) {
+  let $puck_23 = $puck_1.Iterable[files.type].map.call(files, function (f) {
     return $unwrapTraitObject(context).importFile(f);
-  });
-  files = _core.Iterable[__PUCK__value__8.type].toList.call(__PUCK__value__8);
-  if (dump == "ast") {
+  })
+;
+  files = $puck_1.Iterable[$puck_23.type].toList.call($puck_23);
+  if ((dump == "ast")) {
     dumpFiles(files, "ast");
-    return _js._undefined;
+    return $puck_2._undefined;
   };
   $unwrapTraitObject(context).runTypeVisitor();
   if (dump == "typed-ast") {
     dumpFiles(files, "ast");
-    return _js._undefined;
+    return $puck_2._undefined;
   };
   $unwrapTraitObject(context).runImplVisitor();
   if (dump == "impl-ast") {
     dumpFiles(files, "ast");
-    return _js._undefined;
+    return $puck_2._undefined;
   };
   $unwrapTraitObject(context).runChecker();
   if (dump == "checked-ast") {
     dumpFiles(files, "ast");
-    return _js._undefined;
+    return $puck_2._undefined;
   };
-  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
+  $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (file) {
     return file.js = compile(context, file);
   });
   if (dump == "js") {
     dumpFiles(files, "js");
-    return _js._undefined;
+    return $puck_2._undefined;
   };
-  _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (file) {
-    return file.babel = babelTransform(file);
+  if (options.useBabel) {
+    $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (file) {
+      return file.js = babelTransform(file);
+    });
+  };
+  return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (f) {
+    const outDir = f.outDir;
+    const outFile = f.outFile;
+    $puck_9.cmd("mkdir -p " + outDir + "");
+    return fs.writeFileSync("" + outFile + "", f.js + "\n", {mode: $puck_1.Result.unwrap.call($puck_1.Num.parseInt("777", $puck_1.Radix.Octal))});
   });
-  return _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true }, function (f) {
-    var outDir = f.outDir;
-    var outFile = f.outFile;
-    (0, _helpers.cmd)("mkdir -p " + outDir + "");
-    return fs.writeFileSync("" + outFile + "", f.babel + "\n", { mode: 511 });
-  });
-}
+};
+exports.build = build

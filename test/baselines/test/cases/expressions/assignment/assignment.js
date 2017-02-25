@@ -1,25 +1,30 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var D = function D(object) {
-  return object;
-};
-var a = void 0;
-a = { b: [] };
-a.b = [1, 2];
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+var D = (object) => object;
+let a;
+a = {b: []};
+a.b = [
+  1,
+  2,
+];
 a.b[0] = 4;
-a.b = [1, 2];
+a.b = [
+  1,
+  2,
+];
 a.b[0] = 4;
-a.b = [1, 2];
+a.b = [
+  1,
+  2,
+];
 a.b[0] = 4;
 a.b[0] = 4;
-var b = 5;
+let b = 5;
 b = 6;
 function c(a) {
   return a = a * 2;
 };
-var d = { e: 42 };
+let d = {e: 42};
 d.e = 5;
-var e = void 0;
-var f = e = 5;
+let e;
+const f = e = 5

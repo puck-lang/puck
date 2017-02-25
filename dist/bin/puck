@@ -1,79 +1,84 @@
 #!/usr/bin/env node
-
 'use strict';
 
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var _js = require('puck-lang/dist/lib/stdlib/js');
-
-var _fs = require('fs');
-
-var fs = _interopRequireWildcard(_fs);
-
-var _jest = require('./../lib/test/jest');
-
-var _path = require('path');
-
-var path = _interopRequireWildcard(_path);
-
-var _compiler = require('./../lib/compiler');
-
-var _helpers = require('./../lib/helpers');
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
+const fs = require("fs");
+const $puck_3 = require("./../lib/test/jest");
+const path = require("path");
+const $puck_4 = require("./../lib/compiler");
+const $puck_5 = require("./../lib/helpers");
+const argv = $unwrapTraitObject($puck_2.process.argv);
+let $puck_7 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true}, function (arg) {
+  return $puck_1.String.contains.call(arg, "puck");
+})
+;
+let $puck_6 = $puck_1.Iterable[$puck_7.type].skip.call($puck_7, 1)
+;
+const _arguments = $puck_1.Iterable[$puck_6.type].toList.call($puck_6);
+const command = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: _arguments, $isTraitObject: true}, 0);
+let $puck_8;
+if ($puck_5.flag(_arguments, "--babel") != "") {
+  $puck_8 = true;
+}
+else {
+  $puck_8 = false;
 };
-
-var argv = $unwrapTraitObject(_js.process.argv);
-var __PUCK__value__2 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true }, function (arg) {
-  return _core.String.contains.call(arg, "puck");
-});
-var __PUCK__value__1 = _core.Iterable[__PUCK__value__2.type].skip.call(__PUCK__value__2, 1);
-var _arguments = _core.Iterable[__PUCK__value__1.type].toList.call(__PUCK__value__1);
-var command = _core.Index["$impl_Index$List"].index.call({ type: '$impl_Index$List', value: _arguments, $isTraitObject: true }, 0);
-var puckPattern = _core.RegExp._new("\\.puck$", "i");
+const useBabel = $puck_8;
+const puckPattern = $puck_1.RegExp._new("\\.puck$", "i");
 function normalizeBinName(file) {
-  var dirname = path.dirname(file);
-  var fileName = path.basename(file, ".puck").replace(_core.RegExp._new("^_"), "");
+  const dirname = path.dirname(file);
+  const fileName = path.basename(file, ".puck").replace($puck_1.RegExp._new("^_"), "");
   return $unwrapTraitObject(path.join("dist", dirname, fileName));
 };
 if (command == "build") {
-  var __PUCK__value__4 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: (0, _helpers.walkSync)("bin"), $isTraitObject: true }, function (f) {
-    return _core.RegExp.test.call(puckPattern, f);
-  });
-  var __PUCK__value__3 = _core.Iterable[__PUCK__value__4.type].map.call(__PUCK__value__4, function (file) {
+  let $puck_10 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_5.walkSync("bin"), $isTraitObject: true}, function (f) {
+    return $puck_1.RegExp.test.call(puckPattern, f);
+  })
+;
+  let $puck_9 = $puck_1.Iterable[$puck_10.type].map.call($puck_10, function (file) {
     return {
       isBin: true,
       file: file,
-      outFile: normalizeBinName(file)
+      outFile: normalizeBinName(file),
     };
-  });
-  var binFiles = _core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3);
-  var __PUCK__value__6 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: (0, _helpers.walkSync)("lib"), $isTraitObject: true }, function (f) {
-    return _core.RegExp.test.call(puckPattern, f);
-  });
-  var __PUCK__value__5 = _core.Iterable[__PUCK__value__6.type].map.call(__PUCK__value__6, function (file) {
+  })
+;
+  const binFiles = $puck_1.Iterable[$puck_9.type].toList.call($puck_9);
+  let $puck_12 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_5.walkSync("lib"), $isTraitObject: true}, function (f) {
+    return $puck_1.RegExp.test.call(puckPattern, f);
+  })
+;
+  let $puck_11 = $puck_1.Iterable[$puck_12.type].map.call($puck_12, function (file) {
     return {
       isBin: false,
       file: file,
-      outFile: path.join("dist", file.replace(_core.RegExp._new("\\.puck$"), ".js"))
+      outFile: path.join("dist", file.replace($puck_1.RegExp._new("\\.puck$"), ".js")),
     };
+  })
+;
+  const libFiles = $puck_1.Iterable[$puck_11.type].toList.call($puck_11);
+  const projectPath = $unwrapTraitObject(fs.realpathSync("."));
+  let context = $puck_4.createContext(projectPath);
+  $puck_4.build(libFiles, context, {
+    dump: "",
+    useBabel: useBabel,
   });
-  var libFiles = _core.Iterable[__PUCK__value__5.type].toList.call(__PUCK__value__5);
-  var projectPath = $unwrapTraitObject(fs.realpathSync("."));
-  var context = (0, _compiler.createContext)(projectPath);
-  (0, _compiler.build)(libFiles, context);
-  (0, _compiler.build)(binFiles, context);
-  (0, _core.print)("done");
-} else {
+  $puck_4.build(binFiles, context, {
+    dump: "",
+    useBabel: useBabel,
+  });
+  $puck_1.print("done");
+}
+else {
   if (command == "test") {
-    var watch = !_js.process.env.CI;
-    var rootDir = $unwrapTraitObject(path.resolve("lib"));
-    (0, _jest.jest)(watch, rootDir);
-  } else {
-    $unwrapTraitObject(_js.console).error("Unknown command", command);
-    _js.process.exit(1);
+    const watch = (!$puck_2.process.env.CI);
+    const rootDir = $unwrapTraitObject(path.resolve("lib"));
+    $puck_3.jest(watch, rootDir);
+  }
+  else {
+    $unwrapTraitObject($puck_2.console).error("Unknown command", command);
+    $puck_2.process.exit(1);
   };
 }

@@ -3,6 +3,7 @@ import {Option} from './compiler/ast'
 export class Type {
   static displayName(): string
   static isEmpty(): boolean
+  id: Option<String>
 
   kind: {
     kind: string

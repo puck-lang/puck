@@ -9,7 +9,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
-import '../entities.puck' as {UnparsedFile}
+import '../entities.puck' as {File, UnparsedFile}
 import '../compiler/ast.ts' as {SyntaxKind}
 
 let domains = ['node', 'puck']
@@ -20,38 +20,43 @@ export fn ImportVisitor(context, file: UnparsedFile) {
   let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
   let mut declarations: ObjectMap<ToSpan>
 
-  fn importModule(mut i: ImportDirective, importedFile: UnparsedFile) {
-    let contextFile = context.importFile(importedFile)
-    let module: Module = contextFile.ast
-    if not module then return context.defer(importedFile, || importModule(i, importedFile))
+  fn importModule(mut i: ImportDirective, importedFile: UnparsedFile) -> () {
+    let result: Result<File, ()> = asResult(|| context.importFile(importedFile))
+    match result {
+      Ok(contextFile) => {
+        let module: Module = contextFile->ast.transmute()
+        if not module then return context.defer(importedFile, || importModule(i, importedFile))
 
-    match i.specifier {
-      ImportSpecifier::ObjectDestructure(o) => {
-        o.members.forEach(|m| {
-          if not module.exports.has(m.property.name)
-            then reportError(m, importedFile.fileName + ' has no export named ' + m.property.name)
-        })
-      }
-      ImportSpecifier::Asterisk(token) => {
-        i.specifier = ImportSpecifier::ObjectDestructure({
-          openBrace: token
-          closeBrace: token
-          members: module.exports.keys()
-            .filter(|e| not declarations.has(e))
-            .map(|e| {
-              let property = module.exports[e].identifier
-              {
-                property
-                local: property
-              }
+        match i.specifier {
+          ImportSpecifier::ObjectDestructure(o) => {
+            o.members.forEach(|m| {
+              if not module.exports.has(m.property.name)
+                then reportError(m, importedFile.fileName + ' has no export named ' + m.property.name)
             })
-            .toList()
-        })
+          }
+          ImportSpecifier::Asterisk(token) => {
+            i.specifier = ImportSpecifier::ObjectDestructure({
+              openBrace: token
+              closeBrace: token
+              members: module.exports.keys()
+                .filter(|e| not declarations.has(e))
+                .map(|e| {
+                  let property = module.exports[e].identifier
+                  {
+                    property
+                    local: property
+                  }
+                })
+                .toList()
+            })
+          }
+          ImportSpecifier::Identifier(_) => {}
+        }
+        i->file = contextFile
+        i.module = Some(module)
       }
-      ImportSpecifier::Identifier(_) => {}
+      Err => {}
     }
-    i->file = contextFile
-    i.module = Some(module)
   }
 
   Object->assign({}, visit.emptyVisitor, {

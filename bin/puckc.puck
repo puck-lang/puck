@@ -15,6 +15,7 @@ let dump = flag(arguments, '--dump')
 let extension = if flag(arguments, '--skip-extension') then '' else '.js'
 let ignoreErrors = if flag(arguments, '--ignore-errors') != '' then true else false
 let isBinary = if flag(arguments, '--is-binary') != '' then true else false
+let useBabel = if flag(arguments, '--babel') != '' then true else false
 
 if arguments.size() > 1 and outFile {
   console->error("Can't specify --out-file with more than one input file")
@@ -23,7 +24,7 @@ if arguments.size() > 1 and outFile {
 
 if arguments.size() == 0 {
   print('Usage:
-  puckc [--out-file \$file] [--out-dir \$dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] ...files
+  puckc [--out-file \$file] [--out-dir \$dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] [--babel true] ...files
 ')
   process->exit(1)
 } else {
@@ -36,5 +37,5 @@ if arguments.size() == 0 {
       outFile: outFile or join(outDir, file->replace(RegExp.new('\\.puck$'), extension))
     }})
     .toList()
-  build(files, context, {dump})
+  build(files, context, {dump, useBabel})
 }

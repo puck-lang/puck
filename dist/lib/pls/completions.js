@@ -1,267 +1,241 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.CompletionVisitor = exports.Completion = undefined;
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var _vscodeLanguageserver = require('vscode-languageserver');
-
-var _ast = require('./../ast/ast');
-
-var _span = require('./../ast/span');
-
-var _scope = require('./../typeck/src/scope');
-
-var _entities = require('./../entities');
-
-var _position_visitor = require('./position_visitor');
-
-var visit = _interopRequireWildcard(_position_visitor);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
-var Completion = exports.Completion = function Completion(object) {
-  return object;
-};
-var CompletionVisitor = exports.CompletionVisitor = function CompletionVisitor(object) {
-  return object;
-};
-_position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"] = {
-  position: function position() {
-    var self = this;
-    return self.value.position;
-  },
-  visitModule: _position_visitor.PositionVisitor.visitModule,
-  visitTopLevelStatement: _position_visitor.PositionVisitor.visitTopLevelStatement,
-  visitBlockLevelStatement: _position_visitor.PositionVisitor.visitBlockLevelStatement,
-  visitExpression: _position_visitor.PositionVisitor.visitExpression,
-  visitEnumDeclaration: _position_visitor.PositionVisitor.visitEnumDeclaration,
-  visitEnumMember: _position_visitor.PositionVisitor.visitEnumMember,
-  visitImplDeclaration: function visitImplDeclaration(i) {
-    var self = this;
-    if (!visit.walkImplDeclaration(self, i)) {
-      var trait_ = _ast.TypeBound.getType.call(i.trait_);
-      if (trait_) {
-        var __PUCK__value__1 = trait_.kind;
-        if ($unwrapTraitObject(__PUCK__value__1).kind == "Trait") {
-          var _$unwrapTraitObject = $unwrapTraitObject(__PUCK__value__1),
-              _$unwrapTraitObject$v = _slicedToArray(_$unwrapTraitObject.value, 1),
-              _trait_ = _$unwrapTraitObject$v[0];
-
-          var __PUCK__value__2 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(_trait_.functions), $isTraitObject: true }, function (_ref) {
-            var _ref2 = _slicedToArray(_ref, 2),
-                name = _ref2[0],
-                type_ = _ref2[1];
-
-            var _function = _entities.Type.getFunction.call(type_);
-            var __PUCK__value__3 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _function.parameters, $isTraitObject: true }, function (b) {
-              var typeName = _entities.Type.displayName.call(b.type_);
-              var typed = b.name + ": " + typeName + "";
-              if (b.mutable) {
-                return "mut " + typed + "";
-              } else {
-                return typed;
-              };
-            });
-            var parameters = _core.Iterable[__PUCK__value__3.type].toList.call(__PUCK__value__3);
-            var __PUCK__value__4 = _function.selfBinding;
-            if (__PUCK__value__4.kind == "Some") {
-              var _PUCK__value__4$valu = _slicedToArray(__PUCK__value__4.value, 1),
-                  selfBinding = _PUCK__value__4$valu[0];
-
-              if (selfBinding.mutable) {
-                _core.List.lpush.call(parameters, "mut self");
-              } else {
-                _core.List.lpush.call(parameters, "self");
-              };
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+exports.Completion = exports.CompletionVisitorundefined;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const $puck_2 = require("vscode-languageserver");
+const $puck_3 = require("./../ast/ast");
+const $puck_4 = require("./../ast/span");
+const $puck_5 = require("./../typeck/src/scope");
+const $puck_6 = require("./../entities");
+const $puck_7 = require("./position_visitor");
+const visit = require("./position_visitor");
+var Completion = exports.Completion = (object) => object;
+var CompletionVisitor = exports.CompletionVisitor = (object) => object;
+$puck_7.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"] = {
+position: function () {
+  const self = this;
+  return self.value.position;
+},
+visitModule: $puck_7.PositionVisitor.visitModule,
+visitTopLevelStatement: $puck_7.PositionVisitor.visitTopLevelStatement,
+visitBlockLevelStatement: $puck_7.PositionVisitor.visitBlockLevelStatement,
+visitExpression: $puck_7.PositionVisitor.visitExpression,
+visitEnumDeclaration: $puck_7.PositionVisitor.visitEnumDeclaration,
+visitEnumMember: $puck_7.PositionVisitor.visitEnumMember,
+visitImplDeclaration: function (i) {
+  let self = this;
+  if (!visit.walkImplDeclaration(self, i)) {
+    const trait_ = $puck_3.NamedTypeBound.getType.call(i.trait_);
+    if (trait_) {
+      let $puck_8 = trait_.kind;
+      if ($unwrapTraitObject($puck_8).kind == "Trait") {
+        let {value: [trait_]} = $unwrapTraitObject($puck_8);
+        let $puck_9 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(trait_.functions), $isTraitObject: true}, function ([name, type_]) {
+          const _function = $puck_6.Type.getFunction.call(type_);
+          let $puck_10 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _function.parameters, $isTraitObject: true}, function (b) {
+            const typeName = $puck_6.Type.displayName.call(b.type_);
+            const typed = b.name + ": " + typeName + "";
+            if (b.mutable) {
+              return "mut " + typed + "";
+            }
+            else {
+              return typed;
             };
-            parameters = parameters.join(", ");
-            var returnType = _entities.Type.displayName.call(_function.returnType);
-            var signature = "" + name + "(" + parameters + ") -> " + returnType + "";
-            return {
-              label: signature,
-              kind: $unwrapTraitObject(_vscodeLanguageserver.CompletionItemKind).Method,
-              insertText: signature + " "
+          })
+;
+          let parameters = $puck_1.Iterable[$puck_10.type].toList.call($puck_10);
+          let $puck_11 = _function.selfBinding;
+          if (($puck_11.kind == "Some")) {
+            let {value: [selfBinding]} = $puck_11;
+            if (selfBinding.mutable) {
+              $puck_1.List.lpush.call(parameters, "mut self");
+            }
+            else {
+              $puck_1.List.lpush.call(parameters, "self");
             };
-          });
-          self.value.completions = (0, _core.Some)(_core.Iterable[__PUCK__value__2.type].toList.call(__PUCK__value__2));
-        } else {
-          if (true) {
-            var __PUCK__value__5 = __PUCK__value__1;
           };
+          parameters = parameters.join(", ");
+          const returnType = $puck_6.Type.displayName.call(_function.returnType);
+          const signature = "" + name + "(" + parameters + ") -> " + returnType + "";
+          return {
+            label: signature,
+            kind: $unwrapTraitObject($puck_2.CompletionItemKind).Method,
+            insertText: signature + " ",
+          };
+        })
+;
+        self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_9.type].toList.call($puck_9));
+      }
+      else {
+        if (true) {
+          let $puck_12 = $puck_8;
         };
       };
     };
-  },
-  visitImplShorthandDeclaration: _position_visitor.PositionVisitor.visitImplShorthandDeclaration,
-  visitMethodDeclaration: _position_visitor.PositionVisitor.visitMethodDeclaration,
-  visitTraitDeclaration: _position_visitor.PositionVisitor.visitTraitDeclaration,
-  visitTypeDeclaration: _position_visitor.PositionVisitor.visitTypeDeclaration,
-  visitExportDirective: _position_visitor.PositionVisitor.visitExportDirective,
-  visitImportDirective: function visitImportDirective(i) {
-    var self = this;
-    self.value.importedModule = i._module;
-    visit.walkImportDirective(self, i);
-  },
-  visitObjectDestructure: function visitObjectDestructure(o) {
-    var self = this;
-    if (!visit.walkObjectDestructure(self, o)) {
-      (0, _core.print)("CompletionVisitor visitObjectDestructure");
-      self.value.completions = _core.Option.map.call(self.value.importedModule, getImportCompletions);
-    };
-  },
-  visitObjectDestructureMember: function visitObjectDestructureMember(m) {
-    var self = this;
-    if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.property, $isTraitObject: true }), _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].position.call(self)) == _core.Ordering.Equal) {
-      (0, _core.print)("CompletionVisitor visitObjectDestructureMember");
-      self.value.completions = _core.Option.map.call(self.value.importedModule, getImportCompletions);
-    };
-  },
-  visitBlock: function visitBlock(b) {
-    var self = this;
-    if (!visit.walkBlock(self, b)) {
-      (0, _core.print)("CompletionVisitor visitBlock");
-      self.value.completions = (0, _core.Some)(getScopeCompletions(b));
-    };
-  },
-  visitBreakStatement: _position_visitor.PositionVisitor.visitBreakStatement,
-  visitReturnStatement: _position_visitor.PositionVisitor.visitReturnStatement,
-  visitWhileLoop: _position_visitor.PositionVisitor.visitWhileLoop,
-  visitIdentifier: function visitIdentifier(i) {
-    var self = this;
-    (0, _core.print)("CompletionVisitor visitIdentifier");
-    self.value.completions = (0, _core.Some)(getScopeCompletions(i));
-  },
-  visitFunctionDeclaration: _position_visitor.PositionVisitor.visitFunctionDeclaration,
-  visitVariableDeclaration: _position_visitor.PositionVisitor.visitVariableDeclaration,
-  visitAssignmentExpression: _position_visitor.PositionVisitor.visitAssignmentExpression,
-  visitBinaryExpression: _position_visitor.PositionVisitor.visitBinaryExpression,
-  visitCallExpression: _position_visitor.PositionVisitor.visitCallExpression,
-  visitIfExpression: _position_visitor.PositionVisitor.visitIfExpression,
-  visitIfLetExpression: _position_visitor.PositionVisitor.visitIfLetExpression,
-  visitMatchExpression: _position_visitor.PositionVisitor.visitMatchExpression,
-  visitMatchArm: _position_visitor.PositionVisitor.visitMatchArm,
-  visitTypePath: _position_visitor.PositionVisitor.visitTypePath,
-  visitTypePathExpression: _position_visitor.PositionVisitor.visitTypePathExpression,
-  visitUnaryExpression: _position_visitor.PositionVisitor.visitUnaryExpression,
-  visitIndexAccess: _position_visitor.PositionVisitor.visitIndexAccess,
-  visitMemberAccess: function visitMemberAccess(a) {
-    var self = this;
-    if (_span.Span.cmp.call(_span.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({ type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true }), _position_visitor.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].position.call(self)) == _core.Ordering.Less) {
-      (0, _core.print)("CompletionVisitor visitMemberAccess");
-      var type_ = _ast.Expression.getType.call(a.object);
-      if (type_) {
-        var __PUCK__value__6 = type_.kind;
-        if ($unwrapTraitObject(__PUCK__value__6).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(__PUCK__value__6).value)[0]).kind).kind == "Record") {
-          var _$unwrapTraitObject2 = $unwrapTraitObject(__PUCK__value__6),
-              _$unwrapTraitObject2$ = _slicedToArray(_$unwrapTraitObject2.value, 1),
-              _$unwrapTraitObject2$2 = _slicedToArray(_$unwrapTraitObject2$[0].kind.value, 1),
-              record = _$unwrapTraitObject2$2[0];
-
-          var __PUCK__value__7 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.toList.call(record.properties), $isTraitObject: true }, function (_ref3) {
-            var _ref4 = _slicedToArray(_ref3, 2),
-                property = _ref4[0],
-                type_ = _ref4[1];
-
-            var typeName = _entities.Type.displayName.call(type_);
-            return {
-              label: "" + property + ": " + typeName + "",
-              kind: $unwrapTraitObject(_vscodeLanguageserver.CompletionItemKind).Text,
-              insertText: property
-            };
-          });
-          self.value.completions = (0, _core.Some)(_core.Iterable[__PUCK__value__7.type].toList.call(__PUCK__value__7));
-        } else {
-          if (true) {
-            var __PUCK__value__8 = __PUCK__value__6;
+  };
+},
+visitImplShorthandDeclaration: $puck_7.PositionVisitor.visitImplShorthandDeclaration,
+visitMethodDeclaration: $puck_7.PositionVisitor.visitMethodDeclaration,
+visitTraitDeclaration: $puck_7.PositionVisitor.visitTraitDeclaration,
+visitTypeDeclaration: $puck_7.PositionVisitor.visitTypeDeclaration,
+visitExportDirective: $puck_7.PositionVisitor.visitExportDirective,
+visitImportDirective: function (i) {
+  let self = this;
+  self.value.importedModule = i._module;
+  visit.walkImportDirective(self, i);
+},
+visitObjectDestructure: function (o) {
+  let self = this;
+  if ((!visit.walkObjectDestructure(self, o))) {
+    $puck_1.print("CompletionVisitor visitObjectDestructure");
+    self.value.completions = $puck_1.Option.map.call(self.value.importedModule, getImportCompletions);
+  };
+},
+visitObjectDestructureMember: function (m) {
+  let self = this;
+  if ($puck_4.Span.cmp.call($puck_4.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.property, $isTraitObject: true}), $puck_7.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].position.call(self)) == $puck_1.Ordering.Equal) {
+    $puck_1.print("CompletionVisitor visitObjectDestructureMember");
+    self.value.completions = $puck_1.Option.map.call(self.value.importedModule, getImportCompletions);
+  };
+},
+visitBlock: function (b) {
+  let self = this;
+  if ((!visit.walkBlock(self, b))) {
+    $puck_1.print("CompletionVisitor visitBlock");
+    self.value.completions = $puck_1.Some(getScopeCompletions(b));
+  };
+},
+visitBreakStatement: $puck_7.PositionVisitor.visitBreakStatement,
+visitReturnStatement: $puck_7.PositionVisitor.visitReturnStatement,
+visitWhileLoop: $puck_7.PositionVisitor.visitWhileLoop,
+visitIdentifier: function (i) {
+  let self = this;
+  $puck_1.print("CompletionVisitor visitIdentifier");
+  self.value.completions = $puck_1.Some(getScopeCompletions(i));
+},
+visitFunctionDeclaration: $puck_7.PositionVisitor.visitFunctionDeclaration,
+visitVariableDeclaration: $puck_7.PositionVisitor.visitVariableDeclaration,
+visitAssignmentExpression: $puck_7.PositionVisitor.visitAssignmentExpression,
+visitBinaryExpression: $puck_7.PositionVisitor.visitBinaryExpression,
+visitCallExpression: $puck_7.PositionVisitor.visitCallExpression,
+visitIfExpression: $puck_7.PositionVisitor.visitIfExpression,
+visitIfLetExpression: $puck_7.PositionVisitor.visitIfLetExpression,
+visitMatchExpression: $puck_7.PositionVisitor.visitMatchExpression,
+visitMatchArm: $puck_7.PositionVisitor.visitMatchArm,
+visitTypePath: $puck_7.PositionVisitor.visitTypePath,
+visitTypePathExpression: $puck_7.PositionVisitor.visitTypePathExpression,
+visitUnaryExpression: $puck_7.PositionVisitor.visitUnaryExpression,
+visitIndexAccess: $puck_7.PositionVisitor.visitIndexAccess,
+visitMemberAccess: function (a) {
+  let self = this;
+  if ($puck_4.Span.cmp.call($puck_4.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), $puck_7.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].position.call(self)) == $puck_1.Ordering.Less) {
+    $puck_1.print("CompletionVisitor visitMemberAccess");
+    const type_ = $puck_3.Expression.getType.call(a.object);
+    if (type_) {
+      let $puck_13 = type_.kind;
+      if (($unwrapTraitObject($puck_13).kind == "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_13).value)[0]).kind).kind == "Record")) {
+        let {value: [{kind: {value: [record]}}]} = $unwrapTraitObject($puck_13);
+        let $puck_14 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(record.properties), $isTraitObject: true}, function ([property, type_]) {
+          const typeName = $puck_6.Type.displayName.call(type_);
+          return {
+            label: "" + property + ": " + typeName + "",
+            kind: $unwrapTraitObject($puck_2.CompletionItemKind).Text,
+            insertText: property,
           };
+        })
+;
+        self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_14.type].toList.call($puck_14));
+      }
+      else {
+        if (true) {
+          let $puck_15 = $puck_13;
         };
       };
-    } else {
-      visit.walkMemberAccess(self, a);
     };
-  },
-  visitUnknownAccess: _position_visitor.PositionVisitor.visitUnknownAccess,
-  visitUnknownIndexAccess: _position_visitor.PositionVisitor.visitUnknownIndexAccess,
-  visitListLiteral: _position_visitor.PositionVisitor.visitListLiteral,
-  visitBooleanLiteral: _position_visitor.PositionVisitor.visitBooleanLiteral,
-  visitNumberLiteral: _position_visitor.PositionVisitor.visitNumberLiteral,
-  visitRecordLiteral: _position_visitor.PositionVisitor.visitRecordLiteral,
-  visitRecordLiteralMember: _position_visitor.PositionVisitor.visitRecordLiteralMember,
-  visitStringLiteral: _position_visitor.PositionVisitor.visitStringLiteral,
-  visitStringLiteralPart: _position_visitor.PositionVisitor.visitStringLiteralPart,
-  visitTupleLiteral: _position_visitor.PositionVisitor.visitTupleLiteral,
-  visitPattern: _position_visitor.PositionVisitor.visitPattern,
-  visitIdentifierPattern: _position_visitor.PositionVisitor.visitIdentifierPattern,
-  visitRecordPattern: _position_visitor.PositionVisitor.visitRecordPattern,
-  visitRecordTypePattern: _position_visitor.PositionVisitor.visitRecordTypePattern,
-  visitTuplePattern: _position_visitor.PositionVisitor.visitTuplePattern,
-  visitTupleTypePattern: _position_visitor.PositionVisitor.visitTupleTypePattern,
-  visitTypeBound: _position_visitor.PositionVisitor.visitTypeBound,
-  visitFunctionTypeBound: _position_visitor.PositionVisitor.visitFunctionTypeBound,
-  visitNamedTypeBound: _position_visitor.PositionVisitor.visitNamedTypeBound,
-  visitRecordTypeBound: _position_visitor.PositionVisitor.visitRecordTypeBound,
-  visitRecordTypeBoundMember: _position_visitor.PositionVisitor.visitRecordTypeBoundMember,
-  visitTupleTypeBound: _position_visitor.PositionVisitor.visitTupleTypeBound,
-  visitTypeParameter: _position_visitor.PositionVisitor.visitTypeParameter
+  }
+  else {
+    visit.walkMemberAccess(self, a);
+  };
+},
+visitUnknownAccess: $puck_7.PositionVisitor.visitUnknownAccess,
+visitUnknownIndexAccess: $puck_7.PositionVisitor.visitUnknownIndexAccess,
+visitListLiteral: $puck_7.PositionVisitor.visitListLiteral,
+visitBooleanLiteral: $puck_7.PositionVisitor.visitBooleanLiteral,
+visitNumberLiteral: $puck_7.PositionVisitor.visitNumberLiteral,
+visitRecordLiteral: $puck_7.PositionVisitor.visitRecordLiteral,
+visitRecordLiteralMember: $puck_7.PositionVisitor.visitRecordLiteralMember,
+visitStringLiteral: $puck_7.PositionVisitor.visitStringLiteral,
+visitStringLiteralPart: $puck_7.PositionVisitor.visitStringLiteralPart,
+visitTupleLiteral: $puck_7.PositionVisitor.visitTupleLiteral,
+visitPattern: $puck_7.PositionVisitor.visitPattern,
+visitIdentifierPattern: $puck_7.PositionVisitor.visitIdentifierPattern,
+visitRecordPattern: $puck_7.PositionVisitor.visitRecordPattern,
+visitRecordTypePattern: $puck_7.PositionVisitor.visitRecordTypePattern,
+visitTuplePattern: $puck_7.PositionVisitor.visitTuplePattern,
+visitTupleTypePattern: $puck_7.PositionVisitor.visitTupleTypePattern,
+visitTypeBound: $puck_7.PositionVisitor.visitTypeBound,
+visitFunctionTypeBound: $puck_7.PositionVisitor.visitFunctionTypeBound,
+visitNamedTypeBound: $puck_7.PositionVisitor.visitNamedTypeBound,
+visitRecordTypeBound: $puck_7.PositionVisitor.visitRecordTypeBound,
+visitRecordTypeBoundMember: $puck_7.PositionVisitor.visitRecordTypeBoundMember,
+visitTupleTypeBound: $puck_7.PositionVisitor.visitTupleTypeBound,
+visitTypeParameter: $puck_7.PositionVisitor.visitTypeParameter
 };
 CompletionVisitor._new = function (position) {
   return {
     position: position,
-    completions: _core.None,
-    importedModule: _core.None
+    completions: $puck_1.None,
+    importedModule: $puck_1.None,
   };
 };
 function getImportCompletions(_module) {
-  var __PUCK__value__9 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.values.call(_module.exports), $isTraitObject: true }, function (e) {
+  let $puck_16 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call(_module.exports), $isTraitObject: true}, function (e) {
     return {
       label: e.identifier.name,
-      kind: $unwrapTraitObject(_vscodeLanguageserver.CompletionItemKind).Text,
-      insertText: e.identifier.name
+      kind: $unwrapTraitObject($puck_2.CompletionItemKind).Text,
+      insertText: e.identifier.name,
     };
-  });
-  return _core.Iterable[__PUCK__value__9.type].toList.call(__PUCK__value__9);
+  })
+;
+  return $puck_1.Iterable[$puck_16.type].toList.call($puck_16);
 };
 function getScopeCompletions(node) {
   if ($unwrapTraitObject(node).scope) {
-    var scope = $unwrapTraitObject(node).scope;
-    var __PUCK__value__10 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _core.ObjectMap.values.call(_scope.Scope.getBindings.call(scope)), $isTraitObject: true }, function (binding) {
-      var __PUCK__value__11 = void 0;
-      if (!binding.type_) {
-        __PUCK__value__11 = "??";
-      } else {
-        var __PUCK__value__12 = binding.type_.kind;
-        var __PUCK__value__13 = void 0;
-        if ($unwrapTraitObject(__PUCK__value__12).kind == "Function") {
-          var _undefined = $unwrapTraitObject(__PUCK__value__12);
-          __PUCK__value__13 = _entities.Type.verboseName.call(binding.type_);
-        } else {
-          var __PUCK__value__14 = void 0;
+    const scope = $unwrapTraitObject(node).scope;
+    let $puck_17 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call($puck_5.Scope.getBindings.call(scope)), $isTraitObject: true}, function (binding) {
+      let $puck_18;
+      if ((!binding.type_)) {
+        $puck_18 = "??";
+      }
+      else {
+        let $puck_19 = binding.type_.kind;
+        let $puck_20;
+        if ($unwrapTraitObject($puck_19).kind == "Function") {
+          let undefined = $unwrapTraitObject($puck_19);
+          $puck_20 = $puck_6.Type.verboseName.call(binding.type_);
+        }
+        else {
+          let $puck_21;
           if (true) {
-            var __PUCK__value__15 = __PUCK__value__12;
-            __PUCK__value__14 = _entities.Type.displayName.call(binding.type_);
+            let $puck_22 = $puck_19;
+            $puck_21 = $puck_6.Type.displayName.call(binding.type_);
           };
-          __PUCK__value__13 = __PUCK__value__14;
+          $puck_20 = $puck_21;
         };
-        __PUCK__value__11 = __PUCK__value__13;
+        $puck_18 = $puck_20;
       };
-      var typeName = __PUCK__value__11;
+      const typeName = $puck_18;
       return {
         label: binding.name + ": " + typeName + "",
-        kind: $unwrapTraitObject(_vscodeLanguageserver.CompletionItemKind).Text,
-        insertText: binding.name
+        kind: $unwrapTraitObject($puck_2.CompletionItemKind).Text,
+        insertText: binding.name,
       };
-    });
-    return _core.Iterable[__PUCK__value__10.type].toList.call(__PUCK__value__10);
-  } else {
+    })
+;
+    return $puck_1.Iterable[$puck_17.type].toList.call($puck_17);
+  }
+  else {
     return [];
   };
 }

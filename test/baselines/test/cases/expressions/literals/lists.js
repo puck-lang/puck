@@ -1,28 +1,55 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var a = ["a", "1", "true"];
-var b = [[1], [2, 3]];
-var c = [[[[[[[[[[[[[[[]]]]]]]]]]]]]]];
-var d = [a, a];
-var __PUCK__value__1 = void 0;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const a = [
+  "a",
+  "1",
+  "true",
+];
+const b = [
+  [1],
+  [
+  2,
+  3,
+],
+];
+const c = [[[[[[[[[[[[[[[]]]]]]]]]]]]]]];
+const d = [
+  a,
+  a,
+];
+let $puck_2;
 if (true) {
-  __PUCK__value__1 = d;
-} else {
-  __PUCK__value__1 = [];
+  $puck_2 = d;
+}
+else {
+  $puck_2 = [];
 };
-var __PUCK__value__2 = void 0;
+let $puck_3;
 if (false) {
-  __PUCK__value__2 = d;
-} else {
-  __PUCK__value__2 = [a, a, a];
+  $puck_3 = d;
+}
+else {
+  $puck_3 = [
+    a,
+    a,
+    a,
+  ];
 };
-var e = [__PUCK__value__1, __PUCK__value__2];
-_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: b, $isTraitObject: true });
-_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: [], $isTraitObject: true });
-[(0, _core.Some)(5), (0, _core.Some)(5), _core.None];
-_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ["b"], $isTraitObject: true }, function (e) {
-  return _core.String.contains.call(e, "a");
+const e = [
+  $puck_2,
+  $puck_3,
+];
+$puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: b, $isTraitObject: true});
+$puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: [], $isTraitObject: true});
+[
+  $puck_1.Some(5),
+  $puck_1.Some(5),
+  $puck_1.None,
+];
+$puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ["b"], $isTraitObject: true}, function (e) {
+  return $puck_1.String.contains.call(e, "a");
 });
-[(0, _core.Ok)(5), (0, _core.Err)("hi")];
+[
+  $puck_1.Ok(5),
+  $puck_1.Err("hi"),
+]

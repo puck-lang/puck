@@ -75,8 +75,8 @@ impl TopLevelStatement {
       TopLevelStatement::ImportDirective(e) => throw 'type on import'
 
       TopLevelStatement::EnumDeclaration(e) => e->type_.transmute()
-      TopLevelStatement::ImplDeclaration(e) => e.type_.getType()
-      TopLevelStatement::ImplShorthandDeclaration(e) => e.type_.getType()
+      TopLevelStatement::ImplDeclaration(e) => e.type_->type_.transmute()
+      TopLevelStatement::ImplShorthandDeclaration(e) => e.type_->type_.transmute()
       TopLevelStatement::TraitDeclaration(e) => e->type_.transmute()
       TopLevelStatement::TypeDeclaration(e) => e.type_
 
@@ -282,9 +282,9 @@ export type ImplDeclaration {
   implKeyword: SimpleToken
   typeParameters: List<TypeParameter>
 
-  trait_: TypeBound
+  trait_: NamedTypeBound
   forKeyword: SimpleToken
-  type_: TypeBound
+  type_: NamedTypeBound
 
   openBrace: SimpleToken
   members: List<FunctionDeclaration>
@@ -302,7 +302,7 @@ export type ImplShorthandDeclaration {
   implKeyword: SimpleToken
   typeParameters: List<TypeParameter>
 
-  type_: TypeBound
+  type_: NamedTypeBound
 
   openBrace: SimpleToken
   members: List<FunctionDeclaration>
@@ -1063,6 +1063,12 @@ impl ToSpan for FunctionTypeBound {
 export type NamedTypeBound {
   path: TypePath
   typeParameters: List<TypeBound>
+}
+
+impl NamedTypeBound {
+  fn getType(self) -> Type {
+    self->type_.transmute()
+  }
 }
 
 impl ToSpan for NamedTypeBound {

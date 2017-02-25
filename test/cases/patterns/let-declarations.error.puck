@@ -1,4 +1,4 @@
-///// Duplicate declaration "a"
+///// "a" is already defined in this pattern
 let (a, a) = (1, 2)
 
 ///// (Num, Num) is not assignable to type (??)

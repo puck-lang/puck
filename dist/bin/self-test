@@ -1,14 +1,21 @@
 #!/usr/bin/env node
-
 'use strict';
 
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var _helpers = require('./../lib/helpers');
-
-var _test = require('./../lib/test');
-
-(0, _test.buildTestCompiler)();
-(0, _test.buildAll)(".tmp/new", ".tmp/old");
-(0, _helpers.cmd)("diff --exclude=node_modules -Nr .tmp/old .tmp/new");
-(0, _core.print)("done");
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
+const $puck_3 = require("./../lib/helpers");
+const $puck_4 = require("./../lib/test");
+const argv = $unwrapTraitObject($puck_2.process.argv);
+let $puck_5;
+if ($puck_3.flag(argv, "--babel") != "") {
+  $puck_5 = true;
+}
+else {
+  $puck_5 = false;
+};
+const useBabel = $puck_5;
+$puck_4.buildTestCompiler(useBabel);
+$puck_4.buildAll(".tmp/new", ".tmp/old", useBabel);
+$puck_3.cmd("diff --exclude=node_modules -Nr .tmp/old .tmp/new");
+$puck_1.print("done")

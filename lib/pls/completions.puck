@@ -23,6 +23,7 @@ import '../ast/ast.puck' as {
   FunctionDeclaration
   MemberAccess
   TypeBound
+  NamedTypeBound
 }
 import '../ast/span.puck' as {Position, Span, ToSpan}
 import '../typeck/src/scope.puck' as {Scope}

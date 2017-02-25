@@ -53,8 +53,8 @@ import {getImplementationForTrait} from '../typeck/src/impls'
 import {Scope} from '../typeck/src/scope'
 
 const jsKeywords = [
-  'arguments', 'case', 'class', 'default', 'delete', 'function', 'module', 'new', 'null',
-  'static', 'Object', 'typeof', 'undefined',
+  'arguments', 'case', 'class', 'default', 'delete', 'function', 'global', 'module', 'new', 'null',
+  'require', 'static', 'Object', 'typeof', 'undefined',
 ]
 const tokenToJs = kind => {
   if (kind.kind == 'AndKeyword') return '&&'
@@ -88,10 +88,11 @@ export function Emitter() {
   let currentPrecedence
   let typeOverrides = {}
   let includeTraitObjectHelper = false
+  let exportPreamble = []
 
   function newValueVariable() {
     valueVarableCount += 1
-    return `__PUCK__value__${valueVarableCount}`
+    return `$puck_${valueVarableCount}`
   }
 
   function getType(e: Expression) {
@@ -292,7 +293,12 @@ export function Emitter() {
     if (includeTraitObjectHelper) {
       preamble += '\nconst $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);\n'
     }
-    return preamble + statements.join(';\n')
+
+    let e = ''
+    if (exportPreamble.length) {
+      e = exportPreamble.join(' = ') + 'undefined;\n'
+    }
+    return preamble + e + statements.join(';\n')
   }
 
   function emitBlock(block: BlockNode, inContext?, assignedTo_?: Type) {
@@ -398,8 +404,8 @@ export function Emitter() {
     return withContext(context, () => emitExpressionKeepContext(expression, assignedTo_), false)
   }
 
-  function emitEnumDeclaration(e: EnumDeclaration) {
-    return `var ${emitIdentifier(e.name)} = {\n${
+  function emitEnumDeclaration(e: EnumDeclaration, export_ = '') {
+    return `var ${emitIdentifier(e.name)} = ${export_}{\n${
       indent(e.members.map(emitEnumMember).join('\n'))
     }\n}`
   }
@@ -507,7 +513,10 @@ export function Emitter() {
     return `${emitPatternDestructuring(vd.pattern)}${initializer}`
   }
 
-  function emitIdentifier(identifier: {name: string}) {
+  function emitIdentifier(identifier: {name: string, binding?: any}) {
+    if (identifier.binding && identifier.binding.token.value.importName) {
+      return identifier.binding.token.value.importName
+    }
     if (jsKeywords.indexOf(identifier.name) != -1) {
       return `_${identifier.name}`
     }
@@ -515,15 +524,15 @@ export function Emitter() {
   }
 
   function emitImplDeclaration(i: ImplDeclaration) {
-    let functions: any = Object['assign']({}, i.trait_.value[0].type_.kind.value[0].functions)
+    let functions: any = Object['assign']({}, i.trait_.type_.kind.value[0].functions)
     i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m, false))
-    return `${emitTypePath(i.trait_.value[0].path)}${implProp(i.implementation)} = {\n${
+    return `${emitTypePath(i.trait_.path)}${implProp(i.implementation)} = {\n${
       indent(
         Object.keys(functions).map(f =>
           `${emitIdentifier({name: f})}: ${
             typeof functions[f] === 'string'
               ? functions[f]
-              : `${emitTypePath(i.trait_.value[0].path)}.${emitIdentifier({name: f})}`
+              : `${emitTypePath(i.trait_.path)}.${emitIdentifier({name: f})}`
           }`)
       )
       .join(',\n')
@@ -533,13 +542,13 @@ export function Emitter() {
   function emitImplShorthandDeclaration(i: ImplShorthandDeclaration) {
     return i.members
       .map(m =>
-        `${emitTypePath(i.type_.value[0].path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m, false)}`
+        `${emitTypePath(i.type_.path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m, false)}`
       )
       .join(';\n')
   }
 
-  function emitTraitDeclaration(t: TraitDeclaration) {
-    return `var ${emitIdentifier(t.name)} = {\n${
+  function emitTraitDeclaration(t: TraitDeclaration, export_ = '') {
+    return `var ${emitIdentifier(t.name)} = ${export_}{\n${
       indent(
         t.members
           .filter(m => m.body.kind === 'Some')
@@ -549,7 +558,7 @@ export function Emitter() {
     }\n}`
   }
 
-  function emitTypeDeclaration(t: TypeDeclaration) {
+  function emitTypeDeclaration(t: TypeDeclaration, export_ = '') {
     let value
     if (t.bound.kind == 'Some') {
       let bound = t.bound.value[0]
@@ -566,10 +575,10 @@ export function Emitter() {
       value = `Symbol('${emitIdentifier(t.name)}')`
     }
 
-    return `var ${emitIdentifier(t.name)} = ${value}`
+    return `var ${emitIdentifier(t.name)} = ${export_}${value}`
   }
 
-  function emitVariableDeclaration(vd: VariableDeclaration) {
+  function emitVariableDeclaration(vd: VariableDeclaration, export_ = '') {
     let willBeRedefined = true
     let binding
     if (vd.pattern.kind === 'Identifier') {
@@ -589,7 +598,7 @@ export function Emitter() {
       if (vd.pattern.kind !== 'Identifier' && vd.pattern.kind !== 'CatchAll') {
         initializer = unwrap(initializer, vd.initializer.value[0])
       }
-      initializer = ` = ${initializer}`
+      initializer = ` = ${export_}${initializer}`
     }
 
     if (binding && binding.previous && binding.previous.value[0]) {
@@ -604,36 +613,38 @@ export function Emitter() {
       return valueVariable
     }
 
-    let kw = (vd.mutable || willBeRedefined) ? 'let' : 'const'
+    let kw = export_ ? 'var' : ((vd.mutable || willBeRedefined) ? 'let' : 'const')
     return `${kw} ${emitPatternDestructuring(vd.pattern)}${initializer}`
   }
 
   function emitExportDirective(e: ExportDirective) {
-    return `export ${
+    let export_ = `exports.${emitIdentifier(e.identifier)} = `
+    const definition = `${
       e.statement.kind === 'EnumDeclaration'
-        ? emitEnumDeclaration(e.statement.value[0] as EnumDeclaration) :
+        ? emitEnumDeclaration(e.statement.value[0] as EnumDeclaration, export_) :
       e.statement.kind === 'TraitDeclaration'
-        ? emitTraitDeclaration(e.statement.value[0] as TraitDeclaration) :
+        ? emitTraitDeclaration(e.statement.value[0] as TraitDeclaration, export_) :
       e.statement.kind === 'TypeDeclaration'
-        ? emitTypeDeclaration(e.statement.value[0] as TypeDeclaration) :
+        ? emitTypeDeclaration(e.statement.value[0] as TypeDeclaration, export_) :
       e.statement.kind === 'FunctionDeclaration'
-        ? emitFunctionDeclaration(e.statement.value[0] as FunctionDeclaration) :
+        ? `${emitFunctionDeclaration(e.statement.value[0] as FunctionDeclaration, true)};\n${export_}${emitIdentifier(e.identifier)}` :
       e.statement.kind === 'VariableDeclaration'
-        ? emitVariableDeclaration(e.statement.value[0] as VariableDeclaration)
+        ? emitVariableDeclaration(e.statement.value[0] as VariableDeclaration, export_)
       : (() => {throw 'Unknown Exported statement'})()
     }`
+    exportPreamble.push(`exports.${emitIdentifier(e.identifier)}`)
+    return definition
   }
 
   function emitImportDirective(i: ImportDirective) {
-    let specifier = i.specifier.kind === 'Identifier'
-      ? `* as ${emitIdentifier(i.specifier.value[0])}`
-      : `{${i.specifier.value[0].members
-          .map(({property, local}) => property.name === local.name
-            ? emitIdentifier(property)
-            : `${emitIdentifier(property)} as ${emitIdentifier(local)}`
-          )
-          .join(', ')
-        }}`
+    let importName = i.specifier.kind === 'Identifier'
+      ? `${emitIdentifier(i.specifier.value[0])}`
+      : newValueVariable()
+    if (i.specifier.kind === 'ObjectDestructure') {
+      i.specifier.value[0].members.forEach(m => {
+        m['importName'] = `${importName}.${emitIdentifier(m.property)}`
+      })
+    }
 
     let path
     if (i.domain.kind == 'None') {
@@ -651,7 +662,7 @@ export function Emitter() {
       throw `Unsupported import-domain "${i.domain}"`
     }
 
-    return `import ${specifier} from '${path}'`
+    return `const ${importName} = require(${JSON.stringify(path)})`
   }
 
   function emitPatternDestructuring(p: Pattern) {
@@ -733,7 +744,11 @@ export function Emitter() {
           hoist(`let ${valueVariable} = ${emitExpression((fn.func.value[0] as MemberAccess).object)}\n`)
         }
       }
-      functionName = `${fn.traitName}${
+      let traitName = fn.traitBinding && fn.traitBinding.token.value.importName
+        ? fn.traitBinding.token.value.importName
+        : fn.traitName
+
+      functionName = `${traitName}${
         (fn.isShorthand || (selfBinding.kind === 'None' && !fn.isDirectTraitCall)) ? `` :
         fn.isTraitObject ? `[${emitIdentifier({name: valueVariable})}.type]`
         : `${implProp(fn.implementation)}`
@@ -756,7 +771,12 @@ export function Emitter() {
       else if (fn.isDirectTraitCall) {
         functionName += '.call'
       }
-      if (functionName == 'Unknown.transmute.call') {
+      // transmute is a noop
+      if (
+        fn.implementation && fn.implementation.type_.id.kind === 'Some' &&
+        fn.implementation.type_.id.value[0] === 'Unknown' &&
+        (fn.func.value[0] as MemberAccess).member.name == 'transmute'
+      ) {
         return emitExpression((fn.func.value[0] as MemberAccess).object)
       }
       valueVariable = outerValueVariable
@@ -895,7 +915,7 @@ export function Emitter() {
   function emitIfLetExpression(e: IfLetExpression) {
     let outerValueVariable = valueVariable
     let initializer: Identifier
-    if (e.expression.kind === 'Identifier' && e.expression.value[0].name.startsWith('__PUCK__value__')) {
+    if (e.expression.kind === 'Identifier' && e.expression.value[0].name.startsWith('$puck_')) {
       initializer = e.expression.value[0]
     } else {
       valueVariable = newValueVariable()

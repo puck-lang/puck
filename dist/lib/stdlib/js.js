@@ -1,27 +1,13 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.wrapAsResult = exports._typeof = exports._new = exports.require = exports.process = exports._module = exports.console = exports.String = exports.RegExp = exports._Object = exports.Number = exports.Error = exports.Date = exports.Boolean = exports.Array = exports._self = exports.window = exports.global = exports._undefined = exports._null = undefined;
-exports.asResult = asResult;
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var core = _interopRequireWildcard(_core);
-
-var _js = require('./js/js.js');
-
-var js = _interopRequireWildcard(_js);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+exports._null = exports._undefined = exports._global = exports.window = exports._self = exports.Array = exports.Boolean = exports.Date = exports.Error = exports.Number = exports._Object = exports.RegExp = exports.String = exports.console = exports._module = exports.process = exports._require = exports._new = exports._typeof = exports.asResult = exports.wrapAsResultundefined;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const core = require("puck-lang/dist/lib/stdlib/core");
+const js = require("./js/js.js");
 var _null = exports._null = js._null;
 var _undefined = exports._undefined = $unwrapTraitObject(js._undefined);
-var global = exports.global = js._global || js._window || js._self;
+var _global = exports._global = js._global || js._window || js._self;
 var window = exports.window = js._window;
 var _self = exports._self = js._self;
 var Array = exports.Array = js._Array;
@@ -32,19 +18,20 @@ var Number = exports.Number = js._Number;
 var _Object = exports._Object = js._Object;
 var RegExp = exports.RegExp = js._RegExp;
 var String = exports.String = js._String;
-var console = exports.console = $unwrapTraitObject(global).console;
+var console = exports.console = $unwrapTraitObject(_global).console;
 var _module = exports._module = js._module;
 var process = exports.process = js._process;
-var _require = $unwrapTraitObject(js._require);
-exports.require = _require;
-var _new = exports._new = js._new;
+var _require = exports._require = $unwrapTraitObject(js._require);
+var _new = exports._new = $unwrapTraitObject(js._new);
 var _typeof = exports._typeof = $unwrapTraitObject(js._typeof);
 function asResult(func) {
-  var result = js.asResult(func);
+  const result = js.asResult(func);
   if (result.error) {
-    return (0, _core.Err)($unwrapTraitObject(result.value));
-  } else {
-    return (0, _core.Ok)($unwrapTraitObject(result.value));
+    return $puck_1.Err($unwrapTraitObject(result.value));
+  }
+  else {
+    return $puck_1.Ok($unwrapTraitObject(result.value));
   };
 };
-var wrapAsResult = exports.wrapAsResult = js.wrapAsResult;
+exports.asResult = asResult;
+var wrapAsResult = exports.wrapAsResult = js.wrapAsResult

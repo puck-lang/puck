@@ -1,15 +1,16 @@
 import '../lib/helpers.puck' as {cmd}
 
-export fn buildAll(outFolder = 'dist', compiler = 'dist') {
+export fn buildAll(outFolder = 'dist', compiler = 'dist', useBabel = false) {
+  let babel = if useBabel then '--babel true' else ''
   cmd(
-    '$compiler/bin/puckc --out-dir $outFolder --skip-extension true --is-binary true bin/**/*.puck && ' +
-    '$compiler/bin/puckc --out-dir $outFolder lib/**/*.puck'
+    '$compiler/bin/puckc $babel --out-dir $outFolder --skip-extension true --is-binary true bin/**/*.puck && ' +
+    '$compiler/bin/puckc $babel --out-dir $outFolder lib/**/*.puck'
   )
 }
 
-export fn buildTestCompiler() {
+export fn buildTestCompiler(useBabel = false) {
   cmd('rm -rf .tmp && mkdir -p .tmp/{old,new}/{bin,node_modules} .tmp/{old,new}/lib/compiler .tmp/{old,new}/lib/stdlib/{core,js}')
-  buildAll('.tmp/old')
+  buildAll('.tmp/old', 'dist', useBabel)
   cmd('cp dist/lib/compiler/{ast,emitter}.js .tmp/old/lib/compiler && \
     cp dist/lib/stdlib/core/js.js .tmp/old/lib/stdlib/core/ && \
     cp dist/lib/stdlib/js/js.js .tmp/old/lib/stdlib/js/ && \

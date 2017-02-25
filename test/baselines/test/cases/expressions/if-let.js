@@ -1,33 +1,26 @@
 'use strict';
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var __PUCK__value__1 = (0, _core.Some)(5);
-if (__PUCK__value__1.kind == "Some") {
-  var _PUCK__value__1$valu = _slicedToArray(__PUCK__value__1.value, 1),
-      value = _PUCK__value__1$valu[0];
-
-  (0, _core.print)(value);
-} else {
-  (0, _core.print)("None");
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+let $puck_2 = $puck_1.Some(5);
+if ($puck_2.kind == "Some") {
+  let {value: [value]} = $puck_2;
+  $puck_1.print(value);
+}
+else {
+  $puck_1.print("None");
 };
-var __PUCK__value__2 = _core.Option.Some(5);
-if (__PUCK__value__2.kind == "Some") {
-  var _PUCK__value__2$valu = _slicedToArray(__PUCK__value__2.value, 1),
-      _value = _PUCK__value__2$valu[0];
-
-  (0, _core.print)(_value);
-} else {
-  (0, _core.print)("None");
+let $puck_3 = $puck_1.Option.Some(5);
+if ($puck_3.kind == "Some") {
+  let {value: [value]} = $puck_3;
+  $puck_1.print(value);
+}
+else {
+  $puck_1.print("None");
 };
-var __PUCK__value__3 = _core.Option.Some(3);
-if (__PUCK__value__3.kind == "Some") {
-  var _PUCK__value__3$valu = _slicedToArray(__PUCK__value__3.value, 1),
-      number = _PUCK__value__3$valu[0];
-
+let $puck_4 = $puck_1.Option.Some(3);
+if ($puck_4.kind == "Some") {
+  let {value: [number]} = $puck_4;
   number;
-} else {
+}
+else {
   "string";
 }

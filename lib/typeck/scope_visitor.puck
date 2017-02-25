@@ -283,7 +283,7 @@ export fn ScopeVisitor(context, file) {
       b->scope = self.scope
     }
     visitReturn: |mut self, mut r: ReturnStatement| {
-      visit.walkReturn(self, r)
+      visit.walkReturnStatement(self, r)
       if let Some(returnType) = self.functionContext.returnType {
         if not isAssignable(returnType, r.expression.getType())
           then reportError(r.expression, notAssignableError(returnType, r.expression.getType()))
@@ -314,7 +314,7 @@ export fn ScopeVisitor(context, file) {
             else binding.type_
       }
       else reportError(i, 'Use of undefined variable ' + i.name)
-      visit.walkIdentifier(self, i)
+      ()
     }
     visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration, isHoisting = false| {
       structureVisitorInstance.visitFunctionDeclaration->call(self, f)
@@ -524,6 +524,7 @@ export fn ScopeVisitor(context, file) {
                   match getImplementationForTrait(selfArgument.getType(), objectType.providesType.unwrapOr(objectType)) {
                     Ok(Some(implementation)) => {
                       e->traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
+                      e->traitBinding = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap()
                       e->isDirectTraitCall =  true
                       e->implementation = implementation
                       if providesType.class.isSome() {
@@ -547,6 +548,7 @@ export fn ScopeVisitor(context, file) {
               }
               else {
                 e->traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
+                e->traitBinding = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap()
                 e->isTraitObject =  true
               }
             }
@@ -562,6 +564,7 @@ export fn ScopeVisitor(context, file) {
                 if function.selfBinding.isSome() {
                   if let Some(binding) = scope.getBindingByTypeId(objectType.id.unwrap()) {
                     e->traitName = binding.name
+                    e->traitBinding = binding
                     e->isTraitObject =  true
                   }
                   else {
@@ -580,6 +583,7 @@ export fn ScopeVisitor(context, file) {
 
                 if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap()) {
                   e->traitName = binding.name
+                  e->traitBinding = binding
                   e->isShorthand =  trait_.getTrait().isShorthand
                   e->implementation = implementation
 
@@ -913,7 +917,7 @@ export fn ScopeVisitor(context, file) {
       else reportError(l
         'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
       )
-      visit.walkBooleanLiteral(self, l)
+      ()
     }
     visitListLiteral: |self, mut l: ListLiteral| {
       let scope: Scope = self.scope

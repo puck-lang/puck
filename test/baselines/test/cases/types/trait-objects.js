@@ -1,105 +1,113 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var Apple = function Apple(object) {
-  return object;
-};
-var Banana = function Banana(object) {
-  return object;
-};
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+var Apple = (object) => object;
+var Banana = (object) => object;
 var Food = {
-  eat: function eat() {
-    var self = this;
-    (0, _core.print)(self.value.name + " is some kind of food");
-  },
-  passThrough: function passThrough() {
-    var self = this;
-    return self;
-  },
-  asFood: function asFood() {
-    var self = this;
-    return self;
-  }
+eat: function () {
+  const self = this;
+  $puck_1.print(self.value.name + " is some kind of food");
+},
+passThrough: function () {
+  const self = this;
+  return self;
+},
+asFood: function () {
+  const self = this;
+  return self;
+}
 };
 Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"] = {
-  eat: Food.eat,
-  passThrough: Food.passThrough,
-  asFood: Food.asFood
+eat: Food.eat,
+passThrough: Food.passThrough,
+asFood: Food.asFood
 };
 Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"] = {
-  eat: function eat() {
-    var self = this;
-    (0, _core.print)(self.value.name + " is a banana");
-  },
-  passThrough: function passThrough() {
-    var self = this;
-    return self;
-  },
-  asFood: function asFood() {
-    var self = this;
-    return self;
-  }
+eat: function () {
+  const self = this;
+  $puck_1.print(self.value.name + " is a banana");
+},
+passThrough: function () {
+  const self = this;
+  return self;
+},
+asFood: function () {
+  const self = this;
+  return self;
+}
 };
-var apple = { name: "apple" };
-var banana = { name: "banana" };
-var apple2 = { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true };
-var banana2 = { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true };
-Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].eat.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true });
-Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].eat.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true });
+const apple = {name: "apple"};
+const banana = {name: "banana"};
+const apple2 = {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true};
+const banana2 = {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true};
+Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].eat.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true});
+Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].eat.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true});
 Food[apple2.type].eat.call(apple2);
 Food[banana2.type].eat.call(banana2);
-var __PUCK__value__1 = Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].passThrough.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true });
-Food[__PUCK__value__1.type].eat.call(__PUCK__value__1);
-var __PUCK__value__2 = Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].passThrough.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true });
-Food[__PUCK__value__2.type].eat.call(__PUCK__value__2);
-var __PUCK__value__3 = Food[apple2.type].passThrough.call(apple2);
-Food[__PUCK__value__3.type].eat.call(__PUCK__value__3);
-var __PUCK__value__4 = Food[banana2.type].passThrough.call(banana2);
-Food[__PUCK__value__4.type].eat.call(__PUCK__value__4);
-var __PUCK__value__5 = Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].asFood.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true });
-Food[__PUCK__value__5.type].eat.call(__PUCK__value__5);
-var __PUCK__value__6 = Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].asFood.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true });
-Food[__PUCK__value__6.type].eat.call(__PUCK__value__6);
-var __PUCK__value__7 = Food[apple2.type].asFood.call(apple2);
-Food[__PUCK__value__7.type].eat.call(__PUCK__value__7);
-var __PUCK__value__8 = Food[banana2.type].asFood.call(banana2);
-Food[__PUCK__value__8.type].eat.call(__PUCK__value__8);
-var fruitSallad = {
+let $puck_2 = Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].passThrough.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true})
+;
+Food[$puck_2.type].eat.call($puck_2);
+let $puck_3 = Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].passThrough.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true})
+;
+Food[$puck_3.type].eat.call($puck_3);
+let $puck_4 = Food[apple2.type].passThrough.call(apple2)
+;
+Food[$puck_4.type].eat.call($puck_4);
+let $puck_5 = Food[banana2.type].passThrough.call(banana2)
+;
+Food[$puck_5.type].eat.call($puck_5);
+let $puck_6 = Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].asFood.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true})
+;
+Food[$puck_6.type].eat.call($puck_6);
+let $puck_7 = Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].asFood.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true})
+;
+Food[$puck_7.type].eat.call($puck_7);
+let $puck_8 = Food[apple2.type].asFood.call(apple2)
+;
+Food[$puck_8.type].eat.call($puck_8);
+let $puck_9 = Food[banana2.type].asFood.call(banana2)
+;
+Food[$puck_9.type].eat.call($puck_9);
+const fruitSallad = {
   apple: apple,
   banana: banana,
-  appleFood: { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true },
-  bananaFood: { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true },
+  appleFood: {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true},
+  bananaFood: {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true},
   apple2: apple2,
-  banana2: banana2
+  banana2: banana2,
 };
-(0, _core.print)(fruitSallad.apple.name);
-(0, _core.print)(fruitSallad.banana.name);
-(0, _core.print)(fruitSallad.appleFood.value.name);
-(0, _core.print)(fruitSallad.bananaFood.value.name);
-(0, _core.print)(fruitSallad.apple2.value.name);
-(0, _core.print)(fruitSallad.banana2.value.name);
-var fruits = [{ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true }, { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true }, apple2, banana2];
-var fruits2 = [{ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true }];
-_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: fruits, $isTraitObject: true }, function (fruit) {
+$puck_1.print(fruitSallad.apple.name);
+$puck_1.print(fruitSallad.banana.name);
+$puck_1.print(fruitSallad.appleFood.value.name);
+$puck_1.print(fruitSallad.bananaFood.value.name);
+$puck_1.print(fruitSallad.apple2.value.name);
+$puck_1.print(fruitSallad.banana2.value.name);
+const fruits = [
+  {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true},
+  {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true},
+  apple2,
+  banana2,
+];
+const fruits2 = [{type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true}];
+$puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: fruits, $isTraitObject: true}, function (fruit) {
   return Food[fruit.type].eat.call(fruit);
 });
-_core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: fruits2, $isTraitObject: true }, function (fruit) {
+$puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: fruits2, $isTraitObject: true}, function (fruit) {
   return Food[fruit.type].eat.call(fruit);
 });
-var apple3 = apple,
-    banana3 = banana,
-    apple4 = { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true },
-    banana4 = { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true },
-    apple5 = apple2,
-    banana5 = banana2;
-
-(0, _core.print)(apple3.name);
-(0, _core.print)(banana3.name);
-(0, _core.print)(apple4.value.name);
-(0, _core.print)(banana4.value.name);
-(0, _core.print)(apple5.value.name);
-(0, _core.print)(banana5.value.name);
+let [apple3, banana3, apple4, banana4, apple5, banana5] = [
+  apple,
+  banana,
+  {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true},
+  {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true},
+  apple2,
+  banana2,
+];
+$puck_1.print(apple3.name);
+$puck_1.print(banana3.name);
+$puck_1.print(apple4.value.name);
+$puck_1.print(banana4.value.name);
+$puck_1.print(apple5.value.name);
+$puck_1.print(banana5.value.name);
 function passThroughBanana(banana) {
   return banana;
 };
@@ -107,24 +115,32 @@ function passThroughFood(food) {
   return food;
 };
 function bananaToFood(banana) {
-  return { type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true };
+  return {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true};
 };
-Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].eat.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: fruitSallad.apple, $isTraitObject: true });
-Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].eat.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: fruitSallad.banana, $isTraitObject: true });
-var __PUCK__value__9 = fruitSallad.appleFood;
-Food[__PUCK__value__9.type].eat.call(__PUCK__value__9);
-var __PUCK__value__10 = fruitSallad.bananaFood;
-Food[__PUCK__value__10.type].eat.call(__PUCK__value__10);
-var __PUCK__value__11 = fruitSallad.apple2;
-Food[__PUCK__value__11.type].eat.call(__PUCK__value__11);
-var __PUCK__value__12 = fruitSallad.banana2;
-Food[__PUCK__value__12.type].eat.call(__PUCK__value__12);
-Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].eat.call({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: passThroughBanana(banana), $isTraitObject: true });
-var __PUCK__value__13 = passThroughFood({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true });
-Food[__PUCK__value__13.type].eat.call(__PUCK__value__13);
-var __PUCK__value__14 = passThroughFood({ type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true });
-Food[__PUCK__value__14.type].eat.call(__PUCK__value__14);
-var __PUCK__value__15 = passThroughFood(banana2);
-Food[__PUCK__value__15.type].eat.call(__PUCK__value__15);
-var __PUCK__value__16 = bananaToFood(banana);
-Food[__PUCK__value__16.type].eat.call(__PUCK__value__16);
+Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].eat.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: fruitSallad.apple, $isTraitObject: true});
+Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].eat.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: fruitSallad.banana, $isTraitObject: true});
+let $puck_10 = fruitSallad.appleFood
+;
+Food[$puck_10.type].eat.call($puck_10);
+let $puck_11 = fruitSallad.bananaFood
+;
+Food[$puck_11.type].eat.call($puck_11);
+let $puck_12 = fruitSallad.apple2
+;
+Food[$puck_12.type].eat.call($puck_12);
+let $puck_13 = fruitSallad.banana2
+;
+Food[$puck_13.type].eat.call($puck_13);
+Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].eat.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: passThroughBanana(banana), $isTraitObject: true});
+let $puck_14 = passThroughFood({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true})
+;
+Food[$puck_14.type].eat.call($puck_14);
+let $puck_15 = passThroughFood({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true})
+;
+Food[$puck_15.type].eat.call($puck_15);
+let $puck_16 = passThroughFood(banana2)
+;
+Food[$puck_16.type].eat.call($puck_16);
+let $puck_17 = bananaToFood(banana)
+;
+Food[$puck_17.type].eat.call($puck_17)
