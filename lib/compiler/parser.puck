@@ -66,6 +66,7 @@ import '../ast/ast.puck' as {
   TupleTypeBound
   TypeParameter
 }
+import '../ast/span.puck' as {Span}
 import '../ast/token.puck' as {SyntaxKind, SimpleToken, Token}
 import '../entities.puck' as {UnparsedFile}
 import 'token_stream.puck' as {TokenStream}
@@ -94,7 +95,7 @@ fn isAssignable(expression: Expression) {
   }
 }
 
-export fn parse(mut input: TokenStream, file: UnparsedFile) {
+export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
 
   fn isToken(kind: SyntaxKind, withDummy = false) -> Bool {
     match input.peek(withDummy) {
@@ -131,6 +132,12 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
   }
 
   fn consumeIdentifier() -> Identifier {
+    if recover {
+      match input.peek() {
+        Token::SimpleToken({span}) => return {name: '', span}
+        _ => {}
+      }
+    }
     match input.next() {
       Token::Identifier(identifier) => identifier
       _ => input.croak('Expected identifier, ' + butGot())
@@ -159,6 +166,18 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
       Token::SimpleToken({kind: SyntaxKind::NewlineToken}) => input.next(true)
       Token::Comment => input.next(true)
       _ => consumeToken(kind)
+    }
+  }
+
+  /// Creates a false block, used for recovery
+  fn mockBlock() {
+    {
+      openBrace: None
+      statements: [
+        BlockLevelStatement::Expression(Expression::Identifier(consumeIdentifier()))
+      ]
+      closeBrace: None
+      type_: undefined
     }
   }
 
@@ -405,7 +424,11 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
               value: false
             }))
           }
-          _ => unexpected()
+          _ => {
+            if recover
+              then Expression::Identifier(consumeIdentifier())
+              else unexpected()
+          }
         }
         Token::NumberLiteral(numberLiteral) => {
           input.next()
@@ -767,7 +790,8 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
   }
 
   fn parseFunctionDeclaration(optionalBody = false) -> FunctionDeclaration {
-    consumeToken(SyntaxKind::FnKeyword)
+    if not recover or isToken(SyntaxKind::FnKeyword)
+      then consumeToken(SyntaxKind::FnKeyword)
     let name =
       match input.peek() {
         Token::Identifier(identifier) => {
@@ -780,6 +804,18 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
       if isToken(SyntaxKind::LessThanToken)
         then delimited(SyntaxKind::LessThanToken, SyntaxKind::GreaterThanToken, SyntaxKind::CommaToken, parseTypeParameter, true)
         else []
+    if recover and not isToken(SyntaxKind::OpenParenToken) {
+      return {
+        name
+        typeParameters
+        openParenOrBar: {kind: SyntaxKind::OpenParenToken, span: Span.empty()}
+        parameterList: []
+        closeParenOrBar: {kind: SyntaxKind::OpenParenToken, span: Span.empty()}
+        returnType: None
+        body: Some(mockBlock())
+        type_: undefined
+      }
+    }
     let openParenOrBar = expect(SyntaxKind::OpenParenToken)
     let parameterList = delimited(SyntaxKind::OpenParenToken, SyntaxKind::CloseParenToken, SyntaxKind::CommaToken, parseVariableDeclaration, false)
     let closeParenOrBar = consumeToken(SyntaxKind::CloseParenToken)
@@ -790,9 +826,11 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
         else None
 
     let body =
-      if isToken(SyntaxKind::OpenBraceToken) or not optionalBody
+      if recover and not isToken(SyntaxKind::OpenBraceToken)
+        then Some(mockBlock())
+      else if isToken(SyntaxKind::OpenBraceToken) or not optionalBody
         then Some(parseBlock())
-        else None
+      else None
 
     {
       name
@@ -859,15 +897,17 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
     let then_: Block =
       if isToken(SyntaxKind::OpenBraceToken)
         then parseBlock()
-        else {
-          consumeToken(SyntaxKind::ThenKeyword)
-          {
-            openBrace: None
-            statements: [parseBlockLevelStatement()]
-            closeBrace: None
-            type_: undefined
-          }
+      else if recover and not isToken(SyntaxKind::ThenKeyword)
+        then mockBlock()
+      else {
+        consumeToken(SyntaxKind::ThenKeyword)
+        {
+          openBrace: None
+          statements: [parseBlockLevelStatement()]
+          closeBrace: None
+          type_: undefined
         }
+      }
 
     {
       ifKeyword
@@ -900,15 +940,17 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
     let then_: Block =
       if isToken(SyntaxKind::OpenBraceToken)
         then parseBlock()
-        else {
-          consumeToken(SyntaxKind::ThenKeyword)
-          {
-            openBrace: None
-            statements: [parseBlockLevelStatement()]
-            closeBrace: None
-            type_: undefined
-          }
+      else if recover and not isToken(SyntaxKind::ThenKeyword)
+        then mockBlock()
+      else {
+        consumeToken(SyntaxKind::ThenKeyword)
+        {
+          openBrace: None
+          statements: [parseBlockLevelStatement()]
+          closeBrace: None
+          type_: undefined
         }
+      }
 
     {
       ifKeyword
@@ -935,9 +977,22 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
   }
 
   fn parseMatch() -> MatchExpression {
+    let matchKeyword = consumeToken(SyntaxKind::MatchKeyword)
+    let expression = parseExpression()
+
+    if recover and not isToken(SyntaxKind::OpenBraceToken) {
+      return {
+        matchKeyword
+        expression
+        openBrace: {kind: SyntaxKind::OpenBraceToken, span: Span.empty()}
+        patterns: []
+        closeBrace: {kind: SyntaxKind::OpenBraceToken, span: Span.empty()}
+      }
+    }
+
     {
-      matchKeyword: consumeToken(SyntaxKind::MatchKeyword)
-      expression: parseExpression()
+      matchKeyword
+      expression
       openBrace: expect(SyntaxKind::OpenBraceToken)
       patterns: delimited(SyntaxKind::OpenBraceToken, SyntaxKind::CloseBraceToken, SyntaxKind::CommaToken, parseMatchArm, false)
       closeBrace: consumeToken(SyntaxKind::CloseBraceToken)
@@ -946,6 +1001,13 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
 
   fn parseMatchArm() -> MatchArm {
     let pattern = parsePattern()
+    if recover and not isToken(SyntaxKind::EqualsGreaterThanToken) {
+      return {
+        pattern
+        arrow: {kind: SyntaxKind::EqualsGreaterThanToken, span: Span.empty()}
+        block: mockBlock()
+      }
+    }
     let arrow = consumeToken(SyntaxKind::EqualsGreaterThanToken)
     let block =
       if isToken(SyntaxKind::OpenBraceToken)

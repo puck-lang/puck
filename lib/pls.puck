@@ -46,7 +46,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
         absolutePath: path->resolve(path->normalize(filePath)).transmute()
         puck: contents
       }
-      let mut file = context.importFile(file, true)
+      let mut file = context.importFile(file, true, skipSyntaxErrors)
       let parseTime = Date->now() - startTime
       print('Parse time $parseTime')
 

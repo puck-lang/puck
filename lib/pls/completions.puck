@@ -27,7 +27,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/span.puck' as {Position, Span, ToSpan}
 import '../typeck/src/scope.puck' as {Scope}
-import '../entities.puck' as {StructKind, Type, TypeKind}
+import '../entities.puck' as {StructKind, Trait, Type, TypeKind}
 import 'position_visitor.puck' as {PositionVisitor}
 import 'position_visitor.puck' as visit
 
@@ -41,6 +41,7 @@ export type CompletionVisitor {
   position: Position
   completions: Option<List<Completion>>
   importedModule: Option<Module>
+  inTraitImpl: Option<Trait>
 }
 
 impl CompletionVisitor {
@@ -48,6 +49,7 @@ impl CompletionVisitor {
     position
     completions: None
     importedModule: None
+    inTraitImpl: None
   }}
 }
 
@@ -55,44 +57,19 @@ impl PositionVisitor for CompletionVisitor {
   fn position(self) -> Position {self.position}
 
   fn visitImplDeclaration(mut self, i: ImplDeclaration) -> () {
-    if not visit.walkImplDeclaration(self, i) {
-      let trait_ = i.trait_.getType()
-      if trait_ {
-        match trait_.kind {
-          TypeKind::Trait(trait_) => {
-            self.completions = Some(trait_.functions
-              .toList()
-              .map(|(name, type_): (String, Type)| {
-                let function = type_.getFunction()
-                let mut parameters = function.parameters
-                  .map(|b| {
-                    let typeName = b.type_.displayName()
-                    let typed = b.name + ': $typeName'
-                    if b.mutable
-                      then 'mut $typed'
-                      else typed
-                  })
-                  .toList()
-                if let Some(selfBinding) = function.selfBinding {
-                  if selfBinding.mutable
-                    then parameters.lpush('mut self')
-                    else parameters.lpush('self')
-                }
-                let parameters = parameters->join(', ')
-                let returnType = function.returnType.displayName()
-                let signature = '$name($parameters) -> $returnType'
-                {
-                  label: signature
-                  kind: CompletionItemKind.Method
-                  insertText: signature + ' '
-                }
-              })
-              .toList()
-            )
-          }
-          _ => {}
+    print('CompletionVisitor visitImplDeclaration')
+    let trait_ = i.trait_.getType()
+    if trait_ {
+      match trait_.kind {
+        TypeKind::Trait(trait_) => {
+          self.inTraitImpl = Some(trait_)
         }
+        _ => {}
       }
+    }
+    if not visit.walkImplDeclaration(self, i) {
+      print('CompletionVisitor not visit.walkImplDeclara')
+      self.completions = self.inTraitImpl.map(getTraitImplCompletions)
     }
   }
 
@@ -123,6 +100,26 @@ impl PositionVisitor for CompletionVisitor {
   fn visitIdentifier(mut self, i: Identifier) -> () {
     print('CompletionVisitor visitIdentifier')
     self.completions = Some(getScopeCompletions(i))
+  }
+
+  fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {
+    if let Some(name) = f.name {
+      if name.span.cmp(self.position) == Ordering::Equal {
+        return ()
+      }
+    }
+    visit.walkFunctionDeclaration(self, f)
+  }
+
+  fn visitMethodDeclaration(mut self, f: FunctionDeclaration) -> () {
+    if let Some(name) = f.name {
+      if name.span.cmp(self.position) == Ordering::Equal {
+        self.completions = self.inTraitImpl.map(getTraitImplCompletions)
+        return ()
+      }
+    }
+    self.inTraitImpl = None
+    visit.walkFunctionDeclaration(self, f)
   }
 
   fn visitMemberAccess(mut self, a: MemberAccess) -> () {
@@ -187,4 +184,35 @@ fn getScopeCompletions(node) -> List<Completion> {
       .toList()
   }
   else []
+}
+
+fn getTraitImplCompletions(trait_: Trait) {
+  trait_.functions
+    .toList()
+    .map(|(name, type_): (String, Type)| {
+      let function = type_.getFunction()
+      let mut parameters = function.parameters
+        .map(|b| {
+          let typeName = b.type_.displayName()
+          let typed = b.name + ': $typeName'
+          if b.mutable
+            then 'mut $typed'
+            else typed
+        })
+        .toList()
+      if let Some(selfBinding) = function.selfBinding {
+        if selfBinding.mutable
+          then parameters.lpush('mut self')
+          else parameters.lpush('self')
+      }
+      let parameters = parameters->join(', ')
+      let returnType = function.returnType.displayName()
+      let signature = '$name($parameters) -> $returnType'
+      {
+        label: signature
+        kind: CompletionItemKind.Method
+        insertText: signature + ' '
+      }
+    })
+    .toList()
 }
