@@ -1,8 +1,6 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 function a(b) {};
 a(function (c) {
-  return _core.String.contains.call(c, "text");
-});
+  return $puck_1.String.contains.call(c, "text");
+})

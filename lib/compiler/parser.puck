@@ -70,6 +70,30 @@ import '../ast/token.puck' as {SyntaxKind, SimpleToken, Token}
 import '../entities.puck' as {UnparsedFile}
 import 'token_stream.puck' as {TokenStream}
 
+fn isAssignment(token: SimpleToken) -> Bool {
+  match token.kind {
+    SyntaxKind::EqualsToken => true
+    SyntaxKind::PlusEqualsToken => true
+    SyntaxKind::MinusEqualsToken => true
+    SyntaxKind::AsteriskEqualsToken => true
+    SyntaxKind::AsteriskAsteriskEqualsToken => true
+    SyntaxKind::SlashEqualsToken => true
+    SyntaxKind::PercentEqualsToken => true
+    _ => false
+  }
+}
+
+fn isAssignable(expression: Expression) {
+  match expression {
+    Expression::Identifier(_) => true
+    Expression::MemberAccess(_) => true
+    Expression::IndexAccess(_) => true
+    Expression::UnknownAccess(_) => true
+    Expression::UnknownIndexAccess(_) => true
+    _ => false
+  }
+}
+
 export fn parse(mut input: TokenStream, file: UnparsedFile) {
 
   fn isToken(kind: SyntaxKind, withDummy = false) -> Bool {
@@ -138,19 +162,6 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
     }
   }
 
-  fn isAssignment(token: SimpleToken) -> Bool {
-    match token.kind {
-      SyntaxKind::EqualsToken => true
-      SyntaxKind::PlusEqualsToken => true
-      SyntaxKind::MinusEqualsToken => true
-      SyntaxKind::AsteriskEqualsToken => true
-      SyntaxKind::AsteriskAsteriskEqualsToken => true
-      SyntaxKind::SlashEqualsToken => true
-      SyntaxKind::PercentEqualsToken => true
-      _ => false
-    }
-  }
-
   fn maybeParseOperator() -> Option<SimpleToken> {
     match input.peek() {
       Token::SimpleToken(token) => match token.kind {
@@ -174,17 +185,6 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
           else None
       }
       _ => None
-    }
-  }
-
-  fn isAssignable(expression: Expression) {
-    match expression {
-      Expression::Identifier(_) => true
-      Expression::MemberAccess(_) => true
-      Expression::IndexAccess(_) => true
-      Expression::UnknownAccess(_) => true
-      Expression::UnknownIndexAccess(_) => true
-      _ => false
     }
   }
 
@@ -533,12 +533,12 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
         then delimited(SyntaxKind::LessThanToken, SyntaxKind::GreaterThanToken, SyntaxKind::CommaToken, parseTypeParameter, true)
       else []
 
-    let trait_ = parseTypeBound()
-    let {forKeyword, type_}: {forKeyword: Option<SimpleToken>, type_: Option<TypeBound>} =
+    let trait_ = parseNamedTypeBound()
+    let {forKeyword, type_}: {forKeyword: Option<SimpleToken>, type_: Option<NamedTypeBound>} =
       if isToken(SyntaxKind::ForKeyword)
         then {
           forKeyword: Some(consumeToken(SyntaxKind::ForKeyword))
-          type_: Some(parseTypeBound())
+          type_: Some(parseNamedTypeBound())
         }
         else {{
           forKeyword: None
@@ -1095,7 +1095,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
     }
     else if isToken(SyntaxKind::OpenBraceToken)
       then parseRecordTypeBound()
-    else parseNamedTypeBound()
+    else TypeBound::NamedTypeBound(parseNamedTypeBound())
   }
 
   fn parseFunctionTypeBound(tuple: Option<TypeBound>) -> TypeBound {
@@ -1115,17 +1115,17 @@ export fn parse(mut input: TokenStream, file: UnparsedFile) {
     })
   }
 
-  fn parseNamedTypeBound() -> TypeBound {
+  fn parseNamedTypeBound() -> NamedTypeBound {
     let path = parseTypePath(None)
     let typeParameters =
       if isToken(SyntaxKind::LessThanToken)
         then delimited(SyntaxKind::LessThanToken, SyntaxKind::GreaterThanToken, SyntaxKind::CommaToken, parseTypeBound, true)
         else []
 
-    TypeBound::NamedTypeBound({
+    {
       path
       typeParameters
-    })
+    }
   }
 
   fn parseRecordTypeBound() -> TypeBound {

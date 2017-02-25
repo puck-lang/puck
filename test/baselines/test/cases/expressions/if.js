@@ -1,104 +1,110 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var z = 5;
-function a() {
-  var z = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const z = 5;
+function a(z = 0) {
   return z;
 };
-function b() {
-  var z = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-};
+function b(z = 0) {};
 if (z) {
   a();
 };
 if (z) {
   a();
-} else {
+}
+else {
   b();
 };
 if (z) {
   a();
-} else {
+}
+else {
   b();
 };
 if (z) {
   a();
-} else {
+}
+else {
   b();
 };
 if (z) {
   a();
-} else {
+}
+else {
   b();
 };
-var __PUCK__value__1 = void 0;
+let $puck_2;
 if (z) {
-  __PUCK__value__1 = true;
+  $puck_2 = true;
 };
-var q1 = __PUCK__value__1;
-var __PUCK__value__2 = void 0;
+const q1 = $puck_2;
+let $puck_3;
 if (z) {
-  __PUCK__value__2 = true;
-} else {
-  __PUCK__value__2 = false;
+  $puck_3 = true;
+}
+else {
+  $puck_3 = false;
 };
-var q2 = __PUCK__value__2;
-var __PUCK__value__3 = void 0;
+const q2 = $puck_3;
+let $puck_4;
 if (z) {
-  var __PUCK__value__4 = void 0;
+  let $puck_5;
   if (z % 2) {
-    __PUCK__value__4 = 1;
-  } else {
-    __PUCK__value__4 = 2;
+    $puck_5 = 1;
+  }
+  else {
+    $puck_5 = 2;
   };
-  __PUCK__value__3 = __PUCK__value__4;
-} else {
-  __PUCK__value__3 = 3;
+  $puck_4 = $puck_5;
+}
+else {
+  $puck_4 = 3;
 };
-var q3 = __PUCK__value__3;
-var __PUCK__value__5 = void 0;
+const q3 = $puck_4;
+let $puck_6;
 if (z) {
-  __PUCK__value__5 = z / 2;
-} else {
-  __PUCK__value__5 = b(z);
+  $puck_6 = z / 2;
+}
+else {
+  $puck_6 = b(z);
 };
-var q4 = __PUCK__value__5;
-var __PUCK__value__6 = void 0;
+const q4 = $puck_6;
+let $puck_7;
 if (z) {
-  __PUCK__value__6 = z / 2;
-} else {
-  __PUCK__value__6 = b(z);
+  $puck_7 = z / 2;
+}
+else {
+  $puck_7 = b(z);
 };
-var q5 = __PUCK__value__6;
-var __PUCK__value__7 = void 0;
+const q5 = $puck_7;
+let $puck_8;
 if (z) {
-  var x = z / 2;
-  var __PUCK__value__8 = void 0;
-  if (z < 0) {
-    __PUCK__value__8 = -z;
-  } else {
-    __PUCK__value__8 = a(z) + b(z);
+  const x = z / 2;
+  let $puck_9;
+  if ((z < 0)) {
+    $puck_9 = -z;
+  }
+  else {
+    $puck_9 = a(z) + b(z);
   };
-  var y = __PUCK__value__8;
-  __PUCK__value__7 = a(Math.pow(x, y));
-} else {
-  var __PUCK__value__9 = void 0;
-  if (z == 0) {
-    __PUCK__value__9 = 1;
-  } else {
-    __PUCK__value__9 = 0;
+  const y = $puck_9;
+  $puck_8 = a(x ** y);
+}
+else {
+  let $puck_10;
+  if ((z == 0)) {
+    $puck_10 = 1;
+  }
+  else {
+    $puck_10 = 0;
   };
-  __PUCK__value__7 = __PUCK__value__9;
+  $puck_8 = $puck_10;
 };
-var q6 = __PUCK__value__7;
-var __PUCK__value__10 = void 0;
+const q6 = $puck_8;
+let $puck_11;
 if (z) {
-  __PUCK__value__10 = 5;
+  $puck_11 = 5;
 };
-var q7 = __PUCK__value__10;
+const q7 = $puck_11;
 function c() {
   if (z) {
     return z / 2;
@@ -107,32 +113,37 @@ function c() {
 function d() {
   if (z) {
     return z / 2;
-  } else {
+  }
+  else {
     return b(z);
   };
 };
 function e() {
   if (z) {
     return z / 2;
-  } else {
+  }
+  else {
     return b(z);
   };
 };
 function g() {
   if (z) {
-    var _x3 = z / 2;
-    var __PUCK__value__11 = void 0;
-    if (z < 0) {
-      __PUCK__value__11 = -z;
-    } else {
-      __PUCK__value__11 = a(z) + b(z);
+    const x = z / 2;
+    let $puck_12;
+    if ((z < 0)) {
+      $puck_12 = -z;
+    }
+    else {
+      $puck_12 = a(z) + b(z);
     };
-    var _y = __PUCK__value__11;
-    return a(Math.pow(_x3, _y));
-  } else {
-    if (z == 0) {
+    const y = $puck_12;
+    return a(x ** y);
+  }
+  else {
+    if ((z == 0)) {
       return q6;
-    } else {
+    }
+    else {
       return 3;
     };
   };
@@ -143,89 +154,101 @@ function h() {
   };
   if (z) {
     a();
-  } else {
+  }
+  else {
     b();
   };
   if (z) {
     a();
-  } else {
+  }
+  else {
     b();
   };
   if (z) {
     a();
-  } else {
+  }
+  else {
     b();
   };
   if (z) {
     a();
-  } else {
+  }
+  else {
     b();
   };
-  var __PUCK__value__12 = void 0;
+  let $puck_13;
   if (z) {
-    __PUCK__value__12 = true;
+    $puck_13 = true;
   };
-  var q1 = __PUCK__value__12;
-  var __PUCK__value__13 = void 0;
+  const q1 = $puck_13;
+  let $puck_14;
   if (z) {
-    __PUCK__value__13 = true;
-  } else {
-    __PUCK__value__13 = false;
+    $puck_14 = true;
+  }
+  else {
+    $puck_14 = false;
   };
-  var q2 = __PUCK__value__13;
-  var __PUCK__value__14 = void 0;
+  const q2 = $puck_14;
+  let $puck_15;
   if (z) {
-    var __PUCK__value__15 = void 0;
+    let $puck_16;
     if (z % 2) {
-      __PUCK__value__15 = 1;
-    } else {
-      __PUCK__value__15 = 2;
+      $puck_16 = 1;
+    }
+    else {
+      $puck_16 = 2;
     };
-    __PUCK__value__14 = __PUCK__value__15;
-  } else {
-    __PUCK__value__14 = 3;
+    $puck_15 = $puck_16;
+  }
+  else {
+    $puck_15 = 3;
   };
-  var q3 = __PUCK__value__14;
-  var __PUCK__value__16 = void 0;
+  const q3 = $puck_15;
+  let $puck_17;
   if (z) {
-    __PUCK__value__16 = z / 2;
-  } else {
-    __PUCK__value__16 = b(z);
+    $puck_17 = z / 2;
+  }
+  else {
+    $puck_17 = b(z);
   };
-  var q4 = __PUCK__value__16;
-  var __PUCK__value__17 = void 0;
+  const q4 = $puck_17;
+  let $puck_18;
   if (z) {
-    __PUCK__value__17 = z / 2;
-  } else {
-    __PUCK__value__17 = b(z);
+    $puck_18 = z / 2;
+  }
+  else {
+    $puck_18 = b(z);
   };
-  var q5 = __PUCK__value__17;
-  var __PUCK__value__18 = void 0;
+  const q5 = $puck_18;
+  let $puck_19;
   if (z) {
-    var _x4 = z / 2;
-    var __PUCK__value__19 = void 0;
-    if (z < 0) {
-      __PUCK__value__19 = -z;
-    } else {
-      __PUCK__value__19 = a(z) + b(z);
+    const x = z / 2;
+    let $puck_20;
+    if ((z < 0)) {
+      $puck_20 = -z;
+    }
+    else {
+      $puck_20 = a(z) + b(z);
     };
-    var _y2 = __PUCK__value__19;
-    __PUCK__value__18 = a(Math.pow(_x4, _y2));
-  } else {
-    var __PUCK__value__20 = void 0;
-    if (z == 0) {
-      __PUCK__value__20 = q6;
-    } else {
-      __PUCK__value__20 = 0;
+    const y = $puck_20;
+    $puck_19 = a(x ** y);
+  }
+  else {
+    let $puck_21;
+    if ((z == 0)) {
+      $puck_21 = q6;
+    }
+    else {
+      $puck_21 = 0;
     };
-    __PUCK__value__18 = __PUCK__value__20;
+    $puck_19 = $puck_21;
   };
-  var q6 = __PUCK__value__18;
-  var __PUCK__value__21 = void 0;
+  const q6 = $puck_19;
+  let $puck_22;
   if (z) {
-    __PUCK__value__21 = 5;
+    $puck_22 = 5;
   };
-  var q7 = __PUCK__value__21;
+  const q7 = $puck_22;
   function c() {
     if (z) {
       return z / 2;
@@ -234,32 +257,37 @@ function h() {
   function d() {
     if (z) {
       return z / 2;
-    } else {
+    }
+    else {
       return b(z);
     };
   };
   function e() {
     if (z) {
       return z / 2;
-    } else {
+    }
+    else {
       return b(z);
     };
   };
   return function g() {
     if (z) {
-      var _x5 = z / 2;
-      var __PUCK__value__22 = void 0;
-      if (z < 0) {
-        __PUCK__value__22 = -z;
-      } else {
-        __PUCK__value__22 = a(z) + b(z);
+      const x = z / 2;
+      let $puck_23;
+      if ((z < 0)) {
+        $puck_23 = -z;
+      }
+      else {
+        $puck_23 = a(z) + b(z);
       };
-      var _y3 = __PUCK__value__22;
-      return a(Math.pow(_x5, _y3));
-    } else {
-      if (z == 0) {
+      const y = $puck_23;
+      return a(x ** y);
+    }
+    else {
+      if ((z == 0)) {
         return q6;
-      } else {
+      }
+      else {
         return 7;
       };
     };
@@ -267,13 +295,15 @@ function h() {
 };
 if (2 > 3) {
   5;
-} else {
+}
+else {
   "string";
 };
-var __PUCK__value__23 = void 0;
+let $puck_24;
 if (2 > 3) {
-  __PUCK__value__23 = "five";
-} else {
-  __PUCK__value__23 = "string";
+  $puck_24 = "five";
+}
+else {
+  $puck_24 = "string";
 };
-var value = __PUCK__value__23;
+const value = $puck_24

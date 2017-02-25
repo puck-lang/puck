@@ -1,42 +1,35 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.jest = jest;
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var _js = require('puck-lang/dist/lib/stdlib/js');
-
-var _jest = require('jest');
-
-var _path = require('path');
-
-var path = _interopRequireWildcard(_path);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+exports.jestundefined;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
+const $puck_3 = require("jest");
+const path = require("path");
 function jest(watch, rootDir) {
-  var moduleNameMapper = _core.ObjectMap._new();
-  moduleNameMapper["^puck-lang/dist/lib/stdlib(.*)$"] = path.resolve(_js.require.resolve("../core"), "..") + "$1";
-  var transform = _core.ObjectMap._new();
-  transform[".*"] = _js.require.resolve("../../test/jest_preprocessor");
-  var config = {
-    moduleFileExtensions: ["puck", "js"],
+  let moduleNameMapper = $puck_1.ObjectMap._new();
+  moduleNameMapper["^puck-lang/dist/lib/stdlib(.*)$"] = path.resolve($puck_2._require.resolve("../core"), "..") + "$1";
+  let transform = $puck_1.ObjectMap._new();
+  transform[".*"] = $puck_2._require.resolve("../../test/jest_preprocessor");
+  const config = {
+    moduleFileExtensions: [
+    "puck",
+    "js",
+  ],
     moduleNameMapper: moduleNameMapper,
     rootDir: rootDir,
     transform: transform,
     setupFiles: [],
     testEnvironment: "node",
-    testRegex: "(/__tests__/.*|\\.(test))\\.puck$"
+    testRegex: "(/__tests__/.*|\\.(test))\\.puck$",
   };
-  var jestArgs = ["--config", $unwrapTraitObject($unwrapTraitObject(_js.global).JSON).stringify(config)];
+  let jestArgs = [
+    "--config",
+    $unwrapTraitObject($unwrapTraitObject($puck_2._global).JSON).stringify(config),
+  ];
   if (watch) {
-    _core.List.push.call(jestArgs, "--watch");
+    $puck_1.List.push.call(jestArgs, "--watch");
   };
-  return (0, _jest.run)(jestArgs);
-}
+  return $puck_3.run(jestArgs);
+};
+exports.jest = jest

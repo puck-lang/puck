@@ -1,39 +1,38 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var __PUCK__value__1 = void 0;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+let $puck_2;
 if (false) {
-  __PUCK__value__1 = 3;
+  $puck_2 = 3;
 };
-var __PUCK__value__2 = void 0;
+let $puck_3;
 if (true) {
-  __PUCK__value__2 = 3;
-} else {
-  __PUCK__value__2 = 1;
+  $puck_3 = 3;
+}
+else {
+  $puck_3 = 1;
 };
-var a = {
+let a = {
   a: 1,
   b: 2,
   c: 4,
-  d: __PUCK__value__1,
-  e: __PUCK__value__2
+  d: $puck_2,
+  e: $puck_3,
 };
-var b = {
+const b = {
   a: a,
-  b: a
+  b: a,
 };
-var _arguments = [];
-var c = { _arguments: _arguments };
+const _arguments = [];
+const c = {_arguments: _arguments};
 a.a = 2;
-var d = { a: 42 };
-d = { a: 5 };
+let d = {a: 42};
+d = {a: 5};
 d = {
   a: 5,
-  b: 10
+  b: 10,
 };
 d = {
   a: 5,
-  b: 10
+  b: 10,
 };
-a.b = d.b;
+a.b = d.b

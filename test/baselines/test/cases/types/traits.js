@@ -1,102 +1,95 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.GenericSelf = exports.Generic = exports.SelfAware = exports.Functions = exports.Empty = exports.GenericType = exports.FunctionsType = exports.EmptyType = undefined;
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+exports.EmptyType = exports.FunctionsType = exports.GenericType = exports.Empty = exports.Functions = exports.SelfAware = exports.Generic = exports.GenericSelfundefined;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+var EmptyType = exports.EmptyType = (object) => object;
+var FunctionsType = exports.FunctionsType = (object) => object;
+var GenericType = exports.GenericType = (object) => object;
+var Empty = exports.Empty = {
 
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
 };
-var EmptyType = exports.EmptyType = function EmptyType(object) {
-  return object;
-};
-var FunctionsType = exports.FunctionsType = function FunctionsType(object) {
-  return object;
-};
-var GenericType = exports.GenericType = function GenericType(object) {
-  return object;
-};
-var Empty = exports.Empty = {};
 var Functions = exports.Functions = {
-  withBody: function withBody(a) {
-    var self = this;
-    var b = a;
-    return b;
-  }
+withBody: function (a) {
+  const self = this;
+  const b = a;
+  return b;
+}
 };
 var SelfAware = exports.SelfAware = {
-  _static: function _static() {
-    return 5;
-  },
-  withImmutableSelf: function withImmutableSelf(a) {
-    var self = this;
-    return a;
-  },
-  withMutableSelf: function withMutableSelf() {
-    var self = this;
-    return self;
-  }
+_static: function () {
+  return 5;
+},
+withImmutableSelf: function (a) {
+  const self = this;
+  return a;
+},
+withMutableSelf: function () {
+  let self = this;
+  return self;
+}
 };
-var Generic = exports.Generic = {};
+var Generic = exports.Generic = {
+
+};
 var GenericSelf = exports.GenericSelf = {
-  genericSelf2: function genericSelf2(a) {
-    var self = this;
-    return $unwrapTraitObject(GenericSelf[self.type].genericSelf.call(self, a));
-  }
+genericSelf2: function (a) {
+  const self = this;
+  return $unwrapTraitObject(GenericSelf[self.type].genericSelf.call(self, a));
+}
 };
-Empty["$impl_test/cases/types/traits.puck:Empty$test/cases/types/traits.puck:EmptyType"] = {};
+Empty["$impl_test/cases/types/traits.puck:Empty$test/cases/types/traits.puck:EmptyType"] = {
+
+};
 Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:EmptyType"] = {
-  noBody: function noBody() {
-    var self = this;
-    return 5;
-  },
-  withBody: Functions.withBody
+noBody: function () {
+  const self = this;
+  return 5;
+},
+withBody: Functions.withBody
 };
 Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:FunctionsType"] = {
-  noBody: function noBody() {
-    var self = this;
-    return 5;
-  },
-  withBody: function withBody(a) {
-    var self = this;
-    return self.value.name;
-  }
+noBody: function () {
+  const self = this;
+  return 5;
+},
+withBody: function (a) {
+  const self = this;
+  return self.value.name;
+}
 };
 Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType"] = {
-  generic: function generic(a) {
-    var self = this;
-    return $unwrapTraitObject(a);
-  }
+generic: function (a) {
+  const self = this;
+  return $unwrapTraitObject(a);
+}
 };
 GenericSelf["$impl_test/cases/types/traits.puck:GenericSelf$test/cases/types/traits.puck:GenericType"] = {
-  genericSelf: function genericSelf(a) {
-    var self = this;
-    return a.value;
-  },
-  genericSelf2: GenericSelf.genericSelf2
+genericSelf: function (a) {
+  const self = this;
+  return a.value;
+},
+genericSelf2: GenericSelf.genericSelf2
 };
 Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1"] = {
-  generic: function generic(a) {
-    var self = this;
-    return a + a;
-  }
+generic: function (a) {
+  const self = this;
+  return a + a;
+}
 };
 SelfAware["$impl_test/cases/types/traits.puck:SelfAware$test/cases/types/traits.puck:FunctionsType"] = {
-  _static: SelfAware._static,
-  withImmutableSelf: SelfAware.withImmutableSelf,
-  withMutableSelf: SelfAware.withMutableSelf
+_static: SelfAware._static,
+withImmutableSelf: SelfAware.withImmutableSelf,
+withMutableSelf: SelfAware.withMutableSelf
 };
-Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:EmptyType"].noBody.call({ type: '$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:EmptyType', value: EmptyType({}), $isTraitObject: true });
-var func = { name: "func" };
-Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:FunctionsType"].withBody.call({ type: '$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:FunctionsType', value: func, $isTraitObject: true }, "body");
-var mutFunc = func;
-SelfAware["$impl_test/cases/types/traits.puck:SelfAware$test/cases/types/traits.puck:FunctionsType"].withMutableSelf.call({ type: '$impl_test/cases/types/traits.puck:SelfAware$test/cases/types/traits.puck:FunctionsType', value: mutFunc, $isTraitObject: true });
-var genericNum = {};
-Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType"].generic.call({ type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType', value: genericNum, $isTraitObject: true }, 5);
-var genericString = {};
-Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1"].generic.call({ type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1', value: genericString, $isTraitObject: true }, "hello");
-Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType"].generic.call({ type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType', value: genericNum, $isTraitObject: true }, 5);
-Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1"].generic.call({ type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1', value: genericString, $isTraitObject: true }, "hello");
+Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:EmptyType"].noBody.call({type: '$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:EmptyType', value: EmptyType({}), $isTraitObject: true});
+const func = {name: "func"};
+Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:FunctionsType"].withBody.call({type: '$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.puck:FunctionsType', value: func, $isTraitObject: true}, "body");
+let mutFunc = func;
+SelfAware["$impl_test/cases/types/traits.puck:SelfAware$test/cases/types/traits.puck:FunctionsType"].withMutableSelf.call({type: '$impl_test/cases/types/traits.puck:SelfAware$test/cases/types/traits.puck:FunctionsType', value: mutFunc, $isTraitObject: true});
+const genericNum = {};
+Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType"].generic.call({type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType', value: genericNum, $isTraitObject: true}, 5);
+const genericString = {};
+Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1"].generic.call({type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1', value: genericString, $isTraitObject: true}, "hello");
+Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType"].generic.call({type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType', value: genericNum, $isTraitObject: true}, 5);
+Generic["$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1"].generic.call({type: '$impl_test/cases/types/traits.puck:Generic$test/cases/types/traits.puck:GenericType$1', value: genericString, $isTraitObject: true}, "hello")

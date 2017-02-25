@@ -141,13 +141,13 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
 
       {absolutePath, fileName, inspect: fileInspect}
     }
-    importFile: fn (mut self, mut file: UnparsedFile) -> File {
+    importFile: fn (mut self, mut file: UnparsedFile, force = false) -> File {
       if self.files->[file.absolutePath] and file->outDir and file->outFile {
         self.files->[file.absolutePath]->outDir = file->outDir
         self.files->[file.absolutePath]->outFile = file->outFile
       }
 
-      if not self.files->[file.absolutePath] {
+      if force or not self.files->[file.absolutePath] {
         self.files->[file.absolutePath] = file
 
         if not file.puck
@@ -171,7 +171,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
   }
 }
 
-export fn buildString(code: String, filePath: String, projectPath: String) -> Result<File, {}> {
+export fn buildString(code: String, filePath: String, projectPath: String, options: {useBabel: Bool} = {useBabel: false}) -> Result<File, {}> {
   asResult(|| {
     let mut context = createContext(projectPath)
     let mut file = context.importFile({
@@ -185,14 +185,16 @@ export fn buildString(code: String, filePath: String, projectPath: String) -> Re
     context.runImplVisitor()
     context.runChecker()
     file.js = compile(context, file)
-    file->babel = babelTransform(file)
+    if options.useBabel {
+      file.js = babelTransform(file)
+    }
 
     file
   })
 }
 
-export fn build(files: List<BuildFile>, mut context, options = {}) {
-  let dump = options->dump
+export fn build(files: List<BuildFile>, mut context, options: {dump: String, useBabel: Bool} = {dump: '', useBabel: false}) {
+  let dump = options.dump
 
   let mut files = files.map(|f| {
     let fileName = path->basename(f.file).transmute()
@@ -240,14 +242,16 @@ export fn build(files: List<BuildFile>, mut context, options = {}) {
     return undefined
   }
 
-  files.forEach(|mut file| {
-    file->babel = babelTransform(file)
-  })
+  if options.useBabel {
+    files.forEach(|mut file| {
+      file.js = babelTransform(file)
+    })
+  }
 
   files.forEach(|f| {
     let outDir = f.outDir
     let outFile = f.outFile
     cmd('mkdir -p $outDir')
-    fs->writeFileSync('$outFile', f->babel + '\n', {mode: 511}) // 511 = 0o777
+    fs->writeFileSync('$outFile', f.js + '\n', {mode: Num.parseInt('777', Radix::Octal).unwrap()})
   })
 }

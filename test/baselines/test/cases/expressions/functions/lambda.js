@@ -1,21 +1,19 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var a = function a(_a, b) {
-  return _a + b;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const a = function (a, b) {
+  return a + b;
 };
-var b = function b() {
+const b = function () {
   return a(1, 2);
 };
-var c = function c(a, b) {
+const c = function (a, b) {
   if (a) {
     b();
   };
   return a;
 };
-var d = function d() {
+const d = function () {
   a(1, 2);
   return b();
 };
-var e = { empty: function empty() {} };
+const e = {empty: function () {}}

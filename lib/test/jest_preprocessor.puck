@@ -4,6 +4,6 @@ import '../entities.puck' as {File}
 
 export fn process(src: String, path: String) -> String {
   if path->endsWith('.puck')
-    then buildString(src, path, dirname(path)).unwrap()->babel.transmute()
+    then buildString(src, path, dirname(path)).unwrap().js
     else src
 }

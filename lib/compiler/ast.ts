@@ -71,13 +71,13 @@ export interface Identifier extends SimpleIdentifier {
 
 export interface ImplDeclaration {
   implementation: Implementation
-  trait_: TypeBound
-  type_: TypeBound
+  trait_: NamedTypeBound
+  type_: NamedTypeBound
   members: Array<FunctionDeclaration>
 }
 
 export interface ImplShorthandDeclaration {
-  type_: TypeBound
+  type_: NamedTypeBound
   members: Array<FunctionDeclaration>
 }
 
@@ -133,6 +133,12 @@ export type TypeBound = {
   }]
 }
 
+export type NamedTypeBound = {
+  path: TypePath
+  typeParameters: Array<TypeBound>
+  type_: Type
+}
+
 export interface TypeDeclaration {
   keyword: Token
   name: Identifier
@@ -153,6 +159,7 @@ export interface TypePathMemberArm {
 export interface TypePathObjectArm {
   kind: '_Object'
   value: [Identifier, TypePath]
+  binding?: any
 }
 
 export type TypePath
@@ -244,12 +251,14 @@ export interface AssignmentExpression extends Token {
   lhs: Expression
   token: Token
   rhs: Expression
+  call?: any
 }
 
 export interface BinaryExpression extends Token {
   lhs: Expression
   operator: Token
   rhs: Expression
+  call?: any
 }
 
 export interface CallExpression extends Token {
@@ -261,6 +270,7 @@ export interface CallExpression extends Token {
   // The resolved trait function (if is trait call)
   functionType: Type
   implementation: Implementation
+  traitBinding?: any
 }
 
 export interface ForExpression extends Token {
@@ -311,6 +321,7 @@ export interface WhileLoop extends Token {
 export interface IndexAccess extends Token {
   object: Expression
   index: Expression
+  call?: any
 }
 
 export interface MemberAccess extends Token {

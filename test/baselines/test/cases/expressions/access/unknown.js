@@ -1,22 +1,21 @@
 'use strict';
 
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
-
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 [].length;
 []["length"];
-var prop = "length";
+const prop = "length";
 [][prop];
 prop[prop];
 prop.length;
 prop.toUpperCase();
-var length = $unwrapTraitObject(prop.length);
-var message = _core.Unknown.asString.call(["hello", "world"].map(function (s) {
+const length = $unwrapTraitObject(prop.length);
+const message = $puck_1.Unknown.asString.call([
+  "hello",
+  "world",
+].map(function (s) {
   return $unwrapTraitObject(s).toUpperCase();
 }).join(", "));
-var a = {};
+const a = {};
 a.a = "a";
-a["b"] = "b";
+a["b"] = "b"

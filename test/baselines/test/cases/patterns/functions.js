@@ -1,11 +1,9 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-function a(__PUCK__value__1) {
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+function a($puck_2) {
   return 5;
 };
-function b(__PUCK__value__2, num) {
+function b($puck_3, num) {
   return num;
 };
 a("hello");
@@ -13,28 +11,36 @@ b("hello", 5);
 function c() {
   if (false == true) {
     return "Wut?";
-  } else {
+  }
+  else {
     if (false == true) {
       return "Wut?";
-    } else {
+    }
+    else {
       if (false == true) {
         return "Wut?";
-      } else {
+      }
+      else {
         if (false == true) {
           return "Wut?";
-        } else {
+        }
+        else {
           if (false == true) {
             return "Wut?";
-          } else {
+          }
+          else {
             if (false == true) {
               return "Wut?";
-            } else {
+            }
+            else {
               if (false == true) {
                 return "Wut?";
-              } else {
+              }
+              else {
                 if (false == true) {
                   return "Wut?";
-                } else {
+                }
+                else {
                   return "fine";
                 };
               };

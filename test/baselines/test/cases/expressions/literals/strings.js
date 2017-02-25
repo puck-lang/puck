@@ -1,12 +1,10 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var a = "string";
-var b = "string of " + a + "";
-var c = "multi\nline";
-var d = "escapes $c\\n\n\r\t'\"";
-var e = "string";
-var f = "string of " + a + "";
-var g = "multi\nline";
-var h = "escapes $c\\n\n\r\t'\"";
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const a = "string";
+const b = "string of " + a + "";
+const c = "multi\nline";
+const d = "escapes $c\\n\n\r\t'\"";
+const e = "string";
+const f = "string of " + a + "";
+const g = "multi\nline";
+const h = "escapes $c\\n\n\r\t'\""

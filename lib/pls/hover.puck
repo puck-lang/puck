@@ -3,6 +3,7 @@ import '../ast/ast.puck' as {
   Identifier
   FunctionDeclaration
   VariableDeclaration
+  CallExpression
   IfLetExpression
   MatchExpression
   MemberAccess
@@ -125,6 +126,23 @@ impl PositionVisitor for HoverVisitor {
     self.patternType = if d->type_ then Some(d->type_.transmute()) else None
     visit.walkVariableDeclaration(self, d)
     self.patternType = parent
+  }
+
+  fn visitCallExpression(mut self, e: CallExpression) -> () {
+    if e->functionType {
+      if e.func.span().cmp(self.position()) == Ordering::Equal {
+        if let Expression::MemberAccess(a) = e.func {
+          if a.member.span().cmp(self.position()) == Ordering::Equal {
+            self.hover = Some({
+              contents: getTypeContents(e->functionType.transmute())
+              span: a.member.span()
+            })
+            return ()
+          }
+        }
+      }
+    }
+    visit.walkCallExpression(self, e)
   }
 
   fn visitIfLetExpression(mut self, e: IfLetExpression) -> () {

@@ -3,11 +3,12 @@ import 'node:fs' as fs
 import '../lib/test/jest.puck' as {jest}
 import 'node:path' as path
 import '../lib/compiler.puck' as {build, createContext}
-import '../lib/helpers.puck' as {walkSync}
+import '../lib/helpers.puck' as {flag, walkSync}
 
 let argv: List<String> = process->argv.transmute()
 let arguments = argv.skipUntil(|arg| arg.contains('puck')).skip(1).toList()
 let command = arguments[0]
+let useBabel = if flag(arguments, '--babel') != '' then true else false
 
 let puckPattern = RegExp.new('\\.puck$', 'i')
 
@@ -37,8 +38,8 @@ if command == 'build' {
 
   let projectPath: String = fs->realpathSync('.').transmute()
   let mut context = createContext(projectPath)
-  build(libFiles, context)
-  build(binFiles, context)
+  build(libFiles, context, {dump: '', useBabel})
+  build(binFiles, context, {dump: '', useBabel})
 
   print('done')
 }

@@ -1,27 +1,23 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var Type = function Type(object) {
-  return object;
-};
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+var Type = (object) => object;
 var Trait = {
-  a: function a() {}
+a: function () {}
 };
 Trait["$impl_test/cases/types/impl.puck:Trait$test/cases/types/impl.puck:Type"] = {
-  a: function a() {}
+a: function () {}
 };
 Type.isAnswer = function () {
-  var self = this;
+  const self = this;
   return self.value == 42;
 };
 Type.isNegative = function (other) {
-  var self = this;
-  return { value: self.value + other.value };
+  const self = this;
+  return {value: self.value + other.value};
 };
 Type.isAnswer2 = function () {
-  var self = this;
+  const self = this;
   return Type.isAnswer.call(self);
 };
-var type_ = { value: 42 };
-Type.isAnswer.call(type_);
+const type_ = {value: 42};
+Type.isAnswer.call(type_)

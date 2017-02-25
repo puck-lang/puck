@@ -18,6 +18,7 @@ import 'ast.puck' as {
   TypeDeclaration
 
   Block
+  BreakStatement
   ReturnStatement
   WhileLoop
 
@@ -71,10 +72,7 @@ import '../compiler/ast.ts' as {SyntaxKind}
 //! deeper traversal by doing nothing.
 //!
 //! Note: it is an important invariant that the default visitor walks the body
-//! of a function in "execution order" (more concretely, reverse post-order
-//! with respect to the CFG implied by the AST), meaning that if AST node A may
-//! execute before AST node B, then A is visited first.  The borrow checker in
-//! particular relies on this property.
+//! of a function in "execution order".
 //!
 //! Note: walking an AST before macro expansion is probably a bad idea. For
 //! instance, a walker looking for item names in a module will miss all of
@@ -109,10 +107,10 @@ export let walkingVisitor = {
 
   visitBlock: |self, b: Block| walkBlock(self, b)
   visitBreak: || {}
-  visitReturn: |self, r: ReturnStatement| walkReturn(self, r)
+  visitReturn: |self, r: ReturnStatement| walkReturnStatement(self, r)
   visitWhileLoop: |self, e: WhileLoop| walkWhileLoop(self, e)
 
-  visitIdentifier: |self, i: Identifier| walkIdentifier(self, i)
+  visitIdentifier: |self, i: Identifier| {}
   visitFunctionDeclaration: |self, f: FunctionDeclaration| walkFunctionDeclaration(self, f)
   visitVariableDeclaration: |self, d: VariableDeclaration| walkVariableDeclaration(self, d)
 
@@ -130,9 +128,9 @@ export let walkingVisitor = {
   visitUnknownAccess: |self, a: UnknownAccess| walkUnknownAccess(self, a)
   visitUnknownIndexAccess: |self, a: UnknownIndexAccess| walkUnknownIndexAccess(self, a)
 
+  visitBooleanLiteral: |self, l: BooleanLiteral| {}
   visitListLiteral: |self, l: ListLiteral| walkListLiteral(self, l)
-  visitBooleanLiteral: |self, l: BooleanLiteral| walkBooleanLiteral(self, l)
-  visitNumberLiteral: |self, l: NumberLiteral| walkNumberLiteral(self, l)
+  visitNumberLiteral: |self, l: NumberLiteral| {}
   visitRecordLiteral: |self, l: RecordLiteral| walkRecordLiteral(self, l)
   visitStringLiteral: |self, l: StringLiteral| walkStringLiteral(self, l)
   visitTupleLiteral: |self, l: TupleLiteral| walkTupleLiteral(self, l)
@@ -286,13 +284,13 @@ export fn walkEnumMember(visitor, e: EnumMember) {
 }
 export fn walkImplDeclaration(visitor, i: ImplDeclaration) {
   i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
-  visitor.visitTypeBound(i.trait_)
-  visitor.visitTypeBound(i.type_)
+  visitor.visitNamedTypeBound(i.trait_)
+  visitor.visitNamedTypeBound(i.type_)
   i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
 }
 export fn walkImplShorthandDeclaration(visitor, i: ImplShorthandDeclaration) {
   i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
-  visitor.visitTypeBound(i.type_)
+  visitor.visitNamedTypeBound(i.type_)
   i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
 }
 export fn walkTraitDeclaration(visitor, t: TraitDeclaration) {
@@ -332,7 +330,7 @@ export fn walkObjectDestructure(visitor, o: ObjectDestructure) {
 export fn walkBlock(visitor, b: Block) {
   b.statements.forEach(|s| visitor.visitBlockLevelStatement(s))
 }
-export fn walkReturn(visitor, r: ReturnStatement) {
+export fn walkReturnStatement(visitor, r: ReturnStatement) {
   visitor.visitExpression(r.expression)
 }
 export fn walkWhileLoop(visitor, e: WhileLoop) {
@@ -340,7 +338,6 @@ export fn walkWhileLoop(visitor, e: WhileLoop) {
   visitor.visitBlock(e.body)
 }
 
-export fn walkIdentifier(visitor, i: Identifier) {}
 export fn walkFunctionDeclaration(visitor, f: FunctionDeclaration) {
   if f.typeParameters
     then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
@@ -406,11 +403,9 @@ export fn walkUnknownIndexAccess(visitor, a: UnknownIndexAccess) {
   visitor.visitExpression(a.index)
 }
 
-export fn walkBooleanLiteral(visitor, l: BooleanLiteral) {}
 export fn walkListLiteral(visitor, l: ListLiteral) {
   l.members.forEach(|e| visitor.visitExpression(e))
 }
-export fn walkNumberLiteral(visitor, l: NumberLiteral) {}
 export fn walkRecordLiteral(visitor, l: RecordLiteral) {
   l.members.forEach(|m| {
     visitor.visitIdentifier(m.name)

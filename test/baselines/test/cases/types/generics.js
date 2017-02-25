@@ -1,31 +1,26 @@
 'use strict';
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var User = function User(object) {
-  return object;
-};
-var ExpectationObject = function ExpectationObject(object) {
-  return object;
-};
-var argv = [];
-var __PUCK__value__1 = _core.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({ type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true }, function (arg) {
-  return _core.String.contains.call(arg, "puck");
-});
-var _arguments = _core.Iterable[__PUCK__value__1.type].skip.call(__PUCK__value__1, 1);
-var user = _core.Option.Some({ name: "Anna" });
-var name = _core.Option.map.call(user, function (user) {
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+var User = (object) => object;
+var ExpectationObject = (object) => object;
+const argv = [];
+let $puck_2 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true}, function (arg) {
+  return $puck_1.String.contains.call(arg, "puck");
+})
+;
+const _arguments = $puck_1.Iterable[$puck_2.type].skip.call($puck_2, 1);
+const user = $puck_1.Option.Some({name: "Anna"});
+const name = $puck_1.Option.map.call(user, function (user) {
   return user.name;
 });
-var user2 = _core.Option.Some({ name: "Anna" });
-var name2 = _core.Option.map.call(user2, function (user) {
+const user2 = $puck_1.Option.Some({name: "Anna"});
+const name2 = $puck_1.Option.map.call(user2, function (user) {
   return user.name;
 });
-var name3 = _core.Option.unwrapOr.call(name2, "Guest");
-var containsGuest = _core.String.contains.call(name3, "Guest");
+const name3 = $puck_1.Option.unwrapOr.call(name2, "Guest");
+const containsGuest = $puck_1.String.contains.call(name3, "Guest");
 function expect(value) {
-  return { toEqual: function toEqual(__PUCK__value__2) {} };
+  return {toEqual: function ($puck_3) {}};
 };
-expect(_core.Option.andThen.call((0, _core.Some)(1), function (value) {
-  return (0, _core.Some)(value + value);
-})).toEqual((0, _core.Some)(2));
+expect($puck_1.Option.andThen.call($puck_1.Some(1), function (value) {
+  return $puck_1.Some(value + value);
+})).toEqual($puck_1.Some(2))

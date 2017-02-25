@@ -1,7 +1,11 @@
-import '../lib/helpers.puck' as {cmd}
+import 'puck:js' as {process}
+import '../lib/helpers.puck' as {cmd, flag}
 import '../lib/test.puck' as {buildAll, buildTestCompiler}
 
-buildTestCompiler()
-buildAll('.tmp/new', '.tmp/old')
+let argv: List<String> = process->argv.transmute()
+let useBabel = if flag(argv, '--babel') != '' then true else false
+
+buildTestCompiler(useBabel)
+buildAll('.tmp/new', '.tmp/old', useBabel)
 cmd('diff --exclude=node_modules -Nr .tmp/old .tmp/new')
 print('done')

@@ -128,9 +128,12 @@ impl Scope {
 
   fn getTypePath(self, typePath: TypePath, visitor = '') -> Result<Binding, String> {
     match typePath {
-      TypePath::Member({name}) => {
-        self.getBinding(name, visitor)
-          .okOr('Use of undeclared type $name')
+      TypePath::Member(identifier) => {
+        if let Some(binding) = self.getBinding(identifier.name, visitor) {
+          identifier->binding = binding
+          Ok(binding)
+        }
+        else Err('Use of undeclared type ' + identifier.name)
       }
       TypePath::Object(identifier, path) => {
         let mut token: ToSpan = identifier
@@ -141,6 +144,7 @@ impl Scope {
             Option::Some(binding) => binding
             Option::None => return Err('Use of undeclared type $name')
           }
+        identifier->binding = binding
         let mut type_: Type = binding.type_
 
         while true {

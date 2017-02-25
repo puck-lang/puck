@@ -23,6 +23,7 @@ import '../ast/ast.puck' as {
   FunctionDeclaration
   MemberAccess
   TypeBound
+  NamedTypeBound
 }
 import '../ast/span.puck' as {Position, Span, ToSpan}
 import '../typeck/src/scope.puck' as {Scope}
@@ -170,7 +171,13 @@ fn getScopeCompletions(node) -> List<Completion> {
     scope.getBindings()
       .values()
       .map(|binding| {
-        let typeName = binding.type_.displayName()
+        let typeName =
+          if not binding.type_
+            then '??'
+            else match binding.type_.kind {
+              TypeKind::Function => binding.type_.verboseName()
+              _ => binding.type_.displayName()
+            }
         {
           label: binding.name + ': $typeName'
           kind: CompletionItemKind.Text

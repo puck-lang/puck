@@ -13,8 +13,8 @@ var entities_1 = require("../entities");
 var impls_1 = require("../typeck/src/impls");
 var scope_1 = require("../typeck/src/scope");
 var jsKeywords = [
-    'arguments', 'case', 'class', 'default', 'delete', 'function', 'module', 'new', 'null',
-    'static', 'Object', 'typeof', 'undefined',
+    'arguments', 'case', 'class', 'default', 'delete', 'function', 'global', 'module', 'new', 'null',
+    'require', 'static', 'Object', 'typeof', 'undefined',
 ];
 var tokenToJs = function (kind) {
     if (kind.kind == 'AndKeyword')
@@ -49,9 +49,10 @@ function Emitter() {
     var currentPrecedence;
     var typeOverrides = {};
     var includeTraitObjectHelper = false;
+    var exportPreamble = [];
     function newValueVariable() {
         valueVarableCount += 1;
-        return "__PUCK__value__" + valueVarableCount;
+        return "$puck_" + valueVarableCount;
     }
     function getType(e) {
         if (e.kind === 'Identifier' &&
@@ -233,7 +234,11 @@ function Emitter() {
         if (includeTraitObjectHelper) {
             preamble += '\nconst $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);\n';
         }
-        return preamble + statements.join(';\n');
+        var e = '';
+        if (exportPreamble.length) {
+            e = exportPreamble.join(' = ') + 'undefined;\n';
+        }
+        return preamble + e + statements.join(';\n');
     }
     function emitBlock(block, inContext, assignedTo_) {
         level++;
@@ -333,8 +338,9 @@ function Emitter() {
         if (assignedTo_ === void 0) { assignedTo_ = null; }
         return withContext(context, function () { return emitExpressionKeepContext(expression, assignedTo_); }, false);
     }
-    function emitEnumDeclaration(e) {
-        return "var " + emitIdentifier(e.name) + " = {\n" + indent(e.members.map(emitEnumMember).join('\n')) + "\n}";
+    function emitEnumDeclaration(e, export_) {
+        if (export_ === void 0) { export_ = ''; }
+        return "var " + emitIdentifier(e.name) + " = " + export_ + "{\n" + indent(e.members.map(emitEnumMember).join('\n')) + "\n}";
     }
     function emitEnumMember(t) {
         var value;
@@ -424,35 +430,40 @@ function Emitter() {
         return "" + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitIdentifier(identifier) {
+        if (identifier.binding && identifier.binding.token.value.importName) {
+            return identifier.binding.token.value.importName;
+        }
         if (jsKeywords.indexOf(identifier.name) != -1) {
             return "_" + identifier.name;
         }
         return identifier.name;
     }
     function emitImplDeclaration(i) {
-        var functions = Object['assign']({}, i.trait_.value[0].type_.kind.value[0].functions);
+        var functions = Object['assign']({}, i.trait_.type_.kind.value[0].functions);
         i.members.forEach(function (m) { return functions[m.name.value[0].name] = emitFunctionDeclaration(m, false); });
-        return "" + emitTypePath(i.trait_.value[0].path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(functions).map(function (f) {
+        return "" + emitTypePath(i.trait_.path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(functions).map(function (f) {
             return emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
-                : emitTypePath(i.trait_.value[0].path) + "." + emitIdentifier({ name: f }));
+                : emitTypePath(i.trait_.path) + "." + emitIdentifier({ name: f }));
         }))
             .join(',\n') + "\n}";
     }
     function emitImplShorthandDeclaration(i) {
         return i.members
             .map(function (m) {
-            return emitTypePath(i.type_.value[0].path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m, false);
+            return emitTypePath(i.type_.path) + "." + emitIdentifier(m.name.value[0]) + " = " + emitFunctionDeclaration(m, false);
         })
             .join(';\n');
     }
-    function emitTraitDeclaration(t) {
-        return "var " + emitIdentifier(t.name) + " = {\n" + indent(t.members
+    function emitTraitDeclaration(t, export_) {
+        if (export_ === void 0) { export_ = ''; }
+        return "var " + emitIdentifier(t.name) + " = " + export_ + "{\n" + indent(t.members
             .filter(function (m) { return m.body.kind === 'Some'; })
             .map(function (m) { return emitIdentifier(m.name.value[0]) + ": " + emitFunctionDeclaration(m, false); }))
             .join(',\n') + "\n}";
     }
-    function emitTypeDeclaration(t) {
+    function emitTypeDeclaration(t, export_) {
+        if (export_ === void 0) { export_ = ''; }
         var value;
         if (t.bound.kind == 'Some') {
             var bound = t.bound.value[0];
@@ -469,9 +480,10 @@ function Emitter() {
         else {
             value = "Symbol('" + emitIdentifier(t.name) + "')";
         }
-        return "var " + emitIdentifier(t.name) + " = " + value;
+        return "var " + emitIdentifier(t.name) + " = " + export_ + value;
     }
-    function emitVariableDeclaration(vd) {
+    function emitVariableDeclaration(vd, export_) {
+        if (export_ === void 0) { export_ = ''; }
         var willBeRedefined = true;
         var binding;
         if (vd.pattern.kind === 'Identifier') {
@@ -488,7 +500,7 @@ function Emitter() {
             if (vd.pattern.kind !== 'Identifier' && vd.pattern.kind !== 'CatchAll') {
                 initializer = unwrap(initializer, vd.initializer.value[0]);
             }
-            initializer = " = " + initializer;
+            initializer = " = " + export_ + initializer;
         }
         if (binding && binding.previous && binding.previous.value[0]) {
             return "" + emitPatternDestructuring(vd.pattern) + initializer;
@@ -499,33 +511,34 @@ function Emitter() {
             hoist("let " + emitPatternDestructuring(vd.pattern) + " = " + valueVariable_1 + ";");
             return valueVariable_1;
         }
-        var kw = (vd.mutable || willBeRedefined) ? 'let' : 'const';
+        var kw = export_ ? 'var' : ((vd.mutable || willBeRedefined) ? 'let' : 'const');
         return kw + " " + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitExportDirective(e) {
-        return "export " + (e.statement.kind === 'EnumDeclaration'
-            ? emitEnumDeclaration(e.statement.value[0]) :
+        var export_ = "exports." + emitIdentifier(e.identifier) + " = ";
+        var definition = "" + (e.statement.kind === 'EnumDeclaration'
+            ? emitEnumDeclaration(e.statement.value[0], export_) :
             e.statement.kind === 'TraitDeclaration'
-                ? emitTraitDeclaration(e.statement.value[0]) :
+                ? emitTraitDeclaration(e.statement.value[0], export_) :
                 e.statement.kind === 'TypeDeclaration'
-                    ? emitTypeDeclaration(e.statement.value[0]) :
+                    ? emitTypeDeclaration(e.statement.value[0], export_) :
                     e.statement.kind === 'FunctionDeclaration'
-                        ? emitFunctionDeclaration(e.statement.value[0]) :
+                        ? emitFunctionDeclaration(e.statement.value[0], true) + ";\n" + export_ + emitIdentifier(e.identifier) :
                         e.statement.kind === 'VariableDeclaration'
-                            ? emitVariableDeclaration(e.statement.value[0])
+                            ? emitVariableDeclaration(e.statement.value[0], export_)
                             : (function () { throw 'Unknown Exported statement'; })());
+        exportPreamble.push("exports." + emitIdentifier(e.identifier));
+        return definition;
     }
     function emitImportDirective(i) {
-        var specifier = i.specifier.kind === 'Identifier'
-            ? "* as " + emitIdentifier(i.specifier.value[0])
-            : "{" + i.specifier.value[0].members
-                .map(function (_a) {
-                var property = _a.property, local = _a.local;
-                return property.name === local.name
-                    ? emitIdentifier(property)
-                    : emitIdentifier(property) + " as " + emitIdentifier(local);
-            })
-                .join(', ') + "}";
+        var importName = i.specifier.kind === 'Identifier'
+            ? "" + emitIdentifier(i.specifier.value[0])
+            : newValueVariable();
+        if (i.specifier.kind === 'ObjectDestructure') {
+            i.specifier.value[0].members.forEach(function (m) {
+                m['importName'] = importName + "." + emitIdentifier(m.property);
+            });
+        }
         var path;
         if (i.domain.kind == 'None') {
             if (i.path.charAt(0) == '/') {
@@ -545,7 +558,7 @@ function Emitter() {
         else {
             throw "Unsupported import-domain \"" + i.domain + "\"";
         }
-        return "import " + specifier + " from '" + path + "'";
+        return "const " + importName + " = require(" + JSON.stringify(path) + ")";
     }
     function emitPatternDestructuring(p) {
         var isEnum = !!getEnumMember(p);
@@ -623,7 +636,10 @@ function Emitter() {
                     hoist("let " + valueVariable + " = " + emitExpression(fn.func.value[0].object) + "\n");
                 }
             }
-            functionName = "" + fn.traitName + ((fn.isShorthand || (selfBinding.kind === 'None' && !fn.isDirectTraitCall)) ? "" :
+            var traitName = fn.traitBinding && fn.traitBinding.token.value.importName
+                ? fn.traitBinding.token.value.importName
+                : fn.traitName;
+            functionName = "" + traitName + ((fn.isShorthand || (selfBinding.kind === 'None' && !fn.isDirectTraitCall)) ? "" :
                 fn.isTraitObject ? "[" + emitIdentifier({ name: valueVariable }) + ".type]"
                     : "" + implProp(fn.implementation)) + "." + emitIdentifier(fn.func.value[0].member);
             if (selfBinding.kind === 'Some') {
@@ -644,7 +660,10 @@ function Emitter() {
             else if (fn.isDirectTraitCall) {
                 functionName += '.call';
             }
-            if (functionName == 'Unknown.transmute.call') {
+            // transmute is a noop
+            if (fn.implementation && fn.implementation.type_.id.kind === 'Some' &&
+                fn.implementation.type_.id.value[0] === 'Unknown' &&
+                fn.func.value[0].member.name == 'transmute') {
                 return emitExpression(fn.func.value[0].object);
             }
             valueVariable = outerValueVariable;
@@ -772,7 +791,7 @@ function Emitter() {
     function emitIfLetExpression(e) {
         var outerValueVariable = valueVariable;
         var initializer;
-        if (e.expression.kind === 'Identifier' && e.expression.value[0].name.startsWith('__PUCK__value__')) {
+        if (e.expression.kind === 'Identifier' && e.expression.value[0].name.startsWith('$puck_')) {
             initializer = e.expression.value[0];
         }
         else {

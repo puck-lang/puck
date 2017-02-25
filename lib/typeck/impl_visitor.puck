@@ -16,6 +16,7 @@ import '../ast/ast.puck' as {
   ExportedStatement
 
   TypeBound
+  NamedTypeBound
 }
 import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
@@ -165,8 +166,8 @@ export fn ImplVisitor(mut context, file) {
       let mut scope = parentScope.createChild()
       self.scope = scope
       i.typeParameters.forEach(self.visitTypeParameter.bind(self))
-      self.visitTypeBound(i.trait_)
-      self.visitTypeBound(i.type_)
+      self.visitNamedTypeBound(i.trait_)
+      self.visitNamedTypeBound(i.type_)
 
       let traitType = i.trait_.getType()
       let mut structType = i.type_.getType()
@@ -196,7 +197,7 @@ export fn ImplVisitor(mut context, file) {
       let mut scope = parentScope.createChild()
       self.scope = scope
       i.typeParameters.forEach(self.visitTypeParameter.bind(self))
-      self.visitTypeBound(i.type_)
+      self.visitNamedTypeBound(i.type_)
 
       let mut structType = i.type_.getType()
       scope.setSelfType(structType)

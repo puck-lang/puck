@@ -1,82 +1,70 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.InputStream = undefined;
-
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var _js = require('puck-lang/dist/lib/stdlib/js');
-
-var _span = require('./../ast/span');
-
-var _entities = require('./../entities');
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
-var InputStream = exports.InputStream = function InputStream(object) {
-  return object;
-};
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+exports.InputStreamundefined;
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
+const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
+const $puck_3 = require("./../ast/span");
+const $puck_4 = require("./../entities");
+var InputStream = exports.InputStream = (object) => object;
 InputStream._new = function (context, file) {
-  var __PUCK__value__1 = void 0;
+  let $puck_5;
   if (file.puck.substring(0, 13) == "//#![no_core]") {
-    __PUCK__value__1 = "\n" + file.puck.slice(13);
-  } else {
-    __PUCK__value__1 = "import 'puck:core' as *\n" + file.puck;
+    $puck_5 = "\n" + file.puck.slice(13);
+  }
+  else {
+    $puck_5 = "import 'puck:core' as *\n" + file.puck;
   };
   return {
     context: context,
     file: file,
-    code: __PUCK__value__1,
+    code: $puck_5,
     pos: 0,
     line: 0,
-    column: 0
+    column: 0,
   };
 };
 InputStream.position = function () {
-  var self = this;
+  const self = this;
   return {
     line: self.line,
-    column: self.column
+    column: self.column,
   };
 };
 InputStream.next = function () {
-  var self = this;
-  var ch = $unwrapTraitObject(self.code.charAt(self.pos));
+  let self = this;
+  const ch = $unwrapTraitObject(self.code.charAt(self.pos));
   self.pos += 1;
-  if (ch == "\n") {
+  if ((ch == "\n")) {
     self.line += 1;
     self.column = 1;
-  } else {
+  }
+  else {
     self.column += 1;
   };
   return $unwrapTraitObject(ch);
 };
-InputStream.peek = function () {
-  var distance = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
-  var self = this;
+InputStream.peek = function (distance = 0) {
+  const self = this;
   return $unwrapTraitObject(self.code.charAt(self.pos + distance));
 };
 InputStream.eof = function () {
-  var self = this;
-  return InputStream.peek.call(self) == "";
+  const self = this;
+  return (InputStream.peek.call(self) == "");
 };
 InputStream.croak = function (message) {
-  var self = this;
-  var span = {
+  const self = this;
+  const span = {
     start: {
-      line: self.line,
-      column: self.column
-    },
+    line: self.line,
+    column: self.column,
+  },
     end: {
-      line: self.line,
-      column: self.column + 1
-    }
+    line: self.line,
+    column: self.column + 1,
+  },
   };
-  var token = { type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: span, $isTraitObject: true };
+  const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: span, $isTraitObject: true};
   self.context.reportError(self.file, token, message);
   throw "Syntax Error";
-};
+}

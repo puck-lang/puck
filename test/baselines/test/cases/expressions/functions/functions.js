@@ -1,16 +1,10 @@
 'use strict';
 
-var _core = require('puck-lang/dist/lib/stdlib/core');
-
-var $unwrapTraitObject = function $unwrapTraitObject(obj) {
-  return obj && (obj.$isTraitObject ? obj.value : obj);
-};
-
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
+const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 function a() {};
 function b(a) {};
-function c() {
-  var a = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-
+function c(a = 1) {
   return a;
 };
 function d(a, b) {
@@ -56,29 +50,29 @@ function m(a, b) {
   return a == b;
 };
 function n() {
-  var self = this;
+  const self = this;
   return $unwrapTraitObject(self).toString();
 };
 function o() {
-  var self = this;
+  let self = this;
   return $unwrapTraitObject(self).toString();
 };
 function p(a) {
-  var self = this;
+  const self = this;
   return $unwrapTraitObject(self).toString();
 };
 a();
 b(1);
 c();
 c(2);
-var q = function q(a) {};
+const q = function (a) {};
 q(1);
-var bool = m(1, 2);
-var obj = { key: function key() {
-    var self = this;
-    return self;
-  } };
+const bool = m(1, 2);
+const obj = {key: function () {
+  const self = this;
+  return self;
+}};
 function r(a, b) {};
 r(5, function (a) {
-  return _core.Num.round.call(a);
-});
+  return $puck_1.Num.round.call(a);
+})

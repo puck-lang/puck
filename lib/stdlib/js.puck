@@ -37,7 +37,7 @@ export let require: (core::String) -> Unknown = js->_require.transmute()
 ///
 /// Example:
 ///    let date = new(Date)('2000') // is equal to the JavaScript: new Date('2000')
-export let new = js->_new
+export let new: <T>(T) -> T = js->_new.transmute()
 export let typeof: <T>(T) -> core::String = js->_typeof.transmute()
 
 export fn asResult<R, E>(func: () -> R) -> Result<R, E> {

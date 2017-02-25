@@ -53,11 +53,20 @@ fn isNonExhaustive(typePath: TypePath) -> Bool {
   false
 }
 
-export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool, useParentScope = false) ->
+export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool, useParentScope = false, mut definitions: ObjectMap<Bool> = ObjectMap.new()) ->
     Result<(), PatternError> {
   match p {
     Pattern::CatchAll => Ok(())
     Pattern::Identifier(identifier) => {
+      if definitions.has(identifier.name) {
+        return Err(PatternError::ScopeError(
+          identifier
+          '"' + identifier.name + '" is already defined in this pattern'
+        ))
+      }
+      else {
+        definitions[identifier.name] = true
+      }
       match scope.define({
         name: identifier.name
         token: p
@@ -88,7 +97,19 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
           else ObjectMap.new()
 
       let properties: Result<(), PatternError> = record.properties
-        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props->[p.property.name].transmute(), allowNotExhaustive)))
+        .map(|mut p| (
+          p.property.name
+          declarePatternVariables(
+            scope
+            visitor
+            p.pattern
+            mutable
+            props->[p.property.name].transmute()
+            allowNotExhaustive
+            useParentScope
+            definitions
+          )
+        ))
         ->reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
           acc.andThen(|_| type_)
         }, Ok(()))
@@ -118,7 +139,19 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
 
       let properties: Result<(), PatternError> = record.properties
         .toList()
-        .map(|mut p| (p.property.name, declarePatternVariables(scope, visitor, p.pattern, mutable, props->[p.property.name].transmute(), allowNotExhaustive)))
+        .map(|mut p| (
+          p.property.name
+          declarePatternVariables(
+            scope
+            visitor
+            p.pattern
+            mutable
+            props->[p.property.name].transmute()
+            allowNotExhaustive
+            useParentScope
+            definitions
+          )
+        ))
         ->reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
           acc.andThen(|_| type_)
         }, Ok(()))
@@ -141,7 +174,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
 
       let properties: Result<(), PatternError> = tuple.properties
         .enumerate()
-        .map(|mut (i, p)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive))
+        .map(|mut (i, p)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive, useParentScope, definitions))
         .toList()
         ->reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
           acc.andThen(|_| cur)
@@ -172,7 +205,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
 
       let properties: Result<(), PatternError> = tuple.properties
         .enumerate()
-        .map(|mut (i, p)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive))
+        .map(|mut (i, p)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive, useParentScope, definitions))
         .toList()
         ->reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
           acc.andThen(|_| cur)
