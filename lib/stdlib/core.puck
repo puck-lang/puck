@@ -1173,3 +1173,64 @@ impl PartialOrd<String> for String {
     Some(self.cmp(o))
   }
 }
+
+export type Map<K, V> {}
+impl<K, V> Map<K, V> {
+  fn new() -> Map<K, V> {
+    js->createMap().transmute()
+  }
+
+  fn size(self) -> Num {
+    self->size.transmute()
+  }
+
+  fn set(mut self, key: K, value: V) -> () {
+    self->set(key, value)
+  }
+
+  fn get(self, key: K) -> Option<V> {
+    let value: V = self->get(key).transmute()
+    if value
+      then Some(value)
+      else None
+  }
+
+  fn delete(mut self, key: K) -> () {
+    self->delete(key)
+  }
+
+  fn has(self, key: K) -> Bool {
+    self->has(key).transmute()
+  }
+
+  fn forEach(self, f: (K, V) -> ()) -> () {
+    self->forEach(f)
+  }
+}
+
+export type Set<T> {}
+impl<T> Set<T> {
+  fn new() -> Set<T> {
+    js->createSet().transmute()
+  }
+
+  fn size(self) -> Num {
+    self->size.transmute()
+  }
+
+  fn add(mut self, value: T) -> () {
+    self->add(value)
+  }
+
+  fn delete(mut self, value: T) -> () {
+    self->delete(value)
+  }
+
+  fn has(self, value: T) -> Bool {
+    self->has(value).transmute()
+  }
+
+  fn forEach(self, f: (T) -> ()) -> () {
+    self->forEach(f)
+  }
+}

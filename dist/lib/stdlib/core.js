@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.RegExp = exports.Bool = exports.Num = exports.String = exports.List = exports.Range = exports.ObjectMap = exports.Unknown = exports.Radix = exports.Result = exports.Option = exports.Ordering = exports.Never = exports.IntoIterator = exports.Iterator = exports.Iterable = exports.Index = exports.PartialOrd = exports.Ord = exports.Ok = exports.Err = exports.Some = exports.None = exports.print = exports.panicundefined;
+exports.RegExp = exports.Bool = exports.Num = exports.String = exports.List = exports.Range = exports.ObjectMap = exports.Unknown = exports.Map = exports.Set = exports.Radix = exports.Result = exports.Option = exports.Ordering = exports.Never = exports.IntoIterator = exports.Iterator = exports.Iterable = exports.Index = exports.PartialOrd = exports.Ord = exports.Ok = exports.Err = exports.Some = exports.None = exports.print = exports.panicundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/js");
 const js = require("./core/js.js");
 var RegExp = exports.RegExp = (object) => object;
@@ -18,6 +18,8 @@ var Range = exports.Range = (object) => object;
 var NumRangeIterator = (object) => object;
 var ObjectMap = exports.ObjectMap = (object) => object;
 var Unknown = exports.Unknown = (object) => object;
+var Map = exports.Map = (object) => object;
+var Set = exports.Set = (object) => object;
 var Radix = exports.Radix = {
 Binary: {kind: 'Binary', value: Symbol('Binary')},
 Octal: {kind: 'Octal', value: Symbol('Octal')},
@@ -1323,6 +1325,62 @@ Unknown.getProp = function (property) {
 Unknown.transmute = function () {
   const self = this;
   return self;
+};
+Map._new = function () {
+  return $unwrapTraitObject(js.createMap());
+};
+Map.size = function () {
+  const self = this;
+  return $unwrapTraitObject(self.size);
+};
+Map.set = function (key, value) {
+  let self = this;
+  self.set(key, value);
+};
+Map.get = function (key) {
+  const self = this;
+  const value = $unwrapTraitObject(self.get(key));
+  if (value) {
+    return Some($unwrapTraitObject(value));
+  }
+  else {
+    return None;
+  };
+};
+Map._delete = function (key) {
+  let self = this;
+  self._delete(key);
+};
+Map.has = function (key) {
+  const self = this;
+  return $unwrapTraitObject(self.has(key));
+};
+Map.forEach = function (f) {
+  const self = this;
+  self.forEach(f);
+};
+Set._new = function () {
+  return $unwrapTraitObject(js.createSet());
+};
+Set.size = function () {
+  const self = this;
+  return $unwrapTraitObject(self.size);
+};
+Set.add = function (value) {
+  let self = this;
+  self.add(value);
+};
+Set._delete = function (value) {
+  let self = this;
+  self._delete(value);
+};
+Set.has = function (value) {
+  const self = this;
+  return $unwrapTraitObject(self.has(value));
+};
+Set.forEach = function (f) {
+  const self = this;
+  self.forEach(f);
 };
 function anyCast(a) {
   return a;

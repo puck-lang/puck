@@ -1278,16 +1278,27 @@ span: function () {
 start: $puck_3.ToSpan.start,
 end: $puck_3.ToSpan.end
 };
-$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"] = {
-span: function () {
+$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBoundMember"] = {
+span: $puck_3.ToSpan.span,
+start: function () {
   const self = this;
-  return {
-    start: self.value.openParen.span.start,
-    end: self.value.closeParen.span.end,
-  };
+  return self.value.name.span.start;
 },
-start: $puck_3.ToSpan.start,
-end: $puck_3.ToSpan.end
+end: function () {
+  const self = this;
+  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: self.value.typeBound, $isTraitObject: true});
+}
+};
+$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"] = {
+span: $puck_3.ToSpan.span,
+start: function () {
+  const self = this;
+  return self.value.openParen.span.start;
+},
+end: function () {
+  const self = this;
+  return self.value.closeParen.span.end;
+}
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"] = {
 span: function () {

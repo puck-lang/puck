@@ -52,7 +52,7 @@ function createServer(projectPath, sendDiagnostic) {
         absolutePath: $unwrapTraitObject(path.resolve(path.normalize(filePath))),
         puck: contents,
       };
-      file = context.importFile(file, true);
+      file = context.importFile(file, true, skipSyntaxErrors);
       const parseTime = $puck_2.Date.now() - startTime;
       $puck_1.print("Parse time " + parseTime + "");
       context.runTypeVisitor();

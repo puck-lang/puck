@@ -29,8 +29,8 @@ function fileInspect(depth, opts) {
     inspect: $puck_2._undefined,
   }), $puck_2._Object.assign({}, opts, {depth: $unwrapTraitObject(opts).depth - depth}));
 };
-function parseString(context, file) {
-  let ast = $puck_7.parse($puck_8.TokenStream._new($puck_6.InputStream._new(context, file)), file);
+function parseString(context, file, recoverFromSyntaxErrors = false) {
+  let ast = $puck_7.parse($puck_8.TokenStream._new($puck_6.InputStream._new(context, file)), file, recoverFromSyntaxErrors);
   $puck_13.TopLevelVisitor(context, file).visitModule(ast);
   $puck_11.ImportVisitor(context, file).visitModule(ast);
   return ast;
@@ -179,7 +179,7 @@ function createContext(projectPath, ignoreErrors = false) {
       inspect: fileInspect,
     };
   },
-    importFile: function (file, force = false) {
+    importFile: function (file, force = false, recoverFromSyntaxErrors = false) {
     let self = this;
     if (($unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath] && file.outDir && file.outFile)) {
       $unwrapTraitObject($unwrapTraitObject(self).files)[file.absolutePath].outDir = file.outDir;
@@ -190,7 +190,7 @@ function createContext(projectPath, ignoreErrors = false) {
       if (!file.puck) {
         file.puck = $unwrapTraitObject(fs.readFileSync(file.absolutePath, {encoding: "utf-8"}));
       };
-      file.ast = parseString(self, file);
+      file.ast = parseString(self, file, recoverFromSyntaxErrors);
       if ($unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath]) {
         const callbacks = $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath];
         $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath] = $unwrapTraitObject($puck_2._undefined);

@@ -23,8 +23,8 @@ fn fileInspect(self, depth, opts) {
   )
 }
 
-export fn parseString(context, file: UnparsedFile) {
-  let mut ast = parse(TokenStream.new(InputStream.new(context, file)), file)
+export fn parseString(context, file: UnparsedFile, recoverFromSyntaxErrors = false) {
+  let mut ast = parse(TokenStream.new(InputStream.new(context, file)), file, recoverFromSyntaxErrors)
   TopLevelVisitor(context, file)->visitModule(ast)
   ImportVisitor(context, file)->visitModule(ast)
   ast
@@ -141,7 +141,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
 
       {absolutePath, fileName, inspect: fileInspect}
     }
-    importFile: fn (mut self, mut file: UnparsedFile, force = false) -> File {
+    importFile: fn (mut self, mut file: UnparsedFile, force = false, recoverFromSyntaxErrors = false) -> File {
       if self.files->[file.absolutePath] and file->outDir and file->outFile {
         self.files->[file.absolutePath]->outDir = file->outDir
         self.files->[file.absolutePath]->outFile = file->outFile
@@ -152,7 +152,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
 
         if not file.puck
           then file.puck = fs->readFileSync(file.absolutePath, {encoding: 'utf-8'}).transmute()
-        file->ast = parseString(self, file)
+        file->ast = parseString(self, file, recoverFromSyntaxErrors)
 
         if self.deferred->[file.absolutePath] {
           let callbacks = self.deferred->[file.absolutePath]
