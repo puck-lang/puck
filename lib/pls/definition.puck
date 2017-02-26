@@ -1,12 +1,19 @@
 import '../ast/ast.puck' as {
   Module
+  Expression
+  ImplDeclaration
   ImportDirective
+  ImportSpecifier
   ObjectDestructureMember
   Identifier
+  FunctionDeclaration
+  CallExpression
+  MemberAccess
+  NamedTypeBound
 }
 import '../ast/span.puck' as {Position, Span, ToSpan}
 import '../typeck/src/scope.puck' as {Binding}
-import '../entities.puck' as {File}
+import '../entities.puck' as {File, Implementation, StructKind, Trait, Type, TypeKind}
 import 'position_visitor.puck' as {PositionVisitor}
 import 'position_visitor.puck' as visit
 
@@ -20,6 +27,7 @@ export type DefinitionVisitor {
   position: Position
   definitions: List<Definition>
   importedModule: Option<Module>
+  inTraitImpl: Option<Trait>
 }
 
 impl DefinitionVisitor {
@@ -28,14 +36,51 @@ impl DefinitionVisitor {
     position
     definitions: []
     importedModule: None
+    inTraitImpl: None
   }}
 }
 
 impl PositionVisitor for DefinitionVisitor {
   fn position(self) -> Position {self.position}
 
+  fn visitImplDeclaration(mut self, i: ImplDeclaration) -> () {
+    let trait_ = i.trait_.getType()
+    if trait_ {
+      match trait_.kind {
+        TypeKind::Trait(trait_) => {
+          self.inTraitImpl = Some(trait_)
+        }
+        _ => {}
+      }
+    }
+    visit.walkImplDeclaration(self, i)
+  }
+
   fn visitImportDirective(mut self, i: ImportDirective) -> () {
     self.importedModule = i.module
+    if let Some(module) = i.module {
+      if i.domain.isNone() {
+        if i.locator.span().cmp(self.position) == Ordering::Equal {
+          self.definitions = [{
+            file: module.file
+            span: Span({start: {line: 1, column: 1}, end: {line: 1, column: 1}})
+          }]
+          return ()
+        }
+        else if i.specifier.span().cmp(self.position) == Ordering::Equal {
+          match i.specifier {
+            ImportSpecifier::Identifier(_) => {
+              self.definitions = [{
+                file: module.file
+                span: Span({start: {line: 1, column: 1}, end: {line: 1, column: 1}})
+              }]
+              return ()
+            }
+            _ => {}
+          }
+        }
+      }
+    }
     visit.walkImportDirective(self, i)
   }
   fn visitObjectDestructureMember(mut self, m: ObjectDestructureMember) -> () {
@@ -55,9 +100,76 @@ impl PositionVisitor for DefinitionVisitor {
     let binding: Binding = i->binding.transmute()
     if binding {
       self.definitions = [{
-        file: self.file
-        span: binding.token.span()
+        file: binding.definition.file
+        span: binding.definition.token.span()
       }]
     }
+  }
+  fn visitMethodDeclaration(mut self, f: FunctionDeclaration) -> () {
+    if let (Some(name), Some(trait_)) = (f.name, self.inTraitImpl) {
+      if name.span.cmp(self.position) == Ordering::Equal {
+        if let Some(func) = trait_.functions.get(name.name) {
+          self.definitions = [{
+            file: func.definition.file
+            span: func.definition.token.span()
+          }]
+        }
+      }
+    }
+  }
+
+  fn visitCallExpression(mut self, e: CallExpression) -> () {
+    if e->functionType {
+      if e.func.span().cmp(self.position()) == Ordering::Equal {
+        if let Expression::MemberAccess(a) = e.func {
+          if a.member.span().cmp(self.position()) == Ordering::Equal {
+            let functionType: Type = e->functionType.transmute()
+            let traitBinding: Binding = e->traitBinding.transmute()
+            let objectType = a.object.getType()
+            let implementation: Implementation = e->implementation.transmute()
+            if implementation and not e->isShorthand and implementation.functions.has(a.member.name) {
+              self.definitions = [
+                {
+                  file: implementation.functions[a.member.name].definition.file
+                  span: implementation.functions[a.member.name].definition.token.span()
+                }
+                {
+                  file: implementation.trait_.getTrait().functions[a.member.name].definition.file
+                  span: implementation.trait_.getTrait().functions[a.member.name].definition.token.span()
+                }
+              ]
+            }
+            else {
+              self.definitions = [{
+                file: functionType.definition.file
+                span: functionType.definition.token.span()
+              }]
+            }
+            return ()
+          }
+        }
+      }
+    }
+    visit.walkCallExpression(self, e)
+  }
+  fn visitMemberAccess(mut self, a: MemberAccess) -> () {
+    if a.member.span().cmp(self.position()) == Ordering::Equal {
+      print('onDefinition visitMemberAccess')
+      let type_ = a.object.getType()
+      if type_ {
+        match type_.kind {
+          TypeKind::Struct({kind: StructKind::Record(record)}) => {
+            if let Some(type_) = record.properties.get(a.member.name) {
+              self.definitions = [{
+                file: type_.definition.file
+                span: type_.definition.token.span()
+              }]
+            }
+          }
+          _ => {}
+        }
+      }
+    }
+    else visit.walkMemberAccess(self, a)
   }
 }

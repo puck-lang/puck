@@ -23,7 +23,7 @@ function getPatternName(pattern) {
     };
   };
 };
-function createFunctionType(scope, f, reportError) {
+function createFunctionType(file, scope, f, reportError) {
   let $puck_11;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.typeParameters, $isTraitObject: true})) {
     let $puck_12 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.typeParameters, $isTraitObject: true}, function (p) {
@@ -46,8 +46,11 @@ function createFunctionType(scope, f, reportError) {
 ;
   let $puck_13 = $puck_1.Iterable[$puck_14.type].map.call($puck_14, function ([i, p]) {
     return $puck_7.Binding({
-      name: $puck_1.Option.unwrapOr.call(getPatternName(p.pattern), "p" + i + ""),
+      definition: $puck_5.Definition({
+      file: file,
       token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: p, $isTraitObject: true},
+    }),
+      name: $puck_1.Option.unwrapOr.call(getPatternName(p.pattern), "p" + i + ""),
       mutable: p.mutable,
       allowRedeclare: true,
       type_: $unwrapTraitObject(p.type_),
@@ -88,7 +91,7 @@ function createFunctionType(scope, f, reportError) {
   let $puck_19;
   if (f.parameterList) {
     $puck_19 = $puck_6.getRange(parameters, function (p) {
-      const vd = $unwrapTraitObject(p.token);
+      const vd = $unwrapTraitObject(p.definition.token);
       return $puck_1.Option.isSome.call(vd.initializer);
     }, reportError, "parameter");
   }
@@ -99,6 +102,10 @@ function createFunctionType(scope, f, reportError) {
     };
   };
   return {
+    definition: $puck_5.Definition({
+    file: file,
+    token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true},
+  }),
     id: $puck_1.None,
     displayName: $puck_1.None,
     name: $puck_1.Option.map.call(f.name, function (identifier) {

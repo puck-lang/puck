@@ -130,8 +130,8 @@ Scope.define = function (binding, useParentScope = false) {
   };
   const previous = $puck_14;
   binding = {
+    definition: binding.definition,
     name: binding.name,
-    token: binding.token,
     mutable: binding.mutable,
     allowRedeclare: binding.allowRedeclare,
     type_: binding.type_,
@@ -151,8 +151,8 @@ Scope.define = function (binding, useParentScope = false) {
 Scope.setSelfType = function (selfType) {
   let self = this;
   $puck_1.ObjectMap.set.call(self.bindings, "Self", {
+    definition: selfType.definition,
     name: "Self",
-    token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: $puck_5.Span.empty(), $isTraitObject: true},
     mutable: false,
     allowRedeclare: false,
     type_: $puck_7.Type.provides(selfType),
@@ -248,8 +248,8 @@ Scope.getTypePath = function (typePath, visitor = "") {
         };
       };
       return $puck_1.Ok(Binding({
+        definition: type_.definition,
         name: name,
-        token: token,
         mutable: binding.mutable,
         allowRedeclare: binding.allowRedeclare,
         type_: type_,

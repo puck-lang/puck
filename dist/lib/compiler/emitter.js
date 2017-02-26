@@ -430,8 +430,8 @@ function Emitter() {
         return "" + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitIdentifier(identifier) {
-        if (identifier.binding && identifier.binding.token.value.importName) {
-            return identifier.binding.token.value.importName;
+        if (identifier.binding && identifier.binding.definition.token.value.importName) {
+            return identifier.binding.definition.token.value.importName;
         }
         if (jsKeywords.indexOf(identifier.name) != -1) {
             return "_" + identifier.name;
@@ -489,7 +489,7 @@ function Emitter() {
         if (vd.pattern.kind === 'Identifier') {
             binding = scope_1.Scope.getBinding.call(vd.scope, vd.pattern.value[0].name).value[0];
             willBeRedefined = binding.redefined || (binding.previous && binding.previous.value[0]);
-            while (binding && ((binding.token.$isTraitObject ? binding.token.value : binding.token) !== vd.pattern)) {
+            while (binding && binding.definition.token.value !== vd.pattern) {
                 binding = binding.previous.value[0];
             }
         }
@@ -636,8 +636,8 @@ function Emitter() {
                     hoist("let " + valueVariable + " = " + emitExpression(fn.func.value[0].object) + "\n");
                 }
             }
-            var traitName = fn.traitBinding && fn.traitBinding.token.value.importName
-                ? fn.traitBinding.token.value.importName
+            var traitName = fn.traitBinding && fn.traitBinding.definition.token.value.importName
+                ? fn.traitBinding.definition.token.value.importName
                 : fn.traitName;
             functionName = "" + traitName + ((fn.isShorthand || (selfBinding.kind === 'None' && !fn.isDirectTraitCall)) ? "" :
                 fn.isTraitObject ? "[" + emitIdentifier({ name: valueVariable }) + ".type]"

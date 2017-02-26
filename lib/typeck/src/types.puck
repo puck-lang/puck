@@ -95,6 +95,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
   if let Option::Some(providedType) = type_.providesType {
     let mut p = providedType
     return Type({
+      definition: type_.definition
       id: type_.id
       displayName: type_.displayName
       name: type_.name
@@ -135,6 +136,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
       .map(|(typeArgument, typeParameter)| (typeParameter.name.unwrap(), typeArgument)))
 
   let mut instance: Type = {
+    definition: type_.definition
     id: type_.id
     displayName: type_.displayName
     name: type_.name

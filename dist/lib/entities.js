@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.BuildFile = exports.UnparsedFile = exports.File = exports.Type = exports.Enum = exports.Function = exports.Struct = exports.Trait = exports.Record = exports.Tuple = exports.Implementation = exports.TypeClass = exports.TypeInstance = exports.TypeParameter = exports.TypeKind = exports.StructKindundefined;
+exports.BuildFile = exports.UnparsedFile = exports.File = exports.Definition = exports.Type = exports.Enum = exports.Function = exports.Struct = exports.Trait = exports.Record = exports.Tuple = exports.Implementation = exports.TypeClass = exports.TypeInstance = exports.TypeParameter = exports.TypeKind = exports.StructKindundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("./ast/ast");
@@ -11,6 +11,7 @@ const $puck_6 = require("./typeck/src/scope");
 var BuildFile = exports.BuildFile = (object) => object;
 var UnparsedFile = exports.UnparsedFile = (object) => object;
 var File = exports.File = (object) => object;
+var Definition = exports.Definition = (object) => object;
 var Type = exports.Type = (object) => object;
 var Enum = exports.Enum = (object) => object;
 var Function = exports.Function = (object) => object;
@@ -34,8 +35,9 @@ Record: (...members) => ({kind: 'Record', value: members}),
 Tuple: (...members) => ({kind: 'Tuple', value: members}),
 Unit: {kind: 'Unit', value: Symbol('Unit')},
 };
-Type.empty = function () {
+Type.empty = function (definition) {
   return {
+    definition: definition,
     id: $puck_1.None,
     displayName: $puck_1.Some("()"),
     name: $puck_1.None,
@@ -51,6 +53,7 @@ Type.empty = function () {
 };
 Type.provides = function (type_) {
   return {
+    definition: type_.definition,
     id: $puck_1.None,
     displayName: type_.displayName,
     name: type_.name,
@@ -64,8 +67,9 @@ Type.provides = function (type_) {
     enumMember: $puck_1.None,
   };
 };
-Type.unused = function () {
+Type.unused = function (definition) {
   return {
+    definition: definition,
     id: $puck_1.None,
     displayName: $puck_1.Some("_"),
     name: $puck_1.None,

@@ -180,7 +180,7 @@ function ScopeVisitor(context, file) {
     });
     return _function;
   };
-  const structureVisitorInstance = $puck_13.structureVisitor(reportError);
+  const structureVisitorInstance = $puck_13.structureVisitor(file, reportError);
   return $puck_2._Object.assign({}, visit.walkingVisitor, structureVisitorInstance, {
     reportError: reportError,
     visitModule: function (m) {
@@ -295,7 +295,10 @@ function ScopeVisitor(context, file) {
       $puck_44 = $puck_4.BlockLevelStatement.getType.call(last);
     }
     else {
-      $puck_44 = $puck_16.Type.empty();
+      $puck_44 = $puck_16.Type.empty({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: b, $isTraitObject: true},
+      });
     };
     return b.type_ = $puck_44;
   },
@@ -326,7 +329,10 @@ function ScopeVisitor(context, file) {
     e.scope = $unwrapTraitObject(self).scope;
     $unwrapTraitObject(self).visitExpression(e.condition);
     $unwrapTraitObject(self).visitBlock(e.body, false);
-    e.type_ = $puck_16.Type.empty();
+    e.type_ = $puck_16.Type.empty({
+      file: file,
+      token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop', value: e, $isTraitObject: true},
+    });
     return $unwrapTraitObject(self).scope = parentScope;
   },
     visitIdentifier: function (i) {
@@ -573,6 +579,7 @@ function ScopeVisitor(context, file) {
             if ($puck_65.kind == "Some") {
               let {value: [selfBinding]} = $puck_65;
               functionType = {
+                definition: functionType.definition,
                 id: functionType.id,
                 displayName: functionType.displayName,
                 name: functionType.name,
@@ -831,14 +838,20 @@ function ScopeVisitor(context, file) {
           if ($unwrapTraitObject($puck_88).kind == "Err") {
             let {value: [$puck_91]} = $unwrapTraitObject($puck_88);
             reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true}, "Type " + $puck_16.Type.displayName.call(e.then_.type_) + " and " + $puck_16.Type.displayName.call(else_.type_) + " is not compatible");
-            $puck_90 = $puck_16.Type.empty();
+            $puck_90 = $puck_16.Type.empty({
+              file: file,
+              token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true},
+            });
           };
           $puck_89 = $puck_90;
         };
         $puck_87 = $puck_89;
       }
       else {
-        $puck_87 = $puck_16.Type.empty();
+        $puck_87 = $puck_16.Type.empty({
+          file: file,
+          token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true},
+        });
       };
       e.type_ = $puck_87;
     };
@@ -901,14 +914,20 @@ function ScopeVisitor(context, file) {
           if ($unwrapTraitObject($puck_97).kind == "Err") {
             let {value: [$puck_100]} = $unwrapTraitObject($puck_97);
             reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true}, "Type " + $puck_16.Type.displayName.call(e.then_.type_) + " and " + $puck_16.Type.displayName.call(else_.type_) + " is not compatible");
-            $puck_99 = $puck_16.Type.empty();
+            $puck_99 = $puck_16.Type.empty({
+              file: file,
+              token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true},
+            });
           };
           $puck_98 = $puck_99;
         };
         $puck_96 = $puck_98;
       }
       else {
-        $puck_96 = $puck_16.Type.empty();
+        $puck_96 = $puck_16.Type.empty({
+          file: file,
+          token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true},
+        });
       };
       e.type_ = $puck_96;
     };
@@ -952,14 +971,20 @@ function ScopeVisitor(context, file) {
             reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true}, "Match arms return mixed types " + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.patterns, $isTraitObject: true}, function (arm) {
               return $puck_16.Type.displayName.call(asType($unwrapTraitObject(arm.type_)));
             }).value.join(", "));
-            $puck_106 = $puck_16.Type.empty();
+            $puck_106 = $puck_16.Type.empty({
+              file: file,
+              token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true},
+            });
           };
           $puck_105 = $puck_106;
         };
         $puck_102 = $puck_105;
       }
       else {
-        $puck_102 = $puck_16.Type.empty();
+        $puck_102 = $puck_16.Type.empty({
+          file: file,
+          token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true},
+        });
       };
       e.type_ = $puck_102;
     };
@@ -1263,6 +1288,10 @@ function ScopeVisitor(context, file) {
       return $unwrapTraitObject(self).visitExpression(m.value);
     });
     return l.type_ = $puck_16.Type({
+      definition: $puck_16.Definition({
+      file: file,
+      token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: l, $isTraitObject: true},
+    }),
       id: $puck_1.None,
       displayName: $puck_1.None,
       name: $puck_1.None,
@@ -1304,6 +1333,10 @@ function ScopeVisitor(context, file) {
     })
 ;
     return l.type_ = $puck_16.Type({
+      definition: $puck_16.Definition({
+      file: file,
+      token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: l, $isTraitObject: true},
+    }),
       id: $puck_1.None,
       displayName: $puck_1.None,
       name: $puck_1.None,
@@ -1325,7 +1358,10 @@ function ScopeVisitor(context, file) {
     let $puck_136;
     if ($unwrapTraitObject($puck_135).kind == "CatchAll") {
       let undefined = $unwrapTraitObject($puck_135);
-      $puck_136 = $puck_16.Type.unused();
+      $puck_136 = $puck_16.Type.unused({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: p, $isTraitObject: true},
+      });
     }
     else {
       let $puck_137;
@@ -1394,6 +1430,10 @@ function ScopeVisitor(context, file) {
     p.scope = $unwrapTraitObject(self).scope;
     visit.walkRecordPattern(self, p);
     return p.type_ = $puck_16.Type({
+      definition: $puck_16.Definition({
+      file: file,
+      token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPattern', value: p, $isTraitObject: true},
+    }),
       id: $puck_1.None,
       displayName: $puck_1.None,
       name: $puck_1.None,
@@ -1421,6 +1461,10 @@ function ScopeVisitor(context, file) {
     })
 ;
     return p.type_ = $puck_16.Type({
+      definition: $puck_16.Definition({
+      file: file,
+      token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TuplePattern', value: p, $isTraitObject: true},
+    }),
       id: $puck_1.None,
       displayName: $puck_1.None,
       name: $puck_1.None,

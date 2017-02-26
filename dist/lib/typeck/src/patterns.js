@@ -108,8 +108,11 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
         definitions[identifier.name] = true;
       };
       let $puck_18 = $puck_5.Scope.define.call(scope, {
-        name: identifier.name,
+        definition: $puck_4.Definition({
+        file: $unwrapTraitObject(visitor).file,
         token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: p, $isTraitObject: true},
+      }),
+        name: identifier.name,
         mutable: mutable,
         allowRedeclare: true,
         type_: type_,

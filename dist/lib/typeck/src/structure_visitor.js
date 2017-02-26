@@ -19,8 +19,9 @@ function notAssignableError(to, subject) {
   return $puck_7.Type.displayName.call(subject) + " is not assignable to type " + $puck_7.Type.displayName.call(to);
 };
 exports.notAssignableError = notAssignableError;
-function structureVisitor(reportError, visitor = "") {
+function structureVisitor(file, reportError, visitor = "") {
   return {
+    file: file,
     visitEnumMember: visit.walkingVisitor.visitEnumMember,
     visitFunctionDeclaration: function (f) {
     let self = this;
@@ -75,14 +76,16 @@ function structureVisitor(reportError, visitor = "") {
         let {value: [returnType]} = $puck_20;
         $unwrapTraitObject(self).visitTypeBound(returnType);
       };
-      f.type_ = $puck_8.createFunctionType($unwrapTraitObject(f.scope), f, reportError);
+      f.type_ = $puck_8.createFunctionType(file, $unwrapTraitObject(f.scope), f, reportError);
       let $puck_21 = f.name;
       if ($puck_21.kind == "Some") {
         let {value: [name]} = $puck_21;
-        const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true};
         let $puck_22 = $puck_11.Scope.define.call(parentScope, {
+          definition: $puck_7.Definition({
+          file: file,
+          token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true},
+        }),
           name: name.name,
-          token: token,
           allowRedeclare: false,
           mutable: false,
           type_: f.type_,
@@ -144,7 +147,7 @@ function structureVisitor(reportError, visitor = "") {
         let {value: [returnType]} = $puck_25;
         $unwrapTraitObject(self).visitTypeBound(returnType);
       };
-      f.type_ = $puck_8.createFunctionType($unwrapTraitObject(f.scope), f, reportError);
+      f.type_ = $puck_8.createFunctionType(file, $unwrapTraitObject(f.scope), f, reportError);
       return $unwrapTraitObject(self).scope = parentScope;
     };
   },
@@ -163,8 +166,11 @@ function structureVisitor(reportError, visitor = "") {
 ;
       let $puck_26 = $puck_1.Iterable[$puck_27.type].map.call($puck_27, function ([i, t]) {
         return {
+          definition: $puck_7.Definition({
+          file: file,
+          token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t, $isTraitObject: true},
+        }),
           name: "" + i + "",
-          token: t,
           mutable: false,
           allowRedeclare: true,
           type_: $puck_4.TypeBound.getType.call(t),
@@ -175,6 +181,10 @@ function structureVisitor(reportError, visitor = "") {
 ;
       const parameters = $puck_1.Iterable[$puck_26.type].toList.call($puck_26);
       t.type_ = $puck_7.Type({
+        definition: $puck_7.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound', value: t, $isTraitObject: true},
+      }),
         id: $puck_1.None,
         displayName: $puck_1.None,
         name: $puck_1.None,
@@ -205,6 +215,20 @@ function structureVisitor(reportError, visitor = "") {
       if (!type_) {
         return [];
       };
+      type_ = $puck_7.Type({
+        definition: $puck_7.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true},
+      }),
+        id: type_.id,
+        displayName: type_.displayName,
+        name: type_.name,
+        kind: type_.kind,
+        _class: type_._class,
+        instance: type_.instance,
+        providesType: type_.providesType,
+        enumMember: type_.enumMember,
+      });
       let $puck_28 = t.path;
       let $puck_29;
       if ($puck_28.kind == "Member") {
@@ -262,6 +286,10 @@ function structureVisitor(reportError, visitor = "") {
       t.scope = $unwrapTraitObject(self).scope;
       visit.walkRecordTypeBound(self, t);
       return t.type_ = $puck_7.Type({
+        definition: $puck_7.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound', value: t, $isTraitObject: true},
+      }),
         id: $puck_1.None,
         displayName: $puck_1.None,
         name: $puck_1.None,
@@ -292,6 +320,10 @@ function structureVisitor(reportError, visitor = "") {
       })
 ;
       return t.type_ = $puck_7.Type({
+        definition: $puck_7.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: t, $isTraitObject: true},
+      }),
         id: $puck_1.None,
         displayName: $puck_1.None,
         name: $puck_1.None,
@@ -312,6 +344,10 @@ function structureVisitor(reportError, visitor = "") {
       t.scope = $unwrapTraitObject(self).scope;
       visit.walkTypeParameter(self, t);
       t.type_ = $puck_7.Type({
+        definition: $puck_7.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: t, $isTraitObject: true},
+      }),
         id: $puck_1.Some(t.name.name),
         displayName: $puck_1.None,
         name: $puck_1.Some(t.name.name),
@@ -325,8 +361,11 @@ function structureVisitor(reportError, visitor = "") {
       });
       let scope = $unwrapTraitObject(self).scope;
       let $puck_36 = $puck_11.Scope.define.call(scope, {
-        name: t.name.name,
+        definition: $puck_7.Definition({
+        file: file,
         token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: t, $isTraitObject: true},
+      }),
+        name: t.name.name,
         mutable: false,
         allowRedeclare: false,
         type_: $puck_7.Type.provides($unwrapTraitObject(t.type_)),

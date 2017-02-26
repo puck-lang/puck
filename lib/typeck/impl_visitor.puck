@@ -40,7 +40,7 @@ import '../entities.puck' as {
 fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable: {implementations: List<Implementation>}, mut i: ImplDeclaration, reportError: (ToSpan, String) -> (), id: String) {
   let traitName = traitType.displayName()
 
-  if implementable.implementations.any(|imp| imp.trait_ == traitType)
+  if implementable.implementations.any(|imp| isSameType(imp.trait_, traitType))
     then reportError(i, '$traitName has already been implemented for ' + type_.displayName())
 
   let functions = ObjectMap.fromIter(
@@ -85,6 +85,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
     type_: type_
     trait_: traitType
     typeParameters: i.typeParameters.map(|p| p->type_.transmute()).toList()
+    functions
   })
 
   i->implementation = implementation
@@ -118,6 +119,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
   implementable.implementations.push({
     type_: type_
     trait_: {
+      definition: type_.definition
       id: type_.id
       displayName: type_.displayName
       name: type_.name
@@ -131,6 +133,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
       enumMember: None
     }
     typeParameters: i.typeParameters.map(|p| p->type_.transmute()).toList()
+    functions
   })
 }
 
@@ -150,7 +153,7 @@ export fn ImplVisitor(mut context, file) {
     id
   }
 
-  Object->assign({}, visit.emptyVisitor, structureVisitor(reportError, 'ImplVisitor'), {
+  Object->assign({}, visit.emptyVisitor, structureVisitor(file, reportError, 'ImplVisitor'), {
     visitModule: |mut self, mut m: Module| {
       self.scope = m->scope
       m.statements

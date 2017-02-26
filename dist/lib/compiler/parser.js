@@ -1219,6 +1219,7 @@ function parse(input, file, recover = false) {
     return {
       property: property,
       local: local,
+      file: $puck_1.None,
     };
   };
   function parseBlock() {

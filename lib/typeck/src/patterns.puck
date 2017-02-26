@@ -1,6 +1,6 @@
 import '../../ast/ast.puck' as {Pattern, TypePath}
 import '../../ast/span.puck' as {ToSpan}
-import '../../entities.puck' as {StructKind, Type, TypeKind}
+import '../../entities.puck' as {Definition, StructKind, Type, TypeKind}
 import 'scope.puck' as {Scope}
 import 'types.puck' as {isAssignable}
 
@@ -68,8 +68,8 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
         definitions[identifier.name] = true
       }
       match scope.define({
+        definition: Definition({file: visitor.file, token: p})
         name: identifier.name
-        token: p
         mutable
         allowRedeclare: true
         type_

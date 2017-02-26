@@ -7,7 +7,7 @@ import '../../ast/ast.puck' as {
   TypeParameter
 }
 import '../../ast/span.puck' as {ToSpan}
-import '../../entities.puck' as {Function, StructKind, Type, TypeKind}
+import '../../entities.puck' as {Definition, File, Function, StructKind, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
 import 'scope.puck' as {Binding, Scope}
 import 'types.puck' as {isAssignable}
@@ -19,7 +19,7 @@ fn getPatternName(pattern: Pattern) -> Option<String> {
   }
 }
 
-export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> ()) -> Type {
+export fn createFunctionType(file: File, scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> ()) -> Type {
   let class =
     if f.typeParameters.size() {
       Some({
@@ -38,8 +38,8 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
   let parameters = f.parameterList
     .enumerate()
     .map(|(i, p)| Binding({
+      definition: Definition({file, token: p})
       name: getPatternName(p.pattern).unwrapOr('p$i')
-      token: p
       mutable: p.mutable
       allowRedeclare: true
       type_: p->type_.transmute()
@@ -64,6 +64,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
       else parameters
 
   {
+    definition: Definition({file, token: f})
     id: None
     displayName: None
     name: f.name.map(|identifier| identifier.name)
@@ -75,7 +76,7 @@ export fn createFunctionType(scope: Scope, f: FunctionDeclaration, reportError: 
           then getRange(
             parameters
             |p| {
-              let vd: VariableDeclaration = p->token.transmute()
+              let vd: VariableDeclaration = p.definition->token.transmute()
               vd.initializer.isSome()
             }
             reportError
