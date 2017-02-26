@@ -79,8 +79,13 @@ function getEnumType(typePath, scope) {
 exports.getEnumType = getEnumType;
 function getEnumMember(typePath) {
   const typePathType = $unwrapTraitObject(typePath.type_);
-  let [member, $puck_14] = $puck_1.Option.unwrap.call(typePathType.enumMember);
-  return member;
+  if (typePathType) {
+    let [member, $puck_14] = $puck_1.Option.unwrap.call(typePathType.enumMember);
+    return $puck_1.Some(member);
+  }
+  else {
+    return $puck_1.None;
+  };
 };
 exports.getEnumMember = getEnumMember;
 function isEnumPattern(p) {
@@ -267,95 +272,99 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
       $puck_33 = $puck_34;
     };
     const member = $puck_33;
-    if ((!$puck_1.Option.unwrapOr.call($puck_1.ObjectMap.get.call(exhaustiveMap, member), false))) {
-      const individuallyExhaustive = isIndividuallyExhaustive(pattern);
-      const isEnum = isEnumArm(pattern);
-      exhaustiveMap[$unwrapTraitObject(member)] = (individuallyExhaustive && !isEnum);
-      if (isEnum) {
-        if (!$puck_1.ObjectMap.has.call(enumArmsMap, member)) {
-          enumArmsMap[$unwrapTraitObject(member)] = [];
+    let $puck_45 = member;
+    if ($puck_45.kind == "Some") {
+      let {value: [member]} = $puck_45;
+      if ((!$puck_1.Option.unwrapOr.call($puck_1.ObjectMap.get.call(exhaustiveMap, $unwrapTraitObject(member)), false))) {
+        const individuallyExhaustive = isIndividuallyExhaustive(pattern);
+        const isEnum = isEnumArm(pattern);
+        exhaustiveMap[$unwrapTraitObject(member)] = (individuallyExhaustive && !isEnum);
+        if (isEnum) {
+          if (!$puck_1.ObjectMap.has.call(enumArmsMap, $unwrapTraitObject(member))) {
+            enumArmsMap[$unwrapTraitObject(member)] = [];
+          };
+          $puck_1.List.push.call($puck_1.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: enumArmsMap, $isTraitObject: true}, $unwrapTraitObject(member)), pattern);
         };
-        $puck_1.List.push.call($puck_1.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: enumArmsMap, $isTraitObject: true}, member), pattern);
       };
     };
     return false;
   });
   if ($puck_31.kind == "Some") {
-    let {value: [$puck_45]} = $puck_31;
+    let {value: [$puck_46]} = $puck_31;
     return $puck_1.Ok([]);
   };
   let innerErrors = [];
   $puck_1.ObjectMap.forEach.call(enumArmsMap, function ([member, patterns]) {
-    let $puck_47 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getSubPatterns($puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: patterns, $isTraitObject: true}, 0)), $isTraitObject: true})
+    let $puck_48 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getSubPatterns($puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: patterns, $isTraitObject: true}, 0)), $isTraitObject: true})
 ;
-    let $puck_46 = $puck_1.Iterable[$puck_47.type].filter.call($puck_47, function ([$puck_48, pattern]) {
+    let $puck_47 = $puck_1.Iterable[$puck_48.type].filter.call($puck_48, function ([$puck_49, pattern]) {
       return isEnumPattern(pattern);
     })
 ;
-    const enumPatterns = $puck_1.Iterable[$puck_46.type].map.call($puck_46, function ([index, pattern]) {
-      let $puck_49 = pattern;
-      let $puck_50;
-      if ($unwrapTraitObject($puck_49).kind == "RecordType") {
-        let {value: [typePath, $puck_51]} = $unwrapTraitObject($puck_49);
-        $puck_50 = getEnumType(typePath, scope);
+    const enumPatterns = $puck_1.Iterable[$puck_47.type].map.call($puck_47, function ([index, pattern]) {
+      let $puck_50 = pattern;
+      let $puck_51;
+      if ($unwrapTraitObject($puck_50).kind == "RecordType") {
+        let {value: [typePath, $puck_52]} = $unwrapTraitObject($puck_50);
+        $puck_51 = getEnumType(typePath, scope);
       }
       else {
-        let $puck_52;
-        if ($unwrapTraitObject($puck_49).kind == "TupleType") {
-          let {value: [typePath, $puck_53]} = $unwrapTraitObject($puck_49);
-          $puck_52 = getEnumType(typePath, scope);
+        let $puck_53;
+        if ($unwrapTraitObject($puck_50).kind == "TupleType") {
+          let {value: [typePath, $puck_54]} = $unwrapTraitObject($puck_50);
+          $puck_53 = getEnumType(typePath, scope);
         }
         else {
-          let $puck_54;
-          if ($unwrapTraitObject($puck_49).kind == "UnitType") {
-            let {value: [typePath]} = $unwrapTraitObject($puck_49);
-            $puck_54 = getEnumType(typePath, scope);
+          let $puck_55;
+          if ($unwrapTraitObject($puck_50).kind == "UnitType") {
+            let {value: [typePath]} = $unwrapTraitObject($puck_50);
+            $puck_55 = getEnumType(typePath, scope);
           }
           else {
-            let $puck_55;
+            let $puck_56;
             if (true) {
-              let $puck_56 = $puck_49;
+              let $puck_57 = $puck_50;
               throw "Invalid pattern";
             };
-            $puck_54 = $puck_55;
+            $puck_55 = $puck_56;
           };
-          $puck_52 = $puck_54;
+          $puck_53 = $puck_55;
         };
-        $puck_50 = $puck_52;
+        $puck_51 = $puck_53;
       };
-      const type_ = $puck_50;
-      let $puck_57 = type_;
-      let $puck_58;
-      if ($puck_57.kind == "Some") {
-        let {value: [type_]} = $puck_57;
-        $puck_58 = $puck_4.Type.getEnum.call(type_);
+      const type_ = $puck_51;
+      let $puck_58 = type_;
+      let $puck_59;
+      if ($puck_58.kind == "Some") {
+        let {value: [type_]} = $puck_58;
+        $puck_59 = $puck_4.Type.getEnum.call(type_);
       }
       else {
         throw "no type";
       };
-      const enum_ = $puck_58;
-      let $puck_60 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: patterns, $isTraitObject: true}, getSubPatterns)
+      const enum_ = $puck_59;
+      let $puck_61 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: patterns, $isTraitObject: true}, getSubPatterns)
 ;
-      let $puck_59 = $puck_1.Iterable[$puck_60.type].map.call($puck_60, function (subPatterns) {
+      let $puck_60 = $puck_1.Iterable[$puck_61.type].map.call($puck_61, function (subPatterns) {
         return $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: subPatterns, $isTraitObject: true}, index);
       })
 ;
-      const subPatterns = $puck_1.Iterable[$puck_59.type].toList.call($puck_59);
+      const subPatterns = $puck_1.Iterable[$puck_60.type].toList.call($puck_60);
       return [
         $puck_1.Option.unwrap.call(type_),
         enum_,
         subPatterns,
       ];
     });
-    let $puck_62 = $puck_1.Iterable[enumPatterns.type].map.call(enumPatterns, function ([type_, enum_, subPatterns]) {
+    let $puck_63 = $puck_1.Iterable[enumPatterns.type].map.call(enumPatterns, function ([type_, enum_, subPatterns]) {
       return checkExhaustiveEnum({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subPatterns, $isTraitObject: true}, type_, enum_, scope);
     })
 ;
-    let $puck_61 = $puck_1.Iterable[$puck_62.type].filter.call($puck_62, function (result) {
+    let $puck_62 = $puck_1.Iterable[$puck_63.type].filter.call($puck_63, function (result) {
       return $puck_1.Result.isErr.call(result);
     })
 ;
-    const errors = $puck_1.Iterable[$puck_61.type].toList.call($puck_61);
+    const errors = $puck_1.Iterable[$puck_62.type].toList.call($puck_62);
     innerErrors = $unwrapTraitObject(innerErrors.concat(errors));
     return exhaustiveMap[member] = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: errors, $isTraitObject: true}) == 0;
   });
@@ -365,7 +374,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
   const mapSize = $puck_1.ObjectMap.size.call(exhaustiveMap);
   const memberCount = $puck_1.ObjectMap.size.call(enum_.members);
   if (mapSize == memberCount - 1) {
-    let [missing, $puck_64] = $puck_1.Option.unwrap.call($puck_1.ObjectMap.find.call(enum_.members, function ([member, $puck_63]) {
+    let [missing, $puck_65] = $puck_1.Option.unwrap.call($puck_1.ObjectMap.find.call(enum_.members, function ([member, $puck_64]) {
       return (!$puck_1.Option.unwrapOr.call($puck_1.ObjectMap.get.call(exhaustiveMap, member), false));
     }));
     return $puck_1.Err("Match is not exhaustive. It is missing a case for " + typeName + "::" + missing + "");
@@ -375,11 +384,11 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
       return $puck_1.Err("Match is not exhaustive.");
     }
     else {
-      let $puck_65 = $puck_1.ObjectMap.find.call(exhaustiveMap, function ([$puck_66, exhaustive]) {
+      let $puck_66 = $puck_1.ObjectMap.find.call(exhaustiveMap, function ([$puck_67, exhaustive]) {
         return (!exhaustive);
       });
-      if ($puck_65.kind == "Some") {
-        let {value: [[member, a]]} = $puck_65;
+      if ($puck_66.kind == "Some") {
+        let {value: [[member, a]]} = $puck_66;
         return $puck_1.Err("Match is not exhaustive. " + typeName + "::" + member + " is not exhaustive. " + a + "");
       }
       else {

@@ -13,8 +13,8 @@ import '../entities.puck' as {File, UnparsedFile}
 import '../compiler/ast.ts' as {SyntaxKind}
 
 let domains = ['node', 'puck']
-let puckFile = RegExp.new('\\.puck$', 'i')
-let puckModules = ['core', 'js', 'test']
+export let puckFile = RegExp.new('\\.puck$', 'i')
+export let puckModules = ['core', 'js', 'test']
 
 export fn ImportVisitor(context, file: UnparsedFile) {
   let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)

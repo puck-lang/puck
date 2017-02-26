@@ -1,5 +1,8 @@
+import 'node:fs' as fs
+import 'node:path' as path
 import 'node:vscode-languageserver' as {
   CompletionItemKind
+  InsertTextFormat
 }
 import '../ast/ast.puck' as {
   Module
@@ -24,10 +27,12 @@ import '../ast/ast.puck' as {
   MemberAccess
   TypeBound
   NamedTypeBound
+  TypePath
 }
 import '../ast/span.puck' as {Position, Span, ToSpan}
 import '../typeck/src/scope.puck' as {Scope}
-import '../entities.puck' as {StructKind, Trait, Type, TypeKind}
+import '../typeck/import_visitor.puck' as {puckFile, puckModules}
+import '../entities.puck' as {File, StructKind, Trait, Type, TypeKind}
 import 'position_visitor.puck' as {PositionVisitor}
 import 'position_visitor.puck' as visit
 
@@ -35,21 +40,28 @@ export type Completion {
   label: String
   kind: Num
   insertText: String
+  insertTextFormat: Num
 }
 
+let isHidden = RegExp.new('^\\.')
+
 export type CompletionVisitor {
+  file: File
   position: Position
   completions: Option<List<Completion>>
   importedModule: Option<Module>
   inTraitImpl: Option<Trait>
+  inType: Option<Type>
 }
 
 impl CompletionVisitor {
-  fn new(position: Position) -> CompletionVisitor {{
+  fn new(file: File, position: Position) -> CompletionVisitor {{
+    file
     position
     completions: None
     importedModule: None
     inTraitImpl: None
+    inType: None
   }}
 }
 
@@ -75,7 +87,101 @@ impl PositionVisitor for CompletionVisitor {
 
   fn visitImportDirective(mut self, i: ImportDirective) -> () {
     self.importedModule = i.module
-    visit.walkImportDirective(self, i)
+    if i.locator.span().cmp(self.position) == Ordering::Equal {
+      if let Some(domain) = i.domain {
+        if domain == 'puck' {
+          self.completions = Some(
+            puckModules.map(|module| {{
+              label: 'puck:$module'
+              kind: CompletionItemKind.Module
+              insertText: module
+              insertTextFormat: InsertTextFormat.PlainText
+            }})
+            .toList()
+          )
+        }
+      }
+      else {
+        let fileDirname: String = path->dirname(self.file.absolutePath).transmute()
+        let resolved: String = path->resolve(fileDirname, i.path).transmute()
+
+        let exists = fs->existsSync(resolved)
+        let isTypedDirectory = exists and fs->statSync(resolved)->isDirectory()
+        if exists and not isTypedDirectory
+          then return ()
+
+        let dirname: String =
+          if isTypedDirectory
+            then resolved
+            else path->dirname(resolved).transmute()
+
+        if not fs->existsSync(dirname) or not fs->statSync(dirname)->isDirectory()
+          then return ()
+
+        let mut files: List<String> = fs->readdirSync(dirname).transmute()
+
+        self.completions = Some(
+          files.filterMap(|fileName| {
+            if isHidden.test(fileName) then return None
+
+            let file: String = path->join(dirname, fileName).transmute()
+            let isDirectory: Bool = fs->statSync(file)->isDirectory().transmute()
+            let relativePath: String = path->relative(fileDirname, file).transmute()
+
+            let isPuckFile = puckFile.test(fileName)
+            let createAs = isPuckFile and i.asKeyword.span.end.line == 0
+
+            let typedDir =
+              if isTypedDirectory
+                then i.path
+                else path->dirname(i.path).transmute()
+            let filterText: String = path->join(typedDir, fileName).transmute()
+            let filterText =
+              if createAs
+                then "'$filterText' as "
+                else filterText
+            let insertText =
+              if createAs
+                then "'$relativePath' as "
+                else relativePath
+
+            let startOffset = if createAs then 1 else 0
+            let endOffset = if createAs then 1 else 2
+            let range = {
+              start: {
+                line: i.locator.span().start.line - 1
+                character: i.locator.span().start.column - startOffset
+              }
+              end: {
+                line: i.locator.span().end.line - 1
+                character: i.locator.span().end.column - endOffset
+              }
+            }
+
+            Some({
+              label: fileName
+              kind:
+                if isPuckFile then CompletionItemKind.Module
+                else if isDirectory then CompletionItemKind.Class
+                else CompletionItemKind.File
+              filterText
+              insertText
+              insertTextFormat: InsertTextFormat.PlainText
+              textEdit: {
+                range
+                newText: insertText
+              }
+              sortText:
+                if isPuckFile then '1$fileName'
+                else if isDirectory then '2$fileName'
+                else '3$fileName'
+            })
+          })
+          .toList()
+        )
+      }
+    }
+    else visit.walkImportDirective(self, i)
   }
   fn visitObjectDestructure(mut self, o: ObjectDestructure) -> () {
     if not visit.walkObjectDestructure(self, o) {
@@ -136,8 +242,9 @@ impl PositionVisitor for CompletionVisitor {
                   let typeName = type_.displayName()
                   {
                     label: '$property: $typeName'
-                    kind: CompletionItemKind.Text
+                    kind: CompletionItemKind.Field
                     insertText: property
+                    insertTextFormat: InsertTextFormat.PlainText
                   }
                 })
                 .toList()
@@ -158,6 +265,7 @@ fn getImportCompletions(module: Module) -> List<Completion> {
       label: e.identifier.name
       kind: CompletionItemKind.Text
       insertText: e.identifier.name
+      insertTextFormat: InsertTextFormat.PlainText
     }})
     .toList()
 }
@@ -179,6 +287,7 @@ fn getScopeCompletions(node) -> List<Completion> {
           label: binding.name + ': $typeName'
           kind: CompletionItemKind.Text
           insertText: binding.name
+          insertTextFormat: InsertTextFormat.PlainText
         }
       })
       .toList()
@@ -190,11 +299,12 @@ fn getTraitImplCompletions(trait_: Trait) {
   trait_.functions
     .toList()
     .map(|(name, type_): (String, Type)| {
-      let signature = type_.verboseName()
+      let signature = name + type_.verboseName()
       {
         label: signature
         kind: CompletionItemKind.Method
-        insertText: '$signature '
+        insertText: '$signature {$0}'
+        insertTextFormat: InsertTextFormat.Snippet
       }
     })
     .toList()

@@ -397,6 +397,7 @@ impl ToSpan for ExportedStatement {
 
 export type ImportDirective {
   importKeyword: SimpleToken
+  locator: StringLiteral
   domain: Option<String>
   path: String
   asKeyword: SimpleToken

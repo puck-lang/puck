@@ -1155,6 +1155,20 @@ function parse(input, file, recover = false) {
       $puck_98 = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: parts, $isTraitObject: true}, 0);
     };
     const path = $puck_98;
+    if ((recover && !isToken($puck_5.SyntaxKind.AsKeyword))) {
+      return {
+        importKeyword: importKeyword,
+        locator: locator,
+        domain: domain,
+        path: path,
+        asKeyword: {
+        kind: $puck_5.SyntaxKind.AsKeyword,
+        span: $puck_4.Span.empty(),
+      },
+        specifier: $puck_3.ImportSpecifier.Identifier(consumeIdentifier()),
+        _module: $puck_1.None,
+      };
+    };
     const asKeyword = consumeToken($puck_5.SyntaxKind.AsKeyword);
     let $puck_99;
     if (isToken($puck_5.SyntaxKind.OpenBraceToken)) {
@@ -1173,6 +1187,7 @@ function parse(input, file, recover = false) {
     const specifier = $puck_99;
     return {
       importKeyword: importKeyword,
+      locator: locator,
       domain: domain,
       path: path,
       asKeyword: asKeyword,
@@ -1294,7 +1309,7 @@ function parse(input, file, recover = false) {
     };
     const returnType = $puck_107;
     let $puck_108;
-    if ((recover && !isToken($puck_5.SyntaxKind.OpenBraceToken))) {
+    if ((recover && !isToken($puck_5.SyntaxKind.OpenBraceToken) && (!optionalBody || $puck_1.Option.isNone.call(returnType)))) {
       $puck_108 = $puck_1.Some(mockBlock());
     }
     else {

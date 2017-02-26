@@ -29,6 +29,12 @@ impl Span {
   }
 }
 
+impl PartialOrd<Position> for Span {
+  fn partialCmp(self, other: Position) -> Option<Ordering> {
+    Some(self.cmp(other))
+  }
+}
+
 export trait ToSpan {
   fn span(self) -> Span {{
     start: self.start()
