@@ -88,7 +88,7 @@ function createServer(projectPath, sendDiagnostic) {
     if (!_module) {
       return [];
     };
-    let visitor = $puck_6.CompletionVisitor._new(position);
+    let visitor = $puck_6.CompletionVisitor._new(file, position);
     const result = $puck_2.asResult(function () {
       return $puck_9.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor', value: visitor, $isTraitObject: true}, _module);
     });
@@ -119,11 +119,11 @@ function createServer(projectPath, sendDiagnostic) {
     $puck_1.print("onHover");
     const file = $unwrapTraitObject(context.files[path.resolve(path.normalize(filePath))]);
     if ((!file)) {
-      return $puck_8.Hover.empty();
+      return $puck_1.None;
     };
     const _module = $unwrapTraitObject(file.ast);
     if (!_module) {
-      return $puck_8.Hover.empty();
+      return $puck_1.None;
     };
     let visitor = $puck_8.HoverVisitor._new(position);
     const result = $puck_2.asResult(function () {
@@ -133,9 +133,7 @@ function createServer(projectPath, sendDiagnostic) {
     if ($unwrapTraitObject($puck_16).kind == "Ok") {
       let {value: [$puck_17]} = $unwrapTraitObject($puck_16);
       $puck_1.print("onHover ok", visitor.hover);
-      return $puck_1.Option.unwrapOrElse.call(visitor.hover, function () {
-        return $puck_8.Hover.empty();
-      });
+      return visitor.hover;
     }
     else {
       if ($unwrapTraitObject($puck_16).kind == "Err") {
@@ -144,7 +142,7 @@ function createServer(projectPath, sendDiagnostic) {
           error,
           $unwrapTraitObject(error).stack,
         ]);
-        return $puck_8.Hover.empty();
+        return $puck_1.None;
       };
     };
   };

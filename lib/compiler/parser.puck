@@ -709,6 +709,19 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
     let domain = if parts.size() == 2 then Some(parts[0]) else None
     let path = if parts.size() == 2 then parts[1] else parts[0]
 
+    if recover and not isToken(SyntaxKind::AsKeyword) {
+      return {
+        importKeyword
+        locator
+        domain
+        path
+        asKeyword: {kind: SyntaxKind::AsKeyword, span: Span.empty()}
+        specifier: ImportSpecifier::Identifier(consumeIdentifier())
+
+        module: None
+      }
+    }
+
     let asKeyword = consumeToken(SyntaxKind::AsKeyword)
     let specifier =
       if isToken(SyntaxKind::OpenBraceToken)
@@ -719,6 +732,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
 
     {
       importKeyword
+      locator
       domain
       path
       asKeyword
@@ -826,7 +840,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
         else None
 
     let body =
-      if recover and not isToken(SyntaxKind::OpenBraceToken)
+      if recover and not isToken(SyntaxKind::OpenBraceToken) and (not optionalBody or returnType.isNone())
         then Some(mockBlock())
       else if isToken(SyntaxKind::OpenBraceToken) or not optionalBody
         then Some(parseBlock())

@@ -38,9 +38,13 @@ export fn getEnumType(typePath: TypePath, scope: Scope) -> Option<Type> {
 
 export fn getEnumMember(typePath: TypePath) {
   let typePathType: Type = typePath->type_.transmute()
-  let (member, _) = typePathType.enumMember.unwrap()
 
-  member
+  if typePathType {
+    let (member, _) = typePathType.enumMember.unwrap()
+
+    Some(member)
+  }
+  else None
 }
 
 fn isEnumPattern(p: Pattern) {
@@ -98,17 +102,19 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
       Pattern::UnitType(typePath) => getEnumMember(typePath)
     }
 
-    if not exhaustiveMap.get(member).unwrapOr(false) {
-      let individuallyExhaustive = isIndividuallyExhaustive(pattern)
-      let isEnum = isEnumArm(pattern)
+    if let Some(member) = member {
+      if not exhaustiveMap.get(member).unwrapOr(false) {
+        let individuallyExhaustive = isIndividuallyExhaustive(pattern)
+        let isEnum = isEnumArm(pattern)
 
-      exhaustiveMap[member] = individuallyExhaustive and not isEnum
+        exhaustiveMap[member] = individuallyExhaustive and not isEnum
 
-      if isEnum {
-        if not enumArmsMap.has(member) {
-          enumArmsMap[member] = []
+        if isEnum {
+          if not enumArmsMap.has(member) {
+            enumArmsMap[member] = []
+          }
+          enumArmsMap[member].push(pattern)
         }
-        enumArmsMap[member].push(pattern)
       }
     }
 

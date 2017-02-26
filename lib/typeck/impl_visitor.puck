@@ -77,7 +77,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
         }
       }
     }
-    else reportError(i, 'Function $functionName is not defined by $traitName')
+    else reportError(functionDeclaration, 'Function $functionName is not defined by $traitName')
   })
 
   let implementation = Implementation({

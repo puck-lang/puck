@@ -1,4 +1,6 @@
 'use strict';
+
+const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
 exports.Position = exports.Span = exports.ToSpanundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 var Position = exports.Position = (object) => object;
@@ -19,6 +21,16 @@ end: function () {
   const self = this;
   return ToSpan[self.type].span.call(self).end;
 }
+};
+$puck_1.PartialOrd["$impl_PartialOrd$lib/ast/span.puck:Span"] = {
+partialCmp: function (other) {
+  const self = this;
+  return $puck_1.Some(Span.cmp.call(self.value, $unwrapTraitObject(other)));
+},
+lt: $puck_1.PartialOrd.lt,
+le: $puck_1.PartialOrd.le,
+gt: $puck_1.PartialOrd.gt,
+ge: $puck_1.PartialOrd.ge
 };
 ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span"] = {
 span: function () {

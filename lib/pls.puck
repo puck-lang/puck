@@ -87,7 +87,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
     let module: Module = file->ast.transmute()
     if not module then return []
 
-    let mut visitor = CompletionVisitor.new(position)
+    let mut visitor = CompletionVisitor.new(file, position)
 
     let result = asResult(|| {
       visitor.visitModule(module)
@@ -106,16 +106,16 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       }
     }
   }
-  a->onHover = fn (filePath: String, position: Position) -> Hover {
+  a->onHover = fn (filePath: String, position: Position) -> Option<Hover> {
     print('onHover')
     // let context = match contexts.get(filePath) {
     //   Some(context) => context
-    //   None => return Hover.empty()
+    //   None => return None
     // }
     let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
-    if not file then return Hover.empty()
+    if not file then return None
     let module: Module = file->ast.transmute()
-    if not module then return Hover.empty()
+    if not module then return None
 
     let mut visitor = HoverVisitor.new(position)
 
@@ -126,11 +126,11 @@ export fn createServer(projectPath: String, sendDiagnostic) {
     match result {
       Ok(_) => {
         print('onHover ok', visitor.hover)
-        visitor.hover.unwrapOrElse(|| Hover.empty())
+        visitor.hover
       }
       Err(error) => {
         print('onHover Error:', (error, error->stack))
-        Hover.empty()
+        None
       }
     }
   }

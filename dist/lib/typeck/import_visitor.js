@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.ImportVisitorundefined;
+exports.puckFile = exports.puckModules = exports.ImportVisitorundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("fs");
@@ -15,8 +15,8 @@ const domains = [
   "node",
   "puck",
 ];
-const puckFile = $puck_1.RegExp._new("\\.puck$", "i");
-const puckModules = [
+var puckFile = exports.puckFile = $puck_1.RegExp._new("\\.puck$", "i");
+var puckModules = exports.puckModules = [
   "core",
   "js",
   "test",
