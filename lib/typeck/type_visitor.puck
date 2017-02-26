@@ -32,7 +32,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
-import '../entities.puck' as {File, StructKind, Type, TypeClass, TypeKind}
+import '../entities.puck' as {Definition, File, StructKind, Type, TypeClass, TypeKind}
 import 'src/scope.puck' as {Binding, Scope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 
@@ -83,7 +83,7 @@ export fn TypeVisitor(context, file) {
   let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
   let mut imports: ObjectMap<File> = ObjectMap.new()
 
-  let structureVisitorInstance = structureVisitor(reportError, 'TypeVisitor')
+  let structureVisitorInstance = structureVisitor(file, reportError, 'TypeVisitor')
   Object->assign({}, visit.emptyVisitor, structureVisitorInstance, {
     scope: Scope.new(context)
 
@@ -118,7 +118,9 @@ export fn TypeVisitor(context, file) {
       let mut parentScope: Scope = self.scope
       let mut type_: Type = t->type_.transmute()
       if not t->type_ {
+        let definition = Definition({file, token: t})
         t->type_ = Type.provides({
+          definition
           id: generateTypeId(context, file, t.name.name)
           displayName: None
           name: Some(t.name.name)
@@ -131,10 +133,9 @@ export fn TypeVisitor(context, file) {
           providesType: None
           enumMember: None
         })
-        let token: ToSpan = t
         if let Result::Err(error) = parentScope.define({
+          definition
           name: t.name.name
-          token
           mutable: false
           allowRedeclare: false
           type_: t->type_.transmute()
@@ -162,34 +163,39 @@ export fn TypeVisitor(context, file) {
         t.members.forEach(|m| self.visitEnumMember(m))
 
         let memberMap = ObjectMap.fromIter(
-          t.members.map(|p: EnumMember| (
-            p.name.name
-            p.bound.mapOr(
-              Type({
-                id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
-                displayName: None
-                name: Some(t.name.name + '::' + p.name.name)
-                kind: TypeKind::Struct({
-                  implementations: []
-                  kind: StructKind::Unit
+          t.members.map(|p: EnumMember| {
+            let definition = Definition({file, token: p})
+            (
+              p.name.name
+              p.bound.mapOr(
+                Type({
+                  definition
+                  id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
+                  displayName: None
+                  name: Some(t.name.name + '::' + p.name.name)
+                  kind: TypeKind::Struct({
+                    implementations: []
+                    kind: StructKind::Unit
+                  })
+                  class: None
+                  instance: None
+                  providesType: None
+                  enumMember: Some((p.name.name, type_.providesType.unwrap()))
                 })
-                class: None
-                instance: None
-                providesType: None
-                enumMember: Some((p.name.name, type_.providesType.unwrap()))
-              })
-              |bound| Type({
-                id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
-                displayName: None
-                name: None
-                kind: bound.getType().kind
-                class: None
-                instance: None
-                providesType: None
-                enumMember: Some((p.name.name, type_.providesType.unwrap()))
-              })
+                |bound| Type({
+                  definition
+                  id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
+                  displayName: None
+                  name: None
+                  kind: bound.getType().kind
+                  class: None
+                  instance: None
+                  providesType: None
+                  enumMember: Some((p.name.name, type_.providesType.unwrap()))
+                })
+              )
             )
-          ))
+          })
         )
 
         if t.members.size() != memberMap.size() {
@@ -213,7 +219,9 @@ export fn TypeVisitor(context, file) {
       let mut parentScope: Scope = self.scope
       let type_: Type = t->type_.transmute()
       if not t->type_ {
+        let definition = Definition({file, token: t})
         t->type_ = Type.provides({
+          definition
           id: getTypeId(t, context, file)
           displayName: None
           name: Some(t.name.name)
@@ -226,10 +234,9 @@ export fn TypeVisitor(context, file) {
           providesType: None
           enumMember: None
         })
-        let token: ToSpan = t
         if let Result::Err(error) = parentScope.define({
+          definition
           name: t.name.name
-          token
           mutable: false
           allowRedeclare: false
           type_: t->type_.transmute()
@@ -299,7 +306,9 @@ export fn TypeVisitor(context, file) {
           }
           else StructKind::Unit
 
+        let definition = Definition({file, token: t})
         t->type_ = Type.provides({
+          definition
           id: getTypeId(t, context, file)
           displayName: None
           name: Some(t.name.name)
@@ -312,10 +321,9 @@ export fn TypeVisitor(context, file) {
           providesType: None
           enumMember: None
         })
-        let token: ToSpan = t
         if let Result::Err(error) = parentScope.define({
+          definition
           name: t.name.name
-          token
           mutable: false
           allowRedeclare: false
           type_: t->type_.transmute()
@@ -378,13 +386,14 @@ export fn TypeVisitor(context, file) {
 
       match importDirective.specifier {
         ImportSpecifier::Identifier(identifier) => {
-          let token: ToSpan = identifier
           let typeProperties =
             if let Option::Some(module) = importDirective.module {
               module.exports.map(|exportDirective| exportDirective.getType())
             }
             else ObjectMap.new()
+           let definition = Definition({file, token: identifier})
           let mut type_ = Type({
+            definition
             id: None
             displayName: Some(identifier.name)
             name: None
@@ -400,8 +409,8 @@ export fn TypeVisitor(context, file) {
             enumMember: None
           })
           if let Result::Err(error) = scope.define({
+            definition
             name: identifier.name
-            token
             mutable: false
             allowRedeclare: false
             type_
@@ -429,13 +438,12 @@ export fn TypeVisitor(context, file) {
         }
         ImportSpecifier::ObjectDestructure(d) => {
           d.members.forEach(|mut m| {
-            let token: ToSpan = m
             if let Option::Some(module) = importDirective.module {
               let moduleScope: Scope = module->scope.transmute()
               let importedBinding = moduleScope.getBinding(m.property.name, 'TypeVisitor').unwrapOr(Object->assign({}).transmute())
               if let Result::Err(error) = scope.define({
+                definition: Definition({file: m.file.unwrapOr(file), token: m})
                 name: m.local.name
-                token
                 mutable: false
                 allowRedeclare: false
                 type_: importedBinding.type_
@@ -458,8 +466,8 @@ export fn TypeVisitor(context, file) {
             }
             else {
               if let Result::Err(error) = scope.define({
+                definition: Definition({file, token: m})
                 name: m.local.name
-                token
                 mutable: false
                 allowRedeclare: false
                 type_: undefined

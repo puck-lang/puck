@@ -3,11 +3,11 @@ import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {Module, Identifier, TypePath}
 import '../../ast/span.puck' as {Span, ToSpan}
 import '../../compiler/ast.ts' as {SyntaxKind}
-import '../../entities.puck' as {StructKind, Type, TypeKind}
+import '../../entities.puck' as {Definition, StructKind, Type, TypeKind}
 
 export type Binding {
+  definition: Definition
   name: String
-  token: ToSpan
   mutable: Bool
   allowRedeclare: Bool
   type_: Type
@@ -96,8 +96,8 @@ impl Scope {
       }
 
     let binding: Binding = {
+      definition: binding.definition
       name: binding.name
-      token: binding.token
       mutable: binding.mutable
       allowRedeclare: binding.allowRedeclare
       type_: binding.type_
@@ -116,8 +116,8 @@ impl Scope {
 
   fn setSelfType(mut self, mut selfType: Type) -> () {
     self.bindings.set('Self', {
+      definition: selfType.definition
       name: 'Self'
-      token: Span.empty()
       mutable: false
       allowRedeclare: false
       type_: Type.provides(selfType)
@@ -176,8 +176,8 @@ impl Scope {
         }
 
         Ok(Binding({
+          definition: type_.definition
           name
-          token
           mutable: binding.mutable
           allowRedeclare: binding.allowRedeclare
           type_

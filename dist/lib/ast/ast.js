@@ -1198,6 +1198,17 @@ span: function () {
 start: $puck_3.ToSpan.start,
 end: $puck_3.ToSpan.end
 };
+$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPattern"] = {
+span: $puck_3.ToSpan.span,
+start: function () {
+  const self = this;
+  return self.value.openBrace.span.start;
+},
+end: function () {
+  const self = this;
+  return self.value.closeBrace.span.end;
+}
+};
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPatternMember"] = {
 span: $puck_3.ToSpan.span,
 start: function () {
@@ -1207,6 +1218,17 @@ start: function () {
 end: function () {
   const self = this;
   return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: self.value.pattern, $isTraitObject: true});
+}
+};
+$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TuplePattern"] = {
+span: $puck_3.ToSpan.span,
+start: function () {
+  const self = this;
+  return self.value.openParen.span.start;
+},
+end: function () {
+  const self = this;
+  return self.value.closeParen.span.end;
 }
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"] = {

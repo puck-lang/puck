@@ -2,6 +2,7 @@ import 'puck:js' as {Object}
 import '../../ast/ast.puck' as {Identifier}
 import '../../ast/span.puck' as {Span}
 import '../../entities.puck' as {StructKind, Type, TypeKind}
+import 'scope.puck' as {Binding}
 import 'types.puck' as {createTypeInstance}
 
 export fn enumMemberToFunction(mut type_: Type) -> Type {
@@ -26,8 +27,8 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
           TypeKind::Function({
             selfBinding: None
             parameters: [{
+              definition: type_.definition
               name: type_.name.unwrapOr('0')
-              token: Span.empty()
               mutable: false
               allowRedeclare: false
               type_: type_.providesType.unwrapOr(type_)
@@ -43,15 +44,15 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
         StructKind::Tuple(tuple) => {
           TypeKind::Function({
             selfBinding: None
-            parameters: tuple.properties.enumerate().map(|(i, p)| {{
+            parameters: tuple.properties.enumerate().map(|(i, p)| Binding({
+              definition: p.definition
               name: '$i'
-              token: Span.empty()
               mutable: false
               allowRedeclare: false
               type_: p
               completeType: None
               previous: None
-            }}).toList()
+            })).toList()
             parameterRange: {start: tuple.properties.size(), end: tuple.properties.size() + 1}
             returnType
             isAbstract: false
@@ -59,6 +60,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
         }
 
         StructKind::Unit => return Type({
+          definition: returnType.definition
           id: returnType.id
           displayName
           name: returnType.name
@@ -78,6 +80,7 @@ export fn enumMemberToFunction(mut type_: Type) -> Type {
     }
 
   {
+    definition: returnType.definition
     id: providedType.id
     displayName
     name: type_.name

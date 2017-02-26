@@ -128,6 +128,7 @@ function createTypeInstance(type_, typeParameters_) {
     let {value: [providedType]} = $puck_22;
     let p = providedType;
     return $puck_5.Type({
+      definition: type_.definition,
       id: type_.id,
       displayName: type_.displayName,
       name: type_.name,
@@ -179,6 +180,7 @@ function createTypeInstance(type_, typeParameters_) {
     ];
   }));
   let instance = {
+    definition: type_.definition,
     id: type_.id,
     displayName: type_.displayName,
     name: type_.name,

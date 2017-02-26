@@ -17,7 +17,7 @@ const $puck_11 = require("./../entities");
 function implementTrait(traitType, trait_, type_, implementable, i, reportError, id) {
   const traitName = $puck_11.Type.displayName.call(traitType);
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementable.implementations, $isTraitObject: true}, function (imp) {
-    return imp.trait_ == traitType;
+    return $puck_10.isSameType(imp.trait_, traitType);
   })) {
     reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplDeclaration', value: i, $isTraitObject: true}, "" + traitName + " has already been implemented for " + $puck_11.Type.displayName.call(type_));
   };
@@ -78,6 +78,7 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError,
     type_: type_,
     trait_: traitType,
     typeParameters: $puck_1.Iterable[$puck_16.type].toList.call($puck_16),
+    functions: functions,
   });
   i.implementation = implementation;
   $puck_1.List.push.call(implementable.implementations, implementation);
@@ -117,6 +118,7 @@ function implementShorthand(type_, implementable, i, reportError) {
   return $puck_1.List.push.call(implementable.implementations, {
     type_: type_,
     trait_: {
+    definition: type_.definition,
     id: type_.id,
     displayName: type_.displayName,
     name: type_.name,
@@ -130,6 +132,7 @@ function implementShorthand(type_, implementable, i, reportError) {
     enumMember: $puck_1.None,
   },
     typeParameters: $puck_1.Iterable[$puck_19.type].toList.call($puck_19),
+    functions: functions,
   });
 };
 function ImplVisitor(context, file) {
@@ -146,7 +149,7 @@ function ImplVisitor(context, file) {
     };
     return id;
   };
-  return $puck_2._Object.assign({}, visit.emptyVisitor, $puck_9.structureVisitor(reportError, "ImplVisitor"), {
+  return $puck_2._Object.assign({}, visit.emptyVisitor, $puck_9.structureVisitor(file, reportError, "ImplVisitor"), {
     visitModule: function (m) {
     let self = this;
     $unwrapTraitObject(self).scope = m.scope;

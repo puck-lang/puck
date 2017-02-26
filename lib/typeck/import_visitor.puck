@@ -45,6 +45,7 @@ export fn ImportVisitor(context, file: UnparsedFile) {
                   {
                     property
                     local: property
+                    file: Some(module.file)
                   }
                 })
                 .toList()

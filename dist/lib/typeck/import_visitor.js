@@ -58,6 +58,7 @@ function ImportVisitor(context, file) {
             return {
               property: property,
               local: property,
+              file: $puck_1.Some(_module.file),
             };
           })
 ;

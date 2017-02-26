@@ -82,6 +82,7 @@ import 'src/types.puck' as {
   resolveTypeParameters
 }
 import '../entities.puck' as {
+  Definition
   Function
   Implementation
   Struct
@@ -194,7 +195,7 @@ export fn ScopeVisitor(context, file) {
     function
   }
 
-  let structureVisitorInstance = structureVisitor(reportError)
+  let structureVisitorInstance = structureVisitor(file, reportError)
   Object->assign({}, visit.walkingVisitor, structureVisitorInstance, {
     reportError
 
@@ -277,7 +278,7 @@ export fn ScopeVisitor(context, file) {
       b->type_ =
         if let Option::Some(last) = b.statements.last()
           then last.getType()
-          else Type.empty()
+          else Type.empty({file, token: b})
     }
     visitBreak: |self, mut b: BreakStatement| {
       b->scope = self.scope
@@ -298,7 +299,7 @@ export fn ScopeVisitor(context, file) {
       e->scope = self.scope
       self.visitExpression(e.condition)
       self.visitBlock(e.body, false)
-      e->type_ = Type.empty()
+      e->type_ = Type.empty({file, token: e})
       self.scope = parentScope
     }
 
@@ -500,6 +501,7 @@ export fn ScopeVisitor(context, file) {
 
               if let Some(selfBinding) = function.selfBinding {
                 functionType = {
+                  definition: functionType.definition
                   id: functionType.id
                   displayName: functionType.displayName
                   name: functionType.name
@@ -693,11 +695,11 @@ export fn ScopeVisitor(context, file) {
                 reportError(e
                   'Type ' + e.then_.type_.displayName() + ' and ' + else_.type_.displayName() + ' is not compatible'
                 )
-                Type.empty()
+                Type.empty({file, token: e})
               }
             }
           }
-          else Type.empty()
+          else Type.empty({file, token: e})
       }
       self.scope = parentScope
     }
@@ -734,11 +736,11 @@ export fn ScopeVisitor(context, file) {
                 reportError(e
                   'Type ' + e.then_.type_.displayName() + ' and ' + else_.type_.displayName() + ' is not compatible'
                 )
-                Type.empty()
+                Type.empty({file, token: e})
               }
             }
           }
-          else Type.empty()
+          else Type.empty({file, token: e})
       }
       self.scope = parentScope
     }
@@ -769,11 +771,11 @@ export fn ScopeVisitor(context, file) {
                 reportError(e
                   'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm->type_.transmute()).displayName())->join(', ')
                 )
-                Type.empty()
+                Type.empty({file, token: e})
               }
             }
           }
-          else Type.empty()
+          else Type.empty({file, token: e})
       }
 
       matchExpression = oldMatchExpression
@@ -976,6 +978,7 @@ export fn ScopeVisitor(context, file) {
         self.visitExpression(m.value)
       })
       l->type_ = Type({
+        definition: Definition({file, token: l})
         id: None
         displayName: None
         name: None
@@ -1008,6 +1011,7 @@ export fn ScopeVisitor(context, file) {
       l->scope = self.scope
       visit.walkTupleLiteral(self, l)
       l->type_ = Type({
+        definition: Definition({file, token: l})
         id: None
         displayName: None
         name: None
@@ -1029,7 +1033,7 @@ export fn ScopeVisitor(context, file) {
       visit.walkPattern(self, p)
       p->type_ =
         match p {
-          Pattern::CatchAll => Type.unused()
+          Pattern::CatchAll => Type.unused({file, token: p})
           Pattern::Identifier(identifier) => undefined
           Pattern::Record(record) => record->type_.transmute()
           Pattern::RecordType(typePath, record) => {
@@ -1053,6 +1057,7 @@ export fn ScopeVisitor(context, file) {
       p->scope = self.scope
       visit.walkRecordPattern(self, p)
       p->type_ = Type({
+        definition: Definition({file, token: p})
         id: None
         displayName: None
         name: None
@@ -1072,6 +1077,7 @@ export fn ScopeVisitor(context, file) {
       p->scope = self.scope
       visit.walkTuplePattern(self, p)
       p->type_ = Type({
+        definition: Definition({file, token: p})
         id: None
         displayName: None
         name: None

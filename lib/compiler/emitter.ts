@@ -514,8 +514,8 @@ export function Emitter() {
   }
 
   function emitIdentifier(identifier: {name: string, binding?: any}) {
-    if (identifier.binding && identifier.binding.token.value.importName) {
-      return identifier.binding.token.value.importName
+    if (identifier.binding && identifier.binding.definition.token.value.importName) {
+      return identifier.binding.definition.token.value.importName
     }
     if (jsKeywords.indexOf(identifier.name) != -1) {
       return `_${identifier.name}`
@@ -584,7 +584,7 @@ export function Emitter() {
     if (vd.pattern.kind === 'Identifier') {
       binding = Scope.getBinding.call(vd.scope, vd.pattern.value[0].name).value[0]
       willBeRedefined = binding.redefined || (binding.previous && binding.previous.value[0])
-      while (binding && ((binding.token.$isTraitObject ? binding.token.value : binding.token) !== vd.pattern)) {
+      while (binding && binding.definition.token.value !== vd.pattern) {
         binding = binding.previous.value[0]
       }
     }
@@ -744,8 +744,8 @@ export function Emitter() {
           hoist(`let ${valueVariable} = ${emitExpression((fn.func.value[0] as MemberAccess).object)}\n`)
         }
       }
-      let traitName = fn.traitBinding && fn.traitBinding.token.value.importName
-        ? fn.traitBinding.token.value.importName
+      let traitName = fn.traitBinding && fn.traitBinding.definition.token.value.importName
+        ? fn.traitBinding.definition.token.value.importName
         : fn.traitName
 
       functionName = `${traitName}${

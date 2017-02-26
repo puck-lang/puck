@@ -28,7 +28,9 @@ import '../../ast/span.puck' as {ToSpan}
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
+  Definition
   Enum
+  File
   StructKind
   Type
   TypeClass
@@ -44,7 +46,9 @@ export fn notAssignableError(to: Type, subject: Type) {
   subject.displayName() + ' is not assignable to type ' + to.displayName()
 }
 
-export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
+export fn structureVisitor(file: File, reportError: (ToSpan, String) -> (), visitor = '') {{
+  file
+
   visitEnumMember: visit.walkingVisitor.visitEnumMember
   visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
     if not f->scope {
@@ -71,12 +75,11 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       })
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
 
-      f.type_ = createFunctionType(f->scope.transmute(), f, reportError)
+      f.type_ = createFunctionType(file, f->scope.transmute(), f, reportError)
       if let Option::Some(name) = f.name {
-        let token: ToSpan = f
         if let Result::Err(err) = parentScope.define({
+          definition: Definition({file, token: f})
           name: name.name
-          token
           allowRedeclare: false
           mutable: false
           type_: f.type_
@@ -124,7 +127,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
 
-      f.type_ = createFunctionType(f->scope.transmute(), f, reportError)
+      f.type_ = createFunctionType(file, f->scope.transmute(), f, reportError)
 
       self.scope = parentScope
     }
@@ -142,8 +145,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       let parameters = t.parameters.properties
         .enumerate()
         .map(|(i, t)| {{
+          definition: Definition({file, token: t})
           name: '$i'
-          token: t
           mutable: false
           allowRedeclare: true
           type_: t.getType()
@@ -153,6 +156,10 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
         .toList()
 
       t->type_ = Type({
+        definition: Definition({
+          file
+          token: t
+        })
         id: None
         displayName: None
         name: None
@@ -179,6 +186,17 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       self.visitTypePath(t.path)
       let mut type_: Type = t.path->providesType.transmute()
       if not type_ then return ()
+      type_ = Type({
+        definition: Definition({file, token: t})
+        id: type_.id
+        displayName: type_.displayName
+        name: type_.name
+        kind: type_.kind
+        class: type_.class
+        instance: type_.instance
+        providesType: type_.providesType
+        enumMember: type_.enumMember
+      })
 
       let isSelf =
         if let TypePath::Member({name}) = t.path {
@@ -218,6 +236,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       visit.walkRecordTypeBound(self, t)
 
       t->type_ = Type({
+        definition: Definition({file, token: t})
         id: None
         displayName: None
         name: None
@@ -245,6 +264,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       visit.walkTupleTypeBound(self, t)
 
       t->type_ = Type({
+        definition: Definition({file, token: t})
         id: None
         displayName: None
         name: None
@@ -264,6 +284,7 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       t->scope = self.scope
       visit.walkTypeParameter(self, t)
       t->type_ = Type({
+        definition: Definition({file, token: t})
         id: Some(t.name.name)
         displayName: None
         name: Some(t.name.name)
@@ -277,8 +298,8 @@ export fn structureVisitor(reportError: (ToSpan, String) -> (), visitor = '') {{
       })
       let mut scope: Scope = self.scope
       if let Result::Err(err) = scope.define({
+        definition: Definition({file, token: t})
         name: t.name.name
-        token: t
         mutable: false
         allowRedeclare: false
         type_: Type.provides(t->type_.transmute())

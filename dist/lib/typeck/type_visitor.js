@@ -78,7 +78,7 @@ function getTypeId(declaration, context, file) {
 function TypeVisitor(context, file) {
   const reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
   let imports = $puck_1.ObjectMap._new();
-  const structureVisitorInstance = $puck_8.structureVisitor(reportError, "TypeVisitor");
+  const structureVisitorInstance = $puck_8.structureVisitor(file, reportError, "TypeVisitor");
   return $puck_2._Object.assign({}, visit.emptyVisitor, structureVisitorInstance, {
     scope: $puck_7.Scope._new(context),
     visitModule: function (m) {
@@ -165,7 +165,12 @@ function TypeVisitor(context, file) {
     let parentScope = $unwrapTraitObject(self).scope;
     let type_ = $unwrapTraitObject(t.type_);
     if ((!t.type_)) {
+      const definition = $puck_6.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration', value: t, $isTraitObject: true},
+      });
       t.type_ = $puck_6.Type.provides({
+        definition: definition,
         id: generateTypeId(context, file, t.name.name),
         displayName: $puck_1.None,
         name: $puck_1.Some(t.name.name),
@@ -178,10 +183,9 @@ function TypeVisitor(context, file) {
         providesType: $puck_1.None,
         enumMember: $puck_1.None,
       });
-      const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration', value: t, $isTraitObject: true};
       let $puck_31 = $puck_7.Scope.define.call(parentScope, {
+        definition: definition,
         name: t.name.name,
-        token: token,
         mutable: false,
         allowRedeclare: false,
         type_: $unwrapTraitObject(t.type_),
@@ -216,9 +220,14 @@ function TypeVisitor(context, file) {
           return $unwrapTraitObject(self).visitEnumMember(m);
         });
         const memberMap = $puck_1.ObjectMap.fromIter($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.members, $isTraitObject: true}, function (p) {
+          const definition = $puck_6.Definition({
+            file: file,
+            token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumMember', value: p, $isTraitObject: true},
+          });
           return [
             p.name.name,
             $puck_1.Option.mapOr.call(p.bound, $puck_6.Type({
+            definition: definition,
             id: generateTypeId(context, file, t.name.name + "::" + p.name.name),
             displayName: $puck_1.None,
             name: $puck_1.Some(t.name.name + "::" + p.name.name),
@@ -235,6 +244,7 @@ function TypeVisitor(context, file) {
           ]),
           }), function (bound) {
             return $puck_6.Type({
+              definition: definition,
               id: generateTypeId(context, file, t.name.name + "::" + p.name.name),
               displayName: $puck_1.None,
               name: $puck_1.None,
@@ -277,7 +287,12 @@ function TypeVisitor(context, file) {
     let parentScope = $unwrapTraitObject(self).scope;
     const type_ = $unwrapTraitObject(t.type_);
     if ((!t.type_)) {
+      const definition = $puck_6.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration', value: t, $isTraitObject: true},
+      });
       t.type_ = $puck_6.Type.provides({
+        definition: definition,
         id: getTypeId(t, context, file),
         displayName: $puck_1.None,
         name: $puck_1.Some(t.name.name),
@@ -290,10 +305,9 @@ function TypeVisitor(context, file) {
         providesType: $puck_1.None,
         enumMember: $puck_1.None,
       });
-      const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration', value: t, $isTraitObject: true};
       let $puck_34 = $puck_7.Scope.define.call(parentScope, {
+        definition: definition,
         name: t.name.name,
-        token: token,
         mutable: false,
         allowRedeclare: false,
         type_: $unwrapTraitObject(t.type_),
@@ -403,7 +417,12 @@ function TypeVisitor(context, file) {
         $puck_41 = $puck_6.StructKind.Unit;
       };
       const structKind = $puck_41;
+      const definition = $puck_6.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration', value: t, $isTraitObject: true},
+      });
       t.type_ = $puck_6.Type.provides({
+        definition: definition,
         id: getTypeId(t, context, file),
         displayName: $puck_1.None,
         name: $puck_1.Some(t.name.name),
@@ -416,10 +435,9 @@ function TypeVisitor(context, file) {
         providesType: $puck_1.None,
         enumMember: $puck_1.None,
       });
-      const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration', value: t, $isTraitObject: true};
       let $puck_47 = $puck_7.Scope.define.call(parentScope, {
+        definition: definition,
         name: t.name.name,
-        token: token,
         mutable: false,
         allowRedeclare: false,
         type_: $unwrapTraitObject(t.type_),
@@ -502,7 +520,6 @@ function TypeVisitor(context, file) {
     let $puck_54 = importDirective.specifier;
     if ($unwrapTraitObject($puck_54).kind == "Identifier") {
       let {value: [identifier]} = $unwrapTraitObject($puck_54);
-      const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true};
       let $puck_55 = importDirective._module;
       let $puck_56;
       if ($puck_55.kind == "Some") {
@@ -515,7 +532,12 @@ function TypeVisitor(context, file) {
         $puck_56 = $puck_1.ObjectMap._new();
       };
       const typeProperties = $puck_56;
+      const definition = $puck_6.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true},
+      });
       let type_ = $puck_6.Type({
+        definition: definition,
         id: $puck_1.None,
         displayName: $puck_1.Some(identifier.name),
         name: $puck_1.None,
@@ -529,8 +551,8 @@ function TypeVisitor(context, file) {
         enumMember: $puck_1.None,
       });
       let $puck_57 = $puck_7.Scope.define.call(scope, {
+        definition: definition,
         name: identifier.name,
-        token: token,
         mutable: false,
         allowRedeclare: false,
         type_: type_,
@@ -575,15 +597,17 @@ function TypeVisitor(context, file) {
       if ($unwrapTraitObject($puck_54).kind == "ObjectDestructure") {
         let {value: [d]} = $unwrapTraitObject($puck_54);
         return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: d.members, $isTraitObject: true}, function (m) {
-          const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: m, $isTraitObject: true};
           let $puck_60 = importDirective._module;
           if ($puck_60.kind == "Some") {
             let {value: [_module]} = $puck_60;
             const moduleScope = $unwrapTraitObject(_module.scope);
             const importedBinding = $puck_1.Option.unwrapOr.call($puck_7.Scope.getBinding.call(moduleScope, m.property.name, "TypeVisitor"), $unwrapTraitObject($puck_2._Object.assign({})));
             let $puck_61 = $puck_7.Scope.define.call(scope, {
+              definition: $puck_6.Definition({
+              file: $puck_1.Option.unwrapOr.call(m.file, file),
+              token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: m, $isTraitObject: true},
+            }),
               name: m.local.name,
-              token: token,
               mutable: false,
               allowRedeclare: false,
               type_: importedBinding.type_,
@@ -614,8 +638,11 @@ function TypeVisitor(context, file) {
           }
           else {
             let $puck_62 = $puck_7.Scope.define.call(scope, {
+              definition: $puck_6.Definition({
+              file: file,
+              token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: m, $isTraitObject: true},
+            }),
               name: m.local.name,
-              token: token,
               mutable: false,
               allowRedeclare: false,
               type_: $unwrapTraitObject($puck_2._undefined),

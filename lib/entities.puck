@@ -86,7 +86,13 @@ fn getGenericName(name: String, type_: Type, showClassParameters = false) {
     else name + parameters
 }
 
+export type Definition {
+  file: File
+  token: ToSpan
+}
+
 export type Type {
+  definition: Definition
   id: Option<String>
   displayName: Option<String>
   name: Option<String>
@@ -103,7 +109,8 @@ export type Type {
 }
 
 impl Type {
-  fn empty() -> Type {{
+  fn empty(definition: Definition) -> Type {{
+    definition
     id: None
     displayName: Some('()')
     name: None
@@ -118,6 +125,7 @@ impl Type {
   }}
 
   fn provides(mut type_: Type) -> Type {{
+    definition: type_.definition
     id: None
     displayName: type_.displayName
     name: type_.name
@@ -131,7 +139,8 @@ impl Type {
     enumMember: None
   }}
 
-  fn unused() -> Type {{
+  fn unused(definition: Definition) -> Type {{
+    definition
     id: None
     displayName: Some('_')
     name: None
@@ -310,6 +319,7 @@ export type Implementation {
   type_: Type
   trait_: Type
   typeParameters: List<Type>
+  functions: ObjectMap<Type>
 }
 
 /// Represents a generic type like List<T>

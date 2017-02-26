@@ -138,16 +138,6 @@ visitImportDirective: function (i) {
           $puck_17 = relativePath;
         };
         const insertText = $puck_17;
-        $puck_1.print("i.path", i.path);
-        $puck_1.print("isTypedDirectory", isTypedDirectory);
-        $puck_1.print("isDirectory", isDirectory);
-        $puck_1.print("dirname", dirname);
-        $puck_1.print("nicePath", relativePath);
-        $puck_1.print("typedDir", typedDir);
-        $puck_1.print("filterText", filterText);
-        $puck_1.print("resolved", resolved);
-        $puck_1.print("file", file);
-        $puck_1.print("position", self.value.position);
         let $puck_18;
         if (createAs) {
           $puck_18 = 1;
@@ -174,7 +164,6 @@ visitImportDirective: function (i) {
           character: $puck_4.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: i.locator, $isTraitObject: true}).end.column - endOffset,
         },
         };
-        $puck_1.print("range", range);
         let $puck_20;
         if (isPuckFile) {
           $puck_20 = $unwrapTraitObject($puck_2.CompletionItemKind).Module;

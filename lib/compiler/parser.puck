@@ -766,6 +766,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
     {
       property
       local
+      file: None
     }
   }
 

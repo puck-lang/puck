@@ -444,6 +444,7 @@ impl ToSpan for ObjectDestructure {
 export type ObjectDestructureMember {
   property: Identifier
   local: Identifier
+  file: Option<File>
 }
 
 impl ToSpan for ObjectDestructureMember {
@@ -979,6 +980,15 @@ impl RecordPattern {
   }
 }
 
+impl ToSpan for RecordPattern {
+  fn start(self) -> Position {
+    self.openBrace.span.start
+  }
+  fn end(self) -> Position {
+    self.closeBrace.span.end
+  }
+}
+
 export type RecordPatternMember {
   property: Identifier
   pattern: Pattern
@@ -1002,6 +1012,15 @@ export type TuplePattern {
 impl TuplePattern {
   fn displayName(self) -> String {
     '(' + self.properties.map(|p| p.displayName())->join(', ') + ')'
+  }
+}
+
+impl ToSpan for TuplePattern {
+  fn start(self) -> Position {
+    self.openParen.span.start
+  }
+  fn end(self) -> Position {
+    self.closeParen.span.end
   }
 }
 
