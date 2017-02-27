@@ -96,7 +96,8 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
           }
           else ObjectMap.new()
 
-      let properties: Result<(), PatternError> = record.properties
+      record.properties
+        .iter()
         .map(|mut p| (
           p.property.name
           declarePatternVariables(
@@ -110,12 +111,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
             definitions
           )
         ))
-        ->reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
-          acc.andThen(|_| type_)
-        }, Ok(()))
-        .transmute()
-
-      properties
+        .fold(Ok(()), |acc: Result<(), PatternError>, (name, type_)| acc.andThen(|_| type_))
     }
     Pattern::RecordType(typePath, record) => {
       let recordType =
@@ -137,8 +133,9 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
       if not allowNotExhaustive and isNonExhaustive(typePath)
         then return Err(PatternError::NotExhaustive)
 
-      let properties: Result<(), PatternError> = record.properties
+      record.properties
         .toList()
+        .iter()
         .map(|mut p| (
           p.property.name
           declarePatternVariables(
@@ -152,12 +149,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
             definitions
           )
         ))
-        ->reduce(|acc: Result<(), PatternError>, (name, type_): (String, Result<(), PatternError>)| {
-          acc.andThen(|_| type_)
-        }, Ok(()))
-        .transmute()
-
-      properties
+        .fold(Ok(()), |acc: Result<(), PatternError>, (name, type_)| acc.andThen(|_| type_))
     }
     Pattern::Tuple(tuple) => {
       let props =
@@ -172,16 +164,20 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
           }
           else []
 
-      let properties: Result<(), PatternError> = tuple.properties
+      tuple.properties
+        .iter()
         .enumerate()
-        .map(|mut (i, p)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive, useParentScope, definitions))
-        .toList()
-        ->reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
-          acc.andThen(|_| cur)
-        }, Ok(()))
-        .transmute()
-
-      properties
+        .map(|mut (i, p)| declarePatternVariables(
+          scope
+          visitor
+          p
+          mutable
+          props->[i].transmute()
+          allowNotExhaustive
+          useParentScope
+          definitions
+        ))
+        .fold(Ok(()), |acc, cur| acc.andThen(|_| cur))
     }
     Pattern::TupleType(typePath, tuple) => {
       let tupleType =
@@ -203,17 +199,20 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
       if not allowNotExhaustive and isNonExhaustive(typePath)
         then return Err(PatternError::NotExhaustive)
 
-      let properties: Result<(), PatternError> = tuple.properties
+      tuple.properties
+        .iter()
         .enumerate()
-        .map(|mut (i, p)| declarePatternVariables(scope, visitor, p, mutable, props->[i].transmute(), allowNotExhaustive, useParentScope, definitions))
-        .toList()
-        ->reduce(|acc: Result<(), PatternError>, cur: Result<(), PatternError>| {
-          acc.andThen(|_| cur)
-        }, Ok(()))
-        .transmute()
-
-      properties
-
+        .map(|mut (i, p)| declarePatternVariables(
+          scope
+          visitor
+          p
+          mutable
+          props->[i].transmute()
+          allowNotExhaustive
+          useParentScope
+          definitions
+        ))
+        .fold(Ok(()), |acc, cur| acc.andThen(|_| cur))
     }
     Pattern::UnitType(typePath) => {
       if not allowNotExhaustive and isNonExhaustive(typePath)

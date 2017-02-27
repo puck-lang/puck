@@ -178,218 +178,226 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
           $puck_19 = $puck_1.ObjectMap._new();
         };
         const props = $puck_19;
-        const properties = $unwrapTraitObject($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true}, function (p) {
+        let $puck_30 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: record.properties, $isTraitObject: true})
+;
+        let $puck_29 = $puck_1.Iterator[$puck_30.type].map.call($puck_30, function (p) {
           return [
             p.property.name,
             declarePatternVariables(scope, visitor, p.pattern, mutable, $unwrapTraitObject(props[p.property.name]), allowNotExhaustive, useParentScope, definitions),
           ];
-        }).value.reduce(function (acc, [name, type_]) {
-          return $puck_1.Result.andThen.call(acc, function ($puck_29) {
+        })
+;
+        return $puck_1.Iterator[$puck_29.type].fold.call($puck_29, $puck_1.Ok([]), function (acc, [name, type_]) {
+          return $puck_1.Result.andThen.call(acc, function ($puck_31) {
             return type_;
           });
-        }, $puck_1.Ok([])));
-        return properties;
+        });
       }
       else {
         if ($unwrapTraitObject($puck_17).kind == "RecordType") {
           let {value: [typePath, record]} = $unwrapTraitObject($puck_17);
-          let $puck_30 = getValueType(typePath, type_);
-          let $puck_31;
-          if ($unwrapTraitObject($puck_30).kind == "Ok") {
-            let {value: [type_]} = $unwrapTraitObject($puck_30);
-            $puck_31 = type_;
+          let $puck_32 = getValueType(typePath, type_);
+          let $puck_33;
+          if ($unwrapTraitObject($puck_32).kind == "Ok") {
+            let {value: [type_]} = $unwrapTraitObject($puck_32);
+            $puck_33 = type_;
           }
           else {
-            let $puck_32;
-            if ($unwrapTraitObject($puck_30).kind == "Err") {
-              let {value: [[to, subject]]} = $unwrapTraitObject($puck_30);
+            let $puck_34;
+            if ($unwrapTraitObject($puck_32).kind == "Err") {
+              let {value: [[to, subject]]} = $unwrapTraitObject($puck_32);
               return $puck_1.Err(PatternError.PatternMismatch(p, to, subject));
             };
-            $puck_31 = $puck_32;
+            $puck_33 = $puck_34;
           };
-          const recordType = $puck_31;
-          let $puck_33 = recordType.kind;
-          let $puck_34;
-          if ($unwrapTraitObject($puck_33).kind == "Struct") {
-            let {value: [struct]} = $unwrapTraitObject($puck_33);
-            let $puck_35 = struct.kind;
-            let $puck_36;
-            if ($unwrapTraitObject($puck_35).kind == "Record") {
-              let {value: [record]} = $unwrapTraitObject($puck_35);
-              $puck_36 = record.properties;
+          const recordType = $puck_33;
+          let $puck_35 = recordType.kind;
+          let $puck_36;
+          if ($unwrapTraitObject($puck_35).kind == "Struct") {
+            let {value: [struct]} = $unwrapTraitObject($puck_35);
+            let $puck_37 = struct.kind;
+            let $puck_38;
+            if ($unwrapTraitObject($puck_37).kind == "Record") {
+              let {value: [record]} = $unwrapTraitObject($puck_37);
+              $puck_38 = record.properties;
             }
             else {
-              let $puck_37;
+              let $puck_39;
               if (true) {
-                let $puck_38 = $puck_35;
+                let $puck_40 = $puck_37;
                 return $puck_1.Err(PatternError.PatternMismatch(p, $unwrapTraitObject(p.type_), recordType));
               };
-              $puck_36 = $puck_37;
+              $puck_38 = $puck_39;
             };
-            $puck_34 = $puck_36;
+            $puck_36 = $puck_38;
           }
           else {
-            let $puck_39;
-            if ($unwrapTraitObject($puck_33).kind == "Parameter") {
-              let undefined = $unwrapTraitObject($puck_33);
-              $puck_39 = {};
+            let $puck_41;
+            if ($unwrapTraitObject($puck_35).kind == "Parameter") {
+              let undefined = $unwrapTraitObject($puck_35);
+              $puck_41 = {};
             }
             else {
-              let $puck_40;
+              let $puck_42;
               if (true) {
-                let $puck_41 = $puck_33;
+                let $puck_43 = $puck_35;
                 return $puck_1.Err(PatternError.PatternMismatch(p, $unwrapTraitObject(p.type_), recordType));
               };
-              $puck_39 = $puck_40;
+              $puck_41 = $puck_42;
             };
-            $puck_34 = $puck_39;
+            $puck_36 = $puck_41;
           };
-          const props = $puck_34;
+          const props = $puck_36;
           if ((!allowNotExhaustive && isNonExhaustive(typePath))) {
             return $puck_1.Err(PatternError.NotExhaustive);
           };
-          const properties = $unwrapTraitObject($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true}), $isTraitObject: true}, function (p) {
+          let $puck_45 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true}), $isTraitObject: true})
+;
+          let $puck_44 = $puck_1.Iterator[$puck_45.type].map.call($puck_45, function (p) {
             return [
               p.property.name,
               declarePatternVariables(scope, visitor, p.pattern, mutable, $unwrapTraitObject(props[p.property.name]), allowNotExhaustive, useParentScope, definitions),
             ];
-          }).value.reduce(function (acc, [name, type_]) {
-            return $puck_1.Result.andThen.call(acc, function ($puck_42) {
+          })
+;
+          return $puck_1.Iterator[$puck_44.type].fold.call($puck_44, $puck_1.Ok([]), function (acc, [name, type_]) {
+            return $puck_1.Result.andThen.call(acc, function ($puck_46) {
               return type_;
             });
-          }, $puck_1.Ok([])));
-          return properties;
+          });
         }
         else {
           if ($unwrapTraitObject($puck_17).kind == "Tuple") {
             let {value: [tuple]} = $unwrapTraitObject($puck_17);
-            let $puck_43;
+            let $puck_47;
             if (type_) {
-              let $puck_44 = type_.kind;
-              let $puck_45;
-              if ($unwrapTraitObject($puck_44).kind == "Struct") {
-                let {value: [struct]} = $unwrapTraitObject($puck_44);
-                let $puck_46 = struct.kind;
-                let $puck_47;
-                if ($unwrapTraitObject($puck_46).kind == "Tuple") {
-                  let {value: [tuple]} = $unwrapTraitObject($puck_46);
-                  $puck_47 = tuple.properties;
+              let $puck_48 = type_.kind;
+              let $puck_49;
+              if ($unwrapTraitObject($puck_48).kind == "Struct") {
+                let {value: [struct]} = $unwrapTraitObject($puck_48);
+                let $puck_50 = struct.kind;
+                let $puck_51;
+                if ($unwrapTraitObject($puck_50).kind == "Tuple") {
+                  let {value: [tuple]} = $unwrapTraitObject($puck_50);
+                  $puck_51 = tuple.properties;
                 }
                 else {
-                  let $puck_48;
+                  let $puck_52;
                   if (true) {
-                    let $puck_49 = $puck_46;
+                    let $puck_53 = $puck_50;
                     return $puck_1.Err(PatternError.PatternMismatch(p, $unwrapTraitObject(p.type_), type_));
                   };
-                  $puck_47 = $puck_48;
+                  $puck_51 = $puck_52;
                 };
-                $puck_45 = $puck_47;
+                $puck_49 = $puck_51;
               }
               else {
-                let $puck_50;
-                if ($unwrapTraitObject($puck_44).kind == "Parameter") {
-                  let undefined = $unwrapTraitObject($puck_44);
-                  $puck_50 = [];
+                let $puck_54;
+                if ($unwrapTraitObject($puck_48).kind == "Parameter") {
+                  let undefined = $unwrapTraitObject($puck_48);
+                  $puck_54 = [];
                 }
                 else {
-                  let $puck_51;
+                  let $puck_55;
                   if (true) {
-                    let $puck_52 = $puck_44;
+                    let $puck_56 = $puck_48;
                     return $puck_1.Err(PatternError.PatternMismatch(p, $unwrapTraitObject(p.type_), type_));
                   };
-                  $puck_50 = $puck_51;
+                  $puck_54 = $puck_55;
                 };
-                $puck_45 = $puck_50;
+                $puck_49 = $puck_54;
               };
-              $puck_43 = $puck_45;
+              $puck_47 = $puck_49;
             }
             else {
-              $puck_43 = [];
+              $puck_47 = [];
             };
-            const props = $puck_43;
-            let $puck_54 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true})
+            const props = $puck_47;
+            let $puck_59 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: tuple.properties, $isTraitObject: true})
 ;
-            let $puck_53 = $puck_1.Iterable[$puck_54.type].map.call($puck_54, function ([i, p]) {
+            let $puck_58 = $puck_1.Iterator[$puck_59.type].enumerate.call($puck_59)
+;
+            let $puck_57 = $puck_1.Iterator[$puck_58.type].map.call($puck_58, function ([i, p]) {
               return declarePatternVariables(scope, visitor, p, mutable, $unwrapTraitObject(props[i]), allowNotExhaustive, useParentScope, definitions);
             })
 ;
-            const properties = $unwrapTraitObject($puck_1.Iterable[$puck_53.type].toList.call($puck_53).reduce(function (acc, cur) {
-              return $puck_1.Result.andThen.call(acc, function ($puck_55) {
+            return $puck_1.Iterator[$puck_57.type].fold.call($puck_57, $puck_1.Ok([]), function (acc, cur) {
+              return $puck_1.Result.andThen.call(acc, function ($puck_60) {
                 return cur;
               });
-            }, $puck_1.Ok([])));
-            return properties;
+            });
           }
           else {
             if ($unwrapTraitObject($puck_17).kind == "TupleType") {
               let {value: [typePath, tuple]} = $unwrapTraitObject($puck_17);
-              let $puck_56 = getValueType(typePath, type_);
-              let $puck_57;
-              if ($unwrapTraitObject($puck_56).kind == "Ok") {
-                let {value: [type_]} = $unwrapTraitObject($puck_56);
-                $puck_57 = type_;
+              let $puck_61 = getValueType(typePath, type_);
+              let $puck_62;
+              if ($unwrapTraitObject($puck_61).kind == "Ok") {
+                let {value: [type_]} = $unwrapTraitObject($puck_61);
+                $puck_62 = type_;
               }
               else {
-                let $puck_58;
-                if ($unwrapTraitObject($puck_56).kind == "Err") {
-                  let {value: [[to, subject]]} = $unwrapTraitObject($puck_56);
+                let $puck_63;
+                if ($unwrapTraitObject($puck_61).kind == "Err") {
+                  let {value: [[to, subject]]} = $unwrapTraitObject($puck_61);
                   return $puck_1.Err(PatternError.PatternMismatch(p, to, subject));
                 };
-                $puck_57 = $puck_58;
+                $puck_62 = $puck_63;
               };
-              const tupleType = $puck_57;
-              let $puck_59 = tupleType.kind;
-              let $puck_60;
-              if ($unwrapTraitObject($puck_59).kind == "Struct") {
-                let {value: [struct]} = $unwrapTraitObject($puck_59);
-                let $puck_61 = struct.kind;
-                let $puck_62;
-                if ($unwrapTraitObject($puck_61).kind == "Tuple") {
-                  let {value: [tuple]} = $unwrapTraitObject($puck_61);
-                  $puck_62 = tuple.properties;
+              const tupleType = $puck_62;
+              let $puck_64 = tupleType.kind;
+              let $puck_65;
+              if ($unwrapTraitObject($puck_64).kind == "Struct") {
+                let {value: [struct]} = $unwrapTraitObject($puck_64);
+                let $puck_66 = struct.kind;
+                let $puck_67;
+                if ($unwrapTraitObject($puck_66).kind == "Tuple") {
+                  let {value: [tuple]} = $unwrapTraitObject($puck_66);
+                  $puck_67 = tuple.properties;
                 }
                 else {
-                  let $puck_63;
+                  let $puck_68;
                   if (true) {
-                    let $puck_64 = $puck_61;
+                    let $puck_69 = $puck_66;
                     return $puck_1.Err(PatternError.PatternMismatch(p, $unwrapTraitObject(p.type_), tupleType));
                   };
-                  $puck_62 = $puck_63;
+                  $puck_67 = $puck_68;
                 };
-                $puck_60 = $puck_62;
+                $puck_65 = $puck_67;
               }
               else {
-                let $puck_65;
-                if ($unwrapTraitObject($puck_59).kind == "Parameter") {
-                  let undefined = $unwrapTraitObject($puck_59);
-                  $puck_65 = [];
+                let $puck_70;
+                if ($unwrapTraitObject($puck_64).kind == "Parameter") {
+                  let undefined = $unwrapTraitObject($puck_64);
+                  $puck_70 = [];
                 }
                 else {
-                  let $puck_66;
+                  let $puck_71;
                   if (true) {
-                    let $puck_67 = $puck_59;
+                    let $puck_72 = $puck_64;
                     return $puck_1.Err(PatternError.PatternMismatch(p, $unwrapTraitObject(p.type_), tupleType));
                   };
-                  $puck_65 = $puck_66;
+                  $puck_70 = $puck_71;
                 };
-                $puck_60 = $puck_65;
+                $puck_65 = $puck_70;
               };
-              const props = $puck_60;
+              const props = $puck_65;
               if ((!allowNotExhaustive && isNonExhaustive(typePath))) {
                 return $puck_1.Err(PatternError.NotExhaustive);
               };
-              let $puck_69 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true})
+              let $puck_75 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: tuple.properties, $isTraitObject: true})
 ;
-              let $puck_68 = $puck_1.Iterable[$puck_69.type].map.call($puck_69, function ([i, p]) {
+              let $puck_74 = $puck_1.Iterator[$puck_75.type].enumerate.call($puck_75)
+;
+              let $puck_73 = $puck_1.Iterator[$puck_74.type].map.call($puck_74, function ([i, p]) {
                 return declarePatternVariables(scope, visitor, p, mutable, $unwrapTraitObject(props[i]), allowNotExhaustive, useParentScope, definitions);
               })
 ;
-              const properties = $unwrapTraitObject($puck_1.Iterable[$puck_68.type].toList.call($puck_68).reduce(function (acc, cur) {
-                return $puck_1.Result.andThen.call(acc, function ($puck_70) {
+              return $puck_1.Iterator[$puck_73.type].fold.call($puck_73, $puck_1.Ok([]), function (acc, cur) {
+                return $puck_1.Result.andThen.call(acc, function ($puck_76) {
                   return cur;
                 });
-              }, $puck_1.Ok([])));
-              return properties;
+              });
             }
             else {
               if ($unwrapTraitObject($puck_17).kind == "UnitType") {

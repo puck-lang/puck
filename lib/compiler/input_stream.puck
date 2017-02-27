@@ -16,7 +16,7 @@ impl InputStream {
     context
     file
     code:
-      if file.puck->substring(0, 13) == '//#![no_core]'
+      if file.puck.startsWith('//#![no_core]')
         then '\n' + file.puck->slice(13)
         else "import 'puck:core' as *\n" + file.puck
     pos: 0
@@ -27,7 +27,7 @@ impl InputStream {
   fn position(self) -> Position {{line: self.line, column: self.column}}
 
   fn next(mut self) -> String {
-    let ch = self.code->charAt(self.pos).transmute()
+    let ch = self.code[self.pos]
     self.pos += 1
     if ch == '\n' {
       self.line += 1
@@ -40,7 +40,9 @@ impl InputStream {
   }
 
   fn peek(self, distance = 0) -> String {
-    self.code->charAt(self.pos + distance).transmute()
+    if self.code.size() <= self.pos + distance
+      then ''
+      else self.code[self.pos + distance]
   }
 
   fn eof(self) -> Bool {

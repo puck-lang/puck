@@ -10,11 +10,11 @@ import '../ast/token.puck' as {SyntaxKind, SimpleToken, Token, operators}
 import '../ast/span.puck' as {Span}
 import 'input_stream.puck' as {InputStream}
 
-let longestOperator: Num = operators->reduce(|longest: Num, curr: String| {
+let longestOperator: Num = operators.iter().fold(0, |longest, curr| {
   if curr.size() > longest
     then curr.size()
     else longest
-}, 0).transmute()
+})
 
 fn isDummy(token: Token) -> Bool {
   match token {
@@ -134,7 +134,7 @@ impl TokenStream {
         .filter(|token| {
           if token.size() < length
             then false
-            else token->substr(0, length + 1) == searchString
+            else token.startsWith(searchString)
         })
         .toList()
         .size() > 0

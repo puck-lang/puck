@@ -33,28 +33,39 @@ if ($unwrapTraitObject($puck_7).kind == "None") {
     let $puck_8 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.String.split.call(contents, "/////"), $isTraitObject: true})
 ;
     return $puck_1.Iterable[$puck_8.type].forEach.call($puck_8, function ([i, test]) {
-      const firstNewline = test.indexOf("\n");
-      const error = test.substr(0, firstNewline);
-      const code = $unwrapTraitObject(test.substr(firstNewline));
-      if ((!error && !code)) {
-        return [];
+      let $puck_9 = $puck_1.String.find.call(test, "\n");
+      let $puck_10;
+      if ($unwrapTraitObject($puck_9).kind == "Some") {
+        let {value: [index]} = $unwrapTraitObject($puck_9);
+        $puck_10 = index;
+      }
+      else {
+        let $puck_11;
+        if (true) {
+          const None = $puck_9;
+          return [];
+        };
+        $puck_10 = $puck_11;
       };
-      if ((!error || !code || error.substr(0, 1) != " ")) {
+      const firstNewline = $puck_10;
+      const error = $puck_1.String.sub.call(test, $puck_1.Range._new(0, firstNewline));
+      const code = $puck_1.String.sub.call(test, $puck_1.Range._new(firstNewline, $puck_1.String.size.call(test)));
+      if ((!error || !code || !$puck_1.String.startsWith.call(error, " "))) {
         $puck_1.print("Test " + file + "::" + i + " is invalid, missing error or code");
         $puck_2.process.exit(1);
       };
       const result = buildString(code, file, projectPath);
-      let $puck_9 = result;
-      if ($unwrapTraitObject($puck_9).kind == "Ok") {
-        let {value: [$puck_10]} = $unwrapTraitObject($puck_9);
+      let $puck_12 = result;
+      if ($unwrapTraitObject($puck_12).kind == "Ok") {
+        let {value: [$puck_13]} = $unwrapTraitObject($puck_12);
         $puck_1.print("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
         $puck_2.process.exit(1);
         return [];
       }
       else {
-        if ($unwrapTraitObject($puck_9).kind == "Err") {
-          let {value: [{message: message}]} = $unwrapTraitObject($puck_9);
-          if ((!$puck_1.String.contains.call(message, $unwrapTraitObject(error.trim())))) {
+        if ($unwrapTraitObject($puck_12).kind == "Err") {
+          let {value: [{message: message}]} = $unwrapTraitObject($puck_12);
+          if ((!$puck_1.String.contains.call(message, $puck_1.String.trim.call(error)))) {
             $puck_1.print("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + message + "");
             return $puck_2.process.exit(1);
           };

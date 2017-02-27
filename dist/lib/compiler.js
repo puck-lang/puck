@@ -164,7 +164,7 @@ function createContext(projectPath, ignoreErrors = false) {
   },
     resolvePath: function (file, relativeTo) {
     let $puck_22;
-    if ($unwrapTraitObject(file).substring(0, 1) == "/") {
+    if ($puck_1.String.startsWith.call(file, "/")) {
       $puck_22 = file;
     }
     else {
