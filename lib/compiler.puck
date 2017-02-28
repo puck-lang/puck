@@ -131,9 +131,9 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
       }
       self.deferred->[file.absolutePath]->push(func)
     }
-    resolvePath: fn (file, relativeTo) {
+    resolvePath: fn (file: String, relativeTo) {
       let filePath =
-        if file.substring(0, 1) == '/'
+        if file.startsWith('/')
           then file
           else path->join(path->dirname(relativeTo.absolutePath), file).transmute()
       let absolutePath = fs->realpathSync(path->resolve(path->normalize(filePath))).transmute()

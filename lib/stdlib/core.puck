@@ -106,12 +106,32 @@ impl String {
   }
 
   fn contains(self, subStr: String) -> Bool {
-    let index: Num = self->indexOf(subStr).transmute()
-    index >= 0
+    self.find(subStr).andValue(Option::Some(true)).unwrapOr(false)
+  }
+
+  fn startsWith(self, subStr: String) -> Bool {
+    self.sub(Range.new(0, subStr.size())) == subStr
+  }
+
+  fn endsWith(self, subStr: String) -> Bool {
+    self.sub(Range.new(self.size() - subStr.size(), self.size())) == subStr
   }
 
   fn split(self, pattern: String = '') -> List<String> {
-    anyCast(self).split(pattern)
+    self->split(pattern).transmute()
+  }
+
+  fn find(self, pattern: String = '') -> Option<Num> {
+    let index: Num = self->indexOf(pattern).transmute()
+    if index >= 0
+      then Option::Some(index)
+      else Option::None
+  }
+
+  fn sub(self, range: Range<Num>) -> String {
+    if range.end < range.start then panic('The range is reversed')
+
+    self->substring(range.start, range.end).transmute()
   }
 
   /// Pads the string on the left if it is shorter than width.
@@ -223,6 +243,17 @@ impl IntoIterator<String> for String {
       string: self
     }
     iterator
+  }
+}
+
+impl Index<Num, String> for String {
+  fn index(self, index: Num) -> String {
+    if index < 0 then panic('index out of bounds: index must be positive but is $index')
+    if index >= self.size() {
+      panic('index out of bounds: the length is ' + self.size() + ' but the index is $index')
+    }
+
+    self->charAt(index).transmute()
   }
 }
 
@@ -601,6 +632,30 @@ export trait Iterator<E> {
     })
   }
 
+  /// An iterator adaptor that applies a function, producing a single, final value.
+  ///
+  /// fold() takes two arguments: an initial value, and a closure with two arguments:
+  /// an 'accumulator', and an element. The closure returns the value that the
+  /// accumulator should have for the next iteration.
+  ///
+  /// The initial value is the value the accumulator will have on the first call.
+  ///
+  /// After applying this closure to every element of the iterator, fold() returns the accumulator.
+  ///
+  /// This operation is sometimes called 'reduce' or 'inject'.
+  ///
+  /// Folding is useful whenever you have a collection of something, and want to
+  /// produce a single value from it.
+  fn fold<B>(mut self, init: B, reducer: (B, E) -> B) -> B {
+    let mut accumulator = init
+    while true {
+      if let Some(value) = self.next() {
+        accumulator = reducer(accumulator, value)
+      }
+      else return accumulator
+    }
+  }
+
   /// Tests if all elements of the iterator matches a predicate.
   ///
   /// all() takes a closure that returns true or false. It applies this
@@ -661,6 +716,28 @@ export trait Iterator<E> {
           then return Some(value)
       }
       else return None
+    }
+    None
+  }
+
+  /// Searches for an element in an iterator, returning its index.
+  ///
+  /// position() takes a closure that returns true or false. It applies this
+  /// closure to each element of the iterator, and if one of them returns true,
+  /// then position() returns Some(index).
+  /// If all of them return false, it returns None.
+  ///
+  /// position() is short-circuiting; in other words, it will stop
+  /// processing as soon as it finds a true.
+  fn position(mut self, predicate: (E) -> Bool) -> Option<Num> {
+    let mut index = 0
+    while true {
+      if let Some(value) = self.next() {
+        if predicate(value)
+          then return Some(index)
+      }
+      else return None
+      index += 1
     }
     None
   }
@@ -832,7 +909,14 @@ export type Range<Idx=Num> {
   /// The upper bound of the range (exclusive).
   end: Idx
 }
+// TODO: Implement range.new on T instead of Num
+// impl<T> Range<T> {
+//   fn new(start: T, end: T) -> Range<T> {{start, end}}
+// }
+
 impl Range<Num> {
+  fn new(start: Num, end: Num) -> Range<Num> {{start, end}}
+
   fn contains(self, item: Num) -> Bool {
     self.start <= item and item < self.end
   }

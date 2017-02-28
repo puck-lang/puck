@@ -105,7 +105,7 @@ TokenStream._tryParseOperator = function () {
         return false;
       }
       else {
-        return token.substr(0, length + 1) == searchString;
+        return $puck_1.String.startsWith.call(token, searchString);
       };
     })
 ;
@@ -120,7 +120,7 @@ TokenStream._tryParseOperator = function () {
   return $puck_1.Option.map.call($puck_4.SyntaxKind.fromText(found), function (kind) {
     const start = $puck_6.InputStream.position.call(self.input);
     let i = 0;
-    while ((i < length)) {
+    while (i < length) {
       $puck_6.InputStream.next.call(self.input);
       i += 1;
     };
@@ -397,28 +397,30 @@ TokenStream._readNext = function () {
     };
   };
 };
-const longestOperator = $unwrapTraitObject($puck_4.operators.reduce(function (longest, curr) {
+let $puck_16 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: $puck_4.operators, $isTraitObject: true})
+;
+const longestOperator = $puck_1.Iterator[$puck_16.type].fold.call($puck_16, 0, function (longest, curr) {
   if ($puck_1.String.size.call(curr) > longest) {
     return $puck_1.String.size.call(curr);
   }
   else {
     return longest;
   };
-}, 0));
+});
 function isDummy(token) {
-  let $puck_16 = token;
-  if (($unwrapTraitObject($puck_16).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_16).value)[0]).kind).kind == "NewlineToken")) {
-    let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_16);
+  let $puck_17 = token;
+  if (($unwrapTraitObject($puck_17).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_17).value)[0]).kind).kind == "NewlineToken")) {
+    let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_17);
     return true;
   }
   else {
-    if ($unwrapTraitObject($puck_16).kind == "Comment") {
-      let undefined = $unwrapTraitObject($puck_16);
+    if ($unwrapTraitObject($puck_17).kind == "Comment") {
+      let undefined = $unwrapTraitObject($puck_17);
       return true;
     }
     else {
       if (true) {
-        let $puck_17 = $puck_16;
+        let $puck_18 = $puck_17;
         return false;
       };
     };

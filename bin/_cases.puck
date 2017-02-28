@@ -24,12 +24,14 @@ match command {
         .split('/////')
         .enumerate()
         .forEach(|(i, test)| {
-          let firstNewline = test->indexOf('\n')
-          let error = test->substr(0, firstNewline)
-          let code: String = test->substr(firstNewline).transmute()
+          let firstNewline = match test.find('\n') {
+            Some(index) => index
+            None => return ()
+          }
+          let error = test.sub(Range.new(0, firstNewline))
+          let code: String = test.sub(Range.new(firstNewline, test.size()))
 
-          if not error and not code then return ()
-          if not error or not code or error->substr(0, 1) != ' ' {
+          if not error or not code or not error.startsWith(' ') {
             print('Test $file::$i is invalid, missing error or code')
             process->exit(1)
           }
@@ -43,7 +45,7 @@ match command {
               ()
             }
             Result::Err({message}) => {
-              if not message.contains(error->trim().transmute()) {
+              if not message.contains(error.trim()) {
                 print('expected error for $file::$i to include $error\n  but got\n$message')
                 process->exit(1)
               }

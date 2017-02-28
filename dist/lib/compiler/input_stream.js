@@ -1,6 +1,4 @@
 'use strict';
-
-const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
 exports.InputStreamundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
@@ -9,7 +7,7 @@ const $puck_4 = require("./../entities");
 var InputStream = exports.InputStream = (object) => object;
 InputStream._new = function (context, file) {
   let $puck_5;
-  if (file.puck.substring(0, 13) == "//#![no_core]") {
+  if ($puck_1.String.startsWith.call(file.puck, "//#![no_core]")) {
     $puck_5 = "\n" + file.puck.slice(13);
   }
   else {
@@ -33,7 +31,7 @@ InputStream.position = function () {
 };
 InputStream.next = function () {
   let self = this;
-  const ch = $unwrapTraitObject(self.code.charAt(self.pos));
+  const ch = $puck_1.Index["$impl_Index$String"].index.call({type: '$impl_Index$String', value: self.code, $isTraitObject: true}, self.pos);
   self.pos += 1;
   if ((ch == "\n")) {
     self.line += 1;
@@ -42,11 +40,16 @@ InputStream.next = function () {
   else {
     self.column += 1;
   };
-  return $unwrapTraitObject(ch);
+  return ch;
 };
 InputStream.peek = function (distance = 0) {
   const self = this;
-  return $unwrapTraitObject(self.code.charAt(self.pos + distance));
+  if ($puck_1.String.size.call(self.code) <= self.pos + distance) {
+    return "";
+  }
+  else {
+    return $puck_1.Index["$impl_Index$String"].index.call({type: '$impl_Index$String', value: self.code, $isTraitObject: true}, self.pos + distance);
+  };
 };
 InputStream.eof = function () {
   const self = this;

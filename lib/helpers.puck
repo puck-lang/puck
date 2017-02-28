@@ -54,10 +54,10 @@ export fn walkSync(directory, mut filelist = []) -> List<String> {
 }
 
 export fn flag(arguments: List<String>, name, defaultValue = '') {
-  let index: Num = arguments->indexOf(name).transmute()
-  if index >= 0 {
+  if let Some(index) = arguments.iter().position(|a| a == name) {
     let value = arguments[index + 1]
     arguments->splice(index, 2)
     value
-  } else defaultValue
+  }
+  else defaultValue
 }
