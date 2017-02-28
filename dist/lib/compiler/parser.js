@@ -11,37 +11,37 @@ const $puck_6 = require("./../entities");
 const $puck_7 = require("./token_stream");
 function isAssignment(token) {
   let $puck_8 = token.kind;
-  if ($unwrapTraitObject($puck_8).kind == "EqualsToken") {
+  if ($unwrapTraitObject($puck_8).kind === "EqualsToken") {
     let undefined = $unwrapTraitObject($puck_8);
     return true;
   }
   else {
-    if ($unwrapTraitObject($puck_8).kind == "PlusEqualsToken") {
+    if ($unwrapTraitObject($puck_8).kind === "PlusEqualsToken") {
       let undefined = $unwrapTraitObject($puck_8);
       return true;
     }
     else {
-      if ($unwrapTraitObject($puck_8).kind == "MinusEqualsToken") {
+      if ($unwrapTraitObject($puck_8).kind === "MinusEqualsToken") {
         let undefined = $unwrapTraitObject($puck_8);
         return true;
       }
       else {
-        if ($unwrapTraitObject($puck_8).kind == "AsteriskEqualsToken") {
+        if ($unwrapTraitObject($puck_8).kind === "AsteriskEqualsToken") {
           let undefined = $unwrapTraitObject($puck_8);
           return true;
         }
         else {
-          if ($unwrapTraitObject($puck_8).kind == "AsteriskAsteriskEqualsToken") {
+          if ($unwrapTraitObject($puck_8).kind === "AsteriskAsteriskEqualsToken") {
             let undefined = $unwrapTraitObject($puck_8);
             return true;
           }
           else {
-            if ($unwrapTraitObject($puck_8).kind == "SlashEqualsToken") {
+            if ($unwrapTraitObject($puck_8).kind === "SlashEqualsToken") {
               let undefined = $unwrapTraitObject($puck_8);
               return true;
             }
             else {
-              if ($unwrapTraitObject($puck_8).kind == "PercentEqualsToken") {
+              if ($unwrapTraitObject($puck_8).kind === "PercentEqualsToken") {
                 let undefined = $unwrapTraitObject($puck_8);
                 return true;
               }
@@ -60,27 +60,27 @@ function isAssignment(token) {
 };
 function isAssignable(expression) {
   let $puck_10 = expression;
-  if ($unwrapTraitObject($puck_10).kind == "Identifier") {
+  if ($unwrapTraitObject($puck_10).kind === "Identifier") {
     let {value: [$puck_11]} = $unwrapTraitObject($puck_10);
     return true;
   }
   else {
-    if ($unwrapTraitObject($puck_10).kind == "MemberAccess") {
+    if ($unwrapTraitObject($puck_10).kind === "MemberAccess") {
       let {value: [$puck_12]} = $unwrapTraitObject($puck_10);
       return true;
     }
     else {
-      if ($unwrapTraitObject($puck_10).kind == "IndexAccess") {
+      if ($unwrapTraitObject($puck_10).kind === "IndexAccess") {
         let {value: [$puck_13]} = $unwrapTraitObject($puck_10);
         return true;
       }
       else {
-        if ($unwrapTraitObject($puck_10).kind == "UnknownAccess") {
+        if ($unwrapTraitObject($puck_10).kind === "UnknownAccess") {
           let {value: [$puck_14]} = $unwrapTraitObject($puck_10);
           return true;
         }
         else {
-          if ($unwrapTraitObject($puck_10).kind == "UnknownIndexAccess") {
+          if ($unwrapTraitObject($puck_10).kind === "UnknownIndexAccess") {
             let {value: [$puck_15]} = $unwrapTraitObject($puck_10);
             return true;
           }
@@ -98,9 +98,9 @@ function isAssignable(expression) {
 function parse(input, file, recover = false) {
   function isToken(kind, withDummy = false) {
     let $puck_17 = $puck_7.TokenStream.peek.call(input, withDummy);
-    if ($unwrapTraitObject($puck_17).kind == "SimpleToken") {
+    if ($unwrapTraitObject($puck_17).kind === "SimpleToken") {
       let {value: [token]} = $unwrapTraitObject($puck_17);
-      return token.kind == kind;
+      return $puck_1.identical(token.kind, kind);
     }
     else {
       if (true) {
@@ -112,7 +112,7 @@ function parse(input, file, recover = false) {
   function butGot() {
     let $puck_19 = $puck_7.TokenStream.peek.call(input);
     let $puck_20;
-    if (($unwrapTraitObject($puck_19).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_19).value)[0]).kind).kind == "EndOfFileToken")) {
+    if (($unwrapTraitObject($puck_19).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_19).value)[0]).kind).kind === "EndOfFileToken")) {
       let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_19);
       $puck_20 = "but reached end of file";
     }
@@ -131,9 +131,9 @@ function parse(input, file, recover = false) {
   function expect(kind) {
     const token = $puck_7.TokenStream.peek.call(input);
     let $puck_23 = token;
-    if (($unwrapTraitObject($puck_23).kind == "SimpleToken")) {
+    if (($unwrapTraitObject($puck_23).kind === "SimpleToken")) {
       let {value: [token]} = $unwrapTraitObject($puck_23);
-      if (token.kind != kind) {
+      if ((!$puck_1.identical(token.kind, kind))) {
         $puck_7.TokenStream.croak.call(input, "Expected token: \"" + $puck_5.SyntaxKind.name.call(kind) + "\", " + butGot());
       };
       return token;
@@ -153,7 +153,7 @@ function parse(input, file, recover = false) {
   function consumeIdentifier() {
     if (recover) {
       let $puck_25 = $puck_7.TokenStream.peek.call(input);
-      if (($unwrapTraitObject($puck_25).kind == "SimpleToken")) {
+      if (($unwrapTraitObject($puck_25).kind === "SimpleToken")) {
         let {value: [{span: span}]} = $unwrapTraitObject($puck_25);
         return {
           name: "",
@@ -167,7 +167,7 @@ function parse(input, file, recover = false) {
       };
     };
     let $puck_27 = $puck_7.TokenStream.next.call(input);
-    if ($unwrapTraitObject($puck_27).kind == "Identifier") {
+    if ($unwrapTraitObject($puck_27).kind === "Identifier") {
       let {value: [identifier]} = $unwrapTraitObject($puck_27);
       return identifier;
     }
@@ -196,12 +196,12 @@ function parse(input, file, recover = false) {
   function consumeSeparator(kind) {
     let token = $puck_7.TokenStream.peek.call(input, true);
     let $puck_29 = token;
-    if (($unwrapTraitObject($puck_29).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_29).value)[0]).kind).kind == "NewlineToken")) {
+    if (($unwrapTraitObject($puck_29).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_29).value)[0]).kind).kind === "NewlineToken")) {
       let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_29);
       $puck_7.TokenStream.next.call(input, true);
     }
     else {
-      if ($unwrapTraitObject($puck_29).kind == "Comment") {
+      if ($unwrapTraitObject($puck_29).kind === "Comment") {
         let undefined = $unwrapTraitObject($puck_29);
         $puck_7.TokenStream.next.call(input, true);
       }
@@ -223,80 +223,80 @@ function parse(input, file, recover = false) {
   };
   function maybeParseOperator() {
     let $puck_31 = $puck_7.TokenStream.peek.call(input);
-    if ($unwrapTraitObject($puck_31).kind == "SimpleToken") {
+    if ($unwrapTraitObject($puck_31).kind === "SimpleToken") {
       let {value: [token]} = $unwrapTraitObject($puck_31);
       let $puck_32 = token.kind;
-      if ($unwrapTraitObject($puck_32).kind == "EqualsEqualsToken") {
+      if ($unwrapTraitObject($puck_32).kind === "EqualsEqualsToken") {
         let undefined = $unwrapTraitObject($puck_32);
         return $puck_1.Some(token);
       }
       else {
-        if ($unwrapTraitObject($puck_32).kind == "ExclamationEqualsToken") {
+        if ($unwrapTraitObject($puck_32).kind === "ExclamationEqualsToken") {
           let undefined = $unwrapTraitObject($puck_32);
           return $puck_1.Some(token);
         }
         else {
-          if ($unwrapTraitObject($puck_32).kind == "GreaterThanToken") {
+          if ($unwrapTraitObject($puck_32).kind === "GreaterThanToken") {
             let undefined = $unwrapTraitObject($puck_32);
             return $puck_1.Some(token);
           }
           else {
-            if ($unwrapTraitObject($puck_32).kind == "GreaterThanEqualsToken") {
+            if ($unwrapTraitObject($puck_32).kind === "GreaterThanEqualsToken") {
               let undefined = $unwrapTraitObject($puck_32);
               return $puck_1.Some(token);
             }
             else {
-              if ($unwrapTraitObject($puck_32).kind == "LessThanToken") {
+              if ($unwrapTraitObject($puck_32).kind === "LessThanToken") {
                 let undefined = $unwrapTraitObject($puck_32);
                 return $puck_1.Some(token);
               }
               else {
-                if ($unwrapTraitObject($puck_32).kind == "LessThanEqualsToken") {
+                if ($unwrapTraitObject($puck_32).kind === "LessThanEqualsToken") {
                   let undefined = $unwrapTraitObject($puck_32);
                   return $puck_1.Some(token);
                 }
                 else {
-                  if ($unwrapTraitObject($puck_32).kind == "PlusToken") {
+                  if ($unwrapTraitObject($puck_32).kind === "PlusToken") {
                     let undefined = $unwrapTraitObject($puck_32);
                     return $puck_1.Some(token);
                   }
                   else {
-                    if ($unwrapTraitObject($puck_32).kind == "MinusToken") {
+                    if ($unwrapTraitObject($puck_32).kind === "MinusToken") {
                       let undefined = $unwrapTraitObject($puck_32);
                       return $puck_1.Some(token);
                     }
                     else {
-                      if ($unwrapTraitObject($puck_32).kind == "AsteriskToken") {
+                      if ($unwrapTraitObject($puck_32).kind === "AsteriskToken") {
                         let undefined = $unwrapTraitObject($puck_32);
                         return $puck_1.Some(token);
                       }
                       else {
-                        if ($unwrapTraitObject($puck_32).kind == "AsteriskAsteriskToken") {
+                        if ($unwrapTraitObject($puck_32).kind === "AsteriskAsteriskToken") {
                           let undefined = $unwrapTraitObject($puck_32);
                           return $puck_1.Some(token);
                         }
                         else {
-                          if ($unwrapTraitObject($puck_32).kind == "SlashToken") {
+                          if ($unwrapTraitObject($puck_32).kind === "SlashToken") {
                             let undefined = $unwrapTraitObject($puck_32);
                             return $puck_1.Some(token);
                           }
                           else {
-                            if ($unwrapTraitObject($puck_32).kind == "PercentToken") {
+                            if ($unwrapTraitObject($puck_32).kind === "PercentToken") {
                               let undefined = $unwrapTraitObject($puck_32);
                               return $puck_1.Some(token);
                             }
                             else {
-                              if ($unwrapTraitObject($puck_32).kind == "AndKeyword") {
+                              if ($unwrapTraitObject($puck_32).kind === "AndKeyword") {
                                 let undefined = $unwrapTraitObject($puck_32);
                                 return $puck_1.Some(token);
                               }
                               else {
-                                if ($unwrapTraitObject($puck_32).kind == "OrKeyword") {
+                                if ($unwrapTraitObject($puck_32).kind === "OrKeyword") {
                                   let undefined = $unwrapTraitObject($puck_32);
                                   return $puck_1.Some(token);
                                 }
                                 else {
-                                  if ($unwrapTraitObject($puck_32).kind == "NotKeyword") {
+                                  if ($unwrapTraitObject($puck_32).kind === "NotKeyword") {
                                     let undefined = $unwrapTraitObject($puck_32);
                                     return $puck_1.Some(token);
                                   }
@@ -335,7 +335,7 @@ function parse(input, file, recover = false) {
   };
   function maybeBinary(left, myPrecedence) {
     let $puck_35 = maybeParseOperator();
-    if ($puck_35.kind == "Some") {
+    if ($puck_35.kind === "Some") {
       let {value: [operator]} = $puck_35;
       let hisPrecedence = $puck_5.SyntaxKind.precedence.call(operator.kind);
       if (hisPrecedence > myPrecedence) {
@@ -469,7 +469,7 @@ function parse(input, file, recover = false) {
       const statement = parseTopLevelStatement();
       $puck_1.List.push.call(statements, statement);
       let $puck_37 = statement;
-      if ($puck_37.kind == "ExportDirective") {
+      if ($puck_37.kind === "ExportDirective") {
         let {value: [e]} = $puck_37;
         exports[e.identifier.name] = e;
       };
@@ -486,40 +486,40 @@ function parse(input, file, recover = false) {
   };
   function parseTopLevelStatement() {
     let $puck_38 = $puck_7.TokenStream.peek.call(input);
-    if ($unwrapTraitObject($puck_38).kind == "SimpleToken") {
+    if ($unwrapTraitObject($puck_38).kind === "SimpleToken") {
       let {value: [token]} = $unwrapTraitObject($puck_38);
       let $puck_39 = token.kind;
-      if ($unwrapTraitObject($puck_39).kind == "HashToken") {
+      if ($unwrapTraitObject($puck_39).kind === "HashToken") {
         let undefined = $unwrapTraitObject($puck_39);
         return parseDeclarationWithAttribute();
       }
       else {
-        if ($unwrapTraitObject($puck_39).kind == "EnumKeyword") {
+        if ($unwrapTraitObject($puck_39).kind === "EnumKeyword") {
           let undefined = $unwrapTraitObject($puck_39);
           return $puck_3.TopLevelStatement.EnumDeclaration(parseEnumDeclaration());
         }
         else {
-          if ($unwrapTraitObject($puck_39).kind == "ExportKeyword") {
+          if ($unwrapTraitObject($puck_39).kind === "ExportKeyword") {
             let undefined = $unwrapTraitObject($puck_39);
             return $puck_3.TopLevelStatement.ExportDirective(parseExport());
           }
           else {
-            if ($unwrapTraitObject($puck_39).kind == "ImplKeyword") {
+            if ($unwrapTraitObject($puck_39).kind === "ImplKeyword") {
               let undefined = $unwrapTraitObject($puck_39);
               return parseImplDeclaration();
             }
             else {
-              if ($unwrapTraitObject($puck_39).kind == "ImportKeyword") {
+              if ($unwrapTraitObject($puck_39).kind === "ImportKeyword") {
                 let undefined = $unwrapTraitObject($puck_39);
                 return $puck_3.TopLevelStatement.ImportDirective(parseImport());
               }
               else {
-                if ($unwrapTraitObject($puck_39).kind == "TraitKeyword") {
+                if ($unwrapTraitObject($puck_39).kind === "TraitKeyword") {
                   let undefined = $unwrapTraitObject($puck_39);
                   return $puck_3.TopLevelStatement.TraitDeclaration(parseTraitDeclaration());
                 }
                 else {
-                  if ($unwrapTraitObject($puck_39).kind == "TypeKeyword") {
+                  if ($unwrapTraitObject($puck_39).kind === "TypeKeyword") {
                     let undefined = $unwrapTraitObject($puck_39);
                     return $puck_3.TopLevelStatement.TypeDeclaration(parseTypeDeclaration());
                   }
@@ -545,12 +545,12 @@ function parse(input, file, recover = false) {
   };
   function parseBlockLevelStatement() {
     let $puck_42 = $puck_7.TokenStream.peek.call(input);
-    if (($unwrapTraitObject($puck_42).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_42).value)[0]).kind).kind == "BreakKeyword")) {
+    if (($unwrapTraitObject($puck_42).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_42).value)[0]).kind).kind === "BreakKeyword")) {
       let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_42);
       return $puck_3.BlockLevelStatement.BreakStatement({keyword: consumeToken($puck_5.SyntaxKind.BreakKeyword)});
     }
     else {
-      if (($unwrapTraitObject($puck_42).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_42).value)[0]).kind).kind == "ReturnKeyword")) {
+      if (($unwrapTraitObject($puck_42).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_42).value)[0]).kind).kind === "ReturnKeyword")) {
         let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_42);
         return $puck_3.BlockLevelStatement.ReturnStatement({
           keyword: consumeToken($puck_5.SyntaxKind.ReturnKeyword),
@@ -558,7 +558,7 @@ function parse(input, file, recover = false) {
         });
       }
       else {
-        if (($unwrapTraitObject($puck_42).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_42).value)[0]).kind).kind == "WhileKeyword")) {
+        if (($unwrapTraitObject($puck_42).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_42).value)[0]).kind).kind === "WhileKeyword")) {
           let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_42);
           return $puck_3.BlockLevelStatement.WhileLoop(parseWhile());
         }
@@ -577,85 +577,85 @@ function parse(input, file, recover = false) {
   function parseAtom(forceTuple = false) {
     let $puck_44 = $puck_7.TokenStream.peek.call(input);
     let $puck_45;
-    if ($unwrapTraitObject($puck_44).kind == "SimpleToken") {
+    if ($unwrapTraitObject($puck_44).kind === "SimpleToken") {
       let {value: [token]} = $unwrapTraitObject($puck_44);
       let $puck_46 = token.kind;
       let $puck_47;
-      if ($unwrapTraitObject($puck_46).kind == "OpenParenToken") {
+      if ($unwrapTraitObject($puck_46).kind === "OpenParenToken") {
         let undefined = $unwrapTraitObject($puck_46);
         $puck_47 = parseTupleOrExpression(forceTuple);
       }
       else {
         let $puck_48;
-        if ($unwrapTraitObject($puck_46).kind == "OpenBracketToken") {
+        if ($unwrapTraitObject($puck_46).kind === "OpenBracketToken") {
           let undefined = $unwrapTraitObject($puck_46);
           $puck_48 = $puck_3.Expression.ListLiteral(parseListLiteral());
         }
         else {
           let $puck_49;
-          if ($unwrapTraitObject($puck_46).kind == "OpenBraceToken") {
+          if ($unwrapTraitObject($puck_46).kind === "OpenBraceToken") {
             let undefined = $unwrapTraitObject($puck_46);
             $puck_49 = $puck_3.Expression.RecordLiteral(parseRecordLiteral());
           }
           else {
             let $puck_50;
-            if ($unwrapTraitObject($puck_46).kind == "BarToken") {
+            if ($unwrapTraitObject($puck_46).kind === "BarToken") {
               let undefined = $unwrapTraitObject($puck_46);
               $puck_50 = $puck_3.Expression.FunctionDeclaration(parseLambda());
             }
             else {
               let $puck_51;
-              if ($unwrapTraitObject($puck_46).kind == "IfKeyword") {
+              if ($unwrapTraitObject($puck_46).kind === "IfKeyword") {
                 let undefined = $unwrapTraitObject($puck_46);
                 $puck_51 = parseIf();
               }
               else {
                 let $puck_52;
-                if ($unwrapTraitObject($puck_46).kind == "MatchKeyword") {
+                if ($unwrapTraitObject($puck_46).kind === "MatchKeyword") {
                   let undefined = $unwrapTraitObject($puck_46);
                   $puck_52 = $puck_3.Expression.MatchExpression(parseMatch());
                 }
                 else {
                   let $puck_53;
-                  if ($unwrapTraitObject($puck_46).kind == "FnKeyword") {
+                  if ($unwrapTraitObject($puck_46).kind === "FnKeyword") {
                     let undefined = $unwrapTraitObject($puck_46);
                     $puck_53 = $puck_3.Expression.FunctionDeclaration(parseFunctionDeclaration());
                   }
                   else {
                     let $puck_54;
-                    if ($unwrapTraitObject($puck_46).kind == "LetKeyword") {
+                    if ($unwrapTraitObject($puck_46).kind === "LetKeyword") {
                       let undefined = $unwrapTraitObject($puck_46);
                       $puck_7.TokenStream.next.call(input);
                       $puck_54 = $puck_3.Expression.VariableDeclaration(parseVariableDeclaration());
                     }
                     else {
                       let $puck_55;
-                      if ($unwrapTraitObject($puck_46).kind == "NotKeyword") {
+                      if ($unwrapTraitObject($puck_46).kind === "NotKeyword") {
                         let undefined = $unwrapTraitObject($puck_46);
                         $puck_55 = $puck_3.Expression.UnaryExpression(parseUnaryExpression());
                       }
                       else {
                         let $puck_56;
-                        if ($unwrapTraitObject($puck_46).kind == "MinusToken") {
+                        if ($unwrapTraitObject($puck_46).kind === "MinusToken") {
                           let undefined = $unwrapTraitObject($puck_46);
                           $puck_56 = $puck_3.Expression.UnaryExpression(parseUnaryExpression());
                         }
                         else {
                           let $puck_57;
-                          if ($unwrapTraitObject($puck_46).kind == "PlusToken") {
+                          if ($unwrapTraitObject($puck_46).kind === "PlusToken") {
                             let undefined = $unwrapTraitObject($puck_46);
                             $puck_57 = $puck_3.Expression.UnaryExpression(parseUnaryExpression());
                           }
                           else {
                             let $puck_58;
-                            if ($unwrapTraitObject($puck_46).kind == "ThrowKeyword") {
+                            if ($unwrapTraitObject($puck_46).kind === "ThrowKeyword") {
                               let undefined = $unwrapTraitObject($puck_46);
                               $puck_7.TokenStream.next.call(input);
                               $puck_58 = $puck_3.Expression.ThrowStatement({expression: parseExpression()});
                             }
                             else {
                               let $puck_59;
-                              if ($unwrapTraitObject($puck_46).kind == "TrueKeyword") {
+                              if ($unwrapTraitObject($puck_46).kind === "TrueKeyword") {
                                 let undefined = $unwrapTraitObject($puck_46);
                                 $puck_59 = maybeAccess($puck_3.Expression.BooleanLiteral({
                                   keyword: consumeToken($puck_5.SyntaxKind.TrueKeyword),
@@ -664,7 +664,7 @@ function parse(input, file, recover = false) {
                               }
                               else {
                                 let $puck_60;
-                                if ($unwrapTraitObject($puck_46).kind == "FalseKeyword") {
+                                if ($unwrapTraitObject($puck_46).kind === "FalseKeyword") {
                                   let undefined = $unwrapTraitObject($puck_46);
                                   $puck_60 = maybeAccess($puck_3.Expression.BooleanLiteral({
                                     keyword: consumeToken($puck_5.SyntaxKind.FalseKeyword),
@@ -716,27 +716,27 @@ function parse(input, file, recover = false) {
     }
     else {
       let $puck_64;
-      if ($unwrapTraitObject($puck_44).kind == "NumberLiteral") {
+      if ($unwrapTraitObject($puck_44).kind === "NumberLiteral") {
         let {value: [numberLiteral]} = $unwrapTraitObject($puck_44);
         $puck_7.TokenStream.next.call(input);
         $puck_64 = maybeAccess($puck_3.Expression.NumberLiteral(numberLiteral));
       }
       else {
         let $puck_65;
-        if ($unwrapTraitObject($puck_44).kind == "StringLiteral") {
+        if ($unwrapTraitObject($puck_44).kind === "StringLiteral") {
           let {value: [stringLiteral]} = $unwrapTraitObject($puck_44);
           $puck_7.TokenStream.next.call(input);
           $puck_65 = maybeAccess($puck_3.Expression.StringLiteral(stringLiteral));
         }
         else {
           let $puck_66;
-          if ($unwrapTraitObject($puck_44).kind == "Identifier") {
+          if ($unwrapTraitObject($puck_44).kind === "Identifier") {
             let {value: [identifier]} = $unwrapTraitObject($puck_44);
             $puck_66 = parseIdentifierOrTypePath();
           }
           else {
             let $puck_67;
-            if ($unwrapTraitObject($puck_44).kind == "Comment") {
+            if ($unwrapTraitObject($puck_44).kind === "Comment") {
               let undefined = $unwrapTraitObject($puck_44);
               $puck_67 = unexpected();
             };
@@ -752,10 +752,10 @@ function parse(input, file, recover = false) {
   };
   function parseSimpleLiteral() {
     let $puck_68 = $puck_7.TokenStream.next.call(input);
-    if ($unwrapTraitObject($puck_68).kind == "SimpleToken") {
+    if ($unwrapTraitObject($puck_68).kind === "SimpleToken") {
       let {value: [token]} = $unwrapTraitObject($puck_68);
       let $puck_69 = token.kind;
-      if ($unwrapTraitObject($puck_69).kind == "TrueKeyword") {
+      if ($unwrapTraitObject($puck_69).kind === "TrueKeyword") {
         let undefined = $unwrapTraitObject($puck_69);
         return $puck_3.SimpleLiteral.BooleanLiteral({
           keyword: token,
@@ -763,7 +763,7 @@ function parse(input, file, recover = false) {
         });
       }
       else {
-        if ($unwrapTraitObject($puck_69).kind == "FalseKeyword") {
+        if ($unwrapTraitObject($puck_69).kind === "FalseKeyword") {
           let undefined = $unwrapTraitObject($puck_69);
           return $puck_3.SimpleLiteral.BooleanLiteral({
             keyword: token,
@@ -779,18 +779,18 @@ function parse(input, file, recover = false) {
       };
     }
     else {
-      if ($unwrapTraitObject($puck_68).kind == "NumberLiteral") {
+      if ($unwrapTraitObject($puck_68).kind === "NumberLiteral") {
         let {value: [numberLiteral]} = $unwrapTraitObject($puck_68);
         return $puck_3.SimpleLiteral.NumberLiteral(numberLiteral);
       }
       else {
-        if ($unwrapTraitObject($puck_68).kind == "StringLiteral") {
+        if ($unwrapTraitObject($puck_68).kind === "StringLiteral") {
           let {value: [stringLiteral]} = $unwrapTraitObject($puck_68);
           if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: stringLiteral.parts, $isTraitObject: true}) > 1) {
             $puck_7.TokenStream.croak.call(input, "Attributes can only contain simple string literals. Interpolation is not supported.");
           };
           let $puck_71 = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: stringLiteral.parts, $isTraitObject: true}, 0);
-          if ($unwrapTraitObject($puck_71).kind == "Literal") {
+          if ($unwrapTraitObject($puck_71).kind === "Literal") {
             let {value: [literal]} = $unwrapTraitObject($puck_71);
             return $puck_3.SimpleLiteral.StringLiteral(literal);
           }
@@ -950,7 +950,7 @@ function parse(input, file, recover = false) {
     const members = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: delimited($puck_5.SyntaxKind.OpenBraceToken, $puck_5.SyntaxKind.CloseBraceToken, $puck_5.SyntaxKind.SemicolonToken, parseFunctionDeclaration, false), $isTraitObject: true});
     const closeBrace = consumeToken($puck_5.SyntaxKind.CloseBraceToken);
     let $puck_82 = type_;
-    if ($puck_82.kind == "Some") {
+    if ($puck_82.kind === "Some") {
       let {value: [type_]} = $puck_82;
       return $puck_3.TopLevelStatement.ImplDeclaration({
         implKeyword: implKeyword,
@@ -1062,7 +1062,7 @@ function parse(input, file, recover = false) {
               const functionDeclaration = parseFunctionDeclaration();
               statement = $puck_3.ExportedStatement.FunctionDeclaration(functionDeclaration);
               let $puck_87 = functionDeclaration.name;
-              if ($puck_87.kind == "Some") {
+              if ($puck_87.kind === "Some") {
                 let {value: [name]} = $puck_87;
                 identifier = name;
               }
@@ -1076,7 +1076,7 @@ function parse(input, file, recover = false) {
                 const variableDeclaration = parseVariableDeclaration();
                 statement = $puck_3.ExportedStatement.VariableDeclaration(variableDeclaration);
                 let $puck_88 = variableDeclaration.pattern;
-                if ($puck_88.kind == "Identifier") {
+                if ($puck_88.kind === "Identifier") {
                   let {value: [name]} = $puck_88;
                   identifier = name;
                 }
@@ -1105,7 +1105,7 @@ function parse(input, file, recover = false) {
     const importKeyword = consumeToken($puck_5.SyntaxKind.ImportKeyword);
     let $puck_89 = $puck_7.TokenStream.next.call(input);
     let $puck_90;
-    if ($unwrapTraitObject($puck_89).kind == "StringLiteral") {
+    if ($unwrapTraitObject($puck_89).kind === "StringLiteral") {
       let {value: [stringLiteral]} = $unwrapTraitObject($puck_89);
       $puck_90 = stringLiteral;
     }
@@ -1118,12 +1118,12 @@ function parse(input, file, recover = false) {
       $puck_90 = $puck_91;
     };
     const locator = $puck_90;
-    if (($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: locator.parts, $isTraitObject: true}) != 1)) {
+    if (($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: locator.parts, $isTraitObject: true}) !== 1)) {
       $puck_1.panic("More than one part in import string");
     };
     let $puck_93 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: locator.parts, $isTraitObject: true});
     let $puck_94;
-    if (($unwrapTraitObject($puck_93).kind == "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_93).value)[0]).kind == "Literal")) {
+    if (($unwrapTraitObject($puck_93).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_93).value)[0]).kind === "Literal")) {
       let {value: [{value: [{value: value}]}]} = $unwrapTraitObject($puck_93);
       $puck_94 = $puck_1.String.split.call(value, ":");
     }
@@ -1140,7 +1140,7 @@ function parse(input, file, recover = false) {
       $puck_7.TokenStream.croak.call(input, "Illegal token \":\" used in import path");
     };
     let $puck_97;
-    if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parts, $isTraitObject: true}) == 2) {
+    if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parts, $isTraitObject: true}) === 2) {
       $puck_97 = $puck_1.Some($puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: parts, $isTraitObject: true}, 0));
     }
     else {
@@ -1148,7 +1148,7 @@ function parse(input, file, recover = false) {
     };
     const domain = $puck_97;
     let $puck_98;
-    if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parts, $isTraitObject: true}) == 2) {
+    if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parts, $isTraitObject: true}) === 2) {
       $puck_98 = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: parts, $isTraitObject: true}, 1);
     }
     else {
@@ -1258,7 +1258,7 @@ function parse(input, file, recover = false) {
     };
     let $puck_102 = $puck_7.TokenStream.peek.call(input);
     let $puck_103;
-    if ($unwrapTraitObject($puck_102).kind == "Identifier") {
+    if ($unwrapTraitObject($puck_102).kind === "Identifier") {
       let {value: [identifier]} = $unwrapTraitObject($puck_102);
       $puck_7.TokenStream.next.call(input);
       $puck_103 = $puck_1.Some(identifier);
@@ -1551,10 +1551,10 @@ function parse(input, file, recover = false) {
   };
   function parseUnaryExpression() {
     let $puck_122 = $puck_7.TokenStream.next.call(input);
-    if ($unwrapTraitObject($puck_122).kind == "SimpleToken") {
+    if ($unwrapTraitObject($puck_122).kind === "SimpleToken") {
       let {value: [operator]} = $unwrapTraitObject($puck_122);
       let $puck_123 = operator.kind;
-      if ($unwrapTraitObject($puck_123).kind == "NotKeyword") {
+      if ($unwrapTraitObject($puck_123).kind === "NotKeyword") {
         let undefined = $unwrapTraitObject($puck_123);
         return {
           operator: operator,
@@ -1562,7 +1562,7 @@ function parse(input, file, recover = false) {
         };
       }
       else {
-        if ($unwrapTraitObject($puck_123).kind == "MinusToken") {
+        if ($unwrapTraitObject($puck_123).kind === "MinusToken") {
           let undefined = $unwrapTraitObject($puck_123);
           return {
             operator: operator,
@@ -1570,7 +1570,7 @@ function parse(input, file, recover = false) {
           };
         }
         else {
-          if ($unwrapTraitObject($puck_123).kind == "PlusToken") {
+          if ($unwrapTraitObject($puck_123).kind === "PlusToken") {
             let undefined = $unwrapTraitObject($puck_123);
             return {
               operator: operator,
@@ -1635,7 +1635,7 @@ function parse(input, file, recover = false) {
       return parseExpression(0, true);
     }, false);
     const closeParen = consumeToken($puck_5.SyntaxKind.CloseParenToken);
-    if ((!forceTuple && $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: expressions, $isTraitObject: true}) == 1)) {
+    if ((!forceTuple && $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: expressions, $isTraitObject: true}) === 1)) {
       return $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: expressions, $isTraitObject: true}, 0);
     }
     else {
@@ -1648,7 +1648,7 @@ function parse(input, file, recover = false) {
   };
   function parsePattern() {
     let $puck_127 = maybeConsumeToken($puck_5.SyntaxKind.UnderscoreToken);
-    if ($puck_127.kind == "Some") {
+    if ($puck_127.kind === "Some") {
       let {value: [token]} = $puck_127;
       return $puck_3.Pattern.CatchAll(token);
     }

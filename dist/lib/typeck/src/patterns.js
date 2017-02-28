@@ -19,14 +19,14 @@ function getValueType(typePath, type_) {
   let $puck_7;
   if (type_) {
     let $puck_8 = typePathType.enumMember;
-    if ($puck_8.kind == "Some") {
+    if ($puck_8.kind === "Some") {
       let {value: [[member, typePathEnum]]} = $puck_8;
       let $puck_9 = type_.kind;
-      if ($unwrapTraitObject($puck_9).kind == "Enum") {
+      if ($unwrapTraitObject($puck_9).kind === "Enum") {
         let {value: [$puck_10]} = $unwrapTraitObject($puck_9);
       }
       else {
-        if ($unwrapTraitObject($puck_9).kind == "Parameter") {
+        if ($unwrapTraitObject($puck_9).kind === "Parameter") {
           let undefined = $unwrapTraitObject($puck_9);
         }
         else {
@@ -47,10 +47,10 @@ function getValueType(typePath, type_) {
   };
   const structType = $puck_7;
   let $puck_12 = structType.kind;
-  if ($unwrapTraitObject($puck_12).kind == "Enum") {
+  if ($unwrapTraitObject($puck_12).kind === "Enum") {
     let {value: [enum_]} = $unwrapTraitObject($puck_12);
     let $puck_13 = typePathType.enumMember;
-    if ($puck_13.kind == "Some") {
+    if ($puck_13.kind === "Some") {
       let {value: [[member, typePathEnum]]} = $puck_13;
       if ($puck_6.isAssignable(typePathEnum, type_)) {
         return $puck_1.Ok($puck_1.Option.unwrap.call($puck_1.ObjectMap.get.call(enum_.members, member)));
@@ -84,7 +84,7 @@ function isNonExhaustive(typePath) {
     return typePathType.providesType;
   }), typePathType);
   let $puck_16 = typePathType.kind;
-  if ($puck_16.kind == "Enum") {
+  if ($puck_16.kind === "Enum") {
     let {value: [enum_]} = $puck_16;
     if ($puck_1.ObjectMap.size.call(enum_.members) > 1) {
       return true;
@@ -94,12 +94,12 @@ function isNonExhaustive(typePath) {
 };
 function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive, useParentScope = false, definitions = $puck_1.ObjectMap._new()) {
   let $puck_17 = p;
-  if ($unwrapTraitObject($puck_17).kind == "CatchAll") {
+  if ($unwrapTraitObject($puck_17).kind === "CatchAll") {
     let undefined = $unwrapTraitObject($puck_17);
     return $puck_1.Ok([]);
   }
   else {
-    if ($unwrapTraitObject($puck_17).kind == "Identifier") {
+    if ($unwrapTraitObject($puck_17).kind === "Identifier") {
       let {value: [identifier]} = $unwrapTraitObject($puck_17);
       if ($puck_1.ObjectMap.has.call(definitions, identifier.name)) {
         return $puck_1.Err(PatternError.ScopeError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true}, "\"" + identifier.name + "\" is already defined in this pattern"));
@@ -119,30 +119,30 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
         completeType: $puck_1.None,
         previous: $puck_1.None,
       }, useParentScope);
-      if (($unwrapTraitObject($puck_18).kind == "Ok")) {
+      if (($unwrapTraitObject($puck_18).kind === "Ok")) {
         let {value: [binding]} = $unwrapTraitObject($puck_18);
         p.binding = binding;
         return $puck_1.Ok([]);
       }
       else {
-        if ($unwrapTraitObject($puck_18).kind == "Err") {
+        if ($unwrapTraitObject($puck_18).kind === "Err") {
           let {value: [err]} = $unwrapTraitObject($puck_18);
           return $puck_1.Err(PatternError.ScopeError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true}, err));
         };
       };
     }
     else {
-      if ($unwrapTraitObject($puck_17).kind == "Record") {
+      if ($unwrapTraitObject($puck_17).kind === "Record") {
         let {value: [record]} = $unwrapTraitObject($puck_17);
         let $puck_19;
         if (type_) {
           let $puck_20 = type_.kind;
           let $puck_21;
-          if ($unwrapTraitObject($puck_20).kind == "Struct") {
+          if ($unwrapTraitObject($puck_20).kind === "Struct") {
             let {value: [struct]} = $unwrapTraitObject($puck_20);
             let $puck_22 = struct.kind;
             let $puck_23;
-            if ($unwrapTraitObject($puck_22).kind == "Record") {
+            if ($unwrapTraitObject($puck_22).kind === "Record") {
               let {value: [record]} = $unwrapTraitObject($puck_22);
               $puck_23 = record.properties;
             }
@@ -158,7 +158,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
           }
           else {
             let $puck_26;
-            if ($unwrapTraitObject($puck_20).kind == "Parameter") {
+            if ($unwrapTraitObject($puck_20).kind === "Parameter") {
               let undefined = $unwrapTraitObject($puck_20);
               $puck_26 = {};
             }
@@ -194,17 +194,17 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
         });
       }
       else {
-        if ($unwrapTraitObject($puck_17).kind == "RecordType") {
+        if ($unwrapTraitObject($puck_17).kind === "RecordType") {
           let {value: [typePath, record]} = $unwrapTraitObject($puck_17);
           let $puck_32 = getValueType(typePath, type_);
           let $puck_33;
-          if ($unwrapTraitObject($puck_32).kind == "Ok") {
+          if ($unwrapTraitObject($puck_32).kind === "Ok") {
             let {value: [type_]} = $unwrapTraitObject($puck_32);
             $puck_33 = type_;
           }
           else {
             let $puck_34;
-            if ($unwrapTraitObject($puck_32).kind == "Err") {
+            if ($unwrapTraitObject($puck_32).kind === "Err") {
               let {value: [[to, subject]]} = $unwrapTraitObject($puck_32);
               return $puck_1.Err(PatternError.PatternMismatch(p, to, subject));
             };
@@ -213,11 +213,11 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
           const recordType = $puck_33;
           let $puck_35 = recordType.kind;
           let $puck_36;
-          if ($unwrapTraitObject($puck_35).kind == "Struct") {
+          if ($unwrapTraitObject($puck_35).kind === "Struct") {
             let {value: [struct]} = $unwrapTraitObject($puck_35);
             let $puck_37 = struct.kind;
             let $puck_38;
-            if ($unwrapTraitObject($puck_37).kind == "Record") {
+            if ($unwrapTraitObject($puck_37).kind === "Record") {
               let {value: [record]} = $unwrapTraitObject($puck_37);
               $puck_38 = record.properties;
             }
@@ -233,7 +233,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
           }
           else {
             let $puck_41;
-            if ($unwrapTraitObject($puck_35).kind == "Parameter") {
+            if ($unwrapTraitObject($puck_35).kind === "Parameter") {
               let undefined = $unwrapTraitObject($puck_35);
               $puck_41 = {};
             }
@@ -267,17 +267,17 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
           });
         }
         else {
-          if ($unwrapTraitObject($puck_17).kind == "Tuple") {
+          if ($unwrapTraitObject($puck_17).kind === "Tuple") {
             let {value: [tuple]} = $unwrapTraitObject($puck_17);
             let $puck_47;
             if (type_) {
               let $puck_48 = type_.kind;
               let $puck_49;
-              if ($unwrapTraitObject($puck_48).kind == "Struct") {
+              if ($unwrapTraitObject($puck_48).kind === "Struct") {
                 let {value: [struct]} = $unwrapTraitObject($puck_48);
                 let $puck_50 = struct.kind;
                 let $puck_51;
-                if ($unwrapTraitObject($puck_50).kind == "Tuple") {
+                if ($unwrapTraitObject($puck_50).kind === "Tuple") {
                   let {value: [tuple]} = $unwrapTraitObject($puck_50);
                   $puck_51 = tuple.properties;
                 }
@@ -293,7 +293,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
               }
               else {
                 let $puck_54;
-                if ($unwrapTraitObject($puck_48).kind == "Parameter") {
+                if ($unwrapTraitObject($puck_48).kind === "Parameter") {
                   let undefined = $unwrapTraitObject($puck_48);
                   $puck_54 = [];
                 }
@@ -328,17 +328,17 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
             });
           }
           else {
-            if ($unwrapTraitObject($puck_17).kind == "TupleType") {
+            if ($unwrapTraitObject($puck_17).kind === "TupleType") {
               let {value: [typePath, tuple]} = $unwrapTraitObject($puck_17);
               let $puck_61 = getValueType(typePath, type_);
               let $puck_62;
-              if ($unwrapTraitObject($puck_61).kind == "Ok") {
+              if ($unwrapTraitObject($puck_61).kind === "Ok") {
                 let {value: [type_]} = $unwrapTraitObject($puck_61);
                 $puck_62 = type_;
               }
               else {
                 let $puck_63;
-                if ($unwrapTraitObject($puck_61).kind == "Err") {
+                if ($unwrapTraitObject($puck_61).kind === "Err") {
                   let {value: [[to, subject]]} = $unwrapTraitObject($puck_61);
                   return $puck_1.Err(PatternError.PatternMismatch(p, to, subject));
                 };
@@ -347,11 +347,11 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
               const tupleType = $puck_62;
               let $puck_64 = tupleType.kind;
               let $puck_65;
-              if ($unwrapTraitObject($puck_64).kind == "Struct") {
+              if ($unwrapTraitObject($puck_64).kind === "Struct") {
                 let {value: [struct]} = $unwrapTraitObject($puck_64);
                 let $puck_66 = struct.kind;
                 let $puck_67;
-                if ($unwrapTraitObject($puck_66).kind == "Tuple") {
+                if ($unwrapTraitObject($puck_66).kind === "Tuple") {
                   let {value: [tuple]} = $unwrapTraitObject($puck_66);
                   $puck_67 = tuple.properties;
                 }
@@ -367,7 +367,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
               }
               else {
                 let $puck_70;
-                if ($unwrapTraitObject($puck_64).kind == "Parameter") {
+                if ($unwrapTraitObject($puck_64).kind === "Parameter") {
                   let undefined = $unwrapTraitObject($puck_64);
                   $puck_70 = [];
                 }
@@ -400,7 +400,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
               });
             }
             else {
-              if ($unwrapTraitObject($puck_17).kind == "UnitType") {
+              if ($unwrapTraitObject($puck_17).kind === "UnitType") {
                 let {value: [typePath]} = $unwrapTraitObject($puck_17);
                 if ((!allowNotExhaustive && isNonExhaustive(typePath))) {
                   return $puck_1.Err(PatternError.NotExhaustive);

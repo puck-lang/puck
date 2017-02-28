@@ -201,7 +201,7 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
     if let TypeKind::Trait(_) = to.kind then return false
   }
   if not subject or not to then return true
-  if to == subject then return true
+  if identical(to, subject) then return true
 
   if let Some(set) = checked.get(to) {
     // Avoids infinite loops
@@ -301,8 +301,8 @@ fn isStructAssignable(to: Struct, subject: Struct, mut checked) {
       List.zip(toProps, subjectProps)
         .all(|(toProp, subjectProp)| _isAssignable(toProp, subjectProp, checked))
     }
-    (StructKind::Unit, StructKind::Unit) => to->kind->value == subject->kind->value
-    _ => to.kind == subject.kind
+    (StructKind::Unit, StructKind::Unit) => identical(to->kind->value, subject->kind->value)
+    _ => identical(to.kind, subject.kind)
   }
 }
 
@@ -360,8 +360,8 @@ export fn findCommonType(types: List<Type>) -> Result<Type, ()> {
 
             match findCommonType([commonParameter, typeParameter]) {
               Ok(newCommonParameter) => {
-                if newCommonParameter != commonParameter {
-                  if commonTypeParameters == c {
+                if not identical(newCommonParameter, commonParameter) {
+                  if identical(commonTypeParameters, c) {
                     commonTypeParameters = c.skip(0).toList()
                   }
                   commonTypeParameters[index] = newCommonParameter
@@ -373,7 +373,7 @@ export fn findCommonType(types: List<Type>) -> Result<Type, ()> {
             index += 1
           }
 
-          if commonTypeParameters != c {
+          if not identical(commonTypeParameters, c) {
             let mut class = commonType.instance.mapOr(commonType, |i| i.class)
 
             commonType = createTypeInstance(class, commonTypeParameters)

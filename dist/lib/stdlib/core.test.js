@@ -208,7 +208,8 @@ $puck_2.describe("core", function () {
       return $puck_2.it("should return false if the string does not start with the substring", function () {
         $puck_2.expect($puck_3.String.startsWith.call("abc", "b")).toBe(false);
         $puck_2.expect($puck_3.String.startsWith.call("abc", "bc")).toBe(false);
-        return $puck_2.expect($puck_3.String.startsWith.call("abc", "ac")).toBe(false);
+        $puck_2.expect($puck_3.String.startsWith.call("abc", "ac")).toBe(false);
+        return $puck_2.expect($puck_3.String.startsWith.call("abc", "abcd")).toBe(false);
       });
     });
     $puck_2.describe("endsWith", function () {
@@ -221,7 +222,8 @@ $puck_2.describe("core", function () {
       return $puck_2.it("should return false if the string does not end with the substring", function () {
         $puck_2.expect($puck_3.String.endsWith.call("abc", "b")).toBe(false);
         $puck_2.expect($puck_3.String.endsWith.call("abc", "ab")).toBe(false);
-        return $puck_2.expect($puck_3.String.endsWith.call("abc", "ac")).toBe(false);
+        $puck_2.expect($puck_3.String.endsWith.call("abc", "ac")).toBe(false);
+        return $puck_2.expect($puck_3.String.endsWith.call("abc", "aabc")).toBe(false);
       });
     });
     $puck_2.describe("split", function () {
@@ -252,11 +254,17 @@ $puck_2.describe("core", function () {
       });
     });
     $puck_2.describe("sub", function () {
-      return $puck_2.it("should be able to return the characters for a range", function () {
+      $puck_2.it("should be able to return the characters for a range", function () {
         $puck_2.expect($puck_3.String.sub.call("abc", $puck_3.Range._new(0, 3))).toBe("abc");
         $puck_2.expect($puck_3.String.sub.call("abc", $puck_3.Range._new(0, 2))).toBe("ab");
         $puck_2.expect($puck_3.String.sub.call("abc", $puck_3.Range._new(0, 0))).toBe("");
         return $puck_2.expect($puck_3.String.sub.call("abc", $puck_3.Range._new(1, 3))).toBe("bc");
+      });
+      return $puck_2.it("should ignore characters outside the range", function () {
+        $puck_2.expect($puck_3.String.sub.call("abc", $puck_3.Range._new(0, 4))).toBe("abc");
+        $puck_2.expect($puck_3.String.sub.call("abc", $puck_3.Range._new(-1, 2))).toBe("ab");
+        $puck_2.expect($puck_3.String.sub.call("abc", $puck_3.Range._new(-5, 0))).toBe("");
+        return $puck_2.expect($puck_3.String.sub.call("abc", $puck_3.Range._new(1, 6))).toBe("bc");
       });
     });
     $puck_2.describe("padLeft", function () {
@@ -634,7 +642,7 @@ $puck_2.describe("core", function () {
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(2));
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_3.None);
         predicate = function (i) {
-          return i != 2;
+          return i !== 2;
         };
         let $puck_14 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
@@ -649,7 +657,8 @@ $puck_2.describe("core", function () {
       });
       return $puck_2.it("should correctly count a filtered iterator", function () {
         const predicate = function (i) {
-          return i % 2 == 1;
+          const mod = i % 2;
+          return (mod === 1);
         };
         let $puck_15 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
@@ -665,7 +674,7 @@ $puck_2.describe("core", function () {
     $puck_2.describe("filterMap", function () {
       $puck_2.it("should remove elements from the iterator that does not match the predicate", function () {
         let predicate = function (i) {
-          if ((i < 3)) {
+          if (i < 3) {
             return $puck_1.Some(i * 2);
           }
           else {
@@ -683,7 +692,7 @@ $puck_2.describe("core", function () {
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(4));
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_3.None);
         predicate = function (i) {
-          if ((i != 2)) {
+          if ((i !== 2)) {
             return $puck_1.Some(i * 2);
           }
           else {
@@ -703,7 +712,8 @@ $puck_2.describe("core", function () {
       });
       return $puck_2.it("should correctly count a filtered iterator", function () {
         const predicate = function (i) {
-          if ((i % 2 == 1)) {
+          const mod = i % 2;
+          if ((mod === 1)) {
             return $puck_1.Some(i * 2);
           }
           else {

@@ -21,13 +21,13 @@ TokenStream.peek = function (returnDummy = false) {
   let self = this;
   if (returnDummy) {
     let $puck_7 = self.currentDummy;
-    if ($puck_7.kind == "Some") {
+    if ($puck_7.kind === "Some") {
       let {value: [token]} = $puck_7;
       return token;
     };
   };
   let $puck_8 = self.current;
-  if ($puck_8.kind == "Some") {
+  if ($puck_8.kind === "Some") {
     let {value: [token]} = $puck_8;
     if ((!isDummy(token))) {
       return token;
@@ -51,7 +51,7 @@ TokenStream.peek = function (returnDummy = false) {
 TokenStream.next = function (returnDummy = false) {
   let self = this;
   let $puck_9 = self.currentDummy;
-  if ($puck_9.kind == "Some") {
+  if ($puck_9.kind === "Some") {
     let {value: [token]} = $puck_9;
     self.currentDummy = $puck_1.None;
     if (returnDummy) {
@@ -59,7 +59,7 @@ TokenStream.next = function (returnDummy = false) {
     };
   };
   let $puck_10 = self.current;
-  if ($puck_10.kind == "Some") {
+  if ($puck_10.kind === "Some") {
     let {value: [token]} = $puck_10;
     self.current = $puck_1.None;
     if ((!isDummy(token) || returnDummy)) {
@@ -75,7 +75,7 @@ TokenStream.next = function (returnDummy = false) {
 TokenStream.eof = function () {
   let self = this;
   let $puck_11 = TokenStream.peek.call(self);
-  if (($unwrapTraitObject($puck_11).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_11).value)[0]).kind).kind == "EndOfFileToken")) {
+  if (($unwrapTraitObject($puck_11).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_11).value)[0]).kind).kind === "EndOfFileToken")) {
     let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_11);
     return true;
   }
@@ -147,7 +147,7 @@ TokenStream._readNumber = function () {
   let hasDot = false;
   const start = $puck_6.InputStream.position.call(self.input);
   const number = TokenStream._readWhile.call(self, function (ch) {
-    if (ch == ".") {
+    if (ch === ".") {
       if ((hasDot || !isDigit($puck_6.InputStream.peek.call(self.input, 1)))) {
         return false;
       }
@@ -195,7 +195,7 @@ TokenStream._readIdentifierOrKeyword = function () {
     start: start,
     end: end,
   };
-  if (id == "import") {
+  if (id === "import") {
     self.inImport = true;
     return $puck_4.Token.SimpleToken({
       kind: $puck_4.SyntaxKind.ImportKeyword,
@@ -203,7 +203,7 @@ TokenStream._readIdentifierOrKeyword = function () {
     });
   }
   else {
-    if (id == "as") {
+    if (id === "as") {
       self.inImport = false;
       return $puck_4.Token.SimpleToken({
         kind: $puck_4.SyntaxKind.AsKeyword,
@@ -212,7 +212,7 @@ TokenStream._readIdentifierOrKeyword = function () {
     }
     else {
       let $puck_14 = $puck_4.SyntaxKind.fromText(id);
-      if ($puck_14.kind == "Some") {
+      if ($puck_14.kind === "Some") {
         let {value: [kind]} = $puck_14;
         return $puck_4.Token.SimpleToken({
           kind: kind,
@@ -238,35 +238,35 @@ TokenStream._readString = function () {
   while ((!$puck_6.InputStream.eof.call(self.input))) {
     const ch = $puck_6.InputStream.next.call(self.input);
     if (escaped) {
-      if (ch == "$") {
+      if (ch === "$") {
         str += "$";
       }
       else {
-        if (ch == "n") {
+        if (ch === "n") {
           str += "\n";
         }
         else {
-          if (ch == "r") {
+          if (ch === "r") {
             str += "\r";
           }
           else {
-            if (ch == "t") {
+            if (ch === "t") {
               str += "\t";
             }
             else {
-              if (ch == "'") {
+              if (ch === "'") {
                 str += "'";
               }
               else {
-                if (ch == "\"") {
+                if (ch === "\"") {
                   str += "\"";
                 }
                 else {
-                  if (ch == "\\") {
+                  if (ch === "\\") {
                     str += "\\";
                   }
                   else {
-                    if (ch == "\n") {
+                    if (ch === "\n") {
                       $puck_2._null;
                     }
                     else {
@@ -282,11 +282,11 @@ TokenStream._readString = function () {
       escaped = false;
     }
     else {
-      if (ch == "\\") {
+      if (ch === "\\") {
         escaped = true;
       }
       else {
-        if ((ch == "$" && isIdStart($puck_6.InputStream.peek.call(self.input)) && (!self.inImport))) {
+        if ((ch === "$" && isIdStart($puck_6.InputStream.peek.call(self.input)) && (!self.inImport))) {
           const end = $puck_6.InputStream.position.call(self.input);
           $puck_1.List.push.call(parts, $puck_3.StringLiteralPart.Literal({
             span: {
@@ -300,7 +300,7 @@ TokenStream._readString = function () {
           start = $puck_6.InputStream.position.call(self.input);
         }
         else {
-          if (ch == delimiter) {
+          if (ch === delimiter) {
             break          }
           else {
             str += ch;
@@ -326,7 +326,7 @@ TokenStream._readComment = function () {
   $puck_6.InputStream.next.call(self.input);
   TokenStream._readWhile.call(self, isWhitespace);
   const comment = TokenStream._readWhile.call(self, function (ch) {
-    return ch != "\n";
+    return ch !== "\n";
   });
   $puck_6.InputStream.next.call(self.input);
   const end = $puck_6.InputStream.position.call(self.input);
@@ -366,11 +366,11 @@ TokenStream._readNext = function () {
       });
     }
     else {
-      if ((ch == "/" && $puck_6.InputStream.peek.call(self.input, 1) == "/")) {
+      if ((ch === "/" && $puck_6.InputStream.peek.call(self.input, 1) === "/")) {
         return $puck_4.Token.Comment(TokenStream._readComment.call(self));
       }
       else {
-        if ((ch == "'" || ch == "\"")) {
+        if ((ch === "'" || ch === "\"")) {
           return $puck_4.Token.StringLiteral(TokenStream._readString.call(self));
         }
         else {
@@ -383,7 +383,7 @@ TokenStream._readNext = function () {
             }
             else {
               let $puck_15 = TokenStream._tryParseOperator.call(self);
-              if ($puck_15.kind == "Some") {
+              if ($puck_15.kind === "Some") {
                 let {value: [operator]} = $puck_15;
                 return $puck_4.Token.SimpleToken(operator);
               }
@@ -409,12 +409,12 @@ const longestOperator = $puck_1.Iterator[$puck_16.type].fold.call($puck_16, 0, f
 });
 function isDummy(token) {
   let $puck_17 = token;
-  if (($unwrapTraitObject($puck_17).kind == "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_17).value)[0]).kind).kind == "NewlineToken")) {
+  if (($unwrapTraitObject($puck_17).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_17).value)[0]).kind).kind === "NewlineToken")) {
     let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_17);
     return true;
   }
   else {
-    if ($unwrapTraitObject($puck_17).kind == "Comment") {
+    if ($unwrapTraitObject($puck_17).kind === "Comment") {
       let undefined = $unwrapTraitObject($puck_17);
       return true;
     }
@@ -436,10 +436,10 @@ function isId(ch) {
   return (isIdStart(ch) || isDigit(ch));
 };
 function isNewline(ch) {
-  return ch == "\n";
+  return ch === "\n";
 };
 function isWhitespace(ch) {
-  return ch == " ";
+  return ch === " ";
 };
 function isWhitespaceOrNewline(ch) {
   return (isNewline(ch) || isWhitespace(ch));

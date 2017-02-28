@@ -60,6 +60,8 @@ const tokenToJs = kind => {
   if (kind.kind == 'AndKeyword') return '&&'
   if (kind.kind == 'OrKeyword')  return '||'
   if (kind.kind == 'NotKeyword') return '!'
+  if (kind.kind == 'EqualsEqualsToken') return '==='
+  if (kind.kind == 'ExclamationEqualsToken') return '!=='
   return SyntaxKind.name.call(kind)
 }
 
@@ -711,7 +713,12 @@ export function Emitter() {
       let lhsType = ExpressionImpl.getType.call(e.lhs)
       let rhsType = ExpressionImpl.getType.call(e.rhs)
 
-      if (!rhsType || (lhsType.id.value[0] === 'Num' && rhsType.id.value[0] === 'Num')) {
+      if (
+          !rhsType ||
+          (lhsType.id.value[0] === 'Bool' && rhsType.id.value[0] === 'Bool') ||
+          (lhsType.id.value[0] === 'Num' && rhsType.id.value[0] === 'Num') ||
+          (lhsType.id.value[0] === 'String' && rhsType.id.value[0] === 'String')
+        ) {
         call = false
       }
     }

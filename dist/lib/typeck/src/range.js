@@ -47,7 +47,7 @@ function checkRange(_arguments, range, argumentName, subjectName) {
   const error = $puck_3;
   return $puck_1.Result.mapErr.call(error, function (error) {
     let $puck_5;
-    if (min == max) {
+    if (min === max) {
       $puck_5 = "" + min + "";
     }
     else {

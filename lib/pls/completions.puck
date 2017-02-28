@@ -87,7 +87,7 @@ impl PositionVisitor for CompletionVisitor {
 
   fn visitImportDirective(mut self, i: ImportDirective) -> () {
     self.importedModule = i.module
-    if i.locator.span().cmp(self.position) == Ordering::Equal {
+    if identical(i.locator.span().cmp(self.position), Ordering::Equal) {
       if let Some(domain) = i.domain {
         if domain == 'puck' {
           self.completions = Some(
@@ -190,7 +190,7 @@ impl PositionVisitor for CompletionVisitor {
     }
   }
   fn visitObjectDestructureMember(mut self, m: ObjectDestructureMember) -> () {
-    if m.property.span().cmp(self.position()) == Ordering::Equal {
+    if identical(m.property.span().cmp(self.position()), Ordering::Equal) {
       print('CompletionVisitor visitObjectDestructureMember')
       self.completions = self.importedModule.map(getImportCompletions)
     }
@@ -210,7 +210,7 @@ impl PositionVisitor for CompletionVisitor {
 
   fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {
     if let Some(name) = f.name {
-      if name.span.cmp(self.position) == Ordering::Equal {
+      if identical(name.span.cmp(self.position), Ordering::Equal) {
         return ()
       }
     }
@@ -219,7 +219,7 @@ impl PositionVisitor for CompletionVisitor {
 
   fn visitMethodDeclaration(mut self, f: FunctionDeclaration) -> () {
     if let Some(name) = f.name {
-      if name.span.cmp(self.position) == Ordering::Equal {
+      if identical(name.span.cmp(self.position), Ordering::Equal) {
         self.completions = self.inTraitImpl.map(getTraitImplCompletions)
         return ()
       }
@@ -229,7 +229,7 @@ impl PositionVisitor for CompletionVisitor {
   }
 
   fn visitMemberAccess(mut self, a: MemberAccess) -> () {
-    if a.object.span().cmp(self.position()) == Ordering::Less {
+    if identical(a.object.span().cmp(self.position()), Ordering::Less) {
       print('CompletionVisitor visitMemberAccess')
       let type_ = a.object.getType()
       if type_ {

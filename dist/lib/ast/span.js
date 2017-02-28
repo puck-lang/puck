@@ -54,11 +54,11 @@ Span.empty = function () {
 };
 Span.cmp = function (position) {
   const self = this;
-  if (position.line < self.start.line || (position.line == self.start.line && position.column < self.start.column)) {
+  if (position.line < self.start.line || (position.line === self.start.line && position.column < self.start.column)) {
     return $puck_1.Ordering.Greater;
   }
   else {
-    if ((position.line > self.end.line || (position.line == self.end.line && position.column > self.end.column))) {
+    if ((position.line > self.end.line || (position.line === self.end.line && position.column > self.end.column))) {
       return $puck_1.Ordering.Less;
     }
     else {

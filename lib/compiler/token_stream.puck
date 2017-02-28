@@ -36,11 +36,11 @@ fn isId(ch) {
   isIdStart(ch) or isDigit(ch)
 }
 
-fn isNewline(ch) {
+fn isNewline(ch: String) {
   ch == '\n'
 }
 
-fn isWhitespace(ch) {
+fn isWhitespace(ch: String) {
   ch == ' '
 }
 
@@ -159,7 +159,7 @@ impl TokenStream {
     })
   }
 
-  fn _readWhile(mut self, predicate) -> String {
+  fn _readWhile(mut self, predicate: (String) -> Bool) -> String {
     let mut str = ''
     while not self.input.eof() and predicate(self.input.peek()) {
       str += self.input.next()
@@ -170,7 +170,7 @@ impl TokenStream {
   fn _readNumber(mut self) -> NumberLiteral {
     let mut hasDot = false
     let start = self.input.position()
-    let number = self._readWhile(fn (ch) {
+    let number = self._readWhile(|ch| {
       if ch == '.' {
         if hasDot or not isDigit(self.input.peek(1))
           then false

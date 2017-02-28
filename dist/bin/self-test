@@ -8,7 +8,7 @@ const $puck_3 = require("./../lib/helpers");
 const $puck_4 = require("./../lib/test");
 const argv = $unwrapTraitObject($puck_2.process.argv);
 let $puck_5;
-if ($puck_3.flag(argv, "--babel") != "") {
+if ($puck_3.flag(argv, "--babel") !== "") {
   $puck_5 = true;
 }
 else {

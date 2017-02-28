@@ -9,7 +9,7 @@ a: function () {}
 };
 Type.isAnswer = function () {
   const self = this;
-  return self.value == 42;
+  return self.value === 42;
 };
 Type.isNegative = function (other) {
   const self = this;

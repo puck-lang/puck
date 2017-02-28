@@ -568,7 +568,7 @@ describe('core', || {
 
     describe('MapIterator', || {
       it('should map values on the iterator', || {
-        let mut iterator = [1, 2, 3].iter().map(|i| i * 2)
+        let mut iterator = [1, 2, 3].iter().map(|i: Num| i * 2)
         expect(iterator.next()).toEqual(Some(2))
         expect(iterator.next()).toEqual(Some(4))
         expect(iterator.next()).toEqual(Some(6))
@@ -576,7 +576,7 @@ describe('core', || {
       })
 
       it('should map lazily', || {
-        let mut iterator = [1, 2, 3].iter().map(|i| {
+        let mut iterator = [1, 2, 3].iter().map(|i: Num| {
           if i > 1
             then throw 'Should only be called once'
           i
@@ -594,7 +594,7 @@ describe('core', || {
         expect(iterator.next()).toEqual(Some(2))
         expect(iterator.next()).toEqual(None)
 
-        let predicate = |i| i != 2
+        let predicate = |i: Num| i != 2
         let mut iterator = [1, 2, 3].iter().filter(predicate)
         expect(iterator.next()).toEqual(Some(1))
         expect(iterator.next()).toEqual(Some(3))
@@ -602,7 +602,10 @@ describe('core', || {
       })
 
       it('should correctly count a filtered iterator', || {
-        let predicate = |i| i % 2 == 1
+        let predicate = |i: Num| {
+          let mod: Num = i % 2
+          mod == 1
+        }
         let mut iterator = [1, 2, 3, 4].iter().filter(predicate)
         expect(iterator.count()).toBe(2)
       })
@@ -624,7 +627,10 @@ describe('core', || {
       })
 
       it('should correctly count a filtered iterator', || {
-        let predicate = |i: Num| if i % 2 == 1 then Some(i * 2) else None
+        let predicate = |i: Num| {
+          let mod: Num = i % 2
+          if mod == 1 then Some(i * 2) else None
+        }
         let mut iterator = [1, 2, 3, 4].iter().filterMap(predicate)
         expect(iterator.count()).toBe(2)
       })

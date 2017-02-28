@@ -23,6 +23,10 @@ var tokenToJs = function (kind) {
         return '||';
     if (kind.kind == 'NotKeyword')
         return '!';
+    if (kind.kind == 'EqualsEqualsToken')
+        return '===';
+    if (kind.kind == 'ExclamationEqualsToken')
+        return '!==';
     return token_1.SyntaxKind.name.call(kind);
 };
 var Context;
@@ -604,7 +608,10 @@ function Emitter() {
         if (call) {
             var lhsType = ast_1.Expression.getType.call(e.lhs);
             var rhsType = ast_1.Expression.getType.call(e.rhs);
-            if (!rhsType || (lhsType.id.value[0] === 'Num' && rhsType.id.value[0] === 'Num')) {
+            if (!rhsType ||
+                (lhsType.id.value[0] === 'Bool' && rhsType.id.value[0] === 'Bool') ||
+                (lhsType.id.value[0] === 'Num' && rhsType.id.value[0] === 'Num') ||
+                (lhsType.id.value[0] === 'String' && rhsType.id.value[0] === 'String')) {
                 call = false;
             }
         }

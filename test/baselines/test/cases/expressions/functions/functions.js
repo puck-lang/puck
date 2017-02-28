@@ -29,25 +29,22 @@ function g(a, b) {
   };
 };
 function h(a, b) {
-  return a == b;
+  return a === b;
 };
 function i(a, b) {
   if (a > 0) {
-    return b != a;
+    return b !== a;
   };
-  return a == b;
+  return a === b;
 };
 function j(a, b) {
-  return a == b;
+  return a === b;
 };
 function k(a, b) {
-  return a == b;
+  return a === b;
 };
 function l(a, b) {
-  return a == b;
-};
-function m(a, b) {
-  return a == b;
+  return a === b;
 };
 function n() {
   const self = this;
@@ -67,7 +64,7 @@ c();
 c(2);
 const q = function (a) {};
 q(1);
-const bool = m(1, 2);
+const bool = j(1, 2);
 const obj = {key: function () {
   const self = this;
   return self;

@@ -10,6 +10,7 @@ exports.panic = function panic(reason) {
 exports._delete = function (object, property) {
     delete object[property];
 };
+exports.identical = function (a, b) { return a === b; };
 exports.isNull = function (value) { return value === null; };
 exports.isUndefined = function (value) { return value === undefined; };
 exports.createMap = function () { return new Map(); };

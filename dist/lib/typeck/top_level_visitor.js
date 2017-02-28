@@ -38,17 +38,17 @@ function TopLevelVisitor(context, file) {
     visitImportDirective: function (i) {
     const self = this;
     let $puck_7 = i.specifier;
-    if ($unwrapTraitObject($puck_7).kind == "Identifier") {
+    if ($unwrapTraitObject($puck_7).kind === "Identifier") {
       let {value: [identifier]} = $unwrapTraitObject($puck_7);
       return $puck_1.ObjectMap.set.call(declarations, identifier.name, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true});
     }
     else {
-      if ($unwrapTraitObject($puck_7).kind == "ObjectDestructure") {
+      if ($unwrapTraitObject($puck_7).kind === "ObjectDestructure") {
         let {value: [d]} = $unwrapTraitObject($puck_7);
         return $unwrapTraitObject(self).visitObjectDestructure(d);
       }
       else {
-        if ($unwrapTraitObject($puck_7).kind == "Asterisk") {
+        if ($unwrapTraitObject($puck_7).kind === "Asterisk") {
           let $puck_8 = $unwrapTraitObject($puck_7);;
           let {value: [$puck_9]} = $puck_8;;
           return $puck_8;
@@ -65,7 +65,7 @@ function TopLevelVisitor(context, file) {
     visitFunctionDeclaration: function (f) {
     const self = this;
     let $puck_10 = f.name;
-    if ($puck_10.kind == "Some") {
+    if ($puck_10.kind === "Some") {
       let {value: [name]} = $puck_10;
       return $puck_1.ObjectMap.set.call(declarations, name.name, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true});
     };

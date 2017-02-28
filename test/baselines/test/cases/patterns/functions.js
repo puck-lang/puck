@@ -9,35 +9,35 @@ function b($puck_3, num) {
 a("hello");
 b("hello", 5);
 function c() {
-  if (false == true) {
+  if (false === true) {
     return "Wut?";
   }
   else {
-    if (false == true) {
+    if (false === true) {
       return "Wut?";
     }
     else {
-      if (false == true) {
+      if (false === true) {
         return "Wut?";
       }
       else {
-        if (false == true) {
+        if (false === true) {
           return "Wut?";
         }
         else {
-          if (false == true) {
+          if (false === true) {
             return "Wut?";
           }
           else {
-            if (false == true) {
+            if (false === true) {
               return "Wut?";
             }
             else {
-              if (false == true) {
+              if (false === true) {
                 return "Wut?";
               }
               else {
-                if (false == true) {
+                if (false === true) {
                   return "Wut?";
                 }
                 else {

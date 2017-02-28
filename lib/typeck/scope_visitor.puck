@@ -331,7 +331,7 @@ export fn ScopeVisitor(context, file) {
           if let Some(vdParent) = vdScope.parent {
             while true {
               if let Some(fParent) = fScope.parent {
-                if vdParent == fParent {
+                if identical(vdParent, fParent) {
                   break
                 }
                 else {
@@ -440,6 +440,12 @@ export fn ScopeVisitor(context, file) {
     }
     visitBinaryExpression: |self, mut e: BinaryExpression| {
       match e.operator.kind {
+        SyntaxKind::EqualsEqualsToken => {
+          asTraitCall(self, e, 'PartialEq', 'eq', 'equal operators')
+        }
+        SyntaxKind::ExclamationEqualsToken => {
+          asTraitCall(self, e, 'PartialEq', 'ne', 'equal operators')
+        }
         SyntaxKind::LessThanToken => {
           asTraitCall(self, e, 'PartialOrd', 'lt', 'comparison operators')
         }

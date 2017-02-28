@@ -13,23 +13,26 @@ fn g(a,b) {
   }
 }
 
-fn h(a: Num, b: String) -> Bool {a == b}
-fn i(a: Num, b: String) -> Bool {
+fn h(a: String, b: String) -> Bool {a == b}
+fn i(a: Num, b: Num) -> Bool {
   if a > 0 then return b != a
   a == b
 }
-fn j(a: Num, b: String) {
+fn j(a: Num, b: Num) {
   a == b
 }
 fn k(a: Num, b) {
   a == b
 }
-fn l(a, b: String) {
+// TODO: Remove type form a when possible
+fn l(a: String, b: String) {
   a == b
 }
-fn m(a, b) -> Bool {
-  a == b
-}
+// TODO: Allow this
+// TODO: Remove types when possible
+// fn m<T>(a: PartialEq<T>, b: PartialEq<T>) -> Bool {
+//   a == b
+// }
 fn n(self) {self.toString()}
 fn o(mut self) {self.toString()}
 fn p(self, a) {self.toString()}
@@ -42,7 +45,7 @@ c(2)
 let q = fn (a) {}
 q(1)
 
-let bool: Bool = m(1, 2)
+let bool: Bool = j(1, 2)
 
 let obj = {
   key: |self| self
