@@ -2,6 +2,10 @@
 import 'puck:js' as {Array, Error, Object, console, null, typeof, undefined}
 import 'core/js.js' as js
 
+export fn identical<T>(a: T, b: T) -> Bool {
+  js->identical(a, b).transmute()
+}
+
 fn anyCast(a) {a}
 
 export type RegExp {}
@@ -66,7 +70,7 @@ impl Num {
   }
 
   fn isInfinite(self) -> Bool {
-    self == js->infinity or self == -js->infinity
+    self == js->infinity.transmute() or self == -js->infinity.transmute()
   }
 
   fn ceil(self) -> Num {
@@ -264,8 +268,18 @@ export enum Result<T, E> {
 export let Ok = Result::Ok
 export let Err = Result::Err
 impl<T, E> Result<T, E> {
-  fn isOk(self) -> Bool {self->kind.transmute() == 'Ok'}
-  fn isErr(self: Result<T, E>) -> Bool {not self.isOk()}
+  fn isOk(self) -> Bool {
+    match self {
+      Ok(_) => true
+      Err(_) => false
+    }
+  }
+  fn isErr(self: Result<T, E>) -> Bool {
+    match self {
+      Ok(_) => false
+      Err(_) => true
+    }
+  }
 
   /// Calls op if the result is Ok, otherwise returns the Err value of self.
   ///
@@ -314,8 +328,18 @@ export enum Option<T> {
 export let Some = Option::Some
 export let None = Option::None
 impl<T> Option<T> {
-  fn isSome(self) -> Bool {self->kind.transmute() == 'Some'}
-  fn isNone(self) -> Bool {not self.isSome()}
+  fn isSome(self) -> Bool {
+    match self {
+      Some(_) => true
+      Option::None => false
+    }
+  }
+  fn isNone(self) -> Bool {
+    match self {
+      Some(_) => false
+      Option::None => true
+    }
+  }
 
   fn okOr<E>(self, err: E) -> Result<T, E> {
     if let Option::Some(value) = self
@@ -446,7 +470,8 @@ impl<E> List<E> {
   }
 
   fn contains(self, item: E) -> Bool {
-    self->indexOf(item) != -1
+    let index: Num = self->indexOf(item).transmute()
+    index != -1
   }
 
   /// Binary search a sorted slice with a comparator function.
@@ -1089,7 +1114,7 @@ impl Unknown {
   }
 
   fn isObject(self) -> Bool {
-    self != null and typeof(self) == 'object'
+    not identical(self, null) and typeof(self) == 'object'
   }
 
   fn asBool(self) -> Option<Bool> {
@@ -1154,6 +1179,38 @@ impl<T> Index<String, T> for ObjectMap<T> {
 
     self->[key].transmute()
   }
+}
+
+/// Trait for equality comparisons which are partial equivalence relations.
+///
+/// This trait allows for partial equality, for types that do not have a
+/// full equivalence relation. For example, in floating point numbers
+/// NaN != NaN, so floating point types implement PartialEq but not Eq.
+///
+/// Formally, the equality must be (for all a, b and c):
+///
+/// - symmetric: a == b implies b == a; and
+/// - transitive: a == b and b == c implies a == c.
+///
+/// Note that these requirements mean that the trait itself must be implemented
+/// symmetrically and transitively: if T: PartialEq<U> and U: PartialEq<V>
+/// then U: PartialEq<T> and T: PartialEq<V>.
+#[type_id = 'PartialEq']
+export trait PartialEq<Rhs> {
+  fn eq(self, other: Rhs) -> Bool
+  fn ne(self, other: Rhs) -> Bool {not self.eq(other)}
+}
+
+impl PartialEq<Bool> for Bool {
+  fn eq(self, other: Bool) -> Bool {identical(self, other)}
+}
+
+impl PartialEq<Num> for Num {
+  fn eq(self, other: Num) -> Bool {identical(self, other)}
+}
+
+impl PartialEq<String> for String {
+  fn eq(self, other: String) -> Bool {identical(self, other)}
 }
 
 /// Trait for values that can be compared for a sort-order.

@@ -99,7 +99,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
 
   fn isToken(kind: SyntaxKind, withDummy = false) -> Bool {
     match input.peek(withDummy) {
-      Token::SimpleToken(token) => token.kind == kind
+      Token::SimpleToken(token) => identical(token.kind, kind)
       _ => false
     }
   }
@@ -116,7 +116,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
     let token = input.peek()
     match token {
       Token::SimpleToken(token) => {
-        if token.kind != kind {
+        if not identical(token.kind, kind) {
           input.croak('Expected token: "'  + kind.name() + '", ' + butGot())
         }
         token

@@ -18,7 +18,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
   // let mut contexts = ObjectMap.new()
   let mut context = createContext(projectPath)
   context.reportError = fn (file: File, token: ToSpan, message) {
-    print('reportError', (file.absolutePath, message))
+    // print('reportError', (file.absolutePath, message))
     let span = token.span()
     sendDiagnostic(file.absolutePath, {
       severity: DiagnosticSeverity.Error
@@ -38,7 +38,7 @@ export fn createServer(projectPath: String, sendDiagnostic) {
     print('validateDocument')
     let startTime = Date->now()
 
-    let result = asResult(|| {
+    let result: Result<(), String> = asResult(|| {
       let startTime = Date->now()
       let mut file: UnparsedFile = {
         isBin: false

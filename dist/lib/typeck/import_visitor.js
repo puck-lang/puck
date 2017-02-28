@@ -29,7 +29,7 @@ function ImportVisitor(context, file) {
       return $unwrapTraitObject(context).importFile(importedFile);
     });
     let $puck_8 = result;
-    if ($unwrapTraitObject($puck_8).kind == "Ok") {
+    if ($unwrapTraitObject($puck_8).kind === "Ok") {
       let {value: [contextFile]} = $unwrapTraitObject($puck_8);
       const _module = $unwrapTraitObject(contextFile.ast);
       if ((!_module)) {
@@ -38,7 +38,7 @@ function ImportVisitor(context, file) {
         });
       };
       let $puck_9 = i.specifier;
-      if ($unwrapTraitObject($puck_9).kind == "ObjectDestructure") {
+      if ($unwrapTraitObject($puck_9).kind === "ObjectDestructure") {
         let {value: [o]} = $unwrapTraitObject($puck_9);
         $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true}, function (m) {
           if ((!$puck_1.ObjectMap.has.call(_module.exports, m.property.name))) {
@@ -47,7 +47,7 @@ function ImportVisitor(context, file) {
         });
       }
       else {
-        if (($unwrapTraitObject($puck_9).kind == "Asterisk")) {
+        if (($unwrapTraitObject($puck_9).kind === "Asterisk")) {
           let {value: [token]} = $unwrapTraitObject($puck_9);
           let $puck_11 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.keys.call(_module.exports), $isTraitObject: true}, function (e) {
             return (!$puck_1.ObjectMap.has.call(declarations, e));
@@ -69,7 +69,7 @@ function ImportVisitor(context, file) {
           });
         }
         else {
-          if ($unwrapTraitObject($puck_9).kind == "Identifier") {
+          if ($unwrapTraitObject($puck_9).kind === "Identifier") {
             let {value: [$puck_12]} = $unwrapTraitObject($puck_9);
           };
         };
@@ -89,7 +89,7 @@ function ImportVisitor(context, file) {
     declarations = $unwrapTraitObject(m.declarations);
     $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: m.statements, $isTraitObject: true}, function (s) {
       let $puck_13 = s;
-      if ($puck_13.kind == "ImportDirective") {
+      if ($puck_13.kind === "ImportDirective") {
         let {value: [e]} = $puck_13;
         return $unwrapTraitObject(self).visitImportDirective(e);
       };
@@ -99,9 +99,9 @@ function ImportVisitor(context, file) {
     visitImportDirective: function (i) {
     const self = this;
     let $puck_14 = i.domain;
-    if ($unwrapTraitObject($puck_14).kind == "Some") {
+    if ($unwrapTraitObject($puck_14).kind === "Some") {
       let {value: [domain]} = $unwrapTraitObject($puck_14);
-      if (domain == "puck") {
+      if (domain === "puck") {
         if ((!$puck_1.List.contains.call(puckModules, i.path))) {
           return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, "Invalid puck module " + i.path);
         };
@@ -121,14 +121,14 @@ function ImportVisitor(context, file) {
           return $unwrapTraitObject(context).resolvePath(i.path, file);
         });
         let $puck_15 = result;
-        if ($unwrapTraitObject($puck_15).kind == "Ok") {
+        if ($unwrapTraitObject($puck_15).kind === "Ok") {
           let {value: [importedFile]} = $unwrapTraitObject($puck_15);
           if ($puck_1.RegExp.test.call(puckFile, importedFile.absolutePath)) {
             importModule(i, importedFile);
           };
         }
         else {
-          if ($unwrapTraitObject($puck_15).kind == "Err") {
+          if ($unwrapTraitObject($puck_15).kind === "Err") {
             let {value: [error]} = $unwrapTraitObject($puck_15);
             return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, "Imported file " + i.path + " not found");
           };

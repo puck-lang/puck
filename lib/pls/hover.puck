@@ -119,7 +119,7 @@ impl PositionVisitor for HoverVisitor {
 
   fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {
     if let Some(name) = f.name {
-      if name.span.cmp(self.position()) == Ordering::Equal {
+      if identical(name.span.cmp(self.position()), Ordering::Equal) {
         if f.type_ {
           let type_: Type = f.type_
           self.hover = Some({
@@ -142,9 +142,9 @@ impl PositionVisitor for HoverVisitor {
 
   fn visitCallExpression(mut self, e: CallExpression) -> () {
     if e->functionType {
-      if e.func.span().cmp(self.position()) == Ordering::Equal {
+      if identical(e.func.span().cmp(self.position()), Ordering::Equal) {
         if let Expression::MemberAccess(a) = e.func {
-          if a.member.span().cmp(self.position()) == Ordering::Equal {
+          if identical(a.member.span().cmp(self.position()), Ordering::Equal) {
             self.hover = Some({
               contents: getTypeContents(e->functionType.transmute())
               span: a.member.span()
@@ -173,7 +173,7 @@ impl PositionVisitor for HoverVisitor {
   }
 
   fn visitMemberAccess(mut self, a: MemberAccess) -> () {
-    if a.member.span().cmp(self.position()) == Ordering::Equal {
+    if identical(a.member.span().cmp(self.position()), Ordering::Equal) {
       print('onHover visitMemberAccess')
       if a->type_ {
         let type_: Type = a->type_.transmute()
@@ -192,7 +192,7 @@ impl PositionVisitor for HoverVisitor {
     self.literalType = parent
   }
   fn visitRecordLiteralMember(mut self, l: RecordLiteralMember) -> () {
-    if l.name.span().cmp(self.position()) == Ordering::Equal {
+    if identical(l.name.span().cmp(self.position()), Ordering::Equal) {
       print('onHover visitRecordLiteralMember')
       self.hover = self.literalType
         .andThen(|t| getPropertyType(t, l.name.name))

@@ -91,7 +91,7 @@ if (z) {
 }
 else {
   let $puck_10;
-  if ((z == 0)) {
+  if ((z === 0)) {
     $puck_10 = 1;
   }
   else {
@@ -140,7 +140,7 @@ function g() {
     return a(x ** y);
   }
   else {
-    if ((z == 0)) {
+    if ((z === 0)) {
       return q6;
     }
     else {
@@ -235,7 +235,7 @@ function h() {
   }
   else {
     let $puck_21;
-    if ((z == 0)) {
+    if ((z === 0)) {
       $puck_21 = q6;
     }
     else {
@@ -284,7 +284,7 @@ function h() {
       return a(x ** y);
     }
     else {
-      if ((z == 0)) {
+      if ((z === 0)) {
         return q6;
       }
       else {

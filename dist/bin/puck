@@ -19,7 +19,7 @@ let $puck_6 = $puck_1.Iterable[$puck_7.type].skip.call($puck_7, 1)
 const _arguments = $puck_1.Iterable[$puck_6.type].toList.call($puck_6);
 const command = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: _arguments, $isTraitObject: true}, 0);
 let $puck_8;
-if ($puck_5.flag(_arguments, "--babel") != "") {
+if ($puck_5.flag(_arguments, "--babel") !== "") {
   $puck_8 = true;
 }
 else {
@@ -32,7 +32,7 @@ function normalizeBinName(file) {
   const fileName = path.basename(file, ".puck").replace($puck_1.RegExp._new("^_"), "");
   return $unwrapTraitObject(path.join("dist", dirname, fileName));
 };
-if (command == "build") {
+if (command === "build") {
   let $puck_10 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_5.walkSync("bin"), $isTraitObject: true}, function (f) {
     return $puck_1.RegExp.test.call(puckPattern, f);
   })
@@ -72,7 +72,7 @@ if (command == "build") {
   $puck_1.print("done");
 }
 else {
-  if (command == "test") {
+  if (command === "test") {
     const watch = (!$puck_2.process.env.CI);
     const rootDir = $unwrapTraitObject(path.resolve("lib"));
     $puck_3.jest(watch, rootDir);

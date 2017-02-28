@@ -229,7 +229,7 @@ function walkModule(visitor, m) {
   let $puck_4 = $puck_1.List.binarySearchBy.call(m.statements, function (statement) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TopLevelStatement"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TopLevelStatement', value: statement, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_4.kind == "Ok") {
+  if ($puck_4.kind === "Ok") {
     let {value: [index]} = $puck_4;
     PositionVisitor[visitor.type].visitTopLevelStatement.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: m.statements, $isTraitObject: true}, index));
     return true;
@@ -241,42 +241,42 @@ function walkModule(visitor, m) {
 exports.walkModule = walkModule;
 function walkTopLevelStatement(visitor, e) {
   let $puck_5 = e;
-  if ($unwrapTraitObject($puck_5).kind == "EnumDeclaration") {
+  if ($unwrapTraitObject($puck_5).kind === "EnumDeclaration") {
     let {value: [s]} = $unwrapTraitObject($puck_5);
     PositionVisitor[visitor.type].visitEnumDeclaration.call(visitor, s);
   }
   else {
-    if ($unwrapTraitObject($puck_5).kind == "ExportDirective") {
+    if ($unwrapTraitObject($puck_5).kind === "ExportDirective") {
       let {value: [s]} = $unwrapTraitObject($puck_5);
       PositionVisitor[visitor.type].visitExportDirective.call(visitor, s);
     }
     else {
-      if ($unwrapTraitObject($puck_5).kind == "ImportDirective") {
+      if ($unwrapTraitObject($puck_5).kind === "ImportDirective") {
         let {value: [s]} = $unwrapTraitObject($puck_5);
         PositionVisitor[visitor.type].visitImportDirective.call(visitor, s);
       }
       else {
-        if ($unwrapTraitObject($puck_5).kind == "ImplDeclaration") {
+        if ($unwrapTraitObject($puck_5).kind === "ImplDeclaration") {
           let {value: [s]} = $unwrapTraitObject($puck_5);
           PositionVisitor[visitor.type].visitImplDeclaration.call(visitor, s);
         }
         else {
-          if ($unwrapTraitObject($puck_5).kind == "ImplShorthandDeclaration") {
+          if ($unwrapTraitObject($puck_5).kind === "ImplShorthandDeclaration") {
             let {value: [s]} = $unwrapTraitObject($puck_5);
             PositionVisitor[visitor.type].visitImplShorthandDeclaration.call(visitor, s);
           }
           else {
-            if ($unwrapTraitObject($puck_5).kind == "TraitDeclaration") {
+            if ($unwrapTraitObject($puck_5).kind === "TraitDeclaration") {
               let {value: [s]} = $unwrapTraitObject($puck_5);
               PositionVisitor[visitor.type].visitTraitDeclaration.call(visitor, s);
             }
             else {
-              if ($unwrapTraitObject($puck_5).kind == "TypeDeclaration") {
+              if ($unwrapTraitObject($puck_5).kind === "TypeDeclaration") {
                 let {value: [s]} = $unwrapTraitObject($puck_5);
                 PositionVisitor[visitor.type].visitTypeDeclaration.call(visitor, s);
               }
               else {
-                if ($unwrapTraitObject($puck_5).kind == "BlockLevelStatement") {
+                if ($unwrapTraitObject($puck_5).kind === "BlockLevelStatement") {
                   let {value: [s]} = $unwrapTraitObject($puck_5);
                   PositionVisitor[visitor.type].visitBlockLevelStatement.call(visitor, s);
                 };
@@ -291,27 +291,27 @@ function walkTopLevelStatement(visitor, e) {
 exports.walkTopLevelStatement = walkTopLevelStatement;
 function walkBlockLevelStatement(visitor, e) {
   let $puck_6 = e;
-  if ($unwrapTraitObject($puck_6).kind == "Block") {
+  if ($unwrapTraitObject($puck_6).kind === "Block") {
     let {value: [e]} = $unwrapTraitObject($puck_6);
     PositionVisitor[visitor.type].visitBlock.call(visitor, e);
   }
   else {
-    if ($unwrapTraitObject($puck_6).kind == "BreakStatement") {
+    if ($unwrapTraitObject($puck_6).kind === "BreakStatement") {
       let {value: [e]} = $unwrapTraitObject($puck_6);
       PositionVisitor[visitor.type].visitBreakStatement.call(visitor, e);
     }
     else {
-      if ($unwrapTraitObject($puck_6).kind == "ReturnStatement") {
+      if ($unwrapTraitObject($puck_6).kind === "ReturnStatement") {
         let {value: [e]} = $unwrapTraitObject($puck_6);
         PositionVisitor[visitor.type].visitReturnStatement.call(visitor, e);
       }
       else {
-        if ($unwrapTraitObject($puck_6).kind == "WhileLoop") {
+        if ($unwrapTraitObject($puck_6).kind === "WhileLoop") {
           let {value: [e]} = $unwrapTraitObject($puck_6);
           PositionVisitor[visitor.type].visitWhileLoop.call(visitor, e);
         }
         else {
-          if ($unwrapTraitObject($puck_6).kind == "Expression") {
+          if ($unwrapTraitObject($puck_6).kind === "Expression") {
             let {value: [e]} = $unwrapTraitObject($puck_6);
             walkExpression(visitor, e);
           };
@@ -323,116 +323,116 @@ function walkBlockLevelStatement(visitor, e) {
 exports.walkBlockLevelStatement = walkBlockLevelStatement;
 function walkExpression(visitor, e) {
   let $puck_7 = e;
-  if ($unwrapTraitObject($puck_7).kind == "ThrowStatement") {
+  if ($unwrapTraitObject($puck_7).kind === "ThrowStatement") {
     let {value: [e]} = $unwrapTraitObject($puck_7);
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.expression);
   }
   else {
-    if ($unwrapTraitObject($puck_7).kind == "Comment") {
+    if ($unwrapTraitObject($puck_7).kind === "Comment") {
       let {value: [$puck_8]} = $unwrapTraitObject($puck_7);
     }
     else {
-      if ($unwrapTraitObject($puck_7).kind == "Identifier") {
+      if ($unwrapTraitObject($puck_7).kind === "Identifier") {
         let {value: [e]} = $unwrapTraitObject($puck_7);
         PositionVisitor[visitor.type].visitIdentifier.call(visitor, e);
       }
       else {
-        if ($unwrapTraitObject($puck_7).kind == "FunctionDeclaration") {
+        if ($unwrapTraitObject($puck_7).kind === "FunctionDeclaration") {
           let {value: [e]} = $unwrapTraitObject($puck_7);
           PositionVisitor[visitor.type].visitFunctionDeclaration.call(visitor, e);
         }
         else {
-          if ($unwrapTraitObject($puck_7).kind == "VariableDeclaration") {
+          if ($unwrapTraitObject($puck_7).kind === "VariableDeclaration") {
             let {value: [e]} = $unwrapTraitObject($puck_7);
             PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, e);
           }
           else {
-            if ($unwrapTraitObject($puck_7).kind == "AssignmentExpression") {
+            if ($unwrapTraitObject($puck_7).kind === "AssignmentExpression") {
               let {value: [e]} = $unwrapTraitObject($puck_7);
               PositionVisitor[visitor.type].visitAssignmentExpression.call(visitor, e);
             }
             else {
-              if ($unwrapTraitObject($puck_7).kind == "BinaryExpression") {
+              if ($unwrapTraitObject($puck_7).kind === "BinaryExpression") {
                 let {value: [e]} = $unwrapTraitObject($puck_7);
                 PositionVisitor[visitor.type].visitBinaryExpression.call(visitor, e);
               }
               else {
-                if ($unwrapTraitObject($puck_7).kind == "CallExpression") {
+                if ($unwrapTraitObject($puck_7).kind === "CallExpression") {
                   let {value: [e]} = $unwrapTraitObject($puck_7);
                   PositionVisitor[visitor.type].visitCallExpression.call(visitor, e);
                 }
                 else {
-                  if ($unwrapTraitObject($puck_7).kind == "IfExpression") {
+                  if ($unwrapTraitObject($puck_7).kind === "IfExpression") {
                     let {value: [e]} = $unwrapTraitObject($puck_7);
                     PositionVisitor[visitor.type].visitIfExpression.call(visitor, e);
                   }
                   else {
-                    if ($unwrapTraitObject($puck_7).kind == "IfLetExpression") {
+                    if ($unwrapTraitObject($puck_7).kind === "IfLetExpression") {
                       let {value: [e]} = $unwrapTraitObject($puck_7);
                       PositionVisitor[visitor.type].visitIfLetExpression.call(visitor, e);
                     }
                     else {
-                      if ($unwrapTraitObject($puck_7).kind == "MatchExpression") {
+                      if ($unwrapTraitObject($puck_7).kind === "MatchExpression") {
                         let {value: [e]} = $unwrapTraitObject($puck_7);
                         PositionVisitor[visitor.type].visitMatchExpression.call(visitor, e);
                       }
                       else {
-                        if ($unwrapTraitObject($puck_7).kind == "TypePathExpression") {
+                        if ($unwrapTraitObject($puck_7).kind === "TypePathExpression") {
                           let {value: [e]} = $unwrapTraitObject($puck_7);
                           PositionVisitor[visitor.type].visitTypePathExpression.call(visitor, e);
                         }
                         else {
-                          if ($unwrapTraitObject($puck_7).kind == "UnaryExpression") {
+                          if ($unwrapTraitObject($puck_7).kind === "UnaryExpression") {
                             let {value: [e]} = $unwrapTraitObject($puck_7);
                             PositionVisitor[visitor.type].visitUnaryExpression.call(visitor, e);
                           }
                           else {
-                            if ($unwrapTraitObject($puck_7).kind == "IndexAccess") {
+                            if ($unwrapTraitObject($puck_7).kind === "IndexAccess") {
                               let {value: [e]} = $unwrapTraitObject($puck_7);
                               PositionVisitor[visitor.type].visitIndexAccess.call(visitor, e);
                             }
                             else {
-                              if ($unwrapTraitObject($puck_7).kind == "MemberAccess") {
+                              if ($unwrapTraitObject($puck_7).kind === "MemberAccess") {
                                 let {value: [e]} = $unwrapTraitObject($puck_7);
                                 PositionVisitor[visitor.type].visitMemberAccess.call(visitor, e);
                               }
                               else {
-                                if ($unwrapTraitObject($puck_7).kind == "UnknownAccess") {
+                                if ($unwrapTraitObject($puck_7).kind === "UnknownAccess") {
                                   let {value: [e]} = $unwrapTraitObject($puck_7);
                                   PositionVisitor[visitor.type].visitUnknownAccess.call(visitor, e);
                                 }
                                 else {
-                                  if ($unwrapTraitObject($puck_7).kind == "UnknownIndexAccess") {
+                                  if ($unwrapTraitObject($puck_7).kind === "UnknownIndexAccess") {
                                     let {value: [e]} = $unwrapTraitObject($puck_7);
                                     PositionVisitor[visitor.type].visitUnknownIndexAccess.call(visitor, e);
                                   }
                                   else {
-                                    if ($unwrapTraitObject($puck_7).kind == "BooleanLiteral") {
+                                    if ($unwrapTraitObject($puck_7).kind === "BooleanLiteral") {
                                       let {value: [e]} = $unwrapTraitObject($puck_7);
                                       PositionVisitor[visitor.type].visitBooleanLiteral.call(visitor, e);
                                     }
                                     else {
-                                      if ($unwrapTraitObject($puck_7).kind == "ListLiteral") {
+                                      if ($unwrapTraitObject($puck_7).kind === "ListLiteral") {
                                         let {value: [e]} = $unwrapTraitObject($puck_7);
                                         PositionVisitor[visitor.type].visitListLiteral.call(visitor, e);
                                       }
                                       else {
-                                        if ($unwrapTraitObject($puck_7).kind == "NumberLiteral") {
+                                        if ($unwrapTraitObject($puck_7).kind === "NumberLiteral") {
                                           let {value: [e]} = $unwrapTraitObject($puck_7);
                                           PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, e);
                                         }
                                         else {
-                                          if ($unwrapTraitObject($puck_7).kind == "RecordLiteral") {
+                                          if ($unwrapTraitObject($puck_7).kind === "RecordLiteral") {
                                             let {value: [e]} = $unwrapTraitObject($puck_7);
                                             PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, e);
                                           }
                                           else {
-                                            if ($unwrapTraitObject($puck_7).kind == "StringLiteral") {
+                                            if ($unwrapTraitObject($puck_7).kind === "StringLiteral") {
                                               let {value: [e]} = $unwrapTraitObject($puck_7);
                                               PositionVisitor[visitor.type].visitStringLiteral.call(visitor, e);
                                             }
                                             else {
-                                              if ($unwrapTraitObject($puck_7).kind == "TupleLiteral") {
+                                              if ($unwrapTraitObject($puck_7).kind === "TupleLiteral") {
                                                 let {value: [e]} = $unwrapTraitObject($puck_7);
                                                 PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, e);
                                               };
@@ -464,18 +464,18 @@ function walkEnumDeclaration(visitor, e) {
   let $puck_9 = $puck_1.List.binarySearchBy.call(e.members, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumMember"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumMember', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_9.kind == "Ok") {
+  if ($puck_9.kind === "Ok") {
     let {value: [index]} = $puck_9;
     PositionVisitor[visitor.type].visitEnumMember.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: e.members, $isTraitObject: true}, index));
     return true;
   };
-  if ($puck_3.Span.cmp.call(e.name.span, PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call(e.name.span, PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitIdentifier.call(visitor, e.name);
   };
   let $puck_10 = $puck_1.List.binarySearchBy.call(e.typeParameters, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_10.kind == "Ok") {
+  if ($puck_10.kind === "Ok") {
     let {value: [index]} = $puck_10;
     PositionVisitor[visitor.type].visitTypeParameter.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: e.typeParameters, $isTraitObject: true}, index));
     return true;
@@ -487,13 +487,13 @@ function walkEnumDeclaration(visitor, e) {
 exports.walkEnumDeclaration = walkEnumDeclaration;
 function walkEnumMember(visitor, e) {
   let $puck_11 = e.bound;
-  if ($puck_11.kind == "Some") {
+  if ($puck_11.kind === "Some") {
     let {value: [typeBound]} = $puck_11;
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       return PositionVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
     };
   };
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e.name, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e.name, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     return PositionVisitor[visitor.type].visitIdentifier.call(visitor, e.name);
   };
 };
@@ -502,18 +502,18 @@ function walkImplDeclaration(visitor, i) {
   let $puck_12 = $puck_1.List.binarySearchBy.call(i.members, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_12.kind == "Ok") {
+  if ($puck_12.kind === "Ok") {
     let {value: [index]} = $puck_12;
     PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: i.members, $isTraitObject: true}, index));
     return true;
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: i.type_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: i.type_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, i.type_);
       return true;
     }
     else {
-      if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: i.trait_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+      if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: i.trait_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
         PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, i.trait_);
         return true;
       }
@@ -528,13 +528,13 @@ function walkImplShorthandDeclaration(visitor, i) {
   let $puck_13 = $puck_1.List.binarySearchBy.call(i.members, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_13.kind == "Ok") {
+  if ($puck_13.kind === "Ok") {
     let {value: [index]} = $puck_13;
     PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: i.members, $isTraitObject: true}, index));
     return true;
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: i.type_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: i.type_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, i.type_);
       return true;
     }
@@ -552,13 +552,13 @@ function walkTraitDeclaration(visitor, t) {
   let $puck_14 = $puck_1.List.binarySearchBy.call(t.members, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_14.kind == "Ok") {
+  if ($puck_14.kind === "Ok") {
     let {value: [index]} = $puck_14;
     PositionVisitor[visitor.type].visitMethodDeclaration.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.members, $isTraitObject: true}, index));
     return true;
   }
   else {
-    if ($puck_3.Span.cmp.call(t.name.span, PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call(t.name.span, PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitIdentifier.call(visitor, t.name);
       return true;
     }
@@ -566,7 +566,7 @@ function walkTraitDeclaration(visitor, t) {
       let $puck_15 = $puck_1.List.binarySearchBy.call(t.typeParameters, function (member) {
         return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
       });
-      if ($puck_15.kind == "Ok") {
+      if ($puck_15.kind === "Ok") {
         let {value: [index]} = $puck_15;
         PositionVisitor[visitor.type].visitTypeParameter.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true}, index));
         return true;
@@ -580,19 +580,19 @@ function walkTraitDeclaration(visitor, t) {
 exports.walkTraitDeclaration = walkTraitDeclaration;
 function walkTypeDeclaration(visitor, t) {
   let $puck_16 = t.bound;
-  if ($puck_16.kind == "Some") {
+  if ($puck_16.kind === "Some") {
     let {value: [typeBound]} = $puck_16;
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       return PositionVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
     };
   };
-  if ($puck_3.Span.cmp.call(t.name.span, PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call(t.name.span, PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     return PositionVisitor[visitor.type].visitIdentifier.call(visitor, t.name);
   };
   let $puck_17 = $puck_1.List.binarySearchBy.call(t.typeParameters, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_17.kind == "Ok") {
+  if ($puck_17.kind === "Ok") {
     let {value: [index]} = $puck_17;
     PositionVisitor[visitor.type].visitTypeParameter.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true}, index));
     true;
@@ -600,29 +600,29 @@ function walkTypeDeclaration(visitor, t) {
 };
 exports.walkTypeDeclaration = walkTypeDeclaration;
 function walkExportDirective(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement', value: e.statement, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement', value: e.statement, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     let $puck_18 = e.statement;
-    if ($unwrapTraitObject($puck_18).kind == "EnumDeclaration") {
+    if ($unwrapTraitObject($puck_18).kind === "EnumDeclaration") {
       let {value: [d]} = $unwrapTraitObject($puck_18);
       PositionVisitor[visitor.type].visitEnumDeclaration.call(visitor, d);
     }
     else {
-      if ($unwrapTraitObject($puck_18).kind == "TraitDeclaration") {
+      if ($unwrapTraitObject($puck_18).kind === "TraitDeclaration") {
         let {value: [d]} = $unwrapTraitObject($puck_18);
         PositionVisitor[visitor.type].visitTraitDeclaration.call(visitor, d);
       }
       else {
-        if ($unwrapTraitObject($puck_18).kind == "TypeDeclaration") {
+        if ($unwrapTraitObject($puck_18).kind === "TypeDeclaration") {
           let {value: [d]} = $unwrapTraitObject($puck_18);
           PositionVisitor[visitor.type].visitTypeDeclaration.call(visitor, d);
         }
         else {
-          if ($unwrapTraitObject($puck_18).kind == "FunctionDeclaration") {
+          if ($unwrapTraitObject($puck_18).kind === "FunctionDeclaration") {
             let {value: [d]} = $unwrapTraitObject($puck_18);
             PositionVisitor[visitor.type].visitFunctionDeclaration.call(visitor, d);
           }
           else {
-            if ($unwrapTraitObject($puck_18).kind == "VariableDeclaration") {
+            if ($unwrapTraitObject($puck_18).kind === "VariableDeclaration") {
               let {value: [d]} = $unwrapTraitObject($puck_18);
               PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, d);
             };
@@ -634,9 +634,9 @@ function walkExportDirective(visitor, e) {
 };
 exports.walkExportDirective = walkExportDirective;
 function walkImportDirective(visitor, i) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier', value: i.specifier, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier', value: i.specifier, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     let $puck_19 = i.specifier;
-    if ($unwrapTraitObject($puck_19).kind == "ObjectDestructure") {
+    if ($unwrapTraitObject($puck_19).kind === "ObjectDestructure") {
       let {value: [s]} = $unwrapTraitObject($puck_19);
       PositionVisitor[visitor.type].visitObjectDestructure.call(visitor, s);
     }
@@ -652,7 +652,7 @@ function walkObjectDestructure(visitor, o) {
   let $puck_21 = $puck_1.List.binarySearchBy.call(o.members, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_21.kind == "Ok") {
+  if ($puck_21.kind === "Ok") {
     let {value: [index]} = $puck_21;
     PositionVisitor[visitor.type].visitObjectDestructureMember.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index));
     return true;
@@ -663,11 +663,11 @@ function walkObjectDestructure(visitor, o) {
 };
 exports.walkObjectDestructure = walkObjectDestructure;
 function walkObjectDestructureMember(visitor, m) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.property, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.property, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitIdentifier.call(visitor, m.property);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.local, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.local, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitIdentifier.call(visitor, m.local);
     };
   };
@@ -677,7 +677,7 @@ function walkBlock(visitor, b) {
   let $puck_22 = $puck_1.List.binarySearchBy.call(b.statements, function (statement) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement', value: statement, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_22.kind == "Ok") {
+  if ($puck_22.kind === "Ok") {
     let {value: [index]} = $puck_22;
     PositionVisitor[visitor.type].visitBlockLevelStatement.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: b.statements, $isTraitObject: true}, index));
     return true;
@@ -688,13 +688,13 @@ function walkBlock(visitor, b) {
 };
 exports.walkBlock = walkBlock;
 function walkReturnStatement(visitor, r) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: r.expression, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: r.expression, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, r.expression);
   };
 };
 exports.walkReturnStatement = walkReturnStatement;
 function walkWhileLoop(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e.body, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e.body, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitBlock.call(visitor, e.body);
   }
   else {
@@ -704,51 +704,51 @@ function walkWhileLoop(visitor, e) {
 exports.walkWhileLoop = walkWhileLoop;
 function walkFunctionDeclaration(visitor, f) {
   let $puck_23 = f.body;
-  if ($puck_23.kind == "Some") {
+  if ($puck_23.kind === "Some") {
     let {value: [body]} = $puck_23;
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: body, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: body, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       return PositionVisitor[visitor.type].visitBlock.call(visitor, body);
     };
   };
   let $puck_24 = $puck_1.List.binarySearchBy.call(f.parameterList, function (arg) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: arg, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_24.kind == "Ok") {
+  if ($puck_24.kind === "Ok") {
     let {value: [index]} = $puck_24;
     return PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: f.parameterList, $isTraitObject: true}, index));
   };
   let $puck_25 = f.returnType;
-  if ($puck_25.kind == "Some") {
+  if ($puck_25.kind === "Some") {
     let {value: [returnType]} = $puck_25;
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: returnType, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: returnType, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       return PositionVisitor[visitor.type].visitTypeBound.call(visitor, returnType);
     };
   };
   let $puck_26 = $puck_1.List.binarySearchBy.call(f.typeParameters, function (arg) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: arg, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_26.kind == "Ok") {
+  if ($puck_26.kind === "Ok") {
     let {value: [index]} = $puck_26;
     return PositionVisitor[visitor.type].visitTypeParameter.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: f.typeParameters, $isTraitObject: true}, index));
   };
 };
 exports.walkFunctionDeclaration = walkFunctionDeclaration;
 function walkVariableDeclaration(visitor, d) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: d.pattern, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: d.pattern, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitPattern.call(visitor, d.pattern);
   }
   else {
     let $puck_27 = d.typeBound;
-    if ($puck_27.kind == "Some") {
+    if ($puck_27.kind === "Some") {
       let {value: [typeBound]} = $puck_27;
-      if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+      if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
         return PositionVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
       };
     };
     let $puck_28 = d.initializer;
-    if ($puck_28.kind == "Some") {
+    if ($puck_28.kind === "Some") {
       let {value: [initializer]} = $puck_28;
-      if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: initializer, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+      if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: initializer, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
         return PositionVisitor[visitor.type].visitExpression.call(visitor, initializer);
       };
     };
@@ -756,36 +756,36 @@ function walkVariableDeclaration(visitor, d) {
 };
 exports.walkVariableDeclaration = walkVariableDeclaration;
 function walkAssignmentExpression(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.lhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.lhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.lhs);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.rhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.rhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitExpression.call(visitor, e.rhs);
     };
   };
 };
 exports.walkAssignmentExpression = walkAssignmentExpression;
 function walkBinaryExpression(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.lhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.lhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.lhs);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.rhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.rhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitExpression.call(visitor, e.rhs);
     };
   };
 };
 exports.walkBinaryExpression = walkBinaryExpression;
 function walkCallExpression(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.func, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.func, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.func);
   }
   else {
     let $puck_29 = $puck_1.List.binarySearchBy.call(e.argumentList, function (arg) {
       return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: arg, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
     });
-    if ($puck_29.kind == "Ok") {
+    if ($puck_29.kind === "Ok") {
       let {value: [index]} = $puck_29;
       PositionVisitor[visitor.type].visitExpression.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: e.argumentList, $isTraitObject: true}, index));
     };
@@ -793,18 +793,18 @@ function walkCallExpression(visitor, e) {
 };
 exports.walkCallExpression = walkCallExpression;
 function walkIfExpression(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e.then_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e.then_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitBlock.call(visitor, e.then_);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.condition, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.condition, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitExpression.call(visitor, e.condition);
     }
     else {
       let $puck_30 = e.else_;
-      if ($puck_30.kind == "Some") {
+      if ($puck_30.kind === "Some") {
         let {value: [else_]} = $puck_30;
-        if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: else_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+        if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: else_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
           return PositionVisitor[visitor.type].visitBlock.call(visitor, else_);
         };
       };
@@ -813,22 +813,22 @@ function walkIfExpression(visitor, e) {
 };
 exports.walkIfExpression = walkIfExpression;
 function walkIfLetExpression(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e.then_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e.then_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitBlock.call(visitor, e.then_);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: e.pattern, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: e.pattern, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitPattern.call(visitor, e.pattern);
     }
     else {
-      if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+      if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
         PositionVisitor[visitor.type].visitExpression.call(visitor, e.expression);
       }
       else {
         let $puck_31 = e.else_;
-        if ($puck_31.kind == "Some") {
+        if ($puck_31.kind === "Some") {
           let {value: [else_]} = $puck_31;
-          if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: else_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+          if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: else_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
             return PositionVisitor[visitor.type].visitBlock.call(visitor, else_);
           };
         };
@@ -838,14 +838,14 @@ function walkIfLetExpression(visitor, e) {
 };
 exports.walkIfLetExpression = walkIfLetExpression;
 function walkMatchExpression(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.expression);
   }
   else {
     let $puck_32 = $puck_1.List.binarySearchBy.call(e.patterns, function (pattern) {
       return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchArm"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchArm', value: pattern, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
     });
-    if ($puck_32.kind == "Ok") {
+    if ($puck_32.kind === "Ok") {
       let {value: [index]} = $puck_32;
       PositionVisitor[visitor.type].visitMatchArm.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: e.patterns, $isTraitObject: true}, index));
     }
@@ -857,11 +857,11 @@ function walkMatchExpression(visitor, e) {
 };
 exports.walkMatchExpression = walkMatchExpression;
 function walkMatchArm(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e.block, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e.block, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitBlock.call(visitor, e.block);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: e.pattern, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: e.pattern, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitPattern.call(visitor, e.pattern);
     };
   };
@@ -869,14 +869,14 @@ function walkMatchArm(visitor, e) {
 exports.walkMatchArm = walkMatchArm;
 function walkTypePath(visitor, e) {
   let $puck_33 = e;
-  if ($unwrapTraitObject($puck_33).kind == "Member") {
+  if ($unwrapTraitObject($puck_33).kind === "Member") {
     let {value: [i]} = $unwrapTraitObject($puck_33);
     PositionVisitor[visitor.type].visitIdentifier.call(visitor, i);
   }
   else {
-    if ($unwrapTraitObject($puck_33).kind == "_Object") {
+    if ($unwrapTraitObject($puck_33).kind === "_Object") {
       let {value: [i, p]} = $unwrapTraitObject($puck_33);
-      if ($puck_3.Span.cmp.call(i.span, PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+      if ($puck_1.identical($puck_3.Span.cmp.call(i.span, PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
         PositionVisitor[visitor.type].visitIdentifier.call(visitor, i);
       }
       else {
@@ -891,50 +891,50 @@ function walkTypePathExpression(visitor, e) {
 };
 exports.walkTypePathExpression = walkTypePathExpression;
 function walkUnaryExpression(visitor, e) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.rhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.rhs, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.rhs);
   };
 };
 exports.walkUnaryExpression = walkUnaryExpression;
 function walkIndexAccess(visitor, a) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, a.object);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.index, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.index, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitExpression.call(visitor, a.index);
     };
   };
 };
 exports.walkIndexAccess = walkIndexAccess;
 function walkMemberAccess(visitor, a) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, a.object);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: a.member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: a.member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitIdentifier.call(visitor, a.member);
     };
   };
 };
 exports.walkMemberAccess = walkMemberAccess;
 function walkUnknownAccess(visitor, a) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, a.object);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: a.member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: a.member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitIdentifier.call(visitor, a.member);
     };
   };
 };
 exports.walkUnknownAccess = walkUnknownAccess;
 function walkUnknownIndexAccess(visitor, a) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, a.object);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.index, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.index, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitExpression.call(visitor, a.index);
     };
   };
@@ -944,7 +944,7 @@ function walkListLiteral(visitor, l) {
   let $puck_34 = $puck_1.List.binarySearchBy.call(l.members, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_34.kind == "Ok") {
+  if ($puck_34.kind === "Ok") {
     let {value: [index]} = $puck_34;
     PositionVisitor[visitor.type].visitExpression.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: l.members, $isTraitObject: true}, index));
   };
@@ -954,14 +954,14 @@ function walkRecordLiteral(visitor, l) {
   let $puck_35 = $puck_1.List.binarySearchBy.call(l.members, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteralMember"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteralMember', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_35.kind == "Ok") {
+  if ($puck_35.kind === "Ok") {
     let {value: [index]} = $puck_35;
     PositionVisitor[visitor.type].visitRecordLiteralMember.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: l.members, $isTraitObject: true}, index));
   };
 };
 exports.walkRecordLiteral = walkRecordLiteral;
 function walkRecordLiteralMember(visitor, l) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: l.value, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: l.value, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, l.value);
   };
 };
@@ -970,7 +970,7 @@ function walkStringLiteral(visitor, l) {
   let $puck_36 = $puck_1.List.binarySearchBy.call(l.parts, function (part) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart', value: part, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_36.kind == "Ok") {
+  if ($puck_36.kind === "Ok") {
     let {value: [index]} = $puck_36;
     PositionVisitor[visitor.type].visitStringLiteralPart.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: l.parts, $isTraitObject: true}, index));
   };
@@ -978,11 +978,11 @@ function walkStringLiteral(visitor, l) {
 exports.walkStringLiteral = walkStringLiteral;
 function walkStringLiteralPart(visitor, l) {
   let $puck_37 = l;
-  if ($unwrapTraitObject($puck_37).kind == "Literal") {
+  if ($unwrapTraitObject($puck_37).kind === "Literal") {
     let undefined = $unwrapTraitObject($puck_37);
   }
   else {
-    if ($unwrapTraitObject($puck_37).kind == "Identifier") {
+    if ($unwrapTraitObject($puck_37).kind === "Identifier") {
       let {value: [identifier]} = $unwrapTraitObject($puck_37);
       PositionVisitor[visitor.type].visitIdentifier.call(visitor, identifier);
     };
@@ -993,7 +993,7 @@ function walkTupleLiteral(visitor, l) {
   let $puck_38 = $puck_1.List.binarySearchBy.call(l.expressions, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_38.kind == "Ok") {
+  if ($puck_38.kind === "Ok") {
     let {value: [index]} = $puck_38;
     PositionVisitor[visitor.type].visitExpression.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: l.expressions, $isTraitObject: true}, index));
   };
@@ -1001,36 +1001,36 @@ function walkTupleLiteral(visitor, l) {
 exports.walkTupleLiteral = walkTupleLiteral;
 function walkPattern(visitor, p) {
   let $puck_39 = p;
-  if ($unwrapTraitObject($puck_39).kind == "CatchAll") {
+  if ($unwrapTraitObject($puck_39).kind === "CatchAll") {
     let {value: [$puck_40]} = $unwrapTraitObject($puck_39);
   }
   else {
-    if ($unwrapTraitObject($puck_39).kind == "Identifier") {
+    if ($unwrapTraitObject($puck_39).kind === "Identifier") {
       let {value: [identifier]} = $unwrapTraitObject($puck_39);
       PositionVisitor[visitor.type].visitIdentifierPattern.call(visitor, identifier);
     }
     else {
-      if ($unwrapTraitObject($puck_39).kind == "Record") {
+      if ($unwrapTraitObject($puck_39).kind === "Record") {
         let {value: [recordPattern]} = $unwrapTraitObject($puck_39);
         PositionVisitor[visitor.type].visitRecordPattern.call(visitor, recordPattern);
       }
       else {
-        if ($unwrapTraitObject($puck_39).kind == "Tuple") {
+        if ($unwrapTraitObject($puck_39).kind === "Tuple") {
           let {value: [tuplePattern]} = $unwrapTraitObject($puck_39);
           PositionVisitor[visitor.type].visitTuplePattern.call(visitor, tuplePattern);
         }
         else {
-          if ($unwrapTraitObject($puck_39).kind == "RecordType") {
+          if ($unwrapTraitObject($puck_39).kind === "RecordType") {
             let {value: [typePath, recordPattern]} = $unwrapTraitObject($puck_39);
             PositionVisitor[visitor.type].visitRecordTypePattern.call(visitor, typePath, recordPattern);
           }
           else {
-            if ($unwrapTraitObject($puck_39).kind == "TupleType") {
+            if ($unwrapTraitObject($puck_39).kind === "TupleType") {
               let {value: [typePath, tuplePattern]} = $unwrapTraitObject($puck_39);
               PositionVisitor[visitor.type].visitTupleTypePattern.call(visitor, typePath, tuplePattern);
             }
             else {
-              if ($unwrapTraitObject($puck_39).kind == "UnitType") {
+              if ($unwrapTraitObject($puck_39).kind === "UnitType") {
                 let {value: [typePath]} = $unwrapTraitObject($puck_39);
                 PositionVisitor[visitor.type].visitTypePath.call(visitor, typePath);
               };
@@ -1050,7 +1050,7 @@ function walkRecordPattern(visitor, p) {
   let $puck_41 = $puck_1.List.binarySearchBy.call(p.properties, function (prop) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPatternMember"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordPatternMember', value: prop, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_41.kind == "Ok") {
+  if ($puck_41.kind === "Ok") {
     let {value: [index]} = $puck_41;
     PositionVisitor[visitor.type].visitPattern.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: p.properties, $isTraitObject: true}, index).pattern);
   };
@@ -1060,7 +1060,7 @@ function walkTuplePattern(visitor, p) {
   let $puck_42 = $puck_1.List.binarySearchBy.call(p.properties, function (prop) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: prop, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_42.kind == "Ok") {
+  if ($puck_42.kind === "Ok") {
     let {value: [index]} = $puck_42;
     PositionVisitor[visitor.type].visitPattern.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: p.properties, $isTraitObject: true}, index));
   };
@@ -1068,22 +1068,22 @@ function walkTuplePattern(visitor, p) {
 exports.walkTuplePattern = walkTuplePattern;
 function walkTypeBound(visitor, t) {
   let $puck_43 = t;
-  if ($unwrapTraitObject($puck_43).kind == "FunctionTypeBound") {
+  if ($unwrapTraitObject($puck_43).kind === "FunctionTypeBound") {
     let {value: [t]} = $unwrapTraitObject($puck_43);
     PositionVisitor[visitor.type].visitFunctionTypeBound.call(visitor, t);
   }
   else {
-    if ($unwrapTraitObject($puck_43).kind == "NamedTypeBound") {
+    if ($unwrapTraitObject($puck_43).kind === "NamedTypeBound") {
       let {value: [t]} = $unwrapTraitObject($puck_43);
       PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, t);
     }
     else {
-      if ($unwrapTraitObject($puck_43).kind == "RecordTypeBound") {
+      if ($unwrapTraitObject($puck_43).kind === "RecordTypeBound") {
         let {value: [t]} = $unwrapTraitObject($puck_43);
         PositionVisitor[visitor.type].visitRecordTypeBound.call(visitor, t);
       }
       else {
-        if ($unwrapTraitObject($puck_43).kind == "TupleTypeBound") {
+        if ($unwrapTraitObject($puck_43).kind === "TupleTypeBound") {
           let {value: [t]} = $unwrapTraitObject($puck_43);
           PositionVisitor[visitor.type].visitTupleTypeBound.call(visitor, t);
         };
@@ -1093,18 +1093,18 @@ function walkTypeBound(visitor, t) {
 };
 exports.walkTypeBound = walkTypeBound;
 function walkFunctionTypeBound(visitor, t) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: t.parameters, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: t.parameters, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitTupleTypeBound.call(visitor, t.parameters);
   }
   else {
-    if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t.returnType, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t.returnType, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitTypeBound.call(visitor, t.returnType);
     }
     else {
       let $puck_44 = $puck_1.List.binarySearchBy.call(t.typeParameters, function (t) {
         return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: t, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
       });
-      if ($puck_44.kind == "Ok") {
+      if ($puck_44.kind === "Ok") {
         let {value: [index]} = $puck_44;
         PositionVisitor[visitor.type].visitTypeParameter.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true}, index));
       };
@@ -1113,14 +1113,14 @@ function walkFunctionTypeBound(visitor, t) {
 };
 exports.walkFunctionTypeBound = walkFunctionTypeBound;
 function walkNamedTypeBound(visitor, t) {
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: t.path, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: t.path, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitTypePath.call(visitor, t.path);
   }
   else {
     let $puck_45 = $puck_1.List.binarySearchBy.call(t.typeParameters, function (t) {
       return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
     });
-    if ($puck_45.kind == "Ok") {
+    if ($puck_45.kind === "Ok") {
       let {value: [index]} = $puck_45;
       PositionVisitor[visitor.type].visitTypeBound.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true}, index));
     };
@@ -1131,17 +1131,17 @@ function walkRecordTypeBound(visitor, t) {
   let $puck_46 = $puck_1.List.binarySearchBy.call(t.properties, function (t) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBoundMember"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBoundMember', value: t, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_46.kind == "Ok") {
+  if ($puck_46.kind === "Ok") {
     let {value: [index]} = $puck_46;
     PositionVisitor[visitor.type].visitRecordTypeBoundMember.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.properties, $isTraitObject: true}, index));
   };
 };
 exports.walkRecordTypeBound = walkRecordTypeBound;
 function walkRecordTypeBoundMember(visitor, t) {
-  if ($puck_3.Span.cmp.call(t.name.span, PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call(t.name.span, PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitIdentifier.call(visitor, t.name);
   };
-  if ($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t.typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)) == $puck_1.Ordering.Equal) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t.typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitTypeBound.call(visitor, t.typeBound);
   };
 };
@@ -1150,7 +1150,7 @@ function walkTupleTypeBound(visitor, t) {
   let $puck_47 = $puck_1.List.binarySearchBy.call(t.properties, function (t) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
   });
-  if ($puck_47.kind == "Ok") {
+  if ($puck_47.kind === "Ok") {
     let {value: [index]} = $puck_47;
     PositionVisitor[visitor.type].visitTypeBound.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.properties, $isTraitObject: true}, index));
   };

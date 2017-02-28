@@ -12,7 +12,7 @@ const $puck_7 = require("./types");
 function enumMemberToFunction(type_) {
   let $puck_8 = type_.enumMember;
   let $puck_9;
-  if ($puck_8.kind == "Some") {
+  if ($puck_8.kind === "Some") {
     let {value: [[member, enum_]]} = $puck_8;
     $puck_9 = $puck_1.Option.map.call(enum_.name, function (name) {
       return "" + name + "::" + member + "";
@@ -27,7 +27,7 @@ function enumMemberToFunction(type_) {
   }), type_.providesType), type_);
   let $puck_11 = providedType._class;
   let $puck_12;
-  if ($puck_11.kind == "Some") {
+  if ($puck_11.kind === "Some") {
     let {value: [_class]} = $puck_11;
     $puck_12 = $puck_7.createTypeInstance(providedType, _class.typeParameters);
   }
@@ -37,11 +37,11 @@ function enumMemberToFunction(type_) {
   let returnType = $puck_12;
   let $puck_13 = $puck_1.Option.unwrapOr.call(type_.providesType, type_).kind;
   let $puck_14;
-  if ($unwrapTraitObject($puck_13).kind == "Struct") {
+  if ($unwrapTraitObject($puck_13).kind === "Struct") {
     let {value: [struct]} = $unwrapTraitObject($puck_13);
     let $puck_15 = struct.kind;
     let $puck_16;
-    if ($unwrapTraitObject($puck_15).kind == "Record") {
+    if ($unwrapTraitObject($puck_15).kind === "Record") {
       let {value: [record]} = $unwrapTraitObject($puck_15);
       $puck_16 = $puck_5.TypeKind.Function({
         selfBinding: $puck_1.None,
@@ -64,7 +64,7 @@ function enumMemberToFunction(type_) {
     }
     else {
       let $puck_17;
-      if ($unwrapTraitObject($puck_15).kind == "Tuple") {
+      if ($unwrapTraitObject($puck_15).kind === "Tuple") {
         let {value: [tuple]} = $unwrapTraitObject($puck_15);
         let $puck_19 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true})
 ;
@@ -93,7 +93,7 @@ function enumMemberToFunction(type_) {
       }
       else {
         let $puck_20;
-        if (($unwrapTraitObject($puck_15).kind == "Unit")) {
+        if (($unwrapTraitObject($puck_15).kind === "Unit")) {
           let undefined = $unwrapTraitObject($puck_15);
           return $puck_5.Type({
             definition: returnType.definition,

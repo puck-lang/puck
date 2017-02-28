@@ -29,7 +29,7 @@ else {
 };
 const extension = $puck_9;
 let $puck_10;
-if ($puck_5.flag(_arguments, "--ignore-errors") != "") {
+if ($puck_5.flag(_arguments, "--ignore-errors") !== "") {
   $puck_10 = true;
 }
 else {
@@ -37,7 +37,7 @@ else {
 };
 const ignoreErrors = $puck_10;
 let $puck_11;
-if ($puck_5.flag(_arguments, "--is-binary") != "") {
+if ($puck_5.flag(_arguments, "--is-binary") !== "") {
   $puck_11 = true;
 }
 else {
@@ -45,7 +45,7 @@ else {
 };
 const isBinary = $puck_11;
 let $puck_12;
-if ($puck_5.flag(_arguments, "--babel") != "") {
+if ($puck_5.flag(_arguments, "--babel") !== "") {
   $puck_12 = true;
 }
 else {
@@ -56,7 +56,7 @@ if (($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({typ
   $unwrapTraitObject($puck_2.console).error("Can't specify --out-file with more than one input file");
   $puck_2.process.exit(1);
 };
-if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true}) == 0) {
+if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true}) === 0) {
   $puck_1.print("Usage:\n  puckc [--out-file $file] [--out-dir $dir=dist] [--dump ast|typed-ast|js] [--skip-extension true] [--ignore-errors true] [--babel true] ...files\n");
   $puck_2.process.exit(1);
 }

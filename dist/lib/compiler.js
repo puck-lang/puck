@@ -53,7 +53,7 @@ function dumpFiles(files, prop) {
     $puck_1.print(file.absolutePath);
     let $puck_16 = $puck_1.Unknown.asString.call(file[prop]);
     let $puck_17;
-    if (($unwrapTraitObject($puck_16).kind == "Some")) {
+    if (($unwrapTraitObject($puck_16).kind === "Some")) {
       let {value: [data]} = $unwrapTraitObject($puck_16);
       $puck_17 = data;
     }
@@ -254,29 +254,29 @@ function build(files, context, options = {
   })
 ;
   files = $puck_1.Iterable[$puck_23.type].toList.call($puck_23);
-  if ((dump == "ast")) {
+  if ((dump === "ast")) {
     dumpFiles(files, "ast");
     return $puck_2._undefined;
   };
   $unwrapTraitObject(context).runTypeVisitor();
-  if (dump == "typed-ast") {
+  if (dump === "typed-ast") {
     dumpFiles(files, "ast");
     return $puck_2._undefined;
   };
   $unwrapTraitObject(context).runImplVisitor();
-  if (dump == "impl-ast") {
+  if (dump === "impl-ast") {
     dumpFiles(files, "ast");
     return $puck_2._undefined;
   };
   $unwrapTraitObject(context).runChecker();
-  if (dump == "checked-ast") {
+  if (dump === "checked-ast") {
     dumpFiles(files, "ast");
     return $puck_2._undefined;
   };
   $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (file) {
     return file.js = compile(context, file);
   });
-  if (dump == "js") {
+  if (dump === "js") {
     dumpFiles(files, "js");
     return $puck_2._undefined;
   };

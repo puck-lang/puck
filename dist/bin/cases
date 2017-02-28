@@ -17,7 +17,7 @@ let $puck_5 = $puck_1.Iterable[$puck_6.type].skip.call($puck_6, 1)
 const _arguments = $puck_1.Iterable[$puck_5.type].toList.call($puck_5);
 const command = $puck_1.List.get.call(_arguments, 0);
 let $puck_7 = command;
-if ($unwrapTraitObject($puck_7).kind == "None") {
+if ($unwrapTraitObject($puck_7).kind === "None") {
   let undefined = $unwrapTraitObject($puck_7);
   $puck_4.buildTestCompiler();
   const failPattern = $puck_1.RegExp._new("\\.error\\.puck$", "i");
@@ -35,7 +35,7 @@ if ($unwrapTraitObject($puck_7).kind == "None") {
     return $puck_1.Iterable[$puck_8.type].forEach.call($puck_8, function ([i, test]) {
       let $puck_9 = $puck_1.String.find.call(test, "\n");
       let $puck_10;
-      if ($unwrapTraitObject($puck_9).kind == "Some") {
+      if ($unwrapTraitObject($puck_9).kind === "Some") {
         let {value: [index]} = $unwrapTraitObject($puck_9);
         $puck_10 = index;
       }
@@ -56,14 +56,14 @@ if ($unwrapTraitObject($puck_7).kind == "None") {
       };
       const result = buildString(code, file, projectPath);
       let $puck_12 = result;
-      if ($unwrapTraitObject($puck_12).kind == "Ok") {
+      if ($unwrapTraitObject($puck_12).kind === "Ok") {
         let {value: [$puck_13]} = $unwrapTraitObject($puck_12);
         $puck_1.print("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
         $puck_2.process.exit(1);
         return [];
       }
       else {
-        if ($unwrapTraitObject($puck_12).kind == "Err") {
+        if ($unwrapTraitObject($puck_12).kind === "Err") {
           let {value: [{message: message}]} = $unwrapTraitObject($puck_12);
           if ((!$puck_1.String.contains.call(message, $puck_1.String.trim.call(error)))) {
             $puck_1.print("expected error for " + file + "::" + i + " to include " + error + "\n  but got\n" + message + "");
@@ -77,9 +77,9 @@ if ($unwrapTraitObject($puck_7).kind == "None") {
   $puck_1.print("done");
 }
 else {
-  if ($unwrapTraitObject($puck_7).kind == "Some") {
+  if ($unwrapTraitObject($puck_7).kind === "Some") {
     let {value: [command]} = $unwrapTraitObject($puck_7);
-    if (command == "file") {
+    if (command === "file") {
       const file = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: _arguments, $isTraitObject: true}, 1);
       const built = file.replace($puck_1.RegExp._new("\\.puck$"), ".js");
       $puck_4.buildTestCompiler();
@@ -88,7 +88,7 @@ else {
       $puck_1.print("done");
     }
     else {
-      if (command == "update-baselines") {
+      if (command === "update-baselines") {
         $puck_4.buildTestCompiler();
         $puck_3.cmd(".tmp/old/bin/puckc --out-dir test/baselines test/cases/**/!(*.error).puck");
         $puck_1.print("done");

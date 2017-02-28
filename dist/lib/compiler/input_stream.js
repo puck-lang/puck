@@ -33,7 +33,7 @@ InputStream.next = function () {
   let self = this;
   const ch = $puck_1.Index["$impl_Index$String"].index.call({type: '$impl_Index$String', value: self.code, $isTraitObject: true}, self.pos);
   self.pos += 1;
-  if ((ch == "\n")) {
+  if ((ch === "\n")) {
     self.line += 1;
     self.column = 1;
   }
@@ -53,7 +53,7 @@ InputStream.peek = function (distance = 0) {
 };
 InputStream.eof = function () {
   const self = this;
-  return (InputStream.peek.call(self) == "");
+  return (InputStream.peek.call(self) === "");
 };
 InputStream.croak = function (message) {
   const self = this;

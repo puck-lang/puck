@@ -12,13 +12,13 @@ _Object: {kind: '_Object', value: Symbol('_Object')},
 };
 let $puck_2 = $puck_1.Option.Some(5);
 let $puck_3;
-if ($unwrapTraitObject($puck_2).kind == "Some") {
+if ($unwrapTraitObject($puck_2).kind === "Some") {
   let {value: [num]} = $unwrapTraitObject($puck_2);
   $puck_3 = "" + num + "";
 }
 else {
   let $puck_4;
-  if ($unwrapTraitObject($puck_2).kind == "None") {
+  if ($unwrapTraitObject($puck_2).kind === "None") {
     let undefined = $unwrapTraitObject($puck_2);
     $puck_4 = "nothing";
   };
@@ -27,7 +27,7 @@ else {
 $puck_1.print($puck_3);
 let $puck_5 = $puck_1.Some(5);
 let $puck_6;
-if ($unwrapTraitObject($puck_5).kind == "Some") {
+if ($unwrapTraitObject($puck_5).kind === "Some") {
   let {value: [num]} = $unwrapTraitObject($puck_5);
   $puck_6 = "" + num + "";
 }
@@ -42,13 +42,13 @@ else {
 $puck_1.print($puck_6);
 let $puck_8 = $puck_1.Result.Ok(5);
 let $puck_9;
-if ($unwrapTraitObject($puck_8).kind == "Ok") {
+if ($unwrapTraitObject($puck_8).kind === "Ok") {
   let {value: [num]} = $unwrapTraitObject($puck_8);
   $puck_9 = "" + num + "";
 }
 else {
   let $puck_10;
-  if ($unwrapTraitObject($puck_8).kind == "Err") {
+  if ($unwrapTraitObject($puck_8).kind === "Err") {
     let {value: [$puck_11]} = $unwrapTraitObject($puck_8);
     $puck_10 = "error";
   };
@@ -57,7 +57,7 @@ else {
 $puck_1.print($puck_9);
 let $puck_12 = $puck_1.Result.Ok(5);
 let $puck_13;
-if ($unwrapTraitObject($puck_12).kind == "Ok") {
+if ($unwrapTraitObject($puck_12).kind === "Ok") {
   let {value: [num]} = $unwrapTraitObject($puck_12);
   $puck_13 = "" + num + "";
 }
@@ -71,7 +71,7 @@ else {
 };
 $puck_1.print($puck_13);
 let $puck_16 = $puck_1.Result.Ok(5);
-if ($unwrapTraitObject($puck_16).kind == "Ok") {
+if ($unwrapTraitObject($puck_16).kind === "Ok") {
   let {value: [num]} = $unwrapTraitObject($puck_16);
   num;
 }
@@ -83,13 +83,13 @@ else {
 };
 let $puck_18 = $puck_1.Option.Some(5);
 let $puck_19;
-if ($unwrapTraitObject($puck_18).kind == "Some") {
+if ($unwrapTraitObject($puck_18).kind === "Some") {
   let {value: [num]} = $unwrapTraitObject($puck_18);
   $puck_19 = num;
 }
 else {
   let $puck_20;
-  if ($unwrapTraitObject($puck_18).kind == "None") {
+  if ($unwrapTraitObject($puck_18).kind === "None") {
     let undefined = $unwrapTraitObject($puck_18);
     $puck_20 = 0;
   };
@@ -98,13 +98,13 @@ else {
 $puck_1.print($puck_19);
 let $puck_21 = $puck_1.Option.None;
 let $puck_22;
-if ($unwrapTraitObject($puck_21).kind == "Some") {
+if ($unwrapTraitObject($puck_21).kind === "Some") {
   let {value: [$puck_23]} = $unwrapTraitObject($puck_21);
   $puck_22 = "someting";
 }
 else {
   let $puck_24;
-  if ($unwrapTraitObject($puck_21).kind == "None") {
+  if ($unwrapTraitObject($puck_21).kind === "None") {
     let undefined = $unwrapTraitObject($puck_21);
     $puck_24 = "nothing";
   };
@@ -120,13 +120,13 @@ if (true) {
 $puck_1.print($puck_26);
 let $puck_28 = $puck_1.Result.Err(5);
 let $puck_29;
-if ($unwrapTraitObject($puck_28).kind == "Ok") {
+if ($unwrapTraitObject($puck_28).kind === "Ok") {
   let {value: [$puck_30]} = $unwrapTraitObject($puck_28);
   $puck_29 = "ok";
 }
 else {
   let $puck_31;
-  if ($unwrapTraitObject($puck_28).kind == "Err") {
+  if ($unwrapTraitObject($puck_28).kind === "Err") {
     let {value: [err]} = $unwrapTraitObject($puck_28);
     $puck_31 = "error: " + err + "";
   };
@@ -137,19 +137,19 @@ function sayHello(name) {
   return $puck_1.print("Hello, " + name + "");
 };
 let $puck_32 = $puck_1.Option.Some("World");
-if ($unwrapTraitObject($puck_32).kind == "Some") {
+if ($unwrapTraitObject($puck_32).kind === "Some") {
   let {value: [name]} = $unwrapTraitObject($puck_32);
   name = $puck_1.String.toUpperCase.call(name);
   sayHello(name);
 }
 else {
-  if ($unwrapTraitObject($puck_32).kind == "None") {
+  if ($unwrapTraitObject($puck_32).kind === "None") {
     let undefined = $unwrapTraitObject($puck_32);
     $puck_1.print("Oh, nothing");
   };
 };
 let $puck_33 = Value.One({value: "World"});
-if ($unwrapTraitObject($puck_33).kind == "One") {
+if ($unwrapTraitObject($puck_33).kind === "One") {
   let {value: {value: value}} = $unwrapTraitObject($puck_33);
   sayHello(value);
 }
@@ -160,12 +160,12 @@ else {
   };
 };
 let $puck_35 = Value.Two;
-if ($unwrapTraitObject($puck_35).kind == "Two") {
+if ($unwrapTraitObject($puck_35).kind === "Two") {
   let undefined = $unwrapTraitObject($puck_35);
   $puck_1.print("two");
 }
 else {
-  if ($unwrapTraitObject($puck_35).kind == "Three") {
+  if ($unwrapTraitObject($puck_35).kind === "Three") {
     let undefined = $unwrapTraitObject($puck_35);
     $puck_1.print("three");
   }
@@ -177,12 +177,12 @@ else {
   };
 };
 let $puck_37 = Value.Three;
-if ($unwrapTraitObject($puck_37).kind == "Two") {
+if ($unwrapTraitObject($puck_37).kind === "Two") {
   let undefined = $unwrapTraitObject($puck_37);
   $puck_1.print("two");
 }
 else {
-  if ($unwrapTraitObject($puck_37).kind == "Three") {
+  if ($unwrapTraitObject($puck_37).kind === "Three") {
     let undefined = $unwrapTraitObject($puck_37);
     $puck_1.print("three");
   }
@@ -197,22 +197,22 @@ function func() {
   return $puck_1.Err(Value.Two);
 };
 let $puck_39 = func();
-if ($unwrapTraitObject($puck_39).kind == "Ok") {
+if ($unwrapTraitObject($puck_39).kind === "Ok") {
   let {value: [$puck_40]} = $unwrapTraitObject($puck_39);
   $puck_1.print("ok");
 }
 else {
-  if (($unwrapTraitObject($puck_39).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_39).value)[0]).kind == "One")) {
+  if (($unwrapTraitObject($puck_39).kind === "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_39).value)[0]).kind === "One")) {
     let {value: [{value: {value: value}}]} = $unwrapTraitObject($puck_39);
     sayHello(value);
   }
   else {
-    if (($unwrapTraitObject($puck_39).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_39).value)[0]).kind == "Two")) {
+    if (($unwrapTraitObject($puck_39).kind === "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_39).value)[0]).kind === "Two")) {
       let {value: []} = $unwrapTraitObject($puck_39);
       $puck_1.print("two");
     }
     else {
-      if (($unwrapTraitObject($puck_39).kind == "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_39).value)[0]).kind == "Three")) {
+      if (($unwrapTraitObject($puck_39).kind === "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_39).value)[0]).kind === "Three")) {
         let {value: []} = $unwrapTraitObject($puck_39);
         $puck_1.print("three");
       };
@@ -220,28 +220,28 @@ else {
   };
 };
 let $puck_41 = $puck_1.Option.Some($puck_1.Option.Some(5));
-if ($unwrapTraitObject($puck_41).kind == "Some") {
+if ($unwrapTraitObject($puck_41).kind === "Some") {
   let {value: [inner]} = $unwrapTraitObject($puck_41);
   let $puck_42 = inner;
-  if ($unwrapTraitObject($puck_42).kind == "Some") {
+  if ($unwrapTraitObject($puck_42).kind === "Some") {
     let {value: [value]} = $unwrapTraitObject($puck_42);
     value;
   }
   else {
-    if ($unwrapTraitObject($puck_42).kind == "None") {
+    if ($unwrapTraitObject($puck_42).kind === "None") {
       let undefined = $unwrapTraitObject($puck_42);
       0;
     };
   };
 }
 else {
-  if ($unwrapTraitObject($puck_41).kind == "None") {
+  if ($unwrapTraitObject($puck_41).kind === "None") {
     let undefined = $unwrapTraitObject($puck_41);
     0;
   };
 };
 let $puck_43 = _Object._Object;
-if ($unwrapTraitObject($puck_43).kind == "_Object") {
+if ($unwrapTraitObject($puck_43).kind === "_Object") {
   let undefined = $unwrapTraitObject($puck_43);
   "Object";
 };
@@ -254,12 +254,12 @@ function func2(error) {
   };
 };
 let $puck_44 = func2(false);
-if ($unwrapTraitObject($puck_44).kind == "Ok") {
+if ($unwrapTraitObject($puck_44).kind === "Ok") {
   let {value: [value]} = $unwrapTraitObject($puck_44);
   $puck_1.String.toUpperCase.call(value);
 }
 else {
-  if ($unwrapTraitObject($puck_44).kind == "Err") {
+  if ($unwrapTraitObject($puck_44).kind === "Err") {
     let {value: [err]} = $unwrapTraitObject($puck_44);
     $puck_1.Num.round.call(err);
   };

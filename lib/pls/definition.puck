@@ -60,14 +60,14 @@ impl PositionVisitor for DefinitionVisitor {
     self.importedModule = i.module
     if let Some(module) = i.module {
       if i.domain.isNone() {
-        if i.locator.span().cmp(self.position) == Ordering::Equal {
+        if identical(i.locator.span().cmp(self.position), Ordering::Equal) {
           self.definitions = [{
             file: module.file
             span: Span({start: {line: 1, column: 1}, end: {line: 1, column: 1}})
           }]
           return ()
         }
-        else if i.specifier.span().cmp(self.position) == Ordering::Equal {
+        else if identical(i.specifier.span().cmp(self.position), Ordering::Equal) {
           match i.specifier {
             ImportSpecifier::Identifier(_) => {
               self.definitions = [{
@@ -84,7 +84,7 @@ impl PositionVisitor for DefinitionVisitor {
     visit.walkImportDirective(self, i)
   }
   fn visitObjectDestructureMember(mut self, m: ObjectDestructureMember) -> () {
-    if m.property.span().cmp(self.position()) == Ordering::Equal {
+    if identical(m.property.span().cmp(self.position()), Ordering::Equal) {
       if let Some(module) = self.importedModule {
         if let Some(e) = module.exports.get(m.property.name) {
           self.definitions = [{
@@ -107,7 +107,7 @@ impl PositionVisitor for DefinitionVisitor {
   }
   fn visitMethodDeclaration(mut self, f: FunctionDeclaration) -> () {
     if let (Some(name), Some(trait_)) = (f.name, self.inTraitImpl) {
-      if name.span.cmp(self.position) == Ordering::Equal {
+      if identical(name.span.cmp(self.position), Ordering::Equal) {
         if let Some(func) = trait_.functions.get(name.name) {
           self.definitions = [{
             file: func.definition.file
@@ -120,9 +120,9 @@ impl PositionVisitor for DefinitionVisitor {
 
   fn visitCallExpression(mut self, e: CallExpression) -> () {
     if e->functionType {
-      if e.func.span().cmp(self.position()) == Ordering::Equal {
+      if identical(e.func.span().cmp(self.position()), Ordering::Equal) {
         if let Expression::MemberAccess(a) = e.func {
-          if a.member.span().cmp(self.position()) == Ordering::Equal {
+          if identical(a.member.span().cmp(self.position()), Ordering::Equal) {
             let functionType: Type = e->functionType.transmute()
             let traitBinding: Binding = e->traitBinding.transmute()
             let objectType = a.object.getType()
@@ -153,7 +153,7 @@ impl PositionVisitor for DefinitionVisitor {
     visit.walkCallExpression(self, e)
   }
   fn visitMemberAccess(mut self, a: MemberAccess) -> () {
-    if a.member.span().cmp(self.position()) == Ordering::Equal {
+    if identical(a.member.span().cmp(self.position()), Ordering::Equal) {
       print('onDefinition visitMemberAccess')
       let type_ = a.object.getType()
       if type_ {
