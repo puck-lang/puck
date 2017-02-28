@@ -1,0 +1,76 @@
+import '../ast/ast.puck' as {CallExpression}
+import '../ast/span.puck' as {Position, Span, ToSpan}
+import '../entities.puck' as {Type, TypeKind}
+import 'position_visitor.puck' as {PositionVisitor}
+import 'position_visitor.puck' as visit
+
+export type ParameterInformation {
+  label: String
+  // documentation: String
+}
+
+export type SignatureInformation {
+  label: String
+  // documentation: String
+  parameters: List<ParameterInformation>
+}
+
+export type SignatureHelp {
+  signatures: List<SignatureInformation>
+
+  activeSignature: Num
+  activeParameter: Num
+}
+
+export type SignatureVisitor {
+  position: Position
+  signatureHelp: Option<SignatureHelp>
+}
+
+impl SignatureVisitor {
+  fn new(position: Position) -> SignatureVisitor {{
+    position
+    signatureHelp: None
+  }}
+}
+
+impl PositionVisitor for SignatureVisitor {
+  fn position(self) -> Position {self.position}
+
+  fn visitCallExpression(mut self, e: CallExpression) -> () {
+    if identical(e.func.span().cmp(self.position), Ordering::Equal)
+      then return self.visitExpression(e.func)
+
+    let index =
+      match e.argumentList.binarySearchBy(|arg| arg.span().cmp(self.position)) {
+        Ok(index) => {
+          self.visitExpression(e.argumentList[index])
+          if self.signatureHelp.isSome() then return ()
+          index
+        }
+        Err(index) => index
+      }
+
+    if e->functionType {
+      let type_: Type = e->functionType.transmute()
+      if let TypeKind::Function(func) = type_.kind {
+        self.signatureHelp = Some({
+          signatures: [{
+            label: type_.displayName() + type_.verboseName()
+            parameters: func.parameters.map(|p| {
+              let label = p.name + ': ' + p.type_.displayName()
+              let label =
+                if p.mutable
+                  then 'mut $label'
+                  else label
+
+              {label}
+            }).toList()
+          }]
+          activeSignature: 0
+          activeParameter: index
+        })
+      }
+    }
+  }
+}

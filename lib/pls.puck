@@ -10,6 +10,7 @@ import 'pls/completions.puck' as {CompletionVisitor}
 import 'pls/definition.puck' as {Definition, DefinitionVisitor}
 import 'pls/hover.puck' as {Hover, HoverVisitor}
 import 'pls/position_visitor.puck' as {PositionVisitor}
+import 'pls/signature.puck' as {SignatureHelp, SignatureVisitor}
 import 'typeck/src/scope.puck' as {Scope}
 import 'compiler.puck' as {createContext}
 import 'entities.puck' as {File, UnparsedFile}
@@ -158,6 +159,29 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       Err(error) => {
         print('onDefinition Error:', (error, error->stack))
         []
+      }
+    }
+  }
+  a->onSignatureHelp = fn (filePath: String, position: Position) -> Option<SignatureHelp> {
+    print('onSignatureHelp')
+    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
+    if not file then return None
+    let module: Module = file->ast.transmute()
+    if not module then return None
+
+    let mut visitor = SignatureVisitor.new(position)
+
+    let result = asResult(|| {
+      visitor.visitModule(module)
+    })
+    match result {
+      Ok(_) => {
+        print('onSignature ok', visitor.signatureHelp)
+        visitor.signatureHelp
+      }
+      Err(error) => {
+        print('onDefinition Error:', (error, error->stack))
+        None
       }
     }
   }
