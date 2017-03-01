@@ -12,11 +12,12 @@ const $puck_6 = require("./pls/completions");
 const $puck_7 = require("./pls/definition");
 const $puck_8 = require("./pls/hover");
 const $puck_9 = require("./pls/position_visitor");
-const $puck_10 = require("./typeck/src/scope");
-const $puck_11 = require("./compiler");
-const $puck_12 = require("./entities");
+const $puck_10 = require("./pls/signature");
+const $puck_11 = require("./typeck/src/scope");
+const $puck_12 = require("./compiler");
+const $puck_13 = require("./entities");
 function createServer(projectPath, sendDiagnostic) {
-  let context = $puck_11.createContext(projectPath);
+  let context = $puck_12.createContext(projectPath);
   context.reportError = function (file, token, message) {
     const span = $puck_5.ToSpan[token.type].span.call(token);
     return sendDiagnostic(file.absolutePath, {
@@ -64,9 +65,9 @@ function createServer(projectPath, sendDiagnostic) {
     const totalTime = $puck_2.Date.now() - startTime;
     $puck_1.print("Total time " + totalTime + "");
     $puck_1.print("validateDocument completed");
-    let $puck_13 = result;
-    if (($puck_13.kind === "Err")) {
-      let {value: [error]} = $puck_13;
+    let $puck_14 = result;
+    if (($puck_14.kind === "Err")) {
+      let {value: [error]} = $puck_14;
       if (error !== "Syntax Error") {
         $puck_1.print("Error:", error);
       };
@@ -88,12 +89,12 @@ function createServer(projectPath, sendDiagnostic) {
     const result = $puck_2.asResult(function () {
       return $puck_9.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor', value: visitor, $isTraitObject: true}, _module);
     });
-    let $puck_14 = result;
-    if ($unwrapTraitObject($puck_14).kind === "Ok") {
-      let {value: [completions]} = $unwrapTraitObject($puck_14);
-      let $puck_15 = visitor.completions;
-      if ($puck_15.kind === "Some") {
-        let {value: [completions]} = $puck_15;
+    let $puck_15 = result;
+    if ($unwrapTraitObject($puck_15).kind === "Ok") {
+      let {value: [completions]} = $unwrapTraitObject($puck_15);
+      let $puck_16 = visitor.completions;
+      if ($puck_16.kind === "Some") {
+        let {value: [completions]} = $puck_16;
         return completions;
       }
       else {
@@ -101,8 +102,8 @@ function createServer(projectPath, sendDiagnostic) {
       };
     }
     else {
-      if ($unwrapTraitObject($puck_14).kind === "Err") {
-        let {value: [error]} = $unwrapTraitObject($puck_14);
+      if ($unwrapTraitObject($puck_15).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_15);
         $puck_1.print("completions Error:", [
           error,
           $unwrapTraitObject(error).stack,
@@ -125,15 +126,15 @@ function createServer(projectPath, sendDiagnostic) {
     const result = $puck_2.asResult(function () {
       return $puck_9.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor', value: visitor, $isTraitObject: true}, _module);
     });
-    let $puck_16 = result;
-    if ($unwrapTraitObject($puck_16).kind === "Ok") {
-      let {value: [$puck_17]} = $unwrapTraitObject($puck_16);
+    let $puck_17 = result;
+    if ($unwrapTraitObject($puck_17).kind === "Ok") {
+      let {value: [$puck_18]} = $unwrapTraitObject($puck_17);
       $puck_1.print("onHover ok", visitor.hover);
       return visitor.hover;
     }
     else {
-      if ($unwrapTraitObject($puck_16).kind === "Err") {
-        let {value: [error]} = $unwrapTraitObject($puck_16);
+      if ($unwrapTraitObject($puck_17).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_17);
         $puck_1.print("onHover Error:", [
           error,
           $unwrapTraitObject(error).stack,
@@ -156,20 +157,51 @@ function createServer(projectPath, sendDiagnostic) {
     const result = $puck_2.asResult(function () {
       return $puck_9.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor', value: visitor, $isTraitObject: true}, _module);
     });
-    let $puck_18 = result;
-    if ($unwrapTraitObject($puck_18).kind === "Ok") {
-      let {value: [$puck_19]} = $unwrapTraitObject($puck_18);
+    let $puck_19 = result;
+    if ($unwrapTraitObject($puck_19).kind === "Ok") {
+      let {value: [$puck_20]} = $unwrapTraitObject($puck_19);
       $puck_1.print("onDefinition ok", visitor.definitions);
       return visitor.definitions;
     }
     else {
-      if ($unwrapTraitObject($puck_18).kind === "Err") {
-        let {value: [error]} = $unwrapTraitObject($puck_18);
+      if ($unwrapTraitObject($puck_19).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_19);
         $puck_1.print("onDefinition Error:", [
           error,
           $unwrapTraitObject(error).stack,
         ]);
         return [];
+      };
+    };
+  };
+  a.onSignatureHelp = function (filePath, position) {
+    $puck_1.print("onSignatureHelp");
+    const file = $unwrapTraitObject(context.files[path.resolve(path.normalize(filePath))]);
+    if ((!file)) {
+      return $puck_1.None;
+    };
+    const _module = $unwrapTraitObject(file.ast);
+    if (!_module) {
+      return $puck_1.None;
+    };
+    let visitor = $puck_10.SignatureVisitor._new(position);
+    const result = $puck_2.asResult(function () {
+      return $puck_9.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/signature.puck:SignatureVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/signature.puck:SignatureVisitor', value: visitor, $isTraitObject: true}, _module);
+    });
+    let $puck_21 = result;
+    if ($unwrapTraitObject($puck_21).kind === "Ok") {
+      let {value: [$puck_22]} = $unwrapTraitObject($puck_21);
+      $puck_1.print("onSignature ok", visitor.signatureHelp);
+      return visitor.signatureHelp;
+    }
+    else {
+      if ($unwrapTraitObject($puck_21).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_21);
+        $puck_1.print("onDefinition Error:", [
+          error,
+          $unwrapTraitObject(error).stack,
+        ]);
+        return $puck_1.None;
       };
     };
   };

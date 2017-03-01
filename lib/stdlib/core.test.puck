@@ -383,6 +383,20 @@ describe('core', || {
       })
     })
 
+    describe('andValue', || {
+      it('should return the new value if Some(value) and receives Some(newValue)', || {
+        expect(Some(1).andValue(Some(2))).toEqual(Some(2))
+      })
+
+      it('should return None if None', || {
+        expect(None.andValue(None)).toEqual(None)
+      })
+
+      it('should return None if Some(value) and receives None', || {
+        expect(Some(1).andValue(None)).toEqual(None)
+      })
+    })
+
     describe('andThen', || {
       it('should map the value if Some(value) and returns Some(newValue)', || {
         expect(Some(1).andThen(|value| Some(value + value))).toEqual(Some(2))
@@ -394,6 +408,40 @@ describe('core', || {
 
       it('should return None if Some(value) and returns None', || {
         expect(Some(1).andThen(|value| None)).toEqual(None)
+      })
+    })
+
+    describe('orValue', || {
+      it('should return the new value if None and receives Some(newValue)', || {
+        expect(None.orValue(Some(2))).toEqual(Some(2))
+      })
+
+      it('should return the value if Some(value)', || {
+        expect(Some(2).orValue(Some(0))).toEqual(Some(2))
+        expect(Some(2).orValue(None)).toEqual(Some(2))
+      })
+
+      it('should return None if None and receives None', || {
+        expect(None.orValue(None)).toEqual(None)
+      })
+    })
+
+    describe('orElse', || {
+      it('should map None if None and returns Some(newValue)', || {
+        expect(None.orElse(|| Some(2))).toEqual(Some(2))
+      })
+
+      it('should not call the map function if Some(value)', || {
+        expect(
+          Some(2).orElse(|| {
+            panic('orElse should not called')
+            None
+          })
+        ).toEqual(Some(2))
+      })
+
+      it('should return None if None and returns None', || {
+        expect(None.orElse(|| None)).toEqual(None)
       })
     })
 
@@ -485,6 +533,20 @@ describe('core', || {
       })
     })
 
+    describe('andValue', || {
+      it('should return the new value if Ok(value) and receives Ok(newValue)', || {
+        expect(Ok(1).andValue(Ok(2))).toEqual(Ok(2))
+      })
+
+      it('should return the error if Err(err)', || {
+        expect(Err(2).andValue(Err(0))).toEqual(Err(2))
+      })
+
+      it('should return the error if Ok(value) and receives Err(error)', || {
+        expect(Ok(1).andValue(Err('error'))).toEqual(Err('error'))
+      })
+    })
+
     describe('andThen', || {
       it('should map the value if Ok(value) and returns Ok(newValue)', || {
         expect(Ok(1).andThen(|value| Ok(value + value))).toEqual(Ok(2))
@@ -501,6 +563,40 @@ describe('core', || {
 
       it('should return the error if Ok(value) and returns Err(error)', || {
         expect(Ok(1).andThen(|_| Err('error'))).toEqual(Err('error'))
+      })
+    })
+
+    describe('orValue', || {
+      it('should return the new value if Err(err) and receives Ok(newValue)', || {
+        expect(Err(1).orValue(Ok(2))).toEqual(Ok(2))
+      })
+
+      it('should return the value if Ok(Value)', || {
+        expect(Ok(2).orValue(Ok(0))).toEqual(Ok(2))
+        expect(Ok(2).orValue(Err(0))).toEqual(Ok(2))
+      })
+
+      it('should return the error if Err(err) and receives Err(error)', || {
+        expect(Err(1).orValue(Err('error'))).toEqual(Err('error'))
+      })
+    })
+
+    describe('orElse', || {
+      it('should map the error if Err(err) and returns Ok(newValue)', || {
+        expect(Err(1).orElse(|value| Ok(value + value))).toEqual(Ok(2))
+      })
+
+      it('should not call the map function if Ok(value)', || {
+        expect(
+          Ok(2).orElse(|_| {
+            panic('orElse should not called')
+            Err(0)
+          })
+        ).toEqual(Ok(2))
+      })
+
+      it('should return the error if Err(err) and returns Err(error)', || {
+        expect(Err(1).orElse(|_| Err('error'))).toEqual(Err('error'))
       })
     })
 
@@ -533,6 +629,26 @@ describe('core', || {
 
       it('should panic if Err(err)', || {
         expect(|| Err('err').unwrap()).toThrow()
+      })
+    })
+
+    describe('unwrapOr', || {
+      it('should return the value if Ok(value)', || {
+        expect(Ok('value').unwrapOr('default')).toBe('value')
+      })
+
+      it('should return the default value if Err(err)', || {
+        expect(Err('err').unwrapOr('default')).toBe('default')
+      })
+    })
+
+    describe('unwrapOrElse', || {
+      it('should return the value if Ok(value)', || {
+        expect(Ok('value').unwrapOrElse(|| panic('orElse should not called'))).toBe('value')
+      })
+
+      it('should return the result of the default function if Err(err)', || {
+        expect(Err('err').unwrapOrElse(|| 'default')).toBe('default')
       })
     })
 

@@ -372,6 +372,17 @@ $puck_2.describe("core", function () {
         return $puck_2.expect($puck_3.Option.isNone.call($puck_3.None)).toBe(true);
       });
     });
+    $puck_2.describe("andValue", function () {
+      $puck_2.it("should return the new value if Some(value) and receives Some(newValue)", function () {
+        return $puck_2.expect($puck_3.Option.andValue.call($puck_1.Some(1), $puck_1.Some(2))).toEqual($puck_1.Some(2));
+      });
+      $puck_2.it("should return None if None", function () {
+        return $puck_2.expect($puck_3.Option.andValue.call($puck_3.None, $puck_3.None)).toEqual($puck_3.None);
+      });
+      return $puck_2.it("should return None if Some(value) and receives None", function () {
+        return $puck_2.expect($puck_3.Option.andValue.call($puck_1.Some(1), $puck_3.None)).toEqual($puck_3.None);
+      });
+    });
     $puck_2.describe("andThen", function () {
       $puck_2.it("should map the value if Some(value) and returns Some(newValue)", function () {
         return $puck_2.expect($puck_3.Option.andThen.call($puck_1.Some(1), function (value) {
@@ -385,6 +396,36 @@ $puck_2.describe("core", function () {
       });
       return $puck_2.it("should return None if Some(value) and returns None", function () {
         return $puck_2.expect($puck_3.Option.andThen.call($puck_1.Some(1), function (value) {
+          return $puck_3.None;
+        })).toEqual($puck_3.None);
+      });
+    });
+    $puck_2.describe("orValue", function () {
+      $puck_2.it("should return the new value if None and receives Some(newValue)", function () {
+        return $puck_2.expect($puck_3.Option.orValue.call($puck_3.None, $puck_1.Some(2))).toEqual($puck_1.Some(2));
+      });
+      $puck_2.it("should return the value if Some(value)", function () {
+        $puck_2.expect($puck_3.Option.orValue.call($puck_1.Some(2), $puck_1.Some(0))).toEqual($puck_1.Some(2));
+        return $puck_2.expect($puck_3.Option.orValue.call($puck_1.Some(2), $puck_3.None)).toEqual($puck_1.Some(2));
+      });
+      return $puck_2.it("should return None if None and receives None", function () {
+        return $puck_2.expect($puck_3.Option.orValue.call($puck_3.None, $puck_3.None)).toEqual($puck_3.None);
+      });
+    });
+    $puck_2.describe("orElse", function () {
+      $puck_2.it("should map None if None and returns Some(newValue)", function () {
+        return $puck_2.expect($puck_3.Option.orElse.call($puck_3.None, function () {
+          return $puck_1.Some(2);
+        })).toEqual($puck_1.Some(2));
+      });
+      $puck_2.it("should not call the map function if Some(value)", function () {
+        return $puck_2.expect($puck_3.Option.orElse.call($puck_1.Some(2), function () {
+          $puck_1.panic("orElse should not called");
+          return $puck_3.None;
+        })).toEqual($puck_1.Some(2));
+      });
+      return $puck_2.it("should return None if None and returns None", function () {
+        return $puck_2.expect($puck_3.Option.orElse.call($puck_3.None, function () {
           return $puck_3.None;
         })).toEqual($puck_3.None);
       });
@@ -480,6 +521,17 @@ $puck_2.describe("core", function () {
         return $puck_2.expect($puck_3.Result.isErr.call($puck_1.Err(2))).toBe(true);
       });
     });
+    $puck_2.describe("andValue", function () {
+      $puck_2.it("should return the new value if Ok(value) and receives Ok(newValue)", function () {
+        return $puck_2.expect($puck_3.Result.andValue.call($puck_1.Ok(1), $puck_1.Ok(2))).toEqual($puck_1.Ok(2));
+      });
+      $puck_2.it("should return the error if Err(err)", function () {
+        return $puck_2.expect($puck_3.Result.andValue.call($puck_1.Err(2), $puck_1.Err(0))).toEqual($puck_1.Err(2));
+      });
+      return $puck_2.it("should return the error if Ok(value) and receives Err(error)", function () {
+        return $puck_2.expect($puck_3.Result.andValue.call($puck_1.Ok(1), $puck_1.Err("error"))).toEqual($puck_1.Err("error"));
+      });
+    });
     $puck_2.describe("andThen", function () {
       $puck_2.it("should map the value if Ok(value) and returns Ok(newValue)", function () {
         return $puck_2.expect($puck_3.Result.andThen.call($puck_1.Ok(1), function (value) {
@@ -498,6 +550,36 @@ $puck_2.describe("core", function () {
         })).toEqual($puck_1.Err("error"));
       });
     });
+    $puck_2.describe("orValue", function () {
+      $puck_2.it("should return the new value if Err(err) and receives Ok(newValue)", function () {
+        return $puck_2.expect($puck_3.Result.orValue.call($puck_1.Err(1), $puck_1.Ok(2))).toEqual($puck_1.Ok(2));
+      });
+      $puck_2.it("should return the value if Ok(Value)", function () {
+        $puck_2.expect($puck_3.Result.orValue.call($puck_1.Ok(2), $puck_1.Ok(0))).toEqual($puck_1.Ok(2));
+        return $puck_2.expect($puck_3.Result.orValue.call($puck_1.Ok(2), $puck_1.Err(0))).toEqual($puck_1.Ok(2));
+      });
+      return $puck_2.it("should return the error if Err(err) and receives Err(error)", function () {
+        return $puck_2.expect($puck_3.Result.orValue.call($puck_1.Err(1), $puck_1.Err("error"))).toEqual($puck_1.Err("error"));
+      });
+    });
+    $puck_2.describe("orElse", function () {
+      $puck_2.it("should map the error if Err(err) and returns Ok(newValue)", function () {
+        return $puck_2.expect($puck_3.Result.orElse.call($puck_1.Err(1), function (value) {
+          return $puck_1.Ok(value + value);
+        })).toEqual($puck_1.Ok(2));
+      });
+      $puck_2.it("should not call the map function if Ok(value)", function () {
+        return $puck_2.expect($puck_3.Result.orElse.call($puck_1.Ok(2), function ($puck_6) {
+          $puck_1.panic("orElse should not called");
+          return $puck_1.Err(0);
+        })).toEqual($puck_1.Ok(2));
+      });
+      return $puck_2.it("should return the error if Err(err) and returns Err(error)", function () {
+        return $puck_2.expect($puck_3.Result.orElse.call($puck_1.Err(1), function ($puck_7) {
+          return $puck_1.Err("error");
+        })).toEqual($puck_1.Err("error"));
+      });
+    });
     $puck_2.describe("map", function () {
       $puck_2.it("should map the value if Ok(value)", function () {
         $puck_2.expect($puck_3.Result.map.call($puck_1.Ok(1), function (value) {
@@ -508,7 +590,7 @@ $puck_2.describe("core", function () {
         })))).toBe(4);
       });
       return $puck_2.it("should not call the map function if Err(err)", function () {
-        return $puck_2.expect($puck_3.Result.map.call($puck_1.Err(2), function ($puck_6) {
+        return $puck_2.expect($puck_3.Result.map.call($puck_1.Err(2), function ($puck_8) {
           return $puck_1.panic("map should not called");
         })).toEqual($puck_1.Err(2));
       });
@@ -538,6 +620,26 @@ $puck_2.describe("core", function () {
         }).toThrow();
       });
     });
+    $puck_2.describe("unwrapOr", function () {
+      $puck_2.it("should return the value if Ok(value)", function () {
+        return $puck_2.expect($puck_3.Result.unwrapOr.call($puck_1.Ok("value"), "default")).toBe("value");
+      });
+      return $puck_2.it("should return the default value if Err(err)", function () {
+        return $puck_2.expect($unwrapTraitObject($puck_3.Result.unwrapOr.call($puck_1.Err("err"), "default"))).toBe("default");
+      });
+    });
+    $puck_2.describe("unwrapOrElse", function () {
+      $puck_2.it("should return the value if Ok(value)", function () {
+        return $puck_2.expect($puck_3.Result.unwrapOrElse.call($puck_1.Ok("value"), function () {
+          return $puck_1.panic("orElse should not called");
+        })).toBe("value");
+      });
+      return $puck_2.it("should return the result of the default function if Err(err)", function () {
+        return $puck_2.expect($unwrapTraitObject($puck_3.Result.unwrapOrElse.call($puck_1.Err("err"), function () {
+          return "default";
+        }))).toBe("default");
+      });
+    });
     return $puck_2.describe("unwrapErr", function () {
       $puck_2.it("should panic if Ok(value)", function () {
         return $puck_2.expect(function () {
@@ -552,33 +654,33 @@ $puck_2.describe("core", function () {
   $puck_2.describe("Iterator", function () {
     $puck_2.describe("count", function () {
       return $puck_2.it("should count the elements in the iterator", function () {
-        let $puck_7 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
+        let $puck_9 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_7.type].count.call($puck_7)).toBe(0);
-        let $puck_8 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
-          1,
-          2,
-          3,
-        ], $isTraitObject: true})
-;
-        $puck_2.expect($puck_3.Iterator[$puck_8.type].count.call($puck_8)).toBe(3);
-        let $puck_9 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
-          "a",
-          "b",
-        ], $isTraitObject: true})
-;
-        return $puck_2.expect($puck_3.Iterator[$puck_9.type].count.call($puck_9)).toBe(2);
-      });
-    });
-    $puck_2.describe("EnumerateIterator", function () {
-      return $puck_2.it("should map index and values on the iterator", function () {
+        $puck_2.expect($puck_3.Iterator[$puck_9.type].count.call($puck_9)).toBe(0);
         let $puck_10 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        let iterator = $puck_3.Iterator[$puck_10.type].enumerate.call($puck_10);
+        $puck_2.expect($puck_3.Iterator[$puck_10.type].count.call($puck_10)).toBe(3);
+        let $puck_11 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+          "a",
+          "b",
+        ], $isTraitObject: true})
+;
+        return $puck_2.expect($puck_3.Iterator[$puck_11.type].count.call($puck_11)).toBe(2);
+      });
+    });
+    $puck_2.describe("EnumerateIterator", function () {
+      return $puck_2.it("should map index and values on the iterator", function () {
+        let $puck_12 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+          1,
+          2,
+          3,
+        ], $isTraitObject: true})
+;
+        let iterator = $puck_3.Iterator[$puck_12.type].enumerate.call($puck_12);
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some([
           0,
           1,
@@ -596,13 +698,13 @@ $puck_2.describe("core", function () {
     });
     $puck_2.describe("MapIterator", function () {
       $puck_2.it("should map values on the iterator", function () {
-        let $puck_11 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_13 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        let iterator = $puck_3.Iterator[$puck_11.type].map.call($puck_11, function (i) {
+        let iterator = $puck_3.Iterator[$puck_13.type].map.call($puck_13, function (i) {
           return i * 2;
         });
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(2));
@@ -611,13 +713,13 @@ $puck_2.describe("core", function () {
         return $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_3.None);
       });
       return $puck_2.it("should map lazily", function () {
-        let $puck_12 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_14 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        let iterator = $puck_3.Iterator[$puck_12.type].map.call($puck_12, function (i) {
+        let iterator = $puck_3.Iterator[$puck_14.type].map.call($puck_14, function (i) {
           if ((i > 1)) {
             throw "Should only be called once";
           };
@@ -631,26 +733,26 @@ $puck_2.describe("core", function () {
         let predicate = function (i) {
           return i < 3;
         };
-        let $puck_13 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_15 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        let iterator = $puck_3.Iterator[$puck_13.type].filter.call($puck_13, predicate);
+        let iterator = $puck_3.Iterator[$puck_15.type].filter.call($puck_15, predicate);
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(1));
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(2));
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_3.None);
         predicate = function (i) {
           return i !== 2;
         };
-        let $puck_14 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_16 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        iterator = $puck_3.Iterator[$puck_14.type].filter.call($puck_14, predicate);
+        iterator = $puck_3.Iterator[$puck_16.type].filter.call($puck_16, predicate);
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(1));
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(3));
         return $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_3.None);
@@ -660,14 +762,14 @@ $puck_2.describe("core", function () {
           const mod = i % 2;
           return (mod === 1);
         };
-        let $puck_15 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_17 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
           4,
         ], $isTraitObject: true})
 ;
-        let iterator = $puck_3.Iterator[$puck_15.type].filter.call($puck_15, predicate);
+        let iterator = $puck_3.Iterator[$puck_17.type].filter.call($puck_17, predicate);
         return $puck_2.expect($puck_3.Iterator[iterator.type].count.call(iterator)).toBe(2);
       });
     });
@@ -681,13 +783,13 @@ $puck_2.describe("core", function () {
             return $puck_3.None;
           };
         };
-        let $puck_16 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_18 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        let iterator = $puck_3.Iterator[$puck_16.type].filterMap.call($puck_16, predicate);
+        let iterator = $puck_3.Iterator[$puck_18.type].filterMap.call($puck_18, predicate);
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(2));
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(4));
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_3.None);
@@ -699,13 +801,13 @@ $puck_2.describe("core", function () {
             return $puck_3.None;
           };
         };
-        let $puck_17 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_19 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        iterator = $puck_3.Iterator[$puck_17.type].filterMap.call($puck_17, predicate);
+        iterator = $puck_3.Iterator[$puck_19.type].filterMap.call($puck_19, predicate);
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(2));
         $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_1.Some(6));
         return $puck_2.expect($puck_3.Iterator[iterator.type].next.call(iterator)).toEqual($puck_3.None);
@@ -720,42 +822,42 @@ $puck_2.describe("core", function () {
             return $puck_3.None;
           };
         };
-        let $puck_18 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_20 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
           4,
         ], $isTraitObject: true})
 ;
-        let iterator = $puck_3.Iterator[$puck_18.type].filterMap.call($puck_18, predicate);
+        let iterator = $puck_3.Iterator[$puck_20.type].filterMap.call($puck_20, predicate);
         return $puck_2.expect($puck_3.Iterator[iterator.type].count.call(iterator)).toBe(2);
       });
     });
     $puck_2.describe("fold", function () {
       $puck_2.it("should return the initial value for empty iterators", function () {
-        let $puck_19 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
+        let $puck_21 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_19.type].fold.call($puck_19, 0, function (sum, val) {
+        return $puck_2.expect($puck_3.Iterator[$puck_21.type].fold.call($puck_21, 0, function (sum, val) {
           return (sum + val);
         })).toBe(0);
       });
       return $puck_2.it("should reuce the iteratur with the passed reducere", function () {
-        let $puck_20 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_22 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_20.type].fold.call($puck_20, 0, function (sum, val) {
+        return $puck_2.expect($puck_3.Iterator[$puck_22.type].fold.call($puck_22, 0, function (sum, val) {
           return sum + val;
         })).toBe(6);
       });
     });
     $puck_2.describe("all", function () {
       $puck_2.it("should return true for empty iterators", function () {
-        let $puck_21 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
+        let $puck_23 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_21.type].all.call($puck_21, function ($puck_22) {
+        return $puck_2.expect($puck_3.Iterator[$puck_23.type].all.call($puck_23, function ($puck_24) {
           return false;
         })).toBe(true);
       });
@@ -774,34 +876,34 @@ $puck_2.describe("core", function () {
         const predicate = function (i) {
           return i > 4;
         };
-        let $puck_23 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_25 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           3,
         ], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_23.type].all.call($puck_23, predicate)).toBe(false);
-        let $puck_24 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        $puck_2.expect($puck_3.Iterator[$puck_25.type].all.call($puck_25, predicate)).toBe(false);
+        let $puck_26 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           4,
           5,
           6,
         ], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_24.type].all.call($puck_24, predicate)).toBe(false);
-        let $puck_25 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        $puck_2.expect($puck_3.Iterator[$puck_26.type].all.call($puck_26, predicate)).toBe(false);
+        let $puck_27 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           6,
           5,
           4,
         ], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_25.type].all.call($puck_25, predicate)).toBe(false);
+        return $puck_2.expect($puck_3.Iterator[$puck_27.type].all.call($puck_27, predicate)).toBe(false);
       });
     });
     $puck_2.describe("any", function () {
       $puck_2.it("should return false for empty iterators", function () {
-        let $puck_26 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
+        let $puck_28 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_26.type].any.call($puck_26, function ($puck_27) {
+        return $puck_2.expect($puck_3.Iterator[$puck_28.type].any.call($puck_28, function ($puck_29) {
           return true;
         })).toBe(false);
       });
@@ -809,27 +911,27 @@ $puck_2.describe("core", function () {
         const predicate = function (i) {
           return i > 4;
         };
-        let $puck_28 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_30 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           5,
         ], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_28.type].any.call($puck_28, predicate)).toBe(true);
-        let $puck_29 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        $puck_2.expect($puck_3.Iterator[$puck_30.type].any.call($puck_30, predicate)).toBe(true);
+        let $puck_31 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           4,
           5,
           6,
         ], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_29.type].any.call($puck_29, predicate)).toBe(true);
-        let $puck_30 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        $puck_2.expect($puck_3.Iterator[$puck_31.type].any.call($puck_31, predicate)).toBe(true);
+        let $puck_32 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           6,
           1,
           2,
         ], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_30.type].any.call($puck_30, predicate)).toBe(true);
+        return $puck_2.expect($puck_3.Iterator[$puck_32.type].any.call($puck_32, predicate)).toBe(true);
       });
       return $puck_2.it("should return false if none of the elements match the predicate", function () {
         let iterator = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
@@ -845,9 +947,9 @@ $puck_2.describe("core", function () {
     });
     $puck_2.describe("find", function () {
       $puck_2.it("should return None for empty iterators", function () {
-        let $puck_31 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
+        let $puck_33 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_31.type].find.call($puck_31, function ($puck_32) {
+        return $puck_2.expect($puck_3.Iterator[$puck_33.type].find.call($puck_33, function ($puck_34) {
           return true;
         })).toEqual($puck_3.None);
       });
@@ -855,27 +957,27 @@ $puck_2.describe("core", function () {
         const predicate = function (i) {
           return i > 4;
         };
-        let $puck_33 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_35 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           5,
         ], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_33.type].find.call($puck_33, predicate)).toEqual($puck_1.Some(5));
-        let $puck_34 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        $puck_2.expect($puck_3.Iterator[$puck_35.type].find.call($puck_35, predicate)).toEqual($puck_1.Some(5));
+        let $puck_36 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           4,
           5,
           6,
         ], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_34.type].find.call($puck_34, predicate)).toEqual($puck_1.Some(5));
-        let $puck_35 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        $puck_2.expect($puck_3.Iterator[$puck_36.type].find.call($puck_36, predicate)).toEqual($puck_1.Some(5));
+        let $puck_37 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           6,
           1,
           2,
         ], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_35.type].find.call($puck_35, predicate)).toEqual($puck_1.Some(6));
+        return $puck_2.expect($puck_3.Iterator[$puck_37.type].find.call($puck_37, predicate)).toEqual($puck_1.Some(6));
       });
       return $puck_2.it("should return None if none of the elements match the predicate", function () {
         let iterator = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
@@ -891,9 +993,9 @@ $puck_2.describe("core", function () {
     });
     return $puck_2.describe("position", function () {
       $puck_2.it("should return None for empty iterators", function () {
-        let $puck_36 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
+        let $puck_38 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_36.type].position.call($puck_36, function ($puck_37) {
+        return $puck_2.expect($puck_3.Iterator[$puck_38.type].position.call($puck_38, function ($puck_39) {
           return true;
         })).toEqual($puck_3.None);
       });
@@ -901,27 +1003,27 @@ $puck_2.describe("core", function () {
         const predicate = function (i) {
           return i > 4;
         };
-        let $puck_38 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        let $puck_40 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           1,
           2,
           5,
         ], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_38.type].position.call($puck_38, predicate)).toEqual($puck_1.Some(2));
-        let $puck_39 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        $puck_2.expect($puck_3.Iterator[$puck_40.type].position.call($puck_40, predicate)).toEqual($puck_1.Some(2));
+        let $puck_41 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           4,
           5,
           6,
         ], $isTraitObject: true})
 ;
-        $puck_2.expect($puck_3.Iterator[$puck_39.type].position.call($puck_39, predicate)).toEqual($puck_1.Some(1));
-        let $puck_40 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
+        $puck_2.expect($puck_3.Iterator[$puck_41.type].position.call($puck_41, predicate)).toEqual($puck_1.Some(1));
+        let $puck_42 = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
           6,
           1,
           2,
         ], $isTraitObject: true})
 ;
-        return $puck_2.expect($puck_3.Iterator[$puck_40.type].position.call($puck_40, predicate)).toEqual($puck_1.Some(0));
+        return $puck_2.expect($puck_3.Iterator[$puck_42.type].position.call($puck_42, predicate)).toEqual($puck_1.Some(0));
       });
       return $puck_2.it("should return None if none of the elements match the predicate", function () {
         let iterator = $puck_3.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: [
@@ -990,7 +1092,7 @@ $puck_2.describe("core", function () {
     });
     return $puck_2.describe("binarySearchBy", function () {
       $puck_2.it("should return Err(0) for empty lists", function () {
-        return $puck_2.expect($puck_3.List.binarySearchBy.call([], function ($puck_41) {
+        return $puck_2.expect($puck_3.List.binarySearchBy.call([], function ($puck_43) {
           return $puck_3.Ordering.Less;
         })).toEqual($puck_1.Err(0));
       });
