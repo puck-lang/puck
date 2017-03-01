@@ -238,14 +238,27 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
   }
 
   fn maybeCall(expression: Expression) -> Expression {
-    if isToken(SyntaxKind::OpenParenToken, true)
+    if isToken(SyntaxKind::ColonColonLessThanToken)
       then maybeCall(maybeAccess(Expression::CallExpression({
         func: expression
+        typeArguments: Some({
+          openBracket: expect(SyntaxKind::ColonColonLessThanToken)
+          typeArguments: delimited(SyntaxKind::ColonColonLessThanToken, SyntaxKind::GreaterThanToken, SyntaxKind::CommaToken, parseTypeBound, false)
+          closeBracket: consumeToken(SyntaxKind::GreaterThanToken)
+        })
         openParen: expect(SyntaxKind::OpenParenToken)
         argumentList: delimited(SyntaxKind::OpenParenToken, SyntaxKind::CloseParenToken, SyntaxKind::CommaToken, parseExpression, false)
         closeParen: consumeToken(SyntaxKind::CloseParenToken)
       })))
-      else expression
+    else if isToken(SyntaxKind::OpenParenToken, true)
+      then maybeCall(maybeAccess(Expression::CallExpression({
+        func: expression
+        typeArguments: None
+        openParen: expect(SyntaxKind::OpenParenToken)
+        argumentList: delimited(SyntaxKind::OpenParenToken, SyntaxKind::CloseParenToken, SyntaxKind::CommaToken, parseExpression, false)
+        closeParen: consumeToken(SyntaxKind::CloseParenToken)
+      })))
+    else expression
   }
 
   fn maybeAccess(expression: Expression) -> Expression {

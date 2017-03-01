@@ -72,4 +72,7 @@ const obj = {key: function () {
 function r(a, b) {};
 r(5, function (a) {
   return $puck_1.Num.round.call(a);
-})
+});
+const sa = {};
+const sb = a.b;
+sb === 5

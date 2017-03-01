@@ -66,3 +66,27 @@ fn func(a: String, b: Num) {
     then return a
     else return b
 }
+
+///// String is not assignable to type Num in parameter other of function eq
+fn func<A, B>(a: A, b: B) -> A {a}
+func(5, 'asd') == 'asd'
+
+///// String is not assignable to type Num in parameter other of function eq
+fn func<A, B>(a: A, b: B) -> A {a}
+func::<Num, String>(5, 'asd') == 'asd'
+
+///// Type func is not generic
+fn func(a, b) {a}
+func::<Num, String>(5, 'asd')
+
+///// Too many type parameters given to func, 1 required, 2 given
+fn func<A>(a: A, b: A) -> A {a}
+func::<Num, String>(5, 10)
+
+///// String is not assignable to type Bool
+fn func<A, B>(a: A, b: B) -> A {a}
+func::<Num, Bool>(5, 'asd')
+
+//// String is not assignable to type Num
+let a = {}
+let b: Num = a->b.transmute::<String>()

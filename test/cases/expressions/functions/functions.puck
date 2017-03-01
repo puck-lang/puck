@@ -53,3 +53,7 @@ let obj = {
 
 fn r<T>(a: T, b: (T) -> ()) {}
 r(5, |a| a.round())
+
+let sa = {}
+let sb = a->b.transmute::<Num>()
+sb == 5

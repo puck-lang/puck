@@ -120,6 +120,7 @@ fn asTraitCall(visitor, mut e: BinaryExpression, trait_: String, method: String,
           object: Expression::Identifier({name: binding.name, span: e.operator.span})
           member: {name: method, span: {start: e.operator.span.start, end: e.operator.span.end}}
         })
+        typeArguments: None
         openParen: e.operator
         argumentList: [e.lhs, e.rhs]
         closeParen: e.operator
@@ -166,6 +167,15 @@ export fn ScopeVisitor(context, file) {
     if let Result::Err(error) = checkRange(c.argumentList, function.parameterRange, 'arguments', name) {
       reportError(c, error)
       return function
+    }
+    if let Some(t) = c.typeArguments {
+      if let Option::Some(class) = functionType.instance.andThen(|i| i.class.class).orValue(functionType.class) {
+        if let Result::Err(error) =
+          checkRange(t.typeArguments, class.parameterRange, 'type parameters', functionType.displayName()) {
+          reportError(t, error)
+        }
+      }
+      else reportError(t, 'Type ' + functionType.displayName() + ' is not generic')
     }
 
     c.argumentList.enumerate().forEach(|(i, argument)| {
@@ -635,6 +645,20 @@ export fn ScopeVisitor(context, file) {
         }
       }
 
+      if let Some(t) = e.typeArguments {
+        let callParameterMap: ObjectMap<Type> = ObjectMap.new()
+
+        t.typeArguments.forEach(|t| self.visitTypeBound(t))
+
+        if functionType {
+          if let Some(class) = functionType.class {
+            if class.parameterRange.contains(t.typeArguments.size()) {
+              functionType = createTypeInstance(functionType, t.typeArguments.map(|t| t.getType()).toList())
+            }
+          }
+        }
+      }
+
       if not isUnknownCall and functionType and functionType.isFunction() {
         let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
         let mut callParameterMap: ObjectMap<Type> = ObjectMap.new()
@@ -863,6 +887,7 @@ export fn ScopeVisitor(context, file) {
               object: Expression::Identifier({name: binding.name, span: a.object.span()})
               member: {name: 'index', span: {start: a.openBracket.span.start, end: a.closeBracket.span.end}}
             })
+            typeArguments: None
             openParen: a.openBracket
             argumentList: [a.object, a.index]
             closeParen: a.closeBracket

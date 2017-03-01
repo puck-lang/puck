@@ -625,6 +625,7 @@ impl ToSpan for BinaryExpression {
 
 export type CallExpression {
   func: Expression
+  typeArguments: Option<TypeArguments>
   openParen: SimpleToken
   argumentList: List<Expression>
   closeParen: SimpleToken
@@ -637,6 +638,17 @@ impl ToSpan for CallExpression {
   fn end(self) -> Position {
     self.closeParen.span.end
   }
+}
+
+export type TypeArguments {
+  openBracket: SimpleToken
+  typeArguments: List<TypeBound>
+  closeBracket: SimpleToken
+}
+
+impl ToSpan for TypeArguments {
+  fn start(self) -> Position {self.openBracket.span.start}
+  fn end(self) -> Position {self.closeBracket.span.end}
 }
 
 export type IfExpression {

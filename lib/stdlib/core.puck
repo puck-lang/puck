@@ -435,7 +435,7 @@ impl<T> Option<T> {
   fn unwrap(self) -> T {
     match self {
       Some(value) => value
-      Option::None => throw Error('Can not unwrap empty Option')
+      Option::None => panic('Can not unwrap empty Option')
     }
   }
 
