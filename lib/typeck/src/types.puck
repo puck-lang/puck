@@ -158,7 +158,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
   instance.kind = resolveTypeParameters(parameterMap)(type_)->kind.transmute()
 
   if let TypeKind::Enum(enum_) = instance.kind {
-    enum_.members.forEach(|mut (_, member)| {
+    enum_.members.forEach(|(_, mut member)| {
       member.enumMember = member.enumMember.map(|(member, _)| (member, instance))
     })
   }

@@ -28,3 +28,6 @@ let t = {
 }
 
 let u = |u2| |u3| u + u2 + u3
+
+let (a, mut b) = (1, 2)
+b += 2

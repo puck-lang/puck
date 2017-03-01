@@ -78,8 +78,9 @@ function ImportVisitor(context, file) {
       i._module = $puck_1.Some(_module);
     }
     else {
-      if (true) {
-        const Err = $puck_8;
+      if ($unwrapTraitObject($puck_8).kind === "Err") {
+        let {value: [err]} = $unwrapTraitObject($puck_8);
+        reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, err);
       };
     };
   };

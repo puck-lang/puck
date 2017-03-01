@@ -53,11 +53,11 @@ fn isNonExhaustive(typePath: TypePath) -> Bool {
   false
 }
 
-export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mutable: Bool, type_: Type, allowNotExhaustive: Bool, useParentScope = false, mut definitions: ObjectMap<Bool> = ObjectMap.new()) ->
+export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, type_: Type, allowNotExhaustive: Bool, useParentScope = false, mut definitions: ObjectMap<Bool> = ObjectMap.new()) ->
     Result<(), PatternError> {
   match p {
     Pattern::CatchAll => Ok(())
-    Pattern::Identifier(identifier) => {
+    Pattern::Identifier {identifier, mutable} => {
       if definitions.has(identifier.name) {
         return Err(PatternError::ScopeError(
           identifier
@@ -104,7 +104,6 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
             scope
             visitor
             p.pattern
-            mutable
             props->[p.property.name].transmute()
             allowNotExhaustive
             useParentScope
@@ -142,7 +141,6 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
             scope
             visitor
             p.pattern
-            mutable
             props->[p.property.name].transmute()
             allowNotExhaustive
             useParentScope
@@ -167,11 +165,10 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
       tuple.properties
         .iter()
         .enumerate()
-        .map(|mut (i, p)| declarePatternVariables(
+        .map(|(i, mut p)| declarePatternVariables(
           scope
           visitor
           p
-          mutable
           props->[i].transmute()
           allowNotExhaustive
           useParentScope
@@ -202,11 +199,10 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, mut
       tuple.properties
         .iter()
         .enumerate()
-        .map(|mut (i, p)| declarePatternVariables(
+        .map(|(i, mut p)| declarePatternVariables(
           scope
           visitor
           p
-          mutable
           props->[i].transmute()
           allowNotExhaustive
           useParentScope

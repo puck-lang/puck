@@ -21,7 +21,7 @@ export fn ImportVisitor(context, file: UnparsedFile) {
   let mut declarations: ObjectMap<ToSpan>
 
   fn importModule(mut i: ImportDirective, importedFile: UnparsedFile) -> () {
-    let result: Result<File, ()> = asResult(|| context.importFile(importedFile))
+    let result: Result<File, String> = asResult(|| context.importFile(importedFile))
     match result {
       Ok(contextFile) => {
         let module: Module = contextFile->ast.transmute()
@@ -56,7 +56,9 @@ export fn ImportVisitor(context, file: UnparsedFile) {
         i->file = contextFile
         i.module = Some(module)
       }
-      Err => {}
+      Err(err) => {
+        reportError(i, err)
+      }
     }
   }
 

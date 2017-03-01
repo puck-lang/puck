@@ -427,7 +427,7 @@ export fn walkTupleLiteral(visitor, l: TupleLiteral) {
 export fn walkPattern(visitor, p: Pattern) {
   match p {
     Pattern::CatchAll => {}
-    Pattern::Identifier(identifier) => visitor.visitIdentifierPattern(identifier)
+    Pattern::Identifier {identifier, mutable} => visitor.visitIdentifierPattern(identifier, mutable)
     Pattern::Record(record) => visitor.visitRecordPattern(record)
     Pattern::RecordType(typePath, record) => {
       visitor.visitTypePath(typePath)

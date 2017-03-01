@@ -366,16 +366,32 @@ function parse(input, file, recover = false) {
     return left;
   };
   function maybeCall(expression) {
-    if (isToken($puck_5.SyntaxKind.OpenParenToken, true)) {
+    if (isToken($puck_5.SyntaxKind.ColonColonLessThanToken)) {
       return maybeCall(maybeAccess($puck_3.Expression.CallExpression({
         func: expression,
+        typeArguments: $puck_1.Some({
+        openBracket: expect($puck_5.SyntaxKind.ColonColonLessThanToken),
+        typeArguments: delimited($puck_5.SyntaxKind.ColonColonLessThanToken, $puck_5.SyntaxKind.GreaterThanToken, $puck_5.SyntaxKind.CommaToken, parseTypeBound, false),
+        closeBracket: consumeToken($puck_5.SyntaxKind.GreaterThanToken),
+      }),
         openParen: expect($puck_5.SyntaxKind.OpenParenToken),
         argumentList: delimited($puck_5.SyntaxKind.OpenParenToken, $puck_5.SyntaxKind.CloseParenToken, $puck_5.SyntaxKind.CommaToken, parseExpression, false),
         closeParen: consumeToken($puck_5.SyntaxKind.CloseParenToken),
       })));
     }
     else {
-      return expression;
+      if (isToken($puck_5.SyntaxKind.OpenParenToken, true)) {
+        return maybeCall(maybeAccess($puck_3.Expression.CallExpression({
+          func: expression,
+          typeArguments: $puck_1.None,
+          openParen: expect($puck_5.SyntaxKind.OpenParenToken),
+          argumentList: delimited($puck_5.SyntaxKind.OpenParenToken, $puck_5.SyntaxKind.CloseParenToken, $puck_5.SyntaxKind.CommaToken, parseExpression, false),
+          closeParen: consumeToken($puck_5.SyntaxKind.CloseParenToken),
+        })));
+      }
+      else {
+        return expression;
+      };
     };
   };
   function maybeAccess(expression) {
@@ -1077,7 +1093,7 @@ function parse(input, file, recover = false) {
                 statement = $puck_3.ExportedStatement.VariableDeclaration(variableDeclaration);
                 let $puck_88 = variableDeclaration.pattern;
                 if ($puck_88.kind === "Identifier") {
-                  let {value: [name]} = $puck_88;
+                  let {value: {identifier: name}} = $puck_88;
                   identifier = name;
                 }
                 else {
@@ -1364,11 +1380,9 @@ function parse(input, file, recover = false) {
     };
   };
   function parseVariableDeclaration() {
-    const mutable = $puck_1.Option.isSome.call(maybeConsumeToken($puck_5.SyntaxKind.MutKeyword));
     const pattern = parsePattern();
     return {
       pattern: pattern,
-      mutable: mutable,
       typeBound: $puck_1.Option.map.call(maybeConsumeToken($puck_5.SyntaxKind.ColonToken), function ($puck_111) {
       return parseTypeBound();
     }),
@@ -1661,23 +1675,36 @@ function parse(input, file, recover = false) {
           return $puck_3.Pattern.Record(parseRecordPattern());
         }
         else {
-          const identifier = consumeIdentifier();
-          if ((isToken($puck_5.SyntaxKind.ColonColonToken) || isToken($puck_5.SyntaxKind.OpenParenToken) || isToken($puck_5.SyntaxKind.OpenBraceToken))) {
-            const typePath = parseTypePath($puck_1.Some(identifier));
-            if (isToken($puck_5.SyntaxKind.OpenParenToken)) {
-              return $puck_3.Pattern.TupleType(typePath, parseTuplePattern());
-            }
-            else {
-              if (isToken($puck_5.SyntaxKind.OpenBraceToken)) {
-                return $puck_3.Pattern.RecordType(typePath, parseRecordPattern());
-              }
-              else {
-                return $puck_3.Pattern.UnitType(typePath);
-              };
-            };
+          if (isToken($puck_5.SyntaxKind.MutKeyword)) {
+            consumeToken($puck_5.SyntaxKind.MutKeyword);
+            const identifier = consumeIdentifier();
+            return $puck_3.Pattern.Identifier({
+              identifier: identifier,
+              mutable: true,
+            });
           }
           else {
-            return $puck_3.Pattern.Identifier(identifier);
+            const identifier = consumeIdentifier();
+            if ((isToken($puck_5.SyntaxKind.ColonColonToken) || isToken($puck_5.SyntaxKind.OpenParenToken) || isToken($puck_5.SyntaxKind.OpenBraceToken))) {
+              const typePath = parseTypePath($puck_1.Some(identifier));
+              if (isToken($puck_5.SyntaxKind.OpenParenToken)) {
+                return $puck_3.Pattern.TupleType(typePath, parseTuplePattern());
+              }
+              else {
+                if (isToken($puck_5.SyntaxKind.OpenBraceToken)) {
+                  return $puck_3.Pattern.RecordType(typePath, parseRecordPattern());
+                }
+                else {
+                  return $puck_3.Pattern.UnitType(typePath);
+                };
+              };
+            }
+            else {
+              return $puck_3.Pattern.Identifier({
+                identifier: identifier,
+                mutable: false,
+              });
+            };
           };
         };
       };
@@ -1700,7 +1727,10 @@ function parse(input, file, recover = false) {
       $puck_128 = parsePattern();
     }
     else {
-      $puck_128 = $puck_3.Pattern.Identifier(property);
+      $puck_128 = $puck_3.Pattern.Identifier({
+        identifier: property,
+        mutable: false,
+      });
     };
     const pattern = $puck_128;
     return {

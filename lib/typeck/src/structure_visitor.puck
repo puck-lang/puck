@@ -106,7 +106,7 @@ export fn structureVisitor(file: File, reportError: (ToSpan, String) -> (), visi
       f.typeParameters.forEach(self.visitTypeParameter.bind(self))
 
       if let Option::Some(first) = f.parameterList.first() {
-        if let Pattern::Identifier({name, span}) = first.pattern {
+        if let Pattern::Identifier {identifier: {name, span}} = first.pattern {
           if name == 'self' {
             let selfTypeBound = first.typeBound
             if selfTypeBound.isNone() {
@@ -340,7 +340,7 @@ export fn structureVisitor(file: File, reportError: (ToSpan, String) -> (), visi
         then scope.createChild()
         else scope
 
-    match declarePatternVariables(childScope, self, d.pattern, d.mutable, type_, false, d.initializer.isSome()) {
+    match declarePatternVariables(childScope, self, d.pattern, type_, false, d.initializer.isSome()) {
       Result::Ok(_) => {}
       Result::Err(PatternError::PatternMismatch(_, to, subject)) => {
         reportError(d, notAssignableError(to, subject))

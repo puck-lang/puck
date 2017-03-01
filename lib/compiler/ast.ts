@@ -173,7 +173,6 @@ export interface TypeProperty extends Token {
 
 export interface VariableDeclaration extends Token {
   pattern: Pattern
-  mutable: boolean
   typeBound: Option<TypeBound>
   initializer: Option<Expression>
   type_?: Type
@@ -205,7 +204,7 @@ export type ImportSpecifier
 
 export interface IdentifierPatternArm {
   kind: 'Identifier'
-  value: [Identifier]
+  value: {identifier: Identifier, mutable: true}
 }
 export interface RecordPatternArm {
   kind: 'Record'

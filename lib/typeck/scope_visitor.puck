@@ -740,7 +740,7 @@ export fn ScopeVisitor(context, file) {
       let isUsed = self.isUsed
       self.visitPattern(e.pattern)
       self.visitExpression(e.expression)
-      match declarePatternVariables(self.scope, self, e.pattern, false, e.expression.getType(), true) {
+      match declarePatternVariables(self.scope, self, e.pattern, e.expression.getType(), true) {
         Result::Ok(_) => {}
         Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
           reportError(e.expression, notAssignableError(to, subject))
@@ -819,7 +819,7 @@ export fn ScopeVisitor(context, file) {
       let m = matchExpression.unwrap()
 
       self.visitPattern(a.pattern)
-      match declarePatternVariables(self.scope, self, a.pattern, false, m.expression.getType(), true) {
+      match declarePatternVariables(self.scope, self, a.pattern, m.expression.getType(), true) {
         Result::Ok(_) => {}
         Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
           reportError(a, notAssignableError(to, subject))
@@ -1065,7 +1065,7 @@ export fn ScopeVisitor(context, file) {
       p->type_ =
         match p {
           Pattern::CatchAll => Type.unused({file, token: p})
-          Pattern::Identifier(identifier) => undefined
+          Pattern::Identifier {identifier} => undefined
           Pattern::Record(record) => record->type_.transmute()
           Pattern::RecordType(typePath, record) => {
             let type_: Type = typePath->providesType.transmute()

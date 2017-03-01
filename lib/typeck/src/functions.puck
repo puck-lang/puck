@@ -14,8 +14,20 @@ import 'types.puck' as {isAssignable}
 
 fn getPatternName(pattern: Pattern) -> Option<String> {
   match pattern {
-    Pattern::Identifier(i) => Some(i.name)
+    Pattern::Identifier {identifier} => Some(identifier.name)
     _ => None
+  }
+}
+
+export fn isPatternMutable(pattern: Pattern) -> Bool {
+  match pattern {
+    Pattern::CatchAll => false
+    Pattern::Identifier {identifier, mutable} => mutable
+    Pattern::Record(record) => record.properties.any(|p| isPatternMutable(p.pattern))
+    Pattern::Tuple(tuple) => tuple.properties.any(isPatternMutable)
+    Pattern::RecordType(_, record) => record.properties.any(|p| isPatternMutable(p.pattern))
+    Pattern::TupleType(_, tuple) => tuple.properties.any(isPatternMutable)
+    Pattern::UnitType => false
   }
 }
 
@@ -40,7 +52,7 @@ export fn createFunctionType(file: File, scope: Scope, f: FunctionDeclaration, r
     .map(|(i, p)| Binding({
       definition: Definition({file, token: p})
       name: getPatternName(p.pattern).unwrapOr('p$i')
-      mutable: p.mutable
+      mutable: isPatternMutable(p.pattern)
       allowRedeclare: true
       type_: p->type_.transmute()
       previous: None

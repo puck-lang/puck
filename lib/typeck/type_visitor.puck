@@ -446,7 +446,7 @@ export fn TypeVisitor(context, file) {
                 name: m.local.name
                 mutable: false
                 allowRedeclare: false
-              type_: importedBinding.type_
+                type_: importedBinding.type_
                 previous: None
                 completeType: Some(|visitor: String| {
                   if visitor == 'TypeVisitor' then return None

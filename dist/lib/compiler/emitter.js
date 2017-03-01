@@ -10,6 +10,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 var ast_1 = require("../ast/ast");
 var token_1 = require("../ast/token");
 var entities_1 = require("../entities");
+var functions_1 = require("../typeck/src/functions");
 var impls_1 = require("../typeck/src/impls");
 var scope_1 = require("../typeck/src/scope");
 var jsKeywords = [
@@ -373,7 +374,7 @@ function Emitter() {
             throw 'Function without body';
         var body = fn.body.value[0];
         var firstParameter = parameterList.length > 0 && parameterList[0];
-        if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value[0].name == 'self') {
+        if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value.identifier.name == 'self') {
             parameterList = fn.parameterList.slice(1);
             if (body.statements.length > 0) {
                 body = __assign({}, body, { statements: [
@@ -407,7 +408,7 @@ function Emitter() {
             }
             parameterList.forEach(function (p, i) {
                 if (p.pattern.kind === 'Identifier') {
-                    typeOverrides[p.pattern.value[0].name] = {
+                    typeOverrides[p.pattern.value.identifier.name] = {
                         old: p.type_,
                         new: fn.traitFunctionType.kind.value[0].parameters[i].type_,
                     };
@@ -491,7 +492,7 @@ function Emitter() {
         var willBeRedefined = true;
         var binding;
         if (vd.pattern.kind === 'Identifier') {
-            binding = scope_1.Scope.getBinding.call(vd.scope, vd.pattern.value[0].name).value[0];
+            binding = scope_1.Scope.getBinding.call(vd.scope, vd.pattern.value.identifier.name).value[0];
             willBeRedefined = binding.redefined || (binding.previous && binding.previous.value[0]);
             while (binding && binding.definition.token.value !== vd.pattern) {
                 binding = binding.previous.value[0];
@@ -515,7 +516,7 @@ function Emitter() {
             hoist("let " + emitPatternDestructuring(vd.pattern) + " = " + valueVariable_1 + ";");
             return valueVariable_1;
         }
-        var kw = export_ ? 'var' : ((vd.mutable || willBeRedefined) ? 'let' : 'const');
+        var kw = export_ ? 'var' : ((willBeRedefined || functions_1.isPatternMutable(vd.pattern)) ? 'let' : 'const');
         return kw + " " + emitPatternDestructuring(vd.pattern) + initializer;
     }
     function emitExportDirective(e) {
@@ -570,7 +571,7 @@ function Emitter() {
             return newValueVariable();
         }
         if (p.kind === 'Identifier') {
-            return emitIdentifier(p.value[0]);
+            return emitIdentifier(p.value.identifier);
         }
         else if (p.kind === 'Record') {
             return "{" + p.value[0].properties.map(function (_a) {

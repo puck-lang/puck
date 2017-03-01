@@ -14,3 +14,7 @@ fn c() {
   else if false == true then return 'Wut?'
   else 'fine'
 }
+
+fn d((a, mut b): (Num, Num)) {a + b}
+let mut da = (1, 2)
+d(da)

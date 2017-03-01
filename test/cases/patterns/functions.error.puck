@@ -1,0 +1,4 @@
+///// Parameter p0 of function d requires a mutable binding but da is declared as immutable.
+fn d((a, mut b): (Num, Num)) {a + b}
+let da = (1, 2)
+d(da)
