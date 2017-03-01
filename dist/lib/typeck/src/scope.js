@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Binding = exports.Scopeundefined;
+exports.Binding = exports.Scope = exports.ScopeErrorundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("util");
@@ -11,6 +11,10 @@ const $puck_6 = require("./../../compiler/ast");
 const $puck_7 = require("./../../entities");
 var Binding = exports.Binding = (object) => object;
 var Scope = exports.Scope = (object) => object;
+var ScopeError = exports.ScopeError = {
+UndefinedType: (...members) => ({kind: 'UndefinedType', value: members}),
+Other: (...members) => ({kind: 'Other', value: members}),
+};
 Scope._new = function (context) {
   return {
     context: context,
@@ -172,11 +176,11 @@ Scope.getTypePath = function (typePath, visitor = "") {
       return $puck_1.Ok(binding);
     }
     else {
-      return $puck_1.Err("Use of undeclared type " + identifier.name);
+      return $puck_1.Err(ScopeError.UndefinedType(identifier.name));
     };
   }
   else {
-    if (($unwrapTraitObject($puck_22).kind === "_Object")) {
+    if ($unwrapTraitObject($puck_22).kind === "_Object") {
       let {value: [identifier, path]} = $unwrapTraitObject($puck_22);
       let token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true};
       let name = identifier.name;
@@ -191,7 +195,7 @@ Scope.getTypePath = function (typePath, visitor = "") {
         let $puck_26;
         if ($unwrapTraitObject($puck_24).kind === "None") {
           let undefined = $unwrapTraitObject($puck_24);
-          return $puck_1.Err("Use of undeclared type " + name + "");
+          return $puck_1.Err(ScopeError.UndefinedType(name));
         };
         $puck_25 = $puck_26;
       };
@@ -216,7 +220,7 @@ Scope.getTypePath = function (typePath, visitor = "") {
             let $puck_30;
             if ($unwrapTraitObject($puck_28).kind === "Err") {
               let {value: [err]} = $unwrapTraitObject($puck_28);
-              return $puck_1.Err(err);
+              return $puck_1.Err(ScopeError.Other(err));
             };
             $puck_29 = $puck_30;
           };
@@ -238,7 +242,7 @@ Scope.getTypePath = function (typePath, visitor = "") {
               let $puck_33;
               if ($unwrapTraitObject($puck_31).kind === "Err") {
                 let {value: [err]} = $unwrapTraitObject($puck_31);
-                return $puck_1.Err(err);
+                return $puck_1.Err(ScopeError.Other(err));
               };
               $puck_32 = $puck_33;
             };

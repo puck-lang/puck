@@ -80,6 +80,7 @@ function createContext(projectPath, ignoreErrors = false) {
     impls: $puck_1.ObjectMap._new(),
     files: $puck_1.ObjectMap._new(),
     deferred: $puck_1.ObjectMap._new(),
+    onFileParsed: function (file) {},
     runTypeVisitor: function () {
     const self = this;
     const keys = $unwrapTraitObject($puck_2._Object.keys($unwrapTraitObject(self).files));
@@ -191,6 +192,7 @@ function createContext(projectPath, ignoreErrors = false) {
         file.puck = $unwrapTraitObject(fs.readFileSync(file.absolutePath, {encoding: "utf-8"}));
       };
       file.ast = parseString(self, file, recoverFromSyntaxErrors);
+      $unwrapTraitObject(self).onFileParsed(file);
       if ($unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath]) {
         const callbacks = $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath];
         $unwrapTraitObject($unwrapTraitObject(self).deferred)[file.absolutePath] = $unwrapTraitObject($puck_2._undefined);

@@ -35,6 +35,7 @@ import '../entities.puck' as {
   Type
   TypeInstance
   TypeKind
+  CompilationError
 }
 
 fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable: {implementations: List<Implementation>}, mut i: ImplDeclaration, reportError: (ToSpan, String) -> (), id: String) {
@@ -140,6 +141,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
 export fn ImplVisitor(mut context, file) {
   let mut importDirective: ImportDirective
   let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
+  let reportFullError: (ToSpan, String, CompilationError) -> () = context.reportError.bind(context, file)
 
   fn getImplId(type_: Type, trait_: Type) {
     let mut id = '\$impl_' + type_.id.unwrap() + '\$' + trait_.id.unwrap()
@@ -153,8 +155,9 @@ export fn ImplVisitor(mut context, file) {
     id
   }
 
-  Object->assign({}, visit.emptyVisitor, structureVisitor(file, reportError, 'ImplVisitor'), {
+  Object->assign({}, visit.emptyVisitor, structureVisitor(file, reportError, reportFullError, 'ImplVisitor'), {
     visitModule: |mut self, mut m: Module| {
+
       self.scope = m->scope
       m.statements
         .filter(|e| match e {

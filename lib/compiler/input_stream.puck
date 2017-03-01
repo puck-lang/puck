@@ -27,6 +27,9 @@ impl InputStream {
   fn position(self) -> Position {{line: self.line, column: self.column}}
 
   fn next(mut self) -> String {
+    if self.code.size() <= self.pos
+      then return ''
+
     let ch = self.code[self.pos]
     self.pos += 1
     if ch == '\n' {

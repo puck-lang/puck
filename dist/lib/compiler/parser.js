@@ -1364,7 +1364,7 @@ function parse(input, file, recover = false) {
         openBrace: $puck_1.None,
         statements: [parseBlockLevelStatement()],
         closeBrace: $puck_1.None,
-        type_: $puck_2._undefined,
+        type_: $unwrapTraitObject($puck_2._undefined),
       });
     };
     const body = $puck_110;

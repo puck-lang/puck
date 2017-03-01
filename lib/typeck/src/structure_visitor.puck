@@ -35,18 +35,19 @@ import '../../entities.puck' as {
   Type
   TypeClass
   TypeKind
+  CompilationError
 }
 import 'functions.puck' as {createFunctionType}
 import 'patterns.puck' as {PatternError, declarePatternVariables}
 import 'range.puck' as {checkRange}
-import 'scope.puck' as {Scope}
+import 'scope.puck' as {Scope, ScopeError}
 import 'types.puck' as {createTypeInstance, isAssignable}
 
 export fn notAssignableError(to: Type, subject: Type) {
   subject.displayName() + ' is not assignable to type ' + to.displayName()
 }
 
-export fn structureVisitor(file: File, reportError: (ToSpan, String) -> (), visitor = '') {{
+export fn structureVisitor(file: File, reportError: (ToSpan, String) -> (), reportFullError: (ToSpan, String, CompilationError) -> (), visitor = '') {{
   file
 
   visitEnumMember: visit.walkingVisitor.visitEnumMember
@@ -318,7 +319,14 @@ export fn structureVisitor(file: File, reportError: (ToSpan, String) -> (), visi
           t->type_= binding.type_
           t->providesType = binding.type_.providesType.unwrapOr(binding.type_)
         }
-        Result::Err(err) => reportError(t, err)
+        Result::Err(ScopeError::UndefinedType(name)) => {
+          reportFullError(
+            t
+            'Use of undeclared type $name',
+            CompilationError::UndefinedVariable(name)
+          )
+        }
+        Result::Err(ScopeError::Other(err)) => reportError(t, err)
       }
     }
   }

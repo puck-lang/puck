@@ -22,6 +22,11 @@ export type Scope {
   bindingsByTypeId: ObjectMap<Binding>
 }
 
+export enum ScopeError {
+  UndefinedType(String)
+  Other(String)
+}
+
 impl Scope {
   fn new(context) -> Scope {{
     context
@@ -126,14 +131,14 @@ impl Scope {
     })
   }
 
-  fn getTypePath(self, typePath: TypePath, visitor = '') -> Result<Binding, String> {
+  fn getTypePath(self, typePath: TypePath, visitor = '') -> Result<Binding, ScopeError> {
     match typePath {
       TypePath::Member(identifier) => {
         if let Some(binding) = self.getBinding(identifier.name, visitor) {
           identifier->binding = binding
           Ok(binding)
         }
-        else Err('Use of undeclared type ' + identifier.name)
+        else Err(ScopeError::UndefinedType(identifier.name))
       }
       TypePath::Object(identifier, path) => {
         let mut token: ToSpan = identifier
@@ -142,7 +147,7 @@ impl Scope {
         let binding =
           match self.getBinding(name, visitor) {
             Option::Some(binding) => binding
-            Option::None => return Err('Use of undeclared type $name')
+            Option::None => return Err(ScopeError::UndefinedType(name))
           }
         identifier->binding = binding
         let mut type_: Type = binding.type_
@@ -157,7 +162,7 @@ impl Scope {
               type_ =
                 match getTypeMember(providesType, displayPath, name) {
                   Ok(type_) => type_
-                  Err(err) => return Err(err)
+                  Err(err) => return Err(ScopeError::Other(err))
                 }
               break
             }
@@ -168,7 +173,7 @@ impl Scope {
               type_ =
                 match getTypeMember(providesType, displayPath, name) {
                   Ok(type_) => type_
-                  Err(err) => return Err(err)
+                  Err(err) => return Err(ScopeError::Other(err))
                 }
               displayPath = '$displayPath::$name'
             }
@@ -189,16 +194,6 @@ impl Scope {
   }
 
   fn merge(mut self, other: Scope) -> () {
-    // print('merge self', self.getBindings())
-    // print('merge other', other.getBindings())
-    // print('merge self bindings', self.bindings)
-    // print('merge other bindings', other.bindings)
-    // other.bindings.forEach(|mut (name, binding)| {
-    //   if self.bindings.has(name) and binding.previous.isNone() {
-    //     binding.previous = self.bindings.get(name)
-    //   }
-    //   self.bindings[name] = binding
-    // })
     Object->assign(self.bindings, other.bindings)
   }
 }

@@ -138,6 +138,7 @@ function implementShorthand(type_, implementable, i, reportError) {
 function ImplVisitor(context, file) {
   let importDirective;
   const reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
+  const reportFullError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
   function getImplId(type_, trait_) {
     let id = "$impl_" + $puck_1.Option.unwrap.call(type_.id) + "$" + $puck_1.Option.unwrap.call(trait_.id);
     if ($unwrapTraitObject($unwrapTraitObject(context).impls)[$unwrapTraitObject(id)]) {
@@ -149,7 +150,7 @@ function ImplVisitor(context, file) {
     };
     return id;
   };
-  return $puck_2._Object.assign({}, visit.emptyVisitor, $puck_9.structureVisitor(file, reportError, "ImplVisitor"), {
+  return $puck_2._Object.assign({}, visit.emptyVisitor, $puck_9.structureVisitor(file, reportError, reportFullError, "ImplVisitor"), {
     visitModule: function (m) {
     let self = this;
     $unwrapTraitObject(self).scope = m.scope;

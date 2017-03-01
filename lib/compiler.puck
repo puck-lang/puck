@@ -62,6 +62,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
     impls: ObjectMap.new()
     files: ObjectMap.new()
     deferred: ObjectMap.new()
+    onFileParsed: fn (file: File) {}
     runTypeVisitor: fn (self) {
       let keys: List<String> = Object->keys(self.files).transmute()
       keys
@@ -153,6 +154,7 @@ export fn createContext(projectPath: String, ignoreErrors = false) {
         if not file.puck
           then file.puck = fs->readFileSync(file.absolutePath, {encoding: 'utf-8'}).transmute()
         file->ast = parseString(self, file, recoverFromSyntaxErrors)
+        self.onFileParsed(file)
 
         if self.deferred->[file.absolutePath] {
           let callbacks = self.deferred->[file.absolutePath]

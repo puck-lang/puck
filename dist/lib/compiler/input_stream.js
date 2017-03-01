@@ -31,9 +31,12 @@ InputStream.position = function () {
 };
 InputStream.next = function () {
   let self = this;
+  if (($puck_1.String.size.call(self.code) <= self.pos)) {
+    return "";
+  };
   const ch = $puck_1.Index["$impl_Index$String"].index.call({type: '$impl_Index$String', value: self.code, $isTraitObject: true}, self.pos);
   self.pos += 1;
-  if ((ch === "\n")) {
+  if (ch === "\n") {
     self.line += 1;
     self.column = 1;
   }

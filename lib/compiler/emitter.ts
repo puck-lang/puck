@@ -734,7 +734,7 @@ export function Emitter() {
   function emitCallExpression(fn_: CallExpression) {
     let fn = fn_ as CallExpression & {traitName: string, isShorthand: boolean, isTraitObject: boolean, isDirectTraitCall: boolean}
     let functionName
-    let functionType = getType(fn.func)
+    let functionType = fn_.functionType || getType(fn.func)
     let parameterBindings = functionType && functionType.kind.value[0].parameters
 
     if (fn.traitName) {

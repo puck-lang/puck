@@ -1,0 +1,101 @@
+import 'node:path' as path
+import '../../ast/ast.puck' as {ImportSpecifier, Module, TopLevelStatement}
+import '../../ast/span.puck' as {ToSpan}
+import '../../entities.puck' as {File}
+import 'entities.puck' as {TextEdit}
+
+let stdLibPattern = RegExp.new('node_modules/puck-lang/lib/stdlib/([a-z]+).puck$')
+
+export fn bestImportPath(importingFile: File, importedFile: String) -> String {
+  let matches = stdLibPattern->exec(importedFile)
+  if not matches.isNull() {
+    let module: String = matches->[1].transmute()
+    return 'puck:$module'
+  }
+  let dirname: String = path->dirname(importingFile.absolutePath).transmute()
+  let relativePath: String = path->relative(dirname, importedFile).transmute()
+  relativePath
+}
+
+export fn createImport(binding: String, importingModule: Module, importedModule: Module) -> TextEdit {
+  let path = bestImportPath(importingModule.file, importedModule.file.absolutePath)
+  let imports = importingModule.statements.filterMap(|s| match s {
+    TopLevelStatement::ImportDirective(d) => match d.specifier {
+      ImportSpecifier::ObjectDestructure(o) => Some(d)
+      _ => None
+    }
+    _ => None
+  }).toList()
+
+  if let Some(import_) = imports.find(|d| d.domain.mapOr(d.path, |domain| '$domain:' + d.path) == path) {
+    match import_.specifier {
+      ImportSpecifier::ObjectDestructure(o) => {
+        let index = o.members.binarySearchBy(|m| m.local.name.cmp(binding)).unwrapErr()
+
+        let position = {
+          line:
+            if o.members.isEmpty()
+              then o.openBrace.span.end.line
+            else if index == o.members.size()
+              then o.members[index - 1].end().line - 1
+              else o.members[index].end().line - 1
+
+          character:
+            if o.members.isEmpty()
+              then o.openBrace.span.end.column - 1
+            else if index == o.members.size()
+              then o.members[index - 1].end().column - 1
+              else o.members[index].end().column - 1
+        }
+
+        {
+          range: {start: position, end: position}
+          newText:
+            if o.openBrace.span.start.line != o.closeBrace.span.end.line
+              then '\n  $binding'
+              else if index > 0  then ', $binding'
+              else if o.members.isEmpty() then binding
+              else '$binding, '
+        }
+      }
+      _ => panic('Unreachable')
+    }
+  }
+  else {
+    let position = {
+      line:
+        if imports.isEmpty()
+          then 0
+          else imports.toList().binarySearchBy(|i| {
+            if let Some(domain) = i.domain {
+              if path.startsWith('puck:') {
+                if domain == 'puck'
+                  then path.sub(Range.new(5, path.size())).cmp(i.path).reverse()
+                  else Ordering::Greater
+              }
+              else Ordering::Less
+            }
+            else {
+              if path.startsWith('puck:')
+                then Ordering::Greater
+              else if i.domain.isSome() then Ordering::Less
+              else path.cmp(i.path).reverse()
+            }
+          })
+            .mapErr(|index: Num| {
+              let i = imports.toList()
+
+              if index == i.size()
+                then i[index - 1].end().line
+                else i[index].end().line + 1
+            })
+            .unwrapErr()
+
+      character: 0
+    }
+    {
+      range: {start: position, end: position}
+      newText: "import '$path' as {$binding}\n"
+    }
+  }
+}
