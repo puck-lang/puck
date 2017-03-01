@@ -50,4 +50,12 @@ function c() {
       };
     };
   };
-}
+};
+function d([a, b]) {
+  return a + b;
+};
+let da = [
+  1,
+  2,
+];
+d(da)

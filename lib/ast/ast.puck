@@ -579,7 +579,6 @@ impl ToSpan for FunctionDeclaration {
 
 export type VariableDeclaration {
   pattern: Pattern
-  mutable: Bool
   typeBound: Option<TypeBound>
   initializer: Option<Expression>
 }
@@ -918,7 +917,7 @@ impl ToSpan for TupleLiteral {
 
 export enum Pattern {
   CatchAll(SimpleToken)
-  Identifier(Identifier)
+  Identifier {identifier: Identifier, mutable: Bool}
   // Boolen(BooleanLiteral)
   // Number(NumberLiteral)
   // String(SimpleStringLiteral)
@@ -933,7 +932,7 @@ impl Pattern {
   fn displayName(self) -> String {
     match self {
       Pattern::CatchAll(_) => '_'
-      Pattern::Identifier(identifier) => identifier.name
+      Pattern::Identifier {identifier} => identifier.name
       Pattern::Record(recordPattern) => recordPattern.displayName()
       Pattern::Tuple(tuplePattern) => tuplePattern.displayName()
       Pattern::RecordType(_, recordPattern) => recordPattern.displayName()
@@ -947,7 +946,7 @@ impl ToSpan for Pattern {
   fn span(self) -> Span {
     match self {
       Pattern::CatchAll(token) => token.span
-      Pattern::Identifier(identifier) => identifier.span
+      Pattern::Identifier {identifier} => identifier.span
       Pattern::Record(recordPattern) => {{
         start: recordPattern.openBrace.span.start
         end: recordPattern.closeBrace.span.end
@@ -980,7 +979,7 @@ impl RecordPattern {
     '{' +
       self.properties.map(|p| {
         let shorthand =
-          if let Pattern::Identifier({name}) = p.pattern
+          if let Pattern::Identifier {identifier: {name}} = p.pattern
             then name == p.property.name
             else false
 

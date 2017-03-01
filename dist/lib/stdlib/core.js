@@ -1191,7 +1191,7 @@ Option.unwrap = function () {
   else {
     if ($unwrapTraitObject($puck_54).kind === "None") {
       let undefined = $unwrapTraitObject($puck_54);
-      throw $puck_1.Error("Can not unwrap empty Option");
+      return panic("Can not unwrap empty Option");
     };
   };
 };

@@ -118,7 +118,7 @@ function structureVisitor(file, reportError, visitor = "") {
         let {value: [first]} = $puck_23;
         let $puck_24 = first.pattern;
         if ($puck_24.kind === "Identifier") {
-          let {value: [{name: name, span: span}]} = $puck_24;
+          let {value: {identifier: {name: name, span: span}}} = $puck_24;
           if (name === "self") {
             const selfTypeBound = first.typeBound;
             if ($puck_1.Option.isNone.call(selfTypeBound)) {
@@ -421,7 +421,7 @@ function structureVisitor(file, reportError, visitor = "") {
       $puck_38 = scope;
     };
     let childScope = $puck_38;
-    let $puck_39 = $puck_9.declarePatternVariables(childScope, self, d.pattern, d.mutable, type_, false, $puck_1.Option.isSome.call(d.initializer));
+    let $puck_39 = $puck_9.declarePatternVariables(childScope, self, d.pattern, type_, false, $puck_1.Option.isSome.call(d.initializer));
     if (($unwrapTraitObject($puck_39).kind === "Ok")) {
       let {value: [$puck_40]} = $unwrapTraitObject($puck_39);
     }

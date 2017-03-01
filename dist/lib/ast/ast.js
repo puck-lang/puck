@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.RecordLiteralMember = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.RecordTypeBoundMember = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.StringLiteralPart = exports.Pattern = exports.TypeBoundundefined;
+exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.RecordLiteralMember = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.RecordTypeBoundMember = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.StringLiteralPart = exports.Pattern = exports.TypeBoundundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../entities");
 const $puck_3 = require("./span");
@@ -30,6 +30,7 @@ var VariableDeclaration = exports.VariableDeclaration = (object) => object;
 var AssignmentExpression = exports.AssignmentExpression = (object) => object;
 var BinaryExpression = exports.BinaryExpression = (object) => object;
 var CallExpression = exports.CallExpression = (object) => object;
+var TypeArguments = exports.TypeArguments = (object) => object;
 var IfExpression = exports.IfExpression = (object) => object;
 var IfLetExpression = exports.IfLetExpression = (object) => object;
 var MatchExpression = exports.MatchExpression = (object) => object;
@@ -131,7 +132,7 @@ Identifier: (...members) => ({kind: 'Identifier', value: members}),
 };
 var Pattern = exports.Pattern = {
 CatchAll: (...members) => ({kind: 'CatchAll', value: members}),
-Identifier: (...members) => ({kind: 'Identifier', value: members}),
+Identifier: (object) => ({kind: 'Identifier', value: object}),
 Record: (...members) => ({kind: 'Record', value: members}),
 Tuple: (...members) => ({kind: 'Tuple', value: members}),
 RecordType: (...members) => ({kind: 'RecordType', value: members}),
@@ -918,6 +919,17 @@ end: function () {
   return self.value.closeParen.span.end;
 }
 };
+$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeArguments"] = {
+span: $puck_3.ToSpan.span,
+start: function () {
+  const self = this;
+  return self.value.openBracket.span.start;
+},
+end: function () {
+  const self = this;
+  return self.value.closeBracket.span.end;
+}
+};
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"] = {
 span: $puck_3.ToSpan.span,
 start: function () {
@@ -1148,7 +1160,7 @@ span: function () {
   }
   else {
     if ($unwrapTraitObject($puck_19).kind === "Identifier") {
-      let {value: [identifier]} = $unwrapTraitObject($puck_19);
+      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_19);
       return identifier.span;
     }
     else {
@@ -1596,7 +1608,7 @@ Pattern.displayName = function () {
   }
   else {
     if ($unwrapTraitObject($puck_26).kind === "Identifier") {
-      let {value: [identifier]} = $unwrapTraitObject($puck_26);
+      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_26);
       return identifier.name;
     }
     else {
@@ -1637,7 +1649,7 @@ RecordPattern.displayName = function () {
     let $puck_31 = p.pattern;
     let $puck_32;
     if (($puck_31.kind === "Identifier")) {
-      let {value: [{name: name}]} = $puck_31;
+      let {value: {identifier: {name: name}}} = $puck_31;
       $puck_32 = name === p.property.name;
     }
     else {

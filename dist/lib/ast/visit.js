@@ -768,8 +768,8 @@ function walkPattern(visitor, p) {
   }
   else {
     if ($unwrapTraitObject($puck_23).kind === "Identifier") {
-      let {value: [identifier]} = $unwrapTraitObject($puck_23);
-      return $unwrapTraitObject(visitor).visitIdentifierPattern(identifier);
+      let {value: {identifier: identifier, mutable: mutable}} = $unwrapTraitObject($puck_23);
+      return $unwrapTraitObject(visitor).visitIdentifierPattern(identifier, mutable);
     }
     else {
       if ($unwrapTraitObject($puck_23).kind === "Record") {

@@ -77,4 +77,9 @@ const u = function (u2) {
   return function (u3) {
     return u + u2 + u3;
   };
-}
+};
+let [a, b] = [
+  1,
+  2,
+];
+b += 2

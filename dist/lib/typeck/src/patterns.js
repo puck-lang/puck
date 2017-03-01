@@ -92,7 +92,7 @@ function isNonExhaustive(typePath) {
   };
   return false;
 };
-function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExhaustive, useParentScope = false, definitions = $puck_1.ObjectMap._new()) {
+function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, useParentScope = false, definitions = $puck_1.ObjectMap._new()) {
   let $puck_17 = p;
   if ($unwrapTraitObject($puck_17).kind === "CatchAll") {
     let undefined = $unwrapTraitObject($puck_17);
@@ -100,7 +100,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
   }
   else {
     if ($unwrapTraitObject($puck_17).kind === "Identifier") {
-      let {value: [identifier]} = $unwrapTraitObject($puck_17);
+      let {value: {identifier: identifier, mutable: mutable}} = $unwrapTraitObject($puck_17);
       if ($puck_1.ObjectMap.has.call(definitions, identifier.name)) {
         return $puck_1.Err(PatternError.ScopeError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true}, "\"" + identifier.name + "\" is already defined in this pattern"));
       }
@@ -183,7 +183,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
         let $puck_29 = $puck_1.Iterator[$puck_30.type].map.call($puck_30, function (p) {
           return [
             p.property.name,
-            declarePatternVariables(scope, visitor, p.pattern, mutable, $unwrapTraitObject(props[p.property.name]), allowNotExhaustive, useParentScope, definitions),
+            declarePatternVariables(scope, visitor, p.pattern, $unwrapTraitObject(props[p.property.name]), allowNotExhaustive, useParentScope, definitions),
           ];
         })
 ;
@@ -256,7 +256,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
           let $puck_44 = $puck_1.Iterator[$puck_45.type].map.call($puck_45, function (p) {
             return [
               p.property.name,
-              declarePatternVariables(scope, visitor, p.pattern, mutable, $unwrapTraitObject(props[p.property.name]), allowNotExhaustive, useParentScope, definitions),
+              declarePatternVariables(scope, visitor, p.pattern, $unwrapTraitObject(props[p.property.name]), allowNotExhaustive, useParentScope, definitions),
             ];
           })
 ;
@@ -318,7 +318,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
             let $puck_58 = $puck_1.Iterator[$puck_59.type].enumerate.call($puck_59)
 ;
             let $puck_57 = $puck_1.Iterator[$puck_58.type].map.call($puck_58, function ([i, p]) {
-              return declarePatternVariables(scope, visitor, p, mutable, $unwrapTraitObject(props[i]), allowNotExhaustive, useParentScope, definitions);
+              return declarePatternVariables(scope, visitor, p, $unwrapTraitObject(props[i]), allowNotExhaustive, useParentScope, definitions);
             })
 ;
             return $puck_1.Iterator[$puck_57.type].fold.call($puck_57, $puck_1.Ok([]), function (acc, cur) {
@@ -390,7 +390,7 @@ function declarePatternVariables(scope, visitor, p, mutable, type_, allowNotExha
               let $puck_74 = $puck_1.Iterator[$puck_75.type].enumerate.call($puck_75)
 ;
               let $puck_73 = $puck_1.Iterator[$puck_74.type].map.call($puck_74, function ([i, p]) {
-                return declarePatternVariables(scope, visitor, p, mutable, $unwrapTraitObject(props[i]), allowNotExhaustive, useParentScope, definitions);
+                return declarePatternVariables(scope, visitor, p, $unwrapTraitObject(props[i]), allowNotExhaustive, useParentScope, definitions);
               })
 ;
               return $puck_1.Iterator[$puck_73.type].fold.call($puck_73, $puck_1.Ok([]), function (acc, cur) {

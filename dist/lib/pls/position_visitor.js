@@ -1006,7 +1006,7 @@ function walkPattern(visitor, p) {
   }
   else {
     if ($unwrapTraitObject($puck_39).kind === "Identifier") {
-      let {value: [identifier]} = $unwrapTraitObject($puck_39);
+      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_39);
       PositionVisitor[visitor.type].visitIdentifierPattern.call(visitor, identifier);
     }
     else {

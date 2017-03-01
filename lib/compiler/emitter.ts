@@ -49,6 +49,7 @@ import {
 import {Expression as ExpressionImpl} from '../ast/ast'
 import {SyntaxKind} from '../ast/token'
 import {Type, Record, Tuple, Implementation} from '../entities'
+import {isPatternMutable} from '../typeck/src/functions'
 import {getImplementationForTrait} from '../typeck/src/impls'
 import {Scope} from '../typeck/src/scope'
 
@@ -439,7 +440,7 @@ export function Emitter() {
     if (fn.body.kind == 'None') throw 'Function without body'
     let body = fn.body.value[0]
     const firstParameter = parameterList.length > 0 && parameterList[0]
-    if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value[0].name == 'self') {
+    if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value.identifier.name == 'self') {
       parameterList = fn.parameterList.slice(1)
       if (body.statements.length > 0) {
         body = {
@@ -483,7 +484,7 @@ export function Emitter() {
 
       parameterList.forEach((p, i) => {
         if (p.pattern.kind === 'Identifier') {
-          typeOverrides[p.pattern.value[0].name] = {
+          typeOverrides[p.pattern.value.identifier.name] = {
             old: p.type_,
             new: fn.traitFunctionType.kind.value[0].parameters[i].type_,
           }
@@ -584,7 +585,7 @@ export function Emitter() {
     let willBeRedefined = true
     let binding
     if (vd.pattern.kind === 'Identifier') {
-      binding = Scope.getBinding.call(vd.scope, vd.pattern.value[0].name).value[0]
+      binding = Scope.getBinding.call(vd.scope, vd.pattern.value.identifier.name).value[0]
       willBeRedefined = binding.redefined || (binding.previous && binding.previous.value[0])
       while (binding && binding.definition.token.value !== vd.pattern) {
         binding = binding.previous.value[0]
@@ -615,7 +616,7 @@ export function Emitter() {
       return valueVariable
     }
 
-    let kw = export_ ? 'var' : ((vd.mutable || willBeRedefined) ? 'let' : 'const')
+    let kw = export_ ? 'var' : ((willBeRedefined || isPatternMutable(vd.pattern)) ? 'let' : 'const')
     return `${kw} ${emitPatternDestructuring(vd.pattern)}${initializer}`
   }
 
@@ -674,7 +675,7 @@ export function Emitter() {
       return newValueVariable()
     }
     if (p.kind === 'Identifier') {
-      return emitIdentifier(p.value[0])
+      return emitIdentifier(p.value.identifier)
     }
     else if (p.kind === 'Record') {
       return `{${p.value[0].properties.map(({property, pattern}) =>

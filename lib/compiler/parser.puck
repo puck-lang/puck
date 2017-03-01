@@ -689,7 +689,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
         input.next()
         let variableDeclaration = parseVariableDeclaration()
         statement = ExportedStatement::VariableDeclaration(variableDeclaration)
-        if let Pattern::Identifier(name) = variableDeclaration.pattern {
+        if let Pattern::Identifier {identifier: name} = variableDeclaration.pattern {
           identifier = name
         }
         else input.croak('Can not export a let declaration without a identifier pattern')
@@ -900,12 +900,10 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
   }
 
   fn parseVariableDeclaration() -> VariableDeclaration {
-    let mutable = maybeConsumeToken(SyntaxKind::MutKeyword).isSome()
     let pattern = parsePattern()
 
     {
       pattern
-      mutable
       typeBound: maybeConsumeToken(SyntaxKind::ColonToken).map(|_| parseTypeBound())
       initializer: maybeConsumeToken(SyntaxKind::EqualsToken).map(|_| parseExpression())
     }
@@ -1130,6 +1128,11 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
       then Pattern::Tuple(parseTuplePattern())
     else if isToken(SyntaxKind::OpenBraceToken)
       then Pattern::Record(parseRecordPattern())
+    else if isToken(SyntaxKind::MutKeyword) {
+      consumeToken(SyntaxKind::MutKeyword)
+      let identifier = consumeIdentifier()
+      Pattern::Identifier({identifier, mutable: true})
+    }
     else {
       let identifier = consumeIdentifier()
 
@@ -1144,7 +1147,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
           then Pattern::RecordType(typePath, parseRecordPattern())
         else Pattern::UnitType(typePath)
       }
-      else Pattern::Identifier(identifier)
+      else Pattern::Identifier({identifier, mutable: false})
     }
   }
 
@@ -1161,7 +1164,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
     let pattern =
       if maybeConsumeToken(SyntaxKind::ColonToken).isSome()
         then parsePattern()
-        else Pattern::Identifier(property)
+        else Pattern::Identifier({identifier: property, mutable: false})
 
     {property, pattern}
   }
