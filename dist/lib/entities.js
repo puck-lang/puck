@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.BuildFile = exports.UnparsedFile = exports.File = exports.Definition = exports.Type = exports.Enum = exports.Function = exports.Struct = exports.Trait = exports.Record = exports.Tuple = exports.Implementation = exports.TypeClass = exports.TypeInstance = exports.TypeParameter = exports.TypeKind = exports.StructKindundefined;
+exports.BuildFile = exports.UnparsedFile = exports.File = exports.Definition = exports.Type = exports.Enum = exports.Function = exports.Struct = exports.Trait = exports.Record = exports.Tuple = exports.Implementation = exports.TypeClass = exports.TypeInstance = exports.TypeParameter = exports.CompilationError = exports.TypeKind = exports.StructKindundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("./ast/ast");
@@ -23,6 +23,11 @@ var Implementation = exports.Implementation = (object) => object;
 var TypeClass = exports.TypeClass = (object) => object;
 var TypeInstance = exports.TypeInstance = (object) => object;
 var TypeParameter = exports.TypeParameter = (object) => object;
+var CompilationError = exports.CompilationError = {
+UndefinedVariable: (...members) => ({kind: 'UndefinedVariable', value: members}),
+TraitNotInScope: (object) => ({kind: 'TraitNotInScope', value: object}),
+Other: {kind: 'Other', value: Symbol('Other')},
+};
 var TypeKind = exports.TypeKind = {
 Enum: (...members) => ({kind: 'Enum', value: members}),
 Function: (...members) => ({kind: 'Function', value: members}),

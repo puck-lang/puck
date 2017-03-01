@@ -19,7 +19,7 @@ function notAssignableError(to, subject) {
   return $puck_7.Type.displayName.call(subject) + " is not assignable to type " + $puck_7.Type.displayName.call(to);
 };
 exports.notAssignableError = notAssignableError;
-function structureVisitor(file, reportError, visitor = "") {
+function structureVisitor(file, reportError, reportFullError, visitor = "") {
   return {
     file: file,
     visitEnumMember: visit.walkingVisitor.visitEnumMember,
@@ -390,9 +390,15 @@ function structureVisitor(file, reportError, visitor = "") {
         return t.providesType = $puck_1.Option.unwrapOr.call(binding.type_.providesType, binding.type_);
       }
       else {
-        if ($unwrapTraitObject($puck_37).kind === "Err") {
-          let {value: [err]} = $unwrapTraitObject($puck_37);
-          return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: t, $isTraitObject: true}, err);
+        if (($unwrapTraitObject($puck_37).kind === "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_37).value)[0]).kind === "UndefinedType")) {
+          let {value: [{value: [name]}]} = $unwrapTraitObject($puck_37);
+          return reportFullError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: t, $isTraitObject: true}, "Use of undeclared type " + name + "", $puck_7.CompilationError.UndefinedVariable(name));
+        }
+        else {
+          if (($unwrapTraitObject($puck_37).kind === "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_37).value)[0]).kind === "Other")) {
+            let {value: [{value: [err]}]} = $unwrapTraitObject($puck_37);
+            return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: t, $isTraitObject: true}, err);
+          };
         };
       };
     };

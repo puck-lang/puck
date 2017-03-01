@@ -626,7 +626,7 @@ function Emitter() {
     function emitCallExpression(fn_) {
         var fn = fn_;
         var functionName;
-        var functionType = getType(fn.func);
+        var functionType = fn_.functionType || getType(fn.func);
         var parameterBindings = functionType && functionType.kind.value[0].parameters;
         if (fn.traitName) {
             parameterBindings = fn.functionType.kind.value[0].parameters;

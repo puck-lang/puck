@@ -1,0 +1,58 @@
+import 'puck:js' as {global}
+
+export type WorkspaceEdit {
+  changes: List<TextDocumentEdit>
+}
+
+export type TextDocumentEdit {
+  textDocument: {
+    uri: String
+  }
+  edits: List<TextEdit>
+}
+
+export type LsPosition {
+  line: Num
+  character: Num
+}
+
+export type TextEdit {
+  /// The range of the text document to be manipulated. To insert
+  /// text into a document create a range where start === end.
+  range: Range<LsPosition>
+
+  /// The string to be inserted. For delete operations use an
+  /// empty string.
+  newText: String
+}
+
+export type Diagnostic {
+  range: Range
+  severity: Num
+  code: Num
+  // source: string
+  message: String
+}
+
+export type Command {
+  /// Title of the command, like `save`.
+  title: String
+  /// The identifier of the actual command handler.
+  command: String
+  /// Arguments that the command handler should be invoked with.
+  // arguments: List<String>
+}
+
+export type CodeActionContext {
+  diagnostics: List<Diagnostic>
+}
+
+export fn fromUri(uri: String) {
+  if uri.startsWith('file://')
+    then global->decodeURIComponent(uri.sub(Range.new(7, uri.size())))
+    else panic('Only file URIs are supported')
+}
+
+export fn toUri(path: String) {
+  'file://' + global->encodeURI(path)
+}

@@ -77,8 +77,9 @@ function getTypeId(declaration, context, file) {
 };
 function TypeVisitor(context, file) {
   const reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
+  const reportFullError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
   let imports = $puck_1.ObjectMap._new();
-  const structureVisitorInstance = $puck_8.structureVisitor(file, reportError, "TypeVisitor");
+  const structureVisitorInstance = $puck_8.structureVisitor(file, reportError, reportFullError, "TypeVisitor");
   return $puck_2._Object.assign({}, visit.emptyVisitor, structureVisitorInstance, {
     scope: $puck_7.Scope._new(context),
     visitModule: function (m) {
@@ -679,9 +680,15 @@ function TypeVisitor(context, file) {
       let {value: [binding]} = $unwrapTraitObject($puck_65);
     }
     else {
-      if ($unwrapTraitObject($puck_65).kind === "Err") {
-        let {value: [err]} = $unwrapTraitObject($puck_65);
-        reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true}, err);
+      if (($unwrapTraitObject($puck_65).kind === "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_65).value)[0]).kind === "UndefinedType")) {
+        let {value: [{value: [name]}]} = $unwrapTraitObject($puck_65);
+        reportFullError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true}, "Use of undeclared type " + name + "", $puck_6.CompilationError.UndefinedVariable(name));
+      }
+      else {
+        if (($unwrapTraitObject($puck_65).kind === "Err" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_65).value)[0]).kind === "Other")) {
+          let {value: [{value: [err]}]} = $unwrapTraitObject($puck_65);
+          reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true}, err);
+        };
       };
     };
     return structureVisitorInstance.visitNamedTypeBound.call(self, t);

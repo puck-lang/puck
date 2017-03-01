@@ -32,8 +32,8 @@ import '../ast/ast.puck' as {
 }
 import '../ast/span.puck' as {ToSpan}
 import '../ast/visit.puck' as visit
-import '../entities.puck' as {Definition, File, StructKind, Type, TypeClass, TypeKind}
-import 'src/scope.puck' as {Binding, Scope}
+import '../entities.puck' as {Definition, File, StructKind, Type, TypeClass, TypeKind, CompilationError}
+import 'src/scope.puck' as {Binding, Scope, ScopeError}
 import 'src/structure_visitor.puck' as {structureVisitor}
 
 fn isTypeScope(e: ExportDirective) {
@@ -81,9 +81,10 @@ fn getTypeId(declaration: {attributes: List<Attribute>, name: Identifier}, conte
 /// This assures that the hoisting rules is followed and all required information is known.
 export fn TypeVisitor(context, file) {
   let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
+  let reportFullError: (ToSpan, String, CompilationError) -> () = context.reportError.bind(context, file)
   let mut imports: ObjectMap<File> = ObjectMap.new()
 
-  let structureVisitorInstance = structureVisitor(file, reportError, 'TypeVisitor')
+  let structureVisitorInstance = structureVisitor(file, reportError, reportFullError, 'TypeVisitor')
   Object->assign({}, visit.emptyVisitor, structureVisitorInstance, {
     scope: Scope.new(context)
 
@@ -492,7 +493,14 @@ export fn TypeVisitor(context, file) {
 
       match result {
         Ok(binding) => {}
-        Err(err) => reportError(t, err)
+        Err(ScopeError::UndefinedType(name)) => {
+          reportFullError(
+            t
+            'Use of undeclared type $name',
+            CompilationError::UndefinedVariable(name)
+          )
+        }
+        Err(ScopeError::Other(err)) => reportError(t, err)
       }
 
       structureVisitorInstance.visitNamedTypeBound->call(self, t)

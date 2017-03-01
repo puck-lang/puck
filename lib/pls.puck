@@ -4,8 +4,10 @@ import 'node:vscode-languageserver' as {
   CompletionItemKind
   DiagnosticSeverity
 }
-import 'ast/ast.puck' as {Module}
-import 'ast/span.puck' as {Position, ToSpan}
+import 'ast/ast.puck' as {Module, ExportedStatement, TraitDeclaration}
+import 'ast/span.puck' as {Position, Span, ToSpan}
+import 'pls/src/entities.puck' as {WorkspaceEdit, toUri, Diagnostic, CodeActionContext, Command}
+import 'pls/src/imports.puck' as {bestImportPath, createImport}
 import 'pls/completions.puck' as {CompletionVisitor}
 import 'pls/definition.puck' as {Definition, DefinitionVisitor}
 import 'pls/hover.puck' as {Hover, HoverVisitor}
@@ -13,13 +15,29 @@ import 'pls/position_visitor.puck' as {PositionVisitor}
 import 'pls/signature.puck' as {SignatureHelp, SignatureVisitor}
 import 'typeck/src/scope.puck' as {Scope}
 import 'compiler.puck' as {createContext}
-import 'entities.puck' as {File, UnparsedFile}
+import 'entities.puck' as {CompilationError, File, UnparsedFile}
 
-export fn createServer(projectPath: String, sendDiagnostic) {
-  // let mut contexts = ObjectMap.new()
+export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic) -> (), applyEdit: (WorkspaceEdit) -> ()) {
+  let mut diagnostics: Map<String, Map<Num, CompilationError>> = Map.new()
   let mut context = createContext(projectPath)
-  context.reportError = fn (file: File, token: ToSpan, message) {
+  let mut globalExportMap: Map<String, Set<String>> = Map.new()
+  let mut diagnosticId = 0
+  context.reportError = fn (file: File, token: ToSpan, message: String, error: CompilationError = CompilationError::Other) {
     // print('reportError', (file.absolutePath, message))
+    let id =
+      match error {
+        CompilationError::UndefinedVariable(name) => {
+          diagnosticId += 1
+        }
+        CompilationError::TraitNotInScope => {
+          diagnosticId += 1
+        }
+        _ => -1
+      }
+    if id >= 0 {
+      diagnostics.entry(file.absolutePath).orInsertWith(|| Map.new())
+        .set(id, error)
+    }
     let span = token.span()
     sendDiagnostic(file.absolutePath, {
       severity: DiagnosticSeverity.Error
@@ -27,13 +45,21 @@ export fn createServer(projectPath: String, sendDiagnostic) {
         start: {line: span.start.line - 1, character: span.start.column - 1}
         end: {line: span.end.line - 1, character: span.end.column - 1}
       }
+      code: id
       message
       source: 'puck'
     })
   }
+  context.onFileParsed = fn (file: File) {
+    let module: Module = file->ast.transmute()
+    module.exports.forEach(|(name, e)| {
+      globalExportMap.entry(name).orInsertWith(|| Set.new())
+        .add(file.absolutePath)
+    })
+  }
   let mut a = {}
   a->onClose = fn (filePath: String) {
-    // contexts.delete(filePath)
+    diagnostics.delete(filePath)
   }
   a->validateDocument = fn (filePath: String, contents: String, skipSyntaxErrors: Bool) {
     print('validateDocument')
@@ -51,6 +77,10 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       let parseTime = Date->now() - startTime
       print('Parse time $parseTime')
 
+      if let Some(d) = diagnostics.get(filePath) {
+        let mut dm = d
+        dm.clear()
+      }
       context.runTypeVisitor()
       let typeVisitorTime = Date->now() - startTime - parseTime
       print('Type visitor time $typeVisitorTime')
@@ -182,6 +212,131 @@ export fn createServer(projectPath: String, sendDiagnostic) {
       Err(error) => {
         print('onDefinition Error:', (error, error->stack))
         None
+      }
+    }
+  }
+  a->onCodeAction = fn (filePath: String, span: Span, codeActionContext: CodeActionContext) -> List<Command> {
+    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
+    if not file then return []
+
+    let result = asResult(|| {
+    codeActionContext.diagnostics
+      .iter()
+      .filter(|d| d.code >= 0)
+      .filterMap(|d| diagnostics.get(filePath).andThen(|errors| errors.get(d.code)))
+      .flatMap(|error| {
+        let list: List<Command> =
+          match error {
+            CompilationError::UndefinedVariable(name) => {
+              globalExportMap.get(name).unwrapOrElse(|| Set.new())
+                .iter()
+                .map(|filePath| {
+                  let path = bestImportPath(file, filePath)
+                  let cmd = Command({
+                    title: 'Import $name from $path'
+                    command: 'puck.addImport'
+                    arguments: [(name, file.absolutePath, filePath)]
+                  })
+                  cmd->['arguments'] = cmd->arguments
+                  cmd
+                })
+                .collect()
+            }
+            CompilationError::TraitNotInScope {name, id} => {
+              globalExportMap.get(name).unwrapOrElse(|| Set.new())
+                .iter()
+                .filterMap(|filePath| context.files.get(filePath))
+                .filterMap(|file| {
+                  let module = file->ast.transmute::<Module>()
+                  if module
+                    then Some(module)
+                    else None
+                })
+                .filter(|module| {
+                  module.exports.get(name)
+                    .map(|e| match e.statement {
+                      ExportedStatement::TraitDeclaration(t) => {
+                        t.getType().providesType.unwrap().id.unwrap() == id
+                      }
+                      _ => false
+                    })
+                    .unwrapOr(false)
+                })
+                .map(|module| {
+                  let path = bestImportPath(file, module.file.absolutePath)
+                  let cmd = Command({
+                    title: 'Import $name from $path'
+                    command: 'puck.addImport'
+                    arguments: [(name, file.absolutePath, module.file.absolutePath)]
+                  })
+                  cmd->['arguments'] = cmd->arguments
+                  cmd
+                })
+                .collect()
+            }
+            _ => []
+          }
+        let iter: IntoIterator<Command> = list
+        iter
+      })
+      .collect()
+    })
+    match result {
+      Ok(a) => {
+        print('onCodeAction ok', a)
+        a
+      }
+      Err(error) => {
+        print('onCodeAction Error:', (error, error->stack))
+        []
+      }
+    }
+  }
+  a->onExecuteCommand = fn (command: Command) -> () {
+    print('onExecuteCommand', command)
+    if command.command == 'puck.reload' {
+      context.files = ObjectMap.new()
+      context.deferred = ObjectMap.new()
+      globalExportMap.clear()
+      diagnosticId = 0
+    }
+    else if command.command == 'puck.addImport' {
+      let (name, importingPath, importedPath) = command->['arguments'].transmute()
+      if let (Some(importingFile), Some(importedFile)) = (
+        context.files.get(importingPath)
+        context.files.get(importedPath)
+      ) {
+        let importingModule: Module = importingFile->ast.transmute()
+        let importedModule: Module = importedFile->ast.transmute()
+
+        let result = asResult(|| {
+        let edit = createImport(name, importingModule, importedModule)
+        print('edit', edit)
+        let mut changes = ObjectMap.new()
+        changes[toUri(importingPath)] = [edit]
+        print('changes', changes)
+
+        applyEdit({changes: [{
+          textDocument: {uri: toUri(importingPath)}
+          edits: [edit]
+        }]})
+        })
+        match result {
+          Ok(a) => {
+            print('applyEdit ok', a)
+            a->['then'](|b| {
+              print('applyEdit then', b)
+            })
+            a->['catch'](|b| {
+              print('applyEdit catch', b)
+            })
+            a
+          }
+          Err(error) => {
+            print('applyEdit Error:', (error, error->stack))
+            []
+          }
+        }
       }
     }
   }

@@ -326,6 +326,10 @@ export type TraitDeclaration {
   closeBrace: SimpleToken
 }
 
+impl TraitDeclaration {
+  fn getType(self) -> Type {self->type_.transmute()}
+}
+
 impl ToSpan for TraitDeclaration {
   fn span(self) -> Span {{
     start: self.keyword.span.start

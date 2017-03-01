@@ -1567,6 +1567,10 @@ Expression.getType = function () {
     };
   };
 };
+TraitDeclaration.getType = function () {
+  const self = this;
+  return $unwrapTraitObject(self.type_);
+};
 ExportDirective.getType = function () {
   const self = this;
   let $puck_25 = self.statement;

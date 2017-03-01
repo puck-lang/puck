@@ -35,6 +35,12 @@ export type File {
   js: String
 }
 
+export enum CompilationError {
+  UndefinedVariable(String)
+  TraitNotInScope {name: String, id: String}
+  Other
+}
+
 let startWithNumber = RegExp.new('^[0-9]')
 
 fn getFunctionTypeName(function: Function) {

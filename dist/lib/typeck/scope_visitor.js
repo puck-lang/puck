@@ -104,6 +104,7 @@ function ScopeVisitor(context, file) {
   let importDirective;
   let matchExpression = $puck_1.None;
   const reportError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
+  const reportFullError = $unwrapTraitObject($unwrapTraitObject(context).reportError).bind(context, file);
   let accessError = $puck_1.None;
   function checkFunctionCall(functionType, c) {
     if ((!functionType)) {
@@ -199,7 +200,7 @@ function ScopeVisitor(context, file) {
     });
     return _function;
   };
-  const structureVisitorInstance = $puck_13.structureVisitor(file, reportError);
+  const structureVisitorInstance = $puck_13.structureVisitor(file, reportError, reportFullError);
   return $puck_2._Object.assign({}, visit.walkingVisitor, structureVisitorInstance, {
     reportError: reportError,
     visitModule: function (m) {
@@ -373,7 +374,7 @@ function ScopeVisitor(context, file) {
       i.type_ = $puck_50;
     }
     else {
-      reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: i, $isTraitObject: true}, "Use of undefined variable " + i.name);
+      reportFullError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: i, $isTraitObject: true}, "Use of undefined variable " + i.name, $puck_16.CompilationError.UndefinedVariable(i.name));
     };
     return [];
   },
@@ -702,7 +703,10 @@ function ScopeVisitor(context, file) {
                 }
                 else {
                   const typeName = $puck_1.Option.unwrap.call(objectType.name);
-                  reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true}, "The function " + name + " is defined in trait " + typeName + " but it is not in scope");
+                  reportFullError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true}, "The function " + name + " is defined in trait " + typeName + " but it is not in scope", $puck_16.CompilationError.TraitNotInScope({
+                    name: typeName,
+                    id: $puck_1.Option.unwrap.call(objectType.id),
+                  }));
                 };
               };
             };
@@ -732,8 +736,10 @@ function ScopeVisitor(context, file) {
               }
               else {
                 const traitName = $puck_1.Option.unwrap.call(trait_.name);
-                const id = $puck_1.Option.unwrap.call(trait_.id);
-                reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true}, "The function " + name + " is defined in trait " + traitName + " but it is not in scope");
+                reportFullError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true}, "The function " + name + " is defined in trait " + traitName + " but it is not in scope", $puck_16.CompilationError.TraitNotInScope({
+                  name: traitName,
+                  id: $puck_1.Option.unwrap.call(trait_.id),
+                }));
               };
             }
             else {

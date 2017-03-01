@@ -609,6 +609,37 @@ impl<E, U, P> Iterator<E> for FilterMapIterator<Iterator<E>, (E) -> Option<U>> {
   }
 }
 
+type FlatMapIterator<I, E, U> {
+  iter: I
+  flatteningIter: Option<Iterator<U>>
+  f: (E) -> IntoIterator<U>
+}
+
+impl<E, U, P> Iterator<E> for FlatMapIterator<Iterator<E>, E, U> {
+  fn next(mut self) -> Option<E> {
+    if let Some(mut i) = self.flatteningIter {
+      if let Some(value) = i.next()
+        then return Some(value)
+        else {
+          self.flatteningIter = None
+        }
+    }
+
+
+    while true {
+      if let Some(value) = self.iter.next() {
+        let mut iter = self.f(value).iter()
+        if let Some(value) = iter.next() {
+          self.flatteningIter = Some(iter)
+          return Some(value)
+        }
+      }
+      else return None
+    }
+    None
+  }
+}
+
 export trait Iterator<E> {
   /// Advances the iterator and returns the next value.
   ///
@@ -674,6 +705,15 @@ export trait Iterator<E> {
   fn filterMap<U>(self, f: (E) -> Option<U>) -> Iterator<U> {
     let iter: FilterMapIterator<Self, f> = {
       iter: self
+      f
+    }
+    iter
+  }
+
+  fn flatMap<U> (self, f: (E) -> IntoIterator<U>) -> Iterator<U> {
+    let iter: FlatMapIterator<Self, E, U> = {
+      iter: self
+      flatteningIter: None
       f
     }
     iter
@@ -800,6 +840,18 @@ export trait Iterator<E> {
       index += 1
     }
     None
+  }
+
+  // TODO: Implement correctly when possible
+  fn collect(mut self) -> List<E> {
+    let mut list = []
+    while true {
+      if let Some(value) = self.next() {
+        list.push(value)
+      }
+      else return list
+    }
+    list
   }
 }
 export trait Iterable<E> {
@@ -1099,7 +1151,7 @@ impl<T> ObjectMap<T> {
   }
 
   fn delete(mut self, key: String) -> () {
-    js->delete(self, key)
+    js->['delete'](self, key)
   }
 
   fn has(self, key: String) -> Bool {
@@ -1350,6 +1402,19 @@ impl PartialOrd<String> for String {
   }
 }
 
+export type JsIterator<E> {
+  next: () -> {value: E, done: Bool}
+}
+
+impl<E> Iterator<E> for JsIterator<E> {
+  fn next(mut self) -> Option<E> {
+    let {value, done} = self->next().transmute()
+    if done
+      then None
+      else Some(value)
+  }
+}
+
 export type Map<K, V> {}
 impl<K, V> Map<K, V> {
   fn new() -> Map<K, V> {
@@ -1358,6 +1423,11 @@ impl<K, V> Map<K, V> {
 
   fn size(self) -> Num {
     self->size.transmute()
+  }
+
+  // Removes all elements the Map
+  fn clear(mut self) -> () {
+    self->clear()
   }
 
   fn set(mut self, key: K, value: V) -> () {
@@ -1379,9 +1449,53 @@ impl<K, V> Map<K, V> {
     self->has(key).transmute()
   }
 
+  fn entries(self) -> JsIterator<(K, V)> {self->entries().transmute()}
+  fn keys(self) -> JsIterator<K> {self->keys().transmute()}
+  fn values(self) -> JsIterator<V> {self->values().transmute()}
+
   fn forEach(self, f: (K, V) -> ()) -> () {
     self->forEach(f)
   }
+
+  fn entry(mut self, key: K) -> Entry<K, V> {{
+    map: self
+    key
+  }}
+}
+
+/// A view into a single location in a map, which may be vacant or occupied.
+/// This type is constructed from the [entry](Map.entry) method on [Map].
+export type Entry<K, V> {
+  map: Map<K, V>
+  key: K
+}
+
+impl<K, V> Entry<K, V> {
+  /// Ensures a value is in the entry by inserting the default if empty,
+  /// and returns a reference to the value in the entry.
+  fn orInsert(mut self, default: V) -> V {
+    if let Some(value) = self.map.get(self.key)
+      then value
+      else {
+        self.map.set(self.key, default)
+        default
+      }
+  }
+
+  /// Ensures a value is in the entry by inserting the result of the default
+  /// function if empty, and returns a reference to the value in the entry.
+  fn orInsertWith(mut self, default: () -> V) -> V {
+    if let Some(value) = self.map.get(self.key)
+      then value
+      else {
+        let value = default()
+        self.map.set(self.key, value)
+        value
+      }
+  }
+
+  /// Returns a reference to this entry's key.
+  fn key(self) -> K {self.key}
 }
 
 export type Set<T> {}
@@ -1392,6 +1506,11 @@ impl<T> Set<T> {
 
   fn size(self) -> Num {
     self->size.transmute()
+  }
+
+  // Removes all elements the Set
+  fn clear(mut self) -> () {
+    self->clear()
   }
 
   fn add(mut self, value: T) -> () {
@@ -1406,7 +1525,17 @@ impl<T> Set<T> {
     self->has(value).transmute()
   }
 
+  fn values(self) -> JsIterator<T> {self->values().transmute()}
+
   fn forEach(self, f: (T) -> ()) -> () {
     self->forEach(f)
+  }
+}
+
+impl<T> IntoIterator<T> for Set<T> {
+  fn iter(self) -> Iterator<T> {
+    let jsiter: JsIterator<T> = self.values()
+    let iter: Iterator<T> = jsiter
+    iter
   }
 }

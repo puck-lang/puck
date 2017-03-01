@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.RegExp = exports.Bool = exports.Num = exports.String = exports.List = exports.Range = exports.ObjectMap = exports.Unknown = exports.Map = exports.Set = exports.Radix = exports.Result = exports.Option = exports.Ordering = exports.Never = exports.IntoIterator = exports.Iterator = exports.Iterable = exports.Index = exports.PartialEq = exports.PartialOrd = exports.Ord = exports.identical = exports.Ok = exports.Err = exports.Some = exports.None = exports.print = exports.panicundefined;
+exports.RegExp = exports.Bool = exports.Num = exports.String = exports.List = exports.Range = exports.ObjectMap = exports.Unknown = exports.JsIterator = exports.Map = exports.Entry = exports.Set = exports.Radix = exports.Result = exports.Option = exports.Ordering = exports.Never = exports.IntoIterator = exports.Iterator = exports.Iterable = exports.Index = exports.PartialEq = exports.PartialOrd = exports.Ord = exports.identical = exports.Ok = exports.Err = exports.Some = exports.None = exports.print = exports.panicundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/js");
 const js = require("./core/js.js");
 var RegExp = exports.RegExp = (object) => object;
@@ -13,12 +13,15 @@ var List = exports.List = (object) => object;
 var MapIterator = (object) => object;
 var FilterIterator = (object) => object;
 var FilterMapIterator = (object) => object;
+var FlatMapIterator = (object) => object;
 var ListIterator = (object) => object;
 var Range = exports.Range = (object) => object;
 var NumRangeIterator = (object) => object;
 var ObjectMap = exports.ObjectMap = (object) => object;
 var Unknown = exports.Unknown = (object) => object;
+var JsIterator = exports.JsIterator = (object) => object;
 var Map = exports.Map = (object) => object;
+var Entry = exports.Entry = (object) => object;
 var Set = exports.Set = (object) => object;
 var Radix = exports.Radix = {
 Binary: {kind: 'Binary', value: Symbol('Binary')},
@@ -84,6 +87,15 @@ filterMap: function (f) {
     f: f,
   };
   return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FilterMapIterator', value: iter, $isTraitObject: true};
+},
+flatMap: function (f) {
+  const self = this;
+  const iter = {
+    iter: self,
+    flatteningIter: None,
+    f: f,
+  };
+  return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FlatMapIterator', value: iter, $isTraitObject: true};
 },
 enumerate: function () {
   const self = this;
@@ -175,6 +187,21 @@ position: function (predicate) {
     index += 1;
   };
   return None;
+},
+collect: function () {
+  let self = this;
+  let list = [];
+  while (true) {
+    let $puck_8 = Iterator[self.type].next.call(self);
+    if ($puck_8.kind === "Some") {
+      let {value: [value]} = $puck_8;
+      List.push.call(list, $unwrapTraitObject(value));
+    }
+    else {
+      return list;
+    };
+  };
+  return list;
 }
 };
 var Iterable = exports.Iterable = {
@@ -192,33 +219,33 @@ ne: function (other) {
 var PartialOrd = exports.PartialOrd = {
 lt: function (other) {
   const self = this;
-  let $puck_8 = PartialOrd[self.type].partialCmp.call(self, $unwrapTraitObject(other));
-  if (($unwrapTraitObject($puck_8).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_8).value)[0]).kind === "Less")) {
-    let {value: []} = $unwrapTraitObject($puck_8);
+  let $puck_9 = PartialOrd[self.type].partialCmp.call(self, $unwrapTraitObject(other));
+  if (($unwrapTraitObject($puck_9).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_9).value)[0]).kind === "Less")) {
+    let {value: []} = $unwrapTraitObject($puck_9);
     return true;
   }
   else {
     if (true) {
-      let $puck_9 = $puck_8;
+      let $puck_10 = $puck_9;
       return false;
     };
   };
 },
 le: function (other) {
   const self = this;
-  let $puck_10 = PartialOrd[self.type].partialCmp.call(self, $unwrapTraitObject(other));
-  if (($unwrapTraitObject($puck_10).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_10).value)[0]).kind === "Less")) {
-    let {value: []} = $unwrapTraitObject($puck_10);
+  let $puck_11 = PartialOrd[self.type].partialCmp.call(self, $unwrapTraitObject(other));
+  if (($unwrapTraitObject($puck_11).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_11).value)[0]).kind === "Less")) {
+    let {value: []} = $unwrapTraitObject($puck_11);
     return true;
   }
   else {
-    if (($unwrapTraitObject($puck_10).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_10).value)[0]).kind === "Equal")) {
-      let {value: []} = $unwrapTraitObject($puck_10);
+    if (($unwrapTraitObject($puck_11).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_11).value)[0]).kind === "Equal")) {
+      let {value: []} = $unwrapTraitObject($puck_11);
       return true;
     }
     else {
       if (true) {
-        let $puck_11 = $puck_10;
+        let $puck_12 = $puck_11;
         return false;
       };
     };
@@ -226,33 +253,33 @@ le: function (other) {
 },
 gt: function (other) {
   const self = this;
-  let $puck_12 = PartialOrd[self.type].partialCmp.call(self, $unwrapTraitObject(other));
-  if (($unwrapTraitObject($puck_12).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_12).value)[0]).kind === "Greater")) {
-    let {value: []} = $unwrapTraitObject($puck_12);
+  let $puck_13 = PartialOrd[self.type].partialCmp.call(self, $unwrapTraitObject(other));
+  if (($unwrapTraitObject($puck_13).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_13).value)[0]).kind === "Greater")) {
+    let {value: []} = $unwrapTraitObject($puck_13);
     return true;
   }
   else {
     if (true) {
-      let $puck_13 = $puck_12;
+      let $puck_14 = $puck_13;
       return false;
     };
   };
 },
 ge: function (other) {
   const self = this;
-  let $puck_14 = PartialOrd[self.type].partialCmp.call(self, $unwrapTraitObject(other));
-  if (($unwrapTraitObject($puck_14).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_14).value)[0]).kind === "Greater")) {
-    let {value: []} = $unwrapTraitObject($puck_14);
+  let $puck_15 = PartialOrd[self.type].partialCmp.call(self, $unwrapTraitObject(other));
+  if (($unwrapTraitObject($puck_15).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_15).value)[0]).kind === "Greater")) {
+    let {value: []} = $unwrapTraitObject($puck_15);
     return true;
   }
   else {
-    if (($unwrapTraitObject($puck_14).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_14).value)[0]).kind === "Equal")) {
-      let {value: []} = $unwrapTraitObject($puck_14);
+    if (($unwrapTraitObject($puck_15).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_15).value)[0]).kind === "Equal")) {
+      let {value: []} = $unwrapTraitObject($puck_15);
       return true;
     }
     else {
       if (true) {
-        let $puck_15 = $puck_14;
+        let $puck_16 = $puck_15;
         return false;
       };
     };
@@ -278,12 +305,14 @@ count: Iterator.count,
 map: Iterator.map,
 filter: Iterator.filter,
 filterMap: Iterator.filterMap,
+flatMap: Iterator.flatMap,
 enumerate: Iterator.enumerate,
 fold: Iterator.fold,
 all: Iterator.all,
 any: Iterator.any,
 find: Iterator.find,
-position: Iterator.position
+position: Iterator.position,
+collect: Iterator.collect
 };
 IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$String"] = {
 iter: function () {
@@ -310,30 +339,32 @@ index: function (index) {
 Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:MapIterator"] = {
 next: function () {
   let self = this;
-  let $puck_16 = self.value.iter
+  let $puck_17 = self.value.iter
 ;
-  return Option.map.call(Iterator[$puck_16.type].next.call($puck_16), $unwrapTraitObject(self.value.f));
+  return Option.map.call(Iterator[$puck_17.type].next.call($puck_17), $unwrapTraitObject(self.value.f));
 },
 count: Iterator.count,
 map: Iterator.map,
 filter: Iterator.filter,
 filterMap: Iterator.filterMap,
+flatMap: Iterator.flatMap,
 enumerate: Iterator.enumerate,
 fold: Iterator.fold,
 all: Iterator.all,
 any: Iterator.any,
 find: Iterator.find,
-position: Iterator.position
+position: Iterator.position,
+collect: Iterator.collect
 };
 Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FilterIterator"] = {
 next: function () {
   let self = this;
   while (true) {
-    let $puck_18 = self.value.iter
+    let $puck_19 = self.value.iter
 ;
-    let $puck_17 = Iterator[$puck_18.type].next.call($puck_18);
-    if (($puck_17.kind === "Some")) {
-      let {value: [value]} = $puck_17;
+    let $puck_18 = Iterator[$puck_19.type].next.call($puck_19);
+    if (($puck_18.kind === "Some")) {
+      let {value: [value]} = $puck_18;
       if (self.value.predicate($unwrapTraitObject(value))) {
         return Some($unwrapTraitObject(value));
       };
@@ -348,25 +379,27 @@ count: Iterator.count,
 map: Iterator.map,
 filter: Iterator.filter,
 filterMap: Iterator.filterMap,
+flatMap: Iterator.flatMap,
 enumerate: Iterator.enumerate,
 fold: Iterator.fold,
 all: Iterator.all,
 any: Iterator.any,
 find: Iterator.find,
-position: Iterator.position
+position: Iterator.position,
+collect: Iterator.collect
 };
 Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FilterMapIterator"] = {
 next: function () {
   let self = this;
   while (true) {
-    let $puck_20 = self.value.iter
+    let $puck_21 = self.value.iter
 ;
-    let $puck_19 = Iterator[$puck_20.type].next.call($puck_20);
-    if ($puck_19.kind === "Some") {
-      let {value: [value]} = $puck_19;
-      let $puck_21 = self.value.f($unwrapTraitObject(value));
-      if ($puck_21.kind === "Some") {
-        let {value: [value]} = $puck_21;
+    let $puck_20 = Iterator[$puck_21.type].next.call($puck_21);
+    if ($puck_20.kind === "Some") {
+      let {value: [value]} = $puck_20;
+      let $puck_22 = self.value.f($unwrapTraitObject(value));
+      if ($puck_22.kind === "Some") {
+        let {value: [value]} = $puck_22;
         return Some($unwrapTraitObject(value));
       };
     }
@@ -380,12 +413,64 @@ count: Iterator.count,
 map: Iterator.map,
 filter: Iterator.filter,
 filterMap: Iterator.filterMap,
+flatMap: Iterator.flatMap,
 enumerate: Iterator.enumerate,
 fold: Iterator.fold,
 all: Iterator.all,
 any: Iterator.any,
 find: Iterator.find,
-position: Iterator.position
+position: Iterator.position,
+collect: Iterator.collect
+};
+Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FlatMapIterator"] = {
+next: function () {
+  let self = this;
+  let $puck_23 = self.value.flatteningIter;
+  if ($puck_23.kind === "Some") {
+    let {value: [i]} = $puck_23;
+    let $puck_24 = Iterator[i.type].next.call(i);
+    if ($puck_24.kind === "Some") {
+      let {value: [value]} = $puck_24;
+      return Some($unwrapTraitObject(value));
+    }
+    else {
+      self.value.flatteningIter = None;
+    };
+  };
+  while (true) {
+    let $puck_26 = self.value.iter
+;
+    let $puck_25 = Iterator[$puck_26.type].next.call($puck_26);
+    if ($puck_25.kind === "Some") {
+      let {value: [value]} = $puck_25;
+      let $puck_27 = self.value.f($unwrapTraitObject(value))
+;
+      let iter = IntoIterator[$puck_27.type].iter.call($puck_27);
+      let $puck_28 = Iterator[iter.type].next.call(iter);
+      if ($puck_28.kind === "Some") {
+        let {value: [value]} = $puck_28;
+        self.value.flatteningIter = Some(iter);
+        return Some($unwrapTraitObject(value));
+      };
+    }
+    else {
+      return None;
+    };
+  };
+  return None;
+},
+count: Iterator.count,
+map: Iterator.map,
+filter: Iterator.filter,
+filterMap: Iterator.filterMap,
+flatMap: Iterator.flatMap,
+enumerate: Iterator.enumerate,
+fold: Iterator.fold,
+all: Iterator.all,
+any: Iterator.any,
+find: Iterator.find,
+position: Iterator.position,
+collect: Iterator.collect
 };
 Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:ListIterator"] = {
 next: function () {
@@ -400,12 +485,14 @@ count: Iterator.count,
 map: Iterator.map,
 filter: Iterator.filter,
 filterMap: Iterator.filterMap,
+flatMap: Iterator.flatMap,
 enumerate: Iterator.enumerate,
 fold: Iterator.fold,
 all: Iterator.all,
 any: Iterator.any,
 find: Iterator.find,
-position: Iterator.position
+position: Iterator.position,
+collect: Iterator.collect
 };
 IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"] = {
 iter: function () {
@@ -505,9 +592,9 @@ filterMap: function (func) {
   const self = this;
   let newList = [];
   Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call(self, function (element) {
-    let $puck_22 = func($unwrapTraitObject(element));
-    if ($puck_22.kind === "Some") {
-      let {value: [mappedElement]} = $puck_22;
+    let $puck_29 = func($unwrapTraitObject(element));
+    if ($puck_29.kind === "Some") {
+      let {value: [mappedElement]} = $puck_29;
       return List.push.call(newList, $unwrapTraitObject(mappedElement));
     };
   });
@@ -520,14 +607,14 @@ skip: function (count) {
 skipUntil: function (predicate) {
   const self = this;
   const index = $unwrapTraitObject(self.value.findIndex(predicate));
-  let $puck_23;
+  let $puck_30;
   if (index === -1) {
-    $puck_23 = [];
+    $puck_30 = [];
   }
   else {
-    $puck_23 = self.value.slice(index);
+    $puck_30 = self.value.slice(index);
   };
-  return {type: '$impl_lib/stdlib/core.puck:Iterable$List', value: asList($puck_23), $isTraitObject: true};
+  return {type: '$impl_lib/stdlib/core.puck:Iterable$List', value: asList($puck_30), $isTraitObject: true};
 },
 take: function (count) {
   const self = this;
@@ -554,12 +641,14 @@ count: Iterator.count,
 map: Iterator.map,
 filter: Iterator.filter,
 filterMap: Iterator.filterMap,
+flatMap: Iterator.flatMap,
 enumerate: Iterator.enumerate,
 fold: Iterator.fold,
 all: Iterator.all,
 any: Iterator.any,
 find: Iterator.find,
-position: Iterator.position
+position: Iterator.position,
+collect: Iterator.collect
 };
 IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Range"] = {
 iter: function () {
@@ -680,6 +769,38 @@ le: PartialOrd.le,
 gt: PartialOrd.gt,
 ge: PartialOrd.ge
 };
+Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator"] = {
+next: function () {
+  let self = this;
+  let {value: value, done: done} = $unwrapTraitObject(self.value.next());
+  if (done) {
+    return None;
+  }
+  else {
+    return Some(value);
+  };
+},
+count: Iterator.count,
+map: Iterator.map,
+filter: Iterator.filter,
+filterMap: Iterator.filterMap,
+flatMap: Iterator.flatMap,
+enumerate: Iterator.enumerate,
+fold: Iterator.fold,
+all: Iterator.all,
+any: Iterator.any,
+find: Iterator.find,
+position: Iterator.position,
+collect: Iterator.collect
+};
+IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set"] = {
+iter: function () {
+  const self = this;
+  const jsiter = Set.values.call(self.value);
+  const iter = {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator', value: jsiter, $isTraitObject: true};
+  return iter;
+}
+};
 RegExp._new = function (pattern, flags = "") {
   return $unwrapTraitObject(js.RegExp(pattern, flags));
 };
@@ -689,24 +810,24 @@ RegExp.test = function (string) {
 };
 Radix.pattern = function () {
   const self = this;
-  let $puck_24 = self;
-  if ($unwrapTraitObject($puck_24).kind === "Binary") {
-    let undefined = $unwrapTraitObject($puck_24);
+  let $puck_31 = self;
+  if ($unwrapTraitObject($puck_31).kind === "Binary") {
+    let undefined = $unwrapTraitObject($puck_31);
     return RegExp._new("^[-+]?[01]+$");
   }
   else {
-    if ($unwrapTraitObject($puck_24).kind === "Octal") {
-      let undefined = $unwrapTraitObject($puck_24);
+    if ($unwrapTraitObject($puck_31).kind === "Octal") {
+      let undefined = $unwrapTraitObject($puck_31);
       return RegExp._new("^[-+]?[0-7]+$");
     }
     else {
-      if ($unwrapTraitObject($puck_24).kind === "Decimal") {
-        let undefined = $unwrapTraitObject($puck_24);
+      if ($unwrapTraitObject($puck_31).kind === "Decimal") {
+        let undefined = $unwrapTraitObject($puck_31);
         return RegExp._new("^[-+]?[0-9]+$");
       }
       else {
-        if ($unwrapTraitObject($puck_24).kind === "Hex") {
-          let undefined = $unwrapTraitObject($puck_24);
+        if ($unwrapTraitObject($puck_31).kind === "Hex") {
+          let undefined = $unwrapTraitObject($puck_31);
           return RegExp._new("^[-+]?[0-9A-Fa-f]+$");
         };
       };
@@ -715,24 +836,24 @@ Radix.pattern = function () {
 };
 Radix.radix = function () {
   const self = this;
-  let $puck_25 = self;
-  if ($unwrapTraitObject($puck_25).kind === "Binary") {
-    let undefined = $unwrapTraitObject($puck_25);
+  let $puck_32 = self;
+  if ($unwrapTraitObject($puck_32).kind === "Binary") {
+    let undefined = $unwrapTraitObject($puck_32);
     return 2;
   }
   else {
-    if ($unwrapTraitObject($puck_25).kind === "Octal") {
-      let undefined = $unwrapTraitObject($puck_25);
+    if ($unwrapTraitObject($puck_32).kind === "Octal") {
+      let undefined = $unwrapTraitObject($puck_32);
       return 8;
     }
     else {
-      if ($unwrapTraitObject($puck_25).kind === "Decimal") {
-        let undefined = $unwrapTraitObject($puck_25);
+      if ($unwrapTraitObject($puck_32).kind === "Decimal") {
+        let undefined = $unwrapTraitObject($puck_32);
         return 10;
       }
       else {
-        if ($unwrapTraitObject($puck_25).kind === "Hex") {
-          let undefined = $unwrapTraitObject($puck_25);
+        if ($unwrapTraitObject($puck_32).kind === "Hex") {
+          let undefined = $unwrapTraitObject($puck_32);
           return 16;
         };
       };
@@ -842,22 +963,22 @@ String.sub = function (range) {
 };
 String.padLeft = function (width, padding = " ") {
   const self = this;
-  let $puck_26;
+  let $puck_33;
   if (width < 0) {
-    $puck_26 = 0;
+    $puck_33 = 0;
   }
   else {
-    $puck_26 = width;
+    $puck_33 = width;
   };
-  width = $puck_26;
-  let $puck_27;
+  width = $puck_33;
+  let $puck_34;
   if (padding === "") {
-    $puck_27 = " ";
+    $puck_34 = " ";
   }
   else {
-    $puck_27 = padding;
+    $puck_34 = padding;
   };
-  padding = $puck_27;
+  padding = $puck_34;
   if (String.size.call(self) >= width) {
     return self;
   };
@@ -872,22 +993,22 @@ String.padLeft = function (width, padding = " ") {
 };
 String.padRight = function (width, padding = " ") {
   const self = this;
-  let $puck_28;
+  let $puck_35;
   if ((width < 0)) {
-    $puck_28 = 0;
+    $puck_35 = 0;
   }
   else {
-    $puck_28 = width;
+    $puck_35 = width;
   };
-  width = $puck_28;
-  let $puck_29;
+  width = $puck_35;
+  let $puck_36;
   if (padding === "") {
-    $puck_29 = " ";
+    $puck_36 = " ";
   }
   else {
-    $puck_29 = padding;
+    $puck_36 = padding;
   };
-  padding = $puck_29;
+  padding = $puck_36;
   if (String.size.call(self) >= width) {
     return self;
   };
@@ -922,28 +1043,28 @@ String.trimRight = function () {
 };
 Result.isOk = function () {
   const self = this;
-  let $puck_30 = self;
-  if (($unwrapTraitObject($puck_30).kind === "Ok")) {
-    let {value: [$puck_31]} = $unwrapTraitObject($puck_30);
+  let $puck_37 = self;
+  if (($unwrapTraitObject($puck_37).kind === "Ok")) {
+    let {value: [$puck_38]} = $unwrapTraitObject($puck_37);
     return true;
   }
   else {
-    if ($unwrapTraitObject($puck_30).kind === "Err") {
-      let {value: [$puck_32]} = $unwrapTraitObject($puck_30);
+    if ($unwrapTraitObject($puck_37).kind === "Err") {
+      let {value: [$puck_39]} = $unwrapTraitObject($puck_37);
       return false;
     };
   };
 };
 Result.isErr = function () {
   const self = this;
-  let $puck_33 = self;
-  if ($unwrapTraitObject($puck_33).kind === "Ok") {
-    let {value: [$puck_34]} = $unwrapTraitObject($puck_33);
+  let $puck_40 = self;
+  if ($unwrapTraitObject($puck_40).kind === "Ok") {
+    let {value: [$puck_41]} = $unwrapTraitObject($puck_40);
     return false;
   }
   else {
-    if ($unwrapTraitObject($puck_33).kind === "Err") {
-      let {value: [$puck_35]} = $unwrapTraitObject($puck_33);
+    if ($unwrapTraitObject($puck_40).kind === "Err") {
+      let {value: [$puck_42]} = $unwrapTraitObject($puck_40);
       return true;
     };
   };
@@ -959,9 +1080,9 @@ Result.andValue = function (res) {
 };
 Result.andThen = function (op) {
   const self = this;
-  let $puck_36 = self;
-  if ($puck_36.kind === "Ok") {
-    let {value: [value]} = $puck_36;
+  let $puck_43 = self;
+  if ($puck_43.kind === "Ok") {
+    let {value: [value]} = $puck_43;
     return op($unwrapTraitObject(value));
   }
   else {
@@ -979,9 +1100,9 @@ Result.orValue = function (res) {
 };
 Result.orElse = function (op) {
   const self = this;
-  let $puck_37 = self;
-  if ($puck_37.kind === "Err") {
-    let {value: [err]} = $puck_37;
+  let $puck_44 = self;
+  if ($puck_44.kind === "Err") {
+    let {value: [err]} = $puck_44;
     return op($unwrapTraitObject(err));
   }
   else {
@@ -990,9 +1111,9 @@ Result.orElse = function (op) {
 };
 Result.map = function (op) {
   const self = this;
-  let $puck_38 = self;
-  if ($puck_38.kind === "Ok") {
-    let {value: [value]} = $puck_38;
+  let $puck_45 = self;
+  if ($puck_45.kind === "Ok") {
+    let {value: [value]} = $puck_45;
     return Ok($unwrapTraitObject(op($unwrapTraitObject(value))));
   }
   else {
@@ -1001,9 +1122,9 @@ Result.map = function (op) {
 };
 Result.mapErr = function (op) {
   const self = this;
-  let $puck_39 = self;
-  if ($puck_39.kind === "Err") {
-    let {value: [value]} = $puck_39;
+  let $puck_46 = self;
+  if ($puck_46.kind === "Err") {
+    let {value: [value]} = $puck_46;
     return Err($unwrapTraitObject(op($unwrapTraitObject(value))));
   }
   else {
@@ -1012,23 +1133,23 @@ Result.mapErr = function (op) {
 };
 Result.unwrap = function () {
   const self = this;
-  let $puck_40 = self;
-  if ($unwrapTraitObject($puck_40).kind === "Ok") {
-    let {value: [value]} = $unwrapTraitObject($puck_40);
+  let $puck_47 = self;
+  if ($unwrapTraitObject($puck_47).kind === "Ok") {
+    let {value: [value]} = $unwrapTraitObject($puck_47);
     return value;
   }
   else {
-    if ($unwrapTraitObject($puck_40).kind === "Err") {
-      let {value: [err]} = $unwrapTraitObject($puck_40);
+    if ($unwrapTraitObject($puck_47).kind === "Err") {
+      let {value: [err]} = $unwrapTraitObject($puck_47);
       throw $puck_1.Error($unwrapTraitObject(err));
     };
   };
 };
 Result.unwrapOr = function (_default) {
   const self = this;
-  let $puck_41 = self;
-  if ($puck_41.kind === "Ok") {
-    let {value: [value]} = $puck_41;
+  let $puck_48 = self;
+  if ($puck_48.kind === "Ok") {
+    let {value: [value]} = $puck_48;
     return value;
   }
   else {
@@ -1037,9 +1158,9 @@ Result.unwrapOr = function (_default) {
 };
 Result.unwrapOrElse = function (_default) {
   const self = this;
-  let $puck_42 = self;
-  if ($puck_42.kind === "Ok") {
-    let {value: [value]} = $puck_42;
+  let $puck_49 = self;
+  if ($puck_49.kind === "Ok") {
+    let {value: [value]} = $puck_49;
     return value;
   }
   else {
@@ -1048,51 +1169,51 @@ Result.unwrapOrElse = function (_default) {
 };
 Result.unwrapErr = function () {
   const self = this;
-  let $puck_43 = self;
-  if ($unwrapTraitObject($puck_43).kind === "Ok") {
-    let {value: [value]} = $unwrapTraitObject($puck_43);
+  let $puck_50 = self;
+  if ($unwrapTraitObject($puck_50).kind === "Ok") {
+    let {value: [value]} = $unwrapTraitObject($puck_50);
     throw $puck_1.Error($unwrapTraitObject(value));
   }
   else {
-    if ($unwrapTraitObject($puck_43).kind === "Err") {
-      let {value: [err]} = $unwrapTraitObject($puck_43);
+    if ($unwrapTraitObject($puck_50).kind === "Err") {
+      let {value: [err]} = $unwrapTraitObject($puck_50);
       return err;
     };
   };
 };
 Option.isSome = function () {
   const self = this;
-  let $puck_44 = self;
-  if ($unwrapTraitObject($puck_44).kind === "Some") {
-    let {value: [$puck_45]} = $unwrapTraitObject($puck_44);
+  let $puck_51 = self;
+  if ($unwrapTraitObject($puck_51).kind === "Some") {
+    let {value: [$puck_52]} = $unwrapTraitObject($puck_51);
     return true;
   }
   else {
-    if ($unwrapTraitObject($puck_44).kind === "None") {
-      let undefined = $unwrapTraitObject($puck_44);
+    if ($unwrapTraitObject($puck_51).kind === "None") {
+      let undefined = $unwrapTraitObject($puck_51);
       return false;
     };
   };
 };
 Option.isNone = function () {
   const self = this;
-  let $puck_46 = self;
-  if ($unwrapTraitObject($puck_46).kind === "Some") {
-    let {value: [$puck_47]} = $unwrapTraitObject($puck_46);
+  let $puck_53 = self;
+  if ($unwrapTraitObject($puck_53).kind === "Some") {
+    let {value: [$puck_54]} = $unwrapTraitObject($puck_53);
     return false;
   }
   else {
-    if ($unwrapTraitObject($puck_46).kind === "None") {
-      let undefined = $unwrapTraitObject($puck_46);
+    if ($unwrapTraitObject($puck_53).kind === "None") {
+      let undefined = $unwrapTraitObject($puck_53);
       return true;
     };
   };
 };
 Option.okOr = function (err) {
   const self = this;
-  let $puck_48 = self;
-  if ($puck_48.kind === "Some") {
-    let {value: [value]} = $puck_48;
+  let $puck_55 = self;
+  if ($puck_55.kind === "Some") {
+    let {value: [value]} = $puck_55;
     return Ok($unwrapTraitObject(value));
   }
   else {
@@ -1101,9 +1222,9 @@ Option.okOr = function (err) {
 };
 Option.okOrElse = function (err) {
   const self = this;
-  let $puck_49 = self;
-  if ($puck_49.kind === "Some") {
-    let {value: [value]} = $puck_49;
+  let $puck_56 = self;
+  if ($puck_56.kind === "Some") {
+    let {value: [value]} = $puck_56;
     return Ok($unwrapTraitObject(value));
   }
   else {
@@ -1121,9 +1242,9 @@ Option.andValue = function (optb) {
 };
 Option.andThen = function (op) {
   const self = this;
-  let $puck_50 = self;
-  if ($puck_50.kind === "Some") {
-    let {value: [value]} = $puck_50;
+  let $puck_57 = self;
+  if ($puck_57.kind === "Some") {
+    let {value: [value]} = $puck_57;
     return op($unwrapTraitObject(value));
   }
   else {
@@ -1150,9 +1271,9 @@ Option.orElse = function (op) {
 };
 Option.map = function (f) {
   const self = this;
-  let $puck_51 = self;
-  if ($puck_51.kind === "Some") {
-    let {value: [value]} = $puck_51;
+  let $puck_58 = self;
+  if ($puck_58.kind === "Some") {
+    let {value: [value]} = $puck_58;
     return Some($unwrapTraitObject(f($unwrapTraitObject(value))));
   }
   else {
@@ -1161,9 +1282,9 @@ Option.map = function (f) {
 };
 Option.mapOr = function (_default, f) {
   const self = this;
-  let $puck_52 = self;
-  if ($puck_52.kind === "Some") {
-    let {value: [value]} = $puck_52;
+  let $puck_59 = self;
+  if ($puck_59.kind === "Some") {
+    let {value: [value]} = $puck_59;
     return f($unwrapTraitObject(value));
   }
   else {
@@ -1172,9 +1293,9 @@ Option.mapOr = function (_default, f) {
 };
 Option.mapOrElse = function (_default, f) {
   const self = this;
-  let $puck_53 = self;
-  if ($puck_53.kind === "Some") {
-    let {value: [value]} = $puck_53;
+  let $puck_60 = self;
+  if ($puck_60.kind === "Some") {
+    let {value: [value]} = $puck_60;
     return f($unwrapTraitObject(value));
   }
   else {
@@ -1183,23 +1304,23 @@ Option.mapOrElse = function (_default, f) {
 };
 Option.unwrap = function () {
   const self = this;
-  let $puck_54 = self;
-  if ($unwrapTraitObject($puck_54).kind === "Some") {
-    let {value: [value]} = $unwrapTraitObject($puck_54);
+  let $puck_61 = self;
+  if ($unwrapTraitObject($puck_61).kind === "Some") {
+    let {value: [value]} = $unwrapTraitObject($puck_61);
     return value;
   }
   else {
-    if ($unwrapTraitObject($puck_54).kind === "None") {
-      let undefined = $unwrapTraitObject($puck_54);
+    if ($unwrapTraitObject($puck_61).kind === "None") {
+      let undefined = $unwrapTraitObject($puck_61);
       return panic("Can not unwrap empty Option");
     };
   };
 };
 Option.unwrapOr = function (_default) {
   const self = this;
-  let $puck_55 = self;
-  if ($puck_55.kind === "Some") {
-    let {value: [value]} = $puck_55;
+  let $puck_62 = self;
+  if ($puck_62.kind === "Some") {
+    let {value: [value]} = $puck_62;
     return value;
   }
   else {
@@ -1208,9 +1329,9 @@ Option.unwrapOr = function (_default) {
 };
 Option.unwrapOrElse = function (_default) {
   const self = this;
-  let $puck_56 = self;
-  if ($puck_56.kind === "Some") {
-    let {value: [value]} = $puck_56;
+  let $puck_63 = self;
+  if ($puck_63.kind === "Some") {
+    let {value: [value]} = $puck_63;
     return value;
   }
   else {
@@ -1219,19 +1340,19 @@ Option.unwrapOrElse = function (_default) {
 };
 Ordering.reverse = function () {
   const self = this;
-  let $puck_57 = self;
-  if ($unwrapTraitObject($puck_57).kind === "Less") {
-    let undefined = $unwrapTraitObject($puck_57);
+  let $puck_64 = self;
+  if ($unwrapTraitObject($puck_64).kind === "Less") {
+    let undefined = $unwrapTraitObject($puck_64);
     return Ordering.Greater;
   }
   else {
-    if ($unwrapTraitObject($puck_57).kind === "Equal") {
-      let undefined = $unwrapTraitObject($puck_57);
+    if ($unwrapTraitObject($puck_64).kind === "Equal") {
+      let undefined = $unwrapTraitObject($puck_64);
       return Ordering.Equal;
     }
     else {
-      if ($unwrapTraitObject($puck_57).kind === "Greater") {
-        let undefined = $unwrapTraitObject($puck_57);
+      if ($unwrapTraitObject($puck_64).kind === "Greater") {
+        let undefined = $unwrapTraitObject($puck_64);
         return Ordering.Less;
       };
     };
@@ -1241,16 +1362,16 @@ List.zip = function (a, b) {
   if (Iterable[a.type].size.call(a) !== Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: b, $isTraitObject: true})) {
     throw $puck_1.Error("Iterable a and b are not of the same length");
   };
-  let $puck_59 = Iterable[a.type].enumerate.call(a)
+  let $puck_66 = Iterable[a.type].enumerate.call(a)
 ;
-  let $puck_58 = Iterable[$puck_59.type].map.call($puck_59, function ([i, a]) {
+  let $puck_65 = Iterable[$puck_66.type].map.call($puck_66, function ([i, a]) {
     return [
       a,
       Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: b, $isTraitObject: true}, i),
     ];
   })
 ;
-  return Iterable[$puck_58.type].toList.call($puck_58);
+  return Iterable[$puck_65.type].toList.call($puck_65);
 };
 List.push = function (element) {
   let self = this;
@@ -1284,19 +1405,19 @@ List.binarySearchBy = function (f) {
     };
     let guess = [(min + max)] / 2;
     guess = Num.floor.call(guess);
-    let $puck_60 = f($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self, $isTraitObject: true}, guess)));
-    if (($unwrapTraitObject($puck_60).kind === "Equal")) {
-      let undefined = $unwrapTraitObject($puck_60);
+    let $puck_67 = f($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self, $isTraitObject: true}, guess)));
+    if (($unwrapTraitObject($puck_67).kind === "Equal")) {
+      let undefined = $unwrapTraitObject($puck_67);
       return Ok(guess);
     }
     else {
-      if ($unwrapTraitObject($puck_60).kind === "Less") {
-        let undefined = $unwrapTraitObject($puck_60);
+      if ($unwrapTraitObject($puck_67).kind === "Less") {
+        let undefined = $unwrapTraitObject($puck_67);
         min = guess + 1;
       }
       else {
-        if (($unwrapTraitObject($puck_60).kind === "Greater")) {
-          let undefined = $unwrapTraitObject($puck_60);
+        if (($unwrapTraitObject($puck_67).kind === "Greater")) {
+          let undefined = $unwrapTraitObject($puck_67);
           max = guess - 1;
         };
       };
@@ -1346,22 +1467,22 @@ ObjectMap.keys = function () {
 };
 ObjectMap.values = function () {
   const self = this;
-  let $puck_61 = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ObjectMap.keys.call(self), $isTraitObject: true}, function (key) {
+  let $puck_68 = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ObjectMap.keys.call(self), $isTraitObject: true}, function (key) {
     return Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key);
   })
 ;
-  return Iterable[$puck_61.type].toList.call($puck_61);
+  return Iterable[$puck_68.type].toList.call($puck_68);
 };
 ObjectMap.toList = function () {
   const self = this;
-  let $puck_62 = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ObjectMap.keys.call(self), $isTraitObject: true}, function (key) {
+  let $puck_69 = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ObjectMap.keys.call(self), $isTraitObject: true}, function (key) {
     return [
       key,
       Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key),
     ];
   })
 ;
-  return Iterable[$puck_62.type].toList.call($puck_62);
+  return Iterable[$puck_69.type].toList.call($puck_69);
 };
 ObjectMap.all = function (predicate) {
   const self = this;
@@ -1403,12 +1524,12 @@ ObjectMap.find = function (predicate) {
       $unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key)),
     ]);
   });
-  let $puck_63 = key;
-  if ($puck_63.kind === "Some") {
-    let {value: [key]} = $puck_63;
+  let $puck_70 = key;
+  if ($puck_70.kind === "Some") {
+    let {value: [key]} = $puck_70;
     return Some([
       key,
-      Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key),
+      $unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key)),
     ]);
   }
   else {
@@ -1427,7 +1548,7 @@ ObjectMap.forEach = function (func) {
 };
 ObjectMap._delete = function (key) {
   let self = this;
-  js._delete(self, key);
+  js["delete"](self, key);
 };
 ObjectMap.has = function (key) {
   const self = this;
@@ -1538,6 +1659,10 @@ Map.size = function () {
   const self = this;
   return $unwrapTraitObject(self.size);
 };
+Map.clear = function () {
+  let self = this;
+  self.clear();
+};
 Map.set = function (key, value) {
   let self = this;
   self.set(key, value);
@@ -1560,9 +1685,57 @@ Map.has = function (key) {
   const self = this;
   return $unwrapTraitObject(self.has(key));
 };
+Map.entries = function () {
+  const self = this;
+  return $unwrapTraitObject(self.entries());
+};
+Map.keys = function () {
+  const self = this;
+  return $unwrapTraitObject(self.keys());
+};
+Map.values = function () {
+  const self = this;
+  return $unwrapTraitObject(self.values());
+};
 Map.forEach = function (f) {
   const self = this;
   self.forEach(f);
+};
+Map.entry = function (key) {
+  let self = this;
+  return {
+    map: self,
+    key: $unwrapTraitObject(key),
+  };
+};
+Entry.orInsert = function (_default) {
+  let self = this;
+  let $puck_71 = Map.get.call(self.map, $unwrapTraitObject(self.key));
+  if ($puck_71.kind === "Some") {
+    let {value: [value]} = $puck_71;
+    return value;
+  }
+  else {
+    Map.set.call(self.map, $unwrapTraitObject(self.key), $unwrapTraitObject(_default));
+    return _default;
+  };
+};
+Entry.orInsertWith = function (_default) {
+  let self = this;
+  let $puck_72 = Map.get.call(self.map, $unwrapTraitObject(self.key));
+  if ($puck_72.kind === "Some") {
+    let {value: [value]} = $puck_72;
+    return value;
+  }
+  else {
+    const value = $unwrapTraitObject(_default());
+    Map.set.call(self.map, $unwrapTraitObject(self.key), $unwrapTraitObject(value));
+    return value;
+  };
+};
+Entry.key = function () {
+  const self = this;
+  return $unwrapTraitObject(self.key);
 };
 Set._new = function () {
   return $unwrapTraitObject(js.createSet());
@@ -1570,6 +1743,10 @@ Set._new = function () {
 Set.size = function () {
   const self = this;
   return $unwrapTraitObject(self.size);
+};
+Set.clear = function () {
+  let self = this;
+  self.clear();
 };
 Set.add = function (value) {
   let self = this;
@@ -1582,6 +1759,10 @@ Set._delete = function (value) {
 Set.has = function (value) {
   const self = this;
   return $unwrapTraitObject(self.has(value));
+};
+Set.values = function () {
+  const self = this;
+  return $unwrapTraitObject(self.values());
 };
 Set.forEach = function (f) {
   const self = this;
