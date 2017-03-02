@@ -496,7 +496,7 @@ function parse(input, file, recover = false) {
       path: file.absolutePath,
       exports: exports,
       statements: statements,
-      file: $unwrapTraitObject($puck_2._undefined),
+      file: file,
       scope: $puck_2._undefined,
     };
   };

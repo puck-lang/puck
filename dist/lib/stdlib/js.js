@@ -27,7 +27,7 @@ var _typeof = exports._typeof = $unwrapTraitObject(js._typeof);
 function asResult(func) {
   const result = js.asResult(func);
   if (result.error) {
-    return $puck_1.Err($unwrapTraitObject(result.value));
+    return $puck_1.Err(result.value);
   }
   else {
     return $puck_1.Ok($unwrapTraitObject(result.value));

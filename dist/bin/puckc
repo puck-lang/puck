@@ -8,50 +8,52 @@ const $puck_3 = require("fs");
 const $puck_4 = require("path");
 const $puck_5 = require("./../lib/helpers");
 const $puck_6 = require("./../lib/compiler");
+const $puck_7 = require("./../lib/ast/span");
+const $puck_8 = require("./../lib/entities");
 $puck_2.Error.stackTraceLimit = 100;
 const argv = $unwrapTraitObject($puck_2.process.argv);
-let $puck_8 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true}, function (arg) {
+let $puck_10 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].skipUntil.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: argv, $isTraitObject: true}, function (arg) {
   return $puck_1.String.contains.call(arg, "puckc");
 })
 ;
-let $puck_7 = $puck_1.Iterable[$puck_8.type].skip.call($puck_8, 1)
+let $puck_9 = $puck_1.Iterable[$puck_10.type].skip.call($puck_10, 1)
 ;
-const _arguments = $puck_1.Iterable[$puck_7.type].toList.call($puck_7);
+const _arguments = $puck_1.Iterable[$puck_9.type].toList.call($puck_9);
 const outDir = $puck_5.flag(_arguments, "--out-dir", "dist");
 const outFile = $puck_5.flag(_arguments, "--out-file");
 const dump = $puck_5.flag(_arguments, "--dump");
-let $puck_9;
-if ($puck_5.flag(_arguments, "--skip-extension")) {
-  $puck_9 = "";
-}
-else {
-  $puck_9 = ".js";
-};
-const extension = $puck_9;
-let $puck_10;
-if ($puck_5.flag(_arguments, "--ignore-errors") !== "") {
-  $puck_10 = true;
-}
-else {
-  $puck_10 = false;
-};
-const ignoreErrors = $puck_10;
 let $puck_11;
-if ($puck_5.flag(_arguments, "--is-binary") !== "") {
-  $puck_11 = true;
+if ($puck_5.flag(_arguments, "--skip-extension")) {
+  $puck_11 = "";
 }
 else {
-  $puck_11 = false;
+  $puck_11 = ".js";
 };
-const isBinary = $puck_11;
+const extension = $puck_11;
 let $puck_12;
-if ($puck_5.flag(_arguments, "--babel") !== "") {
+if ($puck_5.flag(_arguments, "--ignore-errors") !== "") {
   $puck_12 = true;
 }
 else {
   $puck_12 = false;
 };
-const useBabel = $puck_12;
+const ignoreErrors = $puck_12;
+let $puck_13;
+if ($puck_5.flag(_arguments, "--is-binary") !== "") {
+  $puck_13 = true;
+}
+else {
+  $puck_13 = false;
+};
+const isBinary = $puck_13;
+let $puck_14;
+if ($puck_5.flag(_arguments, "--babel") !== "") {
+  $puck_14 = true;
+}
+else {
+  $puck_14 = false;
+};
+const useBabel = $puck_14;
 if (($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true}) > 1 && outFile)) {
   $unwrapTraitObject($puck_2.console).error("Can't specify --out-file with more than one input file");
   $puck_2.process.exit(1);
@@ -62,8 +64,15 @@ if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type
 }
 else {
   const projectPath = $puck_3.realpathSync(".");
-  let context = $puck_6.createContext(projectPath, ignoreErrors);
-  let $puck_13 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true}, function (file) {
+  function reportError(file, token, error) {
+    const self = this;
+    if ((!ignoreErrors)) {
+      let {line: line, column: column} = $puck_7.ToSpan[token.type].span.call(token).start;
+      throw $puck_2.Error($puck_8.CompilationError.message.call(error) + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")");
+    };
+  };
+  let context = $puck_6.CompilerContext._new(projectPath, reportError);
+  let $puck_15 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true}, function (file) {
     return {
       isBin: isBinary,
       file: file,
@@ -71,7 +80,7 @@ else {
     };
   })
 ;
-  const files = $puck_1.Iterable[$puck_13.type].toList.call($puck_13);
+  const files = $puck_1.Iterable[$puck_15.type].toList.call($puck_15);
   $puck_6.build(files, context, {
     dump: dump,
     useBabel: useBabel,

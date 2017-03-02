@@ -21,23 +21,22 @@ import '../ast/ast.puck' as {
   TypeBound
 }
 import '../ast/span.puck' as {ToSpan}
+import '../compiler.puck' as {CompilerContext}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import '../entities.puck' as {StructKind, TypeClass, TypeKind}
+import '../entities.puck' as {File, StructKind, TypeClass, TypeKind}
 
 /// Visits and declares top level bindings
 ///
 /// The result is used by the import visitor for import and exports but is then
 /// throwed away becouse too little information is known about the imported bindings
-export fn TopLevelVisitor(context, file) {
+export fn TopLevelVisitor(context: CompilerContext, file: File) {
   let mut declarations: ObjectMap<ToSpan> = ObjectMap.new()
-  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
 
   Object->assign({}, visit.emptyVisitor, {
 
     visitModule: |self, mut m: Module| {
       m->declarations = declarations
-      m.file = file
       visit.walkModule(self, m)
     }
     visitEnumDeclaration: |self, t: EnumDeclaration| {

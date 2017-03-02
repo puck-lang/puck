@@ -15,30 +15,33 @@ export type BuildFile {
   outFile: String
 }
 
-export type UnparsedFile {
-  isBin: Bool
-  fileName: String
-  absolutePath: String
-  puck: String
-}
-
 export type File {
   isBin: Bool
   fileName: String
-  projectPath: String
   absolutePath: String
-  outDir: String
-  outFile: String
+  outFile: Option<String>
 
   puck: String
-  // ast: Module
-  js: String
+  ast: Option<Module>
+  js: Option<String>
 }
 
 export enum CompilationError {
   UndefinedVariable(String)
-  TraitNotInScope {name: String, id: String}
-  Other
+  TraitNotInScope {functionName: String, traitName: String, id: String}
+  Other(String)
+}
+
+impl CompilationError {
+  fn message(self) -> String {
+    match self {
+      CompilationError::UndefinedVariable(name) => 'Use of undefined variable $name'
+      CompilationError::TraitNotInScope {functionName, traitName} => {
+        'The function $functionName is defined in trait $traitName but it is not in scope'
+      }
+      CompilationError::Other(name) => name
+    }
+  }
 }
 
 let startWithNumber = RegExp.new('^[0-9]')

@@ -31,6 +31,7 @@ import '../ast/ast.puck' as {
   TypePath
 }
 import '../ast/span.puck' as {ToSpan}
+import '../compiler.puck' as {CompilerContext}
 import '../ast/visit.puck' as visit
 import '../entities.puck' as {Definition, File, StructKind, Type, TypeClass, TypeKind, CompilationError}
 import 'src/scope.puck' as {Binding, Scope, ScopeError}
@@ -45,25 +46,23 @@ fn isTypeScope(e: ExportDirective) {
   }
 }
 
-fn generateTypeId(context, file: File, name: String) {
+fn generateTypeId(context: CompilerContext, file: File, name: String) {
   let path = relative(context.projectPath, file.absolutePath)
   Some(path + ':$name')
 }
 
-fn getTypeId(declaration: {attributes: List<Attribute>, name: Identifier}, context, file: File) {
-  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
-
+fn getTypeId(declaration: {attributes: List<Attribute>, name: Identifier}, context: CompilerContext, file: File) {
   if let Some(attribute) = declaration.attributes.find(|a| a.name.name == 'type_id')
       then match attribute.data {
       AttributeData::Value(literal) => match literal {
         SimpleLiteral::StringLiteral({value}) => Some(value)
         _ => {
-          reportError(attribute, 'type_id must be a string')
+          context.reportError(file, attribute, CompilationError::Other('type_id must be a string'))
           generateTypeId(context, file, declaration.name.name)
         }
       }
       _ => {
-        reportError(attribute, 'type_id must have a value')
+        context.reportError(file, attribute, CompilationError::Other('type_id must have a value'))
         generateTypeId(context, file, declaration.name.name)
       }
     }
@@ -79,12 +78,14 @@ fn getTypeId(declaration: {attributes: List<Attribute>, name: Identifier}, conte
 /// defined. Then will all type parameters be defined and after that is finally the
 /// bodies visited and properties or functions are defined.
 /// This assures that the hoisting rules is followed and all required information is known.
-export fn TypeVisitor(context, file) {
-  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
-  let reportFullError: (ToSpan, String, CompilationError) -> () = context.reportError.bind(context, file)
-  let mut imports: ObjectMap<File> = ObjectMap.new()
+export fn TypeVisitor(mut context: CompilerContext, file: File) {
+  let mut imports = ObjectMap.new::<File>()
 
-  let structureVisitorInstance = structureVisitor(file, reportError, reportFullError, 'TypeVisitor')
+  fn reportError(token: ToSpan, message: String) {
+    context.reportError(file, token, CompilationError::Other(message))
+  }
+
+  let structureVisitorInstance = structureVisitor(context, file, 'TypeVisitor')
   Object->assign({}, visit.emptyVisitor, structureVisitorInstance, {
     scope: Scope.new(context)
 
@@ -149,7 +150,7 @@ export fn TypeVisitor(context, file) {
         let mut scope = parentScope.createChild()
         t->scope = scope
         self.scope = scope
-        if let Option::Some(class) = type_.providesType.unwrap().class {
+        if let Some(class) = type_.providesType.unwrap().class {
           let mut c = class
           t.typeParameters.forEach(|p| {
             self.visitTypeParameter(p)
@@ -250,7 +251,7 @@ export fn TypeVisitor(context, file) {
         let mut scope = parentScope.createChild()
         t->scope = scope
         self.scope = scope
-        if let Option::Some(class) = type_.providesType.unwrap().class {
+        if let Some(class) = type_.providesType.unwrap().class {
           let mut c = class
           t.typeParameters.forEach(|p| {
             self.visitTypeParameter(p)
@@ -276,7 +277,7 @@ export fn TypeVisitor(context, file) {
             })
           ))
 
-          if let Option::Some(class) = type_.providesType.unwrap().class {
+          if let Some(class) = type_.providesType.unwrap().class {
             class.instances.forEach(|mut instance| {
               if let TypeKind::Trait(instanceTrait) = instance.kind {
                 Object->assign(instanceTrait, {
@@ -298,7 +299,7 @@ export fn TypeVisitor(context, file) {
       let type_: Type = t->type_.transmute()
       if not t->type_ {
         let structKind =
-          if let Option::Some(typeBound) = t.bound {
+          if let Some(typeBound) = t.bound {
             match typeBound {
               TypeBound::RecordTypeBound(record) => StructKind::Record({properties: ObjectMap.new()})
               TypeBound::TupleTypeBound(tuple) => StructKind::Tuple({properties: []})
@@ -337,7 +338,7 @@ export fn TypeVisitor(context, file) {
         let mut scope = parentScope.createChild()
         t->scope = scope
         self.scope = scope
-        if let Option::Some(class) = type_.providesType.unwrap().class {
+        if let Some(class) = type_.providesType.unwrap().class {
           let mut c = class
           t.typeParameters.forEach(|p| {
             self.visitTypeParameter(p)
@@ -349,7 +350,7 @@ export fn TypeVisitor(context, file) {
       }
       else {
         self.scope = t->scope
-        if let Option::Some(typeBound) = t.bound {
+        if let Some(typeBound) = t.bound {
           self.visitTypeBound(typeBound)
 
           match type_.providesType.unwrap().kind {
@@ -379,7 +380,7 @@ export fn TypeVisitor(context, file) {
     }
     visitImportDirective: |mut self, mut importDirective: ImportDirective| {
       let mut scope: Scope = self.scope
-      if let Option::Some(module) = importDirective.module {
+      if let Some(mut module) = importDirective.module {
         if not module->scope {
           context.runTypeVisitorOnFile(module.file)
         }
@@ -388,7 +389,7 @@ export fn TypeVisitor(context, file) {
       match importDirective.specifier {
         ImportSpecifier::Identifier(identifier) => {
           let typeProperties =
-            if let Option::Some(module) = importDirective.module {
+            if let Some(module) = importDirective.module {
               module.exports.map(|exportDirective| exportDirective.getType())
             }
             else ObjectMap.new()
@@ -416,7 +417,7 @@ export fn TypeVisitor(context, file) {
             allowRedeclare: false
             type_
             previous: None
-            completeType: importDirective.module.map(|module| |visitor: String| {
+            completeType: importDirective.module.map(|mut module| |visitor: String| {
               if visitor == 'TypeVisitor' then return None
               if visitor == 'ImplVisitor' {
                 context.runTypeVisitorOnFile(module.file)
@@ -439,7 +440,7 @@ export fn TypeVisitor(context, file) {
         }
         ImportSpecifier::ObjectDestructure(d) => {
           d.members.forEach(|mut m| {
-            if let Option::Some(module) = importDirective.module {
+            if let Some(mut module) = importDirective.module {
               let moduleScope: Scope = module->scope.transmute()
               let importedBinding = moduleScope.getBinding(m.property.name, 'TypeVisitor').unwrapOr(Object->assign({}).transmute())
               if let Result::Err(error) = scope.define({
@@ -494,9 +495,9 @@ export fn TypeVisitor(context, file) {
       match result {
         Ok(binding) => {}
         Err(ScopeError::UndefinedType(name)) => {
-          reportFullError(
+          context.reportError(
+            file
             t
-            'Use of undeclared type $name',
             CompilationError::UndefinedVariable(name)
           )
         }

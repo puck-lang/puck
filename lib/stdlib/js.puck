@@ -40,10 +40,10 @@ export let require: (core::String) -> Unknown = js->_require.transmute()
 export let new: <T>(T) -> T = js->_new.transmute()
 export let typeof: <T>(T) -> core::String = js->_typeof.transmute()
 
-export fn asResult<R, E>(func: () -> R) -> Result<R, E> {
+export fn asResult<R>(func: () -> R) -> Result<R, Unknown> {
   let result = js->asResult(func)
   if result->error
-    then Err(result->value.transmute())
+    then Err(result->value)
     else Ok(result->value.transmute())
 }
 export let wrapAsResult = js->wrapAsResult

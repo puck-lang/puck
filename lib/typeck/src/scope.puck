@@ -2,6 +2,7 @@ import 'puck:js' as {Error, Object, null, undefined}
 import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {Module, Identifier, TypePath}
 import '../../ast/span.puck' as {Span, ToSpan}
+import '../../compiler.puck' as {CompilerContext}
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {Definition, StructKind, Type, TypeKind}
 
@@ -16,7 +17,7 @@ export type Binding {
 }
 
 export type Scope {
-  context: {}
+  context: CompilerContext
   parent: Option<Scope>
   bindings: ObjectMap<Binding>
   bindingsByTypeId: ObjectMap<Binding>

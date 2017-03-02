@@ -19,6 +19,7 @@ import '../ast/ast.puck' as {
   NamedTypeBound
 }
 import '../ast/span.puck' as {ToSpan}
+import '../compiler.puck' as {CompilerContext}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 import 'src/functions.puck' as {checkFunctionAssignability}
@@ -31,6 +32,7 @@ import 'src/types.puck' as {
 }
 import '../entities.puck' as {
   Implementation
+  File
   Trait
   Type
   TypeInstance
@@ -138,24 +140,26 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
   })
 }
 
-export fn ImplVisitor(mut context, file) {
+export fn ImplVisitor(mut context: CompilerContext, file: File) {
   let mut importDirective: ImportDirective
-  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
-  let reportFullError: (ToSpan, String, CompilationError) -> () = context.reportError.bind(context, file)
 
   fn getImplId(type_: Type, trait_: Type) {
     let mut id = '\$impl_' + type_.id.unwrap() + '\$' + trait_.id.unwrap()
-    if context.impls->[id] {
-      id = '$id\$' + context.impls->[id]
-      context.impls->[id] += 1
+    if let Some(count) = context.impls.get(id) {
+      context.impls.set(id, count + 1)
+      id = '$id\$$count'
     }
     else {
-      context.impls->[id] = 1
+      context.impls.set(id, 1)
     }
     id
   }
 
-  Object->assign({}, visit.emptyVisitor, structureVisitor(file, reportError, reportFullError, 'ImplVisitor'), {
+  fn reportError(token: ToSpan, message: String) {
+    context.reportError(file, token, CompilationError::Other(message))
+  }
+
+  Object->assign({}, visit.emptyVisitor, structureVisitor(context, file, 'ImplVisitor'), {
     visitModule: |mut self, mut m: Module| {
 
       self.scope = m->scope
@@ -192,10 +196,14 @@ export fn ImplVisitor(mut context, file) {
             let mut s = struct
             implementTrait(traitType, trait_, structType, s, i, reportError, id)
           }
-          _ => reportError(i.type_, structType.displayName() + ' is not a struct or an enum')
+          _ => context.reportError(file, i.type_,
+            CompilationError::Other(structType.displayName() + ' is not a struct or an enum')
+          )
         }
       }
-      else reportError(i.trait_, traitType.displayName() + ' is not a trait')
+      else context.reportError(file, i.trait_,
+        CompilationError::Other(traitType.displayName() + ' is not a trait')
+      )
 
       self.scope = parentScope
     }
@@ -219,7 +227,9 @@ export fn ImplVisitor(mut context, file) {
           let mut s = struct
           implementShorthand(structType, s, i, reportError)
         }
-        _ => reportError(i.type_, structType.displayName() + ' is not a struct or an enum')
+        _ => context.reportError(file, i.type_,
+          CompilationError::Other(structType.displayName() + ' is not a struct or an enum')
+        )
       }
 
       self.scope = parentScope

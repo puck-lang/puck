@@ -20,10 +20,9 @@ const $puck_14 = require("./compiler");
 const $puck_15 = require("./entities");
 function createServer(projectPath, sendDiagnostic, applyEdit) {
   let diagnostics = $puck_1.Map._new();
-  let context = $puck_14.createContext(projectPath);
   let globalExportMap = $puck_1.Map._new();
   let diagnosticId = 0;
-  context.reportError = function (file, token, message, error = $puck_15.CompilationError.Other) {
+  function reportError(file, token, error) {
     let $puck_16 = error;
     let $puck_17;
     if ($unwrapTraitObject($puck_16).kind === "UndefinedVariable") {
@@ -66,16 +65,25 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
     },
     },
       code: id,
-      message: message,
+      message: $puck_15.CompilationError.message.call(error),
       source: "puck",
     });
   };
-  context.onFileParsed = function (file) {
-    const _module = $unwrapTraitObject(file.ast);
+  function onFileParsed(file) {
+    const _module = $puck_1.Option.unwrap.call(file.ast);
     return $puck_1.ObjectMap.forEach.call(_module.exports, function ([name, e]) {
       return $puck_1.Set.add.call($puck_1.Entry.orInsertWith.call($puck_1.Map.entry.call(globalExportMap, name), function () {
         return $puck_1.Set._new();
       }), file.absolutePath);
+    });
+  };
+  let context = $puck_14.CompilerContext._new(projectPath, reportError, onFileParsed);
+  function normalizePath(filePath) {
+    return path.resolve(path.normalize(filePath));
+  };
+  function getAst(filePath) {
+    return $puck_1.Option.andThen.call($puck_1.Map.get.call(context.files, normalizePath(filePath)), function (f) {
+      return f.ast;
     });
   };
   let a = {};
@@ -87,13 +95,16 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
     const startTime = $puck_2.Date.now();
     const result = $puck_2.asResult(function () {
       const startTime = $puck_2.Date.now();
-      let file = {
+      let file = $puck_15.File({
         isBin: false,
         fileName: $unwrapTraitObject(path.basename(filePath)),
         absolutePath: $unwrapTraitObject(path.resolve(path.normalize(filePath))),
         puck: contents,
-      };
-      file = context.importFile(file, true, skipSyntaxErrors);
+        js: $puck_1.None,
+        ast: $puck_1.None,
+        outFile: $puck_1.None,
+      });
+      file = $puck_14.CompilerContext.importFile.call(context, file, true, skipSyntaxErrors);
       const parseTime = $puck_2.Date.now() - startTime;
       $puck_1.print("Parse time " + parseTime + "");
       let $puck_21 = $puck_1.Map.get.call(diagnostics, filePath);
@@ -102,13 +113,13 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
         let dm = d;
         $puck_1.Map.clear.call(dm);
       };
-      context.runTypeVisitor();
+      $puck_14.CompilerContext.runTypeVisitor.call(context);
       const typeVisitorTime = $puck_2.Date.now() - startTime - parseTime;
       $puck_1.print("Type visitor time " + typeVisitorTime + "");
-      context.runImplVisitor();
+      $puck_14.CompilerContext.runImplVisitor.call(context);
       const implVisitorTime = $puck_2.Date.now() - startTime - parseTime - typeVisitorTime;
       $puck_1.print("Impl visitor time " + implVisitorTime + "");
-      context.runCheckerOnFile(file);
+      $puck_14.CompilerContext.runCheckerOnFile.call(context, file);
       const scopeVisitorTime = $puck_2.Date.now() - startTime - parseTime - typeVisitorTime - implVisitorTime;
       return $puck_1.print("Scope visitor time " + scopeVisitorTime + "");
     });
@@ -119,32 +130,52 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
     if (($puck_22.kind === "Err")) {
       let {value: [error]} = $puck_22;
       if (error !== "Syntax Error") {
-        $puck_1.print("Error:", error);
+        return $puck_1.print("Error:", error);
       };
-      if ((!skipSyntaxErrors)) {};
-    }
-    else {};
+    };
   };
   a.onCompletion = function (filePath, position) {
     $puck_1.print("onCompletion");
-    const file = $unwrapTraitObject(context.files[path.resolve(path.normalize(filePath))]);
-    if (!file) {
-      return [];
+    let $puck_23 = $puck_1.Map.get.call(context.files, normalizePath(filePath));
+    let $puck_24;
+    if ($unwrapTraitObject($puck_23).kind === "Some") {
+      let {value: [_module]} = $unwrapTraitObject($puck_23);
+      $puck_24 = _module;
+    }
+    else {
+      let $puck_25;
+      if ($unwrapTraitObject($puck_23).kind === "None") {
+        let undefined = $unwrapTraitObject($puck_23);
+        return [];
+      };
+      $puck_24 = $puck_25;
     };
-    const _module = $unwrapTraitObject(file.ast);
-    if (!_module) {
-      return [];
+    const file = $puck_24;
+    let $puck_26 = file.ast;
+    let $puck_27;
+    if ($unwrapTraitObject($puck_26).kind === "Some") {
+      let {value: [_module]} = $unwrapTraitObject($puck_26);
+      $puck_27 = _module;
+    }
+    else {
+      let $puck_28;
+      if ($unwrapTraitObject($puck_26).kind === "None") {
+        let undefined = $unwrapTraitObject($puck_26);
+        return [];
+      };
+      $puck_27 = $puck_28;
     };
+    const _module = $puck_27;
     let visitor = $puck_8.CompletionVisitor._new(file, position);
     const result = $puck_2.asResult(function () {
       return $puck_11.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor', value: visitor, $isTraitObject: true}, _module);
     });
-    let $puck_23 = result;
-    if ($unwrapTraitObject($puck_23).kind === "Ok") {
-      let {value: [completions]} = $unwrapTraitObject($puck_23);
-      let $puck_24 = visitor.completions;
-      if ($puck_24.kind === "Some") {
-        let {value: [completions]} = $puck_24;
+    let $puck_29 = result;
+    if ($unwrapTraitObject($puck_29).kind === "Ok") {
+      let {value: [completions]} = $unwrapTraitObject($puck_29);
+      let $puck_30 = visitor.completions;
+      if ($puck_30.kind === "Some") {
+        let {value: [completions]} = $puck_30;
         return completions;
       }
       else {
@@ -152,11 +183,11 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
       };
     }
     else {
-      if ($unwrapTraitObject($puck_23).kind === "Err") {
-        let {value: [error]} = $unwrapTraitObject($puck_23);
+      if ($unwrapTraitObject($puck_29).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_29);
         $puck_1.print("completions Error:", [
-          $unwrapTraitObject(error),
-          $unwrapTraitObject(error).stack,
+          error,
+          error.stack,
         ]);
         return [];
       };
@@ -164,30 +195,37 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
   };
   a.onHover = function (filePath, position) {
     $puck_1.print("onHover");
-    const file = $unwrapTraitObject(context.files[path.resolve(path.normalize(filePath))]);
-    if ((!file)) {
-      return $puck_1.None;
+    let $puck_31 = getAst(filePath);
+    let $puck_32;
+    if ($unwrapTraitObject($puck_31).kind === "Some") {
+      let {value: [_module]} = $unwrapTraitObject($puck_31);
+      $puck_32 = _module;
+    }
+    else {
+      let $puck_33;
+      if ($unwrapTraitObject($puck_31).kind === "None") {
+        let undefined = $unwrapTraitObject($puck_31);
+        return $puck_1.None;
+      };
+      $puck_32 = $puck_33;
     };
-    const _module = $unwrapTraitObject(file.ast);
-    if (!_module) {
-      return $puck_1.None;
-    };
+    const _module = $puck_32;
     let visitor = $puck_10.HoverVisitor._new(position);
     const result = $puck_2.asResult(function () {
       return $puck_11.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor', value: visitor, $isTraitObject: true}, _module);
     });
-    let $puck_25 = result;
-    if ($unwrapTraitObject($puck_25).kind === "Ok") {
-      let {value: [$puck_26]} = $unwrapTraitObject($puck_25);
+    let $puck_34 = result;
+    if ($unwrapTraitObject($puck_34).kind === "Ok") {
+      let {value: [$puck_35]} = $unwrapTraitObject($puck_34);
       $puck_1.print("onHover ok", visitor.hover);
       return visitor.hover;
     }
     else {
-      if ($unwrapTraitObject($puck_25).kind === "Err") {
-        let {value: [error]} = $unwrapTraitObject($puck_25);
+      if ($unwrapTraitObject($puck_34).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_34);
         $puck_1.print("onHover Error:", [
-          $unwrapTraitObject(error),
-          $unwrapTraitObject(error).stack,
+          error,
+          error.stack,
         ]);
         return $puck_1.None;
       };
@@ -195,30 +233,52 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
   };
   a.onDefinition = function (filePath, position) {
     $puck_1.print("onDefinition");
-    const file = $unwrapTraitObject(context.files[path.resolve(path.normalize(filePath))]);
-    if ((!file)) {
-      return [];
+    let $puck_36 = $puck_1.Map.get.call(context.files, normalizePath(filePath));
+    let $puck_37;
+    if ($unwrapTraitObject($puck_36).kind === "Some") {
+      let {value: [_module]} = $unwrapTraitObject($puck_36);
+      $puck_37 = _module;
+    }
+    else {
+      let $puck_38;
+      if ($unwrapTraitObject($puck_36).kind === "None") {
+        let undefined = $unwrapTraitObject($puck_36);
+        return [];
+      };
+      $puck_37 = $puck_38;
     };
-    const _module = $unwrapTraitObject(file.ast);
-    if (!_module) {
-      return [];
+    const file = $puck_37;
+    let $puck_39 = file.ast;
+    let $puck_40;
+    if ($unwrapTraitObject($puck_39).kind === "Some") {
+      let {value: [_module]} = $unwrapTraitObject($puck_39);
+      $puck_40 = _module;
+    }
+    else {
+      let $puck_41;
+      if ($unwrapTraitObject($puck_39).kind === "None") {
+        let undefined = $unwrapTraitObject($puck_39);
+        return [];
+      };
+      $puck_40 = $puck_41;
     };
+    const _module = $puck_40;
     let visitor = $puck_9.DefinitionVisitor._new(file, position);
     const result = $puck_2.asResult(function () {
       return $puck_11.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor', value: visitor, $isTraitObject: true}, _module);
     });
-    let $puck_27 = result;
-    if ($unwrapTraitObject($puck_27).kind === "Ok") {
-      let {value: [$puck_28]} = $unwrapTraitObject($puck_27);
+    let $puck_42 = result;
+    if ($unwrapTraitObject($puck_42).kind === "Ok") {
+      let {value: [$puck_43]} = $unwrapTraitObject($puck_42);
       $puck_1.print("onDefinition ok", visitor.definitions);
       return visitor.definitions;
     }
     else {
-      if ($unwrapTraitObject($puck_27).kind === "Err") {
-        let {value: [error]} = $unwrapTraitObject($puck_27);
+      if ($unwrapTraitObject($puck_42).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_42);
         $puck_1.print("onDefinition Error:", [
-          $unwrapTraitObject(error),
-          $unwrapTraitObject(error).stack,
+          error,
+          error.stack,
         ]);
         return [];
       };
@@ -226,63 +286,81 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
   };
   a.onSignatureHelp = function (filePath, position) {
     $puck_1.print("onSignatureHelp");
-    const file = $unwrapTraitObject(context.files[path.resolve(path.normalize(filePath))]);
-    if ((!file)) {
-      return $puck_1.None;
+    let $puck_44 = getAst(filePath);
+    let $puck_45;
+    if ($unwrapTraitObject($puck_44).kind === "Some") {
+      let {value: [_module]} = $unwrapTraitObject($puck_44);
+      $puck_45 = _module;
+    }
+    else {
+      let $puck_46;
+      if ($unwrapTraitObject($puck_44).kind === "None") {
+        let undefined = $unwrapTraitObject($puck_44);
+        return $puck_1.None;
+      };
+      $puck_45 = $puck_46;
     };
-    const _module = $unwrapTraitObject(file.ast);
-    if (!_module) {
-      return $puck_1.None;
-    };
+    const _module = $puck_45;
     let visitor = $puck_12.SignatureVisitor._new(position);
     const result = $puck_2.asResult(function () {
       return $puck_11.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/signature.puck:SignatureVisitor"].visitModule.call({type: '$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/signature.puck:SignatureVisitor', value: visitor, $isTraitObject: true}, _module);
     });
-    let $puck_29 = result;
-    if ($unwrapTraitObject($puck_29).kind === "Ok") {
-      let {value: [$puck_30]} = $unwrapTraitObject($puck_29);
+    let $puck_47 = result;
+    if ($unwrapTraitObject($puck_47).kind === "Ok") {
+      let {value: [$puck_48]} = $unwrapTraitObject($puck_47);
       $puck_1.print("onSignature ok", visitor.signatureHelp);
       return visitor.signatureHelp;
     }
     else {
-      if ($unwrapTraitObject($puck_29).kind === "Err") {
-        let {value: [error]} = $unwrapTraitObject($puck_29);
+      if ($unwrapTraitObject($puck_47).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_47);
         $puck_1.print("onDefinition Error:", [
-          $unwrapTraitObject(error),
-          $unwrapTraitObject(error).stack,
+          error,
+          error.stack,
         ]);
         return $puck_1.None;
       };
     };
   };
   a.onCodeAction = function (filePath, span, codeActionContext) {
-    const file = $unwrapTraitObject(context.files[path.resolve(path.normalize(filePath))]);
-    if ((!file)) {
-      return [];
+    let $puck_49 = $puck_1.Map.get.call(context.files, normalizePath(filePath));
+    let $puck_50;
+    if ($unwrapTraitObject($puck_49).kind === "Some") {
+      let {value: [_module]} = $unwrapTraitObject($puck_49);
+      $puck_50 = _module;
+    }
+    else {
+      let $puck_51;
+      if ($unwrapTraitObject($puck_49).kind === "None") {
+        let undefined = $unwrapTraitObject($puck_49);
+        return [];
+      };
+      $puck_50 = $puck_51;
     };
+    const file = $puck_50;
     const result = $puck_2.asResult(function () {
-      let $puck_34 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: codeActionContext.diagnostics, $isTraitObject: true})
+      let $puck_55 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: codeActionContext.diagnostics, $isTraitObject: true})
 ;
-      let $puck_33 = $puck_1.Iterator[$puck_34.type].filter.call($puck_34, function (d) {
+      let $puck_54 = $puck_1.Iterator[$puck_55.type].filter.call($puck_55, function (d) {
         return d.code >= 0;
       })
 ;
-      let $puck_32 = $puck_1.Iterator[$puck_33.type].filterMap.call($puck_33, function (d) {
+      let $puck_53 = $puck_1.Iterator[$puck_54.type].filterMap.call($puck_54, function (d) {
         return $puck_1.Option.andThen.call($puck_1.Map.get.call(diagnostics, filePath), function (errors) {
           return $puck_1.Map.get.call(errors, d.code);
         });
       })
 ;
-      let $puck_31 = $puck_1.Iterator[$puck_32.type].flatMap.call($puck_32, function (error) {
-        let $puck_35 = error;
-        let $puck_36;
-        if ($unwrapTraitObject($puck_35).kind === "UndefinedVariable") {
-          let {value: [name]} = $unwrapTraitObject($puck_35);
-          let $puck_38 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set', value: $puck_1.Option.unwrapOrElse.call($puck_1.Map.get.call(globalExportMap, name), function () {
+      let $puck_52 = $puck_1.Iterator[$puck_53.type].flatMap.call($puck_53, function (error) {
+        let $puck_56 = error;
+        let $puck_57;
+        if ($unwrapTraitObject($puck_56).kind === "UndefinedVariable") {
+          let {value: [name]} = $unwrapTraitObject($puck_56);
+          let $puck_59 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set', value: $puck_1.Option.unwrapOrElse.call($puck_1.Map.get.call(globalExportMap, name), function () {
             return $puck_1.Set._new();
           }), $isTraitObject: true})
 ;
-          let $puck_37 = $puck_1.Iterator[$puck_38.type].map.call($puck_38, function (filePath) {
+          let $puck_58 = $puck_1.Iterator[$puck_59.type].map.call($puck_59, function (filePath) {
             const path = $puck_7.bestImportPath(file, $unwrapTraitObject(filePath));
             const cmd = $puck_6.Command({
               title: "Import " + name + " from " + path + "",
@@ -297,53 +375,47 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
             return cmd;
           })
 ;
-          $puck_36 = $puck_1.Iterator[$puck_37.type].collect.call($puck_37);
+          $puck_57 = $puck_1.Iterator[$puck_58.type].collect.call($puck_58);
         }
         else {
-          let $puck_39;
-          if ($unwrapTraitObject($puck_35).kind === "TraitNotInScope") {
-            let {value: {name: name, id: id}} = $unwrapTraitObject($puck_35);
-            let $puck_44 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set', value: $puck_1.Option.unwrapOrElse.call($puck_1.Map.get.call(globalExportMap, name), function () {
+          let $puck_60;
+          if ($unwrapTraitObject($puck_56).kind === "TraitNotInScope") {
+            let {value: {traitName: traitName, id: id}} = $unwrapTraitObject($puck_56);
+            let $puck_65 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set', value: $puck_1.Option.unwrapOrElse.call($puck_1.Map.get.call(globalExportMap, traitName), function () {
               return $puck_1.Set._new();
             }), $isTraitObject: true})
 ;
-            let $puck_43 = $puck_1.Iterator[$puck_44.type].filterMap.call($puck_44, function (filePath) {
-              return $puck_1.ObjectMap.get.call(context.files, $unwrapTraitObject(filePath));
+            let $puck_64 = $puck_1.Iterator[$puck_65.type].filterMap.call($puck_65, function (filePath) {
+              return $puck_1.Map.get.call(context.files, $unwrapTraitObject(filePath));
             })
 ;
-            let $puck_42 = $puck_1.Iterator[$puck_43.type].filterMap.call($puck_43, function (file) {
-              const _module = $unwrapTraitObject(file).ast;
-              if (_module) {
-                return $puck_1.Some(_module);
-              }
-              else {
-                return $puck_1.None;
-              };
+            let $puck_63 = $puck_1.Iterator[$puck_64.type].filterMap.call($puck_64, function (file) {
+              return file.ast;
             })
 ;
-            let $puck_41 = $puck_1.Iterator[$puck_42.type].filter.call($puck_42, function (_module) {
-              return $puck_1.Option.unwrapOr.call($puck_1.Option.map.call($puck_1.ObjectMap.get.call(_module.exports, name), function (e) {
-                let $puck_45 = e.statement;
-                if ($unwrapTraitObject($puck_45).kind === "TraitDeclaration") {
-                  let {value: [t]} = $unwrapTraitObject($puck_45);
+            let $puck_62 = $puck_1.Iterator[$puck_63.type].filter.call($puck_63, function (_module) {
+              return $puck_1.Option.unwrapOr.call($puck_1.Option.map.call($puck_1.ObjectMap.get.call(_module.exports, traitName), function (e) {
+                let $puck_66 = e.statement;
+                if ($unwrapTraitObject($puck_66).kind === "TraitDeclaration") {
+                  let {value: [t]} = $unwrapTraitObject($puck_66);
                   return $puck_1.Option.unwrap.call($puck_1.Option.unwrap.call($puck_4.TraitDeclaration.getType.call(t).providesType).id) === id;
                 }
                 else {
                   if (true) {
-                    let $puck_46 = $puck_45;
+                    let $puck_67 = $puck_66;
                     return false;
                   };
                 };
               }), false);
             })
 ;
-            let $puck_40 = $puck_1.Iterator[$puck_41.type].map.call($puck_41, function (_module) {
+            let $puck_61 = $puck_1.Iterator[$puck_62.type].map.call($puck_62, function (_module) {
               const path = $puck_7.bestImportPath(file, _module.file.absolutePath);
               const cmd = $puck_6.Command({
-                title: "Import " + name + " from " + path + "",
+                title: "Import " + traitName + " from " + path + "",
                 command: "puck.addImport",
                 _arguments: [[
-                name,
+                traitName,
                 file.absolutePath,
                 _module.file.absolutePath,
               ]],
@@ -352,37 +424,37 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
               return cmd;
             })
 ;
-            $puck_39 = $puck_1.Iterator[$puck_40.type].collect.call($puck_40);
+            $puck_60 = $puck_1.Iterator[$puck_61.type].collect.call($puck_61);
           }
           else {
-            let $puck_47;
+            let $puck_68;
             if (true) {
-              let $puck_48 = $puck_35;
-              $puck_47 = [];
+              let $puck_69 = $puck_56;
+              $puck_68 = [];
             };
-            $puck_39 = $puck_47;
+            $puck_60 = $puck_68;
           };
-          $puck_36 = $puck_39;
+          $puck_57 = $puck_60;
         };
-        const list = $puck_36;
+        const list = $puck_57;
         const iter = {type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: list, $isTraitObject: true};
         return iter;
       })
 ;
-      return $puck_1.Iterator[$puck_31.type].collect.call($puck_31);
+      return $puck_1.Iterator[$puck_52.type].collect.call($puck_52);
     });
-    let $puck_49 = result;
-    if ($unwrapTraitObject($puck_49).kind === "Ok") {
-      let {value: [a]} = $unwrapTraitObject($puck_49);
+    let $puck_70 = result;
+    if ($unwrapTraitObject($puck_70).kind === "Ok") {
+      let {value: [a]} = $unwrapTraitObject($puck_70);
       $puck_1.print("onCodeAction ok", a);
       return a;
     }
     else {
-      if ($unwrapTraitObject($puck_49).kind === "Err") {
-        let {value: [error]} = $unwrapTraitObject($puck_49);
+      if ($unwrapTraitObject($puck_70).kind === "Err") {
+        let {value: [error]} = $unwrapTraitObject($puck_70);
         $puck_1.print("onCodeAction Error:", [
-          $unwrapTraitObject(error),
-          $unwrapTraitObject(error).stack,
+          error,
+          error.stack,
         ]);
         return [];
       };
@@ -390,69 +462,44 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
   };
   a.onExecuteCommand = function (command) {
     $puck_1.print("onExecuteCommand", command);
-    let $puck_50;
+    let $puck_71;
     if (command.command === "puck.reload") {
-      context.files = $puck_1.ObjectMap._new();
-      context.deferred = $puck_1.ObjectMap._new();
+      $puck_1.Map.clear.call(context.files);
+      $puck_1.Map.clear.call(context.impls);
+      $puck_1.Map.clear.call(context.deferred);
       $puck_1.Map.clear.call(globalExportMap);
-      $puck_50 = diagnosticId = 0;
+      $puck_71 = diagnosticId = 0;
     }
     else {
-      let $puck_51;
+      let $puck_72;
       if (command.command === "puck.addImport") {
         let [name, importingPath, importedPath] = $unwrapTraitObject(command["arguments"]);
-        let $puck_52 = [
-          $puck_1.ObjectMap.get.call(context.files, importingPath),
-          $puck_1.ObjectMap.get.call(context.files, importedPath),
+        let $puck_73 = [
+          $puck_1.Option.andThen.call($puck_1.Map.get.call(context.files, importingPath), function (f) {
+          return f.ast;
+        }),
+          $puck_1.Option.andThen.call($puck_1.Map.get.call(context.files, importedPath), function (f) {
+          return f.ast;
+        }),
         ];
-        let $puck_53;
-        if (($unwrapTraitObject($puck_52[0]).kind === "Some" && $unwrapTraitObject($puck_52[1]).kind === "Some")) {
-          let [{value: [importingFile]}, {value: [importedFile]}] = $puck_52;
-          const importingModule = $unwrapTraitObject($unwrapTraitObject(importingFile).ast);
-          const importedModule = $unwrapTraitObject($unwrapTraitObject(importedFile).ast);
-          const result = $puck_2.asResult(function () {
-            const edit = $puck_7.createImport(name, importingModule, importedModule);
-            $puck_1.print("edit", edit);
-            let changes = $puck_1.ObjectMap._new();
-            changes[$unwrapTraitObject($puck_6.toUri(importingPath))] = [edit];
-            $puck_1.print("changes", changes);
-            return applyEdit({changes: [{
-              textDocument: {uri: $puck_6.toUri(importingPath)},
-              edits: [edit],
-            }]});
-          });
-          let $puck_54 = result;
-          let $puck_55;
-          if ($unwrapTraitObject($puck_54).kind === "Ok") {
-            let {value: [a]} = $unwrapTraitObject($puck_54);
-            $puck_1.print("applyEdit ok", a);
-            a["then"](function (b) {
-              return $puck_1.print("applyEdit then", b);
-            });
-            a["catch"](function (b) {
-              return $puck_1.print("applyEdit catch", b);
-            });
-            $puck_55 = a;
-          }
-          else {
-            let $puck_56;
-            if ($unwrapTraitObject($puck_54).kind === "Err") {
-              let {value: [error]} = $unwrapTraitObject($puck_54);
-              $puck_1.print("applyEdit Error:", [
-                $unwrapTraitObject(error),
-                $unwrapTraitObject(error).stack,
-              ]);
-              $puck_56 = [];
-            };
-            $puck_55 = $puck_56;
-          };
-          $puck_53 = $puck_55;
+        let $puck_74;
+        if (($unwrapTraitObject($puck_73[0]).kind === "Some" && $unwrapTraitObject($puck_73[1]).kind === "Some")) {
+          let [{value: [importingModule]}, {value: [importedModule]}] = $puck_73;
+          const edit = $puck_7.createImport(name, importingModule, importedModule);
+          $puck_1.print("edit", edit);
+          let changes = $puck_1.ObjectMap._new();
+          changes[$unwrapTraitObject($puck_6.toUri(importingPath))] = [edit];
+          $puck_1.print("changes", changes);
+          $puck_74 = applyEdit({changes: [{
+            textDocument: {uri: $puck_6.toUri(importingPath)},
+            edits: [edit],
+          }]});
         };
-        $puck_51 = $puck_53;
+        $puck_72 = $puck_74;
       };
-      $puck_50 = $puck_51;
+      $puck_71 = $puck_72;
     };
-    $puck_50;
+    $puck_71;
   };
   return a;
 };

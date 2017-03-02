@@ -2,7 +2,9 @@ import 'puck:js' as {Error, console, process}
 import 'node:fs' as {realpathSync}
 import 'node:path' as {join}
 import '../lib/helpers.puck' as {cmd, flag}
-import '../lib/compiler.puck' as {createContext, build}
+import '../lib/compiler.puck' as {CompilerContext, build}
+import '../lib/ast/span.puck' as {ToSpan}
+import '../lib/entities.puck' as {CompilationError, File}
 
 Error->stackTraceLimit = 100
 
@@ -29,7 +31,13 @@ if arguments.size() == 0 {
   process->exit(1)
 } else {
   let projectPath = realpathSync('.')
-  let mut context = createContext(projectPath, ignoreErrors)
+  fn reportError(self, file: File, token: ToSpan, error: CompilationError) {
+    if not ignoreErrors {
+      let {line, column} = token.span().start
+      throw Error(error.message() + '\n  in ' + file.absolutePath + ' ($line:$column)')
+    }
+  }
+  let mut context = CompilerContext.new(projectPath, reportError)
   let files = arguments
     .map(|file| {{
       isBin: isBinary

@@ -64,6 +64,7 @@ import '../ast/ast.puck' as {
   TypeParameter
 }
 import '../ast/span.puck' as {Span, ToSpan}
+import '../compiler.puck' as {CompilerContext}
 import '../ast/token.puck' as {SyntaxKind}
 import '../ast/visit.puck' as visit
 import 'src/enums.puck' as {checkExhaustive}
@@ -83,6 +84,7 @@ import 'src/types.puck' as {
 }
 import '../entities.puck' as {
   CompilationError
+  File
   Definition
   Function
   Implementation
@@ -135,12 +137,14 @@ fn asTraitCall(visitor, mut e: BinaryExpression, trait_: String, method: String,
   }
 }
 
-export fn ScopeVisitor(context, file) {
+export fn ScopeVisitor(context: CompilerContext, file: File) {
   let mut importDirective: ImportDirective
   let mut matchExpression: Option<MatchExpression> = None
-  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
-  let reportFullError: (ToSpan, String, CompilationError) -> () = context.reportError.bind(context, file)
   let mut accessError: Option<(ToSpan, String)> = None
+
+  fn reportError(token: ToSpan, message: String) {
+    context.reportError(file, token, CompilationError::Other(message))
+  }
 
   fn checkFunctionCall(mut functionType: Type, c: CallExpression) {
     if not functionType then return undefined
@@ -207,7 +211,7 @@ export fn ScopeVisitor(context, file) {
     function
   }
 
-  let structureVisitorInstance = structureVisitor(file, reportError, reportFullError)
+  let structureVisitorInstance = structureVisitor(context, file)
   Object->assign({}, visit.walkingVisitor, structureVisitorInstance, {
     reportError
 
@@ -326,9 +330,9 @@ export fn ScopeVisitor(context, file) {
             then enumMemberToFunction(b.type_)
             else binding.type_
       }
-      else reportFullError(
+      else context.reportError(
+        file
         i
-        'Use of undefined variable ' + i.name
         CompilationError::UndefinedVariable(i.name)
       )
       ()
@@ -593,11 +597,12 @@ export fn ScopeVisitor(context, file) {
                   }
                   else {
                     let typeName = objectType.name.unwrap()
-                    reportFullError(
+                    context.reportError(
+                      file
                       e
-                      'The function $name is defined in trait $typeName but it is not in scope'
                       CompilationError::TraitNotInScope({
-                        name: typeName
+                        functionName: name
+                        traitName: typeName
                         id: objectType.id.unwrap()
                       })
                     )
@@ -622,11 +627,12 @@ export fn ScopeVisitor(context, file) {
                 }
                 else {
                   let traitName = trait_.name.unwrap()
-                  reportFullError(
+                  context.reportError(
+                    file
                     e
-                    'The function $name is defined in trait $traitName but it is not in scope'
                     CompilationError::TraitNotInScope({
-                      name: traitName
+                      functionName: name
+                      traitName
                       id: trait_.id.unwrap()
                     })
                   )

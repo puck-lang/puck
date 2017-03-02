@@ -1,10 +1,11 @@
 import 'puck:js' as {Error, console, process, typeof}
 import '../ast/span.puck' as {Position, Span, ToSpan}
-import '../entities.puck' as {UnparsedFile}
+import '../entities.puck' as {CompilationError, File}
+import '../compiler.puck' as {CompilerContext}
 
 export type InputStream {
-  context: {}
-  file: UnparsedFile
+  context: CompilerContext
+  file: File
   code: String
   pos: Num
   line: Num
@@ -12,7 +13,7 @@ export type InputStream {
 }
 
 impl InputStream {
-  fn new(context, file: UnparsedFile) -> InputStream {{
+  fn new(context: CompilerContext, file: File) -> InputStream {{
     context
     file
     code:
@@ -58,7 +59,7 @@ impl InputStream {
       end: {line: self.line, column: self.column + 1}
     }
     let token: ToSpan = span
-    self->context->reportError(self.file, token, message)
+    self.context.reportError(self.file, token, CompilationError::Other(message))
     throw 'Syntax Error'
   }
 }
