@@ -1,8 +1,10 @@
-import 'puck:js' as {console, process}
+import 'puck:js' as {Error, console, process}
 import 'node:fs' as fs
 import '../lib/test/jest.puck' as {jest}
 import 'node:path' as path
-import '../lib/compiler.puck' as {build, createContext}
+import '../lib/ast/span.puck' as {ToSpan}
+import '../lib/entities.puck' as {CompilationError, File}
+import '../lib/compiler.puck' as {CompilerContext, build}
 import '../lib/helpers.puck' as {flag, walkSync}
 
 let argv: List<String> = process->argv.transmute()
@@ -37,7 +39,11 @@ if command == 'build' {
     .toList()
 
   let projectPath: String = fs->realpathSync('.').transmute()
-  let mut context = createContext(projectPath)
+  fn reportError(self, file: File, token: ToSpan, error: CompilationError) {
+    let {line, column} = token.span().start
+    throw Error(error.message() + '\n  in ' + file.absolutePath + ' ($line:$column)')
+  }
+  let mut context = CompilerContext.new(projectPath, reportError)
   build(libFiles, context, {dump: '', useBabel})
   build(binFiles, context, {dump: '', useBabel})
 

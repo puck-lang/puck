@@ -14,15 +14,15 @@ import 'pls/hover.puck' as {Hover, HoverVisitor}
 import 'pls/position_visitor.puck' as {PositionVisitor}
 import 'pls/signature.puck' as {SignatureHelp, SignatureVisitor}
 import 'typeck/src/scope.puck' as {Scope}
-import 'compiler.puck' as {createContext}
-import 'entities.puck' as {CompilationError, File, UnparsedFile}
+import 'compiler.puck' as {CompilerContext}
+import 'entities.puck' as {CompilationError, File}
 
 export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic) -> (), applyEdit: (WorkspaceEdit) -> ()) {
   let mut diagnostics: Map<String, Map<Num, CompilationError>> = Map.new()
-  let mut context = createContext(projectPath)
   let mut globalExportMap: Map<String, Set<String>> = Map.new()
   let mut diagnosticId = 0
-  context.reportError = fn (file: File, token: ToSpan, message: String, error: CompilationError = CompilationError::Other) {
+
+  fn reportError(file: File, token: ToSpan, error: CompilationError) {
     // print('reportError', (file.absolutePath, message))
     let id =
       match error {
@@ -46,17 +46,28 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
         end: {line: span.end.line - 1, character: span.end.column - 1}
       }
       code: id
-      message
+      message: error.message()
       source: 'puck'
     })
   }
-  context.onFileParsed = fn (file: File) {
-    let module: Module = file->ast.transmute()
+
+  fn onFileParsed(file: File) {
+    let module: Module = file.ast.unwrap()
     module.exports.forEach(|(name, e)| {
       globalExportMap.entry(name).orInsertWith(|| Set.new())
         .add(file.absolutePath)
     })
   }
+
+  let mut context = CompilerContext.new(projectPath, reportError, onFileParsed)
+
+  fn normalizePath(filePath: String) {
+    path->resolve(path->normalize(filePath)).transmute::<String>()
+  }
+  fn getAst(filePath: String) {
+    context.files.get(normalizePath(filePath)).andThen(|f| f.ast)
+  }
+
   let mut a = {}
   a->onClose = fn (filePath: String) {
     diagnostics.delete(filePath)
@@ -65,15 +76,19 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
     print('validateDocument')
     let startTime = Date->now()
 
-    let result: Result<(), String> = asResult(|| {
+    let result = asResult(|| {
       let startTime = Date->now()
-      let mut file: UnparsedFile = {
+      let mut file = File({
         isBin: false
         fileName: path->basename(filePath).transmute()
         absolutePath: path->resolve(path->normalize(filePath)).transmute()
         puck: contents
-      }
-      let mut file = context.importFile(file, true, skipSyntaxErrors)
+        js: None
+        ast: None
+        outFile: None
+      })
+      file = context.importFile(file, true, skipSyntaxErrors)
+
       let parseTime = Date->now() - startTime
       print('Parse time $parseTime')
 
@@ -96,27 +111,21 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
     print('validateDocument completed')
 
     if let Result::Err(error) = result {
-      if error != 'Syntax Error' {
+      if error.transmute::<String>() != 'Syntax Error' {
         print('Error:', error)
       }
-      if not skipSyntaxErrors {
-        // contexts.set(filePath, context)
-      }
-    }
-    else {
-      // contexts.set(filePath, context)
     }
   }
   a->onCompletion = fn (filePath: String, position: Position) {
     print('onCompletion')
-    // let context = match contexts.get(filePath) {
-    //   Some(context) => context
-    //   None => return []
-    // }
-    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
-    if not file then return []
-    let module: Module = file->ast.transmute()
-    if not module then return []
+    let file = match context.files.get(normalizePath(filePath)) {
+      Some(module) => module
+      Option::None => return []
+    }
+    let module = match file.ast {
+      Some(module) => module
+      Option::None => return []
+    }
 
     let mut visitor = CompletionVisitor.new(file, position)
 
@@ -139,14 +148,10 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
   }
   a->onHover = fn (filePath: String, position: Position) -> Option<Hover> {
     print('onHover')
-    // let context = match contexts.get(filePath) {
-    //   Some(context) => context
-    //   None => return None
-    // }
-    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
-    if not file then return None
-    let module: Module = file->ast.transmute()
-    if not module then return None
+    let module = match getAst(filePath) {
+      Some(module) => module
+      Option::None => return None
+    }
 
     let mut visitor = HoverVisitor.new(position)
 
@@ -167,14 +172,14 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
   }
   a->onDefinition = fn (filePath: String, position: Position) -> List<Definition> {
     print('onDefinition')
-    // let context = match contexts.get(filePath) {
-    //   Some(context) => context
-    //   None => return []
-    // }
-    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
-    if not file then return []
-    let module: Module = file->ast.transmute()
-    if not module then return []
+    let file = match context.files.get(normalizePath(filePath)) {
+      Some(module) => module
+      Option::None => return []
+    }
+    let module = match file.ast {
+      Some(module) => module
+      Option::None => return []
+    }
 
     let mut visitor = DefinitionVisitor.new(file, position)
 
@@ -194,10 +199,10 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
   }
   a->onSignatureHelp = fn (filePath: String, position: Position) -> Option<SignatureHelp> {
     print('onSignatureHelp')
-    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
-    if not file then return None
-    let module: Module = file->ast.transmute()
-    if not module then return None
+    let module = match getAst(filePath) {
+      Some(module) => module
+      Option::None => return None
+    }
 
     let mut visitor = SignatureVisitor.new(position)
 
@@ -216,8 +221,10 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
     }
   }
   a->onCodeAction = fn (filePath: String, span: Span, codeActionContext: CodeActionContext) -> List<Command> {
-    let file: File = context->files->[path->resolve(path->normalize(filePath))].transmute()
-    if not file then return []
+    let file = match context.files.get(normalizePath(filePath)) {
+      Some(module) => module
+      Option::None => return []
+    }
 
     let result = asResult(|| {
     codeActionContext.diagnostics
@@ -242,18 +249,13 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
                 })
                 .collect()
             }
-            CompilationError::TraitNotInScope {name, id} => {
-              globalExportMap.get(name).unwrapOrElse(|| Set.new())
+            CompilationError::TraitNotInScope {traitName, id} => {
+              globalExportMap.get(traitName).unwrapOrElse(|| Set.new())
                 .iter()
                 .filterMap(|filePath| context.files.get(filePath))
-                .filterMap(|file| {
-                  let module = file->ast.transmute::<Module>()
-                  if module
-                    then Some(module)
-                    else None
-                })
+                .filterMap(|file| file.ast)
                 .filter(|module| {
-                  module.exports.get(name)
+                  module.exports.get(traitName)
                     .map(|e| match e.statement {
                       ExportedStatement::TraitDeclaration(t) => {
                         t.getType().providesType.unwrap().id.unwrap() == id
@@ -265,9 +267,9 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
                 .map(|module| {
                   let path = bestImportPath(file, module.file.absolutePath)
                   let cmd = Command({
-                    title: 'Import $name from $path'
+                    title: 'Import $traitName from $path'
                     command: 'puck.addImport'
-                    arguments: [(name, file.absolutePath, module.file.absolutePath)]
+                    arguments: [(traitName, file.absolutePath, module.file.absolutePath)]
                   })
                   cmd->['arguments'] = cmd->arguments
                   cmd
@@ -295,21 +297,18 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
   a->onExecuteCommand = fn (command: Command) -> () {
     print('onExecuteCommand', command)
     if command.command == 'puck.reload' {
-      context.files = ObjectMap.new()
-      context.deferred = ObjectMap.new()
+      context.files.clear()
+      context.impls.clear()
+      context.deferred.clear()
       globalExportMap.clear()
       diagnosticId = 0
     }
     else if command.command == 'puck.addImport' {
       let (name, importingPath, importedPath) = command->['arguments'].transmute()
-      if let (Some(importingFile), Some(importedFile)) = (
-        context.files.get(importingPath)
-        context.files.get(importedPath)
+      if let (Some(importingModule), Some(importedModule)) = (
+        context.files.get(importingPath).andThen(|f| f.ast)
+        context.files.get(importedPath).andThen(|f| f.ast)
       ) {
-        let importingModule: Module = importingFile->ast.transmute()
-        let importedModule: Module = importedFile->ast.transmute()
-
-        let result = asResult(|| {
         let edit = createImport(name, importingModule, importedModule)
         print('edit', edit)
         let mut changes = ObjectMap.new()
@@ -320,23 +319,6 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
           textDocument: {uri: toUri(importingPath)}
           edits: [edit]
         }]})
-        })
-        match result {
-          Ok(a) => {
-            print('applyEdit ok', a)
-            a->['then'](|b| {
-              print('applyEdit then', b)
-            })
-            a->['catch'](|b| {
-              print('applyEdit catch', b)
-            })
-            a
-          }
-          Err(error) => {
-            print('applyEdit Error:', (error, error->stack))
-            []
-          }
-        }
       }
     }
   }

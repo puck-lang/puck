@@ -54,8 +54,7 @@ if ($unwrapTraitObject($puck_7).kind === "None") {
         $puck_1.print("Test " + file + "::" + i + " is invalid, missing error or code");
         $puck_2.process.exit(1);
       };
-      const result = buildString(code, file, projectPath);
-      let $puck_12 = result;
+      let $puck_12 = buildString(code, file, projectPath);
       if ($unwrapTraitObject($puck_12).kind === "Ok") {
         let {value: [$puck_13]} = $unwrapTraitObject($puck_12);
         $puck_1.print("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");

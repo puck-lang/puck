@@ -25,6 +25,7 @@ import '../../ast/ast.puck' as {
   TupleLiteral
 }
 import '../../ast/span.puck' as {ToSpan}
+import '../../compiler.puck' as {CompilerContext}
 import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
@@ -47,9 +48,12 @@ export fn notAssignableError(to: Type, subject: Type) {
   subject.displayName() + ' is not assignable to type ' + to.displayName()
 }
 
-export fn structureVisitor(file: File, reportError: (ToSpan, String) -> (), reportFullError: (ToSpan, String, CompilationError) -> (), visitor = '') {{
-  file
+export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
+  fn reportError(token: ToSpan, message: String) {
+    context.reportError(file, token, CompilationError::Other(message))
+  }
 
+  {
   visitEnumMember: visit.walkingVisitor.visitEnumMember
   visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration| {
     if not f->scope {
@@ -317,12 +321,12 @@ export fn structureVisitor(file: File, reportError: (ToSpan, String) -> (), repo
       match scope.getTypePath(t, visitor) {
         Result::Ok(binding) => {
           t->type_= binding.type_
-          t->providesType = binding.type_.providesType.unwrapOr(binding.type_)
+          t->providesType = binding.type_ and binding.type_.providesType.unwrapOr(binding.type_)
         }
         Result::Err(ScopeError::UndefinedType(name)) => {
-          reportFullError(
+          context.reportError(
+            file,
             t
-            'Use of undeclared type $name',
             CompilationError::UndefinedVariable(name)
           )
         }

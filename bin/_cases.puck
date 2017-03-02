@@ -29,16 +29,14 @@ match command {
             None => return ()
           }
           let error = test.sub(Range.new(0, firstNewline))
-          let code: String = test.sub(Range.new(firstNewline, test.size()))
+          let code = test.sub(Range.new(firstNewline, test.size()))
 
           if not error or not code or not error.startsWith(' ') {
             print('Test $file::$i is invalid, missing error or code')
             process->exit(1)
           }
 
-          let result = buildString(code, file, projectPath)
-
-          match result {
+          match buildString(code, file, projectPath) {
             Result::Ok(_) => {
               print('error case did not error for $file::$i\nexpected error:$error')
               process->exit(1)

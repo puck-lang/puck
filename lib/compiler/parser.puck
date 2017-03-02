@@ -68,7 +68,7 @@ import '../ast/ast.puck' as {
 }
 import '../ast/span.puck' as {Span}
 import '../ast/token.puck' as {SyntaxKind, SimpleToken, Token}
-import '../entities.puck' as {UnparsedFile}
+import '../entities.puck' as {File}
 import 'token_stream.puck' as {TokenStream}
 
 fn isAssignment(token: SimpleToken) -> Bool {
@@ -95,7 +95,7 @@ fn isAssignable(expression: Expression) {
   }
 }
 
-export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
+export fn parse(mut input: TokenStream, file: File, recover = false) {
 
   fn isToken(kind: SyntaxKind, withDummy = false) -> Bool {
     match input.peek(withDummy) {
@@ -358,7 +358,7 @@ export fn parse(mut input: TokenStream, file: UnparsedFile, recover = false) {
       path: file.absolutePath
       exports
       statements
-      file: undefined
+      file
       scope: undefined
     }
   }

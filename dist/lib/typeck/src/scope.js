@@ -7,8 +7,9 @@ const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("util");
 const $puck_4 = require("./../../ast/ast");
 const $puck_5 = require("./../../ast/span");
-const $puck_6 = require("./../../compiler/ast");
-const $puck_7 = require("./../../entities");
+const $puck_6 = require("./../../compiler");
+const $puck_7 = require("./../../compiler/ast");
+const $puck_8 = require("./../../entities");
 var Binding = exports.Binding = (object) => object;
 var Scope = exports.Scope = (object) => object;
 var ScopeError = exports.ScopeError = {
@@ -34,9 +35,9 @@ Scope.createChild = function () {
 };
 Scope.getBindings = function () {
   const self = this;
-  let $puck_8 = self.parent;
-  if ($puck_8.kind === "Some") {
-    let {value: [parent]} = $puck_8;
+  let $puck_9 = self.parent;
+  if ($puck_9.kind === "Some") {
+    let {value: [parent]} = $puck_9;
     return $puck_2._Object.assign({}, Scope.getBindings.call(parent), self.bindings);
   }
   else {
@@ -50,12 +51,12 @@ Scope.getBinding = function (name, visitor = "") {
       return Scope.getBinding.call(p, name, visitor);
     });
   }), function (binding) {
-    let $puck_9 = binding.completeType;
-    if ($puck_9.kind === "Some") {
-      let {value: [completeType]} = $puck_9;
-      let $puck_10 = completeType(visitor);
-      if ($puck_10.kind === "Some") {
-        let {value: [type_]} = $puck_10;
+    let $puck_10 = binding.completeType;
+    if ($puck_10.kind === "Some") {
+      let {value: [completeType]} = $puck_10;
+      let $puck_11 = completeType(visitor);
+      if ($puck_11.kind === "Some") {
+        let {value: [type_]} = $puck_11;
         binding.type_ = type_;
       };
     };
@@ -69,12 +70,12 @@ Scope.getBindingByTypeId = function (id) {
       return Scope.getBindingByTypeId.call(p, id);
     });
   }), function (binding) {
-    let $puck_11 = binding.completeType;
-    if ($puck_11.kind === "Some") {
-      let {value: [completeType]} = $puck_11;
-      let $puck_12 = completeType("");
-      if ($puck_12.kind === "Some") {
-        let {value: [type_]} = $puck_12;
+    let $puck_12 = binding.completeType;
+    if ($puck_12.kind === "Some") {
+      let {value: [completeType]} = $puck_12;
+      let $puck_13 = completeType("");
+      if ($puck_13.kind === "Some") {
+        let {value: [type_]} = $puck_13;
         binding.type_ = type_;
       };
     };
@@ -86,53 +87,53 @@ Scope.define = function (binding, useParentScope = false) {
   if (binding.name === "Self") {
     return $puck_1.Err("Self is a reserved name");
   };
-  let $puck_13 = $puck_1.ObjectMap.get.call(self.bindings, binding.name);
-  let $puck_14;
-  if ($unwrapTraitObject($puck_13).kind === "Some") {
-    let {value: [previous]} = $unwrapTraitObject($puck_13);
-    let $puck_15;
+  let $puck_14 = $puck_1.ObjectMap.get.call(self.bindings, binding.name);
+  let $puck_15;
+  if ($unwrapTraitObject($puck_14).kind === "Some") {
+    let {value: [previous]} = $unwrapTraitObject($puck_14);
+    let $puck_16;
     if (previous.allowRedeclare) {
-      $puck_15 = $puck_1.Some(previous);
+      $puck_16 = $puck_1.Some(previous);
     }
     else {
       return $puck_1.Err(binding.name + " is already defined");
     };
-    $puck_14 = $puck_15;
+    $puck_15 = $puck_16;
   }
   else {
-    let $puck_16;
-    if (($unwrapTraitObject($puck_13).kind === "None")) {
-      let undefined = $unwrapTraitObject($puck_13);
-      let $puck_17;
+    let $puck_17;
+    if (($unwrapTraitObject($puck_14).kind === "None")) {
+      let undefined = $unwrapTraitObject($puck_14);
+      let $puck_18;
       if (useParentScope) {
-        let $puck_18 = $puck_1.Option.andThen.call(self.parent, function (p) {
+        let $puck_19 = $puck_1.Option.andThen.call(self.parent, function (p) {
           return $puck_1.ObjectMap.get.call(p.bindings, binding.name);
         });
-        let $puck_19;
-        if ($puck_18.kind === "Some") {
-          let {value: [previous]} = $puck_18;
-          let $puck_20;
+        let $puck_20;
+        if ($puck_19.kind === "Some") {
+          let {value: [previous]} = $puck_19;
+          let $puck_21;
           if (previous.allowRedeclare) {
-            $puck_20 = $puck_1.Some(previous);
+            $puck_21 = $puck_1.Some(previous);
           }
           else {
             return $puck_1.Err(binding.name + " is already defined");
           };
-          $puck_19 = $puck_20;
+          $puck_20 = $puck_21;
         }
         else {
-          $puck_19 = $puck_1.None;
+          $puck_20 = $puck_1.None;
         };
-        $puck_17 = $puck_19;
+        $puck_18 = $puck_20;
       }
       else {
-        $puck_17 = $puck_1.None;
+        $puck_18 = $puck_1.None;
       };
-      $puck_16 = $puck_17;
+      $puck_17 = $puck_18;
     };
-    $puck_14 = $puck_16;
+    $puck_15 = $puck_17;
   };
-  const previous = $puck_14;
+  const previous = $puck_15;
   binding = {
     definition: binding.definition,
     name: binding.name,
@@ -144,9 +145,9 @@ Scope.define = function (binding, useParentScope = false) {
   };
   $puck_1.ObjectMap.set.call(self.bindings, binding.name, binding);
   if (binding.type_) {
-    let $puck_21 = binding.type_.providesType;
-    if (($puck_21.kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_21.value)[0]).id).kind === "Some")) {
-      let {value: [{id: {value: [id]}}]} = $puck_21;
+    let $puck_22 = binding.type_.providesType;
+    if (($puck_22.kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_22.value)[0]).id).kind === "Some")) {
+      let {value: [{id: {value: [id]}}]} = $puck_22;
       $puck_1.ObjectMap.set.call(self.bindingsByTypeId, id, binding);
     };
   };
@@ -159,19 +160,19 @@ Scope.setSelfType = function (selfType) {
     name: "Self",
     mutable: false,
     allowRedeclare: false,
-    type_: $puck_7.Type.provides(selfType),
+    type_: $puck_8.Type.provides(selfType),
     previous: $puck_1.None,
     completeType: $puck_1.None,
   });
 };
 Scope.getTypePath = function (typePath, visitor = "") {
   const self = this;
-  let $puck_22 = typePath;
-  if ($unwrapTraitObject($puck_22).kind === "Member") {
-    let {value: [identifier]} = $unwrapTraitObject($puck_22);
-    let $puck_23 = Scope.getBinding.call(self, identifier.name, visitor);
-    if ($puck_23.kind === "Some") {
-      let {value: [binding]} = $puck_23;
+  let $puck_23 = typePath;
+  if ($unwrapTraitObject($puck_23).kind === "Member") {
+    let {value: [identifier]} = $unwrapTraitObject($puck_23);
+    let $puck_24 = Scope.getBinding.call(self, identifier.name, visitor);
+    if ($puck_24.kind === "Some") {
+      let {value: [binding]} = $puck_24;
       identifier.binding = binding;
       return $puck_1.Ok(binding);
     }
@@ -180,73 +181,73 @@ Scope.getTypePath = function (typePath, visitor = "") {
     };
   }
   else {
-    if ($unwrapTraitObject($puck_22).kind === "_Object") {
-      let {value: [identifier, path]} = $unwrapTraitObject($puck_22);
+    if ($unwrapTraitObject($puck_23).kind === "_Object") {
+      let {value: [identifier, path]} = $unwrapTraitObject($puck_23);
       let token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true};
       let name = identifier.name;
       let path_ = path;
-      let $puck_24 = Scope.getBinding.call(self, name, visitor);
-      let $puck_25;
-      if ($unwrapTraitObject($puck_24).kind === "Some") {
-        let {value: [binding]} = $unwrapTraitObject($puck_24);
-        $puck_25 = binding;
+      let $puck_25 = Scope.getBinding.call(self, name, visitor);
+      let $puck_26;
+      if ($unwrapTraitObject($puck_25).kind === "Some") {
+        let {value: [binding]} = $unwrapTraitObject($puck_25);
+        $puck_26 = binding;
       }
       else {
-        let $puck_26;
-        if ($unwrapTraitObject($puck_24).kind === "None") {
-          let undefined = $unwrapTraitObject($puck_24);
+        let $puck_27;
+        if ($unwrapTraitObject($puck_25).kind === "None") {
+          let undefined = $unwrapTraitObject($puck_25);
           return $puck_1.Err(ScopeError.UndefinedType(name));
         };
-        $puck_25 = $puck_26;
+        $puck_26 = $puck_27;
       };
-      const binding = $puck_25;
+      const binding = $puck_26;
       identifier.binding = binding;
       let type_ = binding.type_;
       while (true) {
         let displayPath = "" + name + "";
         const providesType = $puck_1.Option.unwrapOr.call(type_.providesType, type_);
-        let $puck_27 = path_;
-        if ($unwrapTraitObject($puck_27).kind === "Member") {
-          let {value: [identifier]} = $unwrapTraitObject($puck_27);
+        let $puck_28 = path_;
+        if ($unwrapTraitObject($puck_28).kind === "Member") {
+          let {value: [identifier]} = $unwrapTraitObject($puck_28);
           token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true};
           name = identifier.name;
-          let $puck_28 = getTypeMember(providesType, displayPath, name);
-          let $puck_29;
-          if ($unwrapTraitObject($puck_28).kind === "Ok") {
-            let {value: [type_]} = $unwrapTraitObject($puck_28);
-            $puck_29 = type_;
+          let $puck_29 = getTypeMember(providesType, displayPath, name);
+          let $puck_30;
+          if ($unwrapTraitObject($puck_29).kind === "Ok") {
+            let {value: [type_]} = $unwrapTraitObject($puck_29);
+            $puck_30 = type_;
           }
           else {
-            let $puck_30;
-            if ($unwrapTraitObject($puck_28).kind === "Err") {
-              let {value: [err]} = $unwrapTraitObject($puck_28);
+            let $puck_31;
+            if ($unwrapTraitObject($puck_29).kind === "Err") {
+              let {value: [err]} = $unwrapTraitObject($puck_29);
               return $puck_1.Err(ScopeError.Other(err));
             };
-            $puck_29 = $puck_30;
+            $puck_30 = $puck_31;
           };
-          type_ = $puck_29;
+          type_ = $puck_30;
           break        }
         else {
-          if ($unwrapTraitObject($puck_27).kind === "_Object") {
-            let {value: [identifier, path]} = $unwrapTraitObject($puck_27);
+          if ($unwrapTraitObject($puck_28).kind === "_Object") {
+            let {value: [identifier, path]} = $unwrapTraitObject($puck_28);
             token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true};
             name = identifier.name;
             path_ = path;
-            let $puck_31 = getTypeMember(providesType, displayPath, name);
-            let $puck_32;
-            if ($unwrapTraitObject($puck_31).kind === "Ok") {
-              let {value: [type_]} = $unwrapTraitObject($puck_31);
-              $puck_32 = type_;
+            let $puck_32 = getTypeMember(providesType, displayPath, name);
+            let $puck_33;
+            if ($unwrapTraitObject($puck_32).kind === "Ok") {
+              let {value: [type_]} = $unwrapTraitObject($puck_32);
+              $puck_33 = type_;
             }
             else {
-              let $puck_33;
-              if ($unwrapTraitObject($puck_31).kind === "Err") {
-                let {value: [err]} = $unwrapTraitObject($puck_31);
+              let $puck_34;
+              if ($unwrapTraitObject($puck_32).kind === "Err") {
+                let {value: [err]} = $unwrapTraitObject($puck_32);
                 return $puck_1.Err(ScopeError.Other(err));
               };
-              $puck_32 = $puck_33;
+              $puck_33 = $puck_34;
             };
-            type_ = $puck_32;
+            type_ = $puck_33;
             displayPath = "" + displayPath + "::" + name + "";
           };
         };
@@ -268,47 +269,47 @@ Scope.merge = function (other) {
   $puck_2._Object.assign(self.bindings, other.bindings);
 };
 function getTypeMember(type_, displayPath, member) {
-  let $puck_34 = type_.kind;
-  if ($unwrapTraitObject($puck_34).kind === "Enum") {
-    let {value: [enum_]} = $unwrapTraitObject($puck_34);
-    let $puck_35 = $puck_1.ObjectMap.get.call(enum_.members, member);
-    if ($unwrapTraitObject($puck_35).kind === "Some") {
-      let {value: [memberType]} = $unwrapTraitObject($puck_35);
+  let $puck_35 = type_.kind;
+  if ($unwrapTraitObject($puck_35).kind === "Enum") {
+    let {value: [enum_]} = $unwrapTraitObject($puck_35);
+    let $puck_36 = $puck_1.ObjectMap.get.call(enum_.members, member);
+    if ($unwrapTraitObject($puck_36).kind === "Some") {
+      let {value: [memberType]} = $unwrapTraitObject($puck_36);
       return $puck_1.Ok(memberType);
     }
     else {
-      if ($unwrapTraitObject($puck_35).kind === "None") {
-        let undefined = $unwrapTraitObject($puck_35);
+      if ($unwrapTraitObject($puck_36).kind === "None") {
+        let undefined = $unwrapTraitObject($puck_36);
         return $puck_1.Err("Use of undeclared type " + displayPath + "::" + member + "");
       };
     };
   }
   else {
-    if ($unwrapTraitObject($puck_34).kind === "Struct") {
-      let {value: [struct]} = $unwrapTraitObject($puck_34);
-      let $puck_36 = struct.kind;
-      if ($unwrapTraitObject($puck_36).kind === "Record") {
-        let {value: [record]} = $unwrapTraitObject($puck_36);
-        let $puck_37 = $puck_1.ObjectMap.get.call(record.properties, member);
-        if ($unwrapTraitObject($puck_37).kind === "Some") {
-          let {value: [propertyType]} = $unwrapTraitObject($puck_37);
+    if ($unwrapTraitObject($puck_35).kind === "Struct") {
+      let {value: [struct]} = $unwrapTraitObject($puck_35);
+      let $puck_37 = struct.kind;
+      if ($unwrapTraitObject($puck_37).kind === "Record") {
+        let {value: [record]} = $unwrapTraitObject($puck_37);
+        let $puck_38 = $puck_1.ObjectMap.get.call(record.properties, member);
+        if ($unwrapTraitObject($puck_38).kind === "Some") {
+          let {value: [propertyType]} = $unwrapTraitObject($puck_38);
           return $puck_1.Ok(propertyType);
         }
         else {
-          if ($unwrapTraitObject($puck_37).kind === "None") {
-            let undefined = $unwrapTraitObject($puck_37);
+          if ($unwrapTraitObject($puck_38).kind === "None") {
+            let undefined = $unwrapTraitObject($puck_38);
             return $puck_1.Err("Use of undeclared type " + displayPath + "::" + member + "");
           };
         };
       }
       else {
-        if ($unwrapTraitObject($puck_36).kind === "Tuple") {
-          let undefined = $unwrapTraitObject($puck_36);
+        if ($unwrapTraitObject($puck_37).kind === "Tuple") {
+          let undefined = $unwrapTraitObject($puck_37);
           return $puck_1.Err("Can not access members on a tuple type");
         }
         else {
-          if ($unwrapTraitObject($puck_36).kind === "Unit") {
-            let undefined = $unwrapTraitObject($puck_36);
+          if ($unwrapTraitObject($puck_37).kind === "Unit") {
+            let undefined = $unwrapTraitObject($puck_37);
             return $puck_1.Err("Can not access members on a unit type");
           };
         };
@@ -316,7 +317,7 @@ function getTypeMember(type_, displayPath, member) {
     }
     else {
       if (true) {
-        let $puck_38 = $puck_34;
+        let $puck_39 = $puck_35;
         return $puck_1.Err("Type paths can only access enums or records");
       };
     };

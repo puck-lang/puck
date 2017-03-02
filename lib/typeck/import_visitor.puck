@@ -8,30 +8,33 @@ import '../ast/ast.puck' as {
   ImportSpecifier
 }
 import '../ast/span.puck' as {ToSpan}
+import '../compiler.puck' as {CompilerContext}
 import '../ast/visit.puck' as visit
-import '../entities.puck' as {File, UnparsedFile}
+import '../entities.puck' as {File, CompilationError}
 import '../compiler/ast.ts' as {SyntaxKind}
 
 let domains = ['node', 'puck']
 export let puckFile = RegExp.new('\\.puck$', 'i')
 export let puckModules = ['core', 'js', 'test']
 
-export fn ImportVisitor(context, file: UnparsedFile) {
-  let reportError: (ToSpan, String) -> () = context.reportError.bind(context, file)
+export fn ImportVisitor(mut context: CompilerContext, file: File) {
   let mut declarations: ObjectMap<ToSpan>
 
-  fn importModule(mut i: ImportDirective, importedFile: UnparsedFile) -> () {
-    let result: Result<File, String> = asResult(|| context.importFile(importedFile))
-    match result {
+  fn importModule(mut i: ImportDirective, mut importedFile: File) -> () {
+    match asResult(|| context.importFile(importedFile)) {
       Ok(contextFile) => {
-        let module: Module = contextFile->ast.transmute()
-        if not module then return context.defer(importedFile, || importModule(i, importedFile))
+        let module = match contextFile.ast {
+          Some(module) => module
+          Option::None => return context.defer(importedFile, || importModule(i, importedFile))
+        }
 
         match i.specifier {
           ImportSpecifier::ObjectDestructure(o) => {
             o.members.forEach(|m| {
               if not module.exports.has(m.property.name)
-                then reportError(m, importedFile.fileName + ' has no export named ' + m.property.name)
+                then context.reportError(file, m,
+                  CompilationError::Other(importedFile.fileName + ' has no export named ' + m.property.name)
+                )
             })
           }
           ImportSpecifier::Asterisk(token) => {
@@ -57,7 +60,10 @@ export fn ImportVisitor(context, file: UnparsedFile) {
         i.module = Some(module)
       }
       Err(err) => {
-        reportError(i, err)
+        if err.transmute::<String>() == 'Syntax Error' {
+          context.reportError(file, i, CompilationError::Other(err.transmute::<String>()))
+        }
+        else throw err
       }
     }
   }
@@ -80,28 +86,30 @@ export fn ImportVisitor(context, file: UnparsedFile) {
         Some(domain) => {
           if domain == 'puck' {
             if not puckModules.contains(i.path)
-              then return reportError(i, 'Invalid puck module ' + i.path)
-            let importedFile = context.resolvePath(
+              then return context.reportError(file, i, CompilationError::Other('Invalid puck module ' + i.path))
+            let mut importedFile = context.resolvePath(
               path->join(
                 path->dirname(require->resolve('puck-lang/dist/bin/puck'))
                 '../../lib/stdlib/' + i.path + '.puck'
-              )
+              ).transmute::<String>()
               file
             )
             importModule(i, importedFile)
           }
           else if not domains.contains(domain) {
-            reportError(i, 'Invalid import domain $domain')
+            context.reportError(file, i, CompilationError::Other('Invalid import domain $domain'))
           }
         }
         None => {
-          let result: Result<UnparsedFile, {}> = asResult(|| context.resolvePath(i.path, file))
+          let result = asResult(|| context.resolvePath(i.path, file))
           match result {
-            Result::Ok(importedFile) => {
+            Ok(mut importedFile) => {
             if puckFile.test(importedFile.absolutePath)
               then importModule(i, importedFile)
             }
-            Result::Err(error) => return reportError(i, 'Imported file ' + i.path + ' not found')
+            Err(error) => return context.reportError(file, i,
+              CompilationError::Other('Imported file ' + i.path + ' not found')
+            )
           }
         }
       }

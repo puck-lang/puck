@@ -1,7 +1,7 @@
-///// Use of undeclared type B
+///// Use of undefined variable B
 enum Enum { A(B) }
 
-///// Use of undeclared type B
+///// Use of undefined variable B
 enum Enum { A {b: B} }
 
 ///// Duplicate member A

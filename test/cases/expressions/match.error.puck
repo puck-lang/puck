@@ -96,7 +96,7 @@ print(
   }
 )
 
-///// Use of undeclared type Missing
+///// Use of undefined variable Missing
 match Some(4) {
   Missing::Type => 1
 }

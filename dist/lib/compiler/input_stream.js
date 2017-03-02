@@ -4,19 +4,20 @@ const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("./../ast/span");
 const $puck_4 = require("./../entities");
+const $puck_5 = require("./../compiler");
 var InputStream = exports.InputStream = (object) => object;
 InputStream._new = function (context, file) {
-  let $puck_5;
+  let $puck_6;
   if ($puck_1.String.startsWith.call(file.puck, "//#![no_core]")) {
-    $puck_5 = "\n" + file.puck.slice(13);
+    $puck_6 = "\n" + file.puck.slice(13);
   }
   else {
-    $puck_5 = "import 'puck:core' as *\n" + file.puck;
+    $puck_6 = "import 'puck:core' as *\n" + file.puck;
   };
   return {
     context: context,
     file: file,
-    code: $puck_5,
+    code: $puck_6,
     pos: 0,
     line: 0,
     column: 0,
@@ -71,6 +72,6 @@ InputStream.croak = function (message) {
   },
   };
   const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: span, $isTraitObject: true};
-  self.context.reportError(self.file, token, message);
+  $puck_5.CompilerContext.reportError.call(self.context, self.file, token, $puck_4.CompilationError.Other(message));
   throw "Syntax Error";
 }

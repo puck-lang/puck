@@ -842,6 +842,15 @@ export trait Iterator<E> {
     None
   }
 
+  fn forEach(mut self, f: (E) -> ()) -> () {
+    while true {
+      if let Some(value) = self.next() {
+        f(value)
+      }
+      else break
+    }
+  }
+
   // TODO: Implement correctly when possible
   fn collect(mut self) -> List<E> {
     let mut list = []
@@ -970,7 +979,7 @@ impl<E> Iterable<E> for List<E> {
   }
 
   fn forEach(self, func: (E) -> ()) -> () {
-    anyCast(self).forEach(func)
+    self->forEach(func)
   }
 
   fn filter(self, func: (E) -> Bool) -> Iterable<E> {
@@ -1268,6 +1277,14 @@ impl<T> Index<String, T> for ObjectMap<T> {
   }
 }
 
+impl<K, V> Index<K, V> for Map<K, V> {
+  fn index(self, key: K) -> V {
+    if not self.has(key) then panic('The key $key is missing')
+
+    self.get(key).unwrap()
+  }
+}
+
 /// Trait for equality comparisons which are partial equivalence relations.
 ///
 /// This trait allows for partial equality, for types that do not have a
@@ -1442,7 +1459,7 @@ impl<K, V> Map<K, V> {
   }
 
   fn delete(mut self, key: K) -> () {
-    self->delete(key)
+    self->['delete'](key)
   }
 
   fn has(self, key: K) -> Bool {
@@ -1518,7 +1535,7 @@ impl<T> Set<T> {
   }
 
   fn delete(mut self, value: T) -> () {
-    self->delete(value)
+    self->['delete'](value)
   }
 
   fn has(self, value: T) -> Bool {

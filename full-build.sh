@@ -16,5 +16,5 @@ printf "self-test: "
 dist/bin/self-test
 printf "self-test with babel: "
 dist/bin/self-test --babel true
-printf "puck test: "
+echo "puck test: "
 CI=true dist/bin/puck test
