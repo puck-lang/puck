@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.PatternError = exports.declarePatternVariablesundefined;
+exports.PatternError = exports.declarePatternVariables = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../../ast/ast");
 const $puck_3 = require("./../../ast/span");

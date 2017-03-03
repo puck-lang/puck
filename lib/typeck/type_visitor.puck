@@ -93,6 +93,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
     visitModule: |mut self, mut m: Module| {
       m->scope = self.scope
       let mut imports = []
+      let mut reexports = []
       let mut declarations = []
 
       m.statements.forEach(|s: TopLevelStatement|
@@ -105,6 +106,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
             ExportedStatement::EnumDeclaration(_) => declarations.push(s)
             ExportedStatement::TraitDeclaration(_) => declarations.push(s)
             ExportedStatement::TypeDeclaration(_) => declarations.push(s)
+            ExportedStatement::Identifier(_) => reexports.push(s)
             _ => {}
           }
           _ => {}
@@ -113,6 +115,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
 
       declarations.forEach(|mut e| self.visitTopLevelStatement(e))
       imports.forEach(|mut i| self.visitImportDirective(i))
+      reexports.forEach(|mut e| self.visitTopLevelStatement(e))
       declarations.forEach(|mut e| self.visitTopLevelStatement(e))
       declarations.forEach(|mut e| self.visitTopLevelStatement(e))
     }
@@ -504,6 +507,20 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
         }
         ImportSpecifier::Asterisk(_) => {}
       }
+    }
+
+    visitIdentifier: |self, mut i: Identifier| {
+      let scope: Scope = self.scope
+      if let Some(binding) = scope.getBinding(i.name, 'ImplVisitor') {
+        i->binding = binding
+        i->type_ = binding.type_
+      }
+      else context.reportError(
+        file
+        i
+        CompilationError::UndefinedVariable(i.name)
+      )
+      ()
     }
 
     visitTypeBound: |self, mut t: TypeBound| {

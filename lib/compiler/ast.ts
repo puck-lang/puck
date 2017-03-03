@@ -183,6 +183,7 @@ export interface VariableDeclaration extends Token {
 export interface ExportDirective extends Token {
   keyword: Token
   statement:
+    {kind: 'Identifier', value: Identifier} |
     {kind: 'VariableDeclaration', value: VariableDeclaration} |
     {kind: 'FunctionDeclaration', value: FunctionDeclaration} |
     {kind: 'TraitDeclaration', value: TraitDeclaration} |

@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMemberundefined;
+exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMember = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../entities");
 const $puck_3 = require("./span");
@@ -107,6 +107,7 @@ var ExportedStatement = exports.ExportedStatement = {
 EnumDeclaration: (member) => ({kind: 'EnumDeclaration', value: member}),
 TraitDeclaration: (member) => ({kind: 'TraitDeclaration', value: member}),
 TypeDeclaration: (member) => ({kind: 'TypeDeclaration', value: member}),
+Identifier: (member) => ({kind: 'Identifier', value: member}),
 FunctionDeclaration: (member) => ({kind: 'FunctionDeclaration', value: member}),
 VariableDeclaration: (member) => ({kind: 'VariableDeclaration', value: member}),
 };
@@ -702,14 +703,20 @@ span: function () {
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration', value: d, $isTraitObject: true});
       }
       else {
-        if ($unwrapTraitObject($puck_11).kind === "FunctionDeclaration") {
+        if ($unwrapTraitObject($puck_11).kind === "Identifier") {
           let {value: d} = $unwrapTraitObject($puck_11);
-          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: d, $isTraitObject: true});
+          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: d, $isTraitObject: true});
         }
         else {
-          if ($unwrapTraitObject($puck_11).kind === "VariableDeclaration") {
+          if ($unwrapTraitObject($puck_11).kind === "FunctionDeclaration") {
             let {value: d} = $unwrapTraitObject($puck_11);
-            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true});
+            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: d, $isTraitObject: true});
+          }
+          else {
+            if ($unwrapTraitObject($puck_11).kind === "VariableDeclaration") {
+              let {value: d} = $unwrapTraitObject($puck_11);
+              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true});
+            };
           };
         };
       };
@@ -1635,14 +1642,20 @@ ExportDirective.getType = function () {
         return d.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_26).kind === "FunctionDeclaration") {
+        if ($unwrapTraitObject($puck_26).kind === "Identifier") {
           let {value: d} = $unwrapTraitObject($puck_26);
           return d.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_26).kind === "VariableDeclaration") {
+          if ($unwrapTraitObject($puck_26).kind === "FunctionDeclaration") {
             let {value: d} = $unwrapTraitObject($puck_26);
             return d.type_;
+          }
+          else {
+            if ($unwrapTraitObject($puck_26).kind === "VariableDeclaration") {
+              let {value: d} = $unwrapTraitObject($puck_26);
+              return d.type_;
+            };
           };
         };
       };

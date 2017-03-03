@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.bestImportPath = exports.createImportundefined;
+exports.bestImportPath = exports.createImport = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const path = require("path");
 const $puck_2 = require("./../../ast/ast");

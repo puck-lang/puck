@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Position = exports.Span = exports.ToSpanundefined;
+exports.Position = exports.Span = exports.ToSpan = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 var Position = exports.Position = (object) => object;
 var Span = exports.Span = (object) => object;

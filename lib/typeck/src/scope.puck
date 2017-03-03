@@ -56,6 +56,11 @@ impl Scope {
       .map(|mut binding| {
         if let Some(completeType) = binding.completeType {
           if let Some(type_) = completeType(visitor) {
+            if not binding.type_ and type_ {
+              if let Some({id: Some(id)}) = type_.providesType {
+                self.bindingsByTypeId->[id] = binding
+              }
+            }
             binding.type_ = type_
           }
         }

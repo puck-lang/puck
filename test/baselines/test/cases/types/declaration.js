@@ -1,5 +1,5 @@
 'use strict';
-exports.Aundefined;
+exports.A = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 var Foo = (object) => object;
 var Generic = (object) => object;

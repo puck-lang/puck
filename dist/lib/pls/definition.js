@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Definition = exports.DefinitionVisitorundefined;
+exports.Definition = exports.DefinitionVisitor = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../ast/ast");
 const $puck_3 = require("./../ast/span");

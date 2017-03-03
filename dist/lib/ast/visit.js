@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.walkingVisitor = exports.emptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameterundefined;
+exports.walkingVisitor = exports.emptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./ast");
 const $puck_3 = require("./../compiler/ast");
@@ -555,19 +555,25 @@ function walkExportDirective(visitor, e) {
       return $unwrapTraitObject(visitor).visitFunctionDeclaration(d);
     }
     else {
-      if ($unwrapTraitObject($puck_10).kind === "TraitDeclaration") {
+      if ($unwrapTraitObject($puck_10).kind === "Identifier") {
         let {value: d} = $unwrapTraitObject($puck_10);
-        return $unwrapTraitObject(visitor).visitTraitDeclaration(d);
+        return $unwrapTraitObject(visitor).visitIdentifier(d);
       }
       else {
-        if ($unwrapTraitObject($puck_10).kind === "TypeDeclaration") {
+        if ($unwrapTraitObject($puck_10).kind === "TraitDeclaration") {
           let {value: d} = $unwrapTraitObject($puck_10);
-          return $unwrapTraitObject(visitor).visitTypeDeclaration(d);
+          return $unwrapTraitObject(visitor).visitTraitDeclaration(d);
         }
         else {
-          if ($unwrapTraitObject($puck_10).kind === "VariableDeclaration") {
+          if ($unwrapTraitObject($puck_10).kind === "TypeDeclaration") {
             let {value: d} = $unwrapTraitObject($puck_10);
-            return $unwrapTraitObject(visitor).visitVariableDeclaration(d);
+            return $unwrapTraitObject(visitor).visitTypeDeclaration(d);
+          }
+          else {
+            if ($unwrapTraitObject($puck_10).kind === "VariableDeclaration") {
+              let {value: d} = $unwrapTraitObject($puck_10);
+              return $unwrapTraitObject(visitor).visitVariableDeclaration(d);
+            };
           };
         };
       };

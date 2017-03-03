@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.resolveTypeParameters = exports.createTypeInstance = exports.isAssignable = exports.isSameType = exports.findCommonTypeundefined;
+exports.resolveTypeParameters = exports.createTypeInstance = exports.isAssignable = exports.isSameType = exports.findCommonType = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("./../../ast/ast");

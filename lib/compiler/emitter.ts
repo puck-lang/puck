@@ -289,6 +289,7 @@ export function Emitter() {
       module.statements
         .filter(e =>
           e.kind === 'BlockLevelStatement' ||
+          isExported(e, 'Identifier') ||
           isExported(e, 'FunctionDeclaration') ||
           isExported(e, 'VariableDeclaration')
         )
@@ -299,7 +300,7 @@ export function Emitter() {
 
     let e = ''
     if (exportPreamble.length) {
-      e = exportPreamble.join(' = ') + 'undefined;\n'
+      e = exportPreamble.join(' = ') + ' = undefined;\n'
     }
     return preamble + e + statements.join(';\n')
   }
@@ -641,21 +642,24 @@ export function Emitter() {
   }
 
   function emitExportDirective(e: ExportDirective) {
-    let export_ = `exports.${emitIdentifier(e.identifier)} = `
+    let identifier = emitIdentifier({...e.identifier, binding: undefined})
+    let export_ = `exports.${identifier} = `
     const definition = `${
       e.statement.kind === 'EnumDeclaration'
-        ? emitEnumDeclaration(e.statement.value as EnumDeclaration, export_) :
+        ? emitEnumDeclaration(e.statement.value, export_) :
       e.statement.kind === 'TraitDeclaration'
-        ? emitTraitDeclaration(e.statement.value as TraitDeclaration, export_) :
+        ? emitTraitDeclaration(e.statement.value, export_) :
       e.statement.kind === 'TypeDeclaration'
-        ? emitTypeDeclaration(e.statement.value as TypeDeclaration, export_) :
+        ? emitTypeDeclaration(e.statement.value, export_) :
+      e.statement.kind === 'Identifier'
+        ? `${export_}${emitIdentifier(e.statement.value)}` :
       e.statement.kind === 'FunctionDeclaration'
-        ? `${emitFunctionDeclaration(e.statement.value as FunctionDeclaration, true)};\n${export_}${emitIdentifier(e.identifier)}` :
+        ? `${emitFunctionDeclaration(e.statement.value, true)};\n${export_}${emitIdentifier(e.identifier)}` :
       e.statement.kind === 'VariableDeclaration'
-        ? emitVariableDeclaration(e.statement.value as VariableDeclaration, export_)
+        ? emitVariableDeclaration(e.statement.value, export_)
       : (() => {throw 'Unknown Exported statement'})()
     }`
-    exportPreamble.push(`exports.${emitIdentifier(e.identifier)}`)
+    exportPreamble.push(`exports.${identifier}`)
     return definition
   }
 
