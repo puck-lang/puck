@@ -25,119 +25,119 @@ function createImport(binding, importingModule, importedModule) {
   let $puck_6 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: importingModule.statements, $isTraitObject: true}, function (s) {
     let $puck_7 = s;
     if ($unwrapTraitObject($puck_7).kind === "ImportDirective") {
-      let {value: [d]} = $unwrapTraitObject($puck_7);
+      let {value: d} = $unwrapTraitObject($puck_7);
       let $puck_8 = d.specifier;
       if ($unwrapTraitObject($puck_8).kind === "ObjectDestructure") {
-        let {value: [o]} = $unwrapTraitObject($puck_8);
+        let {value: o} = $unwrapTraitObject($puck_8);
         return $puck_1.Some(d);
       }
       else {
         if (true) {
-          let $puck_9 = $puck_8;
+          $puck_8;
           return $puck_1.None;
         };
       };
     }
     else {
       if (true) {
-        let $puck_10 = $puck_7;
+        $puck_7;
         return $puck_1.None;
       };
     };
   })
 ;
   const imports = $puck_1.Iterable[$puck_6.type].toList.call($puck_6);
-  let $puck_11 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].find.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: imports, $isTraitObject: true}, function (d) {
+  let $puck_9 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].find.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: imports, $isTraitObject: true}, function (d) {
     return $puck_1.Option.mapOr.call(d.domain, d.path, function (domain) {
       return "" + domain + ":" + d.path;
     }) === path;
   });
-  if (($puck_11.kind === "Some")) {
-    let {value: [import_]} = $puck_11;
-    let $puck_12 = import_.specifier;
-    if ($unwrapTraitObject($puck_12).kind === "ObjectDestructure") {
-      let {value: [o]} = $unwrapTraitObject($puck_12);
+  if (($puck_9.kind === "Some")) {
+    let {value: import_} = $puck_9;
+    let $puck_10 = import_.specifier;
+    if ($unwrapTraitObject($puck_10).kind === "ObjectDestructure") {
+      let {value: o} = $unwrapTraitObject($puck_10);
       const index = $puck_1.Result.unwrapErr.call($puck_1.List.binarySearchBy.call(o.members, function (m) {
         return $puck_1.Ord["$impl_lib/stdlib/core.puck:Ord$String"].cmp.call({type: '$impl_lib/stdlib/core.puck:Ord$String', value: m.local.name, $isTraitObject: true}, {type: '$impl_lib/stdlib/core.puck:Ord$String', value: binding, $isTraitObject: true});
       }));
+      let $puck_11;
+      if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true})) {
+        $puck_11 = o.openBrace.span.end.line;
+      }
+      else {
+        let $puck_12;
+        if (index === $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true})) {
+          $puck_12 = $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index - 1), $isTraitObject: true}).line - 1;
+        }
+        else {
+          $puck_12 = $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index), $isTraitObject: true}).line - 1;
+        };
+        $puck_11 = $puck_12;
+      };
       let $puck_13;
       if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true})) {
-        $puck_13 = o.openBrace.span.end.line;
+        $puck_13 = o.openBrace.span.end.column - 1;
       }
       else {
         let $puck_14;
-        if (index === $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true})) {
-          $puck_14 = $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index - 1), $isTraitObject: true}).line - 1;
+        if ((index === $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true}))) {
+          $puck_14 = $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index - 1), $isTraitObject: true}).column - 1;
         }
         else {
-          $puck_14 = $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index), $isTraitObject: true}).line - 1;
+          $puck_14 = $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index), $isTraitObject: true}).column - 1;
         };
         $puck_13 = $puck_14;
       };
+      const position = {
+        line: $puck_11,
+        character: $puck_13,
+      };
       let $puck_15;
-      if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true})) {
-        $puck_15 = o.openBrace.span.end.column - 1;
+      if ((o.openBrace.span.start.line !== o.closeBrace.span.end.line)) {
+        $puck_15 = "\n  " + binding + "";
       }
       else {
         let $puck_16;
-        if ((index === $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true}))) {
-          $puck_16 = $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index - 1), $isTraitObject: true}).column - 1;
-        }
-        else {
-          $puck_16 = $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: o.members, $isTraitObject: true}, index), $isTraitObject: true}).column - 1;
-        };
-        $puck_15 = $puck_16;
-      };
-      const position = {
-        line: $puck_13,
-        character: $puck_15,
-      };
-      let $puck_17;
-      if ((o.openBrace.span.start.line !== o.closeBrace.span.end.line)) {
-        $puck_17 = "\n  " + binding + "";
-      }
-      else {
-        let $puck_18;
         if (index > 0) {
-          $puck_18 = ", " + binding + "";
+          $puck_16 = ", " + binding + "";
         }
         else {
-          let $puck_19;
+          let $puck_17;
           if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true})) {
-            $puck_19 = binding;
+            $puck_17 = binding;
           }
           else {
-            $puck_19 = "" + binding + ", ";
+            $puck_17 = "" + binding + ", ";
           };
-          $puck_18 = $puck_19;
+          $puck_16 = $puck_17;
         };
-        $puck_17 = $puck_18;
+        $puck_15 = $puck_16;
       };
       return {
         range: {
         start: position,
         end: position,
       },
-        newText: $puck_17,
+        newText: $puck_15,
       };
     }
     else {
       if (true) {
-        let $puck_20 = $puck_12;
+        $puck_10;
         return $puck_1.panic("Unreachable");
       };
     };
   }
   else {
-    let $puck_21;
+    let $puck_18;
     if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: imports, $isTraitObject: true})) {
-      $puck_21 = 0;
+      $puck_18 = 0;
     }
     else {
-      $puck_21 = $puck_1.Result.unwrapErr.call($puck_1.Result.mapErr.call($puck_1.List.binarySearchBy.call($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: imports, $isTraitObject: true}), function (i) {
-        let $puck_22 = i.domain;
-        if ($puck_22.kind === "Some") {
-          let {value: [domain]} = $puck_22;
+      $puck_18 = $puck_1.Result.unwrapErr.call($puck_1.Result.mapErr.call($puck_1.List.binarySearchBy.call($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: imports, $isTraitObject: true}), function (i) {
+        let $puck_19 = i.domain;
+        if ($puck_19.kind === "Some") {
+          let {value: domain} = $puck_19;
           if ($puck_1.String.startsWith.call(path, "puck:")) {
             if (domain === "puck") {
               return $puck_1.Ordering.reverse.call($puck_1.Ord["$impl_lib/stdlib/core.puck:Ord$String"].cmp.call({type: '$impl_lib/stdlib/core.puck:Ord$String', value: $puck_1.String.sub.call(path, $puck_1.Range._new(5, $puck_1.String.size.call(path))), $isTraitObject: true}, {type: '$impl_lib/stdlib/core.puck:Ord$String', value: i.path, $isTraitObject: true}));
@@ -174,7 +174,7 @@ function createImport(binding, importingModule, importedModule) {
       }));
     };
     const position = {
-      line: $puck_21,
+      line: $puck_18,
       character: 0,
     };
     return {

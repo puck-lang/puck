@@ -3,24 +3,24 @@ const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 var Tuple = (...members) => members;
 var Record = (object) => object;
 var Enum = {
-A: (...members) => ({kind: 'A', value: members}),
+A: (member) => ({kind: 'A', value: member}),
 };
 let a = 1;
 let [b, c] = [
   2,
   3,
 ];
-let [$puck_2, $puck_3] = [
+let [, ] = [
   2,
   3,
 ];
-let [$puck_4, d, $puck_5, e] = [
+let [, d, , e] = [
   2,
   3,
   4,
   5,
 ];
-let [[f, g], $puck_6, h] = [
+let [[f, g], , h] = [
   [
   2,
   3,
@@ -54,7 +54,7 @@ let {a: r} = {
   a: 1,
   b: 2,
 };
-let {value: [s]} = Enum.A(1);
+let {value: s} = Enum.A(1);
 a = 2;
 a = "" + $puck_1.Num.round.call(a);
 a = function (first) {

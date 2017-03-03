@@ -38,18 +38,17 @@ function TopLevelVisitor(context, file) {
     const self = this;
     let $puck_8 = i.specifier;
     if ($unwrapTraitObject($puck_8).kind === "Identifier") {
-      let {value: [identifier]} = $unwrapTraitObject($puck_8);
+      let {value: identifier} = $unwrapTraitObject($puck_8);
       return $puck_1.ObjectMap.set.call(declarations, identifier.name, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true});
     }
     else {
       if ($unwrapTraitObject($puck_8).kind === "ObjectDestructure") {
-        let {value: [d]} = $unwrapTraitObject($puck_8);
+        let {value: d} = $unwrapTraitObject($puck_8);
         return $unwrapTraitObject(self).visitObjectDestructure(d);
       }
       else {
         if ($unwrapTraitObject($puck_8).kind === "Asterisk") {
           let $puck_9 = $unwrapTraitObject($puck_8);;
-          let {value: [$puck_10]} = $puck_9;;
           return $puck_9;
         };
       };
@@ -63,9 +62,9 @@ function TopLevelVisitor(context, file) {
   },
     visitFunctionDeclaration: function (f) {
     const self = this;
-    let $puck_11 = f.name;
-    if ($puck_11.kind === "Some") {
-      let {value: [name]} = $puck_11;
+    let $puck_10 = f.name;
+    if ($puck_10.kind === "Some") {
+      let {value: name} = $puck_10;
       return $puck_1.ObjectMap.set.call(declarations, name.name, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true});
     };
   },

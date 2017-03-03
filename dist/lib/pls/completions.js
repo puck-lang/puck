@@ -33,12 +33,12 @@ visitImplDeclaration: function (i) {
   if (trait_) {
     let $puck_9 = trait_.kind;
     if ($unwrapTraitObject($puck_9).kind === "Trait") {
-      let {value: [trait_]} = $unwrapTraitObject($puck_9);
+      let {value: trait_} = $unwrapTraitObject($puck_9);
       self.value.inTraitImpl = $puck_1.Some(trait_);
     }
     else {
       if (true) {
-        let $puck_10 = $puck_9;
+        $puck_9;
       };
     };
   };
@@ -50,12 +50,12 @@ visitImplDeclaration: function (i) {
 visitImplShorthandDeclaration: $puck_8.PositionVisitor.visitImplShorthandDeclaration,
 visitMethodDeclaration: function (f) {
   let self = this;
-  let $puck_25 = f.name;
-  if ($puck_25.kind === "Some") {
-    let {value: [name]} = $puck_25;
+  let $puck_24 = f.name;
+  if ($puck_24.kind === "Some") {
+    let {value: name} = $puck_24;
     if ($puck_1.identical($puck_4.Span.cmp.call(name.span, self.value.position), $puck_1.Ordering.Equal)) {
       self.value.completions = $puck_1.Option.map.call(self.value.inTraitImpl, getTraitImplCompletions);
-      return [];
+      return null;
     };
   };
   self.value.inTraitImpl = $puck_1.None;
@@ -68,11 +68,11 @@ visitImportDirective: function (i) {
   let self = this;
   self.value.importedModule = i._module;
   if ($puck_1.identical($puck_4.Span.cmp.call($puck_4.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: i.locator, $isTraitObject: true}), self.value.position), $puck_1.Ordering.Equal)) {
-    let $puck_11 = i.domain;
-    if ($puck_11.kind === "Some") {
-      let {value: [domain]} = $puck_11;
+    let $puck_10 = i.domain;
+    if ($puck_10.kind === "Some") {
+      let {value: domain} = $puck_10;
       if (domain === "puck") {
-        let $puck_12 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_6.puckModules, $isTraitObject: true}, function (_module) {
+        let $puck_11 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_6.puckModules, $isTraitObject: true}, function (_module) {
           return {
             label: "puck:" + _module + "",
             kind: $unwrapTraitObject($puck_2.CompletionItemKind).Module,
@@ -81,7 +81,7 @@ visitImportDirective: function (i) {
           };
         })
 ;
-        self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_12.type].toList.call($puck_12));
+        self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_11.type].toList.call($puck_11));
       };
     }
     else {
@@ -90,21 +90,21 @@ visitImportDirective: function (i) {
       const exists = fs.existsSync(resolved);
       const isTypedDirectory = (exists && fs.statSync(resolved).isDirectory());
       if (exists && !isTypedDirectory) {
-        return [];
+        return null;
       };
-      let $puck_13;
+      let $puck_12;
       if (isTypedDirectory) {
-        $puck_13 = resolved;
+        $puck_12 = resolved;
       }
       else {
-        $puck_13 = path.dirname(resolved);
+        $puck_12 = path.dirname(resolved);
       };
-      const dirname = $puck_13;
+      const dirname = $puck_12;
       if ((!fs.existsSync(dirname) || !fs.statSync(dirname).isDirectory())) {
-        return [];
+        return null;
       };
       let files = $unwrapTraitObject(fs.readdirSync(dirname));
-      let $puck_14 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (fileName) {
+      let $puck_13 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (fileName) {
         if ($puck_1.RegExp.test.call(isHidden, fileName)) {
           return $puck_1.None;
         };
@@ -113,47 +113,47 @@ visitImportDirective: function (i) {
         const relativePath = $unwrapTraitObject(path.relative(fileDirname, file));
         const isPuckFile = $puck_1.RegExp.test.call($puck_6.puckFile, fileName);
         const createAs = (isPuckFile && i.asKeyword.span.end.line === 0);
-        let $puck_15;
+        let $puck_14;
         if (isTypedDirectory) {
-          $puck_15 = i.path;
+          $puck_14 = i.path;
         }
         else {
-          $puck_15 = path.dirname(i.path);
+          $puck_14 = path.dirname(i.path);
         };
-        const typedDir = $puck_15;
+        const typedDir = $puck_14;
         let filterText = $unwrapTraitObject(path.join(typedDir, fileName));
+        let $puck_15;
+        if (createAs) {
+          $puck_15 = "'" + filterText + "' as ";
+        }
+        else {
+          $puck_15 = filterText;
+        };
+        filterText = $puck_15;
         let $puck_16;
         if (createAs) {
-          $puck_16 = "'" + filterText + "' as ";
+          $puck_16 = "'" + relativePath + "' as ";
         }
         else {
-          $puck_16 = filterText;
+          $puck_16 = relativePath;
         };
-        filterText = $puck_16;
+        const insertText = $puck_16;
         let $puck_17;
         if (createAs) {
-          $puck_17 = "'" + relativePath + "' as ";
+          $puck_17 = 1;
         }
         else {
-          $puck_17 = relativePath;
+          $puck_17 = 0;
         };
-        const insertText = $puck_17;
+        const startOffset = $puck_17;
         let $puck_18;
         if (createAs) {
           $puck_18 = 1;
         }
         else {
-          $puck_18 = 0;
+          $puck_18 = 2;
         };
-        const startOffset = $puck_18;
-        let $puck_19;
-        if (createAs) {
-          $puck_19 = 1;
-        }
-        else {
-          $puck_19 = 2;
-        };
-        const endOffset = $puck_19;
+        const endOffset = $puck_18;
         const range = {
           start: {
           line: $puck_4.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: i.locator, $isTraitObject: true}).start.line - 1,
@@ -164,37 +164,37 @@ visitImportDirective: function (i) {
           character: $puck_4.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: i.locator, $isTraitObject: true}).end.column - endOffset,
         },
         };
-        let $puck_20;
+        let $puck_19;
         if (isPuckFile) {
-          $puck_20 = $unwrapTraitObject($puck_2.CompletionItemKind).Module;
+          $puck_19 = $unwrapTraitObject($puck_2.CompletionItemKind).Module;
         }
         else {
-          let $puck_21;
+          let $puck_20;
           if (isDirectory) {
-            $puck_21 = $unwrapTraitObject($puck_2.CompletionItemKind).Class;
+            $puck_20 = $unwrapTraitObject($puck_2.CompletionItemKind).Class;
           }
           else {
-            $puck_21 = $unwrapTraitObject($puck_2.CompletionItemKind).File;
+            $puck_20 = $unwrapTraitObject($puck_2.CompletionItemKind).File;
           };
-          $puck_20 = $puck_21;
+          $puck_19 = $puck_20;
         };
-        let $puck_22;
+        let $puck_21;
         if (isPuckFile) {
-          $puck_22 = "1" + fileName + "";
+          $puck_21 = "1" + fileName + "";
         }
         else {
-          let $puck_23;
+          let $puck_22;
           if (isDirectory) {
-            $puck_23 = "2" + fileName + "";
+            $puck_22 = "2" + fileName + "";
           }
           else {
-            $puck_23 = "3" + fileName + "";
+            $puck_22 = "3" + fileName + "";
           };
-          $puck_22 = $puck_23;
+          $puck_21 = $puck_22;
         };
         return $puck_1.Some({
           label: fileName,
-          kind: $puck_20,
+          kind: $puck_19,
           filterText: filterText,
           insertText: insertText,
           insertTextFormat: $unwrapTraitObject($puck_2.InsertTextFormat).PlainText,
@@ -202,11 +202,11 @@ visitImportDirective: function (i) {
           range: range,
           newText: insertText,
         },
-          sortText: $puck_22,
+          sortText: $puck_21,
         });
       })
 ;
-      self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_14.type].toList.call($puck_14));
+      self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_13.type].toList.call($puck_13));
     };
   }
   else {
@@ -244,11 +244,11 @@ visitIdentifier: function (i) {
 },
 visitFunctionDeclaration: function (f) {
   let self = this;
-  let $puck_24 = f.name;
-  if ($puck_24.kind === "Some") {
-    let {value: [name]} = $puck_24;
+  let $puck_23 = f.name;
+  if ($puck_23.kind === "Some") {
+    let {value: name} = $puck_23;
     if ($puck_1.identical($puck_4.Span.cmp.call(name.span, self.value.position), $puck_1.Ordering.Equal)) {
-      return [];
+      return null;
     };
   };
   visit.walkFunctionDeclaration(self, f);
@@ -271,10 +271,10 @@ visitMemberAccess: function (a) {
     $puck_1.print("CompletionVisitor visitMemberAccess");
     const type_ = $puck_3.Expression.getType.call(a.object);
     if (type_) {
-      let $puck_26 = type_.kind;
-      if (($unwrapTraitObject($puck_26).kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_26).value)[0]).kind).kind === "Record")) {
-        let {value: [{kind: {value: [record]}}]} = $unwrapTraitObject($puck_26);
-        let $puck_27 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(record.properties), $isTraitObject: true}, function ([property, type_]) {
+      let $puck_25 = type_.kind;
+      if (($unwrapTraitObject($puck_25).kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_25).value).kind).kind === "Record")) {
+        let {value: {kind: {value: record}}} = $unwrapTraitObject($puck_25);
+        let $puck_26 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(record.properties), $isTraitObject: true}, function ([property, type_]) {
           const typeName = $puck_7.Type.displayName.call(type_);
           return {
             label: "" + property + ": " + typeName + "",
@@ -284,11 +284,11 @@ visitMemberAccess: function (a) {
           };
         })
 ;
-        self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_27.type].toList.call($puck_27));
+        self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_26.type].toList.call($puck_26));
       }
       else {
         if (true) {
-          let $puck_28 = $puck_26;
+          $puck_25;
         };
       };
     };
@@ -333,7 +333,7 @@ CompletionVisitor._new = function (file, position) {
 };
 const isHidden = $puck_1.RegExp._new("^\\.");
 function getImportCompletions(_module) {
-  let $puck_29 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call(_module.exports), $isTraitObject: true}, function (e) {
+  let $puck_27 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call(_module.exports), $isTraitObject: true}, function (e) {
     return {
       label: e.identifier.name,
       kind: $unwrapTraitObject($puck_2.CompletionItemKind).Text,
@@ -342,34 +342,34 @@ function getImportCompletions(_module) {
     };
   })
 ;
-  return $puck_1.Iterable[$puck_29.type].toList.call($puck_29);
+  return $puck_1.Iterable[$puck_27.type].toList.call($puck_27);
 };
 function getScopeCompletions(node) {
   if ($unwrapTraitObject(node).scope) {
     const scope = $unwrapTraitObject(node).scope;
-    let $puck_30 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call($puck_5.Scope.getBindings.call(scope)), $isTraitObject: true}, function (binding) {
-      let $puck_31;
+    let $puck_28 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call($puck_5.Scope.getBindings.call(scope)), $isTraitObject: true}, function (binding) {
+      let $puck_29;
       if ((!binding.type_)) {
-        $puck_31 = "??";
+        $puck_29 = "??";
       }
       else {
-        let $puck_32 = binding.type_.kind;
-        let $puck_33;
-        if ($unwrapTraitObject($puck_32).kind === "Function") {
-          let undefined = $unwrapTraitObject($puck_32);
-          $puck_33 = $puck_7.Type.verboseName.call(binding.type_);
+        let $puck_30 = binding.type_.kind;
+        let $puck_31;
+        if ($unwrapTraitObject($puck_30).kind === "Function") {
+          $unwrapTraitObject($puck_30);
+          $puck_31 = $puck_7.Type.verboseName.call(binding.type_);
         }
         else {
-          let $puck_34;
+          let $puck_32;
           if (true) {
-            let $puck_35 = $puck_32;
-            $puck_34 = $puck_7.Type.displayName.call(binding.type_);
+            $puck_30;
+            $puck_32 = $puck_7.Type.displayName.call(binding.type_);
           };
-          $puck_33 = $puck_34;
+          $puck_31 = $puck_32;
         };
-        $puck_31 = $puck_33;
+        $puck_29 = $puck_31;
       };
-      const typeName = $puck_31;
+      const typeName = $puck_29;
       return {
         label: binding.name + ": " + typeName + "",
         kind: $unwrapTraitObject($puck_2.CompletionItemKind).Text,
@@ -378,14 +378,14 @@ function getScopeCompletions(node) {
       };
     })
 ;
-    return $puck_1.Iterable[$puck_30.type].toList.call($puck_30);
+    return $puck_1.Iterable[$puck_28.type].toList.call($puck_28);
   }
   else {
     return [];
   };
 };
 function getTraitImplCompletions(trait_) {
-  let $puck_36 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(trait_.functions), $isTraitObject: true}, function ([name, type_]) {
+  let $puck_33 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(trait_.functions), $isTraitObject: true}, function ([name, type_]) {
     const signature = name + $puck_7.Type.verboseName.call(type_);
     return {
       label: signature,
@@ -395,5 +395,5 @@ function getTraitImplCompletions(trait_) {
     };
   })
 ;
-  return $puck_1.Iterable[$puck_36.type].toList.call($puck_36);
+  return $puck_1.Iterable[$puck_33.type].toList.call($puck_33);
 }
