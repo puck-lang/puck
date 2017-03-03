@@ -71,37 +71,37 @@ NewlineToken: {kind: 'NewlineToken', value: Symbol('NewlineToken')},
 EndOfFileToken: {kind: 'EndOfFileToken', value: Symbol('EndOfFileToken')},
 };
 var Token = exports.Token = {
-SimpleToken: (...members) => ({kind: 'SimpleToken', value: members}),
-Comment: (...members) => ({kind: 'Comment', value: members}),
-Identifier: (...members) => ({kind: 'Identifier', value: members}),
-NumberLiteral: (...members) => ({kind: 'NumberLiteral', value: members}),
-StringLiteral: (...members) => ({kind: 'StringLiteral', value: members}),
+SimpleToken: (member) => ({kind: 'SimpleToken', value: member}),
+Comment: (member) => ({kind: 'Comment', value: member}),
+Identifier: (member) => ({kind: 'Identifier', value: member}),
+NumberLiteral: (member) => ({kind: 'NumberLiteral', value: member}),
+StringLiteral: (member) => ({kind: 'StringLiteral', value: member}),
 };
 Token.name = function () {
   const self = this;
   let $puck_4 = self;
   if ($unwrapTraitObject($puck_4).kind === "SimpleToken") {
-    let {value: [token]} = $unwrapTraitObject($puck_4);
+    let {value: token} = $unwrapTraitObject($puck_4);
     return SyntaxKind.name.call(token.kind);
   }
   else {
     if ($unwrapTraitObject($puck_4).kind === "Comment") {
-      let undefined = $unwrapTraitObject($puck_4);
+      $unwrapTraitObject($puck_4);
       return "comment";
     }
     else {
       if ($unwrapTraitObject($puck_4).kind === "Identifier") {
-        let {value: [{name: name}]} = $unwrapTraitObject($puck_4);
+        let {value: {name: name}} = $unwrapTraitObject($puck_4);
         return "identifier \"" + name + "\"";
       }
       else {
         if ($unwrapTraitObject($puck_4).kind === "NumberLiteral") {
-          let undefined = $unwrapTraitObject($puck_4);
+          $unwrapTraitObject($puck_4);
           return "number";
         }
         else {
           if ($unwrapTraitObject($puck_4).kind === "StringLiteral") {
-            let undefined = $unwrapTraitObject($puck_4);
+            $unwrapTraitObject($puck_4);
             return "string";
           };
         };
@@ -411,312 +411,312 @@ SyntaxKind.name = function () {
   const self = this;
   let $puck_5 = self;
   if ($unwrapTraitObject($puck_5).kind === "AsKeyword") {
-    let undefined = $unwrapTraitObject($puck_5);
+    $unwrapTraitObject($puck_5);
     return "as";
   }
   else {
     if ($unwrapTraitObject($puck_5).kind === "AndKeyword") {
-      let undefined = $unwrapTraitObject($puck_5);
+      $unwrapTraitObject($puck_5);
       return "and";
     }
     else {
       if ($unwrapTraitObject($puck_5).kind === "BreakKeyword") {
-        let undefined = $unwrapTraitObject($puck_5);
+        $unwrapTraitObject($puck_5);
         return "break";
       }
       else {
         if ($unwrapTraitObject($puck_5).kind === "ElseKeyword") {
-          let undefined = $unwrapTraitObject($puck_5);
+          $unwrapTraitObject($puck_5);
           return "else";
         }
         else {
           if ($unwrapTraitObject($puck_5).kind === "EnumKeyword") {
-            let undefined = $unwrapTraitObject($puck_5);
+            $unwrapTraitObject($puck_5);
             return "enum";
           }
           else {
             if ($unwrapTraitObject($puck_5).kind === "ExportKeyword") {
-              let undefined = $unwrapTraitObject($puck_5);
+              $unwrapTraitObject($puck_5);
               return "export";
             }
             else {
               if ($unwrapTraitObject($puck_5).kind === "FalseKeyword") {
-                let undefined = $unwrapTraitObject($puck_5);
+                $unwrapTraitObject($puck_5);
                 return "false";
               }
               else {
                 if ($unwrapTraitObject($puck_5).kind === "ForKeyword") {
-                  let undefined = $unwrapTraitObject($puck_5);
+                  $unwrapTraitObject($puck_5);
                   return "for";
                 }
                 else {
                   if ($unwrapTraitObject($puck_5).kind === "FnKeyword") {
-                    let undefined = $unwrapTraitObject($puck_5);
+                    $unwrapTraitObject($puck_5);
                     return "fn";
                   }
                   else {
                     if ($unwrapTraitObject($puck_5).kind === "IfKeyword") {
-                      let undefined = $unwrapTraitObject($puck_5);
+                      $unwrapTraitObject($puck_5);
                       return "if";
                     }
                     else {
                       if ($unwrapTraitObject($puck_5).kind === "ImplKeyword") {
-                        let undefined = $unwrapTraitObject($puck_5);
+                        $unwrapTraitObject($puck_5);
                         return "impl";
                       }
                       else {
                         if ($unwrapTraitObject($puck_5).kind === "ImportKeyword") {
-                          let undefined = $unwrapTraitObject($puck_5);
+                          $unwrapTraitObject($puck_5);
                           return "import";
                         }
                         else {
                           if ($unwrapTraitObject($puck_5).kind === "LetKeyword") {
-                            let undefined = $unwrapTraitObject($puck_5);
+                            $unwrapTraitObject($puck_5);
                             return "let";
                           }
                           else {
                             if ($unwrapTraitObject($puck_5).kind === "MatchKeyword") {
-                              let undefined = $unwrapTraitObject($puck_5);
+                              $unwrapTraitObject($puck_5);
                               return "match";
                             }
                             else {
                               if ($unwrapTraitObject($puck_5).kind === "MutKeyword") {
-                                let undefined = $unwrapTraitObject($puck_5);
+                                $unwrapTraitObject($puck_5);
                                 return "mut";
                               }
                               else {
                                 if ($unwrapTraitObject($puck_5).kind === "NotKeyword") {
-                                  let undefined = $unwrapTraitObject($puck_5);
+                                  $unwrapTraitObject($puck_5);
                                   return "not";
                                 }
                                 else {
                                   if ($unwrapTraitObject($puck_5).kind === "OrKeyword") {
-                                    let undefined = $unwrapTraitObject($puck_5);
+                                    $unwrapTraitObject($puck_5);
                                     return "or";
                                   }
                                   else {
                                     if ($unwrapTraitObject($puck_5).kind === "ReturnKeyword") {
-                                      let undefined = $unwrapTraitObject($puck_5);
+                                      $unwrapTraitObject($puck_5);
                                       return "return";
                                     }
                                     else {
                                       if ($unwrapTraitObject($puck_5).kind === "ThrowKeyword") {
-                                        let undefined = $unwrapTraitObject($puck_5);
+                                        $unwrapTraitObject($puck_5);
                                         return "throw";
                                       }
                                       else {
                                         if ($unwrapTraitObject($puck_5).kind === "TrueKeyword") {
-                                          let undefined = $unwrapTraitObject($puck_5);
+                                          $unwrapTraitObject($puck_5);
                                           return "true";
                                         }
                                         else {
                                           if ($unwrapTraitObject($puck_5).kind === "ThenKeyword") {
-                                            let undefined = $unwrapTraitObject($puck_5);
+                                            $unwrapTraitObject($puck_5);
                                             return "then";
                                           }
                                           else {
                                             if ($unwrapTraitObject($puck_5).kind === "TraitKeyword") {
-                                              let undefined = $unwrapTraitObject($puck_5);
+                                              $unwrapTraitObject($puck_5);
                                               return "trait";
                                             }
                                             else {
                                               if ($unwrapTraitObject($puck_5).kind === "TypeKeyword") {
-                                                let undefined = $unwrapTraitObject($puck_5);
+                                                $unwrapTraitObject($puck_5);
                                                 return "type";
                                               }
                                               else {
                                                 if ($unwrapTraitObject($puck_5).kind === "WhileKeyword") {
-                                                  let undefined = $unwrapTraitObject($puck_5);
+                                                  $unwrapTraitObject($puck_5);
                                                   return "while";
                                                 }
                                                 else {
                                                   if ($unwrapTraitObject($puck_5).kind === "OpenBraceToken") {
-                                                    let undefined = $unwrapTraitObject($puck_5);
+                                                    $unwrapTraitObject($puck_5);
                                                     return "{";
                                                   }
                                                   else {
                                                     if ($unwrapTraitObject($puck_5).kind === "CloseBraceToken") {
-                                                      let undefined = $unwrapTraitObject($puck_5);
+                                                      $unwrapTraitObject($puck_5);
                                                       return "}";
                                                     }
                                                     else {
                                                       if ($unwrapTraitObject($puck_5).kind === "OpenBracketToken") {
-                                                        let undefined = $unwrapTraitObject($puck_5);
+                                                        $unwrapTraitObject($puck_5);
                                                         return "[";
                                                       }
                                                       else {
                                                         if ($unwrapTraitObject($puck_5).kind === "CloseBracketToken") {
-                                                          let undefined = $unwrapTraitObject($puck_5);
+                                                          $unwrapTraitObject($puck_5);
                                                           return "]";
                                                         }
                                                         else {
                                                           if ($unwrapTraitObject($puck_5).kind === "OpenParenToken") {
-                                                            let undefined = $unwrapTraitObject($puck_5);
+                                                            $unwrapTraitObject($puck_5);
                                                             return "(";
                                                           }
                                                           else {
                                                             if ($unwrapTraitObject($puck_5).kind === "CloseParenToken") {
-                                                              let undefined = $unwrapTraitObject($puck_5);
+                                                              $unwrapTraitObject($puck_5);
                                                               return ")";
                                                             }
                                                             else {
                                                               if ($unwrapTraitObject($puck_5).kind === "BarToken") {
-                                                                let undefined = $unwrapTraitObject($puck_5);
+                                                                $unwrapTraitObject($puck_5);
                                                                 return "|";
                                                               }
                                                               else {
                                                                 if ($unwrapTraitObject($puck_5).kind === "CommaToken") {
-                                                                  let undefined = $unwrapTraitObject($puck_5);
+                                                                  $unwrapTraitObject($puck_5);
                                                                   return ",";
                                                                 }
                                                                 else {
                                                                   if ($unwrapTraitObject($puck_5).kind === "ColonToken") {
-                                                                    let undefined = $unwrapTraitObject($puck_5);
+                                                                    $unwrapTraitObject($puck_5);
                                                                     return ":";
                                                                   }
                                                                   else {
                                                                     if ($unwrapTraitObject($puck_5).kind === "ColonColonToken") {
-                                                                      let undefined = $unwrapTraitObject($puck_5);
+                                                                      $unwrapTraitObject($puck_5);
                                                                       return "::";
                                                                     }
                                                                     else {
                                                                       if ($unwrapTraitObject($puck_5).kind === "ColonColonLessThanToken") {
-                                                                        let undefined = $unwrapTraitObject($puck_5);
+                                                                        $unwrapTraitObject($puck_5);
                                                                         return "::<";
                                                                       }
                                                                       else {
                                                                         if ($unwrapTraitObject($puck_5).kind === "DotToken") {
-                                                                          let undefined = $unwrapTraitObject($puck_5);
+                                                                          $unwrapTraitObject($puck_5);
                                                                           return ".";
                                                                         }
                                                                         else {
                                                                           if ($unwrapTraitObject($puck_5).kind === "HashToken") {
-                                                                            let undefined = $unwrapTraitObject($puck_5);
+                                                                            $unwrapTraitObject($puck_5);
                                                                             return "#";
                                                                           }
                                                                           else {
                                                                             if ($unwrapTraitObject($puck_5).kind === "SemicolonToken") {
-                                                                              let undefined = $unwrapTraitObject($puck_5);
+                                                                              $unwrapTraitObject($puck_5);
                                                                               return ";";
                                                                             }
                                                                             else {
                                                                               if ($unwrapTraitObject($puck_5).kind === "UnderscoreToken") {
-                                                                                let undefined = $unwrapTraitObject($puck_5);
+                                                                                $unwrapTraitObject($puck_5);
                                                                                 return "_";
                                                                               }
                                                                               else {
                                                                                 if ($unwrapTraitObject($puck_5).kind === "LessThanToken") {
-                                                                                  let undefined = $unwrapTraitObject($puck_5);
+                                                                                  $unwrapTraitObject($puck_5);
                                                                                   return "<";
                                                                                 }
                                                                                 else {
                                                                                   if ($unwrapTraitObject($puck_5).kind === "GreaterThanToken") {
-                                                                                    let undefined = $unwrapTraitObject($puck_5);
+                                                                                    $unwrapTraitObject($puck_5);
                                                                                     return ">";
                                                                                   }
                                                                                   else {
                                                                                     if ($unwrapTraitObject($puck_5).kind === "LessThanEqualsToken") {
-                                                                                      let undefined = $unwrapTraitObject($puck_5);
+                                                                                      $unwrapTraitObject($puck_5);
                                                                                       return "<=";
                                                                                     }
                                                                                     else {
                                                                                       if ($unwrapTraitObject($puck_5).kind === "GreaterThanEqualsToken") {
-                                                                                        let undefined = $unwrapTraitObject($puck_5);
+                                                                                        $unwrapTraitObject($puck_5);
                                                                                         return ">=";
                                                                                       }
                                                                                       else {
                                                                                         if ($unwrapTraitObject($puck_5).kind === "EqualsEqualsToken") {
-                                                                                          let undefined = $unwrapTraitObject($puck_5);
+                                                                                          $unwrapTraitObject($puck_5);
                                                                                           return "==";
                                                                                         }
                                                                                         else {
                                                                                           if ($unwrapTraitObject($puck_5).kind === "ExclamationEqualsToken") {
-                                                                                            let undefined = $unwrapTraitObject($puck_5);
+                                                                                            $unwrapTraitObject($puck_5);
                                                                                             return "!=";
                                                                                           }
                                                                                           else {
                                                                                             if ($unwrapTraitObject($puck_5).kind === "EqualsGreaterThanToken") {
-                                                                                              let undefined = $unwrapTraitObject($puck_5);
+                                                                                              $unwrapTraitObject($puck_5);
                                                                                               return "=>";
                                                                                             }
                                                                                             else {
                                                                                               if ($unwrapTraitObject($puck_5).kind === "MinusGreaterThanToken") {
-                                                                                                let undefined = $unwrapTraitObject($puck_5);
+                                                                                                $unwrapTraitObject($puck_5);
                                                                                                 return "->";
                                                                                               }
                                                                                               else {
                                                                                                 if ($unwrapTraitObject($puck_5).kind === "PlusToken") {
-                                                                                                  let undefined = $unwrapTraitObject($puck_5);
+                                                                                                  $unwrapTraitObject($puck_5);
                                                                                                   return "+";
                                                                                                 }
                                                                                                 else {
                                                                                                   if ($unwrapTraitObject($puck_5).kind === "MinusToken") {
-                                                                                                    let undefined = $unwrapTraitObject($puck_5);
+                                                                                                    $unwrapTraitObject($puck_5);
                                                                                                     return "-";
                                                                                                   }
                                                                                                   else {
                                                                                                     if ($unwrapTraitObject($puck_5).kind === "AsteriskToken") {
-                                                                                                      let undefined = $unwrapTraitObject($puck_5);
+                                                                                                      $unwrapTraitObject($puck_5);
                                                                                                       return "*";
                                                                                                     }
                                                                                                     else {
                                                                                                       if ($unwrapTraitObject($puck_5).kind === "AsteriskAsteriskToken") {
-                                                                                                        let undefined = $unwrapTraitObject($puck_5);
+                                                                                                        $unwrapTraitObject($puck_5);
                                                                                                         return "**";
                                                                                                       }
                                                                                                       else {
                                                                                                         if ($unwrapTraitObject($puck_5).kind === "SlashToken") {
-                                                                                                          let undefined = $unwrapTraitObject($puck_5);
+                                                                                                          $unwrapTraitObject($puck_5);
                                                                                                           return "/";
                                                                                                         }
                                                                                                         else {
                                                                                                           if ($unwrapTraitObject($puck_5).kind === "PercentToken") {
-                                                                                                            let undefined = $unwrapTraitObject($puck_5);
+                                                                                                            $unwrapTraitObject($puck_5);
                                                                                                             return "%";
                                                                                                           }
                                                                                                           else {
                                                                                                             if ($unwrapTraitObject($puck_5).kind === "EqualsToken") {
-                                                                                                              let undefined = $unwrapTraitObject($puck_5);
+                                                                                                              $unwrapTraitObject($puck_5);
                                                                                                               return "=";
                                                                                                             }
                                                                                                             else {
                                                                                                               if ($unwrapTraitObject($puck_5).kind === "PlusEqualsToken") {
-                                                                                                                let undefined = $unwrapTraitObject($puck_5);
+                                                                                                                $unwrapTraitObject($puck_5);
                                                                                                                 return "+=";
                                                                                                               }
                                                                                                               else {
                                                                                                                 if ($unwrapTraitObject($puck_5).kind === "MinusEqualsToken") {
-                                                                                                                  let undefined = $unwrapTraitObject($puck_5);
+                                                                                                                  $unwrapTraitObject($puck_5);
                                                                                                                   return "-=";
                                                                                                                 }
                                                                                                                 else {
                                                                                                                   if ($unwrapTraitObject($puck_5).kind === "AsteriskEqualsToken") {
-                                                                                                                    let undefined = $unwrapTraitObject($puck_5);
+                                                                                                                    $unwrapTraitObject($puck_5);
                                                                                                                     return "*=";
                                                                                                                   }
                                                                                                                   else {
                                                                                                                     if ($unwrapTraitObject($puck_5).kind === "AsteriskAsteriskEqualsToken") {
-                                                                                                                      let undefined = $unwrapTraitObject($puck_5);
+                                                                                                                      $unwrapTraitObject($puck_5);
                                                                                                                       return "**=";
                                                                                                                     }
                                                                                                                     else {
                                                                                                                       if ($unwrapTraitObject($puck_5).kind === "SlashEqualsToken") {
-                                                                                                                        let undefined = $unwrapTraitObject($puck_5);
+                                                                                                                        $unwrapTraitObject($puck_5);
                                                                                                                         return "/=";
                                                                                                                       }
                                                                                                                       else {
                                                                                                                         if ($unwrapTraitObject($puck_5).kind === "PercentEqualsToken") {
-                                                                                                                          let undefined = $unwrapTraitObject($puck_5);
+                                                                                                                          $unwrapTraitObject($puck_5);
                                                                                                                           return "%=";
                                                                                                                         }
                                                                                                                         else {
                                                                                                                           if ($unwrapTraitObject($puck_5).kind === "NewlineToken") {
-                                                                                                                            let undefined = $unwrapTraitObject($puck_5);
+                                                                                                                            $unwrapTraitObject($puck_5);
                                                                                                                             return "new line";
                                                                                                                           }
                                                                                                                           else {
                                                                                                                             if ($unwrapTraitObject($puck_5).kind === "EndOfFileToken") {
-                                                                                                                              let undefined = $unwrapTraitObject($puck_5);
+                                                                                                                              $unwrapTraitObject($puck_5);
                                                                                                                               return "end of file";
                                                                                                                             };
                                                                                                                           };
@@ -785,97 +785,97 @@ SyntaxKind.precedence = function () {
   const self = this;
   let $puck_6 = self;
   if ($unwrapTraitObject($puck_6).kind === "EqualsToken") {
-    let undefined = $unwrapTraitObject($puck_6);
+    $unwrapTraitObject($puck_6);
     return 1;
   }
   else {
     if ($unwrapTraitObject($puck_6).kind === "PlusEqualsToken") {
-      let undefined = $unwrapTraitObject($puck_6);
+      $unwrapTraitObject($puck_6);
       return 1.1;
     }
     else {
       if ($unwrapTraitObject($puck_6).kind === "MinusEqualsToken") {
-        let undefined = $unwrapTraitObject($puck_6);
+        $unwrapTraitObject($puck_6);
         return 1.1;
       }
       else {
         if ($unwrapTraitObject($puck_6).kind === "OrKeyword") {
-          let undefined = $unwrapTraitObject($puck_6);
+          $unwrapTraitObject($puck_6);
           return 2;
         }
         else {
           if ($unwrapTraitObject($puck_6).kind === "AndKeyword") {
-            let undefined = $unwrapTraitObject($puck_6);
+            $unwrapTraitObject($puck_6);
             return 3;
           }
           else {
             if ($unwrapTraitObject($puck_6).kind === "NotKeyword") {
-              let undefined = $unwrapTraitObject($puck_6);
+              $unwrapTraitObject($puck_6);
               return 4;
             }
             else {
               if ($unwrapTraitObject($puck_6).kind === "EqualsEqualsToken") {
-                let undefined = $unwrapTraitObject($puck_6);
+                $unwrapTraitObject($puck_6);
                 return 7;
               }
               else {
                 if ($unwrapTraitObject($puck_6).kind === "ExclamationEqualsToken") {
-                  let undefined = $unwrapTraitObject($puck_6);
+                  $unwrapTraitObject($puck_6);
                   return 7;
                 }
                 else {
                   if ($unwrapTraitObject($puck_6).kind === "GreaterThanToken") {
-                    let undefined = $unwrapTraitObject($puck_6);
+                    $unwrapTraitObject($puck_6);
                     return 7;
                   }
                   else {
                     if ($unwrapTraitObject($puck_6).kind === "GreaterThanEqualsToken") {
-                      let undefined = $unwrapTraitObject($puck_6);
+                      $unwrapTraitObject($puck_6);
                       return 7;
                     }
                     else {
                       if ($unwrapTraitObject($puck_6).kind === "LessThanToken") {
-                        let undefined = $unwrapTraitObject($puck_6);
+                        $unwrapTraitObject($puck_6);
                         return 7;
                       }
                       else {
                         if ($unwrapTraitObject($puck_6).kind === "LessThanEqualsToken") {
-                          let undefined = $unwrapTraitObject($puck_6);
+                          $unwrapTraitObject($puck_6);
                           return 7;
                         }
                         else {
                           if ($unwrapTraitObject($puck_6).kind === "PlusToken") {
-                            let undefined = $unwrapTraitObject($puck_6);
+                            $unwrapTraitObject($puck_6);
                             return 10;
                           }
                           else {
                             if ($unwrapTraitObject($puck_6).kind === "MinusToken") {
-                              let undefined = $unwrapTraitObject($puck_6);
+                              $unwrapTraitObject($puck_6);
                               return 10;
                             }
                             else {
                               if ($unwrapTraitObject($puck_6).kind === "AsteriskToken") {
-                                let undefined = $unwrapTraitObject($puck_6);
+                                $unwrapTraitObject($puck_6);
                                 return 20;
                               }
                               else {
                                 if ($unwrapTraitObject($puck_6).kind === "SlashToken") {
-                                  let undefined = $unwrapTraitObject($puck_6);
+                                  $unwrapTraitObject($puck_6);
                                   return 20;
                                 }
                                 else {
                                   if ($unwrapTraitObject($puck_6).kind === "PercentToken") {
-                                    let undefined = $unwrapTraitObject($puck_6);
+                                    $unwrapTraitObject($puck_6);
                                     return 20;
                                   }
                                   else {
                                     if ($unwrapTraitObject($puck_6).kind === "AsteriskAsteriskToken") {
-                                      let undefined = $unwrapTraitObject($puck_6);
+                                      $unwrapTraitObject($puck_6);
                                       return 25;
                                     }
                                     else {
                                       if (true) {
-                                        let $puck_7 = $puck_6;
+                                        $puck_6;
                                         return $puck_1.panic("no precedence for " + SyntaxKind.name.call(self));
                                       };
                                     };

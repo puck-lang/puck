@@ -3,7 +3,7 @@ import {Type, Implementation} from '../entities'
 export type Option<T>
   = {
       kind: 'Some'
-      value: [T]
+      value: T
     }
   | {
       kind: 'None'
@@ -15,31 +15,31 @@ export interface Token {
 }
 
 export type Expression
-  = {kind: 'Identifier', value: [Identifier]}
-  | {kind: 'ThrowStatement', value: [any]}
-  | {kind: 'FunctionDeclaration', value: [FunctionDeclaration]}
-  | {kind: 'VariableDeclaration', value: [VariableDeclaration]}
+  = {kind: 'Identifier', value: Identifier}
+  | {kind: 'ThrowStatement', value: any}
+  | {kind: 'FunctionDeclaration', value: FunctionDeclaration}
+  | {kind: 'VariableDeclaration', value: VariableDeclaration}
 
-  | {kind: 'AssignmentExpression', value: [AssignmentExpression]}
-  | {kind: 'BinaryExpression', value: [BinaryExpression]}
-  | {kind: 'CallExpression', value: [CallExpression]}
-  | {kind: 'IfExpression', value: [IfExpression]}
-  | {kind: 'IfLetExpression', value: [IfLetExpression]}
-  | {kind: 'MatchExpression', value: [MatchExpression]}
-  | {kind: 'TypePathExpression', value: [TypePathExpression]}
-  | {kind: 'UnaryExpression', value: [UnaryExpression]}
+  | {kind: 'AssignmentExpression', value: AssignmentExpression}
+  | {kind: 'BinaryExpression', value: BinaryExpression}
+  | {kind: 'CallExpression', value: CallExpression}
+  | {kind: 'IfExpression', value: IfExpression}
+  | {kind: 'IfLetExpression', value: IfLetExpression}
+  | {kind: 'MatchExpression', value: MatchExpression}
+  | {kind: 'TypePathExpression', value: TypePathExpression}
+  | {kind: 'UnaryExpression', value: UnaryExpression}
 
-  | {kind: 'IndexAccess', value: [IndexAccess]}
-  | {kind: 'MemberAccess', value: [MemberAccess]}
-  | {kind: 'UnknownAccess', value: [MemberAccess]}
-  | {kind: 'UnknownIndexAccess', value: [IndexAccess]}
+  | {kind: 'IndexAccess', value: IndexAccess}
+  | {kind: 'MemberAccess', value: MemberAccess}
+  | {kind: 'UnknownAccess', value: MemberAccess}
+  | {kind: 'UnknownIndexAccess', value: IndexAccess}
 
-  | {kind: 'BooleanLiteral', value: [BooleanLiteral]}
-  | {kind: 'ListLiteral', value: [ListLiteral]}
-  | {kind: 'NumberLiteral', value: [NumberLiteral]}
-  | {kind: 'RecordLiteral', value: [ObjectLiteral]}
-  | {kind: 'StringLiteral', value: [StringLiteral]}
-  | {kind: 'TupleLiteral', value: [TupleLiteral]}
+  | {kind: 'BooleanLiteral', value: BooleanLiteral}
+  | {kind: 'ListLiteral', value: ListLiteral}
+  | {kind: 'NumberLiteral', value: NumberLiteral}
+  | {kind: 'RecordLiteral', value: ObjectLiteral}
+  | {kind: 'StringLiteral', value: StringLiteral}
+  | {kind: 'TupleLiteral', value: TupleLiteral}
 
 export interface CommentNode extends Token {
   text: string
@@ -86,23 +86,23 @@ export interface Module extends Token {
   path: string
   exports: {[name: string]: ExportDirective}
   statements: Array<
-    {kind: 'EnumDeclaration', value: [EnumDeclaration]} |
-    {kind: 'TypeDeclaration', value: [TypeDeclaration]} |
-    {kind: 'ImplDeclaration', value: [ImplDeclaration]} |
-    {kind: 'ImplShorthandDeclaration', value: [ImplShorthandDeclaration]} |
-    {kind: 'BlockLevelStatement', value: [BlockLevelStatement]} |
-    {kind: 'TraitDeclaration', value: [TraitDeclaration]}
-  | {kind: 'ImportDirective', value: [ImportDirective]}
-  | {kind: 'ExportDirective', value: [ExportDirective]}
+    {kind: 'EnumDeclaration', value: EnumDeclaration}
+  | {kind: 'TypeDeclaration', value: TypeDeclaration}
+  | {kind: 'ImplDeclaration', value: ImplDeclaration}
+  | {kind: 'ImplShorthandDeclaration', value: ImplShorthandDeclaration}
+  | {kind: 'BlockLevelStatement', value: BlockLevelStatement}
+  | {kind: 'TraitDeclaration', value: TraitDeclaration}
+  | {kind: 'ImportDirective', value: ImportDirective}
+  | {kind: 'ExportDirective', value: ExportDirective}
   >
 }
 
 export type BlockLevelStatement
-  = {kind: 'Block', value: [BlockNode]}
-  | {kind: 'BreakStatement', value: [BreakStatement]}
-  | {kind: 'ReturnStatement', value: [ReturnStatement]}
-  | {kind: 'WhileLoop', value: [WhileLoop]}
-  | {kind: 'Expression', value: [Expression]}
+  = {kind: 'Block', value: BlockNode}
+  | {kind: 'BreakStatement', value: BreakStatement}
+  | {kind: 'ReturnStatement', value: ReturnStatement}
+  | {kind: 'WhileLoop', value: WhileLoop}
+  | {kind: 'Expression', value: Expression}
 
 export interface ObjectDestructure extends Token {
   openBrace: Token
@@ -126,11 +126,12 @@ export interface TraitDeclaration extends Token {
 
 export type TypeBound = {
   kind: 'NamedTypeBound'|'RecordTypeBound'|'TupleTypeBound',
-  value: [{
+  value: {
     path: TypePath
     typeParameters: Array<TypeBound>
+    properties: Array<TypeBound>
     type_: Type
-  }]
+  }
 }
 
 export type NamedTypeBound = {
@@ -153,7 +154,7 @@ export interface TypeParameter extends Token {
 
 export interface TypePathMemberArm {
   kind: 'Member'
-  value: [Identifier]
+  value: Identifier
 }
 
 export interface TypePathObjectArm {
@@ -182,11 +183,11 @@ export interface VariableDeclaration extends Token {
 export interface ExportDirective extends Token {
   keyword: Token
   statement:
-    {kind: 'VariableDeclaration', value: [VariableDeclaration]} |
-    {kind: 'FunctionDeclaration', value: [FunctionDeclaration]} |
-    {kind: 'TraitDeclaration', value: [TraitDeclaration]} |
-    {kind: 'TypeDeclaration', value: [TypeDeclaration]} |
-    {kind: 'EnumDeclaration', value: [EnumDeclaration]}
+    {kind: 'VariableDeclaration', value: VariableDeclaration} |
+    {kind: 'FunctionDeclaration', value: FunctionDeclaration} |
+    {kind: 'TraitDeclaration', value: TraitDeclaration} |
+    {kind: 'TypeDeclaration', value: TypeDeclaration} |
+    {kind: 'EnumDeclaration', value: EnumDeclaration}
   identifier: Identifier
 }
 
@@ -199,8 +200,8 @@ export interface ImportDirective extends Token {
 }
 
 export type ImportSpecifier
-  = {kind: 'ObjectDestructure', value: [ObjectDestructure]}
-  | {kind: 'Identifier', value: [Identifier]}
+  = {kind: 'ObjectDestructure', value: ObjectDestructure}
+  | {kind: 'Identifier', value: Identifier}
 
 export interface IdentifierPatternArm {
   kind: 'Identifier'
@@ -208,7 +209,7 @@ export interface IdentifierPatternArm {
 }
 export interface RecordPatternArm {
   kind: 'Record'
-  value: [RecordPattern]
+  value: RecordPattern
 }
 export interface RecordTypePatternArm {
   kind: 'RecordType'
@@ -216,7 +217,7 @@ export interface RecordTypePatternArm {
 }
 export interface TuplePatternArm {
   kind: 'Tuple'
-  value: [TuplePattern]
+  value: TuplePattern
 }
 export interface TupleTypePatternArm {
   kind: 'TupleType'
@@ -224,7 +225,7 @@ export interface TupleTypePatternArm {
 }
 export interface UnitPatternArm {
   kind: 'UnitType'
-  value: [TypePath]
+  value: TypePath
 }
 export interface CatchAllPatternArm {
   kind: 'CatchAll'
@@ -367,8 +368,8 @@ export interface StringLiteral extends Token {
 }
 
 export type StringLiteralPart
-  = {kind: 'Literal', value: [SimpleStringLiteral]}
-  | {kind: 'Identifier', value: [Identifier]}
+  = {kind: 'Literal', value: SimpleStringLiteral}
+  | {kind: 'Identifier', value: Identifier}
 
 export interface TupleLiteral extends Token {
   expressions: Array<Expression>

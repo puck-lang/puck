@@ -23,7 +23,7 @@ _default: $puck_4.Trait._default
 };
 var foo = exports.foo = e.b + $puck_3.a + $puck_5.b + $puck_3.b;
 const q = "not imported";
-const f = [1];
+const f = 1;
 const h = $puck_4.Type(2);
 $puck_4.Trait["$impl_test/cases/modules/export.puck:Trait$test/cases/modules/export.puck:Type"]._default.call({type: '$impl_test/cases/modules/export.puck:Trait$test/cases/modules/export.puck:Type', value: $puck_4.Trait._static(), $isTraitObject: true});
 $puck_4.Trait["$impl_test/cases/modules/export.puck:Trait$test/cases/modules/export.puck:Type"]._default.call({type: '$impl_test/cases/modules/export.puck:Trait$test/cases/modules/export.puck:Type', value: f, $isTraitObject: true});

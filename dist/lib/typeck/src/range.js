@@ -12,7 +12,7 @@ function getRange(parameters, isOptional, reportError, name) {
     if (isOptional($unwrapTraitObject(parameter)) && !hasOptional) {
       hasOptional = true;
       firstOptional = i;
-      return [];
+      return null;
     }
     else {
       if ((!isOptional($unwrapTraitObject(parameter)) && hasOptional)) {
@@ -40,7 +40,7 @@ function checkRange(_arguments, range, argumentName, subjectName) {
       $puck_4 = $puck_1.Err("many");
     }
     else {
-      $puck_4 = $puck_1.Ok([]);
+      $puck_4 = $puck_1.Ok(null);
     };
     $puck_3 = $puck_4;
   };

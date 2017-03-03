@@ -59,91 +59,91 @@ var RecordTypeBoundMember = exports.RecordTypeBoundMember = (object) => object;
 var TupleTypeBound = exports.TupleTypeBound = (object) => object;
 var TypeParameter = exports.TypeParameter = (object) => object;
 var TopLevelStatement = exports.TopLevelStatement = {
-ExportDirective: (...members) => ({kind: 'ExportDirective', value: members}),
-ImportDirective: (...members) => ({kind: 'ImportDirective', value: members}),
-EnumDeclaration: (...members) => ({kind: 'EnumDeclaration', value: members}),
-ImplDeclaration: (...members) => ({kind: 'ImplDeclaration', value: members}),
-ImplShorthandDeclaration: (...members) => ({kind: 'ImplShorthandDeclaration', value: members}),
-TraitDeclaration: (...members) => ({kind: 'TraitDeclaration', value: members}),
-TypeDeclaration: (...members) => ({kind: 'TypeDeclaration', value: members}),
-BlockLevelStatement: (...members) => ({kind: 'BlockLevelStatement', value: members}),
+ExportDirective: (member) => ({kind: 'ExportDirective', value: member}),
+ImportDirective: (member) => ({kind: 'ImportDirective', value: member}),
+EnumDeclaration: (member) => ({kind: 'EnumDeclaration', value: member}),
+ImplDeclaration: (member) => ({kind: 'ImplDeclaration', value: member}),
+ImplShorthandDeclaration: (member) => ({kind: 'ImplShorthandDeclaration', value: member}),
+TraitDeclaration: (member) => ({kind: 'TraitDeclaration', value: member}),
+TypeDeclaration: (member) => ({kind: 'TypeDeclaration', value: member}),
+BlockLevelStatement: (member) => ({kind: 'BlockLevelStatement', value: member}),
 };
 var BlockLevelStatement = exports.BlockLevelStatement = {
-Block: (...members) => ({kind: 'Block', value: members}),
-BreakStatement: (...members) => ({kind: 'BreakStatement', value: members}),
-ReturnStatement: (...members) => ({kind: 'ReturnStatement', value: members}),
-WhileLoop: (...members) => ({kind: 'WhileLoop', value: members}),
-Expression: (...members) => ({kind: 'Expression', value: members}),
+Block: (member) => ({kind: 'Block', value: member}),
+BreakStatement: (member) => ({kind: 'BreakStatement', value: member}),
+ReturnStatement: (member) => ({kind: 'ReturnStatement', value: member}),
+WhileLoop: (member) => ({kind: 'WhileLoop', value: member}),
+Expression: (member) => ({kind: 'Expression', value: member}),
 };
 var Expression = exports.Expression = {
-ThrowStatement: (...members) => ({kind: 'ThrowStatement', value: members}),
-Comment: (...members) => ({kind: 'Comment', value: members}),
-Identifier: (...members) => ({kind: 'Identifier', value: members}),
-FunctionDeclaration: (...members) => ({kind: 'FunctionDeclaration', value: members}),
-VariableDeclaration: (...members) => ({kind: 'VariableDeclaration', value: members}),
-AssignmentExpression: (...members) => ({kind: 'AssignmentExpression', value: members}),
-BinaryExpression: (...members) => ({kind: 'BinaryExpression', value: members}),
-CallExpression: (...members) => ({kind: 'CallExpression', value: members}),
-IfExpression: (...members) => ({kind: 'IfExpression', value: members}),
-IfLetExpression: (...members) => ({kind: 'IfLetExpression', value: members}),
-MatchExpression: (...members) => ({kind: 'MatchExpression', value: members}),
-TypePathExpression: (...members) => ({kind: 'TypePathExpression', value: members}),
-UnaryExpression: (...members) => ({kind: 'UnaryExpression', value: members}),
-IndexAccess: (...members) => ({kind: 'IndexAccess', value: members}),
-MemberAccess: (...members) => ({kind: 'MemberAccess', value: members}),
-UnknownAccess: (...members) => ({kind: 'UnknownAccess', value: members}),
-UnknownIndexAccess: (...members) => ({kind: 'UnknownIndexAccess', value: members}),
-BooleanLiteral: (...members) => ({kind: 'BooleanLiteral', value: members}),
-ListLiteral: (...members) => ({kind: 'ListLiteral', value: members}),
-NumberLiteral: (...members) => ({kind: 'NumberLiteral', value: members}),
-RecordLiteral: (...members) => ({kind: 'RecordLiteral', value: members}),
-StringLiteral: (...members) => ({kind: 'StringLiteral', value: members}),
-TupleLiteral: (...members) => ({kind: 'TupleLiteral', value: members}),
+ThrowStatement: (member) => ({kind: 'ThrowStatement', value: member}),
+Comment: (member) => ({kind: 'Comment', value: member}),
+Identifier: (member) => ({kind: 'Identifier', value: member}),
+FunctionDeclaration: (member) => ({kind: 'FunctionDeclaration', value: member}),
+VariableDeclaration: (member) => ({kind: 'VariableDeclaration', value: member}),
+AssignmentExpression: (member) => ({kind: 'AssignmentExpression', value: member}),
+BinaryExpression: (member) => ({kind: 'BinaryExpression', value: member}),
+CallExpression: (member) => ({kind: 'CallExpression', value: member}),
+IfExpression: (member) => ({kind: 'IfExpression', value: member}),
+IfLetExpression: (member) => ({kind: 'IfLetExpression', value: member}),
+MatchExpression: (member) => ({kind: 'MatchExpression', value: member}),
+TypePathExpression: (member) => ({kind: 'TypePathExpression', value: member}),
+UnaryExpression: (member) => ({kind: 'UnaryExpression', value: member}),
+IndexAccess: (member) => ({kind: 'IndexAccess', value: member}),
+MemberAccess: (member) => ({kind: 'MemberAccess', value: member}),
+UnknownAccess: (member) => ({kind: 'UnknownAccess', value: member}),
+UnknownIndexAccess: (member) => ({kind: 'UnknownIndexAccess', value: member}),
+BooleanLiteral: (member) => ({kind: 'BooleanLiteral', value: member}),
+ListLiteral: (member) => ({kind: 'ListLiteral', value: member}),
+NumberLiteral: (member) => ({kind: 'NumberLiteral', value: member}),
+RecordLiteral: (member) => ({kind: 'RecordLiteral', value: member}),
+StringLiteral: (member) => ({kind: 'StringLiteral', value: member}),
+TupleLiteral: (member) => ({kind: 'TupleLiteral', value: member}),
 };
 var SimpleLiteral = exports.SimpleLiteral = {
-BooleanLiteral: (...members) => ({kind: 'BooleanLiteral', value: members}),
-NumberLiteral: (...members) => ({kind: 'NumberLiteral', value: members}),
-StringLiteral: (...members) => ({kind: 'StringLiteral', value: members}),
+BooleanLiteral: (member) => ({kind: 'BooleanLiteral', value: member}),
+NumberLiteral: (member) => ({kind: 'NumberLiteral', value: member}),
+StringLiteral: (member) => ({kind: 'StringLiteral', value: member}),
 };
 var ExportedStatement = exports.ExportedStatement = {
-EnumDeclaration: (...members) => ({kind: 'EnumDeclaration', value: members}),
-TraitDeclaration: (...members) => ({kind: 'TraitDeclaration', value: members}),
-TypeDeclaration: (...members) => ({kind: 'TypeDeclaration', value: members}),
-FunctionDeclaration: (...members) => ({kind: 'FunctionDeclaration', value: members}),
-VariableDeclaration: (...members) => ({kind: 'VariableDeclaration', value: members}),
+EnumDeclaration: (member) => ({kind: 'EnumDeclaration', value: member}),
+TraitDeclaration: (member) => ({kind: 'TraitDeclaration', value: member}),
+TypeDeclaration: (member) => ({kind: 'TypeDeclaration', value: member}),
+FunctionDeclaration: (member) => ({kind: 'FunctionDeclaration', value: member}),
+VariableDeclaration: (member) => ({kind: 'VariableDeclaration', value: member}),
 };
 var ImportSpecifier = exports.ImportSpecifier = {
-Asterisk: (...members) => ({kind: 'Asterisk', value: members}),
-Identifier: (...members) => ({kind: 'Identifier', value: members}),
-ObjectDestructure: (...members) => ({kind: 'ObjectDestructure', value: members}),
+Asterisk: (member) => ({kind: 'Asterisk', value: member}),
+Identifier: (member) => ({kind: 'Identifier', value: member}),
+ObjectDestructure: (member) => ({kind: 'ObjectDestructure', value: member}),
 };
 var AttributeData = exports.AttributeData = {
 None: {kind: 'None', value: Symbol('None')},
-Value: (...members) => ({kind: 'Value', value: members}),
-Arguments: (...members) => ({kind: 'Arguments', value: members}),
+Value: (member) => ({kind: 'Value', value: member}),
+Arguments: (member) => ({kind: 'Arguments', value: member}),
 };
 var TypePath = exports.TypePath = {
 _Object: (...members) => ({kind: '_Object', value: members}),
-Member: (...members) => ({kind: 'Member', value: members}),
+Member: (member) => ({kind: 'Member', value: member}),
 };
 var StringLiteralPart = exports.StringLiteralPart = {
-Literal: (...members) => ({kind: 'Literal', value: members}),
-Identifier: (...members) => ({kind: 'Identifier', value: members}),
+Literal: (member) => ({kind: 'Literal', value: member}),
+Identifier: (member) => ({kind: 'Identifier', value: member}),
 };
 var Pattern = exports.Pattern = {
-CatchAll: (...members) => ({kind: 'CatchAll', value: members}),
+CatchAll: (member) => ({kind: 'CatchAll', value: member}),
 Identifier: (object) => ({kind: 'Identifier', value: object}),
-Record: (...members) => ({kind: 'Record', value: members}),
-Tuple: (...members) => ({kind: 'Tuple', value: members}),
+Record: (member) => ({kind: 'Record', value: member}),
+Tuple: (member) => ({kind: 'Tuple', value: member}),
 RecordType: (...members) => ({kind: 'RecordType', value: members}),
 TupleType: (...members) => ({kind: 'TupleType', value: members}),
-UnitType: (...members) => ({kind: 'UnitType', value: members}),
+UnitType: (member) => ({kind: 'UnitType', value: member}),
 };
 var TypeBound = exports.TypeBound = {
-FunctionTypeBound: (...members) => ({kind: 'FunctionTypeBound', value: members}),
-NamedTypeBound: (...members) => ({kind: 'NamedTypeBound', value: members}),
-RecordTypeBound: (...members) => ({kind: 'RecordTypeBound', value: members}),
-TupleTypeBound: (...members) => ({kind: 'TupleTypeBound', value: members}),
+FunctionTypeBound: (member) => ({kind: 'FunctionTypeBound', value: member}),
+NamedTypeBound: (member) => ({kind: 'NamedTypeBound', value: member}),
+RecordTypeBound: (member) => ({kind: 'RecordTypeBound', value: member}),
+TupleTypeBound: (member) => ({kind: 'TupleTypeBound', value: member}),
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TopLevelStatement"] = {
 span: $puck_3.ToSpan.span,
@@ -151,42 +151,42 @@ start: function () {
   const self = this;
   let $puck_5 = self;
   if ($unwrapTraitObject($puck_5).kind === "ExportDirective") {
-    let {value: [e]} = $unwrapTraitObject($puck_5);
+    let {value: e} = $unwrapTraitObject($puck_5);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportDirective"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportDirective', value: e, $isTraitObject: true});
   }
   else {
     if ($unwrapTraitObject($puck_5).kind === "ImportDirective") {
-      let {value: [e]} = $unwrapTraitObject($puck_5);
+      let {value: e} = $unwrapTraitObject($puck_5);
       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: e, $isTraitObject: true});
     }
     else {
       if ($unwrapTraitObject($puck_5).kind === "EnumDeclaration") {
-        let {value: [e]} = $unwrapTraitObject($puck_5);
+        let {value: e} = $unwrapTraitObject($puck_5);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration', value: e, $isTraitObject: true});
       }
       else {
         if ($unwrapTraitObject($puck_5).kind === "ImplDeclaration") {
-          let {value: [e]} = $unwrapTraitObject($puck_5);
+          let {value: e} = $unwrapTraitObject($puck_5);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplDeclaration', value: e, $isTraitObject: true});
         }
         else {
           if ($unwrapTraitObject($puck_5).kind === "ImplShorthandDeclaration") {
-            let {value: [e]} = $unwrapTraitObject($puck_5);
+            let {value: e} = $unwrapTraitObject($puck_5);
             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplShorthandDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplShorthandDeclaration', value: e, $isTraitObject: true});
           }
           else {
             if ($unwrapTraitObject($puck_5).kind === "TraitDeclaration") {
-              let {value: [e]} = $unwrapTraitObject($puck_5);
+              let {value: e} = $unwrapTraitObject($puck_5);
               return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration', value: e, $isTraitObject: true});
             }
             else {
               if ($unwrapTraitObject($puck_5).kind === "TypeDeclaration") {
-                let {value: [e]} = $unwrapTraitObject($puck_5);
+                let {value: e} = $unwrapTraitObject($puck_5);
                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration', value: e, $isTraitObject: true});
               }
               else {
                 if ($unwrapTraitObject($puck_5).kind === "BlockLevelStatement") {
-                  let {value: [e]} = $unwrapTraitObject($puck_5);
+                  let {value: e} = $unwrapTraitObject($puck_5);
                   return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement', value: e, $isTraitObject: true});
                 };
               };
@@ -201,42 +201,42 @@ end: function () {
   const self = this;
   let $puck_6 = self;
   if ($unwrapTraitObject($puck_6).kind === "ExportDirective") {
-    let {value: [e]} = $unwrapTraitObject($puck_6);
+    let {value: e} = $unwrapTraitObject($puck_6);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportDirective"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportDirective', value: e, $isTraitObject: true});
   }
   else {
     if ($unwrapTraitObject($puck_6).kind === "ImportDirective") {
-      let {value: [e]} = $unwrapTraitObject($puck_6);
+      let {value: e} = $unwrapTraitObject($puck_6);
       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: e, $isTraitObject: true});
     }
     else {
       if ($unwrapTraitObject($puck_6).kind === "EnumDeclaration") {
-        let {value: [e]} = $unwrapTraitObject($puck_6);
+        let {value: e} = $unwrapTraitObject($puck_6);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration', value: e, $isTraitObject: true});
       }
       else {
         if ($unwrapTraitObject($puck_6).kind === "ImplDeclaration") {
-          let {value: [e]} = $unwrapTraitObject($puck_6);
+          let {value: e} = $unwrapTraitObject($puck_6);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplDeclaration', value: e, $isTraitObject: true});
         }
         else {
           if ($unwrapTraitObject($puck_6).kind === "ImplShorthandDeclaration") {
-            let {value: [e]} = $unwrapTraitObject($puck_6);
+            let {value: e} = $unwrapTraitObject($puck_6);
             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplShorthandDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImplShorthandDeclaration', value: e, $isTraitObject: true});
           }
           else {
             if ($unwrapTraitObject($puck_6).kind === "TraitDeclaration") {
-              let {value: [e]} = $unwrapTraitObject($puck_6);
+              let {value: e} = $unwrapTraitObject($puck_6);
               return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration', value: e, $isTraitObject: true});
             }
             else {
               if ($unwrapTraitObject($puck_6).kind === "TypeDeclaration") {
-                let {value: [e]} = $unwrapTraitObject($puck_6);
+                let {value: e} = $unwrapTraitObject($puck_6);
                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration', value: e, $isTraitObject: true});
               }
               else {
                 if ($unwrapTraitObject($puck_6).kind === "BlockLevelStatement") {
-                  let {value: [e]} = $unwrapTraitObject($puck_6);
+                  let {value: e} = $unwrapTraitObject($puck_6);
                   return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BlockLevelStatement', value: e, $isTraitObject: true});
                 };
               };
@@ -254,27 +254,27 @@ start: function () {
   const self = this;
   let $puck_7 = self;
   if ($unwrapTraitObject($puck_7).kind === "Block") {
-    let {value: [e]} = $unwrapTraitObject($puck_7);
+    let {value: e} = $unwrapTraitObject($puck_7);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e, $isTraitObject: true});
   }
   else {
     if ($unwrapTraitObject($puck_7).kind === "BreakStatement") {
-      let {value: [e]} = $unwrapTraitObject($puck_7);
+      let {value: e} = $unwrapTraitObject($puck_7);
       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BreakStatement"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BreakStatement', value: e, $isTraitObject: true});
     }
     else {
       if ($unwrapTraitObject($puck_7).kind === "ReturnStatement") {
-        let {value: [e]} = $unwrapTraitObject($puck_7);
+        let {value: e} = $unwrapTraitObject($puck_7);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement', value: e, $isTraitObject: true});
       }
       else {
         if ($unwrapTraitObject($puck_7).kind === "WhileLoop") {
-          let {value: [e]} = $unwrapTraitObject($puck_7);
+          let {value: e} = $unwrapTraitObject($puck_7);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop', value: e, $isTraitObject: true});
         }
         else {
           if ($unwrapTraitObject($puck_7).kind === "Expression") {
-            let {value: [e]} = $unwrapTraitObject($puck_7);
+            let {value: e} = $unwrapTraitObject($puck_7);
             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true});
           };
         };
@@ -286,27 +286,27 @@ end: function () {
   const self = this;
   let $puck_8 = self;
   if ($unwrapTraitObject($puck_8).kind === "Block") {
-    let {value: [e]} = $unwrapTraitObject($puck_8);
+    let {value: e} = $unwrapTraitObject($puck_8);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: e, $isTraitObject: true});
   }
   else {
     if ($unwrapTraitObject($puck_8).kind === "BreakStatement") {
-      let {value: [e]} = $unwrapTraitObject($puck_8);
+      let {value: e} = $unwrapTraitObject($puck_8);
       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BreakStatement"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BreakStatement', value: e, $isTraitObject: true});
     }
     else {
       if ($unwrapTraitObject($puck_8).kind === "ReturnStatement") {
-        let {value: [e]} = $unwrapTraitObject($puck_8);
+        let {value: e} = $unwrapTraitObject($puck_8);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement', value: e, $isTraitObject: true});
       }
       else {
         if ($unwrapTraitObject($puck_8).kind === "WhileLoop") {
-          let {value: [e]} = $unwrapTraitObject($puck_8);
+          let {value: e} = $unwrapTraitObject($puck_8);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop', value: e, $isTraitObject: true});
         }
         else {
           if ($unwrapTraitObject($puck_8).kind === "Expression") {
-            let {value: [e]} = $unwrapTraitObject($puck_8);
+            let {value: e} = $unwrapTraitObject($puck_8);
             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true});
           };
         };
@@ -321,117 +321,117 @@ start: function () {
   const self = this;
   let $puck_9 = self;
   if ($unwrapTraitObject($puck_9).kind === "ThrowStatement") {
-    let {value: [e]} = $unwrapTraitObject($puck_9);
+    let {value: e} = $unwrapTraitObject($puck_9);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true});
   }
   else {
     if ($unwrapTraitObject($puck_9).kind === "Comment") {
-      let {value: [$puck_10]} = $unwrapTraitObject($puck_9);
+      $unwrapTraitObject($puck_9);
       throw "No span for Comment";
     }
     else {
       if ($unwrapTraitObject($puck_9).kind === "Identifier") {
-        let {value: [e]} = $unwrapTraitObject($puck_9);
+        let {value: e} = $unwrapTraitObject($puck_9);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e, $isTraitObject: true});
       }
       else {
         if ($unwrapTraitObject($puck_9).kind === "FunctionDeclaration") {
-          let {value: [e]} = $unwrapTraitObject($puck_9);
+          let {value: e} = $unwrapTraitObject($puck_9);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: e, $isTraitObject: true});
         }
         else {
           if ($unwrapTraitObject($puck_9).kind === "VariableDeclaration") {
-            let {value: [e]} = $unwrapTraitObject($puck_9);
+            let {value: e} = $unwrapTraitObject($puck_9);
             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: e, $isTraitObject: true});
           }
           else {
             if ($unwrapTraitObject($puck_9).kind === "AssignmentExpression") {
-              let {value: [e]} = $unwrapTraitObject($puck_9);
+              let {value: e} = $unwrapTraitObject($puck_9);
               return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression', value: e, $isTraitObject: true});
             }
             else {
               if ($unwrapTraitObject($puck_9).kind === "BinaryExpression") {
-                let {value: [e]} = $unwrapTraitObject($puck_9);
+                let {value: e} = $unwrapTraitObject($puck_9);
                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression', value: e, $isTraitObject: true});
               }
               else {
                 if ($unwrapTraitObject($puck_9).kind === "CallExpression") {
-                  let {value: [e]} = $unwrapTraitObject($puck_9);
+                  let {value: e} = $unwrapTraitObject($puck_9);
                   return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true});
                 }
                 else {
                   if ($unwrapTraitObject($puck_9).kind === "IfExpression") {
-                    let {value: [e]} = $unwrapTraitObject($puck_9);
+                    let {value: e} = $unwrapTraitObject($puck_9);
                     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true});
                   }
                   else {
                     if ($unwrapTraitObject($puck_9).kind === "IfLetExpression") {
-                      let {value: [e]} = $unwrapTraitObject($puck_9);
+                      let {value: e} = $unwrapTraitObject($puck_9);
                       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true});
                     }
                     else {
                       if ($unwrapTraitObject($puck_9).kind === "MatchExpression") {
-                        let {value: [e]} = $unwrapTraitObject($puck_9);
+                        let {value: e} = $unwrapTraitObject($puck_9);
                         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true});
                       }
                       else {
                         if ($unwrapTraitObject($puck_9).kind === "TypePathExpression") {
-                          let {value: [e]} = $unwrapTraitObject($puck_9);
+                          let {value: e} = $unwrapTraitObject($puck_9);
                           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression', value: e, $isTraitObject: true});
                         }
                         else {
                           if ($unwrapTraitObject($puck_9).kind === "UnaryExpression") {
-                            let {value: [e]} = $unwrapTraitObject($puck_9);
+                            let {value: e} = $unwrapTraitObject($puck_9);
                             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression', value: e, $isTraitObject: true});
                           }
                           else {
                             if ($unwrapTraitObject($puck_9).kind === "IndexAccess") {
-                              let {value: [e]} = $unwrapTraitObject($puck_9);
+                              let {value: e} = $unwrapTraitObject($puck_9);
                               return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess', value: e, $isTraitObject: true});
                             }
                             else {
                               if ($unwrapTraitObject($puck_9).kind === "MemberAccess") {
-                                let {value: [e]} = $unwrapTraitObject($puck_9);
+                                let {value: e} = $unwrapTraitObject($puck_9);
                                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: e, $isTraitObject: true});
                               }
                               else {
                                 if ($unwrapTraitObject($puck_9).kind === "UnknownAccess") {
-                                  let {value: [e]} = $unwrapTraitObject($puck_9);
+                                  let {value: e} = $unwrapTraitObject($puck_9);
                                   return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
                                 }
                                 else {
                                   if ($unwrapTraitObject($puck_9).kind === "UnknownIndexAccess") {
-                                    let {value: [e]} = $unwrapTraitObject($puck_9);
+                                    let {value: e} = $unwrapTraitObject($puck_9);
                                     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
                                   }
                                   else {
                                     if ($unwrapTraitObject($puck_9).kind === "BooleanLiteral") {
-                                      let {value: [e]} = $unwrapTraitObject($puck_9);
+                                      let {value: e} = $unwrapTraitObject($puck_9);
                                       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
                                     }
                                     else {
                                       if ($unwrapTraitObject($puck_9).kind === "ListLiteral") {
-                                        let {value: [e]} = $unwrapTraitObject($puck_9);
+                                        let {value: e} = $unwrapTraitObject($puck_9);
                                         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
                                       }
                                       else {
                                         if ($unwrapTraitObject($puck_9).kind === "NumberLiteral") {
-                                          let {value: [e]} = $unwrapTraitObject($puck_9);
+                                          let {value: e} = $unwrapTraitObject($puck_9);
                                           return e.span.start;
                                         }
                                         else {
                                           if ($unwrapTraitObject($puck_9).kind === "RecordLiteral") {
-                                            let {value: [e]} = $unwrapTraitObject($puck_9);
+                                            let {value: e} = $unwrapTraitObject($puck_9);
                                             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
                                           }
                                           else {
                                             if ($unwrapTraitObject($puck_9).kind === "StringLiteral") {
-                                              let {value: [e]} = $unwrapTraitObject($puck_9);
+                                              let {value: e} = $unwrapTraitObject($puck_9);
                                               return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
                                             }
                                             else {
                                               if ($unwrapTraitObject($puck_9).kind === "TupleLiteral") {
-                                                let {value: [e]} = $unwrapTraitObject($puck_9);
+                                                let {value: e} = $unwrapTraitObject($puck_9);
                                                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
                                               };
                                             };
@@ -459,119 +459,119 @@ start: function () {
 },
 end: function () {
   const self = this;
-  let $puck_11 = self;
-  if ($unwrapTraitObject($puck_11).kind === "ThrowStatement") {
-    let {value: [e]} = $unwrapTraitObject($puck_11);
+  let $puck_10 = self;
+  if ($unwrapTraitObject($puck_10).kind === "ThrowStatement") {
+    let {value: e} = $unwrapTraitObject($puck_10);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true});
   }
   else {
-    if ($unwrapTraitObject($puck_11).kind === "Comment") {
-      let {value: [$puck_12]} = $unwrapTraitObject($puck_11);
+    if ($unwrapTraitObject($puck_10).kind === "Comment") {
+      $unwrapTraitObject($puck_10);
       throw "No span for Comment";
     }
     else {
-      if ($unwrapTraitObject($puck_11).kind === "Identifier") {
-        let {value: [e]} = $unwrapTraitObject($puck_11);
+      if ($unwrapTraitObject($puck_10).kind === "Identifier") {
+        let {value: e} = $unwrapTraitObject($puck_10);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e, $isTraitObject: true});
       }
       else {
-        if ($unwrapTraitObject($puck_11).kind === "FunctionDeclaration") {
-          let {value: [e]} = $unwrapTraitObject($puck_11);
+        if ($unwrapTraitObject($puck_10).kind === "FunctionDeclaration") {
+          let {value: e} = $unwrapTraitObject($puck_10);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: e, $isTraitObject: true});
         }
         else {
-          if ($unwrapTraitObject($puck_11).kind === "VariableDeclaration") {
-            let {value: [e]} = $unwrapTraitObject($puck_11);
+          if ($unwrapTraitObject($puck_10).kind === "VariableDeclaration") {
+            let {value: e} = $unwrapTraitObject($puck_10);
             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: e, $isTraitObject: true});
           }
           else {
-            if ($unwrapTraitObject($puck_11).kind === "AssignmentExpression") {
-              let {value: [e]} = $unwrapTraitObject($puck_11);
+            if ($unwrapTraitObject($puck_10).kind === "AssignmentExpression") {
+              let {value: e} = $unwrapTraitObject($puck_10);
               return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression', value: e, $isTraitObject: true});
             }
             else {
-              if ($unwrapTraitObject($puck_11).kind === "BinaryExpression") {
-                let {value: [e]} = $unwrapTraitObject($puck_11);
+              if ($unwrapTraitObject($puck_10).kind === "BinaryExpression") {
+                let {value: e} = $unwrapTraitObject($puck_10);
                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression', value: e, $isTraitObject: true});
               }
               else {
-                if ($unwrapTraitObject($puck_11).kind === "CallExpression") {
-                  let {value: [e]} = $unwrapTraitObject($puck_11);
+                if ($unwrapTraitObject($puck_10).kind === "CallExpression") {
+                  let {value: e} = $unwrapTraitObject($puck_10);
                   return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true});
                 }
                 else {
-                  if ($unwrapTraitObject($puck_11).kind === "IfExpression") {
-                    let {value: [e]} = $unwrapTraitObject($puck_11);
+                  if ($unwrapTraitObject($puck_10).kind === "IfExpression") {
+                    let {value: e} = $unwrapTraitObject($puck_10);
                     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true});
                   }
                   else {
-                    if ($unwrapTraitObject($puck_11).kind === "IfLetExpression") {
-                      let {value: [e]} = $unwrapTraitObject($puck_11);
+                    if ($unwrapTraitObject($puck_10).kind === "IfLetExpression") {
+                      let {value: e} = $unwrapTraitObject($puck_10);
                       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true});
                     }
                     else {
-                      if ($unwrapTraitObject($puck_11).kind === "MatchExpression") {
-                        let {value: [e]} = $unwrapTraitObject($puck_11);
+                      if ($unwrapTraitObject($puck_10).kind === "MatchExpression") {
+                        let {value: e} = $unwrapTraitObject($puck_10);
                         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true});
                       }
                       else {
-                        if ($unwrapTraitObject($puck_11).kind === "TypePathExpression") {
-                          let {value: [e]} = $unwrapTraitObject($puck_11);
+                        if ($unwrapTraitObject($puck_10).kind === "TypePathExpression") {
+                          let {value: e} = $unwrapTraitObject($puck_10);
                           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression', value: e, $isTraitObject: true});
                         }
                         else {
-                          if ($unwrapTraitObject($puck_11).kind === "UnaryExpression") {
-                            let {value: [e]} = $unwrapTraitObject($puck_11);
+                          if ($unwrapTraitObject($puck_10).kind === "UnaryExpression") {
+                            let {value: e} = $unwrapTraitObject($puck_10);
                             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression', value: e, $isTraitObject: true});
                           }
                           else {
-                            if ($unwrapTraitObject($puck_11).kind === "IndexAccess") {
-                              let {value: [e]} = $unwrapTraitObject($puck_11);
+                            if ($unwrapTraitObject($puck_10).kind === "IndexAccess") {
+                              let {value: e} = $unwrapTraitObject($puck_10);
                               return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess', value: e, $isTraitObject: true});
                             }
                             else {
-                              if ($unwrapTraitObject($puck_11).kind === "MemberAccess") {
-                                let {value: [e]} = $unwrapTraitObject($puck_11);
+                              if ($unwrapTraitObject($puck_10).kind === "MemberAccess") {
+                                let {value: e} = $unwrapTraitObject($puck_10);
                                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: e, $isTraitObject: true});
                               }
                               else {
-                                if ($unwrapTraitObject($puck_11).kind === "UnknownAccess") {
-                                  let {value: [e]} = $unwrapTraitObject($puck_11);
+                                if ($unwrapTraitObject($puck_10).kind === "UnknownAccess") {
+                                  let {value: e} = $unwrapTraitObject($puck_10);
                                   return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
                                 }
                                 else {
-                                  if ($unwrapTraitObject($puck_11).kind === "UnknownIndexAccess") {
-                                    let {value: [e]} = $unwrapTraitObject($puck_11);
+                                  if ($unwrapTraitObject($puck_10).kind === "UnknownIndexAccess") {
+                                    let {value: e} = $unwrapTraitObject($puck_10);
                                     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
                                   }
                                   else {
-                                    if ($unwrapTraitObject($puck_11).kind === "BooleanLiteral") {
-                                      let {value: [e]} = $unwrapTraitObject($puck_11);
+                                    if ($unwrapTraitObject($puck_10).kind === "BooleanLiteral") {
+                                      let {value: e} = $unwrapTraitObject($puck_10);
                                       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
                                     }
                                     else {
-                                      if ($unwrapTraitObject($puck_11).kind === "ListLiteral") {
-                                        let {value: [e]} = $unwrapTraitObject($puck_11);
+                                      if ($unwrapTraitObject($puck_10).kind === "ListLiteral") {
+                                        let {value: e} = $unwrapTraitObject($puck_10);
                                         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
                                       }
                                       else {
-                                        if ($unwrapTraitObject($puck_11).kind === "NumberLiteral") {
-                                          let {value: [e]} = $unwrapTraitObject($puck_11);
+                                        if ($unwrapTraitObject($puck_10).kind === "NumberLiteral") {
+                                          let {value: e} = $unwrapTraitObject($puck_10);
                                           return e.span.end;
                                         }
                                         else {
-                                          if ($unwrapTraitObject($puck_11).kind === "RecordLiteral") {
-                                            let {value: [e]} = $unwrapTraitObject($puck_11);
+                                          if ($unwrapTraitObject($puck_10).kind === "RecordLiteral") {
+                                            let {value: e} = $unwrapTraitObject($puck_10);
                                             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
                                           }
                                           else {
-                                            if ($unwrapTraitObject($puck_11).kind === "StringLiteral") {
-                                              let {value: [e]} = $unwrapTraitObject($puck_11);
+                                            if ($unwrapTraitObject($puck_10).kind === "StringLiteral") {
+                                              let {value: e} = $unwrapTraitObject($puck_10);
                                               return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
                                             }
                                             else {
-                                              if ($unwrapTraitObject($puck_11).kind === "TupleLiteral") {
-                                                let {value: [e]} = $unwrapTraitObject($puck_11);
+                                              if ($unwrapTraitObject($puck_10).kind === "TupleLiteral") {
+                                                let {value: e} = $unwrapTraitObject($puck_10);
                                                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
                                               };
                                             };
@@ -680,29 +680,29 @@ end: $puck_3.ToSpan.end
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement"] = {
 span: function () {
   const self = this;
-  let $puck_13 = self;
-  if ($unwrapTraitObject($puck_13).kind === "EnumDeclaration") {
-    let {value: [d]} = $unwrapTraitObject($puck_13);
+  let $puck_11 = self;
+  if ($unwrapTraitObject($puck_11).kind === "EnumDeclaration") {
+    let {value: d} = $unwrapTraitObject($puck_11);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration', value: d, $isTraitObject: true});
   }
   else {
-    if ($unwrapTraitObject($puck_13).kind === "TraitDeclaration") {
-      let {value: [d]} = $unwrapTraitObject($puck_13);
+    if ($unwrapTraitObject($puck_11).kind === "TraitDeclaration") {
+      let {value: d} = $unwrapTraitObject($puck_11);
       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TraitDeclaration', value: d, $isTraitObject: true});
     }
     else {
-      if ($unwrapTraitObject($puck_13).kind === "TypeDeclaration") {
-        let {value: [d]} = $unwrapTraitObject($puck_13);
+      if ($unwrapTraitObject($puck_11).kind === "TypeDeclaration") {
+        let {value: d} = $unwrapTraitObject($puck_11);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration', value: d, $isTraitObject: true});
       }
       else {
-        if ($unwrapTraitObject($puck_13).kind === "FunctionDeclaration") {
-          let {value: [d]} = $unwrapTraitObject($puck_13);
+        if ($unwrapTraitObject($puck_11).kind === "FunctionDeclaration") {
+          let {value: d} = $unwrapTraitObject($puck_11);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: d, $isTraitObject: true});
         }
         else {
-          if ($unwrapTraitObject($puck_13).kind === "VariableDeclaration") {
-            let {value: [d]} = $unwrapTraitObject($puck_13);
+          if ($unwrapTraitObject($puck_11).kind === "VariableDeclaration") {
+            let {value: d} = $unwrapTraitObject($puck_11);
             return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: d, $isTraitObject: true});
           };
         };
@@ -727,19 +727,19 @@ end: $puck_3.ToSpan.end
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"] = {
 span: function () {
   const self = this;
-  let $puck_14 = self;
-  if ($unwrapTraitObject($puck_14).kind === "Asterisk") {
-    let {value: [token]} = $unwrapTraitObject($puck_14);
+  let $puck_12 = self;
+  if ($unwrapTraitObject($puck_12).kind === "Asterisk") {
+    let {value: token} = $unwrapTraitObject($puck_12);
     return token.span;
   }
   else {
-    if ($unwrapTraitObject($puck_14).kind === "Identifier") {
-      let {value: [identifier]} = $unwrapTraitObject($puck_14);
+    if ($unwrapTraitObject($puck_12).kind === "Identifier") {
+      let {value: identifier} = $unwrapTraitObject($puck_12);
       return identifier.span;
     }
     else {
-      if ($unwrapTraitObject($puck_14).kind === "ObjectDestructure") {
-        let {value: [objectDestructure]} = $unwrapTraitObject($puck_14);
+      if ($unwrapTraitObject($puck_12).kind === "ObjectDestructure") {
+        let {value: objectDestructure} = $unwrapTraitObject($puck_12);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructure"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructure', value: objectDestructure, $isTraitObject: true});
       };
     };
@@ -774,9 +774,9 @@ $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"] = {
 span: $puck_3.ToSpan.span,
 start: function () {
   const self = this;
-  let $puck_15 = self.value.openBrace;
-  if ($puck_15.kind === "Some") {
-    let {value: [openBrace]} = $puck_15;
+  let $puck_13 = self.value.openBrace;
+  if ($puck_13.kind === "Some") {
+    let {value: openBrace} = $puck_13;
     return openBrace.span.start;
   }
   else {
@@ -785,9 +785,9 @@ start: function () {
 },
 end: function () {
   const self = this;
-  let $puck_16 = self.value.closeBrace;
-  if ($puck_16.kind === "Some") {
-    let {value: [closeBrace]} = $puck_16;
+  let $puck_14 = self.value.closeBrace;
+  if ($puck_14.kind === "Some") {
+    let {value: closeBrace} = $puck_14;
     return closeBrace.span.end;
   }
   else {
@@ -988,17 +988,17 @@ end: $puck_3.ToSpan.end
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"] = {
 span: function () {
   const self = this;
-  let $puck_17 = self;
-  if ($unwrapTraitObject($puck_17).kind === "_Object") {
-    let {value: [identifier, typePath]} = $unwrapTraitObject($puck_17);
+  let $puck_15 = self;
+  if ($unwrapTraitObject($puck_15).kind === "_Object") {
+    let {value: [identifier, typePath]} = $unwrapTraitObject($puck_15);
     return {
       start: identifier.span.start,
       end: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true}),
     };
   }
   else {
-    if ($unwrapTraitObject($puck_17).kind === "Member") {
-      let {value: [identifier]} = $unwrapTraitObject($puck_17);
+    if ($unwrapTraitObject($puck_15).kind === "Member") {
+      let {value: identifier} = $unwrapTraitObject($puck_15);
       return identifier.span;
     };
   };
@@ -1124,14 +1124,14 @@ end: function () {
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart"] = {
 span: function () {
   const self = this;
-  let $puck_18 = self;
-  if ($unwrapTraitObject($puck_18).kind === "Literal") {
-    let {value: [{span: span}]} = $unwrapTraitObject($puck_18);
+  let $puck_16 = self;
+  if ($unwrapTraitObject($puck_16).kind === "Literal") {
+    let {value: {span: span}} = $unwrapTraitObject($puck_16);
     return span;
   }
   else {
-    if ($unwrapTraitObject($puck_18).kind === "Identifier") {
-      let {value: [{span: span}]} = $unwrapTraitObject($puck_18);
+    if ($unwrapTraitObject($puck_16).kind === "Identifier") {
+      let {value: {span: span}} = $unwrapTraitObject($puck_16);
       return span;
     };
   };
@@ -1153,51 +1153,51 @@ end: $puck_3.ToSpan.end
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"] = {
 span: function () {
   const self = this;
-  let $puck_19 = self;
-  if ($unwrapTraitObject($puck_19).kind === "CatchAll") {
-    let {value: [token]} = $unwrapTraitObject($puck_19);
+  let $puck_17 = self;
+  if ($unwrapTraitObject($puck_17).kind === "CatchAll") {
+    let {value: token} = $unwrapTraitObject($puck_17);
     return token.span;
   }
   else {
-    if ($unwrapTraitObject($puck_19).kind === "Identifier") {
-      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_19);
+    if ($unwrapTraitObject($puck_17).kind === "Identifier") {
+      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_17);
       return identifier.span;
     }
     else {
-      if ($unwrapTraitObject($puck_19).kind === "Record") {
-        let {value: [recordPattern]} = $unwrapTraitObject($puck_19);
+      if ($unwrapTraitObject($puck_17).kind === "Record") {
+        let {value: recordPattern} = $unwrapTraitObject($puck_17);
         return {
           start: recordPattern.openBrace.span.start,
           end: recordPattern.closeBrace.span.end,
         };
       }
       else {
-        if ($unwrapTraitObject($puck_19).kind === "Tuple") {
-          let {value: [tuplePattern]} = $unwrapTraitObject($puck_19);
+        if ($unwrapTraitObject($puck_17).kind === "Tuple") {
+          let {value: tuplePattern} = $unwrapTraitObject($puck_17);
           return {
             start: tuplePattern.openParen.span.start,
             end: tuplePattern.closeParen.span.end,
           };
         }
         else {
-          if ($unwrapTraitObject($puck_19).kind === "RecordType") {
-            let {value: [typePath, recordPattern]} = $unwrapTraitObject($puck_19);
+          if ($unwrapTraitObject($puck_17).kind === "RecordType") {
+            let {value: [typePath, recordPattern]} = $unwrapTraitObject($puck_17);
             return {
               start: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true}),
               end: recordPattern.closeBrace.span.end,
             };
           }
           else {
-            if ($unwrapTraitObject($puck_19).kind === "TupleType") {
-              let {value: [typePath, tuplePattern]} = $unwrapTraitObject($puck_19);
+            if ($unwrapTraitObject($puck_17).kind === "TupleType") {
+              let {value: [typePath, tuplePattern]} = $unwrapTraitObject($puck_17);
               return {
                 start: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true}),
                 end: tuplePattern.closeParen.span.end,
               };
             }
             else {
-              if ($unwrapTraitObject($puck_19).kind === "UnitType") {
-                let {value: [typePath]} = $unwrapTraitObject($puck_19);
+              if ($unwrapTraitObject($puck_17).kind === "UnitType") {
+                let {value: typePath} = $unwrapTraitObject($puck_17);
                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true});
               };
             };
@@ -1246,24 +1246,24 @@ end: function () {
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"] = {
 span: function () {
   const self = this;
-  let $puck_20 = self;
-  if ($unwrapTraitObject($puck_20).kind === "FunctionTypeBound") {
-    let {value: [t]} = $unwrapTraitObject($puck_20);
+  let $puck_18 = self;
+  if ($unwrapTraitObject($puck_18).kind === "FunctionTypeBound") {
+    let {value: t} = $unwrapTraitObject($puck_18);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound', value: t, $isTraitObject: true});
   }
   else {
-    if ($unwrapTraitObject($puck_20).kind === "NamedTypeBound") {
-      let {value: [t]} = $unwrapTraitObject($puck_20);
+    if ($unwrapTraitObject($puck_18).kind === "NamedTypeBound") {
+      let {value: t} = $unwrapTraitObject($puck_18);
       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true});
     }
     else {
-      if ($unwrapTraitObject($puck_20).kind === "RecordTypeBound") {
-        let {value: [t]} = $unwrapTraitObject($puck_20);
+      if ($unwrapTraitObject($puck_18).kind === "RecordTypeBound") {
+        let {value: t} = $unwrapTraitObject($puck_18);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound', value: t, $isTraitObject: true});
       }
       else {
-        if ($unwrapTraitObject($puck_20).kind === "TupleTypeBound") {
-          let {value: [t]} = $unwrapTraitObject($puck_20);
+        if ($unwrapTraitObject($puck_18).kind === "TupleTypeBound") {
+          let {value: t} = $unwrapTraitObject($puck_18);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: t, $isTraitObject: true});
         };
       };
@@ -1347,44 +1347,44 @@ end: $puck_3.ToSpan.end
 };
 TopLevelStatement.getType = function () {
   const self = this;
-  let $puck_21 = self;
-  if ($unwrapTraitObject($puck_21).kind === "ExportDirective") {
-    let {value: [e]} = $unwrapTraitObject($puck_21);
+  let $puck_19 = self;
+  if ($unwrapTraitObject($puck_19).kind === "ExportDirective") {
+    let {value: e} = $unwrapTraitObject($puck_19);
     throw "type on export";
   }
   else {
-    if ($unwrapTraitObject($puck_21).kind === "ImportDirective") {
-      let {value: [e]} = $unwrapTraitObject($puck_21);
+    if ($unwrapTraitObject($puck_19).kind === "ImportDirective") {
+      let {value: e} = $unwrapTraitObject($puck_19);
       throw "type on import";
     }
     else {
-      if ($unwrapTraitObject($puck_21).kind === "EnumDeclaration") {
-        let {value: [e]} = $unwrapTraitObject($puck_21);
+      if ($unwrapTraitObject($puck_19).kind === "EnumDeclaration") {
+        let {value: e} = $unwrapTraitObject($puck_19);
         return e.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_21).kind === "ImplDeclaration") {
-          let {value: [e]} = $unwrapTraitObject($puck_21);
+        if ($unwrapTraitObject($puck_19).kind === "ImplDeclaration") {
+          let {value: e} = $unwrapTraitObject($puck_19);
           return e.type_.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_21).kind === "ImplShorthandDeclaration") {
-            let {value: [e]} = $unwrapTraitObject($puck_21);
+          if ($unwrapTraitObject($puck_19).kind === "ImplShorthandDeclaration") {
+            let {value: e} = $unwrapTraitObject($puck_19);
             return e.type_.type_;
           }
           else {
-            if ($unwrapTraitObject($puck_21).kind === "TraitDeclaration") {
-              let {value: [e]} = $unwrapTraitObject($puck_21);
+            if ($unwrapTraitObject($puck_19).kind === "TraitDeclaration") {
+              let {value: e} = $unwrapTraitObject($puck_19);
               return e.type_;
             }
             else {
-              if ($unwrapTraitObject($puck_21).kind === "TypeDeclaration") {
-                let {value: [e]} = $unwrapTraitObject($puck_21);
+              if ($unwrapTraitObject($puck_19).kind === "TypeDeclaration") {
+                let {value: e} = $unwrapTraitObject($puck_19);
                 return e.type_;
               }
               else {
-                if ($unwrapTraitObject($puck_21).kind === "BlockLevelStatement") {
-                  let {value: [e]} = $unwrapTraitObject($puck_21);
+                if ($unwrapTraitObject($puck_19).kind === "BlockLevelStatement") {
+                  let {value: e} = $unwrapTraitObject($puck_19);
                   return BlockLevelStatement.getType.call(e);
                 };
               };
@@ -1397,29 +1397,29 @@ TopLevelStatement.getType = function () {
 };
 BlockLevelStatement.getType = function () {
   const self = this;
-  let $puck_22 = self;
-  if ($unwrapTraitObject($puck_22).kind === "Block") {
-    let {value: [e]} = $unwrapTraitObject($puck_22);
+  let $puck_20 = self;
+  if ($unwrapTraitObject($puck_20).kind === "Block") {
+    let {value: e} = $unwrapTraitObject($puck_20);
     return e.type_;
   }
   else {
-    if ($unwrapTraitObject($puck_22).kind === "BreakStatement") {
-      let {value: [e]} = $unwrapTraitObject($puck_22);
+    if ($unwrapTraitObject($puck_20).kind === "BreakStatement") {
+      let {value: e} = $unwrapTraitObject($puck_20);
       return e.type_;
     }
     else {
-      if ($unwrapTraitObject($puck_22).kind === "ReturnStatement") {
-        let {value: [e]} = $unwrapTraitObject($puck_22);
+      if ($unwrapTraitObject($puck_20).kind === "ReturnStatement") {
+        let {value: e} = $unwrapTraitObject($puck_20);
         return e.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_22).kind === "WhileLoop") {
-          let {value: [e]} = $unwrapTraitObject($puck_22);
+        if ($unwrapTraitObject($puck_20).kind === "WhileLoop") {
+          let {value: e} = $unwrapTraitObject($puck_20);
           return e.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_22).kind === "Expression") {
-            let {value: [e]} = $unwrapTraitObject($puck_22);
+          if ($unwrapTraitObject($puck_20).kind === "Expression") {
+            let {value: e} = $unwrapTraitObject($puck_20);
             return Expression.getType.call(e);
           };
         };
@@ -1429,119 +1429,119 @@ BlockLevelStatement.getType = function () {
 };
 Expression.getType = function () {
   const self = this;
-  let $puck_23 = self;
-  if ($unwrapTraitObject($puck_23).kind === "ThrowStatement") {
-    let {value: [e]} = $unwrapTraitObject($puck_23);
+  let $puck_21 = self;
+  if ($unwrapTraitObject($puck_21).kind === "ThrowStatement") {
+    let {value: e} = $unwrapTraitObject($puck_21);
     return e.type_;
   }
   else {
-    if ($unwrapTraitObject($puck_23).kind === "Comment") {
-      let {value: [$puck_24]} = $unwrapTraitObject($puck_23);
+    if ($unwrapTraitObject($puck_21).kind === "Comment") {
+      $unwrapTraitObject($puck_21);
       return $puck_1.panic("getType on comment");
     }
     else {
-      if ($unwrapTraitObject($puck_23).kind === "Identifier") {
-        let {value: [e]} = $unwrapTraitObject($puck_23);
+      if ($unwrapTraitObject($puck_21).kind === "Identifier") {
+        let {value: e} = $unwrapTraitObject($puck_21);
         return e.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_23).kind === "FunctionDeclaration") {
-          let {value: [e]} = $unwrapTraitObject($puck_23);
+        if ($unwrapTraitObject($puck_21).kind === "FunctionDeclaration") {
+          let {value: e} = $unwrapTraitObject($puck_21);
           return e.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_23).kind === "VariableDeclaration") {
-            let {value: [e]} = $unwrapTraitObject($puck_23);
+          if ($unwrapTraitObject($puck_21).kind === "VariableDeclaration") {
+            let {value: e} = $unwrapTraitObject($puck_21);
             return e.type_;
           }
           else {
-            if ($unwrapTraitObject($puck_23).kind === "AssignmentExpression") {
-              let {value: [e]} = $unwrapTraitObject($puck_23);
+            if ($unwrapTraitObject($puck_21).kind === "AssignmentExpression") {
+              let {value: e} = $unwrapTraitObject($puck_21);
               return e.type_;
             }
             else {
-              if ($unwrapTraitObject($puck_23).kind === "BinaryExpression") {
-                let {value: [e]} = $unwrapTraitObject($puck_23);
+              if ($unwrapTraitObject($puck_21).kind === "BinaryExpression") {
+                let {value: e} = $unwrapTraitObject($puck_21);
                 return e.type_;
               }
               else {
-                if ($unwrapTraitObject($puck_23).kind === "CallExpression") {
-                  let {value: [e]} = $unwrapTraitObject($puck_23);
+                if ($unwrapTraitObject($puck_21).kind === "CallExpression") {
+                  let {value: e} = $unwrapTraitObject($puck_21);
                   return e.type_;
                 }
                 else {
-                  if ($unwrapTraitObject($puck_23).kind === "IfExpression") {
-                    let {value: [e]} = $unwrapTraitObject($puck_23);
+                  if ($unwrapTraitObject($puck_21).kind === "IfExpression") {
+                    let {value: e} = $unwrapTraitObject($puck_21);
                     return e.type_;
                   }
                   else {
-                    if ($unwrapTraitObject($puck_23).kind === "IfLetExpression") {
-                      let {value: [e]} = $unwrapTraitObject($puck_23);
+                    if ($unwrapTraitObject($puck_21).kind === "IfLetExpression") {
+                      let {value: e} = $unwrapTraitObject($puck_21);
                       return e.type_;
                     }
                     else {
-                      if ($unwrapTraitObject($puck_23).kind === "MatchExpression") {
-                        let {value: [e]} = $unwrapTraitObject($puck_23);
+                      if ($unwrapTraitObject($puck_21).kind === "MatchExpression") {
+                        let {value: e} = $unwrapTraitObject($puck_21);
                         return e.type_;
                       }
                       else {
-                        if ($unwrapTraitObject($puck_23).kind === "TypePathExpression") {
-                          let {value: [e]} = $unwrapTraitObject($puck_23);
+                        if ($unwrapTraitObject($puck_21).kind === "TypePathExpression") {
+                          let {value: e} = $unwrapTraitObject($puck_21);
                           return e.type_;
                         }
                         else {
-                          if ($unwrapTraitObject($puck_23).kind === "UnaryExpression") {
-                            let {value: [e]} = $unwrapTraitObject($puck_23);
+                          if ($unwrapTraitObject($puck_21).kind === "UnaryExpression") {
+                            let {value: e} = $unwrapTraitObject($puck_21);
                             return e.type_;
                           }
                           else {
-                            if ($unwrapTraitObject($puck_23).kind === "IndexAccess") {
-                              let {value: [e]} = $unwrapTraitObject($puck_23);
+                            if ($unwrapTraitObject($puck_21).kind === "IndexAccess") {
+                              let {value: e} = $unwrapTraitObject($puck_21);
                               return e.type_;
                             }
                             else {
-                              if ($unwrapTraitObject($puck_23).kind === "MemberAccess") {
-                                let {value: [e]} = $unwrapTraitObject($puck_23);
+                              if ($unwrapTraitObject($puck_21).kind === "MemberAccess") {
+                                let {value: e} = $unwrapTraitObject($puck_21);
                                 return e.type_;
                               }
                               else {
-                                if ($unwrapTraitObject($puck_23).kind === "UnknownAccess") {
-                                  let {value: [e]} = $unwrapTraitObject($puck_23);
+                                if ($unwrapTraitObject($puck_21).kind === "UnknownAccess") {
+                                  let {value: e} = $unwrapTraitObject($puck_21);
                                   return e.type_;
                                 }
                                 else {
-                                  if ($unwrapTraitObject($puck_23).kind === "UnknownIndexAccess") {
-                                    let {value: [e]} = $unwrapTraitObject($puck_23);
+                                  if ($unwrapTraitObject($puck_21).kind === "UnknownIndexAccess") {
+                                    let {value: e} = $unwrapTraitObject($puck_21);
                                     return e.type_;
                                   }
                                   else {
-                                    if ($unwrapTraitObject($puck_23).kind === "BooleanLiteral") {
-                                      let {value: [e]} = $unwrapTraitObject($puck_23);
+                                    if ($unwrapTraitObject($puck_21).kind === "BooleanLiteral") {
+                                      let {value: e} = $unwrapTraitObject($puck_21);
                                       return e.type_;
                                     }
                                     else {
-                                      if ($unwrapTraitObject($puck_23).kind === "ListLiteral") {
-                                        let {value: [e]} = $unwrapTraitObject($puck_23);
+                                      if ($unwrapTraitObject($puck_21).kind === "ListLiteral") {
+                                        let {value: e} = $unwrapTraitObject($puck_21);
                                         return e.type_;
                                       }
                                       else {
-                                        if ($unwrapTraitObject($puck_23).kind === "NumberLiteral") {
-                                          let {value: [e]} = $unwrapTraitObject($puck_23);
+                                        if ($unwrapTraitObject($puck_21).kind === "NumberLiteral") {
+                                          let {value: e} = $unwrapTraitObject($puck_21);
                                           return e.type_;
                                         }
                                         else {
-                                          if ($unwrapTraitObject($puck_23).kind === "RecordLiteral") {
-                                            let {value: [e]} = $unwrapTraitObject($puck_23);
+                                          if ($unwrapTraitObject($puck_21).kind === "RecordLiteral") {
+                                            let {value: e} = $unwrapTraitObject($puck_21);
                                             return e.type_;
                                           }
                                           else {
-                                            if ($unwrapTraitObject($puck_23).kind === "StringLiteral") {
-                                              let {value: [e]} = $unwrapTraitObject($puck_23);
+                                            if ($unwrapTraitObject($puck_21).kind === "StringLiteral") {
+                                              let {value: e} = $unwrapTraitObject($puck_21);
                                               return e.type_;
                                             }
                                             else {
-                                              if ($unwrapTraitObject($puck_23).kind === "TupleLiteral") {
-                                                let {value: [e]} = $unwrapTraitObject($puck_23);
+                                              if ($unwrapTraitObject($puck_21).kind === "TupleLiteral") {
+                                                let {value: e} = $unwrapTraitObject($puck_21);
                                                 return e.type_;
                                               };
                                             };
@@ -1573,29 +1573,29 @@ TraitDeclaration.getType = function () {
 };
 ExportDirective.getType = function () {
   const self = this;
-  let $puck_25 = self.statement;
-  if ($unwrapTraitObject($puck_25).kind === "EnumDeclaration") {
-    let {value: [d]} = $unwrapTraitObject($puck_25);
+  let $puck_22 = self.statement;
+  if ($unwrapTraitObject($puck_22).kind === "EnumDeclaration") {
+    let {value: d} = $unwrapTraitObject($puck_22);
     return d.type_;
   }
   else {
-    if ($unwrapTraitObject($puck_25).kind === "TraitDeclaration") {
-      let {value: [d]} = $unwrapTraitObject($puck_25);
+    if ($unwrapTraitObject($puck_22).kind === "TraitDeclaration") {
+      let {value: d} = $unwrapTraitObject($puck_22);
       return d.type_;
     }
     else {
-      if ($unwrapTraitObject($puck_25).kind === "TypeDeclaration") {
-        let {value: [d]} = $unwrapTraitObject($puck_25);
+      if ($unwrapTraitObject($puck_22).kind === "TypeDeclaration") {
+        let {value: d} = $unwrapTraitObject($puck_22);
         return d.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_25).kind === "FunctionDeclaration") {
-          let {value: [d]} = $unwrapTraitObject($puck_25);
+        if ($unwrapTraitObject($puck_22).kind === "FunctionDeclaration") {
+          let {value: d} = $unwrapTraitObject($puck_22);
           return d.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_25).kind === "VariableDeclaration") {
-            let {value: [d]} = $unwrapTraitObject($puck_25);
+          if ($unwrapTraitObject($puck_22).kind === "VariableDeclaration") {
+            let {value: d} = $unwrapTraitObject($puck_22);
             return d.type_;
           };
         };
@@ -1605,39 +1605,39 @@ ExportDirective.getType = function () {
 };
 Pattern.displayName = function () {
   const self = this;
-  let $puck_26 = self;
-  if ($unwrapTraitObject($puck_26).kind === "CatchAll") {
-    let {value: [$puck_27]} = $unwrapTraitObject($puck_26);
+  let $puck_23 = self;
+  if ($unwrapTraitObject($puck_23).kind === "CatchAll") {
+    $unwrapTraitObject($puck_23);
     return "_";
   }
   else {
-    if ($unwrapTraitObject($puck_26).kind === "Identifier") {
-      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_26);
+    if ($unwrapTraitObject($puck_23).kind === "Identifier") {
+      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_23);
       return identifier.name;
     }
     else {
-      if ($unwrapTraitObject($puck_26).kind === "Record") {
-        let {value: [recordPattern]} = $unwrapTraitObject($puck_26);
+      if ($unwrapTraitObject($puck_23).kind === "Record") {
+        let {value: recordPattern} = $unwrapTraitObject($puck_23);
         return RecordPattern.displayName.call(recordPattern);
       }
       else {
-        if ($unwrapTraitObject($puck_26).kind === "Tuple") {
-          let {value: [tuplePattern]} = $unwrapTraitObject($puck_26);
+        if ($unwrapTraitObject($puck_23).kind === "Tuple") {
+          let {value: tuplePattern} = $unwrapTraitObject($puck_23);
           return TuplePattern.displayName.call(tuplePattern);
         }
         else {
-          if ($unwrapTraitObject($puck_26).kind === "RecordType") {
-            let {value: [$puck_28, recordPattern]} = $unwrapTraitObject($puck_26);
+          if ($unwrapTraitObject($puck_23).kind === "RecordType") {
+            let {value: [, recordPattern]} = $unwrapTraitObject($puck_23);
             return RecordPattern.displayName.call(recordPattern);
           }
           else {
-            if ($unwrapTraitObject($puck_26).kind === "TupleType") {
-              let {value: [$puck_29, tuplePattern]} = $unwrapTraitObject($puck_26);
+            if ($unwrapTraitObject($puck_23).kind === "TupleType") {
+              let {value: [, tuplePattern]} = $unwrapTraitObject($puck_23);
               return TuplePattern.displayName.call(tuplePattern);
             }
             else {
-              if ($unwrapTraitObject($puck_26).kind === "UnitType") {
-                let {value: [$puck_30]} = $unwrapTraitObject($puck_26);
+              if ($unwrapTraitObject($puck_23).kind === "UnitType") {
+                $unwrapTraitObject($puck_23);
                 return "";
               };
             };
@@ -1650,16 +1650,16 @@ Pattern.displayName = function () {
 RecordPattern.displayName = function () {
   const self = this;
   return "{" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.properties, $isTraitObject: true}, function (p) {
-    let $puck_31 = p.pattern;
-    let $puck_32;
-    if (($puck_31.kind === "Identifier")) {
-      let {value: {identifier: {name: name}}} = $puck_31;
-      $puck_32 = name === p.property.name;
+    let $puck_24 = p.pattern;
+    let $puck_25;
+    if (($puck_24.kind === "Identifier")) {
+      let {value: {identifier: {name: name}}} = $puck_24;
+      $puck_25 = name === p.property.name;
     }
     else {
-      $puck_32 = false;
+      $puck_25 = false;
     };
-    const shorthand = $puck_32;
+    const shorthand = $puck_25;
     if (shorthand) {
       return p.property.name;
     }
@@ -1676,24 +1676,24 @@ TuplePattern.displayName = function () {
 };
 TypeBound.getType = function () {
   const self = this;
-  let $puck_33 = self;
-  if (($unwrapTraitObject($puck_33).kind === "FunctionTypeBound")) {
-    let {value: [t]} = $unwrapTraitObject($puck_33);
+  let $puck_26 = self;
+  if (($unwrapTraitObject($puck_26).kind === "FunctionTypeBound")) {
+    let {value: t} = $unwrapTraitObject($puck_26);
     return t.type_;
   }
   else {
-    if ($unwrapTraitObject($puck_33).kind === "NamedTypeBound") {
-      let {value: [t]} = $unwrapTraitObject($puck_33);
+    if ($unwrapTraitObject($puck_26).kind === "NamedTypeBound") {
+      let {value: t} = $unwrapTraitObject($puck_26);
       return t.type_;
     }
     else {
-      if ($unwrapTraitObject($puck_33).kind === "RecordTypeBound") {
-        let {value: [t]} = $unwrapTraitObject($puck_33);
+      if ($unwrapTraitObject($puck_26).kind === "RecordTypeBound") {
+        let {value: t} = $unwrapTraitObject($puck_26);
         return t.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_33).kind === "TupleTypeBound") {
-          let {value: [t]} = $unwrapTraitObject($puck_33);
+        if ($unwrapTraitObject($puck_26).kind === "TupleTypeBound") {
+          let {value: t} = $unwrapTraitObject($puck_26);
           return t.type_;
         };
       };
@@ -1702,28 +1702,28 @@ TypeBound.getType = function () {
 };
 TypeBound.getRecordTypeBound = function () {
   const self = this;
-  let $puck_34 = self;
-  if ($unwrapTraitObject($puck_34).kind === "RecordTypeBound") {
-    let {value: [record]} = $unwrapTraitObject($puck_34);
+  let $puck_27 = self;
+  if ($unwrapTraitObject($puck_27).kind === "RecordTypeBound") {
+    let {value: record} = $unwrapTraitObject($puck_27);
     return record;
   }
   else {
     if (true) {
-      let $puck_35 = $puck_34;
+      $puck_27;
       throw "TypeBound is not a RecordTypeBound";
     };
   };
 };
 TypeBound.getTupleTypeBound = function () {
   const self = this;
-  let $puck_36 = self;
-  if ($unwrapTraitObject($puck_36).kind === "TupleTypeBound") {
-    let {value: [tuple]} = $unwrapTraitObject($puck_36);
+  let $puck_28 = self;
+  if ($unwrapTraitObject($puck_28).kind === "TupleTypeBound") {
+    let {value: tuple} = $unwrapTraitObject($puck_28);
     return tuple;
   }
   else {
     if (true) {
-      let $puck_37 = $puck_36;
+      $puck_28;
       throw "TypeBound is not a TupleTypeBound";
     };
   };

@@ -51,17 +51,17 @@ visitCallExpression: function (e) {
   });
   let $puck_7;
   if ($unwrapTraitObject($puck_6).kind === "Ok") {
-    let {value: [index]} = $unwrapTraitObject($puck_6);
+    let {value: index} = $unwrapTraitObject($puck_6);
     $puck_5.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/signature.puck:SignatureVisitor"].visitExpression.call(self, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: e.argumentList, $isTraitObject: true}, index));
     if ($puck_1.Option.isSome.call(self.value.signatureHelp)) {
-      return [];
+      return null;
     };
     $puck_7 = index;
   }
   else {
     let $puck_8;
     if ($unwrapTraitObject($puck_6).kind === "Err") {
-      let {value: [index]} = $unwrapTraitObject($puck_6);
+      let {value: index} = $unwrapTraitObject($puck_6);
       $puck_8 = index;
     };
     $puck_7 = $puck_8;
@@ -71,7 +71,7 @@ visitCallExpression: function (e) {
     const type_ = $unwrapTraitObject(e.functionType);
     let $puck_9 = type_.kind;
     if ($puck_9.kind === "Function") {
-      let {value: [func]} = $puck_9;
+      let {value: func} = $puck_9;
       let $puck_10 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: func.parameters, $isTraitObject: true}, function (p) {
         let label = p.name + ": " + $puck_4.Type.displayName.call(p.type_);
         let $puck_11;

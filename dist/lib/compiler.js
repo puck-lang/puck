@@ -120,10 +120,10 @@ CompilerContext.importFile = function (file, force = false, recoverFromSyntaxErr
   let self = this;
   let $puck_18 = file.outFile;
   if ($puck_18.kind === "Some") {
-    let {value: [outFile]} = $puck_18;
+    let {value: outFile} = $puck_18;
     let $puck_19 = $puck_1.Map.get.call(self.files, file.absolutePath);
     if ($puck_19.kind === "Some") {
-      let {value: [existingFile]} = $puck_19;
+      let {value: existingFile} = $puck_19;
       existingFile.outFile = $puck_1.Some(outFile);
     };
   };
@@ -136,7 +136,7 @@ CompilerContext.importFile = function (file, force = false, recoverFromSyntaxErr
     self.onFileParsed(file);
     let $puck_20 = $puck_1.Map.get.call(self.deferred, file.absolutePath);
     if ($puck_20.kind === "Some") {
-      let {value: [callbacks]} = $puck_20;
+      let {value: callbacks} = $puck_20;
       $puck_1.Map._delete.call(self.deferred, file.absolutePath);
       callbacks.forEach(function (callback) {
         return callback();
@@ -186,7 +186,7 @@ function dumpFiles(files, prop) {
     let $puck_21 = $puck_1.Unknown.asString.call(file[prop]);
     let $puck_22;
     if (($unwrapTraitObject($puck_21).kind === "Some")) {
-      let {value: [data]} = $unwrapTraitObject($puck_21);
+      let {value: data} = $unwrapTraitObject($puck_21);
       $puck_22 = data;
     }
     else {

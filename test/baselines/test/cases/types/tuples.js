@@ -4,4 +4,4 @@ const a = [
   42,
   "Zin",
 ];
-const b = [42]
+const b = 42

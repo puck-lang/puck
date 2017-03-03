@@ -73,9 +73,9 @@ enum Context {
 
 function getEnumMember(pattern: Pattern): string {
   if (pattern.kind === 'UnitType' || pattern.kind === 'TupleType' || pattern.kind === 'RecordType') {
-    const typePath = pattern.value[0] as any
+    const typePath = pattern.value[0] || pattern.value as any
     if (typePath.type_.enumMember.kind == 'Some') {
-      return typePath.type_.enumMember.value[0][0]
+      return typePath.type_.enumMember.value[0]
     }
   }
   return null
@@ -86,12 +86,12 @@ export function Emitter() {
   let context: Context = null
   let allowReturnContext = true
   let hoist: (code: string) => void
-  let valueVariable
+  let valueVariable: string
   let valueVarableCount = 0
-  let currentPrecedence
+  let currentPrecedence: number
   let typeOverrides = {}
   let includeTraitObjectHelper = false
-  let exportPreamble = []
+  let exportPreamble = [] as Array<string>
 
   function newValueVariable() {
     valueVarableCount += 1
@@ -100,11 +100,11 @@ export function Emitter() {
 
   function getType(e: Expression) {
     if (e.kind === 'Identifier' &&
-        typeOverrides[(e.value[0] as Identifier).name] &&
-        typeOverrides[(e.value[0] as Identifier).name].old === e.value[0].type_) {
-      return typeOverrides[(e.value[0] as Identifier).name].new
+        typeOverrides[(e.value as Identifier).name] &&
+        typeOverrides[(e.value as Identifier).name].old === e.value.type_) {
+      return typeOverrides[(e.value as Identifier).name].new
     }
-    return e.value[0].type_
+    return e.value.type_
   }
 
   function unwrap(code, e: Expression) {
@@ -166,11 +166,11 @@ export function Emitter() {
   }
 
   function getImplId(type, trait) {
-    let opt = getImplementationForTrait(type, trait).value[0]
+    let opt = getImplementationForTrait(type, trait).value
     if (opt.kind == 'None') {
       throw Error('No impl')
     }
-    return opt.value[0].id
+    return opt.value.id
   }
 
   function implProp(impl: Implementation) {
@@ -207,9 +207,9 @@ export function Emitter() {
       context = null
       allowReturnContext = true
       if (isExported(block[i])) {
-        expressions.push(emitExportDirective(block[i].value[0]))
+        expressions.push(emitExportDirective(block[i].value))
       } else {
-        expressions.push(emitBlockLevelStatement(block[i].value[0], null))
+        expressions.push(emitBlockLevelStatement(block[i].value, null))
       }
     }
     hoist = null
@@ -237,9 +237,9 @@ export function Emitter() {
     return expressions
   }
 
-  function isExported(e, kind: string = ''): e is {value: [ExportDirective]} {
+  function isExported(e, kind: string = ''): e is {value: ExportDirective} {
     return e.kind === 'ExportDirective' &&
-      (kind === '' || e.value[0].statement.kind === kind)
+      (kind === '' || e.value.statement.kind === kind)
   }
 
   function emitModule(module: Module, isBin: boolean) {
@@ -247,14 +247,14 @@ export function Emitter() {
     let statements =
       module.statements
         .filter(e => e.kind === 'ImportDirective')
-        .map(e => emitImportDirective(e.value[0] as ImportDirective))
+        .map(e => emitImportDirective(e.value as ImportDirective))
     statements = statements.concat(
       module.statements
         .filter(e => e.kind === 'TypeDeclaration' || isExported(e, 'TypeDeclaration'))
         .map(e =>
           isExported(e, 'TypeDeclaration')
-            ? emitExportDirective(e.value[0])
-            : emitTypeDeclaration(e.value[0] as TypeDeclaration)
+            ? emitExportDirective(e.value)
+            : emitTypeDeclaration(e.value as TypeDeclaration)
         )
     )
     statements = statements.concat(
@@ -262,8 +262,8 @@ export function Emitter() {
         .filter(e => e.kind === 'EnumDeclaration' || isExported(e, 'EnumDeclaration'))
         .map(e =>
           isExported(e, 'EnumDeclaration')
-            ? emitExportDirective(e.value[0])
-            : emitEnumDeclaration(e.value[0] as EnumDeclaration)
+            ? emitExportDirective(e.value)
+            : emitEnumDeclaration(e.value as EnumDeclaration)
         )
     )
     statements = statements.concat(
@@ -271,19 +271,19 @@ export function Emitter() {
         .filter(e => e.kind === 'TraitDeclaration' || isExported(e, 'TraitDeclaration'))
         .map(e =>
           isExported(e, 'TraitDeclaration')
-            ? emitExportDirective(e.value[0])
-            : emitTraitDeclaration(e.value[0] as TraitDeclaration)
+            ? emitExportDirective(e.value)
+            : emitTraitDeclaration(e.value as TraitDeclaration)
         )
     )
     statements = statements.concat(
       module.statements
         .filter(e => e.kind === 'ImplDeclaration')
-        .map(e => emitImplDeclaration(e.value[0] as ImplDeclaration))
+        .map(e => emitImplDeclaration(e.value as ImplDeclaration))
     )
     statements = statements.concat(
       module.statements
         .filter(e => e.kind === 'ImplShorthandDeclaration')
-        .map(e => emitImplShorthandDeclaration(e.value[0] as ImplShorthandDeclaration))
+        .map(e => emitImplShorthandDeclaration(e.value as ImplShorthandDeclaration))
     )
     statements = statements.concat(emitTopLevelStatements(
       module.statements
@@ -323,43 +323,43 @@ export function Emitter() {
 
   function emitBlockLevelStatement(expression: BlockLevelStatement, assignedTo: Type) {
     switch (expression.kind) {
-      case 'WhileLoop': return emitWhileLoop(expression.value[0]);
+      case 'WhileLoop': return emitWhileLoop(expression.value);
 
-      case 'BreakStatement': return emitBreak(expression.value[0]);
-      case 'ReturnStatement': return emitReturn(expression.value[0]);
+      case 'BreakStatement': return emitBreak(expression.value);
+      case 'ReturnStatement': return emitReturn(expression.value);
 
-      case 'Expression': return emitExpressionKeepContext(expression.value[0], assignedTo);
+      case 'Expression': return emitExpressionKeepContext(expression.value, assignedTo);
     }
   }
 
   function emitScalarExpression(expression: Expression, assignedTo: Type) {
     switch (expression.kind) {
-      case 'ThrowStatement': return emitThrow(expression.value[0]);
-      case 'FunctionDeclaration': return emitFunctionDeclaration(expression.value[0])
-      case 'Identifier': return emitIdentifier(expression.value[0])
-      case 'VariableDeclaration': return emitVariableDeclaration(expression.value[0])
+      case 'ThrowStatement': return emitThrow(expression.value);
+      case 'FunctionDeclaration': return emitFunctionDeclaration(expression.value)
+      case 'Identifier': return emitIdentifier(expression.value)
+      case 'VariableDeclaration': return emitVariableDeclaration(expression.value)
 
-      case 'AssignmentExpression': return emitAssignmentExpression(expression.value[0])
-      case 'BinaryExpression': return emitBinaryExpression(expression.value[0])
-      case 'CallExpression': return emitCallExpression(expression.value[0])
-      case 'TypePathExpression': return emitTypePath(expression.value[0].typePath)
-      case 'UnaryExpression': return emitUnaryExpression(expression.value[0])
+      case 'AssignmentExpression': return emitAssignmentExpression(expression.value)
+      case 'BinaryExpression': return emitBinaryExpression(expression.value)
+      case 'CallExpression': return emitCallExpression(expression.value)
+      case 'TypePathExpression': return emitTypePath(expression.value.typePath)
+      case 'UnaryExpression': return emitUnaryExpression(expression.value)
 
-      case 'IndexAccess': return emitIndexAccess(expression.value[0])
-      case 'MemberAccess': return emitMemberAccess(expression.value[0])
-      case 'UnknownAccess': return emitMemberAccess(expression.value[0])
-      case 'UnknownIndexAccess': return emitIndexAccess(expression.value[0])
+      case 'IndexAccess': return emitIndexAccess(expression.value)
+      case 'MemberAccess': return emitMemberAccess(expression.value)
+      case 'UnknownAccess': return emitMemberAccess(expression.value)
+      case 'UnknownIndexAccess': return emitIndexAccess(expression.value)
 
-      case 'BooleanLiteral': return emitBooleanLiteral(expression.value[0])
-      case 'ListLiteral': return emitListLiteral(expression.value[0], assignedTo)
-      case 'NumberLiteral': return emitNumberLiteral(expression.value[0])
-      case 'RecordLiteral': return emitObjectLiteral(expression.value[0], assignedTo)
-      case 'StringLiteral': return emitStringLiteral(expression.value[0])
-      case 'TupleLiteral': return emitTupleLiteral(expression.value[0], assignedTo)
+      case 'BooleanLiteral': return emitBooleanLiteral(expression.value)
+      case 'ListLiteral': return emitListLiteral(expression.value, assignedTo)
+      case 'NumberLiteral': return emitNumberLiteral(expression.value)
+      case 'RecordLiteral': return emitObjectLiteral(expression.value, assignedTo)
+      case 'StringLiteral': return emitStringLiteral(expression.value)
+      case 'TupleLiteral': return emitTupleLiteral(expression.value, assignedTo)
     }
   }
 
-  let currentValueVariableContext
+  let currentValueVariableContext: string
   function emitExpressionKeepContext(expression: Expression, assignedTo: Type = null) {
     let outerValueVariableContext = currentValueVariableContext
     if (currentValueVariableContext == valueVariable) {
@@ -391,9 +391,9 @@ export function Emitter() {
         }
       }
       switch (expression.kind) {
-        case 'IfExpression': return emitIfExpression(expression.value[0])
-        case 'IfLetExpression': return emitIfLetExpression(expression.value[0])
-        case 'MatchExpression': return emitMatchExpression(expression.value[0])
+        case 'IfExpression': return emitIfExpression(expression.value)
+        case 'IfLetExpression': return emitIfLetExpression(expression.value)
+        case 'MatchExpression': return emitMatchExpression(expression.value)
         default:
           throw Error(`${expression.kind} is not supported`)
       }
@@ -416,12 +416,20 @@ export function Emitter() {
   function emitEnumMember(t: TypeDeclaration) {
     let value
     if (t.bound.kind == 'Some') {
-      let bound = t.bound.value[0]
+      let bound = t.bound.value
       if (bound.kind === 'RecordTypeBound') {
         value = `(object) => ({kind: '${emitIdentifier(t.name)}', value: object})`
       }
       else if (bound.kind === 'TupleTypeBound') {
-        value = `(...members) => ({kind: '${emitIdentifier(t.name)}', value: members})`
+        if (bound.value.properties.length === 0) {
+          value = `() => ({kind: '${emitIdentifier(t.name)}', value: null})`
+        }
+        else if (bound.value.properties.length === 1) {
+          value = `(member) => ({kind: '${emitIdentifier(t.name)}', value: member})`
+        }
+        else {
+          value = `(...members) => ({kind: '${emitIdentifier(t.name)}', value: members})`
+        }
       }
       else {
         throw `Unsupported type bound`
@@ -434,11 +442,11 @@ export function Emitter() {
   }
 
   function emitFunctionDeclaration(fn: FunctionDeclaration, emitName = true) {
-    let name = (emitName && fn.name.kind == 'Some') ? emitIdentifier(fn.name.value[0]) : ''
+    let name = (emitName && fn.name.kind == 'Some') ? emitIdentifier(fn.name.value) : ''
     let parameterList = fn.parameterList
 
     if (fn.body.kind == 'None') throw 'Function without body'
-    let body = fn.body.value[0]
+    let body = fn.body.value
     const firstParameter = parameterList.length > 0 && parameterList[0]
     if (firstParameter && firstParameter.pattern.kind === 'Identifier' && firstParameter.pattern.value.identifier.name == 'self') {
       parameterList = fn.parameterList.slice(1)
@@ -448,21 +456,21 @@ export function Emitter() {
           statements: [
             {
               kind: 'Expression',
-              value: [{
+              value: {
                 kind: 'VariableDeclaration',
-                value: [{
+                value: {
                   ...fn.parameterList[0],
                   initializer: {
                     kind: 'Some',
-                    value: [{
+                    value: {
                       kind: 'Identifier',
-                      value: [{
+                      value: {
                         name: 'this',
-                      }]
-                    }]
+                      }
+                    }
                   }
-                } as VariableDeclaration],
-              }],
+                } as VariableDeclaration,
+              },
             },
             ...body.statements,
           ]
@@ -474,11 +482,11 @@ export function Emitter() {
     typeOverrides = {...typeOverrides}
 
     if (fn.traitFunctionType) {
-      const {selfBinding} = fn.traitFunctionType.kind.value[0]
+      const {selfBinding} = fn.traitFunctionType.kind.value
       if (selfBinding.kind === 'Some') {
         typeOverrides['self'] = {
           old: firstParameter.type_,
-          new: selfBinding.value[0].type_,
+          new: selfBinding.value.type_,
         }
       }
 
@@ -486,7 +494,7 @@ export function Emitter() {
         if (p.pattern.kind === 'Identifier') {
           typeOverrides[p.pattern.value.identifier.name] = {
             old: p.type_,
-            new: fn.traitFunctionType.kind.value[0].parameters[i].type_,
+            new: fn.traitFunctionType.kind.value.parameters[i].type_,
           }
         }
       })
@@ -494,8 +502,8 @@ export function Emitter() {
 
     let returnType =
       fn.traitFunctionType
-        ? fn.traitFunctionType.kind.value[0].returnType
-        : fn.returnType.kind === 'Some' && fn.returnType.value[0].value[0].type_
+        ? fn.traitFunctionType.kind.value.returnType
+        : fn.returnType.kind === 'Some' && fn.returnType.value.value.type_
     let code = `function ${name}(${parameterList.map(emitFunctionParameter).join(', ')}) `
     if (returnType && Type.isEmpty && Type.isEmpty.call(returnType)) {
       code += emitBlock(body, undefined, returnType)
@@ -511,9 +519,9 @@ export function Emitter() {
 
   function emitFunctionParameter(vd: VariableDeclaration) {
     let initializer = vd.initializer.kind == 'Some'
-      ? ` = ${emitExpression(vd.initializer.value[0], Context.Value)}`
+      ? ` = ${emitExpression(vd.initializer.value, Context.Value)}`
       : ''
-    return `${emitPatternDestructuring(vd.pattern)}${initializer}`
+    return `${emitPatternDestructuring(vd.pattern) || newValueVariable()}${initializer}`
   }
 
   function emitIdentifier(identifier: {name: string, binding?: any}) {
@@ -527,8 +535,8 @@ export function Emitter() {
   }
 
   function emitImplDeclaration(i: ImplDeclaration) {
-    let functions: any = Object['assign']({}, i.trait_.type_.kind.value[0].functions)
-    i.members.forEach(m => functions[(m.name as any).value[0].name] = emitFunctionDeclaration(m, false))
+    let functions: any = Object['assign']({}, i.trait_.type_.kind.value.functions)
+    i.members.forEach(m => functions[(m.name as any).value.name] = emitFunctionDeclaration(m, false))
     return `${emitTypePath(i.trait_.path)}${implProp(i.implementation)} = {\n${
       indent(
         Object.keys(functions).map(f =>
@@ -545,7 +553,7 @@ export function Emitter() {
   function emitImplShorthandDeclaration(i: ImplShorthandDeclaration) {
     return i.members
       .map(m =>
-        `${emitTypePath(i.type_.path)}.${emitIdentifier((m.name as any).value[0])} = ${emitFunctionDeclaration(m, false)}`
+        `${emitTypePath(i.type_.path)}.${emitIdentifier((m.name as any).value)} = ${emitFunctionDeclaration(m, false)}`
       )
       .join(';\n')
   }
@@ -555,7 +563,7 @@ export function Emitter() {
       indent(
         t.members
           .filter(m => m.body.kind === 'Some')
-          .map(m => `${emitIdentifier((m.name as any).value[0])}: ${emitFunctionDeclaration(m, false)}`)
+          .map(m => `${emitIdentifier((m.name as any).value)}: ${emitFunctionDeclaration(m, false)}`)
       )
       .join(',\n')
     }\n}`
@@ -564,7 +572,7 @@ export function Emitter() {
   function emitTypeDeclaration(t: TypeDeclaration, export_ = '') {
     let value
     if (t.bound.kind == 'Some') {
-      let bound = t.bound.value[0]
+      let bound = t.bound.value
       if (bound.kind === 'RecordTypeBound') {
         value = `(object) => object`
       }
@@ -585,54 +593,66 @@ export function Emitter() {
     let willBeRedefined = true
     let binding
     if (vd.pattern.kind === 'Identifier') {
-      binding = Scope.getBinding.call(vd.scope, vd.pattern.value.identifier.name).value[0]
-      willBeRedefined = binding.redefined || (binding.previous && binding.previous.value[0])
-      while (binding && binding.definition.token.value !== vd.pattern) {
-        binding = binding.previous.value[0]
+      binding = Scope.getBinding.call(vd.scope, vd.pattern.value.identifier.name).value
+      willBeRedefined = binding.redefined || (binding.previous && binding.previous.kind == 'Some')
+      while (binding && binding.definition && binding.definition.token.value !== vd.pattern) {
+        binding = binding.previous.value
       }
     }
 
     let initializer = ``
 
     if (vd.initializer.kind == 'Some') {
-      initializer = emitExpression(vd.initializer.value[0], Context.Value, vd.type_)
-      let type = getType(vd.initializer.value[0])
+      initializer = emitExpression(vd.initializer.value, Context.Value, vd.type_)
+      let type = getType(vd.initializer.value)
 
       if (vd.pattern.kind !== 'Identifier' && vd.pattern.kind !== 'CatchAll') {
-        initializer = unwrap(initializer, vd.initializer.value[0])
+        initializer = unwrap(initializer, vd.initializer.value)
       }
-      initializer = ` = ${export_}${initializer}`
+      initializer = `${export_}${initializer}`
     }
 
-    if (binding && binding.previous && binding.previous.value[0]) {
-      return `${emitPatternDestructuring(vd.pattern)}${initializer}`
+    const destructure = emitPatternDestructuring(vd.pattern)
+    if (initializer && destructure) {
+      initializer = ` = ${initializer}`
+    }
+
+    if (binding && binding.previous && binding.previous.kind == 'Some') {
+      return `${destructure || ''}${initializer}`
     }
 
     if (context) {
       let valueVariable = newValueVariable()
-      hoist(`let ${valueVariable}${initializer};`)
-      hoist(`let ${emitPatternDestructuring(vd.pattern)} = ${valueVariable};`)
+      if (destructure) {
+        hoist(`let ${valueVariable}${initializer};`)
+        hoist(`let ${destructure} = ${valueVariable};`)
+      }
+      else {
+        hoist(`let ${valueVariable} = ${initializer};`)
+      }
 
       return valueVariable
     }
 
+    if (!destructure) return initializer
+
     let kw = export_ ? 'var' : ((willBeRedefined || isPatternMutable(vd.pattern)) ? 'let' : 'const')
-    return `${kw} ${emitPatternDestructuring(vd.pattern)}${initializer}`
+    return `${kw} ${destructure}${initializer}`
   }
 
   function emitExportDirective(e: ExportDirective) {
     let export_ = `exports.${emitIdentifier(e.identifier)} = `
     const definition = `${
       e.statement.kind === 'EnumDeclaration'
-        ? emitEnumDeclaration(e.statement.value[0] as EnumDeclaration, export_) :
+        ? emitEnumDeclaration(e.statement.value as EnumDeclaration, export_) :
       e.statement.kind === 'TraitDeclaration'
-        ? emitTraitDeclaration(e.statement.value[0] as TraitDeclaration, export_) :
+        ? emitTraitDeclaration(e.statement.value as TraitDeclaration, export_) :
       e.statement.kind === 'TypeDeclaration'
-        ? emitTypeDeclaration(e.statement.value[0] as TypeDeclaration, export_) :
+        ? emitTypeDeclaration(e.statement.value as TypeDeclaration, export_) :
       e.statement.kind === 'FunctionDeclaration'
-        ? `${emitFunctionDeclaration(e.statement.value[0] as FunctionDeclaration, true)};\n${export_}${emitIdentifier(e.identifier)}` :
+        ? `${emitFunctionDeclaration(e.statement.value as FunctionDeclaration, true)};\n${export_}${emitIdentifier(e.identifier)}` :
       e.statement.kind === 'VariableDeclaration'
-        ? emitVariableDeclaration(e.statement.value[0] as VariableDeclaration, export_)
+        ? emitVariableDeclaration(e.statement.value as VariableDeclaration, export_)
       : (() => {throw 'Unknown Exported statement'})()
     }`
     exportPreamble.push(`exports.${emitIdentifier(e.identifier)}`)
@@ -641,10 +661,10 @@ export function Emitter() {
 
   function emitImportDirective(i: ImportDirective) {
     let importName = i.specifier.kind === 'Identifier'
-      ? `${emitIdentifier(i.specifier.value[0])}`
+      ? `${emitIdentifier(i.specifier.value)}`
       : newValueVariable()
     if (i.specifier.kind === 'ObjectDestructure') {
-      i.specifier.value[0].members.forEach(m => {
+      i.specifier.value.members.forEach(m => {
         m['importName'] = `${importName}.${emitIdentifier(m.property)}`
       })
     }
@@ -657,9 +677,9 @@ export function Emitter() {
         path = `./${i.path}`
       }
       path = path.replace(/\.(puck|ts)$/, '')
-    } else if (i.domain.value[0] == 'node') {
+    } else if (i.domain.value == 'node') {
       path = i.path
-    } else if (i.domain.value[0] == 'puck') {
+    } else if (i.domain.value == 'puck') {
       path = `puck-lang/dist/lib/stdlib/${i.path}`
     } else {
       throw `Unsupported import-domain "${i.domain}"`
@@ -668,36 +688,39 @@ export function Emitter() {
     return `const ${importName} = require(${JSON.stringify(path)})`
   }
 
-  function emitPatternDestructuring(p: Pattern) {
+  function emitPatternDestructuring(p: Pattern): string|undefined {
     let isEnum = !!getEnumMember(p)
 
-    if (p.kind === 'CatchAll') {
-      return newValueVariable()
-    }
     if (p.kind === 'Identifier') {
       return emitIdentifier(p.value.identifier)
     }
     else if (p.kind === 'Record') {
-      return `{${p.value[0].properties.map(({property, pattern}) =>
-        `${emitIdentifier(property)}: ${emitPatternDestructuring(pattern)}`
-      ).join(', ')}}`
+      return `{${p.value.properties.map(({property, pattern}) => {
+        let destructure = emitPatternDestructuring(pattern)
+        if (destructure) return `${emitIdentifier(property)}: ${destructure}`
+      }).filter(p => !!p).join(', ')}}`
     }
     else if (p.kind === 'RecordType') {
-      let destructure = `{${p.value[1].properties.map(({property, pattern}) =>
-        `${emitIdentifier(property)}: ${emitPatternDestructuring(pattern)}`
-      ).join(', ')}}`
+      let destructure = `{${p.value[1].properties.map(({property, pattern}) => {
+        let destructure = emitPatternDestructuring(pattern)
+        if (destructure) return `${emitIdentifier(property)}: ${destructure}`
+      }).filter(p => !!p).join(', ')}}`
       if (isEnum) {
         destructure = `{value: ${destructure}}`
       }
       return destructure
     }
     else if (p.kind === 'Tuple') {
-      return `[${p.value[0].properties.map(emitPatternDestructuring).join(', ')}]`
+      return p.value.properties.length === 1
+        ? emitPatternDestructuring(p.value.properties[0])
+        : `[${p.value.properties.map(emitPatternDestructuring).join(', ')}]`
     }
     else if (p.kind === 'TupleType') {
-      let destructure = `[${p.value[1].properties.map(emitPatternDestructuring).join(', ')}]`
+      let destructure = p.value[1].properties.length === 1
+        ? emitPatternDestructuring(p.value[1].properties[0])
+        : `[${p.value[1].properties.map(emitPatternDestructuring).join(', ')}]`
       if (isEnum) {
-        destructure = `{value: ${destructure}}`
+        destructure = destructure && `{value: ${destructure}}`
       }
       return destructure
     }
@@ -716,9 +739,9 @@ export function Emitter() {
 
       if (
           !rhsType ||
-          (lhsType.id.value[0] === 'Bool' && rhsType.id.value[0] === 'Bool') ||
-          (lhsType.id.value[0] === 'Num' && rhsType.id.value[0] === 'Num') ||
-          (lhsType.id.value[0] === 'String' && rhsType.id.value[0] === 'String')
+          (lhsType.id.value === 'Bool' && rhsType.id.value === 'Bool') ||
+          (lhsType.id.value === 'Num' && rhsType.id.value === 'Num') ||
+          (lhsType.id.value === 'String' && rhsType.id.value === 'String')
         ) {
         call = false
       }
@@ -735,21 +758,21 @@ export function Emitter() {
     let fn = fn_ as CallExpression & {traitName: string, isShorthand: boolean, isTraitObject: boolean, isDirectTraitCall: boolean}
     let functionName
     let functionType = fn_.functionType || getType(fn.func)
-    let parameterBindings = functionType && functionType.kind.value[0].parameters
+    let parameterBindings = functionType && functionType.kind.value.parameters
 
     if (fn.traitName) {
-      parameterBindings = fn.functionType.kind.value[0].parameters
-      let selfBinding = fn.functionType.kind.value[0].selfBinding
+      parameterBindings = fn.functionType.kind.value.parameters
+      let selfBinding = fn.functionType.kind.value.selfBinding
       if (selfBinding.kind === 'Some') {
-        parameterBindings = [selfBinding.value[0], ...parameterBindings]
+        parameterBindings = [selfBinding.value, ...parameterBindings]
       }
       let outerValueVariable = valueVariable
       if (fn.isTraitObject) {
-        if ((fn.func.value[0] as MemberAccess).object.kind === 'Identifier') {
-          valueVariable = ((fn.func.value[0] as MemberAccess).object.value[0] as Identifier).name
+        if ((fn.func.value as MemberAccess).object.kind === 'Identifier') {
+          valueVariable = ((fn.func.value as MemberAccess).object.value as Identifier).name
         } else {
           valueVariable = newValueVariable()
-          hoist(`let ${valueVariable} = ${emitExpression((fn.func.value[0] as MemberAccess).object)}\n`)
+          hoist(`let ${valueVariable} = ${emitExpression((fn.func.value as MemberAccess).object)}\n`)
         }
       }
       let traitName = fn.traitBinding && fn.traitBinding.definition.token.value.importName
@@ -760,19 +783,19 @@ export function Emitter() {
         (fn.isShorthand || (selfBinding.kind === 'None' && !fn.isDirectTraitCall)) ? `` :
         fn.isTraitObject ? `[${emitIdentifier({name: valueVariable})}.type]`
         : `${implProp(fn.implementation)}`
-      }.${emitIdentifier((fn.func.value[0] as MemberAccess).member)}`
+      }.${emitIdentifier((fn.func.value as MemberAccess).member)}`
       if (selfBinding.kind === 'Some') {
         if (fn.isTraitObject) {
           fn.argumentList.unshift({
             kind: 'Identifier',
-            value: [{
+            value: {
               name: valueVariable,
-              type_: (fn.func.value[0] as MemberAccess).object.value[0].type_,
-            }],
+              type_: (fn.func.value as MemberAccess).object.value.type_,
+            },
           })
         }
         else {
-          fn.argumentList.unshift((fn.func.value[0] as MemberAccess).object)
+          fn.argumentList.unshift((fn.func.value as MemberAccess).object)
         }
         functionName += '.call'
       }
@@ -782,10 +805,10 @@ export function Emitter() {
       // transmute is a noop
       if (
         fn.implementation && fn.implementation.type_.id.kind === 'Some' &&
-        fn.implementation.type_.id.value[0] === 'Unknown' &&
-        (fn.func.value[0] as MemberAccess).member.name == 'transmute'
+        fn.implementation.type_.id.value === 'Unknown' &&
+        (fn.func.value as MemberAccess).member.name == 'transmute'
       ) {
-        return emitExpression((fn.func.value[0] as MemberAccess).object)
+        return emitExpression((fn.func.value as MemberAccess).object)
       }
       valueVariable = outerValueVariable
     }
@@ -807,7 +830,7 @@ export function Emitter() {
     }
     let then = emitBlock(e.then_)
     let el = e.else_.kind == 'Some'
-      ? (`\n${indent('else')} ${emitBlock(e.else_.value[0])}`)
+      ? (`\n${indent('else')} ${emitBlock(e.else_.value)}`)
       : ''
 
     let code = `if (${condition}) ${then}${el}`
@@ -830,40 +853,40 @@ export function Emitter() {
     if (enumMember) {
       condition.push({
         kind: 'BinaryExpression',
-        value: [{
+        value: {
           lhs: {
             kind: 'MemberAccess',
-            value: [{
+            value: {
               object: expression,
               member: {
                 name: 'kind',
               },
-            }]
+            }
           },
           operator: {kind: SyntaxKind.EqualsEqualsToken},
           rhs: {
             kind: 'StringLiteral',
-            value: [{
+            value: {
               parts: [{
                 kind: 'Literal',
-                value: [{value: emitIdentifier({name: enumMember})}],
+                value: {value: emitIdentifier({name: enumMember})},
               }],
-            }]
+            },
           },
-        } as BinaryExpression]
+        } as BinaryExpression
       })
 
       let innerPattern: Pattern
       if (pattern.kind === 'TupleType') {
         innerPattern = {
           kind: 'Tuple',
-          value: [pattern.value[1]],
+          value: pattern.value[1],
         }
       }
       else if (pattern.kind === 'RecordType') {
         innerPattern = {
           kind: 'Record',
-          value: [pattern.value[1]],
+          value: pattern.value[1],
         }
       }
 
@@ -871,60 +894,67 @@ export function Emitter() {
         condition.push(
           emitPatternComparison(innerPattern, {
             kind: 'MemberAccess',
-            value: [{
+            value: {
               object: expression,
               member: {
                 name: 'value',
               },
-            }]
+            }
           })
         )
       }
     } else {
       if (pattern.kind === 'Record') {
-        condition = pattern.value[0].properties
+        condition = pattern.value.properties
           .map(p => emitPatternComparison(p.pattern, {
             kind: 'MemberAccess',
-            value: [{
+            value: {
               object: expression,
               member: p.property,
-            }]
+            }
           }))
       }
       else if (pattern.kind === 'Tuple') {
-        condition = pattern.value[0].properties
-          .map((p, i) => emitPatternComparison(p, {
-            kind: 'IndexAccess',
-            value: [{
-              object: expression,
-              index: {
-                kind: 'NumberLiteral',
-                value: [{value: i, type_: {kind: {kind: 'Struct'}}}],
-              },
-            } as IndexAccess]
-          }))
+        if (pattern.value.properties.length === 1) {
+          condition.push(
+            emitPatternComparison(pattern.value.properties[0], expression)
+          )
+        }
+        else {
+          condition = pattern.value.properties
+            .map((p, i) => emitPatternComparison(p, {
+              kind: 'IndexAccess',
+              value: {
+                object: expression,
+                index: {
+                  kind: 'NumberLiteral',
+                  value: {value: i, type_: {kind: {kind: 'Struct'}}},
+                },
+              } as IndexAccess
+            }))
+        }
       }
     }
 
     condition = condition.filter(e => e.kind !== 'BooleanLiteral')
 
-    if (condition.length === 0) return {kind: 'BooleanLiteral', value: [{value: true}]}
+    if (condition.length === 0) return {kind: 'BooleanLiteral', value: {value: true}}
 
     return condition.reduce((acc, curr) => ({
       kind: 'BinaryExpression',
-      value: [{
+      value: {
         lhs: acc,
         operator: {kind: SyntaxKind.AndKeyword},
         rhs: curr,
-      }]
+      }
     }))
   }
 
   function emitIfLetExpression(e: IfLetExpression) {
     let outerValueVariable = valueVariable
     let initializer: Identifier
-    if (e.expression.kind === 'Identifier' && e.expression.value[0].name.startsWith('$puck_')) {
-      initializer = e.expression.value[0]
+    if (e.expression.kind === 'Identifier' && e.expression.value.name.startsWith('$puck_')) {
+      initializer = e.expression.value
     } else {
       valueVariable = newValueVariable()
       hoist(`let ${valueVariable} = ${emitExpression(e.expression)}`)
@@ -933,29 +963,29 @@ export function Emitter() {
 
     let condition = emitPatternComparison(e.pattern, {
       kind: 'Identifier',
-      value: [initializer],
+      value: initializer,
     })
 
     let then_ = {
       statements: [
         {
           kind: 'Expression',
-          value: [{
+          value: {
             kind: 'VariableDeclaration',
-            value: [{
+            value: {
               scope: e.scope,
               mutable: false,
               pattern: e.pattern,
               typeBound: {kind: 'None'},
               initializer: {
                 kind: 'Some',
-                value: [{
+                value: {
                   kind: 'Identifier',
-                  value: [initializer],
-                }],
+                  value: initializer,
+                },
               },
-            }]
-          }],
+            }
+          },
         },
         ...e.then_.statements,
       ] as BlockLevelStatement[]
@@ -982,13 +1012,13 @@ export function Emitter() {
       let arm = e.patterns[i]
       ifLet = {
         pattern: arm.pattern,
-        expression: {kind: 'Identifier', value: [{name: valueVariable} as Identifier]},
+        expression: {kind: 'Identifier', value: {name: valueVariable} as Identifier},
         scope: e.scope,
         then_: arm.block,
         else_: ifLet
-          ? {kind: 'Some', value: [{
-              statements: [{kind: 'Expression', value: [{kind: 'IfLetExpression', value: [ifLet]}]}],
-            }]} as Option<BlockNode>
+          ? {kind: 'Some', value: {
+              statements: [{kind: 'Expression', value: {kind: 'IfLetExpression', value: ifLet}}],
+            }} as Option<BlockNode>
           : {kind: 'None'} as Option<BlockNode>,
       }
     }
@@ -1025,7 +1055,7 @@ export function Emitter() {
 
   function emitTypePath(e: TypePath) {
     if (e.kind === 'Member') {
-      return emitIdentifier(e.value[0])
+      return emitIdentifier(e.value)
     } else {
       return `${emitIdentifier(e.value[0])}.${emitTypePath(e.value[1])}`
     }
@@ -1059,10 +1089,10 @@ export function Emitter() {
   function emitListLiteral(l: ListLiteral, assignedTo: Type) {
     let elementType: Type
     if (assignedTo && assignedTo.instance.kind === 'Some') {
-      elementType = assignedTo.instance.value[0].typeParameters[0]
+      elementType = assignedTo.instance.value.typeParameters[0]
     }
     else if (l.type_ && l.type_.instance.kind === 'Some') {
-      elementType = l.type_.instance.value[0].typeParameters[0]
+      elementType = l.type_.instance.value.typeParameters[0]
     }
     let members: any[] = l.members.map(e => emitExpression(e, Context.Value, elementType))
     let body
@@ -1086,8 +1116,8 @@ export function Emitter() {
 
   function emitObjectLiteral(l: ObjectLiteral, assignedTo: Type) {
     let memberTypes: {[name: string]: Type}
-    if (assignedTo && assignedTo.kind.value[0].kind && assignedTo.kind.value[0].kind.kind === 'Record') {
-      memberTypes = (assignedTo.kind.value[0].kind as Record).value[0].properties
+    if (assignedTo && assignedTo.kind.value.kind && assignedTo.kind.value.kind.kind === 'Record') {
+      memberTypes = (assignedTo.kind.value.kind as Record).value.properties
     }
     let members: any[] = l.members.map(member => `${emitIdentifier(member.name)}: ${
       emitExpression(member.value, Context.Value, memberTypes && memberTypes[member.name.name])}`)
@@ -1113,31 +1143,30 @@ export function Emitter() {
   function emitStringLiteral(l: StringLiteral) {
     return l.parts
       .map(p => (p.kind === 'Literal')
-        ? emitStringLiteralPart(p.value[0])
-        : emitIdentifier(p.value[0] as Identifier)
+        ? emitStringLiteralPart(p.value)
+        : emitIdentifier(p.value)
       )
       .join(' + ')
   }
 
   function emitTupleLiteral(l: TupleLiteral, assignedTo: Type) {
     let memberTypes: Type[]
-    if (assignedTo && assignedTo.kind.value[0].kind && assignedTo.kind.value[0].kind.kind === 'Tuple') {
-      memberTypes = (assignedTo.kind.value[0].kind as Tuple).value[0].properties
+    if (assignedTo && assignedTo.kind.value.kind && assignedTo.kind.value.kind.kind === 'Tuple') {
+      memberTypes = (assignedTo.kind.value.kind as Tuple).value.properties
     }
     let members: any[] = l.expressions.map((e, i) => emitExpression(e, Context.Value, memberTypes && memberTypes[i]))
-    let body
 
     if (members.length == 0) {
-      body = ']'
+      return 'null'
     } else if (l.expressions.length == 1) {
-      body = `${members[0]}]`
+      return members[0]
     } else {
       level++
-      body = `\n${indent(members).join(`,\n`)},\n${indent(']', level - 1)}`
+      let body = `\n${indent(members).join(`,\n`)},\n${indent(']', level - 1)}`
       level--
+      return `[${body}`
     }
 
-    return `[${body}`
   }
 
   return {emitModule}

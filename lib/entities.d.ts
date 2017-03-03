@@ -7,13 +7,13 @@ export class Type {
 
   kind: {
     kind: string
-    value: [{
+    value: {
       functions: {[name: string]: Type}
       parameters: Array<{type_: Type}>
       selfBinding: Option<{type_: Type}>
       kind: Record | Tuple | {kind: 'Unit'}
       returnType: Type
-    }]
+    }
   }
 
   instance: Option<{
@@ -23,16 +23,16 @@ export class Type {
 
 export type Record = {
   kind: 'Record'
-  value: [{
+  value: {
     properties: {[name: string]: Type}
-  }]
+  }
 }
 
 export type Tuple = {
   kind: 'Tuple'
-  value: [{
+  value: {
     properties: Type[]
-  }]
+  }
 }
 
 export type Implementation = {

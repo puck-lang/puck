@@ -22,13 +22,13 @@ TokenStream.peek = function (returnDummy = false) {
   if (returnDummy) {
     let $puck_7 = self.currentDummy;
     if ($puck_7.kind === "Some") {
-      let {value: [token]} = $puck_7;
+      let {value: token} = $puck_7;
       return token;
     };
   };
   let $puck_8 = self.current;
   if ($puck_8.kind === "Some") {
-    let {value: [token]} = $puck_8;
+    let {value: token} = $puck_8;
     if ((!isDummy(token))) {
       return token;
     }
@@ -52,7 +52,7 @@ TokenStream.next = function (returnDummy = false) {
   let self = this;
   let $puck_9 = self.currentDummy;
   if ($puck_9.kind === "Some") {
-    let {value: [token]} = $puck_9;
+    let {value: token} = $puck_9;
     self.currentDummy = $puck_1.None;
     if (returnDummy) {
       return token;
@@ -60,7 +60,7 @@ TokenStream.next = function (returnDummy = false) {
   };
   let $puck_10 = self.current;
   if ($puck_10.kind === "Some") {
-    let {value: [token]} = $puck_10;
+    let {value: token} = $puck_10;
     self.current = $puck_1.None;
     if ((!isDummy(token) || returnDummy)) {
       return token;
@@ -75,13 +75,13 @@ TokenStream.next = function (returnDummy = false) {
 TokenStream.eof = function () {
   let self = this;
   let $puck_11 = TokenStream.peek.call(self);
-  if (($unwrapTraitObject($puck_11).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_11).value)[0]).kind).kind === "EndOfFileToken")) {
-    let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_11);
+  if (($unwrapTraitObject($puck_11).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_11).value).kind).kind === "EndOfFileToken")) {
+    let {value: {}} = $unwrapTraitObject($puck_11);
     return true;
   }
   else {
     if (true) {
-      let $puck_12 = $puck_11;
+      $puck_11;
       return false;
     };
   };
@@ -100,7 +100,7 @@ TokenStream._tryParseOperator = function () {
     if (isWhitespaceOrNewline(ch)) {
       break    };
     searchString += ch;
-    let $puck_13 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_4.operators, $isTraitObject: true}, function (token) {
+    let $puck_12 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_4.operators, $isTraitObject: true}, function (token) {
       if ($puck_1.String.size.call(token) < length) {
         return false;
       }
@@ -109,7 +109,7 @@ TokenStream._tryParseOperator = function () {
       };
     })
 ;
-    const hasMatches = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.Iterable[$puck_13.type].toList.call($puck_13), $isTraitObject: true}) > 0;
+    const hasMatches = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.Iterable[$puck_12.type].toList.call($puck_12), $isTraitObject: true}) > 0;
     if (hasMatches) {
       length += 1;
       found = searchString;
@@ -211,9 +211,9 @@ TokenStream._readIdentifierOrKeyword = function () {
       });
     }
     else {
-      let $puck_14 = $puck_4.SyntaxKind.fromText(id);
-      if ($puck_14.kind === "Some") {
-        let {value: [kind]} = $puck_14;
+      let $puck_13 = $puck_4.SyntaxKind.fromText(id);
+      if ($puck_13.kind === "Some") {
+        let {value: kind} = $puck_13;
         return $puck_4.Token.SimpleToken({
           kind: kind,
           span: span,
@@ -382,9 +382,9 @@ TokenStream._readNext = function () {
               return TokenStream._readIdentifierOrKeyword.call(self);
             }
             else {
-              let $puck_15 = TokenStream._tryParseOperator.call(self);
-              if ($puck_15.kind === "Some") {
-                let {value: [operator]} = $puck_15;
+              let $puck_14 = TokenStream._tryParseOperator.call(self);
+              if ($puck_14.kind === "Some") {
+                let {value: operator} = $puck_14;
                 return $puck_4.Token.SimpleToken(operator);
               }
               else {
@@ -397,9 +397,9 @@ TokenStream._readNext = function () {
     };
   };
 };
-let $puck_16 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: $puck_4.operators, $isTraitObject: true})
+let $puck_15 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: $puck_4.operators, $isTraitObject: true})
 ;
-const longestOperator = $puck_1.Iterator[$puck_16.type].fold.call($puck_16, 0, function (longest, curr) {
+const longestOperator = $puck_1.Iterator[$puck_15.type].fold.call($puck_15, 0, function (longest, curr) {
   if ($puck_1.String.size.call(curr) > longest) {
     return $puck_1.String.size.call(curr);
   }
@@ -408,19 +408,19 @@ const longestOperator = $puck_1.Iterator[$puck_16.type].fold.call($puck_16, 0, f
   };
 });
 function isDummy(token) {
-  let $puck_17 = token;
-  if (($unwrapTraitObject($puck_17).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_17).value)[0]).kind).kind === "NewlineToken")) {
-    let {value: [{kind: undefined}]} = $unwrapTraitObject($puck_17);
+  let $puck_16 = token;
+  if (($unwrapTraitObject($puck_16).kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_16).value).kind).kind === "NewlineToken")) {
+    let {value: {}} = $unwrapTraitObject($puck_16);
     return true;
   }
   else {
-    if ($unwrapTraitObject($puck_17).kind === "Comment") {
-      let undefined = $unwrapTraitObject($puck_17);
+    if ($unwrapTraitObject($puck_16).kind === "Comment") {
+      $unwrapTraitObject($puck_16);
       return true;
     }
     else {
       if (true) {
-        let $puck_18 = $puck_17;
+        $puck_16;
         return false;
       };
     };

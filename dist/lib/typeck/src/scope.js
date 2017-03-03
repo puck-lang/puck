@@ -13,8 +13,8 @@ const $puck_8 = require("./../../entities");
 var Binding = exports.Binding = (object) => object;
 var Scope = exports.Scope = (object) => object;
 var ScopeError = exports.ScopeError = {
-UndefinedType: (...members) => ({kind: 'UndefinedType', value: members}),
-Other: (...members) => ({kind: 'Other', value: members}),
+UndefinedType: (member) => ({kind: 'UndefinedType', value: member}),
+Other: (member) => ({kind: 'Other', value: member}),
 };
 Scope._new = function (context) {
   return {
@@ -37,7 +37,7 @@ Scope.getBindings = function () {
   const self = this;
   let $puck_9 = self.parent;
   if ($puck_9.kind === "Some") {
-    let {value: [parent]} = $puck_9;
+    let {value: parent} = $puck_9;
     return $puck_2._Object.assign({}, Scope.getBindings.call(parent), self.bindings);
   }
   else {
@@ -53,10 +53,10 @@ Scope.getBinding = function (name, visitor = "") {
   }), function (binding) {
     let $puck_10 = binding.completeType;
     if ($puck_10.kind === "Some") {
-      let {value: [completeType]} = $puck_10;
+      let {value: completeType} = $puck_10;
       let $puck_11 = completeType(visitor);
       if ($puck_11.kind === "Some") {
-        let {value: [type_]} = $puck_11;
+        let {value: type_} = $puck_11;
         binding.type_ = type_;
       };
     };
@@ -72,10 +72,10 @@ Scope.getBindingByTypeId = function (id) {
   }), function (binding) {
     let $puck_12 = binding.completeType;
     if ($puck_12.kind === "Some") {
-      let {value: [completeType]} = $puck_12;
+      let {value: completeType} = $puck_12;
       let $puck_13 = completeType("");
       if ($puck_13.kind === "Some") {
-        let {value: [type_]} = $puck_13;
+        let {value: type_} = $puck_13;
         binding.type_ = type_;
       };
     };
@@ -90,7 +90,7 @@ Scope.define = function (binding, useParentScope = false) {
   let $puck_14 = $puck_1.ObjectMap.get.call(self.bindings, binding.name);
   let $puck_15;
   if ($unwrapTraitObject($puck_14).kind === "Some") {
-    let {value: [previous]} = $unwrapTraitObject($puck_14);
+    let {value: previous} = $unwrapTraitObject($puck_14);
     let $puck_16;
     if (previous.allowRedeclare) {
       $puck_16 = $puck_1.Some(previous);
@@ -103,7 +103,7 @@ Scope.define = function (binding, useParentScope = false) {
   else {
     let $puck_17;
     if (($unwrapTraitObject($puck_14).kind === "None")) {
-      let undefined = $unwrapTraitObject($puck_14);
+      $unwrapTraitObject($puck_14);
       let $puck_18;
       if (useParentScope) {
         let $puck_19 = $puck_1.Option.andThen.call(self.parent, function (p) {
@@ -111,7 +111,7 @@ Scope.define = function (binding, useParentScope = false) {
         });
         let $puck_20;
         if ($puck_19.kind === "Some") {
-          let {value: [previous]} = $puck_19;
+          let {value: previous} = $puck_19;
           let $puck_21;
           if (previous.allowRedeclare) {
             $puck_21 = $puck_1.Some(previous);
@@ -146,8 +146,8 @@ Scope.define = function (binding, useParentScope = false) {
   $puck_1.ObjectMap.set.call(self.bindings, binding.name, binding);
   if (binding.type_) {
     let $puck_22 = binding.type_.providesType;
-    if (($puck_22.kind === "Some" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_22.value)[0]).id).kind === "Some")) {
-      let {value: [{id: {value: [id]}}]} = $puck_22;
+    if (($puck_22.kind === "Some" && $unwrapTraitObject($unwrapTraitObject($puck_22.value).id).kind === "Some")) {
+      let {value: {id: {value: id}}} = $puck_22;
       $puck_1.ObjectMap.set.call(self.bindingsByTypeId, id, binding);
     };
   };
@@ -169,10 +169,10 @@ Scope.getTypePath = function (typePath, visitor = "") {
   const self = this;
   let $puck_23 = typePath;
   if ($unwrapTraitObject($puck_23).kind === "Member") {
-    let {value: [identifier]} = $unwrapTraitObject($puck_23);
+    let {value: identifier} = $unwrapTraitObject($puck_23);
     let $puck_24 = Scope.getBinding.call(self, identifier.name, visitor);
     if ($puck_24.kind === "Some") {
-      let {value: [binding]} = $puck_24;
+      let {value: binding} = $puck_24;
       identifier.binding = binding;
       return $puck_1.Ok(binding);
     }
@@ -189,13 +189,13 @@ Scope.getTypePath = function (typePath, visitor = "") {
       let $puck_25 = Scope.getBinding.call(self, name, visitor);
       let $puck_26;
       if ($unwrapTraitObject($puck_25).kind === "Some") {
-        let {value: [binding]} = $unwrapTraitObject($puck_25);
+        let {value: binding} = $unwrapTraitObject($puck_25);
         $puck_26 = binding;
       }
       else {
         let $puck_27;
         if ($unwrapTraitObject($puck_25).kind === "None") {
-          let undefined = $unwrapTraitObject($puck_25);
+          $unwrapTraitObject($puck_25);
           return $puck_1.Err(ScopeError.UndefinedType(name));
         };
         $puck_26 = $puck_27;
@@ -208,19 +208,19 @@ Scope.getTypePath = function (typePath, visitor = "") {
         const providesType = $puck_1.Option.unwrapOr.call(type_.providesType, type_);
         let $puck_28 = path_;
         if ($unwrapTraitObject($puck_28).kind === "Member") {
-          let {value: [identifier]} = $unwrapTraitObject($puck_28);
+          let {value: identifier} = $unwrapTraitObject($puck_28);
           token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: identifier, $isTraitObject: true};
           name = identifier.name;
           let $puck_29 = getTypeMember(providesType, displayPath, name);
           let $puck_30;
           if ($unwrapTraitObject($puck_29).kind === "Ok") {
-            let {value: [type_]} = $unwrapTraitObject($puck_29);
+            let {value: type_} = $unwrapTraitObject($puck_29);
             $puck_30 = type_;
           }
           else {
             let $puck_31;
             if ($unwrapTraitObject($puck_29).kind === "Err") {
-              let {value: [err]} = $unwrapTraitObject($puck_29);
+              let {value: err} = $unwrapTraitObject($puck_29);
               return $puck_1.Err(ScopeError.Other(err));
             };
             $puck_30 = $puck_31;
@@ -236,13 +236,13 @@ Scope.getTypePath = function (typePath, visitor = "") {
             let $puck_32 = getTypeMember(providesType, displayPath, name);
             let $puck_33;
             if ($unwrapTraitObject($puck_32).kind === "Ok") {
-              let {value: [type_]} = $unwrapTraitObject($puck_32);
+              let {value: type_} = $unwrapTraitObject($puck_32);
               $puck_33 = type_;
             }
             else {
               let $puck_34;
               if ($unwrapTraitObject($puck_32).kind === "Err") {
-                let {value: [err]} = $unwrapTraitObject($puck_32);
+                let {value: err} = $unwrapTraitObject($puck_32);
                 return $puck_1.Err(ScopeError.Other(err));
               };
               $puck_33 = $puck_34;
@@ -271,45 +271,45 @@ Scope.merge = function (other) {
 function getTypeMember(type_, displayPath, member) {
   let $puck_35 = type_.kind;
   if ($unwrapTraitObject($puck_35).kind === "Enum") {
-    let {value: [enum_]} = $unwrapTraitObject($puck_35);
+    let {value: enum_} = $unwrapTraitObject($puck_35);
     let $puck_36 = $puck_1.ObjectMap.get.call(enum_.members, member);
     if ($unwrapTraitObject($puck_36).kind === "Some") {
-      let {value: [memberType]} = $unwrapTraitObject($puck_36);
+      let {value: memberType} = $unwrapTraitObject($puck_36);
       return $puck_1.Ok(memberType);
     }
     else {
       if ($unwrapTraitObject($puck_36).kind === "None") {
-        let undefined = $unwrapTraitObject($puck_36);
+        $unwrapTraitObject($puck_36);
         return $puck_1.Err("Use of undeclared type " + displayPath + "::" + member + "");
       };
     };
   }
   else {
     if ($unwrapTraitObject($puck_35).kind === "Struct") {
-      let {value: [struct]} = $unwrapTraitObject($puck_35);
+      let {value: struct} = $unwrapTraitObject($puck_35);
       let $puck_37 = struct.kind;
       if ($unwrapTraitObject($puck_37).kind === "Record") {
-        let {value: [record]} = $unwrapTraitObject($puck_37);
+        let {value: record} = $unwrapTraitObject($puck_37);
         let $puck_38 = $puck_1.ObjectMap.get.call(record.properties, member);
         if ($unwrapTraitObject($puck_38).kind === "Some") {
-          let {value: [propertyType]} = $unwrapTraitObject($puck_38);
+          let {value: propertyType} = $unwrapTraitObject($puck_38);
           return $puck_1.Ok(propertyType);
         }
         else {
           if ($unwrapTraitObject($puck_38).kind === "None") {
-            let undefined = $unwrapTraitObject($puck_38);
+            $unwrapTraitObject($puck_38);
             return $puck_1.Err("Use of undeclared type " + displayPath + "::" + member + "");
           };
         };
       }
       else {
         if ($unwrapTraitObject($puck_37).kind === "Tuple") {
-          let undefined = $unwrapTraitObject($puck_37);
+          $unwrapTraitObject($puck_37);
           return $puck_1.Err("Can not access members on a tuple type");
         }
         else {
           if ($unwrapTraitObject($puck_37).kind === "Unit") {
-            let undefined = $unwrapTraitObject($puck_37);
+            $unwrapTraitObject($puck_37);
             return $puck_1.Err("Can not access members on a unit type");
           };
         };
@@ -317,7 +317,7 @@ function getTypeMember(type_, displayPath, member) {
     }
     else {
       if (true) {
-        let $puck_39 = $puck_35;
+        $puck_35;
         return $puck_1.Err("Type paths can only access enums or records");
       };
     };
