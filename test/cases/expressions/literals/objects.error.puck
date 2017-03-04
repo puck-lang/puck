@@ -17,3 +17,6 @@ a = {}
 ///// {b: Num} is not assignable to type {b: Num, c: String}
 let mut a = {b: 42, c: '42'}
 a = {b: 42}
+
+///// Can only spread record types
+let a = {...(1, 2)}

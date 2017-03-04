@@ -973,7 +973,13 @@ function Emitter() {
         if (assignedTo && assignedTo.kind.value.kind && assignedTo.kind.value.kind.kind === 'Record') {
             memberTypes = assignedTo.kind.value.kind.value.properties;
         }
-        var members = l.members.map(function (member) { return emitIdentifier(member.name) + ": " + emitExpression(member.value, Context.Value, memberTypes && memberTypes[member.name.name]); });
+        var members = l.members.map(function (member) {
+            return !member.kind
+                ? emitIdentifier(member.name) + ": " + emitExpression(member.value, Context.Value, memberTypes && memberTypes[member.name.name]) :
+                member.kind === 'Property'
+                    ? emitIdentifier(member.value.name) + ": " + emitExpression(member.value.value, Context.Value, memberTypes && memberTypes[member.value.name.name])
+                    : "..." + emitExpression(member.value, Context.Value);
+        });
         var body;
         if (members.length == 0) {
             body = '}';

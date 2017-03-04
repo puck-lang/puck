@@ -16,3 +16,10 @@ d = {a: 5, b: 10}
 
 let d = {a: 5, b: 10}
 a.b = d.b
+
+let e = {a: 'five', ...d, b: 'ten'}
+e.a.round()
+e.b.toUpperCase()
+
+let f = {...e, ...d, c: 'C'}
+let g = {...if true then {a: 5} else {{a: 10}}}

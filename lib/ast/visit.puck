@@ -46,6 +46,7 @@ import 'ast.puck' as {
   ListLiteral
   NumberLiteral
   RecordLiteral
+  RecordLiteralMember
   StringLiteral
   StringLiteralPart
   TupleLiteral
@@ -132,6 +133,7 @@ export let walkingVisitor = {
   visitListLiteral: |self, l: ListLiteral| walkListLiteral(self, l)
   visitNumberLiteral: |self, l: NumberLiteral| {}
   visitRecordLiteral: |self, l: RecordLiteral| walkRecordLiteral(self, l)
+  visitRecordLiteralMember: |self, l: RecordLiteralMember| walkRecordLiteralMember(self, l)
   visitStringLiteral: |self, l: StringLiteral| walkStringLiteral(self, l)
   visitTupleLiteral: |self, l: TupleLiteral| walkTupleLiteral(self, l)
 
@@ -407,10 +409,16 @@ export fn walkListLiteral(visitor, l: ListLiteral) {
   l.members.forEach(|e| visitor.visitExpression(e))
 }
 export fn walkRecordLiteral(visitor, l: RecordLiteral) {
-  l.members.forEach(|m| {
-    visitor.visitIdentifier(m.name)
-    visitor.visitExpression(m.value)
-  })
+  l.members.forEach(|m| visitor.visitRecordLiteralMember(m))
+}
+export fn walkRecordLiteralMember(visitor, l: RecordLiteralMember) {
+  match l {
+    RecordLiteralMember::Property {name, value} => {
+      // visitor.visitIdentifier(name)
+      visitor.visitExpression(value)
+    }
+    RecordLiteralMember::Spread(e) => visitor.visitExpression(e)
+  }
 }
 export fn walkStringLiteral(visitor, l: StringLiteral) {
   l.parts
@@ -476,8 +484,13 @@ export fn walkRecordTypeBound(visitor, t: RecordTypeBound) {
   t.properties.forEach(|t| visitor.visitRecordTypeBoundMember(t))
 }
 export fn walkRecordTypeBoundMember(visitor, t: RecordTypeBoundMember) {
-  // visitor.visitIdentifier(t.name)
-  visitor.visitTypeBound(t.typeBound)
+  match t {
+    RecordTypeBoundMember::Property {name, typeBound} => {
+      // visitor.visitIdentifier(name)
+      visitor.visitTypeBound(typeBound)
+    }
+    RecordTypeBoundMember::Spread(t) => visitor.visitTypeBound(t)
+  }
 }
 export fn walkTupleTypeBound(visitor, t: TupleTypeBound) {
   t.properties.forEach(visitor.visitTypeBound.bind(visitor))

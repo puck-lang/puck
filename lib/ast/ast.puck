@@ -860,17 +860,26 @@ impl ToSpan for RecordLiteral {
   }}
 }
 
-export type RecordLiteralMember {
-  name: Identifier
-  value: Expression
+export enum RecordLiteralMember {
+  Property {
+    name: Identifier
+    value: Expression
+  }
+  Spread(Expression)
 }
 
 impl ToSpan for RecordLiteralMember {
   fn start(self) -> Position {
-    self.name.span.start
+    match self {
+      RecordLiteralMember::Property {name} => name.span.start
+      RecordLiteralMember::Spread(e) => e.start()
+    }
   }
   fn end(self) -> Position {
-    self.value.end()
+    match self {
+      RecordLiteralMember::Property {value} => value.end()
+      RecordLiteralMember::Spread(e) => e.end()
+    }
   }
 }
 
@@ -1126,18 +1135,26 @@ impl ToSpan for RecordTypeBound {
   }}
 }
 
-export type RecordTypeBoundMember {
-  name: Identifier
-  typeBound: TypeBound
+export enum RecordTypeBoundMember {
+  Property {
+    name: Identifier
+    typeBound: TypeBound
+  }
+  Spread(TypeBound)
 }
 
 impl ToSpan for RecordTypeBoundMember {
   fn start(self) -> Position {
-    self.name.span.start
+    match self {
+      RecordTypeBoundMember::Property {name} => name.span.start
+      RecordTypeBoundMember::Spread(t) => t.start()
+    }
   }
-
   fn end(self) -> Position {
-    self.typeBound.end()
+    match self {
+      RecordTypeBoundMember::Property {typeBound} => typeBound.end()
+      RecordTypeBoundMember::Spread(t) => t.end()
+    }
   }
 }
 

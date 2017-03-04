@@ -2,6 +2,7 @@ import 'puck:js' as {Error, Object, undefined}
 import 'node:util' as {inspect}
 import '../../ast/ast.puck' as {
   Expression
+  RecordTypeBoundMember
 
   FunctionDeclaration
   Identifier
@@ -240,6 +241,25 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
 
       visit.walkRecordTypeBound(self, t)
 
+      let mut properties = ObjectMap.new()
+      t.properties.map(|p| {
+        match p {
+          RecordTypeBoundMember::Property {name, typeBound} => {
+            properties.set(name.name, typeBound.getType())
+          }
+          RecordTypeBoundMember::Spread(typeBound) => {
+            match typeBound.getType().kind {
+              TypeKind::Struct({kind: StructKind::Record(r)}) => {
+                properties.merge(r.properties)
+              }
+              _ => {
+                reportError(typeBound, 'Can only spread record types')
+              }
+            }
+          }
+        }
+      })
+
       t->type_ = Type({
         definition: Definition({file, token: t})
         id: None
@@ -247,12 +267,7 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
         name: None
         kind: TypeKind::Struct({
           implementations: []
-          kind: StructKind::Record({
-            properties: ObjectMap.fromIter(t.properties.map(|member| (
-              member.name.name
-              member.typeBound.getType()
-            )))
-          })
+          kind: StructKind::Record({properties})
         })
         class: None
         instance: None

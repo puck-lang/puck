@@ -9,6 +9,8 @@ var NamedTuple = (...members) => members;
 var NamedGenericTuple = (...members) => members;
 var Record = (object) => object;
 var Tuple = (...members) => members;
+var RecordSpread = (object) => object;
+var RecordRewrite = (object) => object;
 var Enum = {
 A: (...members) => ({kind: 'A', value: members}),
 B: (object) => ({kind: 'B', value: object}),

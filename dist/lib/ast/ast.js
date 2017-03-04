@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.RecordLiteralMember = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.RecordTypeBoundMember = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.StringLiteralPart = exports.Pattern = exports.TypeBoundundefined;
+exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMemberundefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../entities");
 const $puck_3 = require("./span");
@@ -45,7 +45,6 @@ var BooleanLiteral = exports.BooleanLiteral = (object) => object;
 var ListLiteral = exports.ListLiteral = (object) => object;
 var NumberLiteral = exports.NumberLiteral = (object) => object;
 var RecordLiteral = exports.RecordLiteral = (object) => object;
-var RecordLiteralMember = exports.RecordLiteralMember = (object) => object;
 var StringLiteral = exports.StringLiteral = (object) => object;
 var SimpleStringLiteral = exports.SimpleStringLiteral = (object) => object;
 var TupleLiteral = exports.TupleLiteral = (object) => object;
@@ -55,7 +54,6 @@ var TuplePattern = exports.TuplePattern = (object) => object;
 var FunctionTypeBound = exports.FunctionTypeBound = (object) => object;
 var NamedTypeBound = exports.NamedTypeBound = (object) => object;
 var RecordTypeBound = exports.RecordTypeBound = (object) => object;
-var RecordTypeBoundMember = exports.RecordTypeBoundMember = (object) => object;
 var TupleTypeBound = exports.TupleTypeBound = (object) => object;
 var TypeParameter = exports.TypeParameter = (object) => object;
 var TopLevelStatement = exports.TopLevelStatement = {
@@ -126,6 +124,10 @@ var TypePath = exports.TypePath = {
 _Object: (...members) => ({kind: '_Object', value: members}),
 Member: (member) => ({kind: 'Member', value: member}),
 };
+var RecordLiteralMember = exports.RecordLiteralMember = {
+Property: (object) => ({kind: 'Property', value: object}),
+Spread: (member) => ({kind: 'Spread', value: member}),
+};
 var StringLiteralPart = exports.StringLiteralPart = {
 Literal: (member) => ({kind: 'Literal', value: member}),
 Identifier: (member) => ({kind: 'Identifier', value: member}),
@@ -144,6 +146,10 @@ FunctionTypeBound: (member) => ({kind: 'FunctionTypeBound', value: member}),
 NamedTypeBound: (member) => ({kind: 'NamedTypeBound', value: member}),
 RecordTypeBound: (member) => ({kind: 'RecordTypeBound', value: member}),
 TupleTypeBound: (member) => ({kind: 'TupleTypeBound', value: member}),
+};
+var RecordTypeBoundMember = exports.RecordTypeBoundMember = {
+Property: (object) => ({kind: 'Property', value: object}),
+Spread: (member) => ({kind: 'Spread', value: member}),
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TopLevelStatement"] = {
 span: $puck_3.ToSpan.span,
@@ -1103,11 +1109,31 @@ $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteralMem
 span: $puck_3.ToSpan.span,
 start: function () {
   const self = this;
-  return self.value.name.span.start;
+  let $puck_16 = self;
+  if ($unwrapTraitObject($puck_16).kind === "Property") {
+    let {value: {name: name}} = $unwrapTraitObject($puck_16);
+    return name.span.start;
+  }
+  else {
+    if ($unwrapTraitObject($puck_16).kind === "Spread") {
+      let {value: e} = $unwrapTraitObject($puck_16);
+      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true});
+    };
+  };
 },
 end: function () {
   const self = this;
-  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.value, $isTraitObject: true});
+  let $puck_17 = self;
+  if ($unwrapTraitObject($puck_17).kind === "Property") {
+    let {value: {value: value}} = $unwrapTraitObject($puck_17);
+    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: value, $isTraitObject: true});
+  }
+  else {
+    if ($unwrapTraitObject($puck_17).kind === "Spread") {
+      let {value: e} = $unwrapTraitObject($puck_17);
+      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true});
+    };
+  };
 }
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"] = {
@@ -1124,14 +1150,14 @@ end: function () {
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteralPart"] = {
 span: function () {
   const self = this;
-  let $puck_16 = self;
-  if ($unwrapTraitObject($puck_16).kind === "Literal") {
-    let {value: {span: span}} = $unwrapTraitObject($puck_16);
+  let $puck_18 = self;
+  if ($unwrapTraitObject($puck_18).kind === "Literal") {
+    let {value: {span: span}} = $unwrapTraitObject($puck_18);
     return span;
   }
   else {
-    if ($unwrapTraitObject($puck_16).kind === "Identifier") {
-      let {value: {span: span}} = $unwrapTraitObject($puck_16);
+    if ($unwrapTraitObject($puck_18).kind === "Identifier") {
+      let {value: {span: span}} = $unwrapTraitObject($puck_18);
       return span;
     };
   };
@@ -1153,51 +1179,51 @@ end: $puck_3.ToSpan.end
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern"] = {
 span: function () {
   const self = this;
-  let $puck_17 = self;
-  if ($unwrapTraitObject($puck_17).kind === "CatchAll") {
-    let {value: token} = $unwrapTraitObject($puck_17);
+  let $puck_19 = self;
+  if ($unwrapTraitObject($puck_19).kind === "CatchAll") {
+    let {value: token} = $unwrapTraitObject($puck_19);
     return token.span;
   }
   else {
-    if ($unwrapTraitObject($puck_17).kind === "Identifier") {
-      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_17);
+    if ($unwrapTraitObject($puck_19).kind === "Identifier") {
+      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_19);
       return identifier.span;
     }
     else {
-      if ($unwrapTraitObject($puck_17).kind === "Record") {
-        let {value: recordPattern} = $unwrapTraitObject($puck_17);
+      if ($unwrapTraitObject($puck_19).kind === "Record") {
+        let {value: recordPattern} = $unwrapTraitObject($puck_19);
         return {
           start: recordPattern.openBrace.span.start,
           end: recordPattern.closeBrace.span.end,
         };
       }
       else {
-        if ($unwrapTraitObject($puck_17).kind === "Tuple") {
-          let {value: tuplePattern} = $unwrapTraitObject($puck_17);
+        if ($unwrapTraitObject($puck_19).kind === "Tuple") {
+          let {value: tuplePattern} = $unwrapTraitObject($puck_19);
           return {
             start: tuplePattern.openParen.span.start,
             end: tuplePattern.closeParen.span.end,
           };
         }
         else {
-          if ($unwrapTraitObject($puck_17).kind === "RecordType") {
-            let {value: [typePath, recordPattern]} = $unwrapTraitObject($puck_17);
+          if ($unwrapTraitObject($puck_19).kind === "RecordType") {
+            let {value: [typePath, recordPattern]} = $unwrapTraitObject($puck_19);
             return {
               start: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true}),
               end: recordPattern.closeBrace.span.end,
             };
           }
           else {
-            if ($unwrapTraitObject($puck_17).kind === "TupleType") {
-              let {value: [typePath, tuplePattern]} = $unwrapTraitObject($puck_17);
+            if ($unwrapTraitObject($puck_19).kind === "TupleType") {
+              let {value: [typePath, tuplePattern]} = $unwrapTraitObject($puck_19);
               return {
                 start: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true}),
                 end: tuplePattern.closeParen.span.end,
               };
             }
             else {
-              if ($unwrapTraitObject($puck_17).kind === "UnitType") {
-                let {value: typePath} = $unwrapTraitObject($puck_17);
+              if ($unwrapTraitObject($puck_19).kind === "UnitType") {
+                let {value: typePath} = $unwrapTraitObject($puck_19);
                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: typePath, $isTraitObject: true});
               };
             };
@@ -1246,24 +1272,24 @@ end: function () {
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"] = {
 span: function () {
   const self = this;
-  let $puck_18 = self;
-  if ($unwrapTraitObject($puck_18).kind === "FunctionTypeBound") {
-    let {value: t} = $unwrapTraitObject($puck_18);
+  let $puck_20 = self;
+  if ($unwrapTraitObject($puck_20).kind === "FunctionTypeBound") {
+    let {value: t} = $unwrapTraitObject($puck_20);
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound', value: t, $isTraitObject: true});
   }
   else {
-    if ($unwrapTraitObject($puck_18).kind === "NamedTypeBound") {
-      let {value: t} = $unwrapTraitObject($puck_18);
+    if ($unwrapTraitObject($puck_20).kind === "NamedTypeBound") {
+      let {value: t} = $unwrapTraitObject($puck_20);
       return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true});
     }
     else {
-      if ($unwrapTraitObject($puck_18).kind === "RecordTypeBound") {
-        let {value: t} = $unwrapTraitObject($puck_18);
+      if ($unwrapTraitObject($puck_20).kind === "RecordTypeBound") {
+        let {value: t} = $unwrapTraitObject($puck_20);
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound', value: t, $isTraitObject: true});
       }
       else {
-        if ($unwrapTraitObject($puck_18).kind === "TupleTypeBound") {
-          let {value: t} = $unwrapTraitObject($puck_18);
+        if ($unwrapTraitObject($puck_20).kind === "TupleTypeBound") {
+          let {value: t} = $unwrapTraitObject($puck_20);
           return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: t, $isTraitObject: true});
         };
       };
@@ -1316,11 +1342,31 @@ $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBoundM
 span: $puck_3.ToSpan.span,
 start: function () {
   const self = this;
-  return self.value.name.span.start;
+  let $puck_21 = self;
+  if ($unwrapTraitObject($puck_21).kind === "Property") {
+    let {value: {name: name}} = $unwrapTraitObject($puck_21);
+    return name.span.start;
+  }
+  else {
+    if ($unwrapTraitObject($puck_21).kind === "Spread") {
+      let {value: t} = $unwrapTraitObject($puck_21);
+      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t, $isTraitObject: true});
+    };
+  };
 },
 end: function () {
   const self = this;
-  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: self.value.typeBound, $isTraitObject: true});
+  let $puck_22 = self;
+  if ($unwrapTraitObject($puck_22).kind === "Property") {
+    let {value: {typeBound: typeBound}} = $unwrapTraitObject($puck_22);
+    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true});
+  }
+  else {
+    if ($unwrapTraitObject($puck_22).kind === "Spread") {
+      let {value: t} = $unwrapTraitObject($puck_22);
+      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t, $isTraitObject: true});
+    };
+  };
 }
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"] = {
@@ -1347,44 +1393,44 @@ end: $puck_3.ToSpan.end
 };
 TopLevelStatement.getType = function () {
   const self = this;
-  let $puck_19 = self;
-  if ($unwrapTraitObject($puck_19).kind === "ExportDirective") {
-    let {value: e} = $unwrapTraitObject($puck_19);
+  let $puck_23 = self;
+  if ($unwrapTraitObject($puck_23).kind === "ExportDirective") {
+    let {value: e} = $unwrapTraitObject($puck_23);
     throw "type on export";
   }
   else {
-    if ($unwrapTraitObject($puck_19).kind === "ImportDirective") {
-      let {value: e} = $unwrapTraitObject($puck_19);
+    if ($unwrapTraitObject($puck_23).kind === "ImportDirective") {
+      let {value: e} = $unwrapTraitObject($puck_23);
       throw "type on import";
     }
     else {
-      if ($unwrapTraitObject($puck_19).kind === "EnumDeclaration") {
-        let {value: e} = $unwrapTraitObject($puck_19);
+      if ($unwrapTraitObject($puck_23).kind === "EnumDeclaration") {
+        let {value: e} = $unwrapTraitObject($puck_23);
         return e.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_19).kind === "ImplDeclaration") {
-          let {value: e} = $unwrapTraitObject($puck_19);
+        if ($unwrapTraitObject($puck_23).kind === "ImplDeclaration") {
+          let {value: e} = $unwrapTraitObject($puck_23);
           return e.type_.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_19).kind === "ImplShorthandDeclaration") {
-            let {value: e} = $unwrapTraitObject($puck_19);
+          if ($unwrapTraitObject($puck_23).kind === "ImplShorthandDeclaration") {
+            let {value: e} = $unwrapTraitObject($puck_23);
             return e.type_.type_;
           }
           else {
-            if ($unwrapTraitObject($puck_19).kind === "TraitDeclaration") {
-              let {value: e} = $unwrapTraitObject($puck_19);
+            if ($unwrapTraitObject($puck_23).kind === "TraitDeclaration") {
+              let {value: e} = $unwrapTraitObject($puck_23);
               return e.type_;
             }
             else {
-              if ($unwrapTraitObject($puck_19).kind === "TypeDeclaration") {
-                let {value: e} = $unwrapTraitObject($puck_19);
+              if ($unwrapTraitObject($puck_23).kind === "TypeDeclaration") {
+                let {value: e} = $unwrapTraitObject($puck_23);
                 return e.type_;
               }
               else {
-                if ($unwrapTraitObject($puck_19).kind === "BlockLevelStatement") {
-                  let {value: e} = $unwrapTraitObject($puck_19);
+                if ($unwrapTraitObject($puck_23).kind === "BlockLevelStatement") {
+                  let {value: e} = $unwrapTraitObject($puck_23);
                   return BlockLevelStatement.getType.call(e);
                 };
               };
@@ -1397,29 +1443,29 @@ TopLevelStatement.getType = function () {
 };
 BlockLevelStatement.getType = function () {
   const self = this;
-  let $puck_20 = self;
-  if ($unwrapTraitObject($puck_20).kind === "Block") {
-    let {value: e} = $unwrapTraitObject($puck_20);
+  let $puck_24 = self;
+  if ($unwrapTraitObject($puck_24).kind === "Block") {
+    let {value: e} = $unwrapTraitObject($puck_24);
     return e.type_;
   }
   else {
-    if ($unwrapTraitObject($puck_20).kind === "BreakStatement") {
-      let {value: e} = $unwrapTraitObject($puck_20);
+    if ($unwrapTraitObject($puck_24).kind === "BreakStatement") {
+      let {value: e} = $unwrapTraitObject($puck_24);
       return e.type_;
     }
     else {
-      if ($unwrapTraitObject($puck_20).kind === "ReturnStatement") {
-        let {value: e} = $unwrapTraitObject($puck_20);
+      if ($unwrapTraitObject($puck_24).kind === "ReturnStatement") {
+        let {value: e} = $unwrapTraitObject($puck_24);
         return e.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_20).kind === "WhileLoop") {
-          let {value: e} = $unwrapTraitObject($puck_20);
+        if ($unwrapTraitObject($puck_24).kind === "WhileLoop") {
+          let {value: e} = $unwrapTraitObject($puck_24);
           return e.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_20).kind === "Expression") {
-            let {value: e} = $unwrapTraitObject($puck_20);
+          if ($unwrapTraitObject($puck_24).kind === "Expression") {
+            let {value: e} = $unwrapTraitObject($puck_24);
             return Expression.getType.call(e);
           };
         };
@@ -1429,119 +1475,119 @@ BlockLevelStatement.getType = function () {
 };
 Expression.getType = function () {
   const self = this;
-  let $puck_21 = self;
-  if ($unwrapTraitObject($puck_21).kind === "ThrowStatement") {
-    let {value: e} = $unwrapTraitObject($puck_21);
+  let $puck_25 = self;
+  if ($unwrapTraitObject($puck_25).kind === "ThrowStatement") {
+    let {value: e} = $unwrapTraitObject($puck_25);
     return e.type_;
   }
   else {
-    if ($unwrapTraitObject($puck_21).kind === "Comment") {
-      $unwrapTraitObject($puck_21);
+    if ($unwrapTraitObject($puck_25).kind === "Comment") {
+      $unwrapTraitObject($puck_25);
       return $puck_1.panic("getType on comment");
     }
     else {
-      if ($unwrapTraitObject($puck_21).kind === "Identifier") {
-        let {value: e} = $unwrapTraitObject($puck_21);
+      if ($unwrapTraitObject($puck_25).kind === "Identifier") {
+        let {value: e} = $unwrapTraitObject($puck_25);
         return e.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_21).kind === "FunctionDeclaration") {
-          let {value: e} = $unwrapTraitObject($puck_21);
+        if ($unwrapTraitObject($puck_25).kind === "FunctionDeclaration") {
+          let {value: e} = $unwrapTraitObject($puck_25);
           return e.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_21).kind === "VariableDeclaration") {
-            let {value: e} = $unwrapTraitObject($puck_21);
+          if ($unwrapTraitObject($puck_25).kind === "VariableDeclaration") {
+            let {value: e} = $unwrapTraitObject($puck_25);
             return e.type_;
           }
           else {
-            if ($unwrapTraitObject($puck_21).kind === "AssignmentExpression") {
-              let {value: e} = $unwrapTraitObject($puck_21);
+            if ($unwrapTraitObject($puck_25).kind === "AssignmentExpression") {
+              let {value: e} = $unwrapTraitObject($puck_25);
               return e.type_;
             }
             else {
-              if ($unwrapTraitObject($puck_21).kind === "BinaryExpression") {
-                let {value: e} = $unwrapTraitObject($puck_21);
+              if ($unwrapTraitObject($puck_25).kind === "BinaryExpression") {
+                let {value: e} = $unwrapTraitObject($puck_25);
                 return e.type_;
               }
               else {
-                if ($unwrapTraitObject($puck_21).kind === "CallExpression") {
-                  let {value: e} = $unwrapTraitObject($puck_21);
+                if ($unwrapTraitObject($puck_25).kind === "CallExpression") {
+                  let {value: e} = $unwrapTraitObject($puck_25);
                   return e.type_;
                 }
                 else {
-                  if ($unwrapTraitObject($puck_21).kind === "IfExpression") {
-                    let {value: e} = $unwrapTraitObject($puck_21);
+                  if ($unwrapTraitObject($puck_25).kind === "IfExpression") {
+                    let {value: e} = $unwrapTraitObject($puck_25);
                     return e.type_;
                   }
                   else {
-                    if ($unwrapTraitObject($puck_21).kind === "IfLetExpression") {
-                      let {value: e} = $unwrapTraitObject($puck_21);
+                    if ($unwrapTraitObject($puck_25).kind === "IfLetExpression") {
+                      let {value: e} = $unwrapTraitObject($puck_25);
                       return e.type_;
                     }
                     else {
-                      if ($unwrapTraitObject($puck_21).kind === "MatchExpression") {
-                        let {value: e} = $unwrapTraitObject($puck_21);
+                      if ($unwrapTraitObject($puck_25).kind === "MatchExpression") {
+                        let {value: e} = $unwrapTraitObject($puck_25);
                         return e.type_;
                       }
                       else {
-                        if ($unwrapTraitObject($puck_21).kind === "TypePathExpression") {
-                          let {value: e} = $unwrapTraitObject($puck_21);
+                        if ($unwrapTraitObject($puck_25).kind === "TypePathExpression") {
+                          let {value: e} = $unwrapTraitObject($puck_25);
                           return e.type_;
                         }
                         else {
-                          if ($unwrapTraitObject($puck_21).kind === "UnaryExpression") {
-                            let {value: e} = $unwrapTraitObject($puck_21);
+                          if ($unwrapTraitObject($puck_25).kind === "UnaryExpression") {
+                            let {value: e} = $unwrapTraitObject($puck_25);
                             return e.type_;
                           }
                           else {
-                            if ($unwrapTraitObject($puck_21).kind === "IndexAccess") {
-                              let {value: e} = $unwrapTraitObject($puck_21);
+                            if ($unwrapTraitObject($puck_25).kind === "IndexAccess") {
+                              let {value: e} = $unwrapTraitObject($puck_25);
                               return e.type_;
                             }
                             else {
-                              if ($unwrapTraitObject($puck_21).kind === "MemberAccess") {
-                                let {value: e} = $unwrapTraitObject($puck_21);
+                              if ($unwrapTraitObject($puck_25).kind === "MemberAccess") {
+                                let {value: e} = $unwrapTraitObject($puck_25);
                                 return e.type_;
                               }
                               else {
-                                if ($unwrapTraitObject($puck_21).kind === "UnknownAccess") {
-                                  let {value: e} = $unwrapTraitObject($puck_21);
+                                if ($unwrapTraitObject($puck_25).kind === "UnknownAccess") {
+                                  let {value: e} = $unwrapTraitObject($puck_25);
                                   return e.type_;
                                 }
                                 else {
-                                  if ($unwrapTraitObject($puck_21).kind === "UnknownIndexAccess") {
-                                    let {value: e} = $unwrapTraitObject($puck_21);
+                                  if ($unwrapTraitObject($puck_25).kind === "UnknownIndexAccess") {
+                                    let {value: e} = $unwrapTraitObject($puck_25);
                                     return e.type_;
                                   }
                                   else {
-                                    if ($unwrapTraitObject($puck_21).kind === "BooleanLiteral") {
-                                      let {value: e} = $unwrapTraitObject($puck_21);
+                                    if ($unwrapTraitObject($puck_25).kind === "BooleanLiteral") {
+                                      let {value: e} = $unwrapTraitObject($puck_25);
                                       return e.type_;
                                     }
                                     else {
-                                      if ($unwrapTraitObject($puck_21).kind === "ListLiteral") {
-                                        let {value: e} = $unwrapTraitObject($puck_21);
+                                      if ($unwrapTraitObject($puck_25).kind === "ListLiteral") {
+                                        let {value: e} = $unwrapTraitObject($puck_25);
                                         return e.type_;
                                       }
                                       else {
-                                        if ($unwrapTraitObject($puck_21).kind === "NumberLiteral") {
-                                          let {value: e} = $unwrapTraitObject($puck_21);
+                                        if ($unwrapTraitObject($puck_25).kind === "NumberLiteral") {
+                                          let {value: e} = $unwrapTraitObject($puck_25);
                                           return e.type_;
                                         }
                                         else {
-                                          if ($unwrapTraitObject($puck_21).kind === "RecordLiteral") {
-                                            let {value: e} = $unwrapTraitObject($puck_21);
+                                          if ($unwrapTraitObject($puck_25).kind === "RecordLiteral") {
+                                            let {value: e} = $unwrapTraitObject($puck_25);
                                             return e.type_;
                                           }
                                           else {
-                                            if ($unwrapTraitObject($puck_21).kind === "StringLiteral") {
-                                              let {value: e} = $unwrapTraitObject($puck_21);
+                                            if ($unwrapTraitObject($puck_25).kind === "StringLiteral") {
+                                              let {value: e} = $unwrapTraitObject($puck_25);
                                               return e.type_;
                                             }
                                             else {
-                                              if ($unwrapTraitObject($puck_21).kind === "TupleLiteral") {
-                                                let {value: e} = $unwrapTraitObject($puck_21);
+                                              if ($unwrapTraitObject($puck_25).kind === "TupleLiteral") {
+                                                let {value: e} = $unwrapTraitObject($puck_25);
                                                 return e.type_;
                                               };
                                             };
@@ -1573,29 +1619,29 @@ TraitDeclaration.getType = function () {
 };
 ExportDirective.getType = function () {
   const self = this;
-  let $puck_22 = self.statement;
-  if ($unwrapTraitObject($puck_22).kind === "EnumDeclaration") {
-    let {value: d} = $unwrapTraitObject($puck_22);
+  let $puck_26 = self.statement;
+  if ($unwrapTraitObject($puck_26).kind === "EnumDeclaration") {
+    let {value: d} = $unwrapTraitObject($puck_26);
     return d.type_;
   }
   else {
-    if ($unwrapTraitObject($puck_22).kind === "TraitDeclaration") {
-      let {value: d} = $unwrapTraitObject($puck_22);
+    if ($unwrapTraitObject($puck_26).kind === "TraitDeclaration") {
+      let {value: d} = $unwrapTraitObject($puck_26);
       return d.type_;
     }
     else {
-      if ($unwrapTraitObject($puck_22).kind === "TypeDeclaration") {
-        let {value: d} = $unwrapTraitObject($puck_22);
+      if ($unwrapTraitObject($puck_26).kind === "TypeDeclaration") {
+        let {value: d} = $unwrapTraitObject($puck_26);
         return d.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_22).kind === "FunctionDeclaration") {
-          let {value: d} = $unwrapTraitObject($puck_22);
+        if ($unwrapTraitObject($puck_26).kind === "FunctionDeclaration") {
+          let {value: d} = $unwrapTraitObject($puck_26);
           return d.type_;
         }
         else {
-          if ($unwrapTraitObject($puck_22).kind === "VariableDeclaration") {
-            let {value: d} = $unwrapTraitObject($puck_22);
+          if ($unwrapTraitObject($puck_26).kind === "VariableDeclaration") {
+            let {value: d} = $unwrapTraitObject($puck_26);
             return d.type_;
           };
         };
@@ -1605,39 +1651,39 @@ ExportDirective.getType = function () {
 };
 Pattern.displayName = function () {
   const self = this;
-  let $puck_23 = self;
-  if ($unwrapTraitObject($puck_23).kind === "CatchAll") {
-    $unwrapTraitObject($puck_23);
+  let $puck_27 = self;
+  if ($unwrapTraitObject($puck_27).kind === "CatchAll") {
+    $unwrapTraitObject($puck_27);
     return "_";
   }
   else {
-    if ($unwrapTraitObject($puck_23).kind === "Identifier") {
-      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_23);
+    if ($unwrapTraitObject($puck_27).kind === "Identifier") {
+      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_27);
       return identifier.name;
     }
     else {
-      if ($unwrapTraitObject($puck_23).kind === "Record") {
-        let {value: recordPattern} = $unwrapTraitObject($puck_23);
+      if ($unwrapTraitObject($puck_27).kind === "Record") {
+        let {value: recordPattern} = $unwrapTraitObject($puck_27);
         return RecordPattern.displayName.call(recordPattern);
       }
       else {
-        if ($unwrapTraitObject($puck_23).kind === "Tuple") {
-          let {value: tuplePattern} = $unwrapTraitObject($puck_23);
+        if ($unwrapTraitObject($puck_27).kind === "Tuple") {
+          let {value: tuplePattern} = $unwrapTraitObject($puck_27);
           return TuplePattern.displayName.call(tuplePattern);
         }
         else {
-          if ($unwrapTraitObject($puck_23).kind === "RecordType") {
-            let {value: [, recordPattern]} = $unwrapTraitObject($puck_23);
+          if ($unwrapTraitObject($puck_27).kind === "RecordType") {
+            let {value: [, recordPattern]} = $unwrapTraitObject($puck_27);
             return RecordPattern.displayName.call(recordPattern);
           }
           else {
-            if ($unwrapTraitObject($puck_23).kind === "TupleType") {
-              let {value: [, tuplePattern]} = $unwrapTraitObject($puck_23);
+            if ($unwrapTraitObject($puck_27).kind === "TupleType") {
+              let {value: [, tuplePattern]} = $unwrapTraitObject($puck_27);
               return TuplePattern.displayName.call(tuplePattern);
             }
             else {
-              if ($unwrapTraitObject($puck_23).kind === "UnitType") {
-                $unwrapTraitObject($puck_23);
+              if ($unwrapTraitObject($puck_27).kind === "UnitType") {
+                $unwrapTraitObject($puck_27);
                 return "";
               };
             };
@@ -1650,16 +1696,16 @@ Pattern.displayName = function () {
 RecordPattern.displayName = function () {
   const self = this;
   return "{" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.properties, $isTraitObject: true}, function (p) {
-    let $puck_24 = p.pattern;
-    let $puck_25;
-    if (($puck_24.kind === "Identifier")) {
-      let {value: {identifier: {name: name}}} = $puck_24;
-      $puck_25 = name === p.property.name;
+    let $puck_28 = p.pattern;
+    let $puck_29;
+    if (($puck_28.kind === "Identifier")) {
+      let {value: {identifier: {name: name}}} = $puck_28;
+      $puck_29 = name === p.property.name;
     }
     else {
-      $puck_25 = false;
+      $puck_29 = false;
     };
-    const shorthand = $puck_25;
+    const shorthand = $puck_29;
     if (shorthand) {
       return p.property.name;
     }
@@ -1676,24 +1722,24 @@ TuplePattern.displayName = function () {
 };
 TypeBound.getType = function () {
   const self = this;
-  let $puck_26 = self;
-  if (($unwrapTraitObject($puck_26).kind === "FunctionTypeBound")) {
-    let {value: t} = $unwrapTraitObject($puck_26);
+  let $puck_30 = self;
+  if (($unwrapTraitObject($puck_30).kind === "FunctionTypeBound")) {
+    let {value: t} = $unwrapTraitObject($puck_30);
     return t.type_;
   }
   else {
-    if ($unwrapTraitObject($puck_26).kind === "NamedTypeBound") {
-      let {value: t} = $unwrapTraitObject($puck_26);
+    if ($unwrapTraitObject($puck_30).kind === "NamedTypeBound") {
+      let {value: t} = $unwrapTraitObject($puck_30);
       return t.type_;
     }
     else {
-      if ($unwrapTraitObject($puck_26).kind === "RecordTypeBound") {
-        let {value: t} = $unwrapTraitObject($puck_26);
+      if ($unwrapTraitObject($puck_30).kind === "RecordTypeBound") {
+        let {value: t} = $unwrapTraitObject($puck_30);
         return t.type_;
       }
       else {
-        if ($unwrapTraitObject($puck_26).kind === "TupleTypeBound") {
-          let {value: t} = $unwrapTraitObject($puck_26);
+        if ($unwrapTraitObject($puck_30).kind === "TupleTypeBound") {
+          let {value: t} = $unwrapTraitObject($puck_30);
           return t.type_;
         };
       };
@@ -1702,28 +1748,28 @@ TypeBound.getType = function () {
 };
 TypeBound.getRecordTypeBound = function () {
   const self = this;
-  let $puck_27 = self;
-  if ($unwrapTraitObject($puck_27).kind === "RecordTypeBound") {
-    let {value: record} = $unwrapTraitObject($puck_27);
+  let $puck_31 = self;
+  if ($unwrapTraitObject($puck_31).kind === "RecordTypeBound") {
+    let {value: record} = $unwrapTraitObject($puck_31);
     return record;
   }
   else {
     if (true) {
-      $puck_27;
+      $puck_31;
       throw "TypeBound is not a RecordTypeBound";
     };
   };
 };
 TypeBound.getTupleTypeBound = function () {
   const self = this;
-  let $puck_28 = self;
-  if ($unwrapTraitObject($puck_28).kind === "TupleTypeBound") {
-    let {value: tuple} = $unwrapTraitObject($puck_28);
+  let $puck_32 = self;
+  if ($unwrapTraitObject($puck_32).kind === "TupleTypeBound") {
+    let {value: tuple} = $unwrapTraitObject($puck_32);
     return tuple;
   }
   else {
     if (true) {
-      $puck_28;
+      $puck_32;
       throw "TypeBound is not a TupleTypeBound";
     };
   };

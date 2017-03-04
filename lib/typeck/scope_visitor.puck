@@ -3,6 +3,7 @@ import 'puck:js' as {Object, global, undefined}
 import 'node:util' as {inspect}
 import '../ast/ast.puck' as {
   Module
+  RecordLiteralMember
   TopLevelStatement
   BlockLevelStatement
   Expression
@@ -1029,9 +1030,22 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
       )
     }
     visitRecordLiteral: |self, mut l: RecordLiteral| {
-      l->scope = self.scope
+      visit.walkRecordLiteral(self, l)
+      let mut properties = ObjectMap.new()
       l.members.forEach(|m| {
-        self.visitExpression(m.value)
+        match m {
+          RecordLiteralMember::Property {name, value} => {
+            properties.set(name.name, value.getType())
+          }
+          RecordLiteralMember::Spread(e) => {
+            match e.getType().kind {
+              TypeKind::Struct({kind: StructKind::Record(r)}) => {
+                properties.merge(r.properties)
+              }
+              _ => {}
+            }
+          }
+        }
       })
       l->type_ = Type({
         definition: Definition({file, token: l})
@@ -1040,17 +1054,24 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
         name: None
         kind: TypeKind::Struct({
           implementations: []
-          kind: StructKind::Record({
-            properties: ObjectMap.fromIter(l.members.map(|m| {
-              (m.name.name, m.value.getType())
-            }))
-          })
+          kind: StructKind::Record({properties})
         })
         class: None
         instance: None
         providesType: None
         enumMember: None
       })
+    }
+    visitRecordLiteralMember: |self, mut l: RecordLiteralMember| {
+      visit.walkRecordLiteralMember(self, l)
+      if let RecordLiteralMember::Spread(e) = l {
+        match e.getType().kind {
+          TypeKind::Struct({kind: StructKind::Record(_)}) => {}
+          _ => {
+            reportError(e, 'Can only spread record types')
+          }
+        }
+      }
     }
     visitStringLiteral: |self, mut l: StringLiteral| {
       let scope: Scope = self.scope

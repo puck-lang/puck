@@ -1119,8 +1119,21 @@ export function Emitter() {
     if (assignedTo && assignedTo.kind.value.kind && assignedTo.kind.value.kind.kind === 'Record') {
       memberTypes = (assignedTo.kind.value.kind as Record).value.properties
     }
-    let members: any[] = l.members.map(member => `${emitIdentifier(member.name)}: ${
-      emitExpression(member.value, Context.Value, memberTypes && memberTypes[member.name.name])}`)
+    let members: any[] = l.members.map(member =>
+      !member.kind
+        ? `${emitIdentifier(member.name)}: ${emitExpression(
+            member.value,
+            Context.Value,
+            memberTypes && memberTypes[member.name.name]
+          )}` :
+      member.kind === 'Property'
+        ? `${emitIdentifier(member.value.name)}: ${emitExpression(
+            member.value.value,
+            Context.Value,
+            memberTypes && memberTypes[member.value.name.name]
+          )}`
+        : `...${emitExpression(member.value, Context.Value)}`
+    )
     let body
 
     if (members.length == 0) {

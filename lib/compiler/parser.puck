@@ -1093,18 +1093,22 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
   }
 
   fn parseRecordLiteralMember() -> RecordLiteralMember {
-    let name = consumeIdentifier()
-    let value =
-      if isToken(SyntaxKind::ColonToken) {
-        input.next()
-        parseExpression()
-      }
-      else Expression::Identifier(name)
+    if maybeConsumeToken(SyntaxKind::DotDotDotToken).isSome()
+      then RecordLiteralMember::Spread(parseExpression())
+      else {
+        let name = consumeIdentifier()
+        let value =
+          if isToken(SyntaxKind::ColonToken) {
+            input.next()
+            parseExpression()
+          }
+          else Expression::Identifier(name)
 
-    {
-      name
-      value
-    }
+        RecordLiteralMember::Property({
+          name
+          value
+        })
+      }
   }
 
   fn parseTupleOrExpression(forceTuple) {
@@ -1235,13 +1239,18 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
   }
 
   fn parseRecordTypeBoundMember() -> RecordTypeBoundMember {
-    let name = consumeIdentifier()
-    consumeToken(SyntaxKind::ColonToken)
-    let typeBound = parseTypeBound()
-    {
-      name
-      typeBound
-    }
+    if maybeConsumeToken(SyntaxKind::DotDotDotToken).isSome()
+      then RecordTypeBoundMember::Spread(parseTypeBound())
+      else {
+        let name = consumeIdentifier()
+        consumeToken(SyntaxKind::ColonToken)
+        let typeBound = parseTypeBound()
+
+        RecordTypeBoundMember::Property({
+          name
+          typeBound
+        })
+      }
   }
 
   fn parseTupleTypeBound() -> TypeBound {

@@ -354,10 +354,9 @@ export interface ObjectLiteral extends Token {
   members: Array<ObjectLiteralMember>
 }
 
-export interface ObjectLiteralMember extends Token {
-  name: SimpleIdentifier
-  value: Expression
-}
+export type ObjectLiteralMember
+  = {kind: 'Property', value: {name: SimpleIdentifier, value: Expression}}
+  | {kind: 'Spread', value: Expression}
 
 export interface SimpleStringLiteral extends Token {
   value: string
