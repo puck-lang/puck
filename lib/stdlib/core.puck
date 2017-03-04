@@ -1176,6 +1176,10 @@ impl<T> ObjectMap<T> {
   fn set(mut self, key: String, value: T) -> () {
     self[key] = value
   }
+
+  fn merge(mut self, other: ObjectMap<T>) -> () {
+    Object->assign(self, other)
+  }
 }
 
 export enum Never {}

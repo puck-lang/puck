@@ -49,6 +49,7 @@ export enum SyntaxKind {
   ColonColonLessThanToken
   CommaToken
   DotToken
+  DotDotDotToken
   EqualsEqualsToken
   EqualsGreaterThanToken
   EqualsToken
@@ -93,7 +94,7 @@ export let operators = [
   '+', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',
-  '=>', '->', '#', '::<',
+  '=>', '->', '#', '::<', '...',
 ]
 
 impl Token {
@@ -146,6 +147,7 @@ impl SyntaxKind {
     else if text == '::' then Some(SyntaxKind::ColonColonToken)
     else if text == '::<' then Some(SyntaxKind::ColonColonLessThanToken)
     else if text == '.' then Some(SyntaxKind::DotToken)
+    else if text == '...' then Some(SyntaxKind::DotDotDotToken)
     else if text == '#' then Some(SyntaxKind::HashToken)
     else if text == ';' then Some(SyntaxKind::SemicolonToken)
     else if text == '_' then Some(SyntaxKind::UnderscoreToken)
@@ -211,6 +213,7 @@ impl SyntaxKind {
       SyntaxKind::ColonColonToken => '::'
       SyntaxKind::ColonColonLessThanToken => '::<'
       SyntaxKind::DotToken => '.'
+      SyntaxKind::DotDotDotToken => '.'
       SyntaxKind::HashToken => '#'
       SyntaxKind::SemicolonToken => ';'
       SyntaxKind::UnderscoreToken => '_'

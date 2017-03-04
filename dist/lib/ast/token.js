@@ -47,6 +47,7 @@ ColonColonToken: {kind: 'ColonColonToken', value: Symbol('ColonColonToken')},
 ColonColonLessThanToken: {kind: 'ColonColonLessThanToken', value: Symbol('ColonColonLessThanToken')},
 CommaToken: {kind: 'CommaToken', value: Symbol('CommaToken')},
 DotToken: {kind: 'DotToken', value: Symbol('DotToken')},
+DotDotDotToken: {kind: 'DotDotDotToken', value: Symbol('DotDotDotToken')},
 EqualsEqualsToken: {kind: 'EqualsEqualsToken', value: Symbol('EqualsEqualsToken')},
 EqualsGreaterThanToken: {kind: 'EqualsGreaterThanToken', value: Symbol('EqualsGreaterThanToken')},
 EqualsToken: {kind: 'EqualsToken', value: Symbol('EqualsToken')},
@@ -250,103 +251,108 @@ SyntaxKind.fromText = function (text) {
                                                                         return $puck_1.Some(SyntaxKind.DotToken);
                                                                       }
                                                                       else {
-                                                                        if (text === "#") {
-                                                                          return $puck_1.Some(SyntaxKind.HashToken);
+                                                                        if (text === "...") {
+                                                                          return $puck_1.Some(SyntaxKind.DotDotDotToken);
                                                                         }
                                                                         else {
-                                                                          if (text === ";") {
-                                                                            return $puck_1.Some(SyntaxKind.SemicolonToken);
+                                                                          if (text === "#") {
+                                                                            return $puck_1.Some(SyntaxKind.HashToken);
                                                                           }
                                                                           else {
-                                                                            if (text === "_") {
-                                                                              return $puck_1.Some(SyntaxKind.UnderscoreToken);
+                                                                            if (text === ";") {
+                                                                              return $puck_1.Some(SyntaxKind.SemicolonToken);
                                                                             }
                                                                             else {
-                                                                              if (text === "<") {
-                                                                                return $puck_1.Some(SyntaxKind.LessThanToken);
+                                                                              if (text === "_") {
+                                                                                return $puck_1.Some(SyntaxKind.UnderscoreToken);
                                                                               }
                                                                               else {
-                                                                                if (text === ">") {
-                                                                                  return $puck_1.Some(SyntaxKind.GreaterThanToken);
+                                                                                if (text === "<") {
+                                                                                  return $puck_1.Some(SyntaxKind.LessThanToken);
                                                                                 }
                                                                                 else {
-                                                                                  if (text === "<=") {
-                                                                                    return $puck_1.Some(SyntaxKind.LessThanEqualsToken);
+                                                                                  if (text === ">") {
+                                                                                    return $puck_1.Some(SyntaxKind.GreaterThanToken);
                                                                                   }
                                                                                   else {
-                                                                                    if (text === ">=") {
-                                                                                      return $puck_1.Some(SyntaxKind.GreaterThanEqualsToken);
+                                                                                    if (text === "<=") {
+                                                                                      return $puck_1.Some(SyntaxKind.LessThanEqualsToken);
                                                                                     }
                                                                                     else {
-                                                                                      if (text === "==") {
-                                                                                        return $puck_1.Some(SyntaxKind.EqualsEqualsToken);
+                                                                                      if (text === ">=") {
+                                                                                        return $puck_1.Some(SyntaxKind.GreaterThanEqualsToken);
                                                                                       }
                                                                                       else {
-                                                                                        if (text === "!=") {
-                                                                                          return $puck_1.Some(SyntaxKind.ExclamationEqualsToken);
+                                                                                        if (text === "==") {
+                                                                                          return $puck_1.Some(SyntaxKind.EqualsEqualsToken);
                                                                                         }
                                                                                         else {
-                                                                                          if (text === "=>") {
-                                                                                            return $puck_1.Some(SyntaxKind.EqualsGreaterThanToken);
+                                                                                          if (text === "!=") {
+                                                                                            return $puck_1.Some(SyntaxKind.ExclamationEqualsToken);
                                                                                           }
                                                                                           else {
-                                                                                            if (text === "->") {
-                                                                                              return $puck_1.Some(SyntaxKind.MinusGreaterThanToken);
+                                                                                            if (text === "=>") {
+                                                                                              return $puck_1.Some(SyntaxKind.EqualsGreaterThanToken);
                                                                                             }
                                                                                             else {
-                                                                                              if (text === "+") {
-                                                                                                return $puck_1.Some(SyntaxKind.PlusToken);
+                                                                                              if (text === "->") {
+                                                                                                return $puck_1.Some(SyntaxKind.MinusGreaterThanToken);
                                                                                               }
                                                                                               else {
-                                                                                                if (text === "-") {
-                                                                                                  return $puck_1.Some(SyntaxKind.MinusToken);
+                                                                                                if (text === "+") {
+                                                                                                  return $puck_1.Some(SyntaxKind.PlusToken);
                                                                                                 }
                                                                                                 else {
-                                                                                                  if (text === "*") {
-                                                                                                    return $puck_1.Some(SyntaxKind.AsteriskToken);
+                                                                                                  if (text === "-") {
+                                                                                                    return $puck_1.Some(SyntaxKind.MinusToken);
                                                                                                   }
                                                                                                   else {
-                                                                                                    if (text === "**") {
-                                                                                                      return $puck_1.Some(SyntaxKind.AsteriskAsteriskToken);
+                                                                                                    if (text === "*") {
+                                                                                                      return $puck_1.Some(SyntaxKind.AsteriskToken);
                                                                                                     }
                                                                                                     else {
-                                                                                                      if (text === "/") {
-                                                                                                        return $puck_1.Some(SyntaxKind.SlashToken);
+                                                                                                      if (text === "**") {
+                                                                                                        return $puck_1.Some(SyntaxKind.AsteriskAsteriskToken);
                                                                                                       }
                                                                                                       else {
-                                                                                                        if (text === "%") {
-                                                                                                          return $puck_1.Some(SyntaxKind.PercentToken);
+                                                                                                        if (text === "/") {
+                                                                                                          return $puck_1.Some(SyntaxKind.SlashToken);
                                                                                                         }
                                                                                                         else {
-                                                                                                          if (text === "=") {
-                                                                                                            return $puck_1.Some(SyntaxKind.EqualsToken);
+                                                                                                          if (text === "%") {
+                                                                                                            return $puck_1.Some(SyntaxKind.PercentToken);
                                                                                                           }
                                                                                                           else {
-                                                                                                            if (text === "+=") {
-                                                                                                              return $puck_1.Some(SyntaxKind.PlusEqualsToken);
+                                                                                                            if (text === "=") {
+                                                                                                              return $puck_1.Some(SyntaxKind.EqualsToken);
                                                                                                             }
                                                                                                             else {
-                                                                                                              if (text === "-=") {
-                                                                                                                return $puck_1.Some(SyntaxKind.MinusEqualsToken);
+                                                                                                              if (text === "+=") {
+                                                                                                                return $puck_1.Some(SyntaxKind.PlusEqualsToken);
                                                                                                               }
                                                                                                               else {
-                                                                                                                if (text === "*=") {
-                                                                                                                  return $puck_1.Some(SyntaxKind.AsteriskEqualsToken);
+                                                                                                                if (text === "-=") {
+                                                                                                                  return $puck_1.Some(SyntaxKind.MinusEqualsToken);
                                                                                                                 }
                                                                                                                 else {
-                                                                                                                  if (text === "**=") {
-                                                                                                                    return $puck_1.Some(SyntaxKind.AsteriskAsteriskEqualsToken);
+                                                                                                                  if (text === "*=") {
+                                                                                                                    return $puck_1.Some(SyntaxKind.AsteriskEqualsToken);
                                                                                                                   }
                                                                                                                   else {
-                                                                                                                    if (text === "/=") {
-                                                                                                                      return $puck_1.Some(SyntaxKind.SlashEqualsToken);
+                                                                                                                    if (text === "**=") {
+                                                                                                                      return $puck_1.Some(SyntaxKind.AsteriskAsteriskEqualsToken);
                                                                                                                     }
                                                                                                                     else {
-                                                                                                                      if (text === "%=") {
-                                                                                                                        return $puck_1.Some(SyntaxKind.PercentEqualsToken);
+                                                                                                                      if (text === "/=") {
+                                                                                                                        return $puck_1.Some(SyntaxKind.SlashEqualsToken);
                                                                                                                       }
                                                                                                                       else {
-                                                                                                                        return $puck_1.None;
+                                                                                                                        if (text === "%=") {
+                                                                                                                          return $puck_1.Some(SyntaxKind.PercentEqualsToken);
+                                                                                                                        }
+                                                                                                                        else {
+                                                                                                                          return $puck_1.None;
+                                                                                                                        };
                                                                                                                       };
                                                                                                                     };
                                                                                                                   };
@@ -590,134 +596,140 @@ SyntaxKind.name = function () {
                                                                           return ".";
                                                                         }
                                                                         else {
-                                                                          if ($unwrapTraitObject($puck_5).kind === "HashToken") {
+                                                                          if ($unwrapTraitObject($puck_5).kind === "DotDotDotToken") {
                                                                             $unwrapTraitObject($puck_5);
-                                                                            return "#";
+                                                                            return ".";
                                                                           }
                                                                           else {
-                                                                            if ($unwrapTraitObject($puck_5).kind === "SemicolonToken") {
+                                                                            if ($unwrapTraitObject($puck_5).kind === "HashToken") {
                                                                               $unwrapTraitObject($puck_5);
-                                                                              return ";";
+                                                                              return "#";
                                                                             }
                                                                             else {
-                                                                              if ($unwrapTraitObject($puck_5).kind === "UnderscoreToken") {
+                                                                              if ($unwrapTraitObject($puck_5).kind === "SemicolonToken") {
                                                                                 $unwrapTraitObject($puck_5);
-                                                                                return "_";
+                                                                                return ";";
                                                                               }
                                                                               else {
-                                                                                if ($unwrapTraitObject($puck_5).kind === "LessThanToken") {
+                                                                                if ($unwrapTraitObject($puck_5).kind === "UnderscoreToken") {
                                                                                   $unwrapTraitObject($puck_5);
-                                                                                  return "<";
+                                                                                  return "_";
                                                                                 }
                                                                                 else {
-                                                                                  if ($unwrapTraitObject($puck_5).kind === "GreaterThanToken") {
+                                                                                  if ($unwrapTraitObject($puck_5).kind === "LessThanToken") {
                                                                                     $unwrapTraitObject($puck_5);
-                                                                                    return ">";
+                                                                                    return "<";
                                                                                   }
                                                                                   else {
-                                                                                    if ($unwrapTraitObject($puck_5).kind === "LessThanEqualsToken") {
+                                                                                    if ($unwrapTraitObject($puck_5).kind === "GreaterThanToken") {
                                                                                       $unwrapTraitObject($puck_5);
-                                                                                      return "<=";
+                                                                                      return ">";
                                                                                     }
                                                                                     else {
-                                                                                      if ($unwrapTraitObject($puck_5).kind === "GreaterThanEqualsToken") {
+                                                                                      if ($unwrapTraitObject($puck_5).kind === "LessThanEqualsToken") {
                                                                                         $unwrapTraitObject($puck_5);
-                                                                                        return ">=";
+                                                                                        return "<=";
                                                                                       }
                                                                                       else {
-                                                                                        if ($unwrapTraitObject($puck_5).kind === "EqualsEqualsToken") {
+                                                                                        if ($unwrapTraitObject($puck_5).kind === "GreaterThanEqualsToken") {
                                                                                           $unwrapTraitObject($puck_5);
-                                                                                          return "==";
+                                                                                          return ">=";
                                                                                         }
                                                                                         else {
-                                                                                          if ($unwrapTraitObject($puck_5).kind === "ExclamationEqualsToken") {
+                                                                                          if ($unwrapTraitObject($puck_5).kind === "EqualsEqualsToken") {
                                                                                             $unwrapTraitObject($puck_5);
-                                                                                            return "!=";
+                                                                                            return "==";
                                                                                           }
                                                                                           else {
-                                                                                            if ($unwrapTraitObject($puck_5).kind === "EqualsGreaterThanToken") {
+                                                                                            if ($unwrapTraitObject($puck_5).kind === "ExclamationEqualsToken") {
                                                                                               $unwrapTraitObject($puck_5);
-                                                                                              return "=>";
+                                                                                              return "!=";
                                                                                             }
                                                                                             else {
-                                                                                              if ($unwrapTraitObject($puck_5).kind === "MinusGreaterThanToken") {
+                                                                                              if ($unwrapTraitObject($puck_5).kind === "EqualsGreaterThanToken") {
                                                                                                 $unwrapTraitObject($puck_5);
-                                                                                                return "->";
+                                                                                                return "=>";
                                                                                               }
                                                                                               else {
-                                                                                                if ($unwrapTraitObject($puck_5).kind === "PlusToken") {
+                                                                                                if ($unwrapTraitObject($puck_5).kind === "MinusGreaterThanToken") {
                                                                                                   $unwrapTraitObject($puck_5);
-                                                                                                  return "+";
+                                                                                                  return "->";
                                                                                                 }
                                                                                                 else {
-                                                                                                  if ($unwrapTraitObject($puck_5).kind === "MinusToken") {
+                                                                                                  if ($unwrapTraitObject($puck_5).kind === "PlusToken") {
                                                                                                     $unwrapTraitObject($puck_5);
-                                                                                                    return "-";
+                                                                                                    return "+";
                                                                                                   }
                                                                                                   else {
-                                                                                                    if ($unwrapTraitObject($puck_5).kind === "AsteriskToken") {
+                                                                                                    if ($unwrapTraitObject($puck_5).kind === "MinusToken") {
                                                                                                       $unwrapTraitObject($puck_5);
-                                                                                                      return "*";
+                                                                                                      return "-";
                                                                                                     }
                                                                                                     else {
-                                                                                                      if ($unwrapTraitObject($puck_5).kind === "AsteriskAsteriskToken") {
+                                                                                                      if ($unwrapTraitObject($puck_5).kind === "AsteriskToken") {
                                                                                                         $unwrapTraitObject($puck_5);
-                                                                                                        return "**";
+                                                                                                        return "*";
                                                                                                       }
                                                                                                       else {
-                                                                                                        if ($unwrapTraitObject($puck_5).kind === "SlashToken") {
+                                                                                                        if ($unwrapTraitObject($puck_5).kind === "AsteriskAsteriskToken") {
                                                                                                           $unwrapTraitObject($puck_5);
-                                                                                                          return "/";
+                                                                                                          return "**";
                                                                                                         }
                                                                                                         else {
-                                                                                                          if ($unwrapTraitObject($puck_5).kind === "PercentToken") {
+                                                                                                          if ($unwrapTraitObject($puck_5).kind === "SlashToken") {
                                                                                                             $unwrapTraitObject($puck_5);
-                                                                                                            return "%";
+                                                                                                            return "/";
                                                                                                           }
                                                                                                           else {
-                                                                                                            if ($unwrapTraitObject($puck_5).kind === "EqualsToken") {
+                                                                                                            if ($unwrapTraitObject($puck_5).kind === "PercentToken") {
                                                                                                               $unwrapTraitObject($puck_5);
-                                                                                                              return "=";
+                                                                                                              return "%";
                                                                                                             }
                                                                                                             else {
-                                                                                                              if ($unwrapTraitObject($puck_5).kind === "PlusEqualsToken") {
+                                                                                                              if ($unwrapTraitObject($puck_5).kind === "EqualsToken") {
                                                                                                                 $unwrapTraitObject($puck_5);
-                                                                                                                return "+=";
+                                                                                                                return "=";
                                                                                                               }
                                                                                                               else {
-                                                                                                                if ($unwrapTraitObject($puck_5).kind === "MinusEqualsToken") {
+                                                                                                                if ($unwrapTraitObject($puck_5).kind === "PlusEqualsToken") {
                                                                                                                   $unwrapTraitObject($puck_5);
-                                                                                                                  return "-=";
+                                                                                                                  return "+=";
                                                                                                                 }
                                                                                                                 else {
-                                                                                                                  if ($unwrapTraitObject($puck_5).kind === "AsteriskEqualsToken") {
+                                                                                                                  if ($unwrapTraitObject($puck_5).kind === "MinusEqualsToken") {
                                                                                                                     $unwrapTraitObject($puck_5);
-                                                                                                                    return "*=";
+                                                                                                                    return "-=";
                                                                                                                   }
                                                                                                                   else {
-                                                                                                                    if ($unwrapTraitObject($puck_5).kind === "AsteriskAsteriskEqualsToken") {
+                                                                                                                    if ($unwrapTraitObject($puck_5).kind === "AsteriskEqualsToken") {
                                                                                                                       $unwrapTraitObject($puck_5);
-                                                                                                                      return "**=";
+                                                                                                                      return "*=";
                                                                                                                     }
                                                                                                                     else {
-                                                                                                                      if ($unwrapTraitObject($puck_5).kind === "SlashEqualsToken") {
+                                                                                                                      if ($unwrapTraitObject($puck_5).kind === "AsteriskAsteriskEqualsToken") {
                                                                                                                         $unwrapTraitObject($puck_5);
-                                                                                                                        return "/=";
+                                                                                                                        return "**=";
                                                                                                                       }
                                                                                                                       else {
-                                                                                                                        if ($unwrapTraitObject($puck_5).kind === "PercentEqualsToken") {
+                                                                                                                        if ($unwrapTraitObject($puck_5).kind === "SlashEqualsToken") {
                                                                                                                           $unwrapTraitObject($puck_5);
-                                                                                                                          return "%=";
+                                                                                                                          return "/=";
                                                                                                                         }
                                                                                                                         else {
-                                                                                                                          if ($unwrapTraitObject($puck_5).kind === "NewlineToken") {
+                                                                                                                          if ($unwrapTraitObject($puck_5).kind === "PercentEqualsToken") {
                                                                                                                             $unwrapTraitObject($puck_5);
-                                                                                                                            return "new line";
+                                                                                                                            return "%=";
                                                                                                                           }
                                                                                                                           else {
-                                                                                                                            if ($unwrapTraitObject($puck_5).kind === "EndOfFileToken") {
+                                                                                                                            if ($unwrapTraitObject($puck_5).kind === "NewlineToken") {
                                                                                                                               $unwrapTraitObject($puck_5);
-                                                                                                                              return "end of file";
+                                                                                                                              return "new line";
+                                                                                                                            }
+                                                                                                                            else {
+                                                                                                                              if ($unwrapTraitObject($puck_5).kind === "EndOfFileToken") {
+                                                                                                                                $unwrapTraitObject($puck_5);
+                                                                                                                                return "end of file";
+                                                                                                                              };
                                                                                                                             };
                                                                                                                           };
                                                                                                                         };
@@ -934,4 +946,5 @@ var operators = exports.operators = [
   "->",
   "#",
   "::<",
+  "...",
 ]

@@ -192,16 +192,21 @@ impl PositionVisitor for HoverVisitor {
     self.literalType = parent
   }
   fn visitRecordLiteralMember(mut self, l: RecordLiteralMember) -> () {
-    if identical(l.name.span().cmp(self.position()), Ordering::Equal) {
-      print('onHover visitRecordLiteralMember')
-      self.hover = self.literalType
-        .andThen(|t| getPropertyType(t, l.name.name))
-        .map(|type_| {{
-          contents: getTypeContents(type_)
-          span: l.name.span()
-        }})
+    match l {
+      RecordLiteralMember::Property {name, value} => {
+        if identical(name.span().cmp(self.position()), Ordering::Equal) {
+          print('onHover visitRecordLiteralMember')
+          self.hover = self.literalType
+            .andThen(|t| getPropertyType(t, name.name))
+            .map(|type_| {{
+              contents: getTypeContents(type_)
+              span: name.span()
+            }})
+        }
+        else visit.walkRecordLiteralMember(self, l)
+      }
+      RecordLiteralMember::Spread(e) => visit.walkRecordLiteralMember(self, l)
     }
-    else visit.walkRecordLiteralMember(self, l)
   }
 
   fn visitIdentifierPattern(mut self, p: Identifier) -> () {

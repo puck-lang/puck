@@ -35,4 +35,24 @@ d = {
   a: 5,
   b: 10,
 };
-a.b = d.b
+a.b = d.b;
+const e = {
+  a: "five",
+  ...d,
+  b: "ten",
+};
+$puck_1.Num.round.call(e.a);
+$puck_1.String.toUpperCase.call(e.b);
+const f = {
+  ...e,
+  ...d,
+  c: "C",
+};
+let $puck_4;
+if (true) {
+  $puck_4 = {a: 5};
+}
+else {
+  $puck_4 = {a: 10};
+};
+const g = {...$puck_4}

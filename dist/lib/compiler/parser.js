@@ -1628,19 +1628,24 @@ function parse(input, file, recover = false) {
     };
   };
   function parseRecordLiteralMember() {
-    const name = consumeIdentifier();
-    let $puck_100;
-    if (isToken($puck_5.SyntaxKind.ColonToken)) {
-      $puck_7.TokenStream.next.call(input);
-      $puck_100 = parseExpression();
+    if ($puck_1.Option.isSome.call(maybeConsumeToken($puck_5.SyntaxKind.DotDotDotToken))) {
+      return $puck_3.RecordLiteralMember.Spread(parseExpression());
     }
     else {
-      $puck_100 = $puck_3.Expression.Identifier(name);
-    };
-    const value = $puck_100;
-    return {
-      name: name,
-      value: value,
+      const name = consumeIdentifier();
+      let $puck_100;
+      if (isToken($puck_5.SyntaxKind.ColonToken)) {
+        $puck_7.TokenStream.next.call(input);
+        $puck_100 = parseExpression();
+      }
+      else {
+        $puck_100 = $puck_3.Expression.Identifier(name);
+      };
+      const value = $puck_100;
+      return $puck_3.RecordLiteralMember.Property({
+        name: name,
+        value: value,
+      });
     };
   };
   function parseTupleOrExpression(forceTuple) {
@@ -1817,12 +1822,17 @@ function parse(input, file, recover = false) {
     });
   };
   function parseRecordTypeBoundMember() {
-    const name = consumeIdentifier();
-    consumeToken($puck_5.SyntaxKind.ColonToken);
-    const typeBound = parseTypeBound();
-    return {
-      name: name,
-      typeBound: typeBound,
+    if ($puck_1.Option.isSome.call(maybeConsumeToken($puck_5.SyntaxKind.DotDotDotToken))) {
+      return $puck_3.RecordTypeBoundMember.Spread(parseTypeBound());
+    }
+    else {
+      const name = consumeIdentifier();
+      consumeToken($puck_5.SyntaxKind.ColonToken);
+      const typeBound = parseTypeBound();
+      return $puck_3.RecordTypeBoundMember.Property({
+        name: name,
+        typeBound: typeBound,
+      });
     };
   };
   function parseTupleTypeBound() {

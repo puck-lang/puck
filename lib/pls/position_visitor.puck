@@ -619,8 +619,13 @@ export fn walkRecordLiteral(mut visitor: PositionVisitor, l: RecordLiteral) -> (
   }
 }
 export fn walkRecordLiteralMember(mut visitor: PositionVisitor, l: RecordLiteralMember) -> () {
-  if identical(l.value.span().cmp(visitor.position()), Ordering::Equal)
-    then visitor.visitExpression(l.value)
+  match l {
+    RecordLiteralMember::Property {name, value} => {
+      if identical(value.span().cmp(visitor.position()), Ordering::Equal)
+        then visitor.visitExpression(value)
+    }
+    RecordLiteralMember::Spread(e) => visitor.visitExpression(e)
+  }
 }
 export fn walkStringLiteral(mut visitor: PositionVisitor, l: StringLiteral) -> () {
   if let Ok(index) = l.parts.binarySearchBy(
@@ -712,10 +717,15 @@ export fn walkRecordTypeBound(mut visitor: PositionVisitor, t: RecordTypeBound) 
   }
 }
 export fn walkRecordTypeBoundMember(mut visitor: PositionVisitor, t: RecordTypeBoundMember) -> () {
-  if identical(t.name.span.cmp(visitor.position()), Ordering::Equal)
-    then visitor.visitIdentifier(t.name)
-  if identical(t.typeBound.span().cmp(visitor.position()), Ordering::Equal)
-    then visitor.visitTypeBound(t.typeBound)
+  match t {
+    RecordTypeBoundMember::Property {name, typeBound} => {
+      if identical(name.span.cmp(visitor.position()), Ordering::Equal)
+        then visitor.visitIdentifier(name)
+      if identical(typeBound.span().cmp(visitor.position()), Ordering::Equal)
+        then visitor.visitTypeBound(typeBound)
+    }
+    RecordTypeBoundMember::Spread(t) => visitor.visitTypeBound(t)
+  }
 }
 export fn walkTupleTypeBound(mut visitor: PositionVisitor, t: TupleTypeBound) -> () {
   if let Ok(index) = t.properties.binarySearchBy(

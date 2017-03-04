@@ -7,7 +7,7 @@
       "es5",
       "es2015"
     ],
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "sourceMap": false,
     "outDir": "dist/lib"
   },

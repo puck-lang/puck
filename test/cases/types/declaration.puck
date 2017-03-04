@@ -49,3 +49,6 @@ type Tuple(Num, Bool)
 
 let record = Record({name: 'Puck'})
 let tuple = Tuple(42, true)
+
+type RecordSpread {...Record, age: Num}
+type RecordRewrite {...RecordSpread, age: String}

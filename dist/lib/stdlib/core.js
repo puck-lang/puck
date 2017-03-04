@@ -1596,6 +1596,10 @@ ObjectMap.set = function (key, value) {
   let self = this;
   self[key] = value;
 };
+ObjectMap.merge = function (other) {
+  let self = this;
+  $puck_1._Object.assign(self, other);
+};
 Unknown.from = function (value) {
   return value;
 };

@@ -2,6 +2,7 @@ import 'puck:js' as {Object, undefined}
 import 'node:path' as {relative}
 import '../ast/ast.puck' as {
   Module
+  RecordTypeBoundMember
   TopLevelStatement
   Attribute
   AttributeData
@@ -354,12 +355,32 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
           self.visitTypeBound(typeBound)
 
           match type_.providesType.unwrap().kind {
-            TypeKind::Struct({kind: StructKind::Record({properties})}) => {
-              Object->assign(properties, ObjectMap.fromIter(
-                typeBound.getRecordTypeBound().properties.map(|p| {
-                  (p.name.name, p.typeBound.getType())
-                })
-              ))
+            TypeKind::Struct({kind: StructKind::Record(mut r)}) => {
+              match typeBound.getType().kind {
+                TypeKind::Struct({kind: StructKind::Record(tr)}) => {
+                  r.properties.merge(tr.properties)
+                }
+                _ => {}
+              }
+              // let mut properties = ObjectMap.new()
+              // typeBound.getRecordTypeBound().properties.map(|p| {
+              //   match p {
+              //     RecordTypeBoundMember::Property {name, typeBound} => {
+              //       properties.set(name.name, typeBound.getType())
+              //     }
+              //     RecordTypeBoundMember::Spread(typeBound) => {
+              //       match typeBound.getType().kind {
+              //         TypeKind::Struct({kind: StructKind::Record(r)}) => {
+              //           properties.merge(r.properties)
+              //         }
+              //         _ => {
+              //           reportError(typeBound, 'Can only spread record types')
+              //         }
+              //       }
+              //     }
+              //   }
+              // })
+              // r.properties.merge(properties)
             }
             TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
               Object->assign(tuple, {
