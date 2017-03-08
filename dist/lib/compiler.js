@@ -61,13 +61,9 @@ CompilerContext.runChecker = function () {
 };
 CompilerContext.runTypeVisitorOnFile = function (file) {
   let self = this;
-  if (!file.typeVisitorCompleted) {
-    if (file.typeVisitorStarted) {
-      throw "Circular import??";
-    };
+  if (!file.typeVisitorStarted) {
     file.typeVisitorStarted = true;
     $puck_14.TypeVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
-    file.typeVisitorCompleted = true;
   };
 };
 CompilerContext.runImplVisitorOnFile = function (file) {
