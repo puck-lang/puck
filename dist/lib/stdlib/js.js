@@ -30,7 +30,7 @@ function asResult(func) {
     return $puck_1.Err(result.value);
   }
   else {
-    return $puck_1.Ok($unwrapTraitObject(result.value));
+    return $puck_1.Ok(result.value);
   };
 };
 exports.asResult = asResult;
