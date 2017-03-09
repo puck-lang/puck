@@ -1,5 +1,5 @@
 'use strict';
-exports.processundefined;
+exports.process = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("path");
 const $puck_3 = require("./../compiler");

@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.getRange = exports.checkRangeundefined;
+exports.getRange = exports.checkRange = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 function getRange(parameters, isOptional, reportError, name) {
   let firstOptional = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameters, $isTraitObject: true});

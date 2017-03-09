@@ -414,6 +414,7 @@ export fn walkExportDirective(mut visitor: PositionVisitor, e: ExportDirective) 
       ExportedStatement::EnumDeclaration(d) => visitor.visitEnumDeclaration(d)
       ExportedStatement::TraitDeclaration(d) => visitor.visitTraitDeclaration(d)
       ExportedStatement::TypeDeclaration(d) => visitor.visitTypeDeclaration(d)
+      ExportedStatement::Identifier(d) => visitor.visitIdentifier(d)
       ExportedStatement::FunctionDeclaration(d) => visitor.visitFunctionDeclaration(d)
       ExportedStatement::VariableDeclaration(d) => visitor.visitVariableDeclaration(d)
     }

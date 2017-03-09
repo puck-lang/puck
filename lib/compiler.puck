@@ -107,13 +107,9 @@ impl CompilerContext {
   }
 
   fn runTypeVisitorOnFile(mut self, mut file: File) -> () {
-    if not file->typeVisitorCompleted {
-      if file->typeVisitorStarted {
-        throw 'Circular import??'
-      }
+    if not file->typeVisitorStarted {
       file->typeVisitorStarted = true
       TypeVisitor(self, file)->visitModule(file.ast.unwrap())
-      file->typeVisitorCompleted = true
     }
   }
 

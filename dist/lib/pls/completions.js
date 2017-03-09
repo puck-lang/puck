@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Completion = exports.CompletionVisitorundefined;
+exports.Completion = exports.CompletionVisitor = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const fs = require("fs");
 const path = require("path");

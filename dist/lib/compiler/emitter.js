@@ -233,6 +233,7 @@ function Emitter() {
         statements = statements.concat(emitTopLevelStatements(module.statements
             .filter(function (e) {
             return e.kind === 'BlockLevelStatement' ||
+                isExported(e, 'Identifier') ||
                 isExported(e, 'FunctionDeclaration') ||
                 isExported(e, 'VariableDeclaration');
         })));
@@ -241,7 +242,7 @@ function Emitter() {
         }
         var e = '';
         if (exportPreamble.length) {
-            e = exportPreamble.join(' = ') + 'undefined;\n';
+            e = exportPreamble.join(' = ') + ' = undefined;\n';
         }
         return preamble + e + statements.join(';\n');
     }
@@ -539,19 +540,22 @@ function Emitter() {
         return kw + " " + destructure + initializer;
     }
     function emitExportDirective(e) {
-        var export_ = "exports." + emitIdentifier(e.identifier) + " = ";
+        var identifier = emitIdentifier(__assign({}, e.identifier, { binding: undefined }));
+        var export_ = "exports." + identifier + " = ";
         var definition = "" + (e.statement.kind === 'EnumDeclaration'
             ? emitEnumDeclaration(e.statement.value, export_) :
             e.statement.kind === 'TraitDeclaration'
                 ? emitTraitDeclaration(e.statement.value, export_) :
                 e.statement.kind === 'TypeDeclaration'
                     ? emitTypeDeclaration(e.statement.value, export_) :
-                    e.statement.kind === 'FunctionDeclaration'
-                        ? emitFunctionDeclaration(e.statement.value, true) + ";\n" + export_ + emitIdentifier(e.identifier) :
-                        e.statement.kind === 'VariableDeclaration'
-                            ? emitVariableDeclaration(e.statement.value, export_)
-                            : (function () { throw 'Unknown Exported statement'; })());
-        exportPreamble.push("exports." + emitIdentifier(e.identifier));
+                    e.statement.kind === 'Identifier'
+                        ? "" + export_ + emitIdentifier(e.statement.value) :
+                        e.statement.kind === 'FunctionDeclaration'
+                            ? emitFunctionDeclaration(e.statement.value, true) + ";\n" + export_ + emitIdentifier(e.identifier) :
+                            e.statement.kind === 'VariableDeclaration'
+                                ? emitVariableDeclaration(e.statement.value, export_)
+                                : (function () { throw 'Unknown Exported statement'; })());
+        exportPreamble.push("exports." + identifier);
         return definition;
     }
     function emitImportDirective(i) {

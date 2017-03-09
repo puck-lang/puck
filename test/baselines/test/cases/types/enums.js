@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.EnumTraitundefined;
+exports.EnumTrait = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 var Enum = {
 A: (object) => ({kind: 'A', value: object}),

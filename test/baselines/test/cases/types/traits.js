@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.EmptyType = exports.FunctionsType = exports.GenericType = exports.Empty = exports.Functions = exports.SelfAware = exports.Generic = exports.GenericSelfundefined;
+exports.EmptyType = exports.FunctionsType = exports.GenericType = exports.Empty = exports.Functions = exports.SelfAware = exports.Generic = exports.GenericSelf = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 var EmptyType = exports.EmptyType = (object) => object;
 var FunctionsType = exports.FunctionsType = (object) => object;

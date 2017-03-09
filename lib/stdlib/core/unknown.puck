@@ -1,0 +1,75 @@
+//#![no_core]
+import 'puck:core' as {Bool, List, Num, String, Option, Some, None, identical}
+import 'puck:js' as {Array, Object, null, undefined}
+import 'puck:js' as js
+
+#[type_id = 'Unknown']
+export type Unknown {}
+impl Unknown {
+  fn from<T>(value) -> Unknown {value}
+
+  fn isNull(self) -> Bool {
+    identical(self, null)
+  }
+
+  fn isUndefined(self) -> Bool {
+    identical(self, undefined)
+  }
+
+  fn isBool(self) -> Bool {
+    js.typeof(self) == 'boolean'
+  }
+
+  fn isNum(self) -> Bool {
+    js.typeof(self) == 'number'
+  }
+
+  fn isString(self) -> Bool {
+    js.typeof(self) == 'string'
+  }
+
+  fn isList(self) -> Bool {
+    Array->isArray(self).transmute()
+  }
+
+  fn isObject(self) -> Bool {
+    not identical(self, null) and js.typeof(self) == 'object'
+  }
+
+  fn asBool(self) -> Option<Bool> {
+    if self.isBool()
+      then Some(self.transmute())
+      else None
+  }
+
+  fn asNum(self) -> Option<Num> {
+    if self.isNum()
+      then Some(self.transmute())
+      else None
+  }
+
+  fn asString(self) -> Option<String> {
+    if self.isString()
+      then Some(self.transmute())
+      else None
+  }
+
+  fn asList(self) -> Option<List<Unknown>> {
+    if self.isList()
+      then Some(self.transmute())
+      else None
+  }
+
+  fn getProp(self, property: String) -> Option<Unknown> {
+    if not (self.isNull() or self.isUndefined()) {
+      if Object->prototype->hasOwnProperty->call(self, property).transmute()
+        then Some(self->[property])
+        else None
+    }
+    else None
+  }
+
+  fn transmute<T>(self) -> T {
+    self
+  }
+}

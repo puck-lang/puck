@@ -3,6 +3,8 @@ import 'node:module' as {a, b: c}
 import 'export.puck' as {Type: RenamedType, Trait: RenamedTrait, OtherTrait: RenamedOtherTrait}
 import 'export.puck' as e
 import 'export.puck' as *
+import 'reexport.puck' as re
+import 'reexport.puck' as {a: d, Trait: ReexportedTrait, Type: ReexportedType}
 
 export let foo = e.b + a + b + c
 
@@ -30,3 +32,8 @@ impl RenamedTrait for Type {
 
 let i: e::Type = RenamedType(3)
 let j: e::Enum = e::Enum::A
+
+let k: re::Type = ReexportedType(3)
+let l: e::Type = ReexportedType(3)
+let m: RenamedType = re::Type(3)
+let n: RenamedType = re::exportModule::Type(3)

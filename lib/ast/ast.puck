@@ -366,6 +366,7 @@ impl ExportDirective {
       ExportedStatement::EnumDeclaration(d) => d->type_.transmute()
       ExportedStatement::TraitDeclaration(d) => d->type_.transmute()
       ExportedStatement::TypeDeclaration(d) => d.type_
+      ExportedStatement::Identifier(d) => d->type_.transmute()
       ExportedStatement::FunctionDeclaration(d) => d.type_
       ExportedStatement::VariableDeclaration(d) => d->type_.transmute()
     }
@@ -383,6 +384,7 @@ export enum ExportedStatement {
   EnumDeclaration(EnumDeclaration)
   TraitDeclaration(TraitDeclaration)
   TypeDeclaration(TypeDeclaration)
+  Identifier(Identifier)
   FunctionDeclaration(FunctionDeclaration)
   VariableDeclaration(VariableDeclaration)
 }
@@ -393,6 +395,7 @@ impl ToSpan for ExportedStatement {
       ExportedStatement::EnumDeclaration(d) => d.span()
       ExportedStatement::TraitDeclaration(d) => d.span()
       ExportedStatement::TypeDeclaration(d) => d.span()
+      ExportedStatement::Identifier(d) => d.span()
       ExportedStatement::FunctionDeclaration(d) => d.span()
       ExportedStatement::VariableDeclaration(d) => d.span()
     }

@@ -310,6 +310,7 @@ export fn walkExportDirective(visitor, e: ExportDirective) {
    match e.statement {
     ExportedStatement::EnumDeclaration(d) => visitor.visitEnumDeclaration(d)
     ExportedStatement::FunctionDeclaration(d) => visitor.visitFunctionDeclaration(d)
+    ExportedStatement::Identifier(d) => visitor.visitIdentifier(d)
     ExportedStatement::TraitDeclaration(d) => visitor.visitTraitDeclaration(d)
     ExportedStatement::TypeDeclaration(d) => visitor.visitTypeDeclaration(d)
     ExportedStatement::VariableDeclaration(d) => visitor.visitVariableDeclaration(d)

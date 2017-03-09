@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.getImplementationForTrait = exports.getImplementation = exports.resolveImplTypeParametersundefined;
+exports.getImplementationForTrait = exports.getImplementation = exports.resolveImplTypeParameters = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("util");

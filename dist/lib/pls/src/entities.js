@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.WorkspaceEdit = exports.TextDocumentEdit = exports.LsPosition = exports.TextEdit = exports.Diagnostic = exports.Command = exports.CodeActionContext = exports.fromUri = exports.toUriundefined;
+exports.WorkspaceEdit = exports.TextDocumentEdit = exports.LsPosition = exports.TextEdit = exports.Diagnostic = exports.Command = exports.CodeActionContext = exports.fromUri = exports.toUri = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 var WorkspaceEdit = exports.WorkspaceEdit = (object) => object;

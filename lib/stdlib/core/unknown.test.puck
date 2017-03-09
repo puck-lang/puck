@@ -1,6 +1,6 @@
 import 'puck:js' as {null, undefined}
 import 'puck:test' as *
-import '../core.puck' as {Unknown, Some, None}
+import 'unknown.puck' as {Unknown}
 
 describe('Unknown', || {
   describe('isNull', || {

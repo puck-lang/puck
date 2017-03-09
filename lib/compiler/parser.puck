@@ -694,6 +694,10 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
         }
         else input.croak('Can not export a let declaration without a identifier pattern')
       }
+      else if let Token::Identifier(_) = input.peek() {
+        identifier = consumeIdentifier()
+        statement = ExportedStatement::Identifier(identifier)
+      }
       else input.croak('Expected trait, type, function or variable declaration after export')
     }
     else attributeNotSupported()

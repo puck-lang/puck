@@ -1,0 +1,7 @@
+import 'export.puck' as {Trait, Type, a}
+import 'export.puck' as exportModule
+
+export a
+export exportModule
+export Type
+export Trait

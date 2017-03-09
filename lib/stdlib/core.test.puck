@@ -1,17 +1,6 @@
+//#![no_core]
 import 'puck:test' as *
-import 'core.puck' as {
-  IntoIterator
-  Iterator
-  List
-  None
-  Num
-  Radix
-  Option
-  Ordering
-  Range
-  Result
-  String
-}
+import 'core.puck' as *
 
 describe('core', || {
   describe('Num', || {

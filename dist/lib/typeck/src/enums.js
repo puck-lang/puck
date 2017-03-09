@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.getEnumType = exports.getEnumMember = exports.checkExhaustiveundefined;
+exports.getEnumType = exports.getEnumMember = exports.checkExhaustive = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("./../../ast/ast");

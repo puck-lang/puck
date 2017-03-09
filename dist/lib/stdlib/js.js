@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports._null = exports._undefined = exports._global = exports.window = exports._self = exports.Array = exports.Boolean = exports.Date = exports.Error = exports.Number = exports._Object = exports.RegExp = exports.String = exports.console = exports._module = exports.process = exports._require = exports._new = exports._typeof = exports.asResult = exports.wrapAsResultundefined;
+exports._null = exports._undefined = exports._global = exports.window = exports._self = exports.Array = exports.Boolean = exports.Date = exports.Error = exports.Number = exports._Object = exports.RegExp = exports.String = exports.console = exports._module = exports.process = exports._require = exports._new = exports._typeof = exports.asResult = exports.wrapAsResult = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const core = require("puck-lang/dist/lib/stdlib/core");
 const js = require("./js/js.js");
@@ -30,7 +30,7 @@ function asResult(func) {
     return $puck_1.Err(result.value);
   }
   else {
-    return $puck_1.Ok($unwrapTraitObject(result.value));
+    return $puck_1.Ok(result.value);
   };
 };
 exports.asResult = asResult;

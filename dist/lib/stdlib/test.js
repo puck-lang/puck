@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.ExpectationObject = exports.expect = exports.describe = exports.ddescribe = exports.xdescribe = exports.it = exports.iit = exports.xitundefined;
+exports.ExpectationObject = exports.expect = exports.describe = exports.ddescribe = exports.xdescribe = exports.it = exports.iit = exports.xit = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 var ExpectationObject = exports.ExpectationObject = (object) => object;

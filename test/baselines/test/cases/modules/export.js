@@ -1,5 +1,5 @@
 'use strict';
-exports.Type = exports.Enum = exports.Trait = exports.OtherTrait = exports.a = exports.b = exports.qundefined;
+exports.Type = exports.Enum = exports.Trait = exports.OtherTrait = exports.a = exports.b = exports.q = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 var Type = exports.Type = (...members) => members;
 var Enum = exports.Enum = {

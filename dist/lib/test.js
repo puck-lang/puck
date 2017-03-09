@@ -1,5 +1,5 @@
 'use strict';
-exports.buildAll = exports.buildTestCompilerundefined;
+exports.buildAll = exports.buildTestCompiler = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../lib/helpers");
 function buildAll(outFolder = "dist", compiler = "dist", useBabel = false) {

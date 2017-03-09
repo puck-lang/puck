@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.CompilerContext = exports.parseString = exports.compile = exports.buildString = exports.buildundefined;
+exports.CompilerContext = exports.parseString = exports.compile = exports.buildString = exports.build = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const babel = require("babel-core");
@@ -61,13 +61,9 @@ CompilerContext.runChecker = function () {
 };
 CompilerContext.runTypeVisitorOnFile = function (file) {
   let self = this;
-  if (!file.typeVisitorCompleted) {
-    if (file.typeVisitorStarted) {
-      throw "Circular import??";
-    };
+  if (!file.typeVisitorStarted) {
     file.typeVisitorStarted = true;
     $puck_14.TypeVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
-    file.typeVisitorCompleted = true;
   };
 };
 CompilerContext.runImplVisitorOnFile = function (file) {
