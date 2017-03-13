@@ -171,7 +171,7 @@ exports.compile = compile;
 function babelTransform(file) {
   return $unwrapTraitObject(babel.transform($puck_1.Option.unwrap.call(file.js), {
     filename: file.absolutePath,
-    presets: $puck_2._require.resolve("babel-preset-latest"),
+    presets: require.resolve("babel-preset-latest"),
     babelrc: false,
   }).code);
 };

@@ -30,6 +30,7 @@ var tokenToJs = function (kind) {
         return '!==';
     return token_1.SyntaxKind.name.call(kind);
 };
+var gloablPuckJsImports = ['require', 'module'];
 var Context;
 (function (Context) {
     Context[Context["Return"] = 1] = "Return";
@@ -603,14 +604,7 @@ function Emitter() {
         return definition;
     }
     function emitImportDirective(i) {
-        var importName = i.specifier.kind === 'Identifier'
-            ? "" + emitIdentifier(i.specifier.value)
-            : newValueVariable();
-        if (i.specifier.kind === 'ObjectDestructure') {
-            i.specifier.value.members.forEach(function (m) {
-                m.importName = importName + "." + emitIdentifier(m.property);
-            });
-        }
+        var isPuckJsImport = false;
         var path;
         if (i.domain === undefined) {
             if (i.path.charAt(0) == '/') {
@@ -624,11 +618,34 @@ function Emitter() {
         else if (i.domain == 'node') {
             path = i.path;
         }
+        else if (i.domain == 'package') {
+            var parts = i.path.split('/');
+            var packageName = parts[0];
+            var packagePath = parts.slice(1).join('/').replace(/\.(puck|ts)$/, '');
+            path = "puck-" + packageName + "/dist/lib/" + packagePath;
+        }
         else if (i.domain == 'puck') {
             path = "puck-lang/dist/lib/stdlib/" + i.path;
+            isPuckJsImport = i.path === 'js';
         }
         else {
             throw "Unsupported import-domain \"" + i.domain + "\"";
+        }
+        var importName = i.specifier.kind === 'Identifier'
+            ? "" + emitIdentifier(i.specifier.value)
+            : newValueVariable();
+        if (i.specifier.kind === 'ObjectDestructure') {
+            i.specifier.value.members.forEach(function (m) {
+                if (isPuckJsImport && gloablPuckJsImports.indexOf(m.property.name) !== -1) {
+                    m.importName = m.property.name;
+                }
+                else {
+                    m.importName = importName + "." + emitIdentifier(m.property);
+                }
+            });
+        }
+        else if (isPuckJsImport && i.specifier.kind === 'Identifier') {
+            i.specifier.value.globalImports = gloablPuckJsImports;
         }
         return "const " + importName + " = require(" + JSON.stringify(path) + ")";
     }
@@ -974,6 +991,10 @@ function Emitter() {
         return unwrap(emitExpression(e.object), e.object) + "[" + unwrap(emitExpression(e.index, Context.Value), e.index) + "]";
     }
     function emitMemberAccess(e) {
+        if (e.object.kind === 'Identifier' && e.object.value.globalImports &&
+            e.object.value.globalImports.indexOf(e.member.name) !== -1) {
+            return e.member.name;
+        }
         var object = e.object.kind == 'NumberLiteral'
             ? "(" + emitExpression(e.object) + ")"
             : unwrap(emitExpression(e.object), e.object);

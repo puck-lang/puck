@@ -66,6 +66,7 @@ const tokenToJs = (kind: {kind: string}) => {
   if (kind.kind == 'ExclamationEqualsToken') return '!=='
   return SyntaxKind.name.call(kind)
 }
+const gloablPuckJsImports = ['require', 'module']
 
 enum Context {
   Return = 1,
@@ -714,15 +715,7 @@ export function Emitter() {
   }
 
   function emitImportDirective(i: ImportDirective) {
-    let importName = i.specifier.kind === 'Identifier'
-      ? `${emitIdentifier(i.specifier.value)}`
-      : newValueVariable()
-    if (i.specifier.kind === 'ObjectDestructure') {
-      i.specifier.value.members.forEach(m => {
-        (m as any).importName = `${importName}.${emitIdentifier(m.property)}`
-      })
-    }
-
+    let isPuckJsImport = false
     let path
     if (i.domain === undefined) {
       if (i.path.charAt(0) == '/') {
@@ -733,10 +726,33 @@ export function Emitter() {
       path = path.replace(/\.(puck|ts)$/, '')
     } else if (i.domain == 'node') {
       path = i.path
+    } else if (i.domain == 'package') {
+      const parts = i.path.split('/')
+      const packageName = parts[0]
+      const packagePath = parts.slice(1).join('/').replace(/\.(puck|ts)$/, '')
+      path = `puck-${packageName}/dist/lib/${packagePath}`
     } else if (i.domain == 'puck') {
       path = `puck-lang/dist/lib/stdlib/${i.path}`
+      isPuckJsImport = i.path === 'js'
     } else {
       throw `Unsupported import-domain "${i.domain}"`
+    }
+
+    let importName = i.specifier.kind === 'Identifier'
+      ? `${emitIdentifier(i.specifier.value)}`
+      : newValueVariable()
+    if (i.specifier.kind === 'ObjectDestructure') {
+      i.specifier.value.members.forEach(m => {
+        if (isPuckJsImport && gloablPuckJsImports.indexOf(m.property.name) !== -1) {
+          (m as any).importName = m.property.name
+        }
+        else {
+          (m as any).importName = `${importName}.${emitIdentifier(m.property)}`
+        }
+      })
+    }
+    else if (isPuckJsImport && i.specifier.kind === 'Identifier') {
+      (i.specifier.value as any).globalImports = gloablPuckJsImports
     }
 
     return `const ${importName} = require(${JSON.stringify(path)})`
@@ -1125,6 +1141,10 @@ export function Emitter() {
   }
 
   function emitMemberAccess(e: MemberAccess) {
+    if (e.object.kind === 'Identifier' && (e.object.value as any).globalImports &&
+       ((e.object.value as any).globalImports as Array<string>).indexOf(e.member.name) !== -1) {
+      return e.member.name
+    }
     let object = e.object.kind == 'NumberLiteral'
       ? `(${emitExpression(e.object)})`
       : unwrap(emitExpression(e.object), e.object)
