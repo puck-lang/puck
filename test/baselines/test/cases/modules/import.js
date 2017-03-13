@@ -8,7 +8,7 @@ const e = require("./export");
 const $puck_5 = require("./export");
 const re = require("./reexport");
 const $puck_6 = require("./reexport");
-var Type = (...members) => members;
+var Type = (member) => member;
 var Trait = {
 inner: function () {
   const self = this;

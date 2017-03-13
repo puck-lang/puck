@@ -39,28 +39,28 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError,
     const functionName = $puck_12.Type.displayName.call(functionDeclaration.type_);
     const _function = $puck_12.Type.getFunction.call(functionDeclaration.type_);
     let $puck_13 = $puck_1.ObjectMap.get.call(traitFunctions, $puck_1.Option.unwrap.call(functionDeclaration.type_.name));
-    if (($puck_13.kind === "Some")) {
-      let {value: traitFunctionType} = $puck_13;
+    if (($puck_13 !== undefined)) {
+      let traitFunctionType = $puck_13;
       const traitFunctionName = $puck_12.Type.displayName.call(traitFunctionType);
       const traitFunction = $puck_12.Type.getFunction.call(traitFunctionType);
       let $puck_14 = [
         _function.selfBinding,
         traitFunction.selfBinding,
       ];
-      if (($unwrapTraitObject($unwrapTraitObject($puck_14)[0]).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($puck_14)[1]).kind === "Some")) {
-        let [{value: implSelf}, {value: traitSelf}] = $unwrapTraitObject($puck_14);
+      if (($puck_14[0] !== undefined && $puck_14[1] !== undefined)) {
+        let [implSelf, traitSelf] = $puck_14;
         if ((implSelf.mutable && !traitSelf.mutable)) {
           return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: functionDeclaration, $isTraitObject: true}, "Function " + traitName + "::" + traitFunctionName + " requires an immutable self parameter");
         };
       }
       else {
-        if (($unwrapTraitObject($unwrapTraitObject($puck_14)[0]).kind === "None" && $unwrapTraitObject($unwrapTraitObject($puck_14)[1]).kind === "Some")) {
-          let [, ] = $unwrapTraitObject($puck_14);
+        if (($puck_14[0] === undefined && $puck_14[1] !== undefined)) {
+          let [, ] = $puck_14;
           return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: functionDeclaration, $isTraitObject: true}, "Function " + traitName + "::" + traitFunctionName + " requires a self parameter");
         }
         else {
-          if ($unwrapTraitObject($unwrapTraitObject($puck_14)[1]).kind === "None") {
-            let [, ] = $unwrapTraitObject($puck_14);
+          if ($puck_14[1] === undefined) {
+            let [, ] = $puck_14;
             return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: functionDeclaration, $isTraitObject: true}, "Static trait functions can not be implemented");
           };
         };
@@ -86,8 +86,8 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError,
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true}, function (functionDeclaration) {
     const functionName = $puck_12.Type.displayName.call(functionDeclaration.type_);
     let $puck_16 = $puck_1.ObjectMap.get.call(traitFunctions, $puck_1.Option.unwrap.call(functionDeclaration.type_.name));
-    if ($puck_16.kind === "Some") {
-      let {value: traitFunctionType} = $puck_16;
+    if ($puck_16 !== undefined) {
+      let traitFunctionType = $puck_16;
       const traitFunction = $puck_12.Type.getFunction.call(traitFunctionType);
       const _function = $puck_12.Type.getFunction.call(functionDeclaration.type_);
       functionDeclaration.traitFunctionType = traitFunctionType;
@@ -141,8 +141,8 @@ function ImplVisitor(context, file) {
   function getImplId(type_, trait_) {
     let id = "$impl_" + $puck_1.Option.unwrap.call(type_.id) + "$" + $puck_1.Option.unwrap.call(trait_.id);
     let $puck_19 = $puck_1.Map.get.call(context.impls, id);
-    if (($puck_19.kind === "Some")) {
-      let {value: count} = $puck_19;
+    if (($puck_19 !== undefined)) {
+      let count = $puck_19;
       $puck_1.Map.set.call(context.impls, id, count + 1);
       id = "" + id + "$" + count + "";
     }
@@ -160,13 +160,13 @@ function ImplVisitor(context, file) {
     $unwrapTraitObject(self).scope = m.scope;
     let $puck_20 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: m.statements, $isTraitObject: true}, function (e) {
       let $puck_21 = e;
-      if (($unwrapTraitObject($puck_21).kind === "ImplDeclaration")) {
-        $unwrapTraitObject($puck_21);
+      if (($puck_21.kind === "ImplDeclaration")) {
+        $puck_21;
         return true;
       }
       else {
-        if ($unwrapTraitObject($puck_21).kind === "ImplShorthandDeclaration") {
-          $unwrapTraitObject($puck_21);
+        if ($puck_21.kind === "ImplShorthandDeclaration") {
+          $puck_21;
           return true;
         }
         else {
@@ -201,14 +201,14 @@ function ImplVisitor(context, file) {
     if ($puck_22.kind === "Trait") {
       let {value: trait_} = $puck_22;
       let $puck_23 = structType.kind;
-      if ($unwrapTraitObject($puck_23).kind === "Enum") {
-        let {value: enum_} = $unwrapTraitObject($puck_23);
+      if ($puck_23.kind === "Enum") {
+        let {value: enum_} = $puck_23;
         let e = enum_;
         implementTrait(traitType, trait_, structType, e, i, reportError, id);
       }
       else {
-        if ($unwrapTraitObject($puck_23).kind === "Struct") {
-          let {value: struct} = $unwrapTraitObject($puck_23);
+        if ($puck_23.kind === "Struct") {
+          let {value: struct} = $puck_23;
           let s = struct;
           implementTrait(traitType, trait_, structType, s, i, reportError, id);
         }
@@ -238,14 +238,14 @@ function ImplVisitor(context, file) {
       return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
     });
     let $puck_24 = structType.kind;
-    if (($unwrapTraitObject($puck_24).kind === "Enum")) {
-      let {value: enum_} = $unwrapTraitObject($puck_24);
+    if (($puck_24.kind === "Enum")) {
+      let {value: enum_} = $puck_24;
       let e = enum_;
       implementShorthand(structType, e, i, reportError);
     }
     else {
-      if ($unwrapTraitObject($puck_24).kind === "Struct") {
-        let {value: struct} = $unwrapTraitObject($puck_24);
+      if ($puck_24.kind === "Struct") {
+        let {value: struct} = $puck_24;
         let s = struct;
         implementShorthand(structType, s, i, reportError);
       }

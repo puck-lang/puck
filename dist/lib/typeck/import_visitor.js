@@ -28,18 +28,18 @@ function ImportVisitor(context, file) {
     let $puck_9 = $puck_2.asResult(function () {
       return $puck_6.CompilerContext.importFile.call(context, importedFile);
     });
-    if ($unwrapTraitObject($puck_9).kind === "Ok") {
-      let {value: contextFile} = $unwrapTraitObject($puck_9);
+    if ($puck_9.kind === "Ok") {
+      let {value: contextFile} = $puck_9;
       let $puck_10 = contextFile.ast;
       let $puck_11;
-      if ($unwrapTraitObject($puck_10).kind === "Some") {
-        let {value: _module} = $unwrapTraitObject($puck_10);
+      if ($puck_10 !== undefined) {
+        let _module = $puck_10;
         $puck_11 = _module;
       }
       else {
         let $puck_12;
-        if ($unwrapTraitObject($puck_10).kind === "None") {
-          $unwrapTraitObject($puck_10);
+        if ($puck_10 === undefined) {
+          $puck_10;
           return $puck_6.CompilerContext.defer.call(context, importedFile, function () {
             return importModule(i, importedFile);
           });
@@ -48,8 +48,8 @@ function ImportVisitor(context, file) {
       };
       const _module = $puck_11;
       let $puck_13 = i.specifier;
-      if ($unwrapTraitObject($puck_13).kind === "ObjectDestructure") {
-        let {value: o} = $unwrapTraitObject($puck_13);
+      if ($puck_13.kind === "ObjectDestructure") {
+        let {value: o} = $puck_13;
         $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true}, function (m) {
           if ((!$puck_1.ObjectMap.has.call(_module.exports, m.property.name))) {
             return $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ObjectDestructureMember', value: m, $isTraitObject: true}, $puck_7.CompilationError.Other(importedFile.fileName + " has no export named " + m.property.name));
@@ -57,8 +57,8 @@ function ImportVisitor(context, file) {
         });
       }
       else {
-        if (($unwrapTraitObject($puck_13).kind === "Asterisk")) {
-          let {value: token} = $unwrapTraitObject($puck_13);
+        if (($puck_13.kind === "Asterisk")) {
+          let {value: token} = $puck_13;
           let $puck_15 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.keys.call(_module.exports), $isTraitObject: true}, function (e) {
             return (!$puck_1.ObjectMap.has.call(declarations, e));
           })
@@ -79,8 +79,8 @@ function ImportVisitor(context, file) {
           });
         }
         else {
-          if ($unwrapTraitObject($puck_13).kind === "Identifier") {
-            $unwrapTraitObject($puck_13);
+          if ($puck_13.kind === "Identifier") {
+            $puck_13;
           };
         };
       };
@@ -88,8 +88,8 @@ function ImportVisitor(context, file) {
       i._module = $puck_1.Some(_module);
     }
     else {
-      if ($unwrapTraitObject($puck_9).kind === "Err") {
-        let {value: err} = $unwrapTraitObject($puck_9);
+      if ($puck_9.kind === "Err") {
+        let {value: err} = $puck_9;
         if (err === "Syntax Error") {
           $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_7.CompilationError.Other(err));
         }
@@ -115,8 +115,8 @@ function ImportVisitor(context, file) {
     visitImportDirective: function (i) {
     const self = this;
     let $puck_17 = i.domain;
-    if ($unwrapTraitObject($puck_17).kind === "Some") {
-      let {value: domain} = $unwrapTraitObject($puck_17);
+    if ($puck_17 !== undefined) {
+      let domain = $puck_17;
       if (domain === "puck") {
         if ((!$puck_1.List.contains.call(puckModules, i.path))) {
           return $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_7.CompilationError.Other("Invalid puck module " + i.path));
@@ -137,15 +137,15 @@ function ImportVisitor(context, file) {
           return $puck_6.CompilerContext.resolvePath(i.path, file);
         });
         let $puck_18 = result;
-        if ($unwrapTraitObject($puck_18).kind === "Ok") {
-          let {value: importedFile} = $unwrapTraitObject($puck_18);
+        if ($puck_18.kind === "Ok") {
+          let {value: importedFile} = $puck_18;
           if ($puck_1.RegExp.test.call(puckFile, importedFile.absolutePath)) {
             importModule(i, importedFile);
           };
         }
         else {
-          if ($unwrapTraitObject($puck_18).kind === "Err") {
-            let {value: error} = $unwrapTraitObject($puck_18);
+          if ($puck_18.kind === "Err") {
+            let {value: error} = $puck_18;
             return $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_7.CompilationError.Other("Imported file " + i.path + " not found"));
           };
         };

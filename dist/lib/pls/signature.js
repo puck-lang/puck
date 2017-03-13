@@ -50,8 +50,8 @@ visitCallExpression: function (e) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: arg, $isTraitObject: true}), self.value.position);
   });
   let $puck_7;
-  if ($unwrapTraitObject($puck_6).kind === "Ok") {
-    let {value: index} = $unwrapTraitObject($puck_6);
+  if ($puck_6.kind === "Ok") {
+    let {value: index} = $puck_6;
     $puck_5.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/signature.puck:SignatureVisitor"].visitExpression.call(self, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: e.argumentList, $isTraitObject: true}, index));
     if ($puck_1.Option.isSome.call(self.value.signatureHelp)) {
       return null;
@@ -60,8 +60,8 @@ visitCallExpression: function (e) {
   }
   else {
     let $puck_8;
-    if ($unwrapTraitObject($puck_6).kind === "Err") {
-      let {value: index} = $unwrapTraitObject($puck_6);
+    if ($puck_6.kind === "Err") {
+      let {value: index} = $puck_6;
       $puck_8 = index;
     };
     $puck_7 = $puck_8;

@@ -4,6 +4,7 @@ const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
 exports.Unknown = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
+const js = require("puck-lang/dist/lib/stdlib/js");
 var Unknown = exports.Unknown = (object) => object;
 Unknown.from = function (value) {
   return value;
@@ -18,15 +19,15 @@ Unknown.isUndefined = function () {
 };
 Unknown.isBool = function () {
   const self = this;
-  return _typeof(self) === "boolean";
+  return $unwrapTraitObject(js)._typeof(self) === "boolean";
 };
 Unknown.isNum = function () {
   const self = this;
-  return _typeof(self) === "number";
+  return $unwrapTraitObject(js)._typeof(self) === "number";
 };
 Unknown.isString = function () {
   const self = this;
-  return _typeof(self) === "string";
+  return $unwrapTraitObject(js)._typeof(self) === "string";
 };
 Unknown.isList = function () {
   const self = this;
@@ -34,7 +35,7 @@ Unknown.isList = function () {
 };
 Unknown.isObject = function () {
   const self = this;
-  return (!$puck_1.identical(self, $puck_2._null) && _typeof(self) === "object");
+  return (!$puck_1.identical(self, $puck_2._null) && $unwrapTraitObject(js)._typeof(self) === "object");
 };
 Unknown.asBool = function () {
   const self = this;

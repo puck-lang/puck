@@ -359,6 +359,7 @@ impl<T, E> Result<T, E> {
   }
 }
 
+#[type_id = 'Option']
 export enum Option<T> {
   Some(T)
   None

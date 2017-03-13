@@ -1,0 +1,45 @@
+type HasOptionalProps {
+  required: Bool
+  optional?: Bool
+  optional2?: Num
+  optionalOption?: Option<Num>
+}
+
+let a: HasOptionalProps = {
+  required: true
+  optional: false
+  optional2: 42
+  optionalOption: Some(5)
+}
+
+let b: HasOptionalProps = {
+  required: true
+}
+
+let c: HasOptionalProps = {
+  required: true
+  optional2: 5
+}
+
+let mut d = HasOptionalProps({
+  required: true
+  optional: false
+  optional2: 42
+  optionalOption: Some(5)
+})
+
+d = HasOptionalProps({
+  required: true
+})
+
+d = HasOptionalProps({
+  required: true
+  optional2: 5
+})
+
+
+let e = a.required
+let f = a.optional.unwrap()
+let g = e == f
+let h = a.optionalOption.unwrap().unwrap() == c.optional2.unwrap()
+let i = d.optional2.unwrap() == d.optionalOption.unwrapOr(Some(1)).unwrap()

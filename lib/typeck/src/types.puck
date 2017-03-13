@@ -72,7 +72,10 @@ fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct) ->
   assign(struct, {
     kind: match struct.kind {
       StructKind::Record({properties}) => StructKind::Record({
-        properties: properties.map(resolveTypeParameters(parameterMap, false))
+        properties: properties.map(|mut p| {{
+          optional: p.optional
+          type_: resolveTypeParameters(parameterMap, false)(p.type_)
+        }})
       })
 
       StructKind::Tuple({properties}) => StructKind::Tuple({
@@ -293,7 +296,15 @@ fn isStructAssignable(to: Struct, subject: Struct, mut checked) {
   match (to.kind, subject.kind) {
     (StructKind::Record({properties: toProps}), StructKind::Record({properties: subjectProps})) => {
       toProps.toList().all(|(key, toProp)| {
-        subjectProps.has(key) and _isAssignable(toProp, subjectProps[key], checked)
+        if subjectProps.has(key) and not subjectProps[key] {
+          print('ket', (key, subjectProps))
+        }
+        if not toProp {
+          print('toProp', (key, toProps))
+        }
+        if let Some(subjectProp) = subjectProps.get(key)
+          then _isAssignable(toProp.type_, subjectProp.type_, checked)
+          else toProp.optional
       })
     }
     (StructKind::Tuple({properties: toProps}), StructKind::Tuple({properties: subjectProps})) => {

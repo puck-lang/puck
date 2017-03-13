@@ -13,14 +13,14 @@ const $puck_8 = require("./types");
 function getImplementationsForInstance(type_) {
   let $puck_9 = type_.kind;
   let $puck_10;
-  if ($unwrapTraitObject($puck_9).kind === "Enum") {
-    let {value: enum_} = $unwrapTraitObject($puck_9);
+  if ($puck_9.kind === "Enum") {
+    let {value: enum_} = $puck_9;
     $puck_10 = enum_.implementations;
   }
   else {
     let $puck_11;
-    if ($unwrapTraitObject($puck_9).kind === "Struct") {
-      let {value: struct} = $unwrapTraitObject($puck_9);
+    if ($puck_9.kind === "Struct") {
+      let {value: struct} = $puck_9;
       $puck_11 = struct.implementations;
     }
     else {
@@ -36,8 +36,8 @@ function getImplementationsForInstance(type_) {
   const implementations = $puck_10;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
     let $puck_13 = type_.instance;
-    if ($puck_13.kind === "Some") {
-      let {value: objectInstance} = $puck_13;
+    if ($puck_13 !== undefined) {
+      let objectInstance = $puck_13;
       let $puck_14 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
         const implementationInstance = $puck_1.Option.unwrap.call(i.type_.instance);
         return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.List.zip({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: objectInstance.typeParameters, $isTraitObject: true}, implementationInstance.typeParameters), $isTraitObject: true}, function ([objectP, implP]) {
@@ -57,8 +57,8 @@ function getImplementationsForInstance(type_) {
 };
 function getMostSpecificImplementations(type_, implementations) {
   let $puck_15 = type_.instance;
-  if ($puck_15.kind === "Some") {
-    let {value: objectInstance} = $puck_15;
+  if ($puck_15 !== undefined) {
+    let objectInstance = $puck_15;
     let maxSpecificity = 0;
     let $puck_18 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
       const specificity = getTypeSpecificity(i.type_);
@@ -164,15 +164,15 @@ function getTypeSpecificity(type_) {
     return 0;
   };
   let $puck_29 = type_.instance;
-  if ($unwrapTraitObject($puck_29).kind === "Some") {
-    let {value: instance} = $unwrapTraitObject($puck_29);
+  if ($puck_29 !== undefined) {
+    let instance = $puck_29;
     return instance.typeParameters.reduce(function (sum, type_) {
       return sum + getTypeSpecificity(type_);
     }, 1);
   }
   else {
-    if (($unwrapTraitObject($puck_29).kind === "None")) {
-      $unwrapTraitObject($puck_29);
+    if (($puck_29 === undefined)) {
+      $puck_29;
       return 1;
     };
   };
@@ -180,16 +180,16 @@ function getTypeSpecificity(type_) {
 function resolveImplTypeParameters(implementation, objectType) {
   let parameterMap = $puck_1.ObjectMap._new();
   let $puck_30 = implementation.type_.instance;
-  if ($puck_30.kind === "Some") {
-    let {value: instance} = $puck_30;
+  if ($puck_30 !== undefined) {
+    let instance = $puck_30;
     $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, function (p) {
       return $puck_1.ObjectMap.set.call(parameterMap, $puck_1.Option.unwrap.call(p.name), p);
     });
     let iter = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: $puck_1.List.zip({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, $puck_1.Option.unwrap.call($puck_6.Type.typeParameters.call(objectType))), $isTraitObject: true});
     while (true) {
       let $puck_31 = $puck_1.Iterator[iter.type].next.call(iter);
-      if ($puck_31.kind === "Some") {
-        let {value: [ip, op]} = $puck_31;
+      if ($puck_31 !== undefined) {
+        let [ip, op] = $puck_31;
         let $puck_32 = collectTypeParameters(parameterMap, ip, op);
         if ($puck_32.kind === "Err") {
           let {value: err} = $puck_32;
@@ -205,8 +205,8 @@ function resolveImplTypeParameters(implementation, objectType) {
 exports.resolveImplTypeParameters = resolveImplTypeParameters;
 function collectTypeParameters(parameterMap, ip, op) {
   let $puck_33 = ip.kind;
-  if ($unwrapTraitObject($puck_33).kind === "Parameter") {
-    $unwrapTraitObject($puck_33);
+  if ($puck_33.kind === "Parameter") {
+    $puck_33;
     const name = $puck_1.Option.unwrap.call(ip.name);
     if ($puck_8.isAssignable($puck_1.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: parameterMap, $isTraitObject: true}, name), op)) {
       parameterMap[name] = op;
@@ -222,13 +222,13 @@ function collectTypeParameters(parameterMap, ip, op) {
     if (true) {
       $puck_33;
       let $puck_34 = ip.instance;
-      if ($puck_34.kind === "Some") {
-        let {value: instance} = $puck_34;
+      if ($puck_34 !== undefined) {
+        let instance = $puck_34;
         let iter = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: $puck_1.List.zip({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, $puck_1.Option.unwrap.call(op.instance).typeParameters), $isTraitObject: true});
         while (true) {
           let $puck_35 = $puck_1.Iterator[iter.type].next.call(iter);
-          if ($puck_35.kind === "Some") {
-            let {value: [ip, op]} = $puck_35;
+          if ($puck_35 !== undefined) {
+            let [ip, op] = $puck_35;
             let $puck_36 = collectTypeParameters(parameterMap, ip, op);
             if ($puck_36.kind === "Err") {
               let {value: err} = $puck_36;

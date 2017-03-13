@@ -85,6 +85,7 @@ import 'src/types.puck' as {
 }
 import '../entities.puck' as {
   CompilationError
+  RecordMember
   File
   Definition
   Function
@@ -95,6 +96,7 @@ import '../entities.puck' as {
   TypeInstance
   TypeKind
 }
+import 'src/core_type_helpers.puck' as {getCoreType, getRecordPropType}
 
 fn asType(a: Unknown) -> Type {a.transmute()}
 
@@ -108,12 +110,6 @@ fn getBinding(e: Expression) -> Option<Binding> {
     Expression::MemberAccess(i) => getBinding(i.object)
     _ => None
   }
-}
-
-fn getCoreType(scope: Scope, id: String, description: String) -> Result<(Type, Binding), String> {
-  if let Some(binding) = scope.getBindingByTypeId(id)
-    then Ok((binding.type_.providesType.unwrap(), binding))
-    else Err('puck:core::$id is not in scope. Please import $id from puck:core to use $description.')
 }
 
 fn asTraitCall(visitor, mut e: BinaryExpression, trait_: String, method: String, desription: String) -> Result<(), String> {
@@ -930,15 +926,16 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
       self.visitExpression(a.object)
       if a.object.getType() {
         if let TypeKind::Struct({kind: StructKind::Record(record)}) = a.object.getType().kind {
-          if let Some(type_) = record.properties.get(a.member.name) {
-            a->type_ = type_
-          }
-          else {
-            let message = a.object.getType().displayName() + ' has no property ' + a.member.name
-            let token: ToSpan = a.member
-            if inCallExpression
-              then accessError = Some((token, message))
-              else reportError(a, message)
+          match record.properties.get(a.member.name).map(getRecordPropType(self.scope)) {
+            Some(Ok(type_)) => a->type_ = type_
+            Some(Err(err)) => reportError(a, err)
+            None => {
+              let message = a.object.getType().displayName() + ' has no property ' + a.member.name
+              let token: ToSpan = a.member
+              if inCallExpression
+                then accessError = Some((token, message))
+                else reportError(a, message)
+            }
           }
         }
         else {
@@ -1031,11 +1028,11 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
     }
     visitRecordLiteral: |self, mut l: RecordLiteral| {
       visit.walkRecordLiteral(self, l)
-      let mut properties = ObjectMap.new()
+      let mut properties = ObjectMap.new::<RecordMember>()
       l.members.forEach(|m| {
         match m {
           RecordLiteralMember::Property {name, value} => {
-            properties.set(name.name, value.getType())
+            properties.set(name.name, {type_: value.getType(), optional: false})
           }
           RecordLiteralMember::Spread(e) => {
             match e.getType().kind {
@@ -1140,9 +1137,10 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
         name: None
         kind: TypeKind::Struct({
           implementations: []
-          kind: StructKind::Record({properties: ObjectMap.fromIter(
-            p.properties.map(|p| (p.property.name, p.pattern->type_.transmute()))
-          )})
+          kind: StructKind::Record({properties: ObjectMap.fromIter(p.properties.map(|p| {
+            let type_: Type = p.pattern->type_.transmute()
+            (p.property.name, {type_, optional: false})
+          }))})
         })
         instance: None
         class: None

@@ -8,6 +8,7 @@ export class Type {
   kind: {
     kind: string
     value: {
+      members: {[name: string]: Type}
       functions: {[name: string]: Type}
       parameters: Array<{type_: Type}>
       selfBinding: Option<{type_: Type}>
@@ -16,9 +17,12 @@ export class Type {
     }
   }
 
+  providesType: Option<Type>
   instance: Option<{
     typeParameters: Array<Type>
   }>
+
+  enumMember: Option<[string, Type]>
 }
 
 export type Record = {

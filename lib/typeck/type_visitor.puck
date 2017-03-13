@@ -127,7 +127,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
         let definition = Definition({file, token: t})
         t->type_ = Type.provides({
           definition
-          id: generateTypeId(context, file, t.name.name)
+          id: getTypeId(t, context, file)
           displayName: None
           name: Some(t.name.name)
           kind: TypeKind::Enum({
@@ -365,25 +365,6 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
                 }
                 _ => {}
               }
-              // let mut properties = ObjectMap.new()
-              // typeBound.getRecordTypeBound().properties.map(|p| {
-              //   match p {
-              //     RecordTypeBoundMember::Property {name, typeBound} => {
-              //       properties.set(name.name, typeBound.getType())
-              //     }
-              //     RecordTypeBoundMember::Spread(typeBound) => {
-              //       match typeBound.getType().kind {
-              //         TypeKind::Struct({kind: StructKind::Record(r)}) => {
-              //           properties.merge(r.properties)
-              //         }
-              //         _ => {
-              //           reportError(typeBound, 'Can only spread record types')
-              //         }
-              //       }
-              //     }
-              //   }
-              // })
-              // r.properties.merge(properties)
             }
             TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
               Object->assign(tuple, {
@@ -414,7 +395,10 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
         ImportSpecifier::Identifier(identifier) => {
           let typeProperties =
             if let Some(module) = importDirective.module {
-              module.exports.map(|exportDirective| exportDirective.getType())
+              module.exports.map(|exportDirective| {{
+                type_: exportDirective.getType()
+                optional: false
+              }})
             }
             else ObjectMap.new()
            let definition = Definition({file, token: identifier})
@@ -449,7 +433,10 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
                 context.runCheckerOnFile(module.file)
               }
               let moduleScope: Scope = module->scope.transmute()
-              let mut typeProperties = module.exports.map(|exportDirective| exportDirective.getType())
+              let mut typeProperties = module.exports.map(|exportDirective| {{
+                type_: exportDirective.getType()
+                optional: false
+              }})
               match type_.kind {
                 TypeKind::Struct({kind: StructKind::Record(record)}) => {
                   let mut r = record

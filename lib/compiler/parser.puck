@@ -1247,11 +1247,13 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       then RecordTypeBoundMember::Spread(parseTypeBound())
       else {
         let name = consumeIdentifier()
+        let optional = maybeConsumeToken(SyntaxKind::QuestionMarkToken).isSome()
         consumeToken(SyntaxKind::ColonToken)
         let typeBound = parseTypeBound()
 
         RecordTypeBoundMember::Property({
           name
+          optional
           typeBound
         })
       }

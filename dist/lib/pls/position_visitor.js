@@ -1,6 +1,4 @@
 'use strict';
-
-const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
 exports.PositionVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkMethodDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkObjectDestructureMember = exports.walkBlock = exports.walkReturnStatement = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkTypePath = exports.walkTypePathExpression = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkStringLiteralPart = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../ast/ast");
@@ -241,43 +239,43 @@ function walkModule(visitor, m) {
 exports.walkModule = walkModule;
 function walkTopLevelStatement(visitor, e) {
   let $puck_5 = e;
-  if ($unwrapTraitObject($puck_5).kind === "EnumDeclaration") {
-    let {value: s} = $unwrapTraitObject($puck_5);
+  if ($puck_5.kind === "EnumDeclaration") {
+    let {value: s} = $puck_5;
     PositionVisitor[visitor.type].visitEnumDeclaration.call(visitor, s);
   }
   else {
-    if ($unwrapTraitObject($puck_5).kind === "ExportDirective") {
-      let {value: s} = $unwrapTraitObject($puck_5);
+    if ($puck_5.kind === "ExportDirective") {
+      let {value: s} = $puck_5;
       PositionVisitor[visitor.type].visitExportDirective.call(visitor, s);
     }
     else {
-      if ($unwrapTraitObject($puck_5).kind === "ImportDirective") {
-        let {value: s} = $unwrapTraitObject($puck_5);
+      if ($puck_5.kind === "ImportDirective") {
+        let {value: s} = $puck_5;
         PositionVisitor[visitor.type].visitImportDirective.call(visitor, s);
       }
       else {
-        if ($unwrapTraitObject($puck_5).kind === "ImplDeclaration") {
-          let {value: s} = $unwrapTraitObject($puck_5);
+        if ($puck_5.kind === "ImplDeclaration") {
+          let {value: s} = $puck_5;
           PositionVisitor[visitor.type].visitImplDeclaration.call(visitor, s);
         }
         else {
-          if ($unwrapTraitObject($puck_5).kind === "ImplShorthandDeclaration") {
-            let {value: s} = $unwrapTraitObject($puck_5);
+          if ($puck_5.kind === "ImplShorthandDeclaration") {
+            let {value: s} = $puck_5;
             PositionVisitor[visitor.type].visitImplShorthandDeclaration.call(visitor, s);
           }
           else {
-            if ($unwrapTraitObject($puck_5).kind === "TraitDeclaration") {
-              let {value: s} = $unwrapTraitObject($puck_5);
+            if ($puck_5.kind === "TraitDeclaration") {
+              let {value: s} = $puck_5;
               PositionVisitor[visitor.type].visitTraitDeclaration.call(visitor, s);
             }
             else {
-              if ($unwrapTraitObject($puck_5).kind === "TypeDeclaration") {
-                let {value: s} = $unwrapTraitObject($puck_5);
+              if ($puck_5.kind === "TypeDeclaration") {
+                let {value: s} = $puck_5;
                 PositionVisitor[visitor.type].visitTypeDeclaration.call(visitor, s);
               }
               else {
-                if ($unwrapTraitObject($puck_5).kind === "BlockLevelStatement") {
-                  let {value: s} = $unwrapTraitObject($puck_5);
+                if ($puck_5.kind === "BlockLevelStatement") {
+                  let {value: s} = $puck_5;
                   PositionVisitor[visitor.type].visitBlockLevelStatement.call(visitor, s);
                 };
               };
@@ -291,28 +289,28 @@ function walkTopLevelStatement(visitor, e) {
 exports.walkTopLevelStatement = walkTopLevelStatement;
 function walkBlockLevelStatement(visitor, e) {
   let $puck_6 = e;
-  if ($unwrapTraitObject($puck_6).kind === "Block") {
-    let {value: e} = $unwrapTraitObject($puck_6);
+  if ($puck_6.kind === "Block") {
+    let {value: e} = $puck_6;
     PositionVisitor[visitor.type].visitBlock.call(visitor, e);
   }
   else {
-    if ($unwrapTraitObject($puck_6).kind === "BreakStatement") {
-      let {value: e} = $unwrapTraitObject($puck_6);
+    if ($puck_6.kind === "BreakStatement") {
+      let {value: e} = $puck_6;
       PositionVisitor[visitor.type].visitBreakStatement.call(visitor, e);
     }
     else {
-      if ($unwrapTraitObject($puck_6).kind === "ReturnStatement") {
-        let {value: e} = $unwrapTraitObject($puck_6);
+      if ($puck_6.kind === "ReturnStatement") {
+        let {value: e} = $puck_6;
         PositionVisitor[visitor.type].visitReturnStatement.call(visitor, e);
       }
       else {
-        if ($unwrapTraitObject($puck_6).kind === "WhileLoop") {
-          let {value: e} = $unwrapTraitObject($puck_6);
+        if ($puck_6.kind === "WhileLoop") {
+          let {value: e} = $puck_6;
           PositionVisitor[visitor.type].visitWhileLoop.call(visitor, e);
         }
         else {
-          if ($unwrapTraitObject($puck_6).kind === "Expression") {
-            let {value: e} = $unwrapTraitObject($puck_6);
+          if ($puck_6.kind === "Expression") {
+            let {value: e} = $puck_6;
             walkExpression(visitor, e);
           };
         };
@@ -323,117 +321,117 @@ function walkBlockLevelStatement(visitor, e) {
 exports.walkBlockLevelStatement = walkBlockLevelStatement;
 function walkExpression(visitor, e) {
   let $puck_7 = e;
-  if ($unwrapTraitObject($puck_7).kind === "ThrowStatement") {
-    let {value: e} = $unwrapTraitObject($puck_7);
+  if ($puck_7.kind === "ThrowStatement") {
+    let {value: e} = $puck_7;
     PositionVisitor[visitor.type].visitExpression.call(visitor, e.expression);
   }
   else {
-    if ($unwrapTraitObject($puck_7).kind === "Comment") {
-      $unwrapTraitObject($puck_7);
+    if ($puck_7.kind === "Comment") {
+      $puck_7;
     }
     else {
-      if ($unwrapTraitObject($puck_7).kind === "Identifier") {
-        let {value: e} = $unwrapTraitObject($puck_7);
+      if ($puck_7.kind === "Identifier") {
+        let {value: e} = $puck_7;
         PositionVisitor[visitor.type].visitIdentifier.call(visitor, e);
       }
       else {
-        if ($unwrapTraitObject($puck_7).kind === "FunctionDeclaration") {
-          let {value: e} = $unwrapTraitObject($puck_7);
+        if ($puck_7.kind === "FunctionDeclaration") {
+          let {value: e} = $puck_7;
           PositionVisitor[visitor.type].visitFunctionDeclaration.call(visitor, e);
         }
         else {
-          if ($unwrapTraitObject($puck_7).kind === "VariableDeclaration") {
-            let {value: e} = $unwrapTraitObject($puck_7);
+          if ($puck_7.kind === "VariableDeclaration") {
+            let {value: e} = $puck_7;
             PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, e);
           }
           else {
-            if ($unwrapTraitObject($puck_7).kind === "AssignmentExpression") {
-              let {value: e} = $unwrapTraitObject($puck_7);
+            if ($puck_7.kind === "AssignmentExpression") {
+              let {value: e} = $puck_7;
               PositionVisitor[visitor.type].visitAssignmentExpression.call(visitor, e);
             }
             else {
-              if ($unwrapTraitObject($puck_7).kind === "BinaryExpression") {
-                let {value: e} = $unwrapTraitObject($puck_7);
+              if ($puck_7.kind === "BinaryExpression") {
+                let {value: e} = $puck_7;
                 PositionVisitor[visitor.type].visitBinaryExpression.call(visitor, e);
               }
               else {
-                if ($unwrapTraitObject($puck_7).kind === "CallExpression") {
-                  let {value: e} = $unwrapTraitObject($puck_7);
+                if ($puck_7.kind === "CallExpression") {
+                  let {value: e} = $puck_7;
                   PositionVisitor[visitor.type].visitCallExpression.call(visitor, e);
                 }
                 else {
-                  if ($unwrapTraitObject($puck_7).kind === "IfExpression") {
-                    let {value: e} = $unwrapTraitObject($puck_7);
+                  if ($puck_7.kind === "IfExpression") {
+                    let {value: e} = $puck_7;
                     PositionVisitor[visitor.type].visitIfExpression.call(visitor, e);
                   }
                   else {
-                    if ($unwrapTraitObject($puck_7).kind === "IfLetExpression") {
-                      let {value: e} = $unwrapTraitObject($puck_7);
+                    if ($puck_7.kind === "IfLetExpression") {
+                      let {value: e} = $puck_7;
                       PositionVisitor[visitor.type].visitIfLetExpression.call(visitor, e);
                     }
                     else {
-                      if ($unwrapTraitObject($puck_7).kind === "MatchExpression") {
-                        let {value: e} = $unwrapTraitObject($puck_7);
+                      if ($puck_7.kind === "MatchExpression") {
+                        let {value: e} = $puck_7;
                         PositionVisitor[visitor.type].visitMatchExpression.call(visitor, e);
                       }
                       else {
-                        if ($unwrapTraitObject($puck_7).kind === "TypePathExpression") {
-                          let {value: e} = $unwrapTraitObject($puck_7);
+                        if ($puck_7.kind === "TypePathExpression") {
+                          let {value: e} = $puck_7;
                           PositionVisitor[visitor.type].visitTypePathExpression.call(visitor, e);
                         }
                         else {
-                          if ($unwrapTraitObject($puck_7).kind === "UnaryExpression") {
-                            let {value: e} = $unwrapTraitObject($puck_7);
+                          if ($puck_7.kind === "UnaryExpression") {
+                            let {value: e} = $puck_7;
                             PositionVisitor[visitor.type].visitUnaryExpression.call(visitor, e);
                           }
                           else {
-                            if ($unwrapTraitObject($puck_7).kind === "IndexAccess") {
-                              let {value: e} = $unwrapTraitObject($puck_7);
+                            if ($puck_7.kind === "IndexAccess") {
+                              let {value: e} = $puck_7;
                               PositionVisitor[visitor.type].visitIndexAccess.call(visitor, e);
                             }
                             else {
-                              if ($unwrapTraitObject($puck_7).kind === "MemberAccess") {
-                                let {value: e} = $unwrapTraitObject($puck_7);
+                              if ($puck_7.kind === "MemberAccess") {
+                                let {value: e} = $puck_7;
                                 PositionVisitor[visitor.type].visitMemberAccess.call(visitor, e);
                               }
                               else {
-                                if ($unwrapTraitObject($puck_7).kind === "UnknownAccess") {
-                                  let {value: e} = $unwrapTraitObject($puck_7);
+                                if ($puck_7.kind === "UnknownAccess") {
+                                  let {value: e} = $puck_7;
                                   PositionVisitor[visitor.type].visitUnknownAccess.call(visitor, e);
                                 }
                                 else {
-                                  if ($unwrapTraitObject($puck_7).kind === "UnknownIndexAccess") {
-                                    let {value: e} = $unwrapTraitObject($puck_7);
+                                  if ($puck_7.kind === "UnknownIndexAccess") {
+                                    let {value: e} = $puck_7;
                                     PositionVisitor[visitor.type].visitUnknownIndexAccess.call(visitor, e);
                                   }
                                   else {
-                                    if ($unwrapTraitObject($puck_7).kind === "BooleanLiteral") {
-                                      let {value: e} = $unwrapTraitObject($puck_7);
+                                    if ($puck_7.kind === "BooleanLiteral") {
+                                      let {value: e} = $puck_7;
                                       PositionVisitor[visitor.type].visitBooleanLiteral.call(visitor, e);
                                     }
                                     else {
-                                      if ($unwrapTraitObject($puck_7).kind === "ListLiteral") {
-                                        let {value: e} = $unwrapTraitObject($puck_7);
+                                      if ($puck_7.kind === "ListLiteral") {
+                                        let {value: e} = $puck_7;
                                         PositionVisitor[visitor.type].visitListLiteral.call(visitor, e);
                                       }
                                       else {
-                                        if ($unwrapTraitObject($puck_7).kind === "NumberLiteral") {
-                                          let {value: e} = $unwrapTraitObject($puck_7);
+                                        if ($puck_7.kind === "NumberLiteral") {
+                                          let {value: e} = $puck_7;
                                           PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, e);
                                         }
                                         else {
-                                          if ($unwrapTraitObject($puck_7).kind === "RecordLiteral") {
-                                            let {value: e} = $unwrapTraitObject($puck_7);
+                                          if ($puck_7.kind === "RecordLiteral") {
+                                            let {value: e} = $puck_7;
                                             PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, e);
                                           }
                                           else {
-                                            if ($unwrapTraitObject($puck_7).kind === "StringLiteral") {
-                                              let {value: e} = $unwrapTraitObject($puck_7);
+                                            if ($puck_7.kind === "StringLiteral") {
+                                              let {value: e} = $puck_7;
                                               PositionVisitor[visitor.type].visitStringLiteral.call(visitor, e);
                                             }
                                             else {
-                                              if ($unwrapTraitObject($puck_7).kind === "TupleLiteral") {
-                                                let {value: e} = $unwrapTraitObject($puck_7);
+                                              if ($puck_7.kind === "TupleLiteral") {
+                                                let {value: e} = $puck_7;
                                                 PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, e);
                                               };
                                             };
@@ -487,8 +485,8 @@ function walkEnumDeclaration(visitor, e) {
 exports.walkEnumDeclaration = walkEnumDeclaration;
 function walkEnumMember(visitor, e) {
   let $puck_10 = e.bound;
-  if ($puck_10.kind === "Some") {
-    let {value: typeBound} = $puck_10;
+  if ($puck_10 !== undefined) {
+    let typeBound = $puck_10;
     if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       return PositionVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
     };
@@ -580,8 +578,8 @@ function walkTraitDeclaration(visitor, t) {
 exports.walkTraitDeclaration = walkTraitDeclaration;
 function walkTypeDeclaration(visitor, t) {
   let $puck_15 = t.bound;
-  if ($puck_15.kind === "Some") {
-    let {value: typeBound} = $puck_15;
+  if ($puck_15 !== undefined) {
+    let typeBound = $puck_15;
     if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       return PositionVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
     };
@@ -602,33 +600,33 @@ exports.walkTypeDeclaration = walkTypeDeclaration;
 function walkExportDirective(visitor, e) {
   if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ExportedStatement', value: e.statement, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     let $puck_17 = e.statement;
-    if ($unwrapTraitObject($puck_17).kind === "EnumDeclaration") {
-      let {value: d} = $unwrapTraitObject($puck_17);
+    if ($puck_17.kind === "EnumDeclaration") {
+      let {value: d} = $puck_17;
       PositionVisitor[visitor.type].visitEnumDeclaration.call(visitor, d);
     }
     else {
-      if ($unwrapTraitObject($puck_17).kind === "TraitDeclaration") {
-        let {value: d} = $unwrapTraitObject($puck_17);
+      if ($puck_17.kind === "TraitDeclaration") {
+        let {value: d} = $puck_17;
         PositionVisitor[visitor.type].visitTraitDeclaration.call(visitor, d);
       }
       else {
-        if ($unwrapTraitObject($puck_17).kind === "TypeDeclaration") {
-          let {value: d} = $unwrapTraitObject($puck_17);
+        if ($puck_17.kind === "TypeDeclaration") {
+          let {value: d} = $puck_17;
           PositionVisitor[visitor.type].visitTypeDeclaration.call(visitor, d);
         }
         else {
-          if ($unwrapTraitObject($puck_17).kind === "Identifier") {
-            let {value: d} = $unwrapTraitObject($puck_17);
+          if ($puck_17.kind === "Identifier") {
+            let {value: d} = $puck_17;
             PositionVisitor[visitor.type].visitIdentifier.call(visitor, d);
           }
           else {
-            if ($unwrapTraitObject($puck_17).kind === "FunctionDeclaration") {
-              let {value: d} = $unwrapTraitObject($puck_17);
+            if ($puck_17.kind === "FunctionDeclaration") {
+              let {value: d} = $puck_17;
               PositionVisitor[visitor.type].visitFunctionDeclaration.call(visitor, d);
             }
             else {
-              if ($unwrapTraitObject($puck_17).kind === "VariableDeclaration") {
-                let {value: d} = $unwrapTraitObject($puck_17);
+              if ($puck_17.kind === "VariableDeclaration") {
+                let {value: d} = $puck_17;
                 PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, d);
               };
             };
@@ -642,8 +640,8 @@ exports.walkExportDirective = walkExportDirective;
 function walkImportDirective(visitor, i) {
   if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier', value: i.specifier, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     let $puck_18 = i.specifier;
-    if ($unwrapTraitObject($puck_18).kind === "ObjectDestructure") {
-      let {value: s} = $unwrapTraitObject($puck_18);
+    if ($puck_18.kind === "ObjectDestructure") {
+      let {value: s} = $puck_18;
       PositionVisitor[visitor.type].visitObjectDestructure.call(visitor, s);
     }
     else {
@@ -710,8 +708,8 @@ function walkWhileLoop(visitor, e) {
 exports.walkWhileLoop = walkWhileLoop;
 function walkFunctionDeclaration(visitor, f) {
   let $puck_21 = f.body;
-  if ($puck_21.kind === "Some") {
-    let {value: body} = $puck_21;
+  if ($puck_21 !== undefined) {
+    let body = $puck_21;
     if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: body, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       return PositionVisitor[visitor.type].visitBlock.call(visitor, body);
     };
@@ -724,8 +722,8 @@ function walkFunctionDeclaration(visitor, f) {
     return PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: f.parameterList, $isTraitObject: true}, index));
   };
   let $puck_23 = f.returnType;
-  if ($puck_23.kind === "Some") {
-    let {value: returnType} = $puck_23;
+  if ($puck_23 !== undefined) {
+    let returnType = $puck_23;
     if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: returnType, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       return PositionVisitor[visitor.type].visitTypeBound.call(visitor, returnType);
     };
@@ -745,15 +743,15 @@ function walkVariableDeclaration(visitor, d) {
   }
   else {
     let $puck_25 = d.typeBound;
-    if ($puck_25.kind === "Some") {
-      let {value: typeBound} = $puck_25;
+    if ($puck_25 !== undefined) {
+      let typeBound = $puck_25;
       if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: typeBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
         return PositionVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
       };
     };
     let $puck_26 = d.initializer;
-    if ($puck_26.kind === "Some") {
-      let {value: initializer} = $puck_26;
+    if ($puck_26 !== undefined) {
+      let initializer = $puck_26;
       if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: initializer, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
         return PositionVisitor[visitor.type].visitExpression.call(visitor, initializer);
       };
@@ -808,8 +806,8 @@ function walkIfExpression(visitor, e) {
     }
     else {
       let $puck_28 = e.else_;
-      if ($puck_28.kind === "Some") {
-        let {value: else_} = $puck_28;
+      if ($puck_28 !== undefined) {
+        let else_ = $puck_28;
         if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: else_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
           return PositionVisitor[visitor.type].visitBlock.call(visitor, else_);
         };
@@ -832,8 +830,8 @@ function walkIfLetExpression(visitor, e) {
       }
       else {
         let $puck_29 = e.else_;
-        if ($puck_29.kind === "Some") {
-          let {value: else_} = $puck_29;
+        if ($puck_29 !== undefined) {
+          let else_ = $puck_29;
           if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: else_, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
             return PositionVisitor[visitor.type].visitBlock.call(visitor, else_);
           };
@@ -875,13 +873,13 @@ function walkMatchArm(visitor, e) {
 exports.walkMatchArm = walkMatchArm;
 function walkTypePath(visitor, e) {
   let $puck_31 = e;
-  if ($unwrapTraitObject($puck_31).kind === "Member") {
-    let {value: i} = $unwrapTraitObject($puck_31);
+  if ($puck_31.kind === "Member") {
+    let {value: i} = $puck_31;
     PositionVisitor[visitor.type].visitIdentifier.call(visitor, i);
   }
   else {
-    if ($unwrapTraitObject($puck_31).kind === "_Object") {
-      let {value: [i, p]} = $unwrapTraitObject($puck_31);
+    if ($puck_31.kind === "_Object") {
+      let {value: [i, p]} = $puck_31;
       if ($puck_1.identical($puck_3.Span.cmp.call(i.span, PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
         PositionVisitor[visitor.type].visitIdentifier.call(visitor, i);
       }
@@ -968,15 +966,15 @@ function walkRecordLiteral(visitor, l) {
 exports.walkRecordLiteral = walkRecordLiteral;
 function walkRecordLiteralMember(visitor, l) {
   let $puck_34 = l;
-  if ($unwrapTraitObject($puck_34).kind === "Property") {
-    let {value: {name: name, value: value}} = $unwrapTraitObject($puck_34);
+  if ($puck_34.kind === "Property") {
+    let {value: {name: name, value: value}} = $puck_34;
     if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: value, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitExpression.call(visitor, value);
     };
   }
   else {
-    if ($unwrapTraitObject($puck_34).kind === "Spread") {
-      let {value: e} = $unwrapTraitObject($puck_34);
+    if ($puck_34.kind === "Spread") {
+      let {value: e} = $puck_34;
       PositionVisitor[visitor.type].visitExpression.call(visitor, e);
     };
   };
@@ -994,12 +992,12 @@ function walkStringLiteral(visitor, l) {
 exports.walkStringLiteral = walkStringLiteral;
 function walkStringLiteralPart(visitor, l) {
   let $puck_36 = l;
-  if ($unwrapTraitObject($puck_36).kind === "Literal") {
-    $unwrapTraitObject($puck_36);
+  if ($puck_36.kind === "Literal") {
+    $puck_36;
   }
   else {
-    if ($unwrapTraitObject($puck_36).kind === "Identifier") {
-      let {value: identifier} = $unwrapTraitObject($puck_36);
+    if ($puck_36.kind === "Identifier") {
+      let {value: identifier} = $puck_36;
       PositionVisitor[visitor.type].visitIdentifier.call(visitor, identifier);
     };
   };
@@ -1017,37 +1015,37 @@ function walkTupleLiteral(visitor, l) {
 exports.walkTupleLiteral = walkTupleLiteral;
 function walkPattern(visitor, p) {
   let $puck_38 = p;
-  if ($unwrapTraitObject($puck_38).kind === "CatchAll") {
-    $unwrapTraitObject($puck_38);
+  if ($puck_38.kind === "CatchAll") {
+    $puck_38;
   }
   else {
-    if ($unwrapTraitObject($puck_38).kind === "Identifier") {
-      let {value: {identifier: identifier}} = $unwrapTraitObject($puck_38);
+    if ($puck_38.kind === "Identifier") {
+      let {value: {identifier: identifier}} = $puck_38;
       PositionVisitor[visitor.type].visitIdentifierPattern.call(visitor, identifier);
     }
     else {
-      if ($unwrapTraitObject($puck_38).kind === "Record") {
-        let {value: recordPattern} = $unwrapTraitObject($puck_38);
+      if ($puck_38.kind === "Record") {
+        let {value: recordPattern} = $puck_38;
         PositionVisitor[visitor.type].visitRecordPattern.call(visitor, recordPattern);
       }
       else {
-        if ($unwrapTraitObject($puck_38).kind === "Tuple") {
-          let {value: tuplePattern} = $unwrapTraitObject($puck_38);
+        if ($puck_38.kind === "Tuple") {
+          let {value: tuplePattern} = $puck_38;
           PositionVisitor[visitor.type].visitTuplePattern.call(visitor, tuplePattern);
         }
         else {
-          if ($unwrapTraitObject($puck_38).kind === "RecordType") {
-            let {value: [typePath, recordPattern]} = $unwrapTraitObject($puck_38);
+          if ($puck_38.kind === "RecordType") {
+            let {value: [typePath, recordPattern]} = $puck_38;
             PositionVisitor[visitor.type].visitRecordTypePattern.call(visitor, typePath, recordPattern);
           }
           else {
-            if ($unwrapTraitObject($puck_38).kind === "TupleType") {
-              let {value: [typePath, tuplePattern]} = $unwrapTraitObject($puck_38);
+            if ($puck_38.kind === "TupleType") {
+              let {value: [typePath, tuplePattern]} = $puck_38;
               PositionVisitor[visitor.type].visitTupleTypePattern.call(visitor, typePath, tuplePattern);
             }
             else {
-              if ($unwrapTraitObject($puck_38).kind === "UnitType") {
-                let {value: typePath} = $unwrapTraitObject($puck_38);
+              if ($puck_38.kind === "UnitType") {
+                let {value: typePath} = $puck_38;
                 PositionVisitor[visitor.type].visitTypePath.call(visitor, typePath);
               };
             };
@@ -1084,23 +1082,23 @@ function walkTuplePattern(visitor, p) {
 exports.walkTuplePattern = walkTuplePattern;
 function walkTypeBound(visitor, t) {
   let $puck_41 = t;
-  if ($unwrapTraitObject($puck_41).kind === "FunctionTypeBound") {
-    let {value: t} = $unwrapTraitObject($puck_41);
+  if ($puck_41.kind === "FunctionTypeBound") {
+    let {value: t} = $puck_41;
     PositionVisitor[visitor.type].visitFunctionTypeBound.call(visitor, t);
   }
   else {
-    if ($unwrapTraitObject($puck_41).kind === "NamedTypeBound") {
-      let {value: t} = $unwrapTraitObject($puck_41);
+    if ($puck_41.kind === "NamedTypeBound") {
+      let {value: t} = $puck_41;
       PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, t);
     }
     else {
-      if ($unwrapTraitObject($puck_41).kind === "RecordTypeBound") {
-        let {value: t} = $unwrapTraitObject($puck_41);
+      if ($puck_41.kind === "RecordTypeBound") {
+        let {value: t} = $puck_41;
         PositionVisitor[visitor.type].visitRecordTypeBound.call(visitor, t);
       }
       else {
-        if ($unwrapTraitObject($puck_41).kind === "TupleTypeBound") {
-          let {value: t} = $unwrapTraitObject($puck_41);
+        if ($puck_41.kind === "TupleTypeBound") {
+          let {value: t} = $puck_41;
           PositionVisitor[visitor.type].visitTupleTypeBound.call(visitor, t);
         };
       };
@@ -1155,8 +1153,8 @@ function walkRecordTypeBound(visitor, t) {
 exports.walkRecordTypeBound = walkRecordTypeBound;
 function walkRecordTypeBoundMember(visitor, t) {
   let $puck_45 = t;
-  if ($unwrapTraitObject($puck_45).kind === "Property") {
-    let {value: {name: name, typeBound: typeBound}} = $unwrapTraitObject($puck_45);
+  if ($puck_45.kind === "Property") {
+    let {value: {name: name, typeBound: typeBound}} = $puck_45;
     if ($puck_1.identical($puck_3.Span.cmp.call(name.span, PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
       PositionVisitor[visitor.type].visitIdentifier.call(visitor, name);
     };
@@ -1165,8 +1163,8 @@ function walkRecordTypeBoundMember(visitor, t) {
     };
   }
   else {
-    if ($unwrapTraitObject($puck_45).kind === "Spread") {
-      let {value: t} = $unwrapTraitObject($puck_45);
+    if ($puck_45.kind === "Spread") {
+      let {value: t} = $puck_45;
       PositionVisitor[visitor.type].visitTypeBound.call(visitor, t);
     };
   };

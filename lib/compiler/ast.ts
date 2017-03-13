@@ -1,13 +1,6 @@
 import {Type, Implementation} from '../entities'
 
-export type Option<T>
-  = {
-      kind: 'Some'
-      value: T
-    }
-  | {
-      kind: 'None'
-    }
+export type Option<T> = T | undefined
 
 export interface Token {
   kind?: never
@@ -15,7 +8,8 @@ export interface Token {
 }
 
 export type Expression
-  = {kind: 'Identifier', value: Identifier}
+  = {kind: 'JsExpression', value: string}
+  | {kind: 'Identifier', value: Identifier}
   | {kind: 'ThrowStatement', value: any}
   | {kind: 'FunctionDeclaration', value: FunctionDeclaration}
   | {kind: 'VariableDeclaration', value: VariableDeclaration}
