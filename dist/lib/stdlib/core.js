@@ -1732,7 +1732,12 @@ function asList(a) {
   return a;
 };
 function print(message, extra = undefined) {
-  $unwrapTraitObject($unwrapTraitObject($puck_1.console).log).apply($puck_1.console, [message].concat(extra));
+  if (identical($unwrapTraitObject(extra), undefined)) {
+    $unwrapTraitObject($puck_1.console).log(message);
+  }
+  else {
+    $unwrapTraitObject($unwrapTraitObject($puck_1.console).log).apply($puck_1.console, [message].concat(extra));
+  };
 };
 exports.print = print;
 function panic(reason) {

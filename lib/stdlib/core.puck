@@ -1077,7 +1077,9 @@ impl IntoIterator<Num> for Range<Num> {
 }
 
 export fn print<T>(message, extra: T = ()) -> () {
-  console.log.apply(console, [message]->concat(extra))
+  if identical(extra, ())
+    then console.log(message)
+    else console.log.apply(console, [message]->concat(extra))
 }
 
 export fn panic(reason: String) -> Never {
