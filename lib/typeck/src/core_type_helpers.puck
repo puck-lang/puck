@@ -1,0 +1,24 @@
+import 'scope.puck' as {Binding, Scope}
+import '../../entities.puck' as {RecordMember, Type}
+import 'types.puck' as {createTypeInstance}
+
+export fn getCoreType(scope: Scope, id: String, description: String) -> Result<(Type, Binding), String> {
+  if let Some(binding) = scope.getBindingByTypeId(id)
+    then Ok((binding.type_.providesType.unwrap(), binding))
+    else Err('puck:core::$id is not in scope. Please import $id from puck:core to use $description.')
+}
+
+export fn wrapInOption(scope: Scope, type_: Type) -> Result<Type, String> {
+  match getCoreType(scope, 'Option', 'optional properties') {
+    Ok((mut option, _)) => Ok(createTypeInstance(option, [type_]))
+    Err(err) => Err(err)
+  }
+}
+
+export fn getRecordPropType(scope: Scope) {
+  |prop: RecordMember| {
+    if prop.optional
+      then wrapInOption(scope, prop.type_)
+      else Ok(prop.type_)
+  }
+}

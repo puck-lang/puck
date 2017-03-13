@@ -1141,6 +1141,7 @@ impl ToSpan for RecordTypeBound {
 export enum RecordTypeBoundMember {
   Property {
     name: Identifier
+    optional: Bool
     typeBound: TypeBound
   }
   Spread(TypeBound)

@@ -8,7 +8,7 @@ This document will give you a brief introduction to the syntax and basic concept
 
 /// Three slashes is a doc-comment, it sits on top of functions,
 /// variables and other declarations to describe their external use.
-let iAmDocumentd = 5
+let iAmDocumented = 5
 
 /// Doc and module comments can contain **markdown** to _emphasis_
 /// or link to declarations like [aParamter]
@@ -44,11 +44,9 @@ false : Bool
 
 'abc' : String
 "abc" : String
-// Adjecent string literals are concatenated
-'a' 'b'
-'c' == 'abc'
-// ...and they support interpolation
-'Hello, $name! Welcome to ${siteName.toUpperCase()}'
+
+// String support interpolation
+'Hello, $name!'
 
 [1, 2, 3] : List<Num>
 
@@ -57,31 +55,30 @@ false : Bool
 // Tuples
 (42, 'red', false) : (Num, String, Bool)
 
-// Object literals gets their type from their structure
-{ x: 3, y: 4 } : {x: Num, y: Num} 
+// Records
+{x: 3, y: 4} : {x: Num, y: Num} 
 ```
 
 ## Functions
 ```puck
-fn add(a, b) {
+fn add(a: Num, b: Num) {
   a + b
 }
 
-fn avarage(numbers) {
-  let total = numbers.reduce(add, 0)
+fn avarage(numbers: List<Num>) {
+  let total = numbers.fold(0, add)
 
   // The last value of a block becomes the value of the block
   // so there is no need to return the last expression
-  total / numbers.length
+  total / numbers.size()
 }
 
 // Lamda syntax
 names.map(|name| name.toUpperCase())
 
-// Functions can take mutable parameters, and type them!
-fn makeAdmin(mut user: User) -> User {
+// Functions can take mutable parameters
+fn makeAdmin(mut user: User) -> () {
   user.isAdmin = true
-  user
 }
 ```
 
@@ -122,13 +119,16 @@ to puck, please see [for loops](for_loops.md).
 
 ## Types
 ```puck
-// Object types describes the members of a data structure
+// Record types describe named members of a data structure
 type Point {
   x: Num
   y: Num
 }
 
-// Enums can hold a set of different types  
+// Tuple types describes ordered members of a data structure
+type Point(Num, Num)
+
+// Enums can hold a set of different types
 enum Option<T> {
   Some(T)
   None
@@ -147,22 +147,22 @@ trait Area {
 }
 
 impl Area on Rect {
-  fn calculateArea(self) {self.width * self.height}
+  fn calculateArea(self) -> Num {self.width * self.height}
 }
 
 impl Area on Circle {
-  fn calculateArea(self) {pi * self.radius ** 2}
+  fn calculateArea(self) -> Num {pi * self.radius ** 2}
 }
 
 // Sometimes you doesn't need a trait, for example factory functions
 // that just create objects of their types
 impl Rect {
-  fn new(width: Num, height: Num) {
-    Rect { width, height }
+  fn new(width: Num, height: Num) -> Rect {
+    {width, height}
   }
 
-  fn square(length: Num) {
-    Rect { width: length, height: length }
+  fn square(length: Num) -> Rect {
+    {width: length, height: length}
   }
 }
 ```

@@ -159,7 +159,7 @@ impl PositionVisitor for DefinitionVisitor {
       if type_ {
         match type_.kind {
           TypeKind::Struct({kind: StructKind::Record(record)}) => {
-            if let Some(type_) = record.properties.get(a.member.name) {
+            if let Some({type_}) = record.properties.get(a.member.name) {
               self.definitions = [{
                 file: type_.definition.file
                 span: type_.definition.token.span()

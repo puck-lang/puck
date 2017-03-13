@@ -74,8 +74,16 @@ fn getTupleTypeName(properties: Iterable<Type>) {
   '(' + properties.map(|type_| type_.displayName())->join(', ') + ')'
 }
 
-fn getRecordTypeName(properties: ObjectMap<Type>) {
-  '{' + properties.toList().map(|(key, type_): (String, Type)| '$key: ' + type_.displayName())->join(', ') + '}'
+fn getRecordTypeName(properties: ObjectMap<RecordMember>) {
+  '{' +
+    properties
+      .toList()
+      .map(|(key, {type_, optional})| {
+        let questionMark = if optional then '?' else ''
+        '$key$questionMark: ' + type_.displayName()
+      })
+      ->join(', ') +
+  '}'
 }
 
 fn getGenericName(name: String, type_: Type, showClassParameters = false) {
@@ -317,7 +325,12 @@ export enum StructKind {
 }
 
 export type Record {
-  properties: ObjectMap<Type>
+  properties: ObjectMap<RecordMember>
+}
+
+export type RecordMember {
+  type_: Type
+  optional: Bool
 }
 
 export type Tuple {

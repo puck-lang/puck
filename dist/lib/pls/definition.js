@@ -27,8 +27,8 @@ visitImplDeclaration: function (i) {
   const trait_ = $puck_2.NamedTypeBound.getType.call(i.trait_);
   if (trait_) {
     let $puck_7 = trait_.kind;
-    if ($unwrapTraitObject($puck_7).kind === "Trait") {
-      let {value: trait_} = $unwrapTraitObject($puck_7);
+    if ($puck_7.kind === "Trait") {
+      let {value: trait_} = $puck_7;
       self.value.inTraitImpl = $puck_1.Some(trait_);
     }
     else {
@@ -46,12 +46,12 @@ visitMethodDeclaration: function (f) {
     f.name,
     self.value.inTraitImpl,
   ];
-  if (($unwrapTraitObject($puck_13[0]).kind === "Some" && $unwrapTraitObject($puck_13[1]).kind === "Some")) {
-    let [{value: name}, {value: trait_}] = $puck_13;
+  if (($puck_13[0] !== undefined && $puck_13[1] !== undefined)) {
+    let [name, trait_] = $puck_13;
     if ($puck_1.identical($puck_3.Span.cmp.call(name.span, self.value.position), $puck_1.Ordering.Equal)) {
       let $puck_14 = $puck_1.ObjectMap.get.call(trait_.functions, name.name);
-      if ($puck_14.kind === "Some") {
-        let {value: func} = $puck_14;
+      if ($puck_14 !== undefined) {
+        let func = $puck_14;
         let $puck_15 = func.definition.token
 ;
         self.value.definitions = [{
@@ -69,8 +69,8 @@ visitImportDirective: function (i) {
   let self = this;
   self.value.importedModule = i._module;
   let $puck_8 = i._module;
-  if ($puck_8.kind === "Some") {
-    let {value: _module} = $puck_8;
+  if ($puck_8 !== undefined) {
+    let _module = $puck_8;
     if ($puck_1.Option.isNone.call(i.domain)) {
       if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: i.locator, $isTraitObject: true}), self.value.position), $puck_1.Ordering.Equal)) {
         self.value.definitions = [{
@@ -86,13 +86,13 @@ visitImportDirective: function (i) {
         },
         }),
         }];
-        return null;
+        return undefined;
       }
       else {
         if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier', value: i.specifier, $isTraitObject: true}), self.value.position), $puck_1.Ordering.Equal)) {
           let $puck_9 = i.specifier;
-          if ($unwrapTraitObject($puck_9).kind === "Identifier") {
-            $unwrapTraitObject($puck_9);
+          if ($puck_9.kind === "Identifier") {
+            $puck_9;
             self.value.definitions = [{
               file: _module.file,
               span: $puck_3.Span({
@@ -106,7 +106,7 @@ visitImportDirective: function (i) {
             },
             }),
             }];
-            return null;
+            return undefined;
           }
           else {
             if (true) {
@@ -124,11 +124,11 @@ visitObjectDestructureMember: function (m) {
   let self = this;
   if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: m.property, $isTraitObject: true}), $puck_6.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor"].position.call(self)), $puck_1.Ordering.Equal)) {
     let $puck_10 = self.value.importedModule;
-    if ($puck_10.kind === "Some") {
-      let {value: _module} = $puck_10;
+    if ($puck_10 !== undefined) {
+      let _module = $puck_10;
       let $puck_11 = $puck_1.ObjectMap.get.call(_module.exports, m.property.name);
-      if ($puck_11.kind === "Some") {
-        let {value: e} = $puck_11;
+      if ($puck_11 !== undefined) {
+        let e = $puck_11;
         self.value.definitions = [{
           file: _module.file,
           span: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e.identifier, $isTraitObject: true}),
@@ -193,7 +193,7 @@ visitCallExpression: function (e) {
               span: $puck_3.ToSpan[$puck_19.type].span.call($puck_19),
             }];
           };
-          return null;
+          return undefined;
         };
       };
     };
@@ -215,11 +215,11 @@ visitMemberAccess: function (a) {
     const type_ = $puck_2.Expression.getType.call(a.object);
     if (type_) {
       let $puck_20 = type_.kind;
-      if (($unwrapTraitObject($puck_20).kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject($puck_20).value).kind).kind === "Record")) {
-        let {value: {kind: {value: record}}} = $unwrapTraitObject($puck_20);
+      if (($puck_20.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_20.value).kind).kind === "Record")) {
+        let {value: {kind: {value: record}}} = $puck_20;
         let $puck_21 = $puck_1.ObjectMap.get.call(record.properties, a.member.name);
-        if ($puck_21.kind === "Some") {
-          let {value: type_} = $puck_21;
+        if ($puck_21 !== undefined) {
+          let {type_: type_} = $puck_21;
           let $puck_22 = type_.definition.token
 ;
           self.value.definitions = [{

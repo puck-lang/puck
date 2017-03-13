@@ -24,11 +24,11 @@ function createImport(binding, importingModule, importedModule) {
   const path = bestImportPath(importingModule.file, importedModule.file.absolutePath);
   let $puck_6 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: importingModule.statements, $isTraitObject: true}, function (s) {
     let $puck_7 = s;
-    if ($unwrapTraitObject($puck_7).kind === "ImportDirective") {
-      let {value: d} = $unwrapTraitObject($puck_7);
+    if ($puck_7.kind === "ImportDirective") {
+      let {value: d} = $puck_7;
       let $puck_8 = d.specifier;
-      if ($unwrapTraitObject($puck_8).kind === "ObjectDestructure") {
-        let {value: o} = $unwrapTraitObject($puck_8);
+      if ($puck_8.kind === "ObjectDestructure") {
+        let {value: o} = $puck_8;
         return $puck_1.Some(d);
       }
       else {
@@ -52,11 +52,11 @@ function createImport(binding, importingModule, importedModule) {
       return "" + domain + ":" + d.path;
     }) === path;
   });
-  if (($puck_9.kind === "Some")) {
-    let {value: import_} = $puck_9;
+  if (($puck_9 !== undefined)) {
+    let import_ = $puck_9;
     let $puck_10 = import_.specifier;
-    if ($unwrapTraitObject($puck_10).kind === "ObjectDestructure") {
-      let {value: o} = $unwrapTraitObject($puck_10);
+    if ($puck_10.kind === "ObjectDestructure") {
+      let {value: o} = $puck_10;
       const index = $puck_1.Result.unwrapErr.call($puck_1.List.binarySearchBy.call(o.members, function (m) {
         return $puck_1.Ord["$impl_lib/stdlib/core.puck:Ord$String"].cmp.call({type: '$impl_lib/stdlib/core.puck:Ord$String', value: m.local.name, $isTraitObject: true}, {type: '$impl_lib/stdlib/core.puck:Ord$String', value: binding, $isTraitObject: true});
       }));
@@ -136,8 +136,8 @@ function createImport(binding, importingModule, importedModule) {
     else {
       $puck_18 = $puck_1.Result.unwrapErr.call($puck_1.Result.mapErr.call($puck_1.List.binarySearchBy.call($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: imports, $isTraitObject: true}), function (i) {
         let $puck_19 = i.domain;
-        if ($puck_19.kind === "Some") {
-          let {value: domain} = $puck_19;
+        if ($puck_19 !== undefined) {
+          let domain = $puck_19;
           if ($puck_1.String.startsWith.call(path, "puck:")) {
             if (domain === "puck") {
               return $puck_1.Ordering.reverse.call($puck_1.Ord["$impl_lib/stdlib/core.puck:Ord$String"].cmp.call({type: '$impl_lib/stdlib/core.puck:Ord$String', value: $puck_1.String.sub.call(path, $puck_1.Range._new(5, $puck_1.String.size.call(path))), $isTraitObject: true}, {type: '$impl_lib/stdlib/core.puck:Ord$String', value: i.path, $isTraitObject: true}));

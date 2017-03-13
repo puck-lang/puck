@@ -1,6 +1,4 @@
 'use strict';
-
-const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
 exports.enumMemberToFunction = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
@@ -12,8 +10,8 @@ const $puck_7 = require("./types");
 function enumMemberToFunction(type_) {
   let $puck_8 = type_.enumMember;
   let $puck_9;
-  if ($puck_8.kind === "Some") {
-    let {value: [member, enum_]} = $puck_8;
+  if ($puck_8 !== undefined) {
+    let [member, enum_] = $puck_8;
     $puck_9 = $puck_1.Option.map.call(enum_.name, function (name) {
       return "" + name + "::" + member + "";
     });
@@ -27,8 +25,8 @@ function enumMemberToFunction(type_) {
   }), type_.providesType), type_);
   let $puck_10 = providedType._class;
   let $puck_11;
-  if ($puck_10.kind === "Some") {
-    let {value: _class} = $puck_10;
+  if ($puck_10 !== undefined) {
+    let _class = $puck_10;
     $puck_11 = $puck_7.createTypeInstance(providedType, _class.typeParameters);
   }
   else {
@@ -37,12 +35,12 @@ function enumMemberToFunction(type_) {
   let returnType = $puck_11;
   let $puck_12 = $puck_1.Option.unwrapOr.call(type_.providesType, type_).kind;
   let $puck_13;
-  if ($unwrapTraitObject($puck_12).kind === "Struct") {
-    let {value: struct} = $unwrapTraitObject($puck_12);
+  if ($puck_12.kind === "Struct") {
+    let {value: struct} = $puck_12;
     let $puck_14 = struct.kind;
     let $puck_15;
-    if ($unwrapTraitObject($puck_14).kind === "Record") {
-      let {value: record} = $unwrapTraitObject($puck_14);
+    if ($puck_14.kind === "Record") {
+      let {value: record} = $puck_14;
       $puck_15 = $puck_5.TypeKind.Function({
         selfBinding: $puck_1.None,
         parameters: [{
@@ -64,8 +62,8 @@ function enumMemberToFunction(type_) {
     }
     else {
       let $puck_16;
-      if ($unwrapTraitObject($puck_14).kind === "Tuple") {
-        let {value: tuple} = $unwrapTraitObject($puck_14);
+      if ($puck_14.kind === "Tuple") {
+        let {value: tuple} = $puck_14;
         let $puck_18 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true})
 ;
         let $puck_17 = $puck_1.Iterable[$puck_18.type].map.call($puck_18, function ([i, p]) {
@@ -93,8 +91,8 @@ function enumMemberToFunction(type_) {
       }
       else {
         let $puck_19;
-        if (($unwrapTraitObject($puck_14).kind === "Unit")) {
-          $unwrapTraitObject($puck_14);
+        if (($puck_14.kind === "Unit")) {
+          $puck_14;
           return $puck_5.Type({
             definition: returnType.definition,
             id: returnType.id,

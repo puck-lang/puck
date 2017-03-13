@@ -212,7 +212,7 @@ fn getTypeMember(type_: Type, displayPath: String, member: String) -> Result<Typ
     }
     TypeKind::Struct(struct) => match struct.kind {
       StructKind::Record(record) => match record.properties.get(member) {
-        Option::Some(propertyType) => Ok(propertyType)
+        Option::Some({type_}) => Ok(type_)
         Option::None => Err('Use of undeclared type $displayPath::$member')
       }
       StructKind::Tuple => Err('Can not access members on a tuple type')

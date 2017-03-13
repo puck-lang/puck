@@ -1,21 +1,15 @@
 import {Type, Implementation} from '../entities'
 
-export type Option<T>
-  = {
-      kind: 'Some'
-      value: T
-    }
-  | {
-      kind: 'None'
-    }
+export type Option<T> = T | undefined
 
 export interface Token {
-  kind?: never
+  kind?: {kind: string}
   type_?: Type
 }
 
 export type Expression
-  = {kind: 'Identifier', value: Identifier}
+  = {kind: 'JsExpression', value: string}
+  | {kind: 'Identifier', value: Identifier}
   | {kind: 'ThrowStatement', value: any}
   | {kind: 'FunctionDeclaration', value: FunctionDeclaration}
   | {kind: 'VariableDeclaration', value: VariableDeclaration}
@@ -155,12 +149,14 @@ export interface TypeParameter extends Token {
 export interface TypePathMemberArm {
   kind: 'Member'
   value: Identifier
+  type_?: Type
 }
 
 export interface TypePathObjectArm {
   kind: '_Object'
   value: [Identifier, TypePath]
   binding?: any
+  type_?: Type
 }
 
 export type TypePath

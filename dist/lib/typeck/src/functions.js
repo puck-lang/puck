@@ -12,8 +12,8 @@ const $puck_7 = require("./scope");
 const $puck_8 = require("./types");
 function getPatternName(pattern) {
   let $puck_9 = pattern;
-  if ($unwrapTraitObject($puck_9).kind === "Identifier") {
-    let {value: {identifier: identifier}} = $unwrapTraitObject($puck_9);
+  if ($puck_9.kind === "Identifier") {
+    let {value: {identifier: identifier}} = $puck_9;
     return $puck_1.Some(identifier.name);
   }
   else {
@@ -25,42 +25,42 @@ function getPatternName(pattern) {
 };
 function isPatternMutable(pattern) {
   let $puck_10 = pattern;
-  if ($unwrapTraitObject($puck_10).kind === "CatchAll") {
-    $unwrapTraitObject($puck_10);
+  if ($puck_10.kind === "CatchAll") {
+    $puck_10;
     return false;
   }
   else {
-    if ($unwrapTraitObject($puck_10).kind === "Identifier") {
-      let {value: {identifier: identifier, mutable: mutable}} = $unwrapTraitObject($puck_10);
+    if ($puck_10.kind === "Identifier") {
+      let {value: {identifier: identifier, mutable: mutable}} = $puck_10;
       return mutable;
     }
     else {
-      if ($unwrapTraitObject($puck_10).kind === "Record") {
-        let {value: record} = $unwrapTraitObject($puck_10);
+      if ($puck_10.kind === "Record") {
+        let {value: record} = $puck_10;
         return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true}, function (p) {
           return isPatternMutable(p.pattern);
         });
       }
       else {
-        if ($unwrapTraitObject($puck_10).kind === "Tuple") {
-          let {value: tuple} = $unwrapTraitObject($puck_10);
+        if ($puck_10.kind === "Tuple") {
+          let {value: tuple} = $puck_10;
           return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true}, isPatternMutable);
         }
         else {
-          if ($unwrapTraitObject($puck_10).kind === "RecordType") {
-            let {value: [, record]} = $unwrapTraitObject($puck_10);
+          if ($puck_10.kind === "RecordType") {
+            let {value: [, record]} = $puck_10;
             return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true}, function (p) {
               return isPatternMutable(p.pattern);
             });
           }
           else {
-            if ($unwrapTraitObject($puck_10).kind === "TupleType") {
-              let {value: [, tuple]} = $unwrapTraitObject($puck_10);
+            if ($puck_10.kind === "TupleType") {
+              let {value: [, tuple]} = $puck_10;
               return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true}, isPatternMutable);
             }
             else {
-              if ($unwrapTraitObject($puck_10).kind === "UnitType") {
-                $unwrapTraitObject($puck_10);
+              if ($puck_10.kind === "UnitType") {
+                $puck_10;
                 return false;
               };
             };
@@ -110,8 +110,8 @@ function createFunctionType(file, scope, f, reportError) {
   let parameters = $puck_1.Iterable[$puck_13.type].toList.call($puck_13);
   let $puck_15 = f.returnType;
   let $puck_16;
-  if ($puck_15.kind === "Some") {
-    let {value: returnType} = $puck_15;
+  if ($puck_15 !== undefined) {
+    let returnType = $puck_15;
     $puck_16 = $puck_3.TypeBound.getType.call(returnType);
   }
   else {
@@ -200,17 +200,17 @@ function checkFunctionAssignability(functionName, to, subject) {
     return $puck_1.Err("Return type " + $puck_5.Type.displayName.call(subject.returnType) + " is not assignable to " + $puck_5.Type.displayName.call(to.returnType));
   }
   else {
-    return $puck_1.Ok(null);
+    return $puck_1.Ok(undefined);
   };
 };
 exports.checkFunctionAssignability = checkFunctionAssignability;
 function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType, allowedToFollowFunction = true) {
   if ((!parameterType || !argumentType || $puck_5.Type.isNever.call(argumentType))) {
-    return null;
+    return undefined;
   };
   let $puck_22 = parameterType.kind;
-  if ($unwrapTraitObject($puck_22).kind === "Parameter") {
-    $unwrapTraitObject($puck_22);
+  if ($puck_22.kind === "Parameter") {
+    $puck_22;
     const name = $puck_1.Option.unwrap.call(parameterType.name);
     if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: typeParameters, $isTraitObject: true}, function (p) {
       return $puck_1.Option.unwrap.call(p.name) === name;
@@ -221,27 +221,27 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
     };
   }
   else {
-    if ($unwrapTraitObject($puck_22).kind === "Struct") {
-      let {value: struct} = $unwrapTraitObject($puck_22);
+    if ($puck_22.kind === "Struct") {
+      let {value: struct} = $puck_22;
       if ((!$puck_1.Option.isSome.call(parameterType.id))) {
         let $puck_23 = struct.kind;
-        if ($unwrapTraitObject($puck_23).kind === "Record") {
-          let {value: parameterRecord} = $unwrapTraitObject($puck_23);
+        if ($puck_23.kind === "Record") {
+          let {value: parameterRecord} = $puck_23;
           let $puck_24 = argumentType.kind;
           if (($puck_24.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_24.value).kind).kind === "Record")) {
             let {value: {kind: {value: argumentRecord}}} = $puck_24;
-            $puck_1.ObjectMap.forEach.call(parameterRecord.properties, function ([name, parameterType]) {
+            $puck_1.ObjectMap.forEach.call(parameterRecord.properties, function ([name, {type_: parameterType}]) {
               let $puck_25 = $puck_1.ObjectMap.get.call(argumentRecord.properties, name);
-              if ($puck_25.kind === "Some") {
-                let {value: argumentType} = $puck_25;
+              if ($puck_25 !== undefined) {
+                let {type_: argumentType} = $puck_25;
                 return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType);
               };
             });
           };
         }
         else {
-          if ($unwrapTraitObject($puck_23).kind === "Tuple") {
-            let {value: parameterTuple} = $unwrapTraitObject($puck_23);
+          if ($puck_23.kind === "Tuple") {
+            let {value: parameterTuple} = $puck_23;
             let $puck_26 = argumentType.kind;
             if (($puck_26.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_26.value).kind).kind === "Tuple")) {
               let {value: {kind: {value: argumentTuple}}} = $puck_26;
@@ -249,8 +249,8 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
 ;
               $puck_1.Iterable[$puck_27.type].forEach.call($puck_27, function ([i, parameterType]) {
                 let $puck_28 = $puck_1.List.get.call(argumentTuple.properties, i);
-                if ($puck_28.kind === "Some") {
-                  let {value: argumentType} = $puck_28;
+                if ($puck_28 !== undefined) {
+                  let argumentType = $puck_28;
                   return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType);
                 };
               });
@@ -265,8 +265,8 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
       };
     }
     else {
-      if ($unwrapTraitObject($puck_22).kind === "Function") {
-        let {value: parameterFunction} = $unwrapTraitObject($puck_22);
+      if ($puck_22.kind === "Function") {
+        let {value: parameterFunction} = $puck_22;
         if ((allowedToFollowFunction && parameterFunction.returnType)) {
           let $puck_29 = argumentType.kind;
           if ($puck_29.kind === "Function") {
@@ -288,14 +288,14 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
     $puck_5.Type.typeParameters.call(parameterType),
     $puck_5.Type.typeParameters.call(argumentType),
   ];
-  if (($unwrapTraitObject($unwrapTraitObject($puck_30)[0]).kind === "Some" && $unwrapTraitObject($unwrapTraitObject($puck_30)[1]).kind === "Some")) {
-    let [{value: parameterParameters}, {value: argumentParameters}] = $unwrapTraitObject($puck_30);
+  if (($puck_30[0] !== undefined && $puck_30[1] !== undefined)) {
+    let [parameterParameters, argumentParameters] = $puck_30;
     let $puck_31 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameterParameters, $isTraitObject: true})
 ;
     return $puck_1.Iterable[$puck_31.type].forEach.call($puck_31, function ([i, parameterType]) {
       let $puck_32 = $puck_1.List.get.call(argumentParameters, i);
-      if ($puck_32.kind === "Some") {
-        let {value: argumentType} = $puck_32;
+      if ($puck_32 !== undefined) {
+        let argumentType = $puck_32;
         return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType, false);
       };
     });

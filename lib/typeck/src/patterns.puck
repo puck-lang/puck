@@ -1,8 +1,10 @@
 import '../../ast/ast.puck' as {Pattern, TypePath}
 import '../../ast/span.puck' as {ToSpan}
-import '../../entities.puck' as {Definition, StructKind, Type, TypeKind}
+import 'puck:js' as {undefined}
+import '../../entities.puck' as {Definition, RecordMember, StructKind, Type, TypeKind}
 import 'scope.puck' as {Scope}
 import 'types.puck' as {isAssignable}
+import 'core_type_helpers.puck' as {getRecordPropType, wrapInOption}
 
 export enum PatternError {
   ScopeError(ToSpan, String)
@@ -96,20 +98,29 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, typ
           }
           else ObjectMap.new()
 
-      record.properties
+      let mut b = record.properties
         .iter()
-        .map(|mut p| (
-          p.property.name
-          declarePatternVariables(
-            scope
-            visitor
-            p.pattern
-            props->[p.property.name].transmute()
-            allowNotExhaustive
-            useParentScope
-            definitions
+        .map(|mut p| {
+          let type_ =
+            match props.get(p.property.name).mapOr(Ok(undefined), getRecordPropType(scope)) {
+              Ok(type_) => type_
+              Err(err) => return (p.property.name, Err(PatternError::ScopeError(p.pattern, err)))
+            }
+
+          (
+            p.property.name
+            declarePatternVariables(
+              scope
+              visitor
+              p.pattern
+              type_
+              allowNotExhaustive
+              useParentScope
+              definitions
+            )
           )
-        ))
+        })
+      b
         .fold(Ok(()), |acc: Result<(), PatternError>, (name, type_)| acc.andThen(|_| type_))
     }
     Pattern::RecordType(typePath, record) => {
@@ -132,22 +143,31 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, typ
       if not allowNotExhaustive and isNonExhaustive(typePath)
         then return Err(PatternError::NotExhaustive)
 
-      record.properties
+      let mut a = record.properties
         .toList()
         .iter()
-        .map(|mut p| (
-          p.property.name
-          declarePatternVariables(
-            scope
-            visitor
-            p.pattern
-            props->[p.property.name].transmute()
-            allowNotExhaustive
-            useParentScope
-            definitions
+        .map(|mut p| {
+          let type_ =
+            match props.get(p.property.name).mapOr(Ok(undefined), getRecordPropType(scope)) {
+              Ok(type_) => type_
+              Err(err) => return (p.property.name, Err(PatternError::ScopeError(p.pattern, err)))
+            }
+
+          (
+            p.property.name
+            declarePatternVariables(
+              scope
+              visitor
+              p.pattern
+              type_
+              allowNotExhaustive
+              useParentScope
+              definitions
+            )
           )
-        ))
-        .fold(Ok(()), |acc: Result<(), PatternError>, (name, type_)| acc.andThen(|_| type_))
+        })
+
+      a.fold(Ok(()), |acc: Result<(), PatternError>, (name, type_)| acc.andThen(|_| type_))
     }
     Pattern::Tuple(tuple) => {
       let props =
@@ -169,7 +189,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, typ
           scope
           visitor
           p
-          props->[i].transmute()
+          props.get(i).unwrapOr(undefined)
           allowNotExhaustive
           useParentScope
           definitions
@@ -203,7 +223,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, typ
           scope
           visitor
           p
-          props->[i].transmute()
+          props.get(i).unwrapOr(undefined)
           allowNotExhaustive
           useParentScope
           definitions

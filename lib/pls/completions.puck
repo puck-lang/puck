@@ -238,7 +238,7 @@ impl PositionVisitor for CompletionVisitor {
             self.completions = Some(
               record.properties
                 .toList()
-                .map(|(property, type_): (String, Type)| {
+                .map(|(property, {type_})| {
                   let typeName = type_.displayName()
                   {
                     label: '$property: $typeName'

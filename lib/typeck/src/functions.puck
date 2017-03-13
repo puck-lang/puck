@@ -145,8 +145,8 @@ export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeP
         match struct.kind {
           StructKind::Record(parameterRecord) => {
             if let TypeKind::Struct({kind: StructKind::Record(argumentRecord)}) = argumentType.kind {
-              parameterRecord.properties.forEach(|(name, parameterType)| {
-                if let Some(argumentType) = argumentRecord.properties.get(name) {
+              parameterRecord.properties.forEach(|(name, {type_: parameterType})| {
+                if let Some({type_: argumentType}) = argumentRecord.properties.get(name) {
                   resolveFunctionTypeParameters(
                     parameterMap
                     typeParameters

@@ -20,15 +20,15 @@ function cmd(cmd) {
     });
   });
   let $puck_5 = result;
-  if ($unwrapTraitObject($puck_5).kind === "Ok") {
-    let {value: output} = $unwrapTraitObject($puck_5);
+  if ($puck_5.kind === "Ok") {
+    let {value: output} = $puck_5;
     if (output.toString()) {
       return $puck_1.print(output.toString().trim());
     };
   }
   else {
-    if ($unwrapTraitObject($puck_5).kind === "Err") {
-      let {value: error} = $unwrapTraitObject($puck_5);
+    if ($puck_5.kind === "Err") {
+      let {value: error} = $puck_5;
       const stdout = $unwrapTraitObject(error.stdout.toString());
       const stderr = $unwrapTraitObject(error.stderr.toString());
       if (stdout) {
@@ -41,7 +41,7 @@ function cmd(cmd) {
         $unwrapTraitObject($puck_2.console).error(error.stack);
       };
       $puck_2.process.exit(1);
-      return null;
+      return undefined;
     };
   };
 };
@@ -59,7 +59,7 @@ function walkSync(directory, filelist = []) {
     else {
       $puck_1.List.push.call(filelist, file);
     };
-    return null;
+    return undefined;
   });
   return filelist;
 };
@@ -70,8 +70,8 @@ function flag(_arguments, name, defaultValue = "") {
   let $puck_6 = $puck_1.Iterator[$puck_7.type].position.call($puck_7, function (a) {
     return a === name;
   });
-  if ($puck_6.kind === "Some") {
-    let {value: index} = $puck_6;
+  if ($puck_6 !== undefined) {
+    let index = $puck_6;
     const value = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: _arguments, $isTraitObject: true}, index + 1);
     _arguments.splice(index, 2);
     return value;

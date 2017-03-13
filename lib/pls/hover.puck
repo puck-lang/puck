@@ -67,7 +67,7 @@ fn getEnumMember(type_: Type, member: String) -> Option<Type> {
 fn getPropertyType(type_: Type, property: String) -> Option<Type> {
   match type_.kind {
     TypeKind::Struct({kind: StructKind::Record(record)}) => {
-      record.properties.get(property)
+      record.properties.get(property).map(|p| p.type_)
     }
     _ => None
   }
