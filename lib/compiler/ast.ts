@@ -3,7 +3,7 @@ import {Type, Implementation} from '../entities'
 export type Option<T> = T | undefined
 
 export interface Token {
-  kind?: never
+  kind?: {kind: string}
   type_?: Type
 }
 
@@ -149,12 +149,14 @@ export interface TypeParameter extends Token {
 export interface TypePathMemberArm {
   kind: 'Member'
   value: Identifier
+  type_?: Type
 }
 
 export interface TypePathObjectArm {
   kind: '_Object'
   value: [Identifier, TypePath]
   binding?: any
+  type_?: Type
 }
 
 export type TypePath

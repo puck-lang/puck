@@ -9,7 +9,7 @@
     ],
     "noImplicitAny": true,
     "sourceMap": false,
-    "outDir": "dist/lib",
+    "outDir": "dist",
     "strictNullChecks": true
   },
   "files": [

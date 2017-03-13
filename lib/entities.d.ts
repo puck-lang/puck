@@ -28,7 +28,7 @@ export class Type {
 export type Record = {
   kind: 'Record'
   value: {
-    properties: {[name: string]: Type}
+    properties: {[name: string]: {type_: Type}}
   }
 }
 
