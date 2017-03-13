@@ -26,7 +26,7 @@ if ($puck_7 === undefined) {
     return $puck_1.RegExp.test.call(failPattern, f);
   });
   $puck_3.cmd(".tmp/old/bin/puckc --out-dir .tmp/cases test/cases/**/!(*.error).puck");
-  const buildString = $unwrapTraitObject($puck_2._require("puck-lang/.tmp/old/lib/compiler").buildString);
+  const buildString = $unwrapTraitObject(require("puck-lang/.tmp/old/lib/compiler").buildString);
   const projectPath = $unwrapTraitObject(fs.realpathSync("."));
   $puck_1.Iterable[failCases.type].forEach.call(failCases, function (file) {
     const contents = $unwrapTraitObject(fs.readFileSync(file, {encoding: "utf-8"}));
