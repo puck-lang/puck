@@ -241,5 +241,5 @@ function collectTypeParameters(parameterMap, ip, op) {
       };
     };
   };
-  return $puck_1.Ok(null);
+  return $puck_1.Ok(undefined);
 }

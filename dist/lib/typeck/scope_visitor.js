@@ -80,7 +80,7 @@ function asTraitCall(visitor, e, trait_, method, desription) {
     $unwrapTraitObject(visitor).visitCallExpression(call);
     e.call = call;
     e.type_ = call.type_;
-    return $puck_1.Ok(null);
+    return $puck_1.Ok(undefined);
   }
   else {
     if ($puck_20.kind === "Err") {
@@ -364,7 +364,7 @@ function ScopeVisitor(context, file) {
     else {
       $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: i, $isTraitObject: true}, $puck_17.CompilationError.UndefinedVariable(i.name));
     };
-    return null;
+    return undefined;
   },
     visitFunctionDeclaration: function (f, isHoisting = false) {
     let self = this;
@@ -851,7 +851,7 @@ function ScopeVisitor(context, file) {
         };
       };
     };
-    return null;
+    return undefined;
   },
     visitIfExpression: function (e) {
     let self = this;
@@ -1037,7 +1037,7 @@ function ScopeVisitor(context, file) {
       e.type_ = $puck_94;
     };
     matchExpression = oldMatchExpression;
-    return null;
+    return undefined;
   },
     visitMatchArm: function (a, isUsed) {
     let self = this;
@@ -1129,7 +1129,7 @@ function ScopeVisitor(context, file) {
         };
       };
     };
-    return null;
+    return undefined;
   },
     visitIndexAccess: function (a) {
     const self = this;
@@ -1161,7 +1161,7 @@ function ScopeVisitor(context, file) {
       $unwrapTraitObject(self).visitCallExpression(call);
       a.call = call;
       a.type_ = call.type_;
-      return null;
+      return undefined;
     }
     else {
       if ($puck_104.kind === "Err") {
@@ -1234,7 +1234,7 @@ function ScopeVisitor(context, file) {
         reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: a, $isTraitObject: true}, err);
       };
     };
-    return null;
+    return undefined;
   },
     visitUnknownIndexAccess: function (a) {
     const self = this;
@@ -1250,7 +1250,7 @@ function ScopeVisitor(context, file) {
         reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: a, $isTraitObject: true}, err);
       };
     };
-    return null;
+    return undefined;
   },
     visitBooleanLiteral: function (l) {
     const self = this;
@@ -1264,7 +1264,7 @@ function ScopeVisitor(context, file) {
     else {
       reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: l, $isTraitObject: true}, "puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.");
     };
-    return null;
+    return undefined;
   },
     visitListLiteral: function (l) {
     const self = this;
@@ -1324,7 +1324,7 @@ function ScopeVisitor(context, file) {
         l.type_ = listType;
       };
     };
-    return null;
+    return undefined;
   },
     visitNumberLiteral: function (l) {
     const self = this;
@@ -1333,7 +1333,7 @@ function ScopeVisitor(context, file) {
     if ($puck_116 !== undefined) {
       let binding = $puck_116;
       l.type_ = $puck_1.Option.unwrap.call(binding.type_.providesType);
-      return null;
+      return undefined;
     }
     else {
       return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral', value: l, $isTraitObject: true}, "puck:core::Num is not in scope. Please import Num from puck:core to use number literals.");

@@ -4,6 +4,7 @@ import {
   BlockNode,
   BlockLevelStatement,
   BooleanLiteral,
+  BreakStatement,
   CallExpression,
   CommentNode,
   EnumDeclaration,
@@ -52,7 +53,6 @@ import {Type, Record, Tuple, Implementation} from '../entities'
 import {isPatternMutable} from '../typeck/src/functions'
 import {getImplementationForTrait} from '../typeck/src/impls'
 import {Scope} from '../typeck/src/scope'
-import {BreakStatement} from '../../.tmp/lib/compiler/ast'
 
 const jsKeywords = [
   'arguments', 'case', 'class', 'default', 'delete', 'function', 'global', 'module', 'new', 'null',
@@ -458,7 +458,7 @@ export function Emitter() {
       }
       else if (bound.kind === 'TupleTypeBound') {
         if (bound.value.properties.length === 0) {
-          value = `() => ({kind: '${emitIdentifier(t.name)}', value: null})`
+          value = `() => ({kind: '${emitIdentifier(t.name)}'})`
         }
         else if (bound.value.properties.length === 1) {
           value = `(member) => ({kind: '${emitIdentifier(t.name)}', value: member})`
@@ -615,7 +615,7 @@ export function Emitter() {
       }
       else if (bound.kind === 'TupleTypeBound') {
         if (bound.value.properties.length === 0) {
-          value = `() => null`
+          value = `() => undefined`
         }
         else if (bound.value.properties.length === 1) {
           value = `(member) => member`
@@ -1238,7 +1238,7 @@ export function Emitter() {
     let members: any[] = l.expressions.map((e, i) => emitExpression(e, Context.Value, memberTypes && memberTypes[i]))
 
     if (members.length == 0) {
-      return 'null'
+      return 'undefined'
     } else if (l.expressions.length == 1) {
       return members[0]
     } else {

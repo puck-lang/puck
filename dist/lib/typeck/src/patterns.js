@@ -98,7 +98,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
   let $puck_15 = p;
   if ($puck_15.kind === "CatchAll") {
     $puck_15;
-    return $puck_1.Ok(null);
+    return $puck_1.Ok(undefined);
   }
   else {
     if ($puck_15.kind === "Identifier") {
@@ -124,7 +124,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
       if (($puck_16.kind === "Ok")) {
         let {value: binding} = $puck_16;
         p.binding = binding;
-        return $puck_1.Ok(null);
+        return $puck_1.Ok(undefined);
       }
       else {
         if ($puck_16.kind === "Err") {
@@ -206,7 +206,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
             declarePatternVariables(scope, visitor, p.pattern, $unwrapTraitObject(type_), allowNotExhaustive, useParentScope, definitions),
           ];
         });
-        return $puck_1.Iterator[b.type].fold.call(b, $puck_1.Ok(null), function (acc, [name, type_]) {
+        return $puck_1.Iterator[b.type].fold.call(b, $puck_1.Ok(undefined), function (acc, [name, type_]) {
           return $puck_1.Result.andThen.call(acc, function ($puck_29) {
             return type_;
           });
@@ -296,7 +296,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
               declarePatternVariables(scope, visitor, p.pattern, $unwrapTraitObject(type_), allowNotExhaustive, useParentScope, definitions),
             ];
           });
-          return $puck_1.Iterator[a.type].fold.call(a, $puck_1.Ok(null), function (acc, [name, type_]) {
+          return $puck_1.Iterator[a.type].fold.call(a, $puck_1.Ok(undefined), function (acc, [name, type_]) {
             return $puck_1.Result.andThen.call(acc, function ($puck_44) {
               return type_;
             });
@@ -357,7 +357,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
               return declarePatternVariables(scope, visitor, p, $puck_1.Option.unwrapOr.call($puck_1.List.get.call(props, i), $unwrapTraitObject($puck_4._undefined)), allowNotExhaustive, useParentScope, definitions);
             })
 ;
-            return $puck_1.Iterator[$puck_53.type].fold.call($puck_53, $puck_1.Ok(null), function (acc, cur) {
+            return $puck_1.Iterator[$puck_53.type].fold.call($puck_53, $puck_1.Ok(undefined), function (acc, cur) {
               return $puck_1.Result.andThen.call(acc, function ($puck_56) {
                 return cur;
               });
@@ -429,7 +429,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
                 return declarePatternVariables(scope, visitor, p, $puck_1.Option.unwrapOr.call($puck_1.List.get.call(props, i), $unwrapTraitObject($puck_4._undefined)), allowNotExhaustive, useParentScope, definitions);
               })
 ;
-              return $puck_1.Iterator[$puck_67.type].fold.call($puck_67, $puck_1.Ok(null), function (acc, cur) {
+              return $puck_1.Iterator[$puck_67.type].fold.call($puck_67, $puck_1.Ok(undefined), function (acc, cur) {
                 return $puck_1.Result.andThen.call(acc, function ($puck_70) {
                   return cur;
                 });
@@ -441,7 +441,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
                 if ((!allowNotExhaustive && isNonExhaustive(typePath))) {
                   return $puck_1.Err(PatternError.NotExhaustive);
                 };
-                return $puck_1.Ok(null);
+                return $puck_1.Ok(undefined);
               };
             };
           };

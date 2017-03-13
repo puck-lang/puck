@@ -151,7 +151,7 @@ function ImportVisitor(context, file) {
         };
       };
     };
-    return null;
+    return undefined;
   },
   });
 };

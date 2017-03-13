@@ -894,7 +894,7 @@ Num.parseInt = function (string, radix = Radix.Decimal) {
     return Result.Ok($unwrapTraitObject(js.parseInt(string, Radix.radix.call(radix))));
   }
   else {
-    return Result.Err(null);
+    return Result.Err(undefined);
   };
 };
 Num.parse = function (string) {
@@ -902,7 +902,7 @@ Num.parse = function (string) {
     return Result.Ok($unwrapTraitObject(js.parseFloat(string, 10)));
   }
   else {
-    return Result.Err(null);
+    return Result.Err(undefined);
   };
 };
 Num.isNan = function () {
@@ -1731,7 +1731,7 @@ var None = exports.None = Option.None;
 function asList(a) {
   return a;
 };
-function print(message, extra = null) {
+function print(message, extra = undefined) {
   $unwrapTraitObject($unwrapTraitObject($puck_1.console).log).apply($puck_1.console, [message].concat(extra));
 };
 exports.print = print;

@@ -34,14 +34,14 @@ $puck_1.describe("core", function () {
         return $puck_1.expect($puck_2.Num.parseInt("-10E9F", $puck_2.Radix.Hex)).toEqual($puck_2.Ok(-69279));
       });
       return $puck_1.it("should error for invalid characters", function () {
-        $puck_1.expect($puck_2.Num.parseInt("A")).toEqual($puck_2.Err(null));
-        $puck_1.expect($puck_2.Num.parseInt("2", $puck_2.Radix.Binary)).toEqual($puck_2.Err(null));
-        $puck_1.expect($puck_2.Num.parseInt("8", $puck_2.Radix.Octal)).toEqual($puck_2.Err(null));
-        $puck_1.expect($puck_2.Num.parseInt("G", $puck_2.Radix.Hex)).toEqual($puck_2.Err(null));
-        $puck_1.expect($puck_2.Num.parseInt("2341A")).toEqual($puck_2.Err(null));
-        $puck_1.expect($puck_2.Num.parseInt("1010112", $puck_2.Radix.Binary)).toEqual($puck_2.Err(null));
-        $puck_1.expect($puck_2.Num.parseInt("1232648", $puck_2.Radix.Octal)).toEqual($puck_2.Err(null));
-        return $puck_1.expect($puck_2.Num.parseInt("1289AC6G", $puck_2.Radix.Hex)).toEqual($puck_2.Err(null));
+        $puck_1.expect($puck_2.Num.parseInt("A")).toEqual($puck_2.Err(undefined));
+        $puck_1.expect($puck_2.Num.parseInt("2", $puck_2.Radix.Binary)).toEqual($puck_2.Err(undefined));
+        $puck_1.expect($puck_2.Num.parseInt("8", $puck_2.Radix.Octal)).toEqual($puck_2.Err(undefined));
+        $puck_1.expect($puck_2.Num.parseInt("G", $puck_2.Radix.Hex)).toEqual($puck_2.Err(undefined));
+        $puck_1.expect($puck_2.Num.parseInt("2341A")).toEqual($puck_2.Err(undefined));
+        $puck_1.expect($puck_2.Num.parseInt("1010112", $puck_2.Radix.Binary)).toEqual($puck_2.Err(undefined));
+        $puck_1.expect($puck_2.Num.parseInt("1232648", $puck_2.Radix.Octal)).toEqual($puck_2.Err(undefined));
+        return $puck_1.expect($puck_2.Num.parseInt("1289AC6G", $puck_2.Radix.Hex)).toEqual($puck_2.Err(undefined));
       });
     });
     $puck_1.describe("parse", function () {

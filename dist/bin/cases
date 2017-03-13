@@ -43,7 +43,7 @@ if ($puck_7 === undefined) {
         let $puck_11;
         if (true) {
           const None = $puck_9;
-          return null;
+          return undefined;
         };
         $puck_10 = $puck_11;
       };
@@ -59,7 +59,7 @@ if ($puck_7 === undefined) {
         $puck_12;
         $puck_1.print("error case did not error for " + file + "::" + i + "\nexpected error:" + error + "");
         $puck_2.process.exit(1);
-        return null;
+        return undefined;
       }
       else {
         if ($puck_12.kind === "Err") {

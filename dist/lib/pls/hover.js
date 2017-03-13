@@ -60,7 +60,7 @@ visitFunctionDeclaration: function (f) {
           contents: getTypeContents(type_),
           span: name.span,
         });
-        return null;
+        return undefined;
       };
     };
   };
@@ -94,7 +94,7 @@ visitCallExpression: function (e) {
             contents: getTypeContents($unwrapTraitObject(e.functionType)),
             span: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: a.member, $isTraitObject: true}),
           });
-          return null;
+          return undefined;
         };
       };
     };

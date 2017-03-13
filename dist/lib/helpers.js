@@ -41,7 +41,7 @@ function cmd(cmd) {
         $unwrapTraitObject($puck_2.console).error(error.stack);
       };
       $puck_2.process.exit(1);
-      return null;
+      return undefined;
     };
   };
 };
@@ -59,7 +59,7 @@ function walkSync(directory, filelist = []) {
     else {
       $puck_1.List.push.call(filelist, file);
     };
-    return null;
+    return undefined;
   });
   return filelist;
 };

@@ -528,7 +528,7 @@ function isSameType(a, b) {
 exports.isSameType = isSameType;
 function findCommonType(types) {
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: types, $isTraitObject: true})) {
-    return $puck_1.Err(null);
+    return $puck_1.Err(undefined);
   };
   let index = 0;
   let commonType = $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: types, $isTraitObject: true}, 0);
@@ -557,7 +557,7 @@ function findCommonType(types) {
             if ($puck_44 !== undefined) {
               let [commonId, typeId] = $puck_44;
               if (commonId !== typeId) {
-                return $puck_1.Err(null);
+                return $puck_1.Err(undefined);
               };
               let $puck_45 = [
                 $puck_5.Type.typeParameters.call(commonType),
@@ -619,7 +619,7 @@ function findCommonType(types) {
                   commonType = type_;
                 }
                 else {
-                  return $puck_1.Err(null);
+                  return $puck_1.Err(undefined);
                 };
               };
             };

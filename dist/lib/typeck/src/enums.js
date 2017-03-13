@@ -185,7 +185,7 @@ function checkExhaustive(e) {
     }), $puck_3.Expression.getType.call(e.expression), enum_, $unwrapTraitObject(e.scope));
   }
   else {
-    return $puck_1.Ok(null);
+    return $puck_1.Ok(undefined);
   };
 };
 exports.checkExhaustive = checkExhaustive;
@@ -291,7 +291,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
   });
   if ($puck_13 !== undefined) {
     $puck_13;
-    return $puck_1.Ok(null);
+    return $puck_1.Ok(undefined);
   };
   let innerErrors = [];
   $puck_1.ObjectMap.forEach.call(enumArmsMap, function ([member, patterns]) {
@@ -392,7 +392,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
         return $puck_1.Err("Match is not exhaustive. " + typeName + "::" + member + " is not exhaustive. " + a + "");
       }
       else {
-        return $puck_1.Ok(null);
+        return $puck_1.Ok(undefined);
       };
     };
   };

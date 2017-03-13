@@ -200,13 +200,13 @@ function checkFunctionAssignability(functionName, to, subject) {
     return $puck_1.Err("Return type " + $puck_5.Type.displayName.call(subject.returnType) + " is not assignable to " + $puck_5.Type.displayName.call(to.returnType));
   }
   else {
-    return $puck_1.Ok(null);
+    return $puck_1.Ok(undefined);
   };
 };
 exports.checkFunctionAssignability = checkFunctionAssignability;
 function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType, allowedToFollowFunction = true) {
   if ((!parameterType || !argumentType || $puck_5.Type.isNever.call(argumentType))) {
-    return null;
+    return undefined;
   };
   let $puck_22 = parameterType.kind;
   if ($puck_22.kind === "Parameter") {

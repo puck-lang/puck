@@ -216,7 +216,7 @@ function structureVisitor(context, file, visitor = "") {
       $unwrapTraitObject(self).visitTypePath(t.path);
       let type_ = $unwrapTraitObject(t.path.providesType);
       if (!type_) {
-        return null;
+        return undefined;
       };
       type_ = $puck_8.Type({
         definition: $puck_8.Definition({
@@ -431,7 +431,7 @@ function structureVisitor(context, file, visitor = "") {
     visitVariableDeclaration: function (d, visitInitializer, type_) {
     let self = this;
     if (d.scope) {
-      return null;
+      return undefined;
     };
     d.scope = $unwrapTraitObject(self).scope;
     $unwrapTraitObject(self).visitPattern(d.pattern);

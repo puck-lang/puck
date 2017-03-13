@@ -290,7 +290,7 @@ function TypeVisitor(context, file) {
         $unwrapTraitObject(self).scope = parentScope;
       };
     };
-    return null;
+    return undefined;
   },
     visitTraitDeclaration: function (t) {
     let self = this;
@@ -388,7 +388,7 @@ function TypeVisitor(context, file) {
         $unwrapTraitObject(self).scope = parentScope;
       };
     };
-    return null;
+    return undefined;
   },
     visitTypeDeclaration: function (t) {
     let self = this;
@@ -515,7 +515,7 @@ function TypeVisitor(context, file) {
         $unwrapTraitObject(self).scope = parentScope;
       };
     };
-    return null;
+    return undefined;
   },
     visitExportDirective: function (e) {
     const self = this;
@@ -654,7 +654,7 @@ function TypeVisitor(context, file) {
             };
             m.local.type_ = importedBinding.type_;
             imports[m.local.name] = importDirective.file;
-            return null;
+            return undefined;
           }
           else {
             let $puck_47 = $puck_8.Scope.define.call(scope, {
@@ -697,7 +697,7 @@ function TypeVisitor(context, file) {
     else {
       $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: i, $isTraitObject: true}, $puck_7.CompilationError.UndefinedVariable(i.name));
     };
-    return null;
+    return undefined;
   },
     visitTypeBound: function (t) {
     const self = this;

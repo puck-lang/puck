@@ -86,7 +86,7 @@ visitImportDirective: function (i) {
         },
         }),
         }];
-        return null;
+        return undefined;
       }
       else {
         if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportSpecifier', value: i.specifier, $isTraitObject: true}), self.value.position), $puck_1.Ordering.Equal)) {
@@ -106,7 +106,7 @@ visitImportDirective: function (i) {
             },
             }),
             }];
-            return null;
+            return undefined;
           }
           else {
             if (true) {
@@ -193,7 +193,7 @@ visitCallExpression: function (e) {
               span: $puck_3.ToSpan[$puck_19.type].span.call($puck_19),
             }];
           };
-          return null;
+          return undefined;
         };
       };
     };

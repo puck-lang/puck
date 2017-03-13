@@ -55,7 +55,7 @@ visitMethodDeclaration: function (f) {
     let name = $puck_24;
     if ($puck_1.identical($puck_4.Span.cmp.call(name.span, self.value.position), $puck_1.Ordering.Equal)) {
       self.value.completions = $puck_1.Option.map.call(self.value.inTraitImpl, getTraitImplCompletions);
-      return null;
+      return undefined;
     };
   };
   self.value.inTraitImpl = $puck_1.None;
@@ -90,7 +90,7 @@ visitImportDirective: function (i) {
       const exists = fs.existsSync(resolved);
       const isTypedDirectory = (exists && fs.statSync(resolved).isDirectory());
       if (exists && !isTypedDirectory) {
-        return null;
+        return undefined;
       };
       let $puck_12;
       if (isTypedDirectory) {
@@ -101,7 +101,7 @@ visitImportDirective: function (i) {
       };
       const dirname = $puck_12;
       if ((!fs.existsSync(dirname) || !fs.statSync(dirname).isDirectory())) {
-        return null;
+        return undefined;
       };
       let files = $unwrapTraitObject(fs.readdirSync(dirname));
       let $puck_13 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (fileName) {
@@ -248,7 +248,7 @@ visitFunctionDeclaration: function (f) {
   if ($puck_23 !== undefined) {
     let name = $puck_23;
     if ($puck_1.identical($puck_4.Span.cmp.call(name.span, self.value.position), $puck_1.Ordering.Equal)) {
-      return null;
+      return undefined;
     };
   };
   visit.walkFunctionDeclaration(self, f);

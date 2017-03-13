@@ -54,7 +54,7 @@ visitCallExpression: function (e) {
     let {value: index} = $puck_6;
     $puck_5.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/signature.puck:SignatureVisitor"].visitExpression.call(self, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: e.argumentList, $isTraitObject: true}, index));
     if ($puck_1.Option.isSome.call(self.value.signatureHelp)) {
-      return null;
+      return undefined;
     };
     $puck_7 = index;
   }
