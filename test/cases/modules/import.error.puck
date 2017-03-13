@@ -36,3 +36,6 @@ let a: e::Type = e::Enum::A
 ///// String is not assignable to type Num
 import 'export.puck' as e
 let a: Num = e.b
+
+///// package:missing/missing.puck not found
+import 'package:missing/missing.puck' as a

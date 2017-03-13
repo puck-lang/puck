@@ -618,6 +618,12 @@ function Emitter() {
         else if (i.domain == 'node') {
             path = i.path;
         }
+        else if (i.domain == 'package') {
+            var parts = i.path.split('/');
+            var packageName = parts[0];
+            var packagePath = parts.slice(1).join('/').replace(/\.(puck|ts)$/, '');
+            path = "puck-" + packageName + "/dist/lib/" + packagePath;
+        }
         else if (i.domain == 'puck') {
             path = "puck-lang/dist/lib/stdlib/" + i.path;
             isPuckJsImport = i.path === 'js';

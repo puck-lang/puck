@@ -1,10 +1,12 @@
 import 'puck:js' as {console, typeof}
+import 'package:lang/entities.puck' as entities
 import 'node:module' as {a, b: c}
 import 'export.puck' as {Type: RenamedType, Trait: RenamedTrait, OtherTrait: RenamedOtherTrait}
 import 'export.puck' as e
 import 'export.puck' as *
 import 'reexport.puck' as re
 import 'reexport.puck' as {a: d, Trait: ReexportedTrait, Type: ReexportedType}
+
 
 export let foo = e.b + a + b + c
 

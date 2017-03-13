@@ -6,6 +6,7 @@ const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("fs");
 const path = require("path");
+const requireRelative = require("require-relative");
 const $puck_4 = require("./../ast/ast");
 const $puck_5 = require("./../ast/span");
 const $puck_6 = require("./../compiler");
@@ -15,6 +16,7 @@ const $puck_8 = require("./../compiler/ast");
 const domains = [
   "node",
   "puck",
+  "package",
 ];
 var puckFile = exports.puckFile = $puck_1.RegExp._new("\\.puck$", "i");
 var puckModules = exports.puckModules = [
@@ -121,12 +123,39 @@ function ImportVisitor(context, file) {
         if ((!$puck_1.List.contains.call(puckModules, i.path))) {
           return $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_7.CompilationError.Other("Invalid puck module " + i.path));
         };
-        let importedFile = $puck_6.CompilerContext.resolvePath(path.join(path.dirname($puck_2._require.resolve("puck-lang/dist/bin/puck")), "../../lib/stdlib/" + i.path + ".puck"), file);
+        let importedFile = $puck_6.CompilerContext.resolvePath(path.join(path.dirname(require.resolve("puck-lang/package.json")), "lib", "stdlib", i.path + ".puck"), file);
         importModule(i, importedFile);
       }
       else {
-        if ((!$puck_1.List.contains.call(domains, domain))) {
-          $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_7.CompilationError.Other("Invalid import domain " + domain + ""));
+        if ((domain === "package")) {
+          let $puck_18 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$String"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$String', value: i.path, $isTraitObject: true})
+;
+          const slash = $puck_1.Option.unwrapOr.call($puck_1.Iterator[$puck_18.type].position.call($puck_18, function (c) {
+            return c === "/";
+          }), $puck_1.String.size.call(i.path));
+          const packageName = $puck_1.String.sub.call(i.path, $puck_1.Range._new(0, slash));
+          const packagePath = $puck_1.String.sub.call(i.path, $puck_1.Range._new(slash, $puck_1.String.size.call(i.path)));
+          const result = $puck_2.asResult(function () {
+            return $puck_6.CompilerContext.resolvePath(path.join(path.dirname(requireRelative.resolve("puck-" + packageName + "/package.json", file.absolutePath)), "lib", packagePath), file);
+          });
+          let $puck_19 = result;
+          if ($puck_19.kind === "Ok") {
+            let {value: importedFile} = $puck_19;
+            if ($puck_1.RegExp.test.call(puckFile, importedFile.absolutePath)) {
+              importModule(i, importedFile);
+            };
+          }
+          else {
+            if ($puck_19.kind === "Err") {
+              let {value: error} = $puck_19;
+              return $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_7.CompilationError.Other("Imported file package:" + i.path + " not found"));
+            };
+          };
+        }
+        else {
+          if ((!$puck_1.List.contains.call(domains, domain))) {
+            $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_7.CompilationError.Other("Invalid import domain " + domain + ""));
+          };
         };
       };
     }
@@ -136,16 +165,16 @@ function ImportVisitor(context, file) {
         const result = $puck_2.asResult(function () {
           return $puck_6.CompilerContext.resolvePath(i.path, file);
         });
-        let $puck_18 = result;
-        if ($puck_18.kind === "Ok") {
-          let {value: importedFile} = $puck_18;
+        let $puck_20 = result;
+        if ($puck_20.kind === "Ok") {
+          let {value: importedFile} = $puck_20;
           if ($puck_1.RegExp.test.call(puckFile, importedFile.absolutePath)) {
             importModule(i, importedFile);
           };
         }
         else {
-          if ($puck_18.kind === "Err") {
-            let {value: error} = $puck_18;
+          if ($puck_20.kind === "Err") {
+            let {value: error} = $puck_20;
             return $puck_6.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_7.CompilationError.Other("Imported file " + i.path + " not found"));
           };
         };

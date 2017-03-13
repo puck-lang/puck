@@ -726,6 +726,11 @@ export function Emitter() {
       path = path.replace(/\.(puck|ts)$/, '')
     } else if (i.domain == 'node') {
       path = i.path
+    } else if (i.domain == 'package') {
+      const parts = i.path.split('/')
+      const packageName = parts[0]
+      const packagePath = parts.slice(1).join('/').replace(/\.(puck|ts)$/, '')
+      path = `puck-${packageName}/dist/lib/${packagePath}`
     } else if (i.domain == 'puck') {
       path = `puck-lang/dist/lib/stdlib/${i.path}`
       isPuckJsImport = i.path === 'js'

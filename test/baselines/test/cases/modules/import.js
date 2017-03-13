@@ -2,6 +2,7 @@
 exports.foo = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
+const entities = require("puck-lang/dist/lib/entities");
 const $puck_3 = require("module");
 const $puck_4 = require("./export");
 const e = require("./export");

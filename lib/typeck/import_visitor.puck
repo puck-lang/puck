@@ -1,6 +1,7 @@
 import 'puck:js' as {Object, asResult, require, undefined}
 import 'node:fs' as {statSync}
 import 'node:path' as path
+import 'node:require-relative' as requireRelative
 import '../ast/ast.puck' as {
   Module
   TopLevelStatement
@@ -13,7 +14,7 @@ import '../ast/visit.puck' as visit
 import '../entities.puck' as {File, CompilationError}
 import '../compiler/ast.ts' as {SyntaxKind}
 
-let domains = ['node', 'puck']
+let domains = ['node', 'puck', 'package']
 export let puckFile = RegExp.new('\\.puck$', 'i')
 export let puckModules = ['core', 'js', 'test']
 
@@ -89,12 +90,37 @@ export fn ImportVisitor(mut context: CompilerContext, file: File) {
               then return context.reportError(file, i, CompilationError::Other('Invalid puck module ' + i.path))
             let mut importedFile = context.resolvePath(
               path->join(
-                path->dirname(require->resolve('puck-lang/dist/bin/puck'))
-                '../../lib/stdlib/' + i.path + '.puck'
+                path->dirname(require->resolve('puck-lang/package.json'))
+                'lib'
+                'stdlib'
+                i.path + '.puck'
               ).transmute::<String>()
               file
             )
             importModule(i, importedFile)
+          }
+          else if domain == 'package' {
+            let slash = i.path.iter().position(|c: String| c == '/').unwrapOr(i.path.size())
+            let packageName = i.path.sub(Range.new(0, slash))
+            let packagePath = i.path.sub(Range.new(slash, i.path.size()))
+            let result = asResult(|| context.resolvePath(
+                path->join(
+                  path->dirname(requireRelative->resolve('puck-$packageName/package.json', file.absolutePath))
+                  'lib'
+                  packagePath
+                ).transmute::<String>()
+                file
+              )
+            )
+            match result {
+              Ok(mut importedFile) => {
+                if puckFile.test(importedFile.absolutePath)
+                  then importModule(i, importedFile)
+              }
+              Err(error) => return context.reportError(file, i,
+                CompilationError::Other('Imported file package:' + i.path + ' not found')
+              )
+            }
           }
           else if not domains.contains(domain) {
             context.reportError(file, i, CompilationError::Other('Invalid import domain $domain'))
@@ -104,8 +130,8 @@ export fn ImportVisitor(mut context: CompilerContext, file: File) {
           let result = asResult(|| context.resolvePath(i.path, file))
           match result {
             Ok(mut importedFile) => {
-            if puckFile.test(importedFile.absolutePath)
-              then importModule(i, importedFile)
+              if puckFile.test(importedFile.absolutePath)
+                then importModule(i, importedFile)
             }
             Err(error) => return context.reportError(file, i,
               CompilationError::Other('Imported file ' + i.path + ' not found')
