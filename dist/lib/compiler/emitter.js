@@ -314,6 +314,7 @@ function Emitter() {
             case 'UnaryExpression': return emitUnaryExpression(expression.value);
             case 'IndexAccess': return emitIndexAccess(expression.value);
             case 'MemberAccess': return emitMemberAccess(expression.value);
+            case 'TupleIndexAccess': return emitTupleIndexAccess(expression.value);
             case 'UnknownAccess': return emitMemberAccess(expression.value);
             case 'UnknownIndexAccess': return emitIndexAccess(expression.value);
             case 'BooleanLiteral': return emitBooleanLiteral(expression.value);
@@ -957,7 +958,7 @@ function Emitter() {
     function emitMatchExpression(e) {
         var outerValueVariable = valueVariable;
         valueVariable = newValueVariable();
-        hoist("let " + valueVariable + " = " + emitExpression(e.expression, getType(e.expression)));
+        hoist("let " + valueVariable + " = " + emitExpression(e.expression, null, getType(e.expression)));
         if (e.patterns.length === 0)
             return '';
         var ifLet;
@@ -999,6 +1000,14 @@ function Emitter() {
             ? "(" + emitExpression(e.object) + ")"
             : unwrap(emitExpression(e.object), e.object);
         var code = object + "." + emitIdentifier(e.member);
+        return code;
+    }
+    function emitTupleIndexAccess(e) {
+        var boxed = getType(e.object).kind.value.kind.value.properties.length > 1;
+        var object = e.object.kind == 'NumberLiteral'
+            ? "(" + emitExpression(e.object) + ")"
+            : unwrap(emitExpression(e.object), e.object);
+        var code = boxed ? object + "[" + emitNumberLiteral(e.index) + "]" : object;
         return code;
     }
     function emitTypePath(e) {

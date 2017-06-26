@@ -9,6 +9,7 @@ import '../ast/ast.puck' as {
   FunctionDeclaration
   CallExpression
   MemberAccess
+  TupleIndexAccess
   NamedTypeBound
 }
 import '../ast/span.puck' as {Position, Span, ToSpan}
@@ -171,5 +172,25 @@ impl PositionVisitor for DefinitionVisitor {
       }
     }
     else visit.walkMemberAccess(self, a)
+  }
+  fn visitTupleIndexAccess(mut self, a: TupleIndexAccess) -> () {
+    if identical(a.index.span().cmp(self.position()), Ordering::Equal) {
+      print('onDefinition visitTupleIndexAccess')
+      let type_ = a.object.getType()
+      if type_ {
+        match type_.kind {
+          TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
+            if let Some({type_}) = tuple.properties.get(a.index.value) {
+              self.definitions = [{
+                file: type_.definition.file
+                span: type_.definition.token.span()
+              }]
+            }
+          }
+          _ => {}
+        }
+      }
+    }
+    else visit.walkTupleIndexAccess(self, a)
   }
 }

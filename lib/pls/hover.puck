@@ -7,6 +7,7 @@ import '../ast/ast.puck' as {
   IfLetExpression
   MatchExpression
   MemberAccess
+  TupleIndexAccess
   RecordLiteral
   RecordLiteralMember
   RecordPattern
@@ -184,6 +185,19 @@ impl PositionVisitor for HoverVisitor {
       }
     }
     else visit.walkMemberAccess(self, a)
+  }
+  fn visitTupleIndexAccess(mut self, a: TupleIndexAccess) -> () {
+    if identical(a.index.span().cmp(self.position()), Ordering::Equal) {
+      print('onHover visitTupleIndexAccess')
+      if a->type_ {
+        let type_: Type = a->type_.transmute()
+        self.hover = Some({
+          contents: getTypeContents(type_)
+          span: a.index.span()
+        })
+      }
+    }
+    else visit.walkTupleIndexAccess(self, a)
   }
   fn visitRecordLiteral(mut self, l: RecordLiteral) -> () {
     let parent = self.literalType

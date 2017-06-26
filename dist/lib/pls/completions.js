@@ -297,6 +297,40 @@ visitMemberAccess: function (a) {
     visit.walkMemberAccess(self, a);
   };
 },
+visitTupleIndexAccess: function (a) {
+  let self = this;
+  if ($puck_1.identical($puck_4.Span.cmp.call($puck_4.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), $puck_8.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/completions.puck:CompletionVisitor"].position.call(self)), $puck_1.Ordering.Less)) {
+    $puck_1.print("CompletionVisitor visitTupleIndexAccess");
+    const type_ = $puck_3.Expression.getType.call(a.object);
+    if (type_) {
+      let $puck_27 = type_.kind;
+      if (($puck_27.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_27.value).kind).kind === "Tuple")) {
+        let {value: {kind: {value: tuple}}} = $puck_27;
+        let $puck_29 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true})
+;
+        let $puck_28 = $puck_1.Iterable[$puck_29.type].map.call($puck_29, function ([index, type_]) {
+          const typeName = $puck_7.Type.displayName.call(type_);
+          return {
+            label: "" + index + ": " + typeName + "",
+            kind: $unwrapTraitObject($puck_2.CompletionItemKind).Field,
+            insertText: "" + index + "",
+            insertTextFormat: $unwrapTraitObject($puck_2.InsertTextFormat).PlainText,
+          };
+        })
+;
+        self.value.completions = $puck_1.Some($puck_1.Iterable[$puck_28.type].toList.call($puck_28));
+      }
+      else {
+        if (true) {
+          $puck_27;
+        };
+      };
+    };
+  }
+  else {
+    visit.walkTupleIndexAccess(self, a);
+  };
+},
 visitUnknownAccess: $puck_8.PositionVisitor.visitUnknownAccess,
 visitUnknownIndexAccess: $puck_8.PositionVisitor.visitUnknownIndexAccess,
 visitListLiteral: $puck_8.PositionVisitor.visitListLiteral,
@@ -333,7 +367,7 @@ CompletionVisitor._new = function (file, position) {
 };
 const isHidden = $puck_1.RegExp._new("^\\.");
 function getImportCompletions(_module) {
-  let $puck_27 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call(_module.exports), $isTraitObject: true}, function (e) {
+  let $puck_30 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call(_module.exports), $isTraitObject: true}, function (e) {
     return {
       label: e.identifier.name,
       kind: $unwrapTraitObject($puck_2.CompletionItemKind).Text,
@@ -342,34 +376,34 @@ function getImportCompletions(_module) {
     };
   })
 ;
-  return $puck_1.Iterable[$puck_27.type].toList.call($puck_27);
+  return $puck_1.Iterable[$puck_30.type].toList.call($puck_30);
 };
 function getScopeCompletions(node) {
   if ($unwrapTraitObject(node).scope) {
     const scope = $unwrapTraitObject(node).scope;
-    let $puck_28 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call($puck_5.Scope.getBindings.call(scope)), $isTraitObject: true}, function (binding) {
-      let $puck_29;
+    let $puck_31 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.values.call($puck_5.Scope.getBindings.call(scope)), $isTraitObject: true}, function (binding) {
+      let $puck_32;
       if ((!binding.type_)) {
-        $puck_29 = "??";
+        $puck_32 = "??";
       }
       else {
-        let $puck_30 = binding.type_.kind;
-        let $puck_31;
-        if ($puck_30.kind === "Function") {
-          $puck_30;
-          $puck_31 = $puck_7.Type.verboseName.call(binding.type_);
+        let $puck_33 = binding.type_.kind;
+        let $puck_34;
+        if ($puck_33.kind === "Function") {
+          $puck_33;
+          $puck_34 = $puck_7.Type.verboseName.call(binding.type_);
         }
         else {
-          let $puck_32;
+          let $puck_35;
           if (true) {
-            $puck_30;
-            $puck_32 = $puck_7.Type.displayName.call(binding.type_);
+            $puck_33;
+            $puck_35 = $puck_7.Type.displayName.call(binding.type_);
           };
-          $puck_31 = $puck_32;
+          $puck_34 = $puck_35;
         };
-        $puck_29 = $puck_31;
+        $puck_32 = $puck_34;
       };
-      const typeName = $puck_29;
+      const typeName = $puck_32;
       return {
         label: binding.name + ": " + typeName + "",
         kind: $unwrapTraitObject($puck_2.CompletionItemKind).Text,
@@ -378,14 +412,14 @@ function getScopeCompletions(node) {
       };
     })
 ;
-    return $puck_1.Iterable[$puck_28.type].toList.call($puck_28);
+    return $puck_1.Iterable[$puck_31.type].toList.call($puck_31);
   }
   else {
     return [];
   };
 };
 function getTraitImplCompletions(trait_) {
-  let $puck_33 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(trait_.functions), $isTraitObject: true}, function ([name, type_]) {
+  let $puck_36 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(trait_.functions), $isTraitObject: true}, function ([name, type_]) {
     const signature = name + $puck_7.Type.verboseName.call(type_);
     return {
       label: signature,
@@ -395,5 +429,5 @@ function getTraitImplCompletions(trait_) {
     };
   })
 ;
-  return $puck_1.Iterable[$puck_33.type].toList.call($puck_33);
+  return $puck_1.Iterable[$puck_36.type].toList.call($puck_36);
 }

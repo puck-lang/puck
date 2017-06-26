@@ -35,6 +35,7 @@ import {
   SimpleStringLiteral,
   Token,
   TraitDeclaration,
+  TupleIndexAccess,
   TupleLiteral,
   TuplePattern,
   TuplePatternArm,
@@ -129,7 +130,7 @@ export function Emitter() {
     return `$puck_${valueVarableCount}`
   }
 
-  function getType(e: Expression) {
+  function getType(e: Expression): Type {
     if (e.kind === 'Identifier' &&
         typeOverrides[(e.value as Identifier).name] &&
         typeOverrides[(e.value as Identifier).name].old === e.value.type_) {
@@ -380,6 +381,7 @@ export function Emitter() {
 
       case 'IndexAccess': return emitIndexAccess(expression.value)
       case 'MemberAccess': return emitMemberAccess(expression.value)
+      case 'TupleIndexAccess': return emitTupleIndexAccess(expression.value)
       case 'UnknownAccess': return emitMemberAccess(expression.value)
       case 'UnknownIndexAccess': return emitIndexAccess(expression.value)
 
@@ -1099,7 +1101,7 @@ export function Emitter() {
   function emitMatchExpression(e: MatchExpression) {
     let outerValueVariable = valueVariable
     valueVariable = newValueVariable()
-    hoist!(`let ${valueVariable} = ${emitExpression(e.expression, getType(e.expression))}`)
+    hoist!(`let ${valueVariable} = ${emitExpression(e.expression, null, getType(e.expression))}`)
 
     if (e.patterns.length === 0) return ''
 
@@ -1149,6 +1151,16 @@ export function Emitter() {
       ? `(${emitExpression(e.object)})`
       : unwrap(emitExpression(e.object), e.object)
     const code = `${object}.${emitIdentifier(e.member)}`
+    return code
+  }
+
+  function emitTupleIndexAccess(e: TupleIndexAccess) {
+    const boxed = (getType(e.object).kind.value.kind as Tuple).value.properties.length > 1
+
+    let object = e.object.kind == 'NumberLiteral'
+      ? `(${emitExpression(e.object)})`
+      : unwrap(emitExpression(e.object), e.object)
+    const code = boxed ? `${object}[${emitNumberLiteral(e.index)}]` : object
     return code
   }
 

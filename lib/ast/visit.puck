@@ -39,6 +39,7 @@ import 'ast.puck' as {
 
   IndexAccess
   MemberAccess
+  TupleIndexAccess
   UnknownAccess
   UnknownIndexAccess
 
@@ -126,6 +127,7 @@ export let walkingVisitor = {
 
   visitIndexAccess: |self, a: IndexAccess| walkIndexAccess(self, a)
   visitMemberAccess: |self, a: MemberAccess| walkMemberAccess(self, a)
+  visitTupleIndexAccess: |self, a: TupleIndexAccess| walkTupleIndexAccess(self, a)
   visitUnknownAccess: |self, a: UnknownAccess| walkUnknownAccess(self, a)
   visitUnknownIndexAccess: |self, a: UnknownIndexAccess| walkUnknownIndexAccess(self, a)
 
@@ -263,6 +265,7 @@ export fn walkExpression(visitor, e: Expression) {
 
     Expression::IndexAccess(e) => visitor.visitIndexAccess(e)
     Expression::MemberAccess(e) => visitor.visitMemberAccess(e)
+    Expression::TupleIndexAccess(e) => visitor.visitTupleIndexAccess(e)
     Expression::UnknownAccess(e) => visitor.visitUnknownAccess(e)
     Expression::UnknownIndexAccess(e) => visitor.visitUnknownIndexAccess(e)
 
@@ -396,6 +399,10 @@ export fn walkIndexAccess(visitor, a: IndexAccess) {
 export fn walkMemberAccess(visitor, a: MemberAccess) {
   visitor.visitExpression(a.object)
   visitor.visitExpression(a.member)
+}
+export fn walkTupleIndexAccess(visitor, a: TupleIndexAccess) {
+  visitor.visitExpression(a.object)
+  visitor.visitExpression(a.index)
 }
 export fn walkUnknownAccess(visitor, a: UnknownAccess) {
   visitor.visitExpression(a.object)

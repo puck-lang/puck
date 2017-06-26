@@ -43,6 +43,7 @@ import '../ast/ast.puck' as {
 
   IndexAccess
   MemberAccess
+  TupleIndexAccess
 
   BooleanLiteral
   ListLiteral
@@ -267,11 +268,26 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
 
   fn maybeMemberAccess(expression: Expression) -> Expression {
     if isToken(SyntaxKind::DotToken) {
-      input.next()
-      maybeAccess(Expression::MemberAccess({
-        object: expression
-        member: consumeIdentifier()
-      }))
+      let dotToken = consumeToken(SyntaxKind::DotToken)
+      maybeAccess(
+        match input.next() {
+          Token::NumberLiteral(index) => {
+            Expression::TupleIndexAccess({
+              object: expression
+              dotToken
+              index
+            })
+          }
+          Token::Identifier(identifier) => {
+            Expression::MemberAccess({
+              object: expression
+              dotToken
+              member: identifier
+            })
+          }
+          _ => input.croak('Expected number or identifier, ' + butGot())
+        }
+      )
     }
     else expression
   }

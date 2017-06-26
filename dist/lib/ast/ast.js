@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMember = undefined;
+exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.TupleIndexAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMember = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../entities");
 const $puck_3 = require("./span");
@@ -39,6 +39,7 @@ var TypePathExpression = exports.TypePathExpression = (object) => object;
 var UnaryExpression = exports.UnaryExpression = (object) => object;
 var IndexAccess = exports.IndexAccess = (object) => object;
 var MemberAccess = exports.MemberAccess = (object) => object;
+var TupleIndexAccess = exports.TupleIndexAccess = (object) => object;
 var UnknownAccess = exports.UnknownAccess = (object) => object;
 var UnknownIndexAccess = exports.UnknownIndexAccess = (object) => object;
 var BooleanLiteral = exports.BooleanLiteral = (object) => object;
@@ -88,6 +89,7 @@ MatchExpression: (member) => ({kind: 'MatchExpression', value: member}),
 TypePathExpression: (member) => ({kind: 'TypePathExpression', value: member}),
 UnaryExpression: (member) => ({kind: 'UnaryExpression', value: member}),
 IndexAccess: (member) => ({kind: 'IndexAccess', value: member}),
+TupleIndexAccess: (member) => ({kind: 'TupleIndexAccess', value: member}),
 MemberAccess: (member) => ({kind: 'MemberAccess', value: member}),
 UnknownAccess: (member) => ({kind: 'UnknownAccess', value: member}),
 UnknownIndexAccess: (member) => ({kind: 'UnknownIndexAccess', value: member}),
@@ -402,44 +404,50 @@ start: function () {
                                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: e, $isTraitObject: true});
                               }
                               else {
-                                if ($puck_9.value.kind === "UnknownAccess") {
+                                if ($puck_9.value.kind === "TupleIndexAccess") {
                                   let {value: e} = $puck_9.value;
-                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
+                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess', value: e, $isTraitObject: true});
                                 }
                                 else {
-                                  if ($puck_9.value.kind === "UnknownIndexAccess") {
+                                  if ($puck_9.value.kind === "UnknownAccess") {
                                     let {value: e} = $puck_9.value;
-                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
+                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
                                   }
                                   else {
-                                    if ($puck_9.value.kind === "BooleanLiteral") {
+                                    if ($puck_9.value.kind === "UnknownIndexAccess") {
                                       let {value: e} = $puck_9.value;
-                                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
+                                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
                                     }
                                     else {
-                                      if ($puck_9.value.kind === "ListLiteral") {
+                                      if ($puck_9.value.kind === "BooleanLiteral") {
                                         let {value: e} = $puck_9.value;
-                                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
+                                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
                                       }
                                       else {
-                                        if ($puck_9.value.kind === "NumberLiteral") {
+                                        if ($puck_9.value.kind === "ListLiteral") {
                                           let {value: e} = $puck_9.value;
-                                          return e.span.start;
+                                          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
                                         }
                                         else {
-                                          if ($puck_9.value.kind === "RecordLiteral") {
+                                          if ($puck_9.value.kind === "NumberLiteral") {
                                             let {value: e} = $puck_9.value;
-                                            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
+                                            return e.span.start;
                                           }
                                           else {
-                                            if ($puck_9.value.kind === "StringLiteral") {
+                                            if ($puck_9.value.kind === "RecordLiteral") {
                                               let {value: e} = $puck_9.value;
-                                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
+                                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
                                             }
                                             else {
-                                              if ($puck_9.value.kind === "TupleLiteral") {
+                                              if ($puck_9.value.kind === "StringLiteral") {
                                                 let {value: e} = $puck_9.value;
-                                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
+                                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
+                                              }
+                                              else {
+                                                if ($puck_9.value.kind === "TupleLiteral") {
+                                                  let {value: e} = $puck_9.value;
+                                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
+                                                };
                                               };
                                             };
                                           };
@@ -542,44 +550,50 @@ end: function () {
                                 return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: e, $isTraitObject: true});
                               }
                               else {
-                                if ($puck_10.value.kind === "UnknownAccess") {
+                                if ($puck_10.value.kind === "TupleIndexAccess") {
                                   let {value: e} = $puck_10.value;
-                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
+                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess', value: e, $isTraitObject: true});
                                 }
                                 else {
-                                  if ($puck_10.value.kind === "UnknownIndexAccess") {
+                                  if ($puck_10.value.kind === "UnknownAccess") {
                                     let {value: e} = $puck_10.value;
-                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
+                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
                                   }
                                   else {
-                                    if ($puck_10.value.kind === "BooleanLiteral") {
+                                    if ($puck_10.value.kind === "UnknownIndexAccess") {
                                       let {value: e} = $puck_10.value;
-                                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
+                                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
                                     }
                                     else {
-                                      if ($puck_10.value.kind === "ListLiteral") {
+                                      if ($puck_10.value.kind === "BooleanLiteral") {
                                         let {value: e} = $puck_10.value;
-                                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
+                                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
                                       }
                                       else {
-                                        if ($puck_10.value.kind === "NumberLiteral") {
+                                        if ($puck_10.value.kind === "ListLiteral") {
                                           let {value: e} = $puck_10.value;
-                                          return e.span.end;
+                                          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
                                         }
                                         else {
-                                          if ($puck_10.value.kind === "RecordLiteral") {
+                                          if ($puck_10.value.kind === "NumberLiteral") {
                                             let {value: e} = $puck_10.value;
-                                            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
+                                            return e.span.end;
                                           }
                                           else {
-                                            if ($puck_10.value.kind === "StringLiteral") {
+                                            if ($puck_10.value.kind === "RecordLiteral") {
                                               let {value: e} = $puck_10.value;
-                                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
+                                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
                                             }
                                             else {
-                                              if ($puck_10.value.kind === "TupleLiteral") {
+                                              if ($puck_10.value.kind === "StringLiteral") {
                                                 let {value: e} = $puck_10.value;
-                                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
+                                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
+                                              }
+                                              else {
+                                                if ($puck_10.value.kind === "TupleLiteral") {
+                                                  let {value: e} = $puck_10.value;
+                                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
+                                                };
                                               };
                                             };
                                           };
@@ -1031,15 +1045,15 @@ start: $puck_3.ToSpan.start,
 end: $puck_3.ToSpan.end
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"] = {
-span: function () {
+span: $puck_3.ToSpan.span,
+start: function () {
   const self = this;
-  return {
-    start: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.object, $isTraitObject: true}),
-    end: self.value.closeBracket.span.end,
-  };
+  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.object, $isTraitObject: true});
 },
-start: $puck_3.ToSpan.start,
-end: $puck_3.ToSpan.end
+end: function () {
+  const self = this;
+  return self.value.closeBracket.span.end;
+}
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"] = {
 span: $puck_3.ToSpan.span,
@@ -1050,6 +1064,17 @@ start: function () {
 end: function () {
   const self = this;
   return self.value.member.span.end;
+}
+};
+$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess"] = {
+span: $puck_3.ToSpan.span,
+start: function () {
+  const self = this;
+  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.object, $isTraitObject: true});
+},
+end: function () {
+  const self = this;
+  return self.value.index.span.end;
 }
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"] = {
@@ -1558,44 +1583,50 @@ Expression.getType = function () {
                                 return e.type_;
                               }
                               else {
-                                if ($puck_25.kind === "UnknownAccess") {
+                                if ($puck_25.kind === "TupleIndexAccess") {
                                   let {value: e} = $puck_25;
                                   return e.type_;
                                 }
                                 else {
-                                  if ($puck_25.kind === "UnknownIndexAccess") {
+                                  if ($puck_25.kind === "UnknownAccess") {
                                     let {value: e} = $puck_25;
                                     return e.type_;
                                   }
                                   else {
-                                    if ($puck_25.kind === "BooleanLiteral") {
+                                    if ($puck_25.kind === "UnknownIndexAccess") {
                                       let {value: e} = $puck_25;
                                       return e.type_;
                                     }
                                     else {
-                                      if ($puck_25.kind === "ListLiteral") {
+                                      if ($puck_25.kind === "BooleanLiteral") {
                                         let {value: e} = $puck_25;
                                         return e.type_;
                                       }
                                       else {
-                                        if ($puck_25.kind === "NumberLiteral") {
+                                        if ($puck_25.kind === "ListLiteral") {
                                           let {value: e} = $puck_25;
                                           return e.type_;
                                         }
                                         else {
-                                          if ($puck_25.kind === "RecordLiteral") {
+                                          if ($puck_25.kind === "NumberLiteral") {
                                             let {value: e} = $puck_25;
                                             return e.type_;
                                           }
                                           else {
-                                            if ($puck_25.kind === "StringLiteral") {
+                                            if ($puck_25.kind === "RecordLiteral") {
                                               let {value: e} = $puck_25;
                                               return e.type_;
                                             }
                                             else {
-                                              if ($puck_25.kind === "TupleLiteral") {
+                                              if ($puck_25.kind === "StringLiteral") {
                                                 let {value: e} = $puck_25;
                                                 return e.type_;
+                                              }
+                                              else {
+                                                if ($puck_25.kind === "TupleLiteral") {
+                                                  let {value: e} = $puck_25;
+                                                  return e.type_;
+                                                };
                                               };
                                             };
                                           };

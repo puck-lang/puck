@@ -25,6 +25,7 @@ import '../ast/ast.puck' as {
   Identifier
   FunctionDeclaration
   MemberAccess
+  TupleIndexAccess
   TypeBound
   NamedTypeBound
   TypePath
@@ -255,6 +256,34 @@ impl PositionVisitor for CompletionVisitor {
       }
     }
     else visit.walkMemberAccess(self, a)
+  }
+  fn visitTupleIndexAccess(mut self, a: TupleIndexAccess) -> () {
+    if identical(a.object.span().cmp(self.position()), Ordering::Less) {
+      print('CompletionVisitor visitTupleIndexAccess')
+      let type_ = a.object.getType()
+      if type_ {
+        match type_.kind {
+          TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
+            self.completions = Some(
+              tuple.properties
+                .enumerate()
+                .map(|(index, type_)| {
+                  let typeName = type_.displayName()
+                  {
+                    label: '$index: $typeName'
+                    kind: CompletionItemKind.Field
+                    insertText: '$index'
+                    insertTextFormat: InsertTextFormat.PlainText
+                  }
+                })
+                .toList()
+            )
+          }
+          _ => {}
+        }
+      }
+    }
+    else visit.walkTupleIndexAccess(self, a)
   }
 }
 

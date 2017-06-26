@@ -40,6 +40,7 @@ import '../ast/ast.puck' as {
 
   IndexAccess
   MemberAccess
+  TupleIndexAccess
   UnknownAccess
   UnknownIndexAccess
 
@@ -177,6 +178,9 @@ export trait PositionVisitor {
   fn visitMemberAccess(mut self, a: MemberAccess) -> () {
     walkMemberAccess(self, a)
   }
+  fn visitTupleIndexAccess(mut self, a: TupleIndexAccess) -> () {
+    walkTupleIndexAccess(self, a)
+  }
   fn visitUnknownAccess(mut self, a: UnknownAccess) -> () {
     walkUnknownAccess(self, a)
   }
@@ -299,6 +303,7 @@ export fn walkExpression(mut visitor: PositionVisitor, e: Expression) -> () {
 
     Expression::IndexAccess(e) => visitor.visitIndexAccess(e)
     Expression::MemberAccess(e) => visitor.visitMemberAccess(e)
+    Expression::TupleIndexAccess(e) => visitor.visitTupleIndexAccess(e)
     Expression::UnknownAccess(e) => visitor.visitUnknownAccess(e)
     Expression::UnknownIndexAccess(e) => visitor.visitUnknownIndexAccess(e)
 
@@ -591,6 +596,12 @@ export fn walkMemberAccess(mut visitor: PositionVisitor, a: MemberAccess) -> () 
     then visitor.visitExpression(a.object)
   else if identical(a.member.span().cmp(visitor.position()), Ordering::Equal)
     then visitor.visitIdentifier(a.member)
+}
+export fn walkTupleIndexAccess(mut visitor: PositionVisitor, a: TupleIndexAccess) -> () {
+  if identical(a.object.span().cmp(visitor.position()), Ordering::Equal)
+    then visitor.visitExpression(a.object)
+  else if identical(a.index.span().cmp(visitor.position()), Ordering::Equal)
+    then visitor.visitNumberLiteral(a.index)
 }
 export fn walkUnknownAccess(mut visitor: PositionVisitor, a: UnknownAccess) -> () {
   if identical(a.object.span().cmp(visitor.position()), Ordering::Equal)

@@ -42,6 +42,7 @@ import '../ast/ast.puck' as {
 
   IndexAccess
   MemberAccess
+  TupleIndexAccess
   UnknownAccess
   UnknownIndexAccess
 
@@ -118,6 +119,7 @@ fn asTraitCall(visitor, mut e: BinaryExpression, trait_: String, method: String,
       let mut call = CallExpression({
         func: Expression::MemberAccess({
           object: Expression::Identifier({name: binding.name, span: e.operator.span})
+          dotToken: e.operator
           member: {name: method, span: {start: e.operator.span.start, end: e.operator.span.end}}
         })
         typeArguments: None
@@ -907,6 +909,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
           let mut call = CallExpression({
             func: Expression::MemberAccess({
               object: Expression::Identifier({name: binding.name, span: a.object.span()})
+              dotToken: a.openBracket
               member: {name: 'index', span: {start: a.openBracket.span.start, end: a.closeBracket.span.end}}
             })
             typeArguments: None
@@ -941,6 +944,30 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
         else {
           let message = 'Can only read properties on record types'
           let token: ToSpan = a.member
+          if inCallExpression
+            then accessError = Some((token, message))
+            else reportError(a, message)
+        }
+      }
+    }
+    visitTupleIndexAccess: |self, mut a: TupleIndexAccess, inCallExpression = false| {
+      self.visitExpression(a.object)
+      if a.object.getType() {
+        if let TypeKind::Struct({kind: StructKind::Tuple(record)}) = a.object.getType().kind {
+          match record.properties.get(a.index.value) {
+            Some(type_) => a->type_ = type_
+            None => {
+              let message = a.object.getType().displayName() + ' has no index ' + a.index.value
+              let token: ToSpan = a.index
+              if inCallExpression
+                then accessError = Some((token, message))
+                else reportError(a, message)
+            }
+          }
+        }
+        else {
+          let message = 'Can only read properties on tuple types'
+          let token: ToSpan = a.index
           if inCallExpression
             then accessError = Some((token, message))
             else reportError(a, message)

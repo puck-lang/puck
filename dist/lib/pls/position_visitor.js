@@ -1,5 +1,5 @@
 'use strict';
-exports.PositionVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkMethodDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkObjectDestructureMember = exports.walkBlock = exports.walkReturnStatement = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkTypePath = exports.walkTypePathExpression = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkStringLiteralPart = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
+exports.PositionVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkMethodDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkObjectDestructureMember = exports.walkBlock = exports.walkReturnStatement = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkTypePath = exports.walkTypePathExpression = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkStringLiteralPart = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../ast/ast");
 const $puck_3 = require("./../ast/span");
@@ -133,6 +133,10 @@ visitIndexAccess: function (a) {
 visitMemberAccess: function (a) {
   let self = this;
   walkMemberAccess(self, a);
+},
+visitTupleIndexAccess: function (a) {
+  let self = this;
+  walkTupleIndexAccess(self, a);
 },
 visitUnknownAccess: function (a) {
   let self = this;
@@ -395,44 +399,50 @@ function walkExpression(visitor, e) {
                                 PositionVisitor[visitor.type].visitMemberAccess.call(visitor, e);
                               }
                               else {
-                                if ($puck_7.kind === "UnknownAccess") {
+                                if ($puck_7.kind === "TupleIndexAccess") {
                                   let {value: e} = $puck_7;
-                                  PositionVisitor[visitor.type].visitUnknownAccess.call(visitor, e);
+                                  PositionVisitor[visitor.type].visitTupleIndexAccess.call(visitor, e);
                                 }
                                 else {
-                                  if ($puck_7.kind === "UnknownIndexAccess") {
+                                  if ($puck_7.kind === "UnknownAccess") {
                                     let {value: e} = $puck_7;
-                                    PositionVisitor[visitor.type].visitUnknownIndexAccess.call(visitor, e);
+                                    PositionVisitor[visitor.type].visitUnknownAccess.call(visitor, e);
                                   }
                                   else {
-                                    if ($puck_7.kind === "BooleanLiteral") {
+                                    if ($puck_7.kind === "UnknownIndexAccess") {
                                       let {value: e} = $puck_7;
-                                      PositionVisitor[visitor.type].visitBooleanLiteral.call(visitor, e);
+                                      PositionVisitor[visitor.type].visitUnknownIndexAccess.call(visitor, e);
                                     }
                                     else {
-                                      if ($puck_7.kind === "ListLiteral") {
+                                      if ($puck_7.kind === "BooleanLiteral") {
                                         let {value: e} = $puck_7;
-                                        PositionVisitor[visitor.type].visitListLiteral.call(visitor, e);
+                                        PositionVisitor[visitor.type].visitBooleanLiteral.call(visitor, e);
                                       }
                                       else {
-                                        if ($puck_7.kind === "NumberLiteral") {
+                                        if ($puck_7.kind === "ListLiteral") {
                                           let {value: e} = $puck_7;
-                                          PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, e);
+                                          PositionVisitor[visitor.type].visitListLiteral.call(visitor, e);
                                         }
                                         else {
-                                          if ($puck_7.kind === "RecordLiteral") {
+                                          if ($puck_7.kind === "NumberLiteral") {
                                             let {value: e} = $puck_7;
-                                            PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, e);
+                                            PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, e);
                                           }
                                           else {
-                                            if ($puck_7.kind === "StringLiteral") {
+                                            if ($puck_7.kind === "RecordLiteral") {
                                               let {value: e} = $puck_7;
-                                              PositionVisitor[visitor.type].visitStringLiteral.call(visitor, e);
+                                              PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, e);
                                             }
                                             else {
-                                              if ($puck_7.kind === "TupleLiteral") {
+                                              if ($puck_7.kind === "StringLiteral") {
                                                 let {value: e} = $puck_7;
-                                                PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, e);
+                                                PositionVisitor[visitor.type].visitStringLiteral.call(visitor, e);
+                                              }
+                                              else {
+                                                if ($puck_7.kind === "TupleLiteral") {
+                                                  let {value: e} = $puck_7;
+                                                  PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, e);
+                                                };
                                               };
                                             };
                                           };
@@ -922,6 +932,17 @@ function walkMemberAccess(visitor, a) {
   };
 };
 exports.walkMemberAccess = walkMemberAccess;
+function walkTupleIndexAccess(visitor, a) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
+    PositionVisitor[visitor.type].visitExpression.call(visitor, a.object);
+  }
+  else {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral', value: a.index, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
+      PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, a.index);
+    };
+  };
+};
+exports.walkTupleIndexAccess = walkTupleIndexAccess;
 function walkUnknownAccess(visitor, a) {
   if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitExpression.call(visitor, a.object);
