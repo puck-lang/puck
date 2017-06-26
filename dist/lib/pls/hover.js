@@ -158,6 +158,22 @@ visitMemberAccess: function (a) {
     visit.walkMemberAccess(self, a);
   };
 },
+visitTupleIndexAccess: function (a) {
+  let self = this;
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral', value: a.index, $isTraitObject: true}), $puck_5.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/hover.puck:HoverVisitor"].position.call(self)), $puck_1.Ordering.Equal)) {
+    $puck_1.print("onHover visitTupleIndexAccess");
+    if (a.type_) {
+      const type_ = $unwrapTraitObject(a.type_);
+      self.value.hover = $puck_1.Some({
+        contents: getTypeContents(type_),
+        span: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral', value: a.index, $isTraitObject: true}),
+      });
+    };
+  }
+  else {
+    visit.walkTupleIndexAccess(self, a);
+  };
+},
 visitUnknownAccess: $puck_5.PositionVisitor.visitUnknownAccess,
 visitUnknownIndexAccess: $puck_5.PositionVisitor.visitUnknownIndexAccess,
 visitListLiteral: $puck_5.PositionVisitor.visitListLiteral,

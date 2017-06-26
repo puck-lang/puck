@@ -4,4 +4,15 @@ $puck_1.Num.round.call($puck_1.Index["$impl_Index$List"].index.call({type: '$imp
   1,
   2,
   3,
-], $isTraitObject: true}, 0))
+], $isTraitObject: true}, 0));
+$puck_1.Num.round.call([
+  1,
+  "2",
+  true,
+][0]);
+$puck_1.String.toUpperCase.call([
+  1,
+  "2",
+  true,
+][1]);
+$puck_1.Num.round.call(1)

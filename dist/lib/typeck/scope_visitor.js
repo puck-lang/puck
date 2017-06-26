@@ -61,6 +61,7 @@ function asTraitCall(visitor, e, trait_, method, desription) {
       name: binding.name,
       span: e.operator.span,
     }),
+      dotToken: e.operator,
       member: {
       name: method,
       span: {
@@ -1142,6 +1143,7 @@ function ScopeVisitor(context, file) {
         name: binding.name,
         span: $puck_5.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: a.object, $isTraitObject: true}),
       }),
+        dotToken: a.openBracket,
         member: {
         name: "index",
         span: {
@@ -1220,17 +1222,61 @@ function ScopeVisitor(context, file) {
       };
     };
   },
+    visitTupleIndexAccess: function (a, inCallExpression = false) {
+    const self = this;
+    $unwrapTraitObject(self).visitExpression(a.object);
+    if ($puck_4.Expression.getType.call(a.object)) {
+      let $puck_107 = $puck_4.Expression.getType.call(a.object).kind;
+      if (($puck_107.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_107.value).kind).kind === "Tuple")) {
+        let {value: {kind: {value: record}}} = $puck_107;
+        let $puck_108 = $puck_1.List.get.call(record.properties, a.index.value);
+        if ($puck_108 !== undefined) {
+          let type_ = $puck_108;
+          return a.type_ = type_;
+        }
+        else {
+          if (true) {
+            const None = $puck_108;
+            const message = $puck_17.Type.displayName.call($puck_4.Expression.getType.call(a.object)) + " has no index " + a.index.value;
+            const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral', value: a.index, $isTraitObject: true};
+            if (inCallExpression) {
+              return accessError = $puck_1.Some([
+                token,
+                message,
+              ]);
+            }
+            else {
+              return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess', value: a, $isTraitObject: true}, message);
+            };
+          };
+        };
+      }
+      else {
+        const message = "Can only read properties on tuple types";
+        const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral', value: a.index, $isTraitObject: true};
+        if (inCallExpression) {
+          return accessError = $puck_1.Some([
+            token,
+            message,
+          ]);
+        }
+        else {
+          return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess', value: a, $isTraitObject: true}, message);
+        };
+      };
+    };
+  },
     visitUnknownAccess: function (a) {
     const self = this;
     visit.walkExpression(self, a.object);
-    let $puck_107 = $puck_18.getCoreType($unwrapTraitObject(self).scope, "Unknown", "unknown access");
-    if (($puck_107.kind === "Ok")) {
-      let {value: [type_, ]} = $puck_107;
+    let $puck_109 = $puck_18.getCoreType($unwrapTraitObject(self).scope, "Unknown", "unknown access");
+    if (($puck_109.kind === "Ok")) {
+      let {value: [type_, ]} = $puck_109;
       a.type_ = type_;
     }
     else {
-      if ($puck_107.kind === "Err") {
-        let {value: err} = $puck_107;
+      if ($puck_109.kind === "Err") {
+        let {value: err} = $puck_109;
         reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: a, $isTraitObject: true}, err);
       };
     };
@@ -1239,14 +1285,14 @@ function ScopeVisitor(context, file) {
     visitUnknownIndexAccess: function (a) {
     const self = this;
     visit.walkUnknownIndexAccess(self, a);
-    let $puck_108 = $puck_18.getCoreType($unwrapTraitObject(self).scope, "Unknown", "unknown access");
-    if ($puck_108.kind === "Ok") {
-      let {value: [type_, ]} = $puck_108;
+    let $puck_110 = $puck_18.getCoreType($unwrapTraitObject(self).scope, "Unknown", "unknown access");
+    if ($puck_110.kind === "Ok") {
+      let {value: [type_, ]} = $puck_110;
       a.type_ = type_;
     }
     else {
-      if ($puck_108.kind === "Err") {
-        let {value: err} = $puck_108;
+      if ($puck_110.kind === "Err") {
+        let {value: err} = $puck_110;
         reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: a, $isTraitObject: true}, err);
       };
     };
@@ -1256,9 +1302,9 @@ function ScopeVisitor(context, file) {
     const self = this;
     const scope = $unwrapTraitObject(self).scope;
     l.scope = $unwrapTraitObject(self).scope;
-    let $puck_109 = $puck_13.Scope.getBindingByTypeId.call(scope, "Bool");
-    if ($puck_109 !== undefined) {
-      let binding = $puck_109;
+    let $puck_111 = $puck_13.Scope.getBindingByTypeId.call(scope, "Bool");
+    if ($puck_111 !== undefined) {
+      let binding = $puck_111;
       l.type_ = $puck_1.Option.unwrap.call(binding.type_.providesType);
     }
     else {
@@ -1269,43 +1315,43 @@ function ScopeVisitor(context, file) {
     visitListLiteral: function (l) {
     const self = this;
     const scope = $unwrapTraitObject(self).scope;
-    let $puck_110 = $puck_13.Scope.getBindingByTypeId.call(scope, "List");
-    let $puck_111;
-    if ($puck_110 !== undefined) {
-      let binding = $puck_110;
-      $puck_111 = $puck_1.Option.unwrap.call(binding.type_.providesType);
+    let $puck_112 = $puck_13.Scope.getBindingByTypeId.call(scope, "List");
+    let $puck_113;
+    if ($puck_112 !== undefined) {
+      let binding = $puck_112;
+      $puck_113 = $puck_1.Option.unwrap.call(binding.type_.providesType);
     }
     else {
       return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: l, $isTraitObject: true}, "puck:core::List is not in scope. Please import List from puck:core to use list literals.");
     };
-    let listType = $puck_111;
+    let listType = $puck_113;
     let type_ = $puck_1.None;
     if ($unwrapTraitObject(self).assignedTo) {
       const a = $unwrapTraitObject(self).assignedTo;
-      let $puck_112 = a.kind;
-      if ($puck_112.kind === "Struct") {
-        $puck_112;
+      let $puck_114 = a.kind;
+      if ($puck_114.kind === "Struct") {
+        $puck_114;
         if ($puck_1.Option.unwrapOr.call(a.id, "") === "List") {
           type_ = $puck_1.Some(a);
         };
       };
     };
     visit.walkListLiteral(self, l);
-    let $puck_113 = type_;
-    if ($puck_113 !== undefined) {
-      let type_ = $puck_113;
+    let $puck_115 = type_;
+    if ($puck_115 !== undefined) {
+      let type_ = $puck_115;
       l.type_ = type_;
     }
     else {
       if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true}) >= 1) {
-        let $puck_114 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true}, function (m) {
+        let $puck_116 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true}, function (m) {
           return $puck_4.Expression.getType.call(m);
         })
 ;
-        const types = $puck_1.Iterable[$puck_114.type].toList.call($puck_114);
-        let $puck_115 = $puck_16.findCommonType(types);
-        if ($puck_115.kind === "Ok") {
-          let {value: type_} = $puck_115;
+        const types = $puck_1.Iterable[$puck_116.type].toList.call($puck_116);
+        let $puck_117 = $puck_16.findCommonType(types);
+        if ($puck_117.kind === "Ok") {
+          let {value: type_} = $puck_117;
           if ((!type_)) {
             l.type_ = listType;
           }
@@ -1314,8 +1360,8 @@ function ScopeVisitor(context, file) {
           };
         }
         else {
-          if ($puck_115.kind === "Err") {
-            $puck_115;
+          if ($puck_117.kind === "Err") {
+            $puck_117;
             reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: l, $isTraitObject: true}, "List contains mixed types");
           };
         };
@@ -1329,9 +1375,9 @@ function ScopeVisitor(context, file) {
     visitNumberLiteral: function (l) {
     const self = this;
     const scope = $unwrapTraitObject(self).scope;
-    let $puck_116 = $puck_13.Scope.getBindingByTypeId.call(scope, "Num");
-    if ($puck_116 !== undefined) {
-      let binding = $puck_116;
+    let $puck_118 = $puck_13.Scope.getBindingByTypeId.call(scope, "Num");
+    if ($puck_118 !== undefined) {
+      let binding = $puck_118;
       l.type_ = $puck_1.Option.unwrap.call(binding.type_.providesType);
       return undefined;
     }
@@ -1344,26 +1390,26 @@ function ScopeVisitor(context, file) {
     visit.walkRecordLiteral(self, l);
     let properties = $puck_1.ObjectMap._new();
     $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true}, function (m) {
-      let $puck_117 = m;
-      if ($puck_117.kind === "Property") {
-        let {value: {name: name, value: value}} = $puck_117;
+      let $puck_119 = m;
+      if ($puck_119.kind === "Property") {
+        let {value: {name: name, value: value}} = $puck_119;
         return $puck_1.ObjectMap.set.call(properties, name.name, {
           type_: $puck_4.Expression.getType.call(value),
           optional: false,
         });
       }
       else {
-        if ($puck_117.kind === "Spread") {
-          let {value: e} = $puck_117;
-          let $puck_118 = $puck_4.Expression.getType.call(e).kind;
-          if (($puck_118.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_118.value).kind).kind === "Record")) {
-            let {value: {kind: {value: r}}} = $puck_118;
+        if ($puck_119.kind === "Spread") {
+          let {value: e} = $puck_119;
+          let $puck_120 = $puck_4.Expression.getType.call(e).kind;
+          if (($puck_120.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_120.value).kind).kind === "Record")) {
+            let {value: {kind: {value: r}}} = $puck_120;
             return $puck_1.ObjectMap.merge.call(properties, r.properties);
           }
           else {
             if (true) {
-              let $puck_119 = $puck_118;;
-              return $puck_119;
+              let $puck_121 = $puck_120;;
+              return $puck_121;
             };
           };
         };
@@ -1390,18 +1436,18 @@ function ScopeVisitor(context, file) {
     visitRecordLiteralMember: function (l) {
     const self = this;
     visit.walkRecordLiteralMember(self, l);
-    let $puck_120 = l;
-    if ($puck_120.kind === "Spread") {
-      let {value: e} = $puck_120;
-      let $puck_121 = $puck_4.Expression.getType.call(e).kind;
-      if (($puck_121.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_121.value).kind).kind === "Record")) {
-        let $puck_122 = $puck_121;;
-        let {value: {}} = $puck_122;;
-        return $puck_122;
+    let $puck_122 = l;
+    if ($puck_122.kind === "Spread") {
+      let {value: e} = $puck_122;
+      let $puck_123 = $puck_4.Expression.getType.call(e).kind;
+      if (($puck_123.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_123.value).kind).kind === "Record")) {
+        let $puck_124 = $puck_123;;
+        let {value: {}} = $puck_124;;
+        return $puck_124;
       }
       else {
         if (true) {
-          $puck_121;
+          $puck_123;
           return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true}, "Can only spread record types");
         };
       };
@@ -1411,9 +1457,9 @@ function ScopeVisitor(context, file) {
     const self = this;
     const scope = $unwrapTraitObject(self).scope;
     l.scope = $unwrapTraitObject(self).scope;
-    let $puck_123 = $puck_13.Scope.getBindingByTypeId.call(scope, "String");
-    if ($puck_123 !== undefined) {
-      let binding = $puck_123;
+    let $puck_125 = $puck_13.Scope.getBindingByTypeId.call(scope, "String");
+    if ($puck_125 !== undefined) {
+      let binding = $puck_125;
       l.type_ = $puck_1.Option.unwrap.call(binding.type_.providesType);
     }
     else {
@@ -1425,7 +1471,7 @@ function ScopeVisitor(context, file) {
     const self = this;
     l.scope = $unwrapTraitObject(self).scope;
     visit.walkTupleLiteral(self, l);
-    let $puck_124 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.expressions, $isTraitObject: true}, function (e) {
+    let $puck_126 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.expressions, $isTraitObject: true}, function (e) {
       return $puck_4.Expression.getType.call(e);
     })
 ;
@@ -1439,7 +1485,7 @@ function ScopeVisitor(context, file) {
       name: $puck_1.None,
       kind: $puck_17.TypeKind.Struct({
       implementations: [],
-      kind: $puck_17.StructKind.Tuple({properties: $puck_1.Iterable[$puck_124.type].toList.call($puck_124)}),
+      kind: $puck_17.StructKind.Tuple({properties: $puck_1.Iterable[$puck_126.type].toList.call($puck_126)}),
     }),
       _class: $puck_1.None,
       instance: $puck_1.None,
@@ -1451,76 +1497,76 @@ function ScopeVisitor(context, file) {
     const self = this;
     p.scope = $unwrapTraitObject(self).scope;
     visit.walkPattern(self, p);
-    let $puck_125 = p;
-    let $puck_126;
-    if ($puck_125.kind === "CatchAll") {
-      $puck_125;
-      $puck_126 = $puck_17.Type.unused({
+    let $puck_127 = p;
+    let $puck_128;
+    if ($puck_127.kind === "CatchAll") {
+      $puck_127;
+      $puck_128 = $puck_17.Type.unused({
         file: file,
         token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: p, $isTraitObject: true},
       });
     }
     else {
-      let $puck_127;
-      if ($puck_125.kind === "Identifier") {
-        let {value: {identifier: identifier}} = $puck_125;
-        $puck_127 = $puck_2._undefined;
+      let $puck_129;
+      if ($puck_127.kind === "Identifier") {
+        let {value: {identifier: identifier}} = $puck_127;
+        $puck_129 = $puck_2._undefined;
       }
       else {
-        let $puck_128;
-        if ($puck_125.kind === "Record") {
-          let {value: record} = $puck_125;
-          $puck_128 = record.type_;
+        let $puck_130;
+        if ($puck_127.kind === "Record") {
+          let {value: record} = $puck_127;
+          $puck_130 = record.type_;
         }
         else {
-          let $puck_129;
-          if ($puck_125.kind === "RecordType") {
-            let {value: [typePath, record]} = $puck_125;
+          let $puck_131;
+          if ($puck_127.kind === "RecordType") {
+            let {value: [typePath, record]} = $puck_127;
             const type_ = $unwrapTraitObject(typePath.providesType);
             if ((!$puck_16.isAssignable($unwrapTraitObject(record.type_), type_))) {
               reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: p, $isTraitObject: true}, $puck_17.Type.displayName.call(type_) + " is not assignable to pattern " + $puck_4.RecordPattern.displayName.call(record));
             };
-            $puck_129 = $puck_1.Option.mapOr.call(type_.enumMember, type_, function ([, enum_]) {
+            $puck_131 = $puck_1.Option.mapOr.call(type_.enumMember, type_, function ([, enum_]) {
               return enum_;
             });
           }
           else {
-            let $puck_130;
-            if (($puck_125.kind === "Tuple")) {
-              let {value: tuple} = $puck_125;
-              $puck_130 = tuple.type_;
+            let $puck_132;
+            if (($puck_127.kind === "Tuple")) {
+              let {value: tuple} = $puck_127;
+              $puck_132 = tuple.type_;
             }
             else {
-              let $puck_131;
-              if ($puck_125.kind === "TupleType") {
-                let {value: [typePath, tuple]} = $puck_125;
+              let $puck_133;
+              if ($puck_127.kind === "TupleType") {
+                let {value: [typePath, tuple]} = $puck_127;
                 const type_ = $unwrapTraitObject(typePath.providesType);
                 if ((!$puck_16.isAssignable($unwrapTraitObject(tuple.type_), type_))) {
                   reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Pattern', value: p, $isTraitObject: true}, $puck_17.Type.displayName.call(type_) + " is not assignable to pattern " + $puck_4.TuplePattern.displayName.call(tuple));
                 };
-                $puck_131 = $puck_1.Option.mapOr.call(type_.enumMember, type_, function ([, enum_]) {
+                $puck_133 = $puck_1.Option.mapOr.call(type_.enumMember, type_, function ([, enum_]) {
                   return enum_;
                 });
               }
               else {
-                let $puck_132;
-                if (($puck_125.kind === "UnitType")) {
-                  let {value: typePath} = $puck_125;
-                  $puck_132 = $puck_2._undefined;
+                let $puck_134;
+                if (($puck_127.kind === "UnitType")) {
+                  let {value: typePath} = $puck_127;
+                  $puck_134 = $puck_2._undefined;
                 };
-                $puck_131 = $puck_132;
+                $puck_133 = $puck_134;
               };
-              $puck_130 = $puck_131;
+              $puck_132 = $puck_133;
             };
-            $puck_129 = $puck_130;
+            $puck_131 = $puck_132;
           };
-          $puck_128 = $puck_129;
+          $puck_130 = $puck_131;
         };
-        $puck_127 = $puck_128;
+        $puck_129 = $puck_130;
       };
-      $puck_126 = $puck_127;
+      $puck_128 = $puck_129;
     };
-    return p.type_ = $puck_126;
+    return p.type_ = $puck_128;
   },
     visitRecordPattern: function (p) {
     const self = this;
@@ -1557,7 +1603,7 @@ function ScopeVisitor(context, file) {
     const self = this;
     p.scope = $unwrapTraitObject(self).scope;
     visit.walkTuplePattern(self, p);
-    let $puck_133 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: p.properties, $isTraitObject: true}, function (p) {
+    let $puck_135 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: p.properties, $isTraitObject: true}, function (p) {
       return p.type_;
     })
 ;
@@ -1571,7 +1617,7 @@ function ScopeVisitor(context, file) {
       name: $puck_1.None,
       kind: $puck_17.TypeKind.Struct({
       implementations: [],
-      kind: $puck_17.StructKind.Tuple({properties: $puck_1.Iterable[$puck_133.type].toList.call($puck_133)}),
+      kind: $puck_17.StructKind.Tuple({properties: $puck_1.Iterable[$puck_135.type].toList.call($puck_135)}),
     }),
       instance: $puck_1.None,
       _class: $puck_1.None,

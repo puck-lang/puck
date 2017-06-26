@@ -25,6 +25,7 @@ export type Expression
 
   | {kind: 'IndexAccess', value: IndexAccess}
   | {kind: 'MemberAccess', value: MemberAccess}
+  | {kind: 'TupleIndexAccess', value: TupleIndexAccess}
   | {kind: 'UnknownAccess', value: MemberAccess}
   | {kind: 'UnknownIndexAccess', value: IndexAccess}
 
@@ -324,6 +325,11 @@ export interface IndexAccess extends Token {
 export interface MemberAccess extends Token {
   object: Expression
   member: Identifier
+}
+
+export interface TupleIndexAccess extends Token {
+  object: Expression
+  index: NumberLiteral
 }
 
 export interface BreakStatement extends Token {

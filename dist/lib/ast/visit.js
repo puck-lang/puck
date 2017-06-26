@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.walkingVisitor = exports.emptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
+exports.walkingVisitor = exports.emptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./ast");
 const $puck_3 = require("./../compiler/ast");
@@ -123,6 +123,10 @@ var walkingVisitor = exports.walkingVisitor = {
   visitMemberAccess: function (a) {
   const self = this;
   return walkMemberAccess(self, a);
+},
+  visitTupleIndexAccess: function (a) {
+  const self = this;
+  return walkTupleIndexAccess(self, a);
 },
   visitUnknownAccess: function (a) {
   const self = this;
@@ -430,44 +434,50 @@ function walkExpression(visitor, e) {
                                 return $unwrapTraitObject(visitor).visitMemberAccess(e);
                               }
                               else {
-                                if ($puck_6.kind === "UnknownAccess") {
+                                if ($puck_6.kind === "TupleIndexAccess") {
                                   let {value: e} = $puck_6;
-                                  return $unwrapTraitObject(visitor).visitUnknownAccess(e);
+                                  return $unwrapTraitObject(visitor).visitTupleIndexAccess(e);
                                 }
                                 else {
-                                  if ($puck_6.kind === "UnknownIndexAccess") {
+                                  if ($puck_6.kind === "UnknownAccess") {
                                     let {value: e} = $puck_6;
-                                    return $unwrapTraitObject(visitor).visitUnknownIndexAccess(e);
+                                    return $unwrapTraitObject(visitor).visitUnknownAccess(e);
                                   }
                                   else {
-                                    if ($puck_6.kind === "BooleanLiteral") {
+                                    if ($puck_6.kind === "UnknownIndexAccess") {
                                       let {value: e} = $puck_6;
-                                      return $unwrapTraitObject(visitor).visitBooleanLiteral(e);
+                                      return $unwrapTraitObject(visitor).visitUnknownIndexAccess(e);
                                     }
                                     else {
-                                      if ($puck_6.kind === "ListLiteral") {
+                                      if ($puck_6.kind === "BooleanLiteral") {
                                         let {value: e} = $puck_6;
-                                        return $unwrapTraitObject(visitor).visitListLiteral(e);
+                                        return $unwrapTraitObject(visitor).visitBooleanLiteral(e);
                                       }
                                       else {
-                                        if ($puck_6.kind === "NumberLiteral") {
+                                        if ($puck_6.kind === "ListLiteral") {
                                           let {value: e} = $puck_6;
-                                          return $unwrapTraitObject(visitor).visitNumberLiteral(e);
+                                          return $unwrapTraitObject(visitor).visitListLiteral(e);
                                         }
                                         else {
-                                          if ($puck_6.kind === "RecordLiteral") {
+                                          if ($puck_6.kind === "NumberLiteral") {
                                             let {value: e} = $puck_6;
-                                            return $unwrapTraitObject(visitor).visitRecordLiteral(e);
+                                            return $unwrapTraitObject(visitor).visitNumberLiteral(e);
                                           }
                                           else {
-                                            if ($puck_6.kind === "StringLiteral") {
+                                            if ($puck_6.kind === "RecordLiteral") {
                                               let {value: e} = $puck_6;
-                                              return $unwrapTraitObject(visitor).visitStringLiteral(e);
+                                              return $unwrapTraitObject(visitor).visitRecordLiteral(e);
                                             }
                                             else {
-                                              if ($puck_6.kind === "TupleLiteral") {
+                                              if ($puck_6.kind === "StringLiteral") {
                                                 let {value: e} = $puck_6;
-                                                return $unwrapTraitObject(visitor).visitTupleLiteral(e);
+                                                return $unwrapTraitObject(visitor).visitStringLiteral(e);
+                                              }
+                                              else {
+                                                if ($puck_6.kind === "TupleLiteral") {
+                                                  let {value: e} = $puck_6;
+                                                  return $unwrapTraitObject(visitor).visitTupleLiteral(e);
+                                                };
                                               };
                                             };
                                           };
@@ -718,6 +728,11 @@ function walkMemberAccess(visitor, a) {
   return $unwrapTraitObject(visitor).visitExpression(a.member);
 };
 exports.walkMemberAccess = walkMemberAccess;
+function walkTupleIndexAccess(visitor, a) {
+  $unwrapTraitObject(visitor).visitExpression(a.object);
+  return $unwrapTraitObject(visitor).visitExpression(a.index);
+};
+exports.walkTupleIndexAccess = walkTupleIndexAccess;
 function walkUnknownAccess(visitor, a) {
   $unwrapTraitObject(visitor).visitExpression(a.object);
   return $unwrapTraitObject(visitor).visitExpression(a.member);

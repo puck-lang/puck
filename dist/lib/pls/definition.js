@@ -239,6 +239,35 @@ visitMemberAccess: function (a) {
     visit.walkMemberAccess(self, a);
   };
 },
+visitTupleIndexAccess: function (a) {
+  let self = this;
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NumberLiteral', value: a.index, $isTraitObject: true}), $puck_6.PositionVisitor["$impl_lib/pls/position_visitor.puck:PositionVisitor$lib/pls/definition.puck:DefinitionVisitor"].position.call(self)), $puck_1.Ordering.Equal)) {
+    $puck_1.print("onDefinition visitTupleIndexAccess");
+    const type_ = $puck_2.Expression.getType.call(a.object);
+    if (type_) {
+      let $puck_23 = type_.kind;
+      if (($puck_23.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_23.value).kind).kind === "Tuple")) {
+        let {value: {kind: {value: tuple}}} = $puck_23;
+        let $puck_24 = $puck_1.List.get.call(tuple.properties, a.index.value);
+        if ($puck_24 !== undefined) {
+          let {type_: type_} = $puck_24;
+          self.value.definitions = [{
+            file: $unwrapTraitObject($unwrapTraitObject(type_).definition).file,
+            span: $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(type_).definition).token).span(),
+          }];
+        };
+      }
+      else {
+        if (true) {
+          $puck_23;
+        };
+      };
+    };
+  }
+  else {
+    visit.walkTupleIndexAccess(self, a);
+  };
+},
 visitUnknownAccess: $puck_6.PositionVisitor.visitUnknownAccess,
 visitUnknownIndexAccess: $puck_6.PositionVisitor.visitUnknownIndexAccess,
 visitListLiteral: $puck_6.PositionVisitor.visitListLiteral,

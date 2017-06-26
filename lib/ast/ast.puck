@@ -50,6 +50,7 @@ export enum Expression {
   UnaryExpression(UnaryExpression)
 
   IndexAccess(IndexAccess)
+  TupleIndexAccess(TupleIndexAccess)
   MemberAccess(MemberAccess)
   UnknownAccess(UnknownAccess)
   UnknownIndexAccess(UnknownIndexAccess)
@@ -171,6 +172,7 @@ impl Expression {
 
       Expression::IndexAccess(e) => e->type_.transmute()
       Expression::MemberAccess(e) => e->type_.transmute()
+      Expression::TupleIndexAccess(e) => e->type_.transmute()
       Expression::UnknownAccess(e) => e->type_.transmute()
       Expression::UnknownIndexAccess(e) => e->type_.transmute()
 
@@ -205,6 +207,7 @@ impl ToSpan for Expression {
 
       Expression::IndexAccess(e) => e.start()
       Expression::MemberAccess(e) => e.start()
+      Expression::TupleIndexAccess(e) => e.start()
       Expression::UnknownAccess(e) => e.start()
       Expression::UnknownIndexAccess(e) => e.start()
 
@@ -236,6 +239,7 @@ impl ToSpan for Expression {
 
       Expression::IndexAccess(e) => e.end()
       Expression::MemberAccess(e) => e.end()
+      Expression::TupleIndexAccess(e) => e.end()
       Expression::UnknownAccess(e) => e.end()
       Expression::UnknownIndexAccess(e) => e.end()
 
@@ -771,14 +775,17 @@ export type IndexAccess {
 }
 
 impl ToSpan for IndexAccess {
-  fn span(self) -> Span {{
-    start: self.object.start()
-    end: self.closeBracket.span.end
-  }}
+  fn start(self) -> Position {
+    self.object.start()
+  }
+  fn end(self) -> Position {
+    self.closeBracket.span.end
+  }
 }
 
 export type MemberAccess {
   object: Expression
+  dotToken: SimpleToken
   member: Identifier
 }
 
@@ -788,6 +795,21 @@ impl ToSpan for MemberAccess {
   }
   fn end(self) -> Position {
     self.member.span.end
+  }
+}
+
+export type TupleIndexAccess {
+  object: Expression
+  dotToken: SimpleToken
+  index: NumberLiteral
+}
+
+impl ToSpan for TupleIndexAccess {
+  fn start(self) -> Position {
+    self.object.start()
+  }
+  fn end(self) -> Position {
+    self.index.span.end
   }
 }
 
