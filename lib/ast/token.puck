@@ -4,7 +4,7 @@ import 'ast.puck' as {
   NumberLiteral
   StringLiteral
 }
-import 'span.puck' as {Span}
+import 'span.puck' as {Span, ToSpan}
 
 export enum SyntaxKind {
   AndKeyword
@@ -106,6 +106,18 @@ impl Token {
       Token::Identifier({name}) => 'identifier "$name"'
       Token::NumberLiteral => 'number'
       Token::StringLiteral => 'string'
+    }
+  }
+}
+
+impl ToSpan for Token {
+  fn span(self) -> Span {
+    match self {
+      Token::SimpleToken({span}) => span
+      Token::Comment({span}) => span
+      Token::Identifier({span}) => span
+      Token::NumberLiteral({span}) => span
+      Token::StringLiteral(string) => string.span()
     }
   }
 }

@@ -67,7 +67,7 @@ import '../ast/ast.puck' as {
   TupleTypeBound
   TypeParameter
 }
-import '../ast/span.puck' as {Span}
+import '../ast/span.puck' as {Span, ToSpan}
 import '../ast/token.puck' as {SyntaxKind, SimpleToken, Token}
 import '../entities.puck' as {File}
 import 'token_stream.puck' as {TokenStream}
@@ -269,9 +269,11 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
   fn maybeMemberAccess(expression: Expression) -> Expression {
     if isToken(SyntaxKind::DotToken) {
       let dotToken = consumeToken(SyntaxKind::DotToken)
+      let token = input.peek()
       maybeAccess(
-        match input.next() {
+        match token {
           Token::NumberLiteral(index) => {
+            input.next()
             Expression::TupleIndexAccess({
               object: expression
               dotToken
@@ -279,13 +281,25 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
             })
           }
           Token::Identifier(identifier) => {
+            input.next()
             Expression::MemberAccess({
               object: expression
               dotToken
               member: identifier
             })
           }
-          _ => input.croak('Expected number or identifier, ' + butGot())
+          _ => {
+            if recover {
+              Expression::MemberAccess({
+                object: expression
+                dotToken
+                member: {name: '', span: token.span()}
+              })
+            } else {
+              input.next()
+              input.croak('Expected number or identifier, ' + butGot())
+            }
+          }
         }
       )
     }
