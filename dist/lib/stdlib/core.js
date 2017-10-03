@@ -1726,6 +1726,13 @@ ObjectMap.merge = function (other) {
 Map._new = function () {
   return $unwrapTraitObject(js.createMap());
 };
+Map.fromIter = function (list) {
+  let map = Map._new();
+  Iterable[list.type].forEach.call(list, function ([key, item]) {
+    return Map.set.call(map, $unwrapTraitObject(key), $unwrapTraitObject(item));
+  });
+  return map;
+};
 Map.size = function () {
   const self = this;
   return $unwrapTraitObject(self.size);

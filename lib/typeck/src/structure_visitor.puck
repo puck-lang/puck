@@ -429,4 +429,6 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
         then return reportError(d, notAssignableError(d.pattern->type_.transmute(), initializerType))
     }
   }
+  visitTypeParameterBound: visit.walkingVisitor.visitTypeParameterBound
+  visitWhereClause: visit.walkingVisitor.visitWhereClause
 }}

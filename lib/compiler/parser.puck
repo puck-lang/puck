@@ -67,6 +67,8 @@ import '../ast/ast.puck' as {
   RecordTypeBoundMember
   TupleTypeBound
   TypeParameter
+  TypeParameterBound
+  WhereClause
 }
 import '../ast/span.puck' as {Span, ToSpan}
 import '../ast/token.puck' as {SyntaxKind, SimpleToken, Token}
@@ -103,6 +105,17 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
     match input.peek(withDummy) {
       Token::SimpleToken(token) => identical(token.kind, kind)
       _ => false
+    }
+  }
+
+  fn maybeToken(kind: SyntaxKind) -> Option<SimpleToken> {
+    match input.peek() {
+      Token::SimpleToken(token) => {
+        if identical(token.kind, kind)
+          then Some(token)
+          else None
+      }
+      _ => None
     }
   }
 
@@ -361,6 +374,25 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       })
     }
     else expression
+  }
+
+  fn onlyDelimited<T>(separator: SyntaxKind, parser: () -> T) -> List<T> {
+    let mut parts = []
+    let mut first = true
+
+    while not input.eof() {
+
+      if first then first = false
+      else {
+        if isToken(separator)
+          then consumeSeparator(separator)
+          else break
+      }
+
+      parts.push(parser())
+    }
+
+    parts
   }
 
   fn delimited<T>(start: SyntaxKind, stop: SyntaxKind, separator: SyntaxKind, parser: () -> T, consumeStop: Bool) -> List<T> {
@@ -624,6 +656,8 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
           type_: None
         }}
 
+    let whereClause = maybeWhereClause()
+
     let openBrace = expect(SyntaxKind::OpenBraceToken)
     let members = delimited(SyntaxKind::OpenBraceToken, SyntaxKind::CloseBraceToken, SyntaxKind::SemicolonToken, parseFunctionDeclaration, false)
       .toList()
@@ -636,6 +670,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
         trait_
         forKeyword: forKeyword.unwrap()
         type_
+        whereClause
         openBrace
         members
         closeBrace
@@ -644,6 +679,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
         implKeyword
         typeParameters
         type_: trait_
+        whereClause
         openBrace
         members
         closeBrace
@@ -1364,6 +1400,20 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       name
       defaultValue
     }
+  }
+
+  fn parseTypeParameterBound() -> TypeParameterBound {{
+    subType: parseTypeBound()
+    colonToken: consumeToken(SyntaxKind::ColonToken)
+    superType: parseTypeBound()
+    commaToken: maybeToken(SyntaxKind::CommaToken)
+  }}
+
+  fn maybeWhereClause() -> Option<WhereClause> {
+    maybeConsumeToken(SyntaxKind::WhereKeyword).map(|token| {{
+      whereKeyword: token
+      bounds: onlyDelimited(SyntaxKind::CommaToken, parseTypeParameterBound)
+    }})
   }
 
   fn parseTypePath(identifier: Option<Identifier>) -> TypePath {

@@ -1537,6 +1537,12 @@ impl<K, V> Map<K, V> {
     js->createMap().transmute()
   }
 
+  fn fromIter<K, V>(list: Iterable<(K, V)>) -> Map<K, V> {
+    let mut map = Map.new()
+    list.forEach(|(key, item)| map.set(key, item))
+    map
+  }
+
   fn size(self) -> Num {
     self->size.transmute()
   }
