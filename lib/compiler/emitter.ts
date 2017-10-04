@@ -10,7 +10,7 @@ import {
   EnumDeclaration,
   ExportDirective,
   Expression,
-  ForExpression,
+  ForLoop,
   FunctionDeclaration,
   Identifier,
   IfExpression,
@@ -33,7 +33,7 @@ import {
   SimpleIdentifier,
   StringLiteral,
   SimpleStringLiteral,
-  Token,
+  SimpleToken,
   TraitDeclaration,
   TupleIndexAccess,
   TupleLiteral,
@@ -168,7 +168,7 @@ export function Emitter() {
     return value
   }
 
-  function withPrecedence(operator: Token, emitter: () => string) {
+  function withPrecedence(operator: SimpleToken, emitter: () => string) {
     const parentPrecedence = currentPrecedence
     currentPrecedence = SyntaxKind.precedence.call(operator.kind)
     if (parentPrecedence > currentPrecedence)
@@ -356,6 +356,7 @@ export function Emitter() {
 
   function emitBlockLevelStatement(expression: BlockLevelStatement, assignedTo: Type|undefined) {
     switch (expression.kind) {
+      case 'ForLoop': return emitForLoop(expression.value);
       case 'WhileLoop': return emitWhileLoop(expression.value);
 
       case 'BreakStatement': return emitBreak(expression.value);
@@ -1127,6 +1128,45 @@ export function Emitter() {
 
   function emitUnaryExpression(e: UnaryExpression) {
     return withPrecedence(e.operator, () => `${tokenToJs(e.operator.kind!)}${emitExpression(e.rhs)}`)
+  }
+
+  function emitForLoop(e: ForLoop) {
+    let iterator = newValueVariable()
+    let continueLoop = newValueVariable()
+    let element = newValueVariable()
+    hoist!(`let ${iterator} = ${emitCallExpression(e.createIterCall)}`)
+    hoist!(`let ${continueLoop} = true`)
+    e.nextCall.func = {kind: 'MemberAccess', value: {
+      object: {kind: 'Identifier', value: {name: iterator}} as Expression,
+      member: (e.nextCall.func.value as MemberAccess).member,
+    }}
+    return emitWhileLoop({
+      condition: {kind: 'JsExpression', value: continueLoop},
+      body: {
+        statements: [{
+          kind: 'Expression',
+          value: {
+            kind: 'IfLetExpression',
+            value: {
+              pattern: {
+                kind: 'TupleType',
+                value: [
+                  e.optionSome,
+                  {properties: [e.pattern]}
+                ]
+              },
+              expression: {kind: 'CallExpression', value: e.nextCall},
+              then_: e.body,
+              else_: {statements: [{
+                kind: 'Expression',
+                value: {kind: 'JsExpression', value: `${continueLoop} = false`}
+              }]},
+              scope: e.scope,
+            }
+          },
+        } as BlockLevelStatement]
+      }
+    })
   }
 
   function emitWhileLoop(e: WhileLoop) {

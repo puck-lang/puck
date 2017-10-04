@@ -24,6 +24,7 @@ import '../ast/ast.puck' as {
 
   Block
   ReturnStatement
+  ForLoop
   WhileLoop
 
   Identifier
@@ -419,6 +420,9 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
           keyword: consumeToken(SyntaxKind::ReturnKeyword)
           expression: parseExpression()
         })
+      }
+      Token::SimpleToken({kind: SyntaxKind::ForKeyword}) => {
+        BlockLevelStatement::ForLoop(parseFor())
       }
       Token::SimpleToken({kind: SyntaxKind::WhileKeyword}) => {
         BlockLevelStatement::WhileLoop(parseWhile())
@@ -827,6 +831,22 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       statements
       closeBrace
       type_: undefined
+    }
+  }
+
+  fn parseFor() -> ForLoop {
+    let forKeyword = consumeToken(SyntaxKind::ForKeyword)
+    let pattern = parsePattern()
+    let ofKeyword = consumeToken(SyntaxKind::OfKeyword)
+    let expression = parseExpression()
+    let body = parseBlock()
+
+    {
+      forKeyword
+      pattern
+      ofKeyword
+      expression
+      body
     }
   }
 

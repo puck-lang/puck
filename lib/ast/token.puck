@@ -23,6 +23,7 @@ export enum SyntaxKind {
   MutKeyword
   MatchKeyword
   NotKeyword
+  OfKeyword
   OrKeyword
   ReturnKeyword
   ThenKeyword
@@ -140,6 +141,7 @@ impl SyntaxKind {
     else if text == 'match' then Some(SyntaxKind::MatchKeyword)
     else if text == 'mut' then Some(SyntaxKind::MutKeyword)
     else if text == 'not' then Some(SyntaxKind::NotKeyword)
+    else if text == 'of' then Some(SyntaxKind::OfKeyword)
     else if text == 'or' then Some(SyntaxKind::OrKeyword)
     else if text == 'return' then Some(SyntaxKind::ReturnKeyword)
     else if text == 'throw' then Some(SyntaxKind::ThrowKeyword)
@@ -207,6 +209,7 @@ impl SyntaxKind {
       SyntaxKind::MatchKeyword => 'match'
       SyntaxKind::MutKeyword => 'mut'
       SyntaxKind::NotKeyword => 'not'
+      SyntaxKind::OfKeyword => 'of'
       SyntaxKind::OrKeyword => 'or'
       SyntaxKind::ReturnKeyword => 'return'
       SyntaxKind::ThrowKeyword => 'throw'

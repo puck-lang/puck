@@ -294,6 +294,7 @@ function Emitter() {
     }
     function emitBlockLevelStatement(expression, assignedTo) {
         switch (expression.kind) {
+            case 'ForLoop': return emitForLoop(expression.value);
             case 'WhileLoop': return emitWhileLoop(expression.value);
             case 'BreakStatement': return emitBreak(expression.value);
             case 'ReturnStatement': return emitReturn(expression.value);
@@ -980,6 +981,44 @@ function Emitter() {
     }
     function emitUnaryExpression(e) {
         return withPrecedence(e.operator, function () { return "" + tokenToJs(e.operator.kind) + emitExpression(e.rhs); });
+    }
+    function emitForLoop(e) {
+        var iterator = newValueVariable();
+        var continueLoop = newValueVariable();
+        var element = newValueVariable();
+        hoist("let " + iterator + " = " + emitCallExpression(e.createIterCall));
+        hoist("let " + continueLoop + " = true");
+        e.nextCall.func = { kind: 'MemberAccess', value: {
+                object: { kind: 'Identifier', value: { name: iterator } },
+                member: e.nextCall.func.value.member,
+            } };
+        return emitWhileLoop({
+            condition: { kind: 'JsExpression', value: continueLoop },
+            body: {
+                statements: [{
+                        kind: 'Expression',
+                        value: {
+                            kind: 'IfLetExpression',
+                            value: {
+                                pattern: {
+                                    kind: 'TupleType',
+                                    value: [
+                                        e.optionSome,
+                                        { properties: [e.pattern] }
+                                    ]
+                                },
+                                expression: { kind: 'CallExpression', value: e.nextCall },
+                                then_: e.body,
+                                else_: { statements: [{
+                                            kind: 'Expression',
+                                            value: { kind: 'JsExpression', value: continueLoop + " = false" }
+                                        }] },
+                                scope: e.scope,
+                            }
+                        },
+                    }]
+            }
+        });
     }
     function emitWhileLoop(e) {
         var body = function () { return emitBlock(e.body, null); };

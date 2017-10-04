@@ -65,7 +65,7 @@ function walkSync(directory, filelist = []) {
 };
 exports.walkSync = walkSync;
 function flag(_arguments, name, defaultValue = "") {
-  let $puck_7 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: _arguments, $isTraitObject: true})
+  let $puck_7 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: _arguments, $isTraitObject: true})
 ;
   let $puck_6 = $puck_1.Iterator[$puck_7.type].position.call($puck_7, function (a) {
     return a === name;

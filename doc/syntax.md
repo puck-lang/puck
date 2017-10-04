@@ -101,7 +101,7 @@ let action =
 ## Loops
 ```puck
 // The for loop iterates over an iterable, for example a list
-for color in ['red', 'green', 'blue'] {
+for color of ['red', 'green', 'blue'] {
   // ...
 }
 

@@ -23,6 +23,7 @@ import '../ast/ast.puck' as {
   Block
   BreakStatement
   ReturnStatement
+  ForLoop
   WhileLoop
 
   Identifier
@@ -307,6 +308,94 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
       else if r.expression.getType() {
         self.functionContext.returnTypes.push(r.expression.getType())
       }
+    }
+    visitForLoop: |mut self, mut e: ForLoop| {
+      let parentScope: Scope = self.scope
+      self.scope = parentScope.createChild()
+      e->scope = self.scope
+      self.visitPattern(e.pattern)
+      self.visitExpression(e.expression)
+      if let Some(intoIteratorBinding) = parentScope.getBindingByTypeId('IntoIterator') {
+        if let Some(iteratorBinding) = parentScope.getBindingByTypeId('Iterator') {
+          if let Some(optionBinding) = parentScope.getBindingByTypeId('Option') {
+            let intoIteratorType = intoIteratorBinding.type_.providesType.unwrap()
+            let iteratorType = iteratorBinding.type_.providesType.unwrap()
+            if not isAssignable(intoIteratorType, e.expression.getType())
+              then reportError(e.expression
+                notAssignableError(intoIteratorType, e.expression.getType())
+              )
+            match getImplementationForTrait(e.expression.getType(), intoIteratorType) {
+              Ok(Some(mut implementation)) => {
+                let type_ = resolveImplTypeParameters(implementation, e.expression.getType())
+                  .unwrap().instance.unwrap().typeParameters.first().unwrap()
+
+                let mut createIterCall = CallExpression({
+                  func: Expression::MemberAccess({
+                    object: Expression::Identifier({name: intoIteratorBinding.name, span: e.expression.span()})
+                    dotToken: e.ofKeyword
+                    member: {name: 'iter', span: e.expression.span()}
+                  })
+                  typeArguments: None
+                  openParen: e.ofKeyword
+                  argumentList: [e.expression]
+                  closeParen: e.ofKeyword
+                })
+                e->createIterCall = createIterCall
+
+                let mut nextCall = CallExpression({
+                  func: Expression::MemberAccess({
+                    object: Expression::CallExpression(createIterCall)
+                    dotToken: e.ofKeyword
+                    member: {name: 'next', span: e.pattern.span()}
+                  })
+                  typeArguments: None
+                  openParen: e.ofKeyword
+                  argumentList: []
+                  closeParen: e.ofKeyword
+                })
+                e->nextCall = nextCall
+                self.visitCallExpression(nextCall)
+
+                let optionSome = TypePath::Object(
+                  {name: optionBinding.name, span: e.pattern.span()}
+                  TypePath::Member({name: 'Some', span: e.pattern.span()})
+                )
+                e->optionSome = optionSome
+                self.visitTypePath(optionSome)
+
+                match declarePatternVariables(self.scope, self, e.pattern, type_, false) {
+                  Result::Ok(_) => {}
+                  Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
+                    reportError(e.expression, notAssignableError(to, subject))
+                  }
+                  Result::Err(PatternError::ScopeError(token, err)) => reportError(token, err)
+                  Result::Err(PatternError::NotExhaustive) => {
+                    reportError(e.pattern, 'non exhaustive pattern')
+                  }
+                }
+              }
+              Ok(Option::None) => {
+                reportError(e,
+                  intoIteratorType.displayName() + ' has not been implemented for type ' + e.expression.getType().displayName()
+                )
+              }
+              Err => reportError(e, 'Ambiguous trait call')
+            }
+          }
+          else reportError(e
+            'puck:core::Option is not in scope. Please import Option from puck:core to use for loops.'
+          )
+        }
+        else reportError(e
+          'puck:core::Iterator is not in scope. Please import Iterator from puck:core to use for loops.'
+        )
+      }
+      else reportError(e
+        'puck:core::IntoIterator is not in scope. Please import IntoIterator from puck:core to use for loops.'
+      )
+      self.visitBlock(e.body, false)
+      e->type_ = Type.empty({file, token: e})
+      self.scope = parentScope
     }
     visitWhileLoop: |mut self, mut e: WhileLoop| {
       let parentScope: Scope = self.scope

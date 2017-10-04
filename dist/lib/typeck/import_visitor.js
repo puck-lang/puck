@@ -128,7 +128,7 @@ function ImportVisitor(context, file) {
       }
       else {
         if ((domain === "package")) {
-          let $puck_18 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$String"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$String', value: i.path, $isTraitObject: true})
+          let $puck_18 = $puck_1.IntoIterator["$impl_IntoIterator$String"].iter.call({type: '$impl_IntoIterator$String', value: i.path, $isTraitObject: true})
 ;
           const slash = $puck_1.Option.unwrapOr.call($puck_1.Iterator[$puck_18.type].position.call($puck_18, function (c) {
             return c === "/";

@@ -70,7 +70,7 @@ map: function (f) {
     iter: self,
     f: f,
   };
-  return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:MapIterator', value: iter, $isTraitObject: true};
+  return {type: '$impl_Iterator$lib/stdlib/core.puck:MapIterator', value: iter, $isTraitObject: true};
 },
 filter: function (predicate) {
   const self = this;
@@ -78,7 +78,7 @@ filter: function (predicate) {
     iter: self,
     predicate: predicate,
   };
-  return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FilterIterator', value: iter, $isTraitObject: true};
+  return {type: '$impl_Iterator$lib/stdlib/core.puck:FilterIterator', value: iter, $isTraitObject: true};
 },
 filterMap: function (f) {
   const self = this;
@@ -86,7 +86,7 @@ filterMap: function (f) {
     iter: self,
     f: f,
   };
-  return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FilterMapIterator', value: iter, $isTraitObject: true};
+  return {type: '$impl_Iterator$lib/stdlib/core.puck:FilterMapIterator', value: iter, $isTraitObject: true};
 },
 flatMap: function (f) {
   const self = this;
@@ -95,7 +95,7 @@ flatMap: function (f) {
     flatteningIter: None,
     f: f,
   };
-  return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FlatMapIterator', value: iter, $isTraitObject: true};
+  return {type: '$impl_Iterator$lib/stdlib/core.puck:FlatMapIterator', value: iter, $isTraitObject: true};
 },
 enumerate: function () {
   const self = this;
@@ -301,7 +301,7 @@ ge: function (other) {
 var Ord = exports.Ord = {
 
 };
-Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:StringIterator"] = {
+Iterator["$impl_Iterator$lib/stdlib/core.puck:StringIterator"] = {
 next: function () {
   let self = this;
   if (self.value.index < String.size.call(self.value.string)) {
@@ -327,14 +327,14 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$String"] = {
+IntoIterator["$impl_IntoIterator$String"] = {
 iter: function () {
   const self = this;
   const iterator = {
     index: 0,
     string: self.value,
   };
-  return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:StringIterator', value: iterator, $isTraitObject: true};
+  return {type: '$impl_Iterator$lib/stdlib/core.puck:StringIterator', value: iterator, $isTraitObject: true};
 }
 };
 Index["$impl_Index$String"] = {
@@ -349,7 +349,7 @@ index: function (index) {
   return $unwrapTraitObject(self.value.charAt(index));
 }
 };
-Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:MapIterator"] = {
+Iterator["$impl_Iterator$lib/stdlib/core.puck:MapIterator"] = {
 next: function () {
   let self = this;
   let $puck_15 = self.value.iter
@@ -370,7 +370,7 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FilterIterator"] = {
+Iterator["$impl_Iterator$lib/stdlib/core.puck:FilterIterator"] = {
 next: function () {
   let self = this;
   while (true) {
@@ -403,7 +403,7 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FilterMapIterator"] = {
+Iterator["$impl_Iterator$lib/stdlib/core.puck:FilterMapIterator"] = {
 next: function () {
   let self = this;
   while (true) {
@@ -438,7 +438,7 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:FlatMapIterator"] = {
+Iterator["$impl_Iterator$lib/stdlib/core.puck:FlatMapIterator"] = {
 next: function () {
   let self = this;
   let $puck_21 = self.value.flatteningIter;
@@ -489,7 +489,7 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:ListIterator"] = {
+Iterator["$impl_Iterator$lib/stdlib/core.puck:ListIterator"] = {
 next: function () {
   let self = this;
   const element = List.get.call(self.value.list, self.value.index);
@@ -512,14 +512,14 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"] = {
+IntoIterator["$impl_IntoIterator$List"] = {
 iter: function () {
   const self = this;
   const iterator = {
     index: 0,
     list: self.value,
   };
-  return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:ListIterator', value: iterator, $isTraitObject: true};
+  return {type: '$impl_Iterator$lib/stdlib/core.puck:ListIterator', value: iterator, $isTraitObject: true};
 }
 };
 Iterable["$impl_lib/stdlib/core.puck:Iterable$List"] = {
@@ -643,7 +643,7 @@ toList: function () {
   return self.value;
 }
 };
-Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:NumRangeIterator"] = {
+Iterator["$impl_Iterator$lib/stdlib/core.puck:NumRangeIterator"] = {
 next: function () {
   let self = this;
   const element = self.value.index;
@@ -669,14 +669,14 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Range"] = {
+IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:Range"] = {
 iter: function () {
   const self = this;
   const iterator = {
     index: self.value.start,
     end: self.value.end,
   };
-  return {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:NumRangeIterator', value: iterator, $isTraitObject: true};
+  return {type: '$impl_Iterator$lib/stdlib/core.puck:NumRangeIterator', value: iterator, $isTraitObject: true};
 }
 };
 Index["$impl_Index$List"] = {
@@ -797,7 +797,7 @@ le: PartialOrd.le,
 gt: PartialOrd.gt,
 ge: PartialOrd.ge
 };
-Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator"] = {
+Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"] = {
 next: function () {
   let self = this;
   let {value: value, done: done} = $unwrapTraitObject(self.value.next());
@@ -822,11 +822,11 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set"] = {
+IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:Set"] = {
 iter: function () {
   const self = this;
   const jsiter = Set.values.call(self.value);
-  const iter = {type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator', value: jsiter, $isTraitObject: true};
+  const iter = {type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: jsiter, $isTraitObject: true};
   return iter;
 }
 };

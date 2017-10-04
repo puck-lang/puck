@@ -236,6 +236,7 @@ visitBlock: function (b) {
 },
 visitBreakStatement: $puck_8.PositionVisitor.visitBreakStatement,
 visitReturnStatement: $puck_8.PositionVisitor.visitReturnStatement,
+visitForLoop: $puck_8.PositionVisitor.visitForLoop,
 visitWhileLoop: $puck_8.PositionVisitor.visitWhileLoop,
 visitIdentifier: function (i) {
   let self = this;

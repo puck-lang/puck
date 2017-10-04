@@ -27,6 +27,7 @@ export enum BlockLevelStatement {
   Block(Block)
   BreakStatement(BreakStatement)
   ReturnStatement(ReturnStatement)
+  ForLoop(ForLoop)
   WhileLoop(WhileLoop)
 
   Expression(Expression)
@@ -123,6 +124,7 @@ impl BlockLevelStatement {
       BlockLevelStatement::Block(e) => e.type_
       BlockLevelStatement::BreakStatement(e) => e->type_.transmute()
       BlockLevelStatement::ReturnStatement(e) => e->type_.transmute()
+      BlockLevelStatement::ForLoop(e) => e->type_.transmute()
       BlockLevelStatement::WhileLoop(e) => e->type_.transmute()
 
       BlockLevelStatement::Expression(e) =>  e.getType()
@@ -136,6 +138,7 @@ impl ToSpan for BlockLevelStatement {
       BlockLevelStatement::Block(e) => e.start()
       BlockLevelStatement::BreakStatement(e) => e.start()
       BlockLevelStatement::ReturnStatement(e) => e.start()
+      BlockLevelStatement::ForLoop(e) => e.start()
       BlockLevelStatement::WhileLoop(e) => e.start()
       BlockLevelStatement::Expression(e) =>  e.start()
     }
@@ -145,6 +148,7 @@ impl ToSpan for BlockLevelStatement {
       BlockLevelStatement::Block(e) => e.end()
       BlockLevelStatement::BreakStatement(e) => e.end()
       BlockLevelStatement::ReturnStatement(e) => e.end()
+      BlockLevelStatement::ForLoop(e) => e.end()
       BlockLevelStatement::WhileLoop(e) => e.end()
       BlockLevelStatement::Expression(e) =>  e.end()
     }
@@ -504,6 +508,21 @@ impl ToSpan for ReturnStatement {
   fn span(self) -> Span {{
     start: self.keyword.span.start
     end: self.expression.end()
+  }}
+}
+
+export type ForLoop {
+  forKeyword: SimpleToken
+  pattern: Pattern
+  ofKeyword: SimpleToken
+  expression: Expression
+  body: Block
+}
+
+impl ToSpan for ForLoop {
+  fn span(self) -> Span {{
+    start: self.forKeyword.span.start
+    end: self.body.end()
   }}
 }
 
