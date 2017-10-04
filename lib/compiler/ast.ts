@@ -2,7 +2,7 @@ import {Type, Implementation} from '../entities'
 
 export type Option<T> = T | undefined
 
-export interface Token {
+export interface SimpleToken {
   kind?: {kind: string}
   type_?: Type
 }
@@ -36,22 +36,22 @@ export type Expression
   | {kind: 'StringLiteral', value: StringLiteral}
   | {kind: 'TupleLiteral', value: TupleLiteral}
 
-export interface CommentNode extends Token {
+export interface CommentNode extends SimpleToken {
   text: string
 }
 
-export interface BlockNode extends Token {
+export interface BlockNode extends SimpleToken {
   statements: Array<BlockLevelStatement>
 }
 
-export interface EnumDeclaration extends Token {
-  keyword: Token
+export interface EnumDeclaration extends SimpleToken {
+  keyword: SimpleToken
   name: Identifier
   typeParameters: Array<TypeParameter>
   members: Array<TypeDeclaration>
 }
 
-export interface FunctionDeclaration extends Token {
+export interface FunctionDeclaration extends SimpleToken {
   name: Option<Identifier>
   parameterList: Array<VariableDeclaration>
   returnType: Option<TypeBound>
@@ -76,7 +76,7 @@ export interface ImplShorthandDeclaration {
   members: Array<FunctionDeclaration>
 }
 
-export interface Module extends Token {
+export interface Module extends SimpleToken {
   fileName: string
   path: string
   exports: {[name: string]: ExportDirective}
@@ -96,25 +96,26 @@ export type BlockLevelStatement
   = {kind: 'Block', value: BlockNode}
   | {kind: 'BreakStatement', value: BreakStatement}
   | {kind: 'ReturnStatement', value: ReturnStatement}
+  | {kind: 'ForLoop', value: ForLoop}
   | {kind: 'WhileLoop', value: WhileLoop}
   | {kind: 'Expression', value: Expression}
 
-export interface ObjectDestructure extends Token {
-  openBrace: Token
+export interface ObjectDestructure extends SimpleToken {
+  openBrace: SimpleToken
   members: Array<ObjectDestructureMember>
-  closeBrace: Token
+  closeBrace: SimpleToken
 }
 
-export interface ObjectDestructureMember extends Token {
+export interface ObjectDestructureMember extends SimpleToken {
   property: SimpleIdentifier
   local: SimpleIdentifier
 }
 
-export interface SimpleIdentifier extends Token {
+export interface SimpleIdentifier extends SimpleToken {
   name: string
 }
 
-export interface TraitDeclaration extends Token {
+export interface TraitDeclaration extends SimpleToken {
   name: SimpleIdentifier
   members: Array<FunctionDeclaration>
 }
@@ -136,13 +137,13 @@ export type NamedTypeBound = {
 }
 
 export interface TypeDeclaration {
-  keyword: Token
+  keyword: SimpleToken
   name: Identifier
   typeParameters: Array<TypeParameter>
   bound: Option<TypeBound>
 }
 
-export interface TypeParameter extends Token {
+export interface TypeParameter extends SimpleToken {
   name: Identifier
   defaultValue: TypeBound
 }
@@ -164,12 +165,12 @@ export type TypePath
   = TypePathMemberArm
   | TypePathObjectArm
 
-export interface TypeProperty extends Token {
+export interface TypeProperty extends SimpleToken {
   name: Identifier
   typeBound: TypeBound
 }
 
-export interface VariableDeclaration extends Token {
+export interface VariableDeclaration extends SimpleToken {
   pattern: Pattern
   typeBound: Option<TypeBound>
   initializer: Option<Expression>
@@ -177,8 +178,8 @@ export interface VariableDeclaration extends Token {
   scope: any
 }
 
-export interface ExportDirective extends Token {
-  keyword: Token
+export interface ExportDirective extends SimpleToken {
+  keyword: SimpleToken
   statement:
     {kind: 'Identifier', value: Identifier} |
     {kind: 'VariableDeclaration', value: VariableDeclaration} |
@@ -189,11 +190,11 @@ export interface ExportDirective extends Token {
   identifier: Identifier
 }
 
-export interface ImportDirective extends Token {
-  importKeyword: Token
+export interface ImportDirective extends SimpleToken {
+  importKeyword: SimpleToken
   domain: Option<string>
   path: string
-  asKeyword: Token
+  asKeyword: SimpleToken
   specifier: ImportSpecifier
 }
 
@@ -238,32 +239,32 @@ export type Pattern
   | UnitPatternArm
   | CatchAllPatternArm
 
-export interface RecordPattern extends Token {
+export interface RecordPattern extends SimpleToken {
   properties: Array<{property: Identifier, pattern: Pattern}>
 }
-export interface TuplePattern extends Token {
+export interface TuplePattern extends SimpleToken {
   properties: Array<Pattern>
 }
 
-export interface AssignmentExpression extends Token {
+export interface AssignmentExpression extends SimpleToken {
   lhs: Expression
-  token: Token
+  token: SimpleToken
   rhs: Expression
   call?: any
 }
 
-export interface BinaryExpression extends Token {
+export interface BinaryExpression extends SimpleToken {
   lhs: Expression
-  operator: Token
+  operator: SimpleToken
   rhs: Expression
   call?: any
 }
 
-export interface CallExpression extends Token {
+export interface CallExpression extends SimpleToken {
   func: Expression
-  openParen: Token
+  openParen: SimpleToken
   argumentList: Array<Expression>
-  closeParen: Token
+  closeParen: SimpleToken
 
   // The resolved trait function (if is trait call)
   functionType: Type
@@ -271,17 +272,13 @@ export interface CallExpression extends Token {
   traitBinding?: any
 }
 
-export interface ForExpression extends Token {
-  body: Expression,
-}
-
-export interface IfExpression extends Token {
+export interface IfExpression extends SimpleToken {
   condition: Expression
   then_: BlockNode
   else_: Option<BlockNode>
 }
 
-export interface IfLetExpression extends Token {
+export interface IfLetExpression extends SimpleToken {
   pattern: Pattern
   expression: Expression
   then_: BlockNode
@@ -290,7 +287,7 @@ export interface IfLetExpression extends Token {
   scope: any
 }
 
-export interface MatchExpression extends Token {
+export interface MatchExpression extends SimpleToken {
   expression: Expression
   patterns: Array<MatchArm>
 
@@ -302,58 +299,68 @@ export interface MatchArm {
   block: BlockNode
 }
 
-export interface TypePathExpression extends Token {
+export interface TypePathExpression extends SimpleToken {
   typePath: TypePath,
 }
 
-export interface UnaryExpression extends Token {
-  operator: Token
+export interface UnaryExpression extends SimpleToken {
+  operator: SimpleToken
   rhs: Expression
 }
 
-export interface WhileLoop extends Token {
+export interface ForLoop extends SimpleToken {
+  pattern: Pattern,
+  expression: Expression,
+  body: BlockNode,
+  createIterCall: CallExpression
+  nextCall: CallExpression
+  optionSome: TypePath
+  scope: any
+}
+
+export interface WhileLoop extends SimpleToken {
   condition: Expression,
   body: BlockNode,
 }
 
-export interface IndexAccess extends Token {
+export interface IndexAccess extends SimpleToken {
   object: Expression
   index: Expression
   call?: any
 }
 
-export interface MemberAccess extends Token {
+export interface MemberAccess extends SimpleToken {
   object: Expression
   member: Identifier
 }
 
-export interface TupleIndexAccess extends Token {
+export interface TupleIndexAccess extends SimpleToken {
   object: Expression
   index: NumberLiteral
 }
 
-export interface BreakStatement extends Token {
-  keyword: Token
+export interface BreakStatement extends SimpleToken {
+  keyword: SimpleToken
 }
 
-export interface ReturnStatement extends Token {
-  keyword: Token
+export interface ReturnStatement extends SimpleToken {
+  keyword: SimpleToken
   expression: Expression
 }
 
-export interface BooleanLiteral extends Token {
+export interface BooleanLiteral extends SimpleToken {
   value: boolean
 }
 
-export interface ListLiteral extends Token {
+export interface ListLiteral extends SimpleToken {
   members: Array<Expression>
 }
 
-export interface NumberLiteral extends Token {
+export interface NumberLiteral extends SimpleToken {
   value: number
 }
 
-export interface ObjectLiteral extends Token {
+export interface ObjectLiteral extends SimpleToken {
   members: Array<ObjectLiteralMember>
 }
 
@@ -361,11 +368,11 @@ export type ObjectLiteralMember
   = {kind: 'Property', value: {name: SimpleIdentifier, value: Expression}}
   | {kind: 'Spread', value: Expression}
 
-export interface SimpleStringLiteral extends Token {
+export interface SimpleStringLiteral extends SimpleToken {
   value: string
 }
 
-export interface StringLiteral extends Token {
+export interface StringLiteral extends SimpleToken {
   parts: Array<StringLiteralPart>
 }
 
@@ -373,6 +380,6 @@ export type StringLiteralPart
   = {kind: 'Literal', value: SimpleStringLiteral}
   | {kind: 'Identifier', value: Identifier}
 
-export interface TupleLiteral extends Token {
+export interface TupleLiteral extends SimpleToken {
   expressions: Array<Expression>
 }

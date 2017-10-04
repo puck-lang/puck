@@ -180,7 +180,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
           $puck_17 = $puck_1.ObjectMap._new();
         };
         const props = $puck_17;
-        let $puck_25 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: record.properties, $isTraitObject: true})
+        let $puck_25 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: record.properties, $isTraitObject: true})
 ;
         let b = $puck_1.Iterator[$puck_25.type].map.call($puck_25, function (p) {
           let $puck_26 = $puck_1.Option.mapOr.call($puck_1.ObjectMap.get.call(props, p.property.name), $puck_1.Ok($unwrapTraitObject($puck_4._undefined)), $puck_8.getRecordPropType(scope));
@@ -270,7 +270,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
           if ((!allowNotExhaustive && isNonExhaustive(typePath))) {
             return $puck_1.Err(PatternError.NotExhaustive);
           };
-          let $puck_40 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true}), $isTraitObject: true})
+          let $puck_40 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: record.properties, $isTraitObject: true}), $isTraitObject: true})
 ;
           let a = $puck_1.Iterator[$puck_40.type].map.call($puck_40, function (p) {
             let $puck_41 = $puck_1.Option.mapOr.call($puck_1.ObjectMap.get.call(props, p.property.name), $puck_1.Ok($unwrapTraitObject($puck_4._undefined)), $puck_8.getRecordPropType(scope));
@@ -349,7 +349,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
               $puck_45 = [];
             };
             const props = $puck_45;
-            let $puck_55 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: tuple.properties, $isTraitObject: true})
+            let $puck_55 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: tuple.properties, $isTraitObject: true})
 ;
             let $puck_54 = $puck_1.Iterator[$puck_55.type].enumerate.call($puck_55)
 ;
@@ -421,7 +421,7 @@ function declarePatternVariables(scope, visitor, p, type_, allowNotExhaustive, u
               if ((!allowNotExhaustive && isNonExhaustive(typePath))) {
                 return $puck_1.Err(PatternError.NotExhaustive);
               };
-              let $puck_69 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: tuple.properties, $isTraitObject: true})
+              let $puck_69 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: tuple.properties, $isTraitObject: true})
 ;
               let $puck_68 = $puck_1.Iterator[$puck_69.type].enumerate.call($puck_69)
 ;

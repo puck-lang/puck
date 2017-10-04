@@ -553,6 +553,7 @@ impl<E> List<E> {
 ///
 /// One benefit of implementing IntoIterator is that your type will work
 /// with the for loop syntax.
+#[type_id = 'IntoIterator']
 export trait IntoIterator<E> {
   fn iter(self) -> Iterator<E>
 }
@@ -644,6 +645,7 @@ impl<E, U, P> Iterator<E> for FlatMapIterator<Iterator<E>, E, U> {
   }
 }
 
+#[type_id = 'Iterator']
 export trait Iterator<E> {
   /// Advances the iterator and returns the next value.
   ///

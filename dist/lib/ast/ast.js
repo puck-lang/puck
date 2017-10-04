@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.TupleIndexAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMember = undefined;
+exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.ForLoop = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.TupleIndexAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMember = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../entities");
 const $puck_3 = require("./span");
@@ -20,6 +20,7 @@ var ObjectDestructureMember = exports.ObjectDestructureMember = (object) => obje
 var Block = exports.Block = (object) => object;
 var BreakStatement = exports.BreakStatement = (object) => object;
 var ReturnStatement = exports.ReturnStatement = (object) => object;
+var ForLoop = exports.ForLoop = (object) => object;
 var WhileLoop = exports.WhileLoop = (object) => object;
 var Comment = exports.Comment = (object) => object;
 var Attribute = exports.Attribute = (object) => object;
@@ -71,6 +72,7 @@ var BlockLevelStatement = exports.BlockLevelStatement = {
 Block: (member) => ({kind: 'Block', value: member}),
 BreakStatement: (member) => ({kind: 'BreakStatement', value: member}),
 ReturnStatement: (member) => ({kind: 'ReturnStatement', value: member}),
+ForLoop: (member) => ({kind: 'ForLoop', value: member}),
 WhileLoop: (member) => ({kind: 'WhileLoop', value: member}),
 Expression: (member) => ({kind: 'Expression', value: member}),
 };
@@ -277,14 +279,20 @@ start: function () {
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement', value: e, $isTraitObject: true});
       }
       else {
-        if ($puck_7.value.kind === "WhileLoop") {
+        if ($puck_7.value.kind === "ForLoop") {
           let {value: e} = $puck_7.value;
-          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop', value: e, $isTraitObject: true});
+          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ForLoop"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ForLoop', value: e, $isTraitObject: true});
         }
         else {
-          if ($puck_7.value.kind === "Expression") {
+          if ($puck_7.value.kind === "WhileLoop") {
             let {value: e} = $puck_7.value;
-            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true});
+            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop', value: e, $isTraitObject: true});
+          }
+          else {
+            if ($puck_7.value.kind === "Expression") {
+              let {value: e} = $puck_7.value;
+              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true});
+            };
           };
         };
       };
@@ -309,14 +317,20 @@ end: function () {
         return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement', value: e, $isTraitObject: true});
       }
       else {
-        if ($puck_8.value.kind === "WhileLoop") {
+        if ($puck_8.value.kind === "ForLoop") {
           let {value: e} = $puck_8.value;
-          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop', value: e, $isTraitObject: true});
+          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ForLoop"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ForLoop', value: e, $isTraitObject: true});
         }
         else {
-          if ($puck_8.value.kind === "Expression") {
+          if ($puck_8.value.kind === "WhileLoop") {
             let {value: e} = $puck_8.value;
-            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true});
+            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:WhileLoop', value: e, $isTraitObject: true});
+          }
+          else {
+            if ($puck_8.value.kind === "Expression") {
+              let {value: e} = $puck_8.value;
+              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e, $isTraitObject: true});
+            };
           };
         };
       };
@@ -836,6 +850,17 @@ span: function () {
   return {
     start: self.value.keyword.span.start,
     end: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: self.value.expression, $isTraitObject: true}),
+  };
+},
+start: $puck_3.ToSpan.start,
+end: $puck_3.ToSpan.end
+};
+$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ForLoop"] = {
+span: function () {
+  const self = this;
+  return {
+    start: self.value.forKeyword.span.start,
+    end: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Block', value: self.value.body, $isTraitObject: true}),
   };
 },
 start: $puck_3.ToSpan.start,
@@ -1491,14 +1516,20 @@ BlockLevelStatement.getType = function () {
         return e.type_;
       }
       else {
-        if ($puck_24.kind === "WhileLoop") {
+        if ($puck_24.kind === "ForLoop") {
           let {value: e} = $puck_24;
           return e.type_;
         }
         else {
-          if ($puck_24.kind === "Expression") {
+          if ($puck_24.kind === "WhileLoop") {
             let {value: e} = $puck_24;
-            return Expression.getType.call(e);
+            return e.type_;
+          }
+          else {
+            if ($puck_24.kind === "Expression") {
+              let {value: e} = $puck_24;
+              return Expression.getType.call(e);
+            };
           };
         };
       };

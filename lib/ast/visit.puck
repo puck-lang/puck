@@ -20,6 +20,7 @@ import 'ast.puck' as {
   Block
   BreakStatement
   ReturnStatement
+  ForLoop
   WhileLoop
 
   Identifier
@@ -110,6 +111,7 @@ export let walkingVisitor = {
   visitBlock: |self, b: Block| walkBlock(self, b)
   visitBreak: || {}
   visitReturn: |self, r: ReturnStatement| walkReturnStatement(self, r)
+  visitForLoop: |self, e: ForLoop| walkForLoop(self, e)
   visitWhileLoop: |self, e: WhileLoop| walkWhileLoop(self, e)
 
   visitIdentifier: |self, i: Identifier| {}
@@ -174,6 +176,7 @@ export let emptyVisitor = {
   visitBlock: || {}
   visitBreak: || {}
   visitReturn: || {}
+  visitForLoop: || {}
   visitWhileLoop: || {}
 
 
@@ -240,6 +243,7 @@ export fn walkBlockLevelStatement(visitor, s: BlockLevelStatement) {
     BlockLevelStatement::Block(e) => visitor.visitBlock(e)
     BlockLevelStatement::BreakStatement(e) => visitor.visitBreak(e)
     BlockLevelStatement::ReturnStatement(e) => visitor.visitReturn(e)
+    BlockLevelStatement::ForLoop(e) => visitor.visitForLoop(e)
     BlockLevelStatement::WhileLoop(e) => visitor.visitWhileLoop(e)
 
     BlockLevelStatement::Expression(e) => walkExpression(visitor, e)
@@ -338,6 +342,11 @@ export fn walkBlock(visitor, b: Block) {
 }
 export fn walkReturnStatement(visitor, r: ReturnStatement) {
   visitor.visitExpression(r.expression)
+}
+export fn walkForLoop(visitor, e: ForLoop) {
+  visitor.visitPattern(e.pattern)
+  visitor.visitExpression(e.expression)
+  visitor.visitBlock(e.body)
 }
 export fn walkWhileLoop(visitor, e: WhileLoop) {
   visitor.visitExpression(e.condition)

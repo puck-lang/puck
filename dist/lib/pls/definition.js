@@ -140,6 +140,7 @@ visitObjectDestructureMember: function (m) {
 visitBlock: $puck_6.PositionVisitor.visitBlock,
 visitBreakStatement: $puck_6.PositionVisitor.visitBreakStatement,
 visitReturnStatement: $puck_6.PositionVisitor.visitReturnStatement,
+visitForLoop: $puck_6.PositionVisitor.visitForLoop,
 visitWhileLoop: $puck_6.PositionVisitor.visitWhileLoop,
 visitIdentifier: function (i) {
   let self = this;

@@ -1,0 +1,4 @@
+///// non exhaustive pattern
+for Some(name) of [Some('Anna'), None, Some('May')] {
+  print(name.toUpperCase())
+}

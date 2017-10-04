@@ -21,6 +21,7 @@ import '../ast/ast.puck' as {
   Block
   BreakStatement
   ReturnStatement
+  ForLoop
   WhileLoop
 
   Identifier
@@ -129,6 +130,9 @@ export trait PositionVisitor {
   fn visitBreakStatement(mut self, b: BreakStatement) -> () {}
   fn visitReturnStatement(mut self, r: ReturnStatement) -> () {
     walkReturnStatement(self, r)
+  }
+  fn visitForLoop(mut self, e: ForLoop) -> () {
+    walkForLoop(self, e)
   }
   fn visitWhileLoop(mut self, e: WhileLoop) -> () {
     walkWhileLoop(self, e)
@@ -278,6 +282,7 @@ export fn walkBlockLevelStatement(mut visitor: PositionVisitor, e: BlockLevelSta
     BlockLevelStatement::Block(e) => visitor.visitBlock(e)
     BlockLevelStatement::BreakStatement(e) => visitor.visitBreakStatement(e)
     BlockLevelStatement::ReturnStatement(e) => visitor.visitReturnStatement(e)
+    BlockLevelStatement::ForLoop(e) => visitor.visitForLoop(e)
     BlockLevelStatement::WhileLoop(e) => visitor.visitWhileLoop(e)
 
     BlockLevelStatement::Expression(e) => walkExpression(visitor, e)
@@ -459,6 +464,13 @@ export fn walkBlock(mut visitor: PositionVisitor, b: Block) -> Bool {
 export fn walkReturnStatement(mut visitor: PositionVisitor, r: ReturnStatement) -> () {
   if identical(r.expression.span().cmp(visitor.position()), Ordering::Equal)
     then visitor.visitExpression(r.expression)
+}
+export fn walkForLoop(mut visitor: PositionVisitor, e: ForLoop) -> () {
+  if identical(e.body.span().cmp(visitor.position()), Ordering::Equal)
+    then visitor.visitBlock(e.body)
+  if identical(e.expression.span().cmp(visitor.position()), Ordering::Equal)
+    then visitor.visitExpression(e.expression)
+    else visitor.visitPattern(e.pattern)
 }
 export fn walkWhileLoop(mut visitor: PositionVisitor, e: WhileLoop) -> () {
   if identical(e.body.span().cmp(visitor.position()), Ordering::Equal)

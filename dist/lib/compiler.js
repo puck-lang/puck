@@ -33,7 +33,7 @@ CompilerContext._new = function (projectPath, onReportError, onFileParsed = func
 };
 CompilerContext.runTypeVisitor = function () {
   let self = this;
-  $puck_1.Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
+  $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if (!file.typeVisitorStarted && $puck_1.Option.isSome.call(file.ast)) {
       file.typeVisitorStarted = true;
       $puck_14.TypeVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
@@ -43,7 +43,7 @@ CompilerContext.runTypeVisitor = function () {
 };
 CompilerContext.runImplVisitor = function () {
   let self = this;
-  $puck_1.Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
+  $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if ((!file.implVisitorStarted && $puck_1.Option.isSome.call(file.ast))) {
       file.implVisitorStarted = true;
       return $puck_10.ImplVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
@@ -52,7 +52,7 @@ CompilerContext.runImplVisitor = function () {
 };
 CompilerContext.runChecker = function () {
   let self = this;
-  $puck_1.Iterator["$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
+  $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if ((!file.scopeVisitorStarted && $puck_1.Option.isSome.call(file.ast))) {
       file.scopeVisitorStarted = true;
       return $puck_12.ScopeVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));

@@ -619,14 +619,20 @@ function parse(input, file, recover = false) {
         });
       }
       else {
-        if (($puck_31.kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($puck_31.value).kind).kind === "WhileKeyword")) {
+        if (($puck_31.kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($puck_31.value).kind).kind === "ForKeyword")) {
           let {value: {}} = $puck_31;
-          return $puck_3.BlockLevelStatement.WhileLoop(parseWhile());
+          return $puck_3.BlockLevelStatement.ForLoop(parseFor());
         }
         else {
-          if (true) {
-            $puck_31;
-            return $puck_3.BlockLevelStatement.Expression(parseExpression());
+          if (($puck_31.kind === "SimpleToken" && $unwrapTraitObject($unwrapTraitObject($puck_31.value).kind).kind === "WhileKeyword")) {
+            let {value: {}} = $puck_31;
+            return $puck_3.BlockLevelStatement.WhileLoop(parseWhile());
+          }
+          else {
+            if (true) {
+              $puck_31;
+              return $puck_3.BlockLevelStatement.Expression(parseExpression());
+            };
           };
         };
       };
@@ -1300,6 +1306,20 @@ function parse(input, file, recover = false) {
       statements: statements,
       closeBrace: closeBrace,
       type_: $unwrapTraitObject($puck_2._undefined),
+    };
+  };
+  function parseFor() {
+    const forKeyword = consumeToken($puck_5.SyntaxKind.ForKeyword);
+    const pattern = parsePattern();
+    const ofKeyword = consumeToken($puck_5.SyntaxKind.OfKeyword);
+    const expression = parseExpression();
+    const body = parseBlock();
+    return {
+      forKeyword: forKeyword,
+      pattern: pattern,
+      ofKeyword: ofKeyword,
+      expression: expression,
+      body: body,
     };
   };
   function parseWhile() {

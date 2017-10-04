@@ -35,6 +35,7 @@ visitObjectDestructureMember: $puck_5.PositionVisitor.visitObjectDestructureMemb
 visitBlock: $puck_5.PositionVisitor.visitBlock,
 visitBreakStatement: $puck_5.PositionVisitor.visitBreakStatement,
 visitReturnStatement: $puck_5.PositionVisitor.visitReturnStatement,
+visitForLoop: $puck_5.PositionVisitor.visitForLoop,
 visitWhileLoop: $puck_5.PositionVisitor.visitWhileLoop,
 visitIdentifier: $puck_5.PositionVisitor.visitIdentifier,
 visitFunctionDeclaration: $puck_5.PositionVisitor.visitFunctionDeclaration,

@@ -15,7 +15,7 @@ for (let i = 0; i < 10; i++) {
 
 #### Puck
 ```puck
-for i in 0..10 {
+for i of 0..10 {
   print(i)
 }
 ```
@@ -35,7 +35,7 @@ for (let i = 0; i < array.length; i++) {
 
 #### Puck
 ```puck
-for (i, element) in list.enumerate() {
+for (i, element) of list.enumerate() {
   print(element, i)
 }
 ```
@@ -48,7 +48,7 @@ for (let i = array.length - 1; i >= 0; i--) {
 } 
 ```
 ```puck
-for element in list.rev() {
+for element of list.rev() {
   print(element)
 }
 ```

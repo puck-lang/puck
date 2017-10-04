@@ -1,0 +1,12 @@
+for i of Range.new(0, 10) {
+  print(i)
+}
+
+for name of ['Anna', 'John', 'May'] {
+  print(name.toUpperCase())
+}
+
+// TODO: Support Iterators directly (IntoIterator on Iterator?)
+// for (i, name) of ['Anna', 'John', 'May'].enumerate() {
+//   print(name, i)
+// }

@@ -397,7 +397,7 @@ TokenStream._readNext = function () {
     };
   };
 };
-let $puck_15 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: $puck_4.operators, $isTraitObject: true})
+let $puck_15 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: $puck_4.operators, $isTraitObject: true})
 ;
 const longestOperator = $puck_1.Iterator[$puck_15.type].fold.call($puck_15, 0, function (longest, curr) {
   if ($puck_1.String.size.call(curr) > longest) {

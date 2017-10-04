@@ -339,7 +339,7 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
     };
     const file = $puck_46;
     const result = $puck_2.asResult(function () {
-      let $puck_51 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$List"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: codeActionContext.diagnostics, $isTraitObject: true})
+      let $puck_51 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: codeActionContext.diagnostics, $isTraitObject: true})
 ;
       let $puck_50 = $puck_1.Iterator[$puck_51.type].filter.call($puck_51, function (d) {
         return d.code >= 0;
@@ -356,7 +356,7 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
         let $puck_53;
         if ($puck_52.kind === "UndefinedVariable") {
           let {value: name} = $puck_52;
-          let $puck_55 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set', value: $puck_1.Option.unwrapOrElse.call($puck_1.Map.get.call(globalExportMap, name), function () {
+          let $puck_55 = $puck_1.IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:Set"].iter.call({type: '$impl_IntoIterator$lib/stdlib/core.puck:Set', value: $puck_1.Option.unwrapOrElse.call($puck_1.Map.get.call(globalExportMap, name), function () {
             return $puck_1.Set._new();
           }), $isTraitObject: true})
 ;
@@ -381,7 +381,7 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
           let $puck_56;
           if ($puck_52.kind === "TraitNotInScope") {
             let {value: {traitName: traitName, id: id}} = $puck_52;
-            let $puck_61 = $puck_1.IntoIterator["$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set"].iter.call({type: '$impl_lib/stdlib/core.puck:IntoIterator$lib/stdlib/core.puck:Set', value: $puck_1.Option.unwrapOrElse.call($puck_1.Map.get.call(globalExportMap, traitName), function () {
+            let $puck_61 = $puck_1.IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:Set"].iter.call({type: '$impl_IntoIterator$lib/stdlib/core.puck:Set', value: $puck_1.Option.unwrapOrElse.call($puck_1.Map.get.call(globalExportMap, traitName), function () {
               return $puck_1.Set._new();
             }), $isTraitObject: true})
 ;
@@ -437,7 +437,7 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
           $puck_53 = $puck_56;
         };
         const list = $puck_53;
-        const iter = {type: '$impl_lib/stdlib/core.puck:IntoIterator$List', value: list, $isTraitObject: true};
+        const iter = {type: '$impl_IntoIterator$List', value: list, $isTraitObject: true};
         return iter;
       })
 ;
