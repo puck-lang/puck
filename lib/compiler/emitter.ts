@@ -28,6 +28,7 @@ import {
   NumberLiteral,
   ObjectLiteral,
   Pattern,
+  RangeLiteral,
   RecordPatternArm,
   ReturnStatement,
   SimpleIdentifier,
@@ -389,6 +390,7 @@ export function Emitter() {
       case 'BooleanLiteral': return emitBooleanLiteral(expression.value)
       case 'ListLiteral': return emitListLiteral(expression.value, assignedTo)
       case 'NumberLiteral': return emitNumberLiteral(expression.value)
+      case 'RangeLiteral': return emitRangeLiteral(expression.value)
       case 'RecordLiteral': return emitObjectLiteral(expression.value, assignedTo)
       case 'StringLiteral': return emitStringLiteral(expression.value)
       case 'TupleLiteral': return emitTupleLiteral(expression.value, assignedTo)
@@ -1258,6 +1260,10 @@ export function Emitter() {
 
   function emitNumberLiteral(l: NumberLiteral) {
     return `${l.value}`
+  }
+
+  function emitRangeLiteral(l: RangeLiteral) {
+    return emitCallExpression(l.call)
   }
 
   function emitObjectLiteral(l: ObjectLiteral, assignedTo?: Type) {

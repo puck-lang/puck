@@ -180,6 +180,7 @@ visitUnknownIndexAccess: $puck_5.PositionVisitor.visitUnknownIndexAccess,
 visitListLiteral: $puck_5.PositionVisitor.visitListLiteral,
 visitBooleanLiteral: $puck_5.PositionVisitor.visitBooleanLiteral,
 visitNumberLiteral: $puck_5.PositionVisitor.visitNumberLiteral,
+visitRangeLiteral: $puck_5.PositionVisitor.visitRangeLiteral,
 visitRecordLiteral: function (l) {
   let self = this;
   const parent = self.value.literalType;

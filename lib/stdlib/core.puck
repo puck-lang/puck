@@ -117,7 +117,7 @@ impl String {
   }
 
   fn startsWith(self, subStr: String) -> Bool {
-    self.sub(Range.new(0, subStr.size())) == subStr
+    self.sub(0..subStr.size()) == subStr
   }
 
   fn endsWith(self, subStr: String) -> Bool {
@@ -1030,6 +1030,7 @@ impl<E> Iterable<E> for List<E> {
 
 /// A (half-open) range which is bounded at both ends: { x | start <= x < end }.
 /// Use start..end (two dots) for its shorthand.
+#[type_id = 'Range']
 export type Range<Idx=Num> {
   /// The lower bound of the range (inclusive).
   start: Idx

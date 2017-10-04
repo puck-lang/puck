@@ -48,6 +48,7 @@ import '../ast/ast.puck' as {
   BooleanLiteral
   ListLiteral
   NumberLiteral
+  RangeLiteral
   RecordLiteral
   RecordLiteralMember
   StringLiteral
@@ -196,6 +197,9 @@ export trait PositionVisitor {
   }
   fn visitBooleanLiteral(mut self, l: BooleanLiteral) -> () {}
   fn visitNumberLiteral(mut self, l: NumberLiteral) -> () {}
+  fn visitRangeLiteral(mut self, l: RangeLiteral) -> () {
+    walkRangeLiteral(self, l)
+  }
   fn visitRecordLiteral(mut self, l: RecordLiteral) -> () {
     walkRecordLiteral(self, l)
   }
@@ -315,6 +319,7 @@ export fn walkExpression(mut visitor: PositionVisitor, e: Expression) -> () {
     Expression::BooleanLiteral(e) => visitor.visitBooleanLiteral(e)
     Expression::ListLiteral(e) => visitor.visitListLiteral(e)
     Expression::NumberLiteral(e) => visitor.visitNumberLiteral(e)
+    Expression::RangeLiteral(e) => visitor.visitRangeLiteral(e)
     Expression::RecordLiteral(e) => visitor.visitRecordLiteral(e)
     Expression::StringLiteral(e) => visitor.visitStringLiteral(e)
     Expression::TupleLiteral(e) => visitor.visitTupleLiteral(e)
@@ -634,6 +639,12 @@ export fn walkListLiteral(mut visitor: PositionVisitor, l: ListLiteral) -> () {
   ) {
     visitor.visitExpression(l.members[index])
   }
+}
+export fn walkRangeLiteral(mut visitor: PositionVisitor, l: RangeLiteral) -> () {
+  if identical(l.start.span().cmp(visitor.position()), Ordering::Equal)
+    then visitor.visitExpression(l.start)
+  else if identical(l.end.span().cmp(visitor.position()), Ordering::Equal)
+    then visitor.visitExpression(l.end)
 }
 export fn walkRecordLiteral(mut visitor: PositionVisitor, l: RecordLiteral) -> () {
   if let Ok(index) = l.members.binarySearchBy(

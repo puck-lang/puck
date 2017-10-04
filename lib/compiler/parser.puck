@@ -348,6 +348,20 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
     else expression
   }
 
+  fn maybeRangeLiteral(expression: Expression) -> Expression {
+    if isToken(SyntaxKind::DotDotToken) {
+      let dotDotToken = consumeToken(SyntaxKind::DotDotToken)
+      let end = parseExpression()
+
+      Expression::RangeLiteral({
+        start: expression
+        dotDotToken
+        end
+      })
+    }
+    else expression
+  }
+
   fn delimited<T>(start: SyntaxKind, stop: SyntaxKind, separator: SyntaxKind, parser: () -> T, consumeStop: Bool) -> List<T> {
     let mut parts = []
     let mut first = true
@@ -432,7 +446,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
   }
 
   fn parseExpression(precedence = 0, forceTuple = false) -> Expression {
-    maybeCall(maybeAccess(maybeBinary(parseAtom(forceTuple), precedence)))
+    maybeRangeLiteral(maybeCall(maybeAccess(maybeBinary(parseAtom(forceTuple), precedence))))
   }
 
   fn parseAtom(forceTuple = false) -> Expression {

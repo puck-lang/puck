@@ -1,5 +1,5 @@
 'use strict';
-exports.PositionVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkMethodDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkObjectDestructureMember = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkTypePath = exports.walkTypePathExpression = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkStringLiteralPart = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
+exports.PositionVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkMethodDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkObjectDestructureMember = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkTypePath = exports.walkTypePathExpression = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRangeLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkStringLiteralPart = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../ast/ast");
 const $puck_3 = require("./../ast/span");
@@ -156,6 +156,10 @@ visitListLiteral: function (l) {
 },
 visitBooleanLiteral: function (l) {},
 visitNumberLiteral: function (l) {},
+visitRangeLiteral: function (l) {
+  let self = this;
+  walkRangeLiteral(self, l);
+},
 visitRecordLiteral: function (l) {
   let self = this;
   walkRecordLiteral(self, l);
@@ -439,19 +443,25 @@ function walkExpression(visitor, e) {
                                             PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, e);
                                           }
                                           else {
-                                            if ($puck_7.kind === "RecordLiteral") {
+                                            if ($puck_7.kind === "RangeLiteral") {
                                               let {value: e} = $puck_7;
-                                              PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, e);
+                                              PositionVisitor[visitor.type].visitRangeLiteral.call(visitor, e);
                                             }
                                             else {
-                                              if ($puck_7.kind === "StringLiteral") {
+                                              if ($puck_7.kind === "RecordLiteral") {
                                                 let {value: e} = $puck_7;
-                                                PositionVisitor[visitor.type].visitStringLiteral.call(visitor, e);
+                                                PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, e);
                                               }
                                               else {
-                                                if ($puck_7.kind === "TupleLiteral") {
+                                                if ($puck_7.kind === "StringLiteral") {
                                                   let {value: e} = $puck_7;
-                                                  PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, e);
+                                                  PositionVisitor[visitor.type].visitStringLiteral.call(visitor, e);
+                                                }
+                                                else {
+                                                  if ($puck_7.kind === "TupleLiteral") {
+                                                    let {value: e} = $puck_7;
+                                                    PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, e);
+                                                  };
                                                 };
                                               };
                                             };
@@ -997,6 +1007,17 @@ function walkListLiteral(visitor, l) {
   };
 };
 exports.walkListLiteral = walkListLiteral;
+function walkRangeLiteral(visitor, l) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: l.start, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
+    PositionVisitor[visitor.type].visitExpression.call(visitor, l.start);
+  }
+  else {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: l.end, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
+      PositionVisitor[visitor.type].visitExpression.call(visitor, l.end);
+    };
+  };
+};
+exports.walkRangeLiteral = walkRangeLiteral;
 function walkRecordLiteral(visitor, l) {
   let $puck_33 = $puck_1.List.binarySearchBy.call(l.members, function (member) {
     return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteralMember"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteralMember', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
