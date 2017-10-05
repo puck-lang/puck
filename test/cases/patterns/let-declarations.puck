@@ -19,7 +19,7 @@ let a = 2
 // let (b, c) = (4, 5)
 // let (i, a) = ('new', 'shadow')
 
-let a: String = '' + a.round()
+let a: String = '' ++ a.round().toString()
 
 let a = |first: Bool| if first then a(false) else 5
 let t = {
@@ -27,7 +27,7 @@ let t = {
   b: || t
 }
 
-let u = |u2| |u3| u + u2 + u3
+let u = |u2: Num| |u3: Num| u2 + u2 + u3
 
 let (a, mut b) = (1, 2)
 b += 2

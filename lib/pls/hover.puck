@@ -37,14 +37,14 @@ impl Hover {
 fn getTypeContents(type_: Type, details = false) {
   let name =
     match type_.providesType.unwrapOr(type_).kind {
-      TypeKind::Enum => 'enum ' + type_.displayName()
+      TypeKind::Enum => 'enum ' ++ type_.displayName()
       TypeKind::Function => type_.verboseName()
       TypeKind::Struct => {
         if details
           then type_.providesType.unwrapOr(type_).verboseName()
-          else 'type ' + type_.displayName()
+          else 'type ' ++ type_.displayName()
       }
-      TypeKind::Trait => 'trait ' + type_.displayName()
+      TypeKind::Trait => 'trait ' ++ type_.displayName()
       _ => type_.displayName()
     }
 

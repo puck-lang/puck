@@ -64,6 +64,7 @@ PercentEqualsToken: {kind: 'PercentEqualsToken', value: Symbol('PercentEqualsTok
 PercentToken: {kind: 'PercentToken', value: Symbol('PercentToken')},
 PlusEqualsToken: {kind: 'PlusEqualsToken', value: Symbol('PlusEqualsToken')},
 PlusToken: {kind: 'PlusToken', value: Symbol('PlusToken')},
+PlusPlusToken: {kind: 'PlusPlusToken', value: Symbol('PlusPlusToken')},
 QuestionMarkToken: {kind: 'QuestionMarkToken', value: Symbol('QuestionMarkToken')},
 SemicolonToken: {kind: 'SemicolonToken', value: Symbol('SemicolonToken')},
 SlashEqualsToken: {kind: 'SlashEqualsToken', value: Symbol('SlashEqualsToken')},
@@ -352,55 +353,60 @@ SyntaxKind.fromText = function (text) {
                                                                                                         return $puck_1.Some(SyntaxKind.PlusToken);
                                                                                                       }
                                                                                                       else {
-                                                                                                        if (text === "-") {
-                                                                                                          return $puck_1.Some(SyntaxKind.MinusToken);
+                                                                                                        if (text === "++") {
+                                                                                                          return $puck_1.Some(SyntaxKind.PlusPlusToken);
                                                                                                         }
                                                                                                         else {
-                                                                                                          if (text === "*") {
-                                                                                                            return $puck_1.Some(SyntaxKind.AsteriskToken);
+                                                                                                          if (text === "-") {
+                                                                                                            return $puck_1.Some(SyntaxKind.MinusToken);
                                                                                                           }
                                                                                                           else {
-                                                                                                            if (text === "**") {
-                                                                                                              return $puck_1.Some(SyntaxKind.AsteriskAsteriskToken);
+                                                                                                            if (text === "*") {
+                                                                                                              return $puck_1.Some(SyntaxKind.AsteriskToken);
                                                                                                             }
                                                                                                             else {
-                                                                                                              if (text === "/") {
-                                                                                                                return $puck_1.Some(SyntaxKind.SlashToken);
+                                                                                                              if (text === "**") {
+                                                                                                                return $puck_1.Some(SyntaxKind.AsteriskAsteriskToken);
                                                                                                               }
                                                                                                               else {
-                                                                                                                if (text === "%") {
-                                                                                                                  return $puck_1.Some(SyntaxKind.PercentToken);
+                                                                                                                if (text === "/") {
+                                                                                                                  return $puck_1.Some(SyntaxKind.SlashToken);
                                                                                                                 }
                                                                                                                 else {
-                                                                                                                  if (text === "=") {
-                                                                                                                    return $puck_1.Some(SyntaxKind.EqualsToken);
+                                                                                                                  if (text === "%") {
+                                                                                                                    return $puck_1.Some(SyntaxKind.PercentToken);
                                                                                                                   }
                                                                                                                   else {
-                                                                                                                    if (text === "+=") {
-                                                                                                                      return $puck_1.Some(SyntaxKind.PlusEqualsToken);
+                                                                                                                    if (text === "=") {
+                                                                                                                      return $puck_1.Some(SyntaxKind.EqualsToken);
                                                                                                                     }
                                                                                                                     else {
-                                                                                                                      if (text === "-=") {
-                                                                                                                        return $puck_1.Some(SyntaxKind.MinusEqualsToken);
+                                                                                                                      if (text === "+=") {
+                                                                                                                        return $puck_1.Some(SyntaxKind.PlusEqualsToken);
                                                                                                                       }
                                                                                                                       else {
-                                                                                                                        if (text === "*=") {
-                                                                                                                          return $puck_1.Some(SyntaxKind.AsteriskEqualsToken);
+                                                                                                                        if (text === "-=") {
+                                                                                                                          return $puck_1.Some(SyntaxKind.MinusEqualsToken);
                                                                                                                         }
                                                                                                                         else {
-                                                                                                                          if (text === "**=") {
-                                                                                                                            return $puck_1.Some(SyntaxKind.AsteriskAsteriskEqualsToken);
+                                                                                                                          if (text === "*=") {
+                                                                                                                            return $puck_1.Some(SyntaxKind.AsteriskEqualsToken);
                                                                                                                           }
                                                                                                                           else {
-                                                                                                                            if (text === "/=") {
-                                                                                                                              return $puck_1.Some(SyntaxKind.SlashEqualsToken);
+                                                                                                                            if (text === "**=") {
+                                                                                                                              return $puck_1.Some(SyntaxKind.AsteriskAsteriskEqualsToken);
                                                                                                                             }
                                                                                                                             else {
-                                                                                                                              if (text === "%=") {
-                                                                                                                                return $puck_1.Some(SyntaxKind.PercentEqualsToken);
+                                                                                                                              if (text === "/=") {
+                                                                                                                                return $puck_1.Some(SyntaxKind.SlashEqualsToken);
                                                                                                                               }
                                                                                                                               else {
-                                                                                                                                return $puck_1.None;
+                                                                                                                                if (text === "%=") {
+                                                                                                                                  return $puck_1.Some(SyntaxKind.PercentEqualsToken);
+                                                                                                                                }
+                                                                                                                                else {
+                                                                                                                                  return $puck_1.None;
+                                                                                                                                };
                                                                                                                               };
                                                                                                                             };
                                                                                                                           };
@@ -728,74 +734,80 @@ SyntaxKind.name = function () {
                                                                                                           return "+";
                                                                                                         }
                                                                                                         else {
-                                                                                                          if ($puck_6.kind === "MinusToken") {
+                                                                                                          if ($puck_6.kind === "PlusPlusToken") {
                                                                                                             $puck_6;
-                                                                                                            return "-";
+                                                                                                            return "++";
                                                                                                           }
                                                                                                           else {
-                                                                                                            if ($puck_6.kind === "AsteriskToken") {
+                                                                                                            if ($puck_6.kind === "MinusToken") {
                                                                                                               $puck_6;
-                                                                                                              return "*";
+                                                                                                              return "-";
                                                                                                             }
                                                                                                             else {
-                                                                                                              if ($puck_6.kind === "AsteriskAsteriskToken") {
+                                                                                                              if ($puck_6.kind === "AsteriskToken") {
                                                                                                                 $puck_6;
-                                                                                                                return "**";
+                                                                                                                return "*";
                                                                                                               }
                                                                                                               else {
-                                                                                                                if ($puck_6.kind === "SlashToken") {
+                                                                                                                if ($puck_6.kind === "AsteriskAsteriskToken") {
                                                                                                                   $puck_6;
-                                                                                                                  return "/";
+                                                                                                                  return "**";
                                                                                                                 }
                                                                                                                 else {
-                                                                                                                  if ($puck_6.kind === "PercentToken") {
+                                                                                                                  if ($puck_6.kind === "SlashToken") {
                                                                                                                     $puck_6;
-                                                                                                                    return "%";
+                                                                                                                    return "/";
                                                                                                                   }
                                                                                                                   else {
-                                                                                                                    if ($puck_6.kind === "EqualsToken") {
+                                                                                                                    if ($puck_6.kind === "PercentToken") {
                                                                                                                       $puck_6;
-                                                                                                                      return "=";
+                                                                                                                      return "%";
                                                                                                                     }
                                                                                                                     else {
-                                                                                                                      if ($puck_6.kind === "PlusEqualsToken") {
+                                                                                                                      if ($puck_6.kind === "EqualsToken") {
                                                                                                                         $puck_6;
-                                                                                                                        return "+=";
+                                                                                                                        return "=";
                                                                                                                       }
                                                                                                                       else {
-                                                                                                                        if ($puck_6.kind === "MinusEqualsToken") {
+                                                                                                                        if ($puck_6.kind === "PlusEqualsToken") {
                                                                                                                           $puck_6;
-                                                                                                                          return "-=";
+                                                                                                                          return "+=";
                                                                                                                         }
                                                                                                                         else {
-                                                                                                                          if ($puck_6.kind === "AsteriskEqualsToken") {
+                                                                                                                          if ($puck_6.kind === "MinusEqualsToken") {
                                                                                                                             $puck_6;
-                                                                                                                            return "*=";
+                                                                                                                            return "-=";
                                                                                                                           }
                                                                                                                           else {
-                                                                                                                            if ($puck_6.kind === "AsteriskAsteriskEqualsToken") {
+                                                                                                                            if ($puck_6.kind === "AsteriskEqualsToken") {
                                                                                                                               $puck_6;
-                                                                                                                              return "**=";
+                                                                                                                              return "*=";
                                                                                                                             }
                                                                                                                             else {
-                                                                                                                              if ($puck_6.kind === "SlashEqualsToken") {
+                                                                                                                              if ($puck_6.kind === "AsteriskAsteriskEqualsToken") {
                                                                                                                                 $puck_6;
-                                                                                                                                return "/=";
+                                                                                                                                return "**=";
                                                                                                                               }
                                                                                                                               else {
-                                                                                                                                if ($puck_6.kind === "PercentEqualsToken") {
+                                                                                                                                if ($puck_6.kind === "SlashEqualsToken") {
                                                                                                                                   $puck_6;
-                                                                                                                                  return "%=";
+                                                                                                                                  return "/=";
                                                                                                                                 }
                                                                                                                                 else {
-                                                                                                                                  if ($puck_6.kind === "NewlineToken") {
+                                                                                                                                  if ($puck_6.kind === "PercentEqualsToken") {
                                                                                                                                     $puck_6;
-                                                                                                                                    return "new line";
+                                                                                                                                    return "%=";
                                                                                                                                   }
                                                                                                                                   else {
-                                                                                                                                    if ($puck_6.kind === "EndOfFileToken") {
+                                                                                                                                    if ($puck_6.kind === "NewlineToken") {
                                                                                                                                       $puck_6;
-                                                                                                                                      return "end of file";
+                                                                                                                                      return "new line";
+                                                                                                                                    }
+                                                                                                                                    else {
+                                                                                                                                      if ($puck_6.kind === "EndOfFileToken") {
+                                                                                                                                        $puck_6;
+                                                                                                                                        return "end of file";
+                                                                                                                                      };
                                                                                                                                     };
                                                                                                                                   };
                                                                                                                                 };
@@ -926,39 +938,45 @@ SyntaxKind.precedence = function () {
                           return 7;
                         }
                         else {
-                          if ($puck_7.kind === "PlusToken") {
+                          if ($puck_7.kind === "PlusPlusToken") {
                             $puck_7;
-                            return 10;
+                            return 9;
                           }
                           else {
-                            if ($puck_7.kind === "MinusToken") {
+                            if ($puck_7.kind === "PlusToken") {
                               $puck_7;
                               return 10;
                             }
                             else {
-                              if ($puck_7.kind === "AsteriskToken") {
+                              if ($puck_7.kind === "MinusToken") {
                                 $puck_7;
-                                return 20;
+                                return 10;
                               }
                               else {
-                                if ($puck_7.kind === "SlashToken") {
+                                if ($puck_7.kind === "AsteriskToken") {
                                   $puck_7;
                                   return 20;
                                 }
                                 else {
-                                  if ($puck_7.kind === "PercentToken") {
+                                  if ($puck_7.kind === "SlashToken") {
                                     $puck_7;
                                     return 20;
                                   }
                                   else {
-                                    if ($puck_7.kind === "AsteriskAsteriskToken") {
+                                    if ($puck_7.kind === "PercentToken") {
                                       $puck_7;
-                                      return 25;
+                                      return 20;
                                     }
                                     else {
-                                      if (true) {
+                                      if ($puck_7.kind === "AsteriskAsteriskToken") {
                                         $puck_7;
-                                        return $puck_1.panic("no precedence for " + SyntaxKind.name.call(self));
+                                        return 25;
+                                      }
+                                      else {
+                                        if (true) {
+                                          $puck_7;
+                                          return $puck_1.panic("no precedence for " + SyntaxKind.name.call(self));
+                                        };
                                       };
                                     };
                                   };
@@ -994,6 +1012,7 @@ var operators = exports.operators = [
   "(",
   ")",
   "+",
+  "++",
   "-",
   "*",
   "**",

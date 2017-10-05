@@ -743,7 +743,8 @@ describe('core', || {
 
     describe('fold', || {
       it('should return the initial value for empty iterators', || {
-        expect([].iter().fold(0, |sum, val| sum + val)).toBe(0)
+        // FIX: Should not need :Num
+        expect([].iter().fold(0, |sum, val: Num| sum + val)).toBe(0)
       })
 
       it('should reuce the iteratur with the passed reducere', || {

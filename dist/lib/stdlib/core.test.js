@@ -434,9 +434,9 @@ $puck_1.describe("core", function () {
         $puck_1.expect($puck_2.Option.map.call($puck_2.Some(1), function (value) {
           return value + value;
         })).toEqual($puck_2.Some(2));
-        return $puck_1.expect($unwrapTraitObject($puck_2.Option.unwrap.call($puck_2.Option.map.call($puck_2.Some(2), function (value) {
+        return $puck_1.expect($puck_2.Option.unwrap.call($puck_2.Option.map.call($puck_2.Some(2), function (value) {
           return value + value;
-        })))).toBe(4);
+        }))).toBe(4);
       });
       return $puck_1.it("should not call the map function if None", function () {
         return $puck_1.expect($puck_2.Option.map.call($puck_2.None, function (value) {
@@ -458,11 +458,11 @@ $puck_1.describe("core", function () {
     });
     $puck_1.describe("mapOrElse", function () {
       $puck_1.it("should map the value if Some(value)", function () {
-        return $puck_1.expect($unwrapTraitObject($puck_2.Option.mapOrElse.call($puck_2.Some(1), function () {
+        return $puck_1.expect($puck_2.Option.mapOrElse.call($puck_2.Some(1), function () {
           return $puck_2.panic("orElse should not called");
         }, function (value) {
           return value + value;
-        }))).toBe(2);
+        })).toBe(2);
       });
       return $puck_1.it("should return the result of the default function if None", function () {
         return $puck_1.expect($puck_2.Option.mapOrElse.call($puck_2.None, function () {
@@ -584,9 +584,9 @@ $puck_1.describe("core", function () {
         $puck_1.expect($puck_2.Result.map.call($puck_2.Ok(1), function (value) {
           return value + value;
         })).toEqual($puck_2.Ok(2));
-        return $puck_1.expect($unwrapTraitObject($puck_2.Result.unwrap.call($puck_2.Result.map.call($puck_2.Ok(2), function (value) {
+        return $puck_1.expect($puck_2.Result.unwrap.call($puck_2.Result.map.call($puck_2.Ok(2), function (value) {
           return value + value;
-        })))).toBe(4);
+        }))).toBe(4);
       });
       return $puck_1.it("should not call the map function if Err(err)", function () {
         return $puck_1.expect($puck_2.Result.map.call($puck_2.Err(2), function ($puck_7) {
@@ -599,9 +599,9 @@ $puck_1.describe("core", function () {
         $puck_1.expect($puck_2.Result.mapErr.call($puck_2.Err(1), function (value) {
           return value + value;
         })).toEqual($puck_2.Err(2));
-        return $puck_1.expect($unwrapTraitObject($puck_2.Result.unwrapErr.call($puck_2.Result.mapErr.call($puck_2.Err(2), function (value) {
+        return $puck_1.expect($puck_2.Result.unwrapErr.call($puck_2.Result.mapErr.call($puck_2.Err(2), function (value) {
           return value + value;
-        })))).toBe(4);
+        }))).toBe(4);
       });
       return $puck_1.it("should not call the mapErr function if Err(err)", function () {
         return $puck_1.expect($puck_2.Result.mapErr.call($puck_2.Ok(2), function (value) {

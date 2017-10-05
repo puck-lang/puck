@@ -48,7 +48,7 @@ impl<T> GenericSelf<T> for GenericType<String> {
 }
 
 impl Generic<String> for GenericType<String> {
-  fn generic(self, a: String) -> String {a + a}
+  fn generic(self, a: String) -> String {a ++ a}
 }
 
 impl SelfAware for FunctionsType {}

@@ -66,6 +66,7 @@ const tokenToJs = (kind: {kind: string}) => {
   if (kind.kind == 'NotKeyword') return '!'
   if (kind.kind == 'EqualsEqualsToken') return '==='
   if (kind.kind == 'ExclamationEqualsToken') return '!=='
+  if (kind.kind == 'PlusPlusToken') return '+'
   return SyntaxKind.name.call(kind)
 }
 const gloablPuckJsImports = ['require', 'module']

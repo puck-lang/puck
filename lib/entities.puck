@@ -53,7 +53,7 @@ fn getFunctionTypeName(function: Function) {
       let typed =
         if startWithNumber.test(b.name)
           then typeName
-          else b.name + ': $typeName'
+          else b.name ++ ': $typeName'
       if b.mutable
         then 'mut $typed'
         else typed
@@ -71,36 +71,37 @@ fn getFunctionTypeName(function: Function) {
 }
 
 fn getTupleTypeName(properties: Iterable<Type>) {
-  '(' + properties.map(|type_| type_.displayName())->join(', ') + ')'
+  '(' ++ properties.map(|type_| type_.displayName())->join(', ').transmute::<String>() ++ ')'
 }
 
 fn getRecordTypeName(properties: ObjectMap<RecordMember>) {
-  '{' +
+  '{' ++
     properties
       .toList()
       .map(|(key, {type_, optional})| {
         let questionMark = if optional then '?' else ''
-        '$key$questionMark: ' + type_.displayName()
+        '$key$questionMark: ' ++ type_.displayName()
       })
-      ->join(', ') +
+      ->join(', ')
+      .transmute::<String>() ++
   '}'
 }
 
 fn getGenericName(name: String, type_: Type, showClassParameters = false) {
   let parameters =
     if let Option::Some(instance) = type_.instance {
-      '<' + instance.typeParameters.map(|p| p.displayName())->join(', ') + '>'
+      '<' ++ instance.typeParameters.map(|p| p.displayName())->join(', ').transmute::<String>() ++ '>'
     }
     else if showClassParameters
       then if let Option::Some(class) = type_.class {
-        '<' + class.typeParameters.map(|p| p.displayName())->join(', ') + '>'
+        '<' ++ class.typeParameters.map(|p| p.displayName())->join(', ').transmute::<String>() ++ '>'
       }
       else ''
     else ''
 
   if type_.isFunction()
-    then parameters + name
-    else name + parameters
+    then parameters ++ name
+    else name ++ parameters
 }
 
 export type Definition {

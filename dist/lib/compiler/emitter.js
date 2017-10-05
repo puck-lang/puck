@@ -28,6 +28,8 @@ var tokenToJs = function (kind) {
         return '===';
     if (kind.kind == 'ExclamationEqualsToken')
         return '!==';
+    if (kind.kind == 'PlusPlusToken')
+        return '+';
     return token_1.SyntaxKind.name.call(kind);
 };
 var gloablPuckJsImports = ['require', 'module'];

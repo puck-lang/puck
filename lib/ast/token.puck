@@ -68,6 +68,7 @@ export enum SyntaxKind {
   PercentToken
   PlusEqualsToken
   PlusToken
+  PlusPlusToken
   QuestionMarkToken
   SemicolonToken
   SlashEqualsToken
@@ -94,7 +95,7 @@ export enum Token {
 export let operators = [
   ',', ';', ':', '::', '.', '_', '|',
   '{', '}', '[', ']', '(', ')',
-  '+', '-', '*', '**', '/', '%',
+  '+', '++', '-', '*', '**', '/', '%',
   '=', '+=', '-=', '*=', '**=', '/=', '%=',
   '==', '!=', '<', '<=', '>', '>=',
   '=>', '->', '#', '::<', '..', '...', '?'
@@ -178,6 +179,7 @@ impl SyntaxKind {
     else if text == '=>' then Some(SyntaxKind::EqualsGreaterThanToken)
     else if text == '->' then Some(SyntaxKind::MinusGreaterThanToken)
     else if text == '+' then Some(SyntaxKind::PlusToken)
+    else if text == '++' then Some(SyntaxKind::PlusPlusToken)
     else if text == '-' then Some(SyntaxKind::MinusToken)
     else if text == '*' then Some(SyntaxKind::AsteriskToken)
     else if text == '**' then Some(SyntaxKind::AsteriskAsteriskToken)
@@ -247,6 +249,7 @@ impl SyntaxKind {
       SyntaxKind::EqualsGreaterThanToken => '=>'
       SyntaxKind::MinusGreaterThanToken => '->'
       SyntaxKind::PlusToken => '+'
+      SyntaxKind::PlusPlusToken => '++'
       SyntaxKind::MinusToken => '-'
       SyntaxKind::AsteriskToken => '*'
       SyntaxKind::AsteriskAsteriskToken => '**'
@@ -278,13 +281,14 @@ impl SyntaxKind {
       SyntaxKind::GreaterThanEqualsToken => 7
       SyntaxKind::LessThanToken => 7
       SyntaxKind::LessThanEqualsToken => 7
+      SyntaxKind::PlusPlusToken => 9
       SyntaxKind::PlusToken => 10
       SyntaxKind::MinusToken => 10
       SyntaxKind::AsteriskToken => 20
       SyntaxKind::SlashToken => 20
       SyntaxKind::PercentToken => 20
       SyntaxKind::AsteriskAsteriskToken => 25
-      _ => panic('no precedence for ' + self.name())
+      _ => panic('no precedence for ' ++ self.name())
     }
   }
 }

@@ -3,7 +3,7 @@ type Banana {name: String}
 
 trait Food {
   fn eat(self) -> () {
-    print(self->name + ' is some kind of food')
+    print(self->name.transmute::<String>() ++ ' is some kind of food')
   }
   fn passThrough(self) -> Self {
     self
@@ -16,7 +16,7 @@ trait Food {
 impl Food for Apple {}
 impl Food for Banana {
   fn eat(self) -> () {
-    print(self.name + ' is a banana')
+    print(self.name ++ ' is a banana')
   }
   fn passThrough(self) -> Self {
     self

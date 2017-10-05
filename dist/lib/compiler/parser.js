@@ -261,53 +261,59 @@ function parse(input, file, recover = false) {
                     return $puck_1.Some(token);
                   }
                   else {
-                    if ($puck_20.kind === "MinusToken") {
+                    if ($puck_20.kind === "PlusPlusToken") {
                       $puck_20;
                       return $puck_1.Some(token);
                     }
                     else {
-                      if ($puck_20.kind === "AsteriskToken") {
+                      if ($puck_20.kind === "MinusToken") {
                         $puck_20;
                         return $puck_1.Some(token);
                       }
                       else {
-                        if ($puck_20.kind === "AsteriskAsteriskToken") {
+                        if ($puck_20.kind === "AsteriskToken") {
                           $puck_20;
                           return $puck_1.Some(token);
                         }
                         else {
-                          if ($puck_20.kind === "SlashToken") {
+                          if ($puck_20.kind === "AsteriskAsteriskToken") {
                             $puck_20;
                             return $puck_1.Some(token);
                           }
                           else {
-                            if ($puck_20.kind === "PercentToken") {
+                            if ($puck_20.kind === "SlashToken") {
                               $puck_20;
                               return $puck_1.Some(token);
                             }
                             else {
-                              if ($puck_20.kind === "AndKeyword") {
+                              if ($puck_20.kind === "PercentToken") {
                                 $puck_20;
                                 return $puck_1.Some(token);
                               }
                               else {
-                                if ($puck_20.kind === "OrKeyword") {
+                                if ($puck_20.kind === "AndKeyword") {
                                   $puck_20;
                                   return $puck_1.Some(token);
                                 }
                                 else {
-                                  if ($puck_20.kind === "NotKeyword") {
+                                  if ($puck_20.kind === "OrKeyword") {
                                     $puck_20;
                                     return $puck_1.Some(token);
                                   }
                                   else {
-                                    if (true) {
+                                    if ($puck_20.kind === "NotKeyword") {
                                       $puck_20;
-                                      if (isAssignment(token)) {
-                                        return $puck_1.Some(token);
-                                      }
-                                      else {
-                                        return $puck_1.None;
+                                      return $puck_1.Some(token);
+                                    }
+                                    else {
+                                      if (true) {
+                                        $puck_20;
+                                        if (isAssignment(token)) {
+                                          return $puck_1.Some(token);
+                                        }
+                                        else {
+                                          return $puck_1.None;
+                                        };
                                       };
                                     };
                                   };

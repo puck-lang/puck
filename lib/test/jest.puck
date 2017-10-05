@@ -4,7 +4,8 @@ import 'node:path' as path
 
 export fn jest(watch: Bool, rootDir: String) {
   let mut moduleNameMapper = ObjectMap.new()
-  moduleNameMapper['^puck-lang/dist/lib/stdlib(.*)\$'] = path->resolve(require->resolve('../stdlib/core'), '..') + '\$1'
+  moduleNameMapper['^puck-lang/dist/lib/stdlib(.*)\$'] =
+    path->resolve(require->resolve('../stdlib/core'), '..').transmute::<String>() ++ '\$1'
   let mut transform = ObjectMap.new()
   transform['.*'] = require->resolve('./jest_preprocessor')
 

@@ -110,7 +110,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
     let token =
     match input.peek() {
       Token::SimpleToken({kind: SyntaxKind::EndOfFileToken}) => 'but reached end of file'
-      token => 'but got "' + token.name() + '"'
+      token => 'but got "' ++ token.name() ++ '"'
     }
   }
 
@@ -119,11 +119,11 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
     match token {
       Token::SimpleToken(token) => {
         if not identical(token.kind, kind) {
-          input.croak('Expected token: "'  + kind.name() + '", ' + butGot())
+          input.croak('Expected token: "' ++ kind.name() ++ '", ' ++ butGot())
         }
         token
       }
-      _ => input.croak('Expected token: "'  + kind.name() + '", ' + butGot())
+      _ => input.croak('Expected token: "' ++ kind.name() ++ '", ' ++ butGot())
     }
   }
 
@@ -142,7 +142,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
     }
     match input.next() {
       Token::Identifier(identifier) => identifier
-      _ => input.croak('Expected identifier, ' + butGot())
+      _ => input.croak('Expected identifier, ' ++ butGot())
     }
   }
 
@@ -193,6 +193,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
         SyntaxKind::LessThanToken => Some(token)
         SyntaxKind::LessThanEqualsToken => Some(token)
         SyntaxKind::PlusToken => Some(token)
+        SyntaxKind::PlusPlusToken => Some(token)
         SyntaxKind::MinusToken => Some(token)
         SyntaxKind::AsteriskToken => Some(token)
         SyntaxKind::AsteriskAsteriskToken => Some(token)
@@ -298,7 +299,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
               })
             } else {
               input.next()
-              input.croak('Expected number or identifier, ' + butGot())
+              input.croak('Expected number or identifier, ' ++ butGot())
             }
           }
         }
@@ -763,7 +764,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
     let locator =
       match input.next() {
         Token::StringLiteral(stringLiteral) => stringLiteral
-        _ => input.croak('Expected string, ' + butGot())
+        _ => input.croak('Expected string, ' ++ butGot())
       }
     if locator.parts.size() != 1 then panic('More than one part in import string')
     let parts = match locator.parts.first() {

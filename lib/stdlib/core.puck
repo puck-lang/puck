@@ -11,6 +11,69 @@ export fn identical<T>(a: T, b: T) -> Bool {
 
 fn anyCast(a) {a}
 
+/// The add operator +.
+#[type_id = 'Add']
+export trait Add<RHS, Output> {
+    /// The resulting type after applying the + operator
+    // type Output;
+
+    fn add(self, rhs: RHS) -> Output;
+}
+
+/// The subtraction operator -.
+#[type_id = 'Sub']
+export trait Sub<RHS, Output> {
+    /// The resulting type after applying the - operator
+    // type Output;
+
+    fn sub(self, rhs: RHS) -> Output;
+}
+
+/// The multiplication operator *.
+#[type_id = 'Mul']
+export trait Mul<RHS, Output> {
+    /// The resulting type after applying the * operator
+    // type Output;
+
+    fn mul(self, rhs: RHS) -> Output;
+}
+
+/// The divition operator /.
+#[type_id = 'Div']
+export trait Div<RHS, Output> {
+    /// The resulting type after applying the / operator
+    // type Output;
+
+    fn div(self, rhs: RHS) -> Output;
+}
+
+/// The remainder operator %.
+#[type_id = 'Rem']
+export trait Rem<RHS, Output> {
+    /// The resulting type after applying the % operator
+    // type Output;
+
+    fn rem(self, rhs: RHS) -> Output;
+}
+
+/// The power operator **.
+#[type_id = 'Pow']
+export trait Pow<RHS, Output> {
+    /// The resulting type after applying the ** operator
+    // type Output;
+
+    fn pow(self, rhs: RHS) -> Output;
+}
+
+/// The concat operator ++.
+#[type_id = 'Concat']
+export trait Concat<RHS, Output> {
+    /// The resulting type after applying the ++ operator
+    // type Output;
+
+    fn concat(self, rhs: RHS) -> Output;
+}
+
 export type RegExp {}
 
 impl RegExp {
@@ -103,6 +166,34 @@ impl Num {
       then Ordering::Greater
     else Ordering::Equal
   }
+
+  fn toString(self) -> String {
+    self->toString().transmute()
+  }
+}
+
+impl Add<Num, Num> for Num {
+  fn add(self, rhs: Num) -> Num {self + rhs}
+}
+
+impl Sub<Num, Num> for Num {
+  fn sub(self, rhs: Num) -> Num {self - rhs}
+}
+
+impl Mul<Num, Num> for Num {
+  fn mul(self, rhs: Num) -> Num {self * rhs}
+}
+
+impl Div<Num, Num> for Num {
+  fn div(self, rhs: Num) -> Num {self / rhs}
+}
+
+impl Rem<Num, Num> for Num {
+  fn rem(self, rhs: Num) -> Num {self % rhs}
+}
+
+impl Pow<Num, Num> for Num {
+  fn pow(self, rhs: Num) -> Num {self ** rhs}
 }
 
 #[type_id = 'String']
@@ -165,7 +256,7 @@ impl String {
     let mut i = 0
     let mut new = self
     while i < padCount {
-      new = padding + new
+      new = padding ++ new
       i += 1
     }
 
@@ -196,7 +287,7 @@ impl String {
     let mut i = 0
     let mut new = self
     while i < padCount {
-      new = new + padding
+      new = new ++ padding
       i += 1
     }
 
@@ -226,6 +317,19 @@ impl String {
     anyCast(self).replace(RegExp.new('\\s+$'), '')
   }
 }
+
+impl Concat<String, String> for String {
+  fn concat(self, rhs: String) -> String {self ++ rhs}
+}
+
+// FIX: These should work
+// impl Concat<Num, String> for String {
+//   fn concat(self, rhs: Num) -> String {self ++ rhs}
+// }
+
+// impl Concat<String, String> for Num {
+//   fn concat(self, rhs: String) -> String {self ++ rhs}
+// }
 
 type StringIterator {
   index: Num
@@ -257,7 +361,7 @@ impl Index<Num, String> for String {
   fn index(self, index: Num) -> String {
     if index < 0 then panic('index out of bounds: index must be positive but is $index')
     if index >= self.size() {
-      panic('index out of bounds: the length is ' + self.size() + ' but the index is $index')
+      panic('index out of bounds: the length is ' ++ self.size().toString() ++ ' but the index is $index')
     }
 
     self->charAt(index).transmute()
@@ -528,7 +632,8 @@ impl<E> List<E> {
     let mut max: Num = self.size() - 1
     while true {
       if max < min then return Err(min)
-      let mut guess: Num = ((min + max) / 2)
+      let range = min + max
+      let mut guess: Num = (range / 2)
       guess = guess.floor()
 
       match f(self[guess]) {
@@ -545,6 +650,11 @@ impl<E> List<E> {
     Err(0)
   }
 }
+
+impl<E> Concat<List<E>, List<E>> for List<E> {
+  fn concat(self, rhs: List<E>) -> List<E> {self->concat(rhs).transmute()}
+}
+
 /// Conversion into an Iterator.
 ///
 /// By implementing IntoIterator for a type, you define how it will be
@@ -1204,7 +1314,7 @@ impl<E> Index<Num, E> for List<E> {
   fn index(self, index: Num) -> E {
     if index < 0 then panic('index out of bounds: index must be positive but is $index')
     if index >= self.size() {
-      panic('index out of bounds: the length is ' + self.size() + ' but the index is $index')
+      panic('index out of bounds: the length is ' ++ self.size().toString() ++ ' but the index is $index')
     }
 
     self->[index].transmute()

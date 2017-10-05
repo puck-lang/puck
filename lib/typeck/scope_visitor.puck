@@ -72,8 +72,8 @@ import '../compiler.puck' as {CompilerContext}
 import '../ast/token.puck' as {SyntaxKind}
 import '../ast/visit.puck' as visit
 import 'src/enums.puck' as {checkExhaustive}
-import 'src/functions.puck' as {resolveFunctionTypeParameters}
-import 'src/impls.puck' as {getImplementation, getImplementationForTrait, resolveImplTypeParameters}
+import 'src/functions.puck' as {checkFunctionCall, resolveFunctionTypeParameters}
+import 'src/impls.puck' as {getImplementation, getImplementationForTrait, getImplementationForTraitCall, resolveImplTypeParameters}
 import 'src/patterns.puck' as {PatternError, declarePatternVariables}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {Binding, Scope}
@@ -103,7 +103,7 @@ import 'src/core_type_helpers.puck' as {getCoreType, getRecordPropType}
 
 fn asType(a: Unknown) -> Type {a.transmute()}
 
-fn getBinding(e: Expression) -> Option<Binding> {
+export fn getBinding(e: Expression) -> Option<Binding> {
   match e {
     Expression::Identifier(i) => {
       let scope: Scope = i->scope.transmute()
@@ -145,71 +145,6 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
 
   fn reportError(token: ToSpan, message: String) {
     context.reportError(file, token, CompilationError::Other(message))
-  }
-
-  fn checkFunctionCall(mut functionType: Type, c: CallExpression) {
-    if not functionType then return undefined
-    let namei: Option<String> =
-      match c.func {
-        Expression::Identifier(i) => Some(i.name)
-        _ => None
-      }
-    let name = namei.unwrapOrElse(|| functionType.displayName())
-
-    let function = match functionType.kind {
-      TypeKind::Function(func) => func
-      _ => {
-        reportError(c, '$name is not callable')
-        return undefined
-      }
-    }
-
-    if let Option::Some(selfBinding) = function.selfBinding {
-      if selfBinding.mutable {
-        if not getBinding(c.func).mapOr(true, |binding| binding.mutable)
-          then reportError(c, '$name can only be called on a mutable binding')
-      }
-    }
-
-    if let Result::Err(error) = checkRange(c.argumentList, function.parameterRange, 'arguments', name) {
-      reportError(c, error)
-      return function
-    }
-    if let Some(t) = c.typeArguments {
-      if let Option::Some(class) = functionType.instance.andThen(|i| i.class.class).orValue(functionType.class) {
-        if let Result::Err(error) =
-          checkRange(t.typeArguments, class.parameterRange, 'type parameters', functionType.displayName()) {
-          reportError(t, error)
-        }
-      }
-      else reportError(t, 'Type ' + functionType.displayName() + ' is not generic')
-    }
-
-    c.argumentList.enumerate().forEach(|(i, argument)| {
-      let parameter = function.parameters.get(i).unwrap()
-      let parameterName = parameter.name
-
-      if not isAssignable(parameter.type_, argument.getType())
-        then reportError(argument
-          notAssignableError(parameter.type_, argument.getType()) +
-          ' in parameter $parameterName of function $name'
-        )
-
-      if parameter.mutable {
-        if let Option::Some(argumentBinding) = getBinding(argument) {
-          let argumentName = argumentBinding.name
-
-          if not argumentBinding.mutable {
-            reportError(argument
-              'Parameter $parameterName of function $name requires a mutable binding ' +
-              'but $argumentName is declared as immutable.'
-            )
-          }
-        }
-      }
-    })
-
-    function
   }
 
   let structureVisitorInstance = structureVisitor(context, file)
@@ -377,7 +312,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
               }
               Ok(Option::None) => {
                 reportError(e,
-                  intoIteratorType.displayName() + ' has not been implemented for type ' + e.expression.getType().displayName()
+                  intoIteratorType.displayName() ++ ' has not been implemented for type ' ++ e.expression.getType().displayName()
                 )
               }
               Err => reportError(e, 'Ambiguous trait call')
@@ -500,7 +435,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                     })
                   }
                   Result::Err(_) => reportError(f,
-                    'No best common type exists among return expressions. Found ' + types.map(|type_| type_.displayName())->join(', ')
+                    'No best common type exists among return expressions. Found ' ++ types.map(|type_| type_.displayName())->join(', ').transmute::<String>()
                   )
                 }
               }
@@ -539,7 +474,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
       }
       if let Option::Some(binding) = getBinding(e.lhs) {
         if not binding.mutable
-          then reportError(e, "Can't assign to immutable variable " + binding.name)
+          then reportError(e, "Can't assign to immutable variable " ++ binding.name)
 
         if not isAssignable(e.lhs.getType(), e.rhs.getType())
           then reportError(e, notAssignableError(e.lhs.getType(), e.rhs.getType()))
@@ -549,6 +484,24 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
     }
     visitBinaryExpression: |self, mut e: BinaryExpression| {
       match e.operator.kind {
+        SyntaxKind::PlusToken => {
+          asTraitCall(self, e, 'Add', 'add', 'the addition operator')
+        }
+        SyntaxKind::MinusToken => {
+          asTraitCall(self, e, 'Sub', 'sub', 'the subtraction operator')
+        }
+        SyntaxKind::AsteriskToken => {
+          asTraitCall(self, e, 'Mul', 'mul', 'the multiplication operator')
+        }
+        SyntaxKind::SlashToken => {
+          asTraitCall(self, e, 'Div', 'div', 'the division operator')
+        }
+        SyntaxKind::PercentToken => {
+          asTraitCall(self, e, 'Rem', 'rem', 'the reminder operator')
+        }
+        SyntaxKind::AsteriskAsteriskToken => {
+          asTraitCall(self, e, 'Mul', 'mul', 'the power operator')
+        }
         SyntaxKind::EqualsEqualsToken => {
           asTraitCall(self, e, 'PartialEq', 'eq', 'equal operators')
         }
@@ -566,6 +519,9 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
         }
         SyntaxKind::GreaterThanEqualsToken => {
           asTraitCall(self, e, 'PartialOrd', 'ge', 'comparison operators')
+        }
+        SyntaxKind::PlusPlusToken => {
+          asTraitCall(self, e, 'Concat', 'concat', 'the concat operator')
         }
         _ => {
           visit.walkBinaryExpression(self, e)
@@ -638,7 +594,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                   if not selfArgument.getType() {
                     reportError(selfArgument, 'selfArgument has no type')
                   }
-                  match getImplementationForTrait(selfArgument.getType(), objectType.providesType.unwrapOr(objectType)) {
+                  match getImplementationForTraitCall(name, selfArgument.getType(), objectType.providesType.unwrapOr(objectType), e, functionType) {
                     Ok(Some(implementation)) => {
                       e->traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
                       e->traitBinding = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap()
@@ -656,7 +612,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                     }
                     Ok(Option::None) => {
                       reportError(e,
-                        objectType.displayName() + ' has not been implemented for type ' + selfArgument.getType().displayName()
+                        objectType.displayName() ++ ' has not been implemented for type ' ++ selfArgument.getType().displayName()
                       )
                     }
                     Err => reportError(e, 'Ambiguous trait call')
@@ -669,7 +625,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                 e->isTraitObject =  true
               }
             }
-            else reportError(e, providesType.displayName() + ' has no function named $name')
+            else reportError(e, providesType.displayName() ++ ' has no function named $name')
           }
           // It is a normal trait call, for example 'hello'.toUpperCase()
           else {
@@ -812,9 +768,13 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
       }
       else if functionType {
         e->functionType = functionType
-        let function = checkFunctionCall(functionType, e)
-        if function {
-          e->type_ = function.returnType
+        match checkFunctionCall(functionType, e) {
+          Ok(function) => {
+            if function {
+              e->type_ = function.returnType
+            }
+          }
+          Err((token, message)) => reportError(token, message)
         }
       }
       ()
@@ -837,7 +797,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
               Result::Ok(type_) => type_
               Result::Err(_) => {
                 reportError(e
-                  'Type ' + e.then_.type_.displayName() + ' and ' + else_.type_.displayName() + ' is not compatible'
+                  'Type ' ++ e.then_.type_.displayName() ++ ' and ' ++ else_.type_.displayName() ++ ' is not compatible'
                 )
                 Type.empty({file, token: e})
               }
@@ -878,7 +838,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
               Result::Ok(type_) => type_
               Result::Err(_) => {
                 reportError(e
-                  'Type ' + e.then_.type_.displayName() + ' and ' + else_.type_.displayName() + ' is not compatible'
+                  'Type ' ++ e.then_.type_.displayName() ++ ' and ' ++ else_.type_.displayName() ++ ' is not compatible'
                 )
                 Type.empty({file, token: e})
               }
@@ -913,7 +873,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
               Result::Ok(type_) => type_
               Result::Err(_) => {
                 reportError(e
-                  'Match arms return mixed types ' + e.patterns.map(|arm| asType(arm->type_.transmute()).displayName())->join(', ')
+                  'Match arms return mixed types ' ++ e.patterns.map(|arm| asType(arm->type_.transmute()).displayName())->join(', ').transmute::<String>()
                 )
                 Type.empty({file, token: e})
               }
@@ -1023,7 +983,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
             Some(Ok(type_)) => a->type_ = type_
             Some(Err(err)) => reportError(a, err)
             None => {
-              let message = a.object.getType().displayName() + ' has no property ' + a.member.name
+              let message = a.object.getType().displayName() ++ ' has no property ' ++ a.member.name
               let token: ToSpan = a.member
               if inCallExpression
                 then accessError = Some((token, message))
@@ -1047,7 +1007,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
           match record.properties.get(a.index.value) {
             Some(type_) => a->type_ = type_
             None => {
-              let message = a.object.getType().displayName() + ' has no index ' + a.index.value
+              let message = a.object.getType().displayName() ++ ' has no index ' ++ a.index.value.toString()
               let token: ToSpan = a.index
               if inCallExpression
                 then accessError = Some((token, message))
@@ -1254,14 +1214,14 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
           Pattern::RecordType(typePath, record) => {
             let type_: Type = typePath->providesType.transmute()
             if not isAssignable(record->type_.transmute(), type_)
-              then reportError(p, type_.displayName() + ' is not assignable to pattern ' + record.displayName())
+              then reportError(p, type_.displayName() ++ ' is not assignable to pattern ' ++ record.displayName())
             type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
           }
           Pattern::Tuple(tuple) => tuple->type_.transmute()
           Pattern::TupleType(typePath, tuple) => {
             let type_: Type = typePath->providesType.transmute()
             if not isAssignable(tuple->type_.transmute(), type_)
-              then reportError(p, type_.displayName() + ' is not assignable to pattern ' + tuple.displayName())
+              then reportError(p, type_.displayName() ++ ' is not assignable to pattern ' ++ tuple.displayName())
             type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
           }
           Pattern::UnitType(typePath) => undefined

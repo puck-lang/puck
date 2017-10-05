@@ -23,6 +23,7 @@ import '../../entities.puck' as {
   TypeInstance
   TypeKind
 }
+import 'functions.puck' as {checkFunctionCall}
 import 'scope.puck' as {Scope}
 import 'types.puck' as {findCommonType, isAssignable, resolveTypeParameters}
 
@@ -80,6 +81,65 @@ export fn getImplementationForTrait(type_: Type, trait_: Type) -> Result<Option<
     else Ok(implementations.first())
 }
 
+export fn getImplementationForTraitCall(functionName: String, type_: Type, trait_: Type, e: CallExpression, mut functionType_: Type) -> Result<Option<Implementation>, List<Implementation>> {
+  let implementations = getImplementationsForInstance(type_)
+    .filter(|i| not i.trait_.getTrait().isShorthand)
+    .filter(|i| isAssignable(i.trait_, trait_))
+    .toList()
+
+  // Implementations that accept the correct argment types
+  let implementations =
+    if implementations.size() > 1 {
+      let filteredImplementations = implementations
+        .filter(|mut i| {
+          if let Ok(type_) = resolveImplTypeParameters(i, type_) {
+            let functionType = type_.getTrait().functions[functionName]
+            let function = functionType.getFunction()
+
+            let mut functionType: Type =
+              if let Some(selfBinding) = function.selfBinding {
+                {
+                  definition: functionType.definition
+                  id: functionType.id
+                  displayName: functionType.displayName
+                  name: functionType.name
+                  kind: TypeKind::Function({
+                    selfBinding: None
+                    parameters: [selfBinding]->concat(function.parameters).transmute()
+                    parameterRange: {start: function.parameterRange.start + 1, end: function.parameterRange.end + 1}
+                    returnType: function.returnType
+                    isAbstract: function.isAbstract
+                  })
+                  class: functionType.class
+                  instance: functionType.instance
+                  providesType: functionType.providesType
+                  enumMember: functionType.enumMember
+                }
+              }
+              else functionType
+
+            checkFunctionCall(functionType, e).mapErr(|(_, e)| print('error', e)).isOk()
+          }
+          else false
+        })
+        .toList()
+
+      if filteredImplementations.size() > 0
+        then filteredImplementations
+        else implementations
+    }
+    else implementations
+
+  let implementations =
+    if implementations.size() > 1
+      then getMostSpecificImplementations(type_, implementations)
+      else implementations
+
+  if implementations.size() > 1
+    then Err(implementations)
+    else Ok(implementations.first())
+}
+
 export fn getImplementation(functionName: String, type_: Type, e: CallExpression) -> Result<Option<Implementation>, List<Implementation>> {
   // Implementations implemented for the correct type instance (generics)
   let implementations = getImplementationsForInstance(type_)
@@ -108,6 +168,24 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
         .toList()
       else implementations
 
+  // Implementations that accept the correct argment types
+  let implementations =
+    if implementations.size() > 1 {
+      let filteredImplementations = implementations
+        .filter(|mut i| {
+          if let Ok(type_) = resolveImplTypeParameters(i, type_) {
+            checkFunctionCall(type_.getTrait().functions[functionName], e).isOk()
+          }
+          else false
+        })
+        .toList()
+
+      if filteredImplementations.size() > 0
+        then filteredImplementations
+        else implementations
+    }
+    else implementations
+
   // Implementations that are more specific (only for generics)
   // For example an impl for List<String> is more specific than one for List<T>
   let implementations =
@@ -126,7 +204,7 @@ fn getTypeSpecificity(type_: Type) -> Num {
 
   match type_.instance {
     Option::Some(instance) => {
-      instance.typeParameters->reduce(|sum, type_| sum + getTypeSpecificity(type_), 1).transmute()
+      instance.typeParameters.iter().fold(1, |sum, type_| sum + getTypeSpecificity(type_))
     }
     Option::None => 1
   }

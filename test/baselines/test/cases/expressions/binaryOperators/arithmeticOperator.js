@@ -49,4 +49,5 @@ const rf4 = 0 ** a;
 const rf5 = 0 ** 0;
 const rf6 = b ** 0;
 const rf7 = 0 ** b;
-const rf8 = b ** b
+const rf8 = b ** b;
+const rg1 = ("a" + "b")

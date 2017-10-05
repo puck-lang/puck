@@ -8,7 +8,7 @@ import 'reexport.puck' as re
 import 'reexport.puck' as {a: d, Trait: ReexportedTrait, Type: ReexportedType}
 
 
-export let foo = e.b + a + b + c
+export let foo = e.b ++ a ++ b ++ c
 
 // asterisk imports can be shadowed
 let q = 'not imported'

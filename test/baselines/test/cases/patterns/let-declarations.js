@@ -56,7 +56,7 @@ let {a: r} = {
 };
 let {value: s} = Enum.A(1);
 a = 2;
-a = "" + $puck_1.Num.round.call(a);
+a = "" + $puck_1.Num.toString.call($puck_1.Num.round.call(a));
 a = function (first) {
   if (first) {
     return a(false);
@@ -75,7 +75,7 @@ const t = {
 };
 const u = function (u2) {
   return function (u3) {
-    return u + u2 + u3;
+    return u2 + u2 + u3;
   };
 };
 let [a, b] = [

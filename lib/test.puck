@@ -3,7 +3,7 @@ import '../lib/helpers.puck' as {cmd}
 export fn buildAll(outFolder = 'dist', compiler = 'dist', useBabel = false) {
   let babel = if useBabel then '--babel true' else ''
   cmd(
-    '$compiler/bin/puckc $babel --out-dir $outFolder --skip-extension true --is-binary true bin/**/*.puck && ' +
+    '$compiler/bin/puckc $babel --out-dir $outFolder --skip-extension true --is-binary true bin/**/*.puck && ' ++
     '$compiler/bin/puckc $babel --out-dir $outFolder lib/**/*.puck'
   )
 }

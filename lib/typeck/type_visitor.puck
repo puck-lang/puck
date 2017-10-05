@@ -48,8 +48,8 @@ fn isTypeScope(e: ExportDirective) {
 }
 
 fn generateTypeId(context: CompilerContext, file: File, name: String) {
-  let path = relative(context.projectPath, file.absolutePath)
-  Some(path + ':$name')
+  let path: String = relative(context.projectPath, file.absolutePath)
+  Some(path ++ ':$name')
 }
 
 fn getTypeId(declaration: {attributes: List<Attribute>, name: Identifier}, context: CompilerContext, file: File) {
@@ -176,9 +176,9 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
               p.bound.mapOr(
                 Type({
                   definition
-                  id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
+                  id: generateTypeId(context, file, t.name.name ++ '::' ++ p.name.name)
                   displayName: None
-                  name: Some(t.name.name + '::' + p.name.name)
+                  name: Some(t.name.name ++ '::' ++ p.name.name)
                   kind: TypeKind::Struct({
                     implementations: []
                     kind: StructKind::Unit
@@ -190,7 +190,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
                 })
                 |bound| Type({
                   definition
-                  id: generateTypeId(context, file, t.name.name + '::' + p.name.name)
+                  id: generateTypeId(context, file, t.name.name ++ '::' ++ p.name.name)
                   displayName: None
                   name: None
                   kind: bound.getType().kind
@@ -207,7 +207,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
         if t.members.size() != memberMap.size() {
           let mut members = ObjectMap.new()
           t.members.forEach(|p| {
-            if members.has(p.name.name) then reportError(p, 'Duplicate member ' + p.name.name)
+            if members.has(p.name.name) then reportError(p, 'Duplicate member ' ++ p.name.name)
             members[p.name.name] = p
           })
         }
