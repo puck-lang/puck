@@ -761,7 +761,7 @@ function ScopeVisitor(context, file) {
                     if ($puck_67.kind === "Ok") {
                       let {value: resolvedTrait} = $puck_67;
                       let parameterMap = $puck_1.Option.unwrap.call(resolvedTrait.instance).parameterMap;
-                      functionType = $unwrapTraitObject($puck_16.resolveTypeParameters(parameterMap)(functionType));
+                      functionType = $puck_16.resolveTypeParameters(parameterMap)(functionType);
                     }
                     else {
                       if ($puck_67.kind === "Err") {
@@ -871,7 +871,7 @@ function ScopeVisitor(context, file) {
             let $puck_75 = objectType.instance;
             if ($puck_75 !== undefined) {
               let instance = $puck_75;
-              functionType = $unwrapTraitObject($puck_16.resolveTypeParameters(instance.parameterMap)(functionType));
+              functionType = $puck_16.resolveTypeParameters(instance.parameterMap)(functionType);
             };
           };
         };
@@ -954,7 +954,7 @@ function ScopeVisitor(context, file) {
         };
       });
       if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isNotEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: callTypeParameters, $isTraitObject: true})) {
-        functionType = $unwrapTraitObject($puck_16.resolveTypeParameters(callParameterMap)(functionType));
+        functionType = $puck_16.resolveTypeParameters(callParameterMap)(functionType);
       };
     }
     else {

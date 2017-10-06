@@ -18,7 +18,7 @@ fn assign(a, b) {
   Object->assign({}, a, b).transmute()
 }
 
-export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = true| fn resolveTypeParametersInner(mut type_: Type) {
+export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = true| fn resolveTypeParametersInner(mut type_: Type) -> Type {
   if not type_ then return type_
 
   if let Option::Some(instance) = type_.instance {

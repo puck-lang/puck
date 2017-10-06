@@ -76,7 +76,7 @@ var resolveTypeParameters = exports.resolveTypeParameters = function (parameterM
       $puck_9 = $puck_10;
     };
     const resolvedKind = $puck_9;
-    return assign(type_, {kind: resolvedKind});
+    return $unwrapTraitObject(assign(type_, {kind: resolvedKind}));
   };
 };
 function resolveTypeParametersEnum(parameterMap, e) {
@@ -200,7 +200,7 @@ function createTypeInstance(type_, typeParameters_) {
     enumMember: type_.enumMember,
   };
   $puck_1.List.push.call(_class.instances, instance);
-  instance.kind = $unwrapTraitObject($unwrapTraitObject(resolveTypeParameters(parameterMap)(type_)).kind);
+  instance.kind = $unwrapTraitObject(resolveTypeParameters(parameterMap)(type_).kind);
   let $puck_28 = instance.kind;
   if ($puck_28.kind === "Enum") {
     let {value: enum_} = $puck_28;
