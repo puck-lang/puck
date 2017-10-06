@@ -32,6 +32,7 @@ export type Expression
   | {kind: 'BooleanLiteral', value: BooleanLiteral}
   | {kind: 'ListLiteral', value: ListLiteral}
   | {kind: 'NumberLiteral', value: NumberLiteral}
+  | {kind: 'RangeLiteral', value: RangeLiteral}
   | {kind: 'RecordLiteral', value: ObjectLiteral}
   | {kind: 'StringLiteral', value: StringLiteral}
   | {kind: 'TupleLiteral', value: TupleLiteral}
@@ -367,6 +368,14 @@ export interface ObjectLiteral extends SimpleToken {
 export type ObjectLiteralMember
   = {kind: 'Property', value: {name: SimpleIdentifier, value: Expression}}
   | {kind: 'Spread', value: Expression}
+
+export interface RangeLiteral extends SimpleToken {
+  start: Expression
+  end: Expression
+
+  call: CallExpression
+}
+
 
 export interface SimpleStringLiteral extends SimpleToken {
   value: string

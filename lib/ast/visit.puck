@@ -47,6 +47,7 @@ import 'ast.puck' as {
   BooleanLiteral
   ListLiteral
   NumberLiteral
+  RangeLiteral
   RecordLiteral
   RecordLiteralMember
   StringLiteral
@@ -136,6 +137,7 @@ export let walkingVisitor = {
   visitBooleanLiteral: |self, l: BooleanLiteral| {}
   visitListLiteral: |self, l: ListLiteral| walkListLiteral(self, l)
   visitNumberLiteral: |self, l: NumberLiteral| {}
+  visitRangeLiteral: |self, l: RangeLiteral| walkRangeLiteral(self, l)
   visitRecordLiteral: |self, l: RecordLiteral| walkRecordLiteral(self, l)
   visitRecordLiteralMember: |self, l: RecordLiteralMember| walkRecordLiteralMember(self, l)
   visitStringLiteral: |self, l: StringLiteral| walkStringLiteral(self, l)
@@ -203,6 +205,7 @@ export let emptyVisitor = {
   visitBooleanLiteral: || {}
   visitListLiteral: || {}
   visitNumberLiteral: || {}
+  visitRangeLiteral: || {}
   visitRecordLiteral: || {}
   visitStringLiteral: || {}
   visitTupleLiteral: || {}
@@ -276,6 +279,7 @@ export fn walkExpression(visitor, e: Expression) {
     Expression::BooleanLiteral(e) => visitor.visitBooleanLiteral(e)
     Expression::ListLiteral(e) => visitor.visitListLiteral(e)
     Expression::NumberLiteral(e) => visitor.visitNumberLiteral(e)
+    Expression::RangeLiteral(e) => visitor.visitRangeLiteral(e)
     Expression::RecordLiteral(e) => visitor.visitRecordLiteral(e)
     Expression::StringLiteral(e) => visitor.visitStringLiteral(e)
     Expression::TupleLiteral(e) => visitor.visitTupleLiteral(e)
@@ -424,6 +428,10 @@ export fn walkUnknownIndexAccess(visitor, a: UnknownIndexAccess) {
 
 export fn walkListLiteral(visitor, l: ListLiteral) {
   l.members.forEach(|e| visitor.visitExpression(e))
+}
+export fn walkRangeLiteral(visitor, a: RangeLiteral) {
+  visitor.visitExpression(a.start)
+  visitor.visitExpression(a.end)
 }
 export fn walkRecordLiteral(visitor, l: RecordLiteral) {
   l.members.forEach(|m| visitor.visitRecordLiteralMember(m))

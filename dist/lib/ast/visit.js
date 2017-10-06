@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.walkingVisitor = exports.emptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
+exports.walkingVisitor = exports.emptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRangeLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./ast");
 const $puck_3 = require("./../compiler/ast");
@@ -146,6 +146,10 @@ var walkingVisitor = exports.walkingVisitor = {
   return walkListLiteral(self, l);
 },
   visitNumberLiteral: function (l) {},
+  visitRangeLiteral: function (l) {
+  const self = this;
+  return walkRangeLiteral(self, l);
+},
   visitRecordLiteral: function (l) {
   const self = this;
   return walkRecordLiteral(self, l);
@@ -256,6 +260,7 @@ var emptyVisitor = exports.emptyVisitor = {
   visitBooleanLiteral: function () {},
   visitListLiteral: function () {},
   visitNumberLiteral: function () {},
+  visitRangeLiteral: function () {},
   visitRecordLiteral: function () {},
   visitStringLiteral: function () {},
   visitTupleLiteral: function () {},
@@ -475,19 +480,25 @@ function walkExpression(visitor, e) {
                                             return $unwrapTraitObject(visitor).visitNumberLiteral(e);
                                           }
                                           else {
-                                            if ($puck_6.kind === "RecordLiteral") {
+                                            if ($puck_6.kind === "RangeLiteral") {
                                               let {value: e} = $puck_6;
-                                              return $unwrapTraitObject(visitor).visitRecordLiteral(e);
+                                              return $unwrapTraitObject(visitor).visitRangeLiteral(e);
                                             }
                                             else {
-                                              if ($puck_6.kind === "StringLiteral") {
+                                              if ($puck_6.kind === "RecordLiteral") {
                                                 let {value: e} = $puck_6;
-                                                return $unwrapTraitObject(visitor).visitStringLiteral(e);
+                                                return $unwrapTraitObject(visitor).visitRecordLiteral(e);
                                               }
                                               else {
-                                                if ($puck_6.kind === "TupleLiteral") {
+                                                if ($puck_6.kind === "StringLiteral") {
                                                   let {value: e} = $puck_6;
-                                                  return $unwrapTraitObject(visitor).visitTupleLiteral(e);
+                                                  return $unwrapTraitObject(visitor).visitStringLiteral(e);
+                                                }
+                                                else {
+                                                  if ($puck_6.kind === "TupleLiteral") {
+                                                    let {value: e} = $puck_6;
+                                                    return $unwrapTraitObject(visitor).visitTupleLiteral(e);
+                                                  };
                                                 };
                                               };
                                             };
@@ -766,6 +777,11 @@ function walkListLiteral(visitor, l) {
   });
 };
 exports.walkListLiteral = walkListLiteral;
+function walkRangeLiteral(visitor, a) {
+  $unwrapTraitObject(visitor).visitExpression(a.start);
+  return $unwrapTraitObject(visitor).visitExpression(a.end);
+};
+exports.walkRangeLiteral = walkRangeLiteral;
 function walkRecordLiteral(visitor, l) {
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.members, $isTraitObject: true}, function (m) {
     return $unwrapTraitObject(visitor).visitRecordLiteralMember(m);

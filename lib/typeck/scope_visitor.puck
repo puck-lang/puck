@@ -3,7 +3,6 @@ import 'puck:js' as {Object, global, undefined}
 import 'node:util' as {inspect}
 import '../ast/ast.puck' as {
   Module
-  RecordLiteralMember
   TopLevelStatement
   BlockLevelStatement
   Expression
@@ -50,7 +49,9 @@ import '../ast/ast.puck' as {
   BooleanLiteral
   ListLiteral
   NumberLiteral
+  RangeLiteral
   RecordLiteral
+  RecordLiteralMember
   StringLiteral
   TupleLiteral
 
@@ -1141,6 +1142,30 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
       else reportError(l
         'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
       )
+    }
+    visitRangeLiteral: |self, mut l: RangeLiteral| {
+      visit.walkRangeLiteral(self, l)
+      let scope: Scope = self.scope
+      match getCoreType(scope, 'Range', 'range literals') {
+        Ok((_, binding)) => {
+          let mut call = CallExpression({
+            func: Expression::MemberAccess({
+              object: Expression::Identifier({name: binding.name, span: l.dotDotToken.span})
+              dotToken: l.dotDotToken
+              member: {name: 'new', span: l.dotDotToken.span}
+            })
+            typeArguments: None
+            openParen: l.dotDotToken
+            argumentList: [l.start, l.end]
+            closeParen: l.dotDotToken
+          })
+          self.visitCallExpression(call)
+          l->call = call
+          l->type_ = call->type_
+        }
+        Err(err) => reportError(l, err)
+      }
+      ()
     }
     visitRecordLiteral: |self, mut l: RecordLiteral| {
       visit.walkRecordLiteral(self, l)
