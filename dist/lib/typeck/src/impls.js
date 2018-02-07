@@ -200,7 +200,7 @@ function resolveImplTypeParameters(implementation, objectType) {
         break      };
     };
   };
-  return $puck_1.Ok($unwrapTraitObject($puck_8.resolveTypeParameters(parameterMap)(implementation.trait_)));
+  return $puck_1.Ok($puck_8.resolveTypeParameters(parameterMap)(implementation.trait_));
 };
 exports.resolveImplTypeParameters = resolveImplTypeParameters;
 function collectTypeParameters(parameterMap, ip, op) {

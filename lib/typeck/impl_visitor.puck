@@ -29,6 +29,7 @@ import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {
   isAssignable
   isSameType
+  resolveTypeParameters
 }
 import '../entities.puck' as {
   Implementation
@@ -94,10 +95,15 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
   i->implementation = implementation
   implementable.implementations.push(implementation)
 
+  let resolve =
+    if let Some(traitInstance) = traitType.instance
+      then resolveTypeParameters(traitInstance.parameterMap)
+      else |t| t
+
   i.members.forEach(|mut functionDeclaration| {
     let functionName = functionDeclaration.type_.displayName()
-    if let Some(traitFunctionType) = traitFunctions.get(functionDeclaration.type_.name.unwrap()) {
-      let traitFunction = traitFunctionType.getFunction()
+    if let Some(mut traitFunctionType) = traitFunctions.get(functionDeclaration.type_.name.unwrap()) {
+      let traitFunction = resolve(traitFunctionType).getFunction()
       let function = functionDeclaration.type_.getFunction()
       functionDeclaration->traitFunctionType = traitFunctionType
 

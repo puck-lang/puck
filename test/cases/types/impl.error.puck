@@ -76,3 +76,13 @@ trait Trait {
 impl Trait for Type {
   fn a() -> () {}
 }
+
+///// Types of parameter #0 does not match. String is not assignable to Num
+type Type {}
+trait Trait<T> {
+  fn a(self, a: T) -> () {}
+}
+
+impl Trait<Num> for Type {
+  fn a(self, a: String) -> () {}
+}
