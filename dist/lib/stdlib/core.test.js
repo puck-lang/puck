@@ -1144,7 +1144,7 @@ $puck_1.describe("core", function () {
           start: -3,
           end: 3,
         };
-        let iterator = $puck_2.IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:Range"].iter.call({type: '$impl_IntoIterator$lib/stdlib/core.puck:Range', value: range, $isTraitObject: true});
+        let iterator = $puck_2.IntoIterator["$impl_IntoIterator$Range"].iter.call({type: '$impl_IntoIterator$Range', value: range, $isTraitObject: true});
         $puck_1.expect($puck_2.Iterator[iterator.type].next.call(iterator)).toEqual($puck_2.Some(-3));
         $puck_1.expect($puck_2.Iterator[iterator.type].next.call(iterator)).toEqual($puck_2.Some(-2));
         $puck_1.expect($puck_2.Iterator[iterator.type].next.call(iterator)).toEqual($puck_2.Some(-1));

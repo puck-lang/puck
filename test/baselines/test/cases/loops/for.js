@@ -1,6 +1,6 @@
 'use strict';
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
-let $puck_2 = $puck_1.IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:Range"].iter.call({type: '$impl_IntoIterator$lib/stdlib/core.puck:Range', value: $puck_1.Range._new(0, 10), $isTraitObject: true});
+let $puck_2 = $puck_1.IntoIterator["$impl_IntoIterator$Range"].iter.call({type: '$impl_IntoIterator$Range', value: $puck_1.Range._new(0, 10), $isTraitObject: true});
 let $puck_3 = true;
 while ($puck_3) {
   let $puck_5 = $puck_1.Iterator[$puck_2.type].next.call($puck_2);

@@ -59,6 +59,7 @@ export enum Expression {
   BooleanLiteral(BooleanLiteral)
   ListLiteral(ListLiteral)
   NumberLiteral(NumberLiteral)
+  RangeLiteral(RangeLiteral)
   RecordLiteral(RecordLiteral)
   StringLiteral(StringLiteral)
   TupleLiteral(TupleLiteral)
@@ -183,6 +184,7 @@ impl Expression {
       Expression::BooleanLiteral(e) => e->type_.transmute()
       Expression::ListLiteral(e) => e->type_.transmute()
       Expression::NumberLiteral(e) => e->type_.transmute()
+      Expression::RangeLiteral(e) => e->type_.transmute()
       Expression::RecordLiteral(e) => e->type_.transmute()
       Expression::StringLiteral(e) => e->type_.transmute()
       Expression::TupleLiteral(e) => e->type_.transmute()
@@ -218,6 +220,7 @@ impl ToSpan for Expression {
       Expression::BooleanLiteral(e) => e.start()
       Expression::ListLiteral(e) => e.start()
       Expression::NumberLiteral(e) => e.span.start
+      Expression::RangeLiteral(e) => e.start()
       Expression::RecordLiteral(e) => e.start()
       Expression::StringLiteral(e) => e.start()
       Expression::TupleLiteral(e) => e.start()
@@ -250,6 +253,7 @@ impl ToSpan for Expression {
       Expression::BooleanLiteral(e) => e.end()
       Expression::ListLiteral(e) => e.end()
       Expression::NumberLiteral(e) => e.span.end
+      Expression::RangeLiteral(e) => e.end()
       Expression::RecordLiteral(e) => e.end()
       Expression::StringLiteral(e) => e.end()
       Expression::TupleLiteral(e) => e.end()
@@ -889,6 +893,19 @@ export type NumberLiteral {
 
 impl ToSpan for NumberLiteral {
   fn span(self) -> Span {self.span}
+}
+
+export type RangeLiteral {
+  start: Expression
+  dotDotToken: SimpleToken
+  end: Expression
+}
+
+impl ToSpan for RangeLiteral {
+  fn span(self) -> Span {{
+    start: self.start.start()
+    end: self.end.end()
+  }}
 }
 
 export type RecordLiteral {

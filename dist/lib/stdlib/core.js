@@ -669,7 +669,7 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
-IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:Range"] = {
+IntoIterator["$impl_IntoIterator$Range"] = {
 iter: function () {
   const self = this;
   const iterator = {

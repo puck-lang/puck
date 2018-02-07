@@ -495,6 +495,20 @@ function parse(input, file, recover = false) {
       return expression;
     };
   };
+  function maybeRangeLiteral(expression) {
+    if (isToken($puck_5.SyntaxKind.DotDotToken)) {
+      const dotDotToken = consumeToken($puck_5.SyntaxKind.DotDotToken);
+      const end = parseExpression();
+      return $puck_3.Expression.RangeLiteral({
+        start: expression,
+        dotDotToken: dotDotToken,
+        end: end,
+      });
+    }
+    else {
+      return expression;
+    };
+  };
   function delimited(start, stop, separator, parser, consumeStop) {
     let parts = [];
     let first = true;
@@ -639,7 +653,7 @@ function parse(input, file, recover = false) {
     };
   };
   function parseExpression(precedence = 0, forceTuple = false) {
-    return maybeCall(maybeAccess(maybeBinary(parseAtom(forceTuple), precedence)));
+    return maybeRangeLiteral(maybeCall(maybeAccess(maybeBinary(parseAtom(forceTuple), precedence))));
   };
   function parseAtom(forceTuple = false) {
     let $puck_32 = $puck_7.TokenStream.peek.call(input);
