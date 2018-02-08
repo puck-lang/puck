@@ -27,7 +27,7 @@ export fn createImport(binding: String, importingModule: Module, importedModule:
     _ => None
   }).toList()
 
-  if let Some(import_) = imports.find(|d| d.domain.mapOr(d.path, |domain| '$domain:' + d.path) == path) {
+  if let Some(import_) = imports.find(|d| d.domain.mapOr(d.path, |domain| '$domain:' ++ d.path) == path) {
     match import_.specifier {
       ImportSpecifier::ObjectDestructure(o) => {
         let index = o.members.binarySearchBy(|m| m.local.name.cmp(binding)).unwrapErr()

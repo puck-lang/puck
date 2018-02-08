@@ -11,12 +11,12 @@ if z {a()} else {b()}
 let q1 = if z then true
 let q2 = if z then true else false
 let q3 = if z then if z % 2 then 1 else 2 else 3
-let q4 = if z then z / 2 else b(z)
-let q5 = if z {z / 2} else {b(z)}
+let q4 = if z then z / 2 else a(z)
+let q5 = if z {z / 2} else {a(z)}
 let q6 =
   if z {
     let x = z / 2
-    let y = if z < 0 then -z else a(z) + b(z)
+    let y = if z < 0 then -z else a(z) + a(z)
     a(x ** y)
   }
   else if z == 0 {
@@ -32,17 +32,17 @@ fn c() {
 }
 
 fn d() {
-  if z then z / 2 else b(z)
+  if z then z / 2 else a(z)
 }
 
 fn e() {
-  if z {z / 2} else {b(z)}
+  if z {z / 2} else {a(z)}
 }
 
 fn g() {
   if z {
     let x = z / 2
-    let y = if z < 0 then -z else a(z) + b(z)
+    let y = if z < 0 then -z else a(z) + a(z)
     a(x ** y)
   }
   else if z == 0 {
@@ -61,12 +61,12 @@ fn h() {
   let q1 = if z then true
   let q2 = if z then true else false
   let q3 = if z then if z % 2 then 1 else 2 else 3
-  let q4 = if z then z / 2 else b(z)
-  let q5 = if z {z / 2} else {b(z)}
+  let q4 = if z then z / 2 else a(z)
+  let q5 = if z {z / 2} else {a(z)}
   let q6 =
     if z {
       let x = z / 2
-      let y = if z < 0 then -z else a(z) + b(z)
+      let y = if z < 0 then -z else a(z) + a(z)
       a(x ** y)
     }
     else if z == 0 {
@@ -82,17 +82,17 @@ fn h() {
   }
 
   fn d() {
-    if z then z / 2 else b(z)
+    if z then z / 2 else a(z)
   }
 
   fn e() {
-    if z {z / 2} else {b(z)}
+    if z {z / 2} else {a(z)}
   }
 
   fn g() {
     if z {
       let x = z / 2
-      let y = if z < 0 then -z else a(z) + b(z)
+      let y = if z < 0 then -z else a(z) + a(z)
       a(x ** y)
     }
     else if z == 0 {

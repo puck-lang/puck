@@ -16,7 +16,7 @@ import 'typeck/top_level_visitor.puck' as {TopLevelVisitor}
 import 'typeck/type_visitor.puck' as {TypeVisitor}
 import 'entities.puck' as {BuildFile, CompilationError, File}
 
-fn fileInspect(self, depth, opts) {
+fn fileInspect(self, depth: Num, opts: {depth: Num}) {
   inspect(
     Object->assign({}, self, {puck: '[hidden]', ast: '[hidden]', js: '[hidden]', inspect: undefined})
     Object->assign({}, opts, {depth: opts.depth - depth})
@@ -194,7 +194,7 @@ export fn buildString(code: String, filePath: String, projectPath: String, optio
   asResult(|| {
     fn reportError(self, file: File, token: ToSpan, error: CompilationError) {
       let {line, column} = token.span().start
-      throw Error(error.message() + '\n  in ' + file.absolutePath + ' ($line:$column)')
+      throw Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ' ($line:$column)')
     }
     let mut context = CompilerContext.new(projectPath, reportError)
     let mut file = context.importFile({

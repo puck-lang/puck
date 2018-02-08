@@ -1050,7 +1050,7 @@ export type RecordPattern {
 
 impl RecordPattern {
   fn displayName(self) -> String {
-    '{' +
+    '{' ++
       self.properties.map(|p| {
         let shorthand =
           if let Pattern::Identifier {identifier: {name}} = p.pattern
@@ -1059,8 +1059,8 @@ impl RecordPattern {
 
         if shorthand
           then p.property.name
-          else p.property.name + ': ' + p.pattern.displayName()
-      })->join(', ') +
+          else p.property.name ++ ': ' ++ p.pattern.displayName()
+      })->join(', ').transmute::<String>() ++
     '}'
   }
 }
@@ -1096,7 +1096,7 @@ export type TuplePattern {
 
 impl TuplePattern {
   fn displayName(self) -> String {
-    '(' + self.properties.map(|p| p.displayName())->join(', ') + ')'
+    '(' ++ self.properties.map(|p| p.displayName())->join(', ').transmute::<String>() ++ ')'
   }
 }
 

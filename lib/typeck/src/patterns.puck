@@ -63,7 +63,7 @@ export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, typ
       if definitions.has(identifier.name) {
         return Err(PatternError::ScopeError(
           identifier
-          '"' + identifier.name + '" is already defined in this pattern'
+          '"' ++ identifier.name ++ '" is already defined in this pattern'
         ))
       }
       else {

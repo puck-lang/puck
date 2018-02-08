@@ -65,7 +65,7 @@ if (z) {
   $puck_6 = z / 2;
 }
 else {
-  $puck_6 = b(z);
+  $puck_6 = a(z);
 };
 const q4 = $puck_6;
 let $puck_7;
@@ -73,7 +73,7 @@ if (z) {
   $puck_7 = z / 2;
 }
 else {
-  $puck_7 = b(z);
+  $puck_7 = a(z);
 };
 const q5 = $puck_7;
 let $puck_8;
@@ -84,7 +84,7 @@ if (z) {
     $puck_9 = -z;
   }
   else {
-    $puck_9 = a(z) + b(z);
+    $puck_9 = a(z) + a(z);
   };
   const y = $puck_9;
   $puck_8 = a(x ** y);
@@ -115,7 +115,7 @@ function d() {
     return z / 2;
   }
   else {
-    return b(z);
+    return a(z);
   };
 };
 function e() {
@@ -123,7 +123,7 @@ function e() {
     return z / 2;
   }
   else {
-    return b(z);
+    return a(z);
   };
 };
 function g() {
@@ -134,7 +134,7 @@ function g() {
       $puck_12 = -z;
     }
     else {
-      $puck_12 = a(z) + b(z);
+      $puck_12 = a(z) + a(z);
     };
     const y = $puck_12;
     return a(x ** y);
@@ -209,7 +209,7 @@ function h() {
     $puck_17 = z / 2;
   }
   else {
-    $puck_17 = b(z);
+    $puck_17 = a(z);
   };
   const q4 = $puck_17;
   let $puck_18;
@@ -217,7 +217,7 @@ function h() {
     $puck_18 = z / 2;
   }
   else {
-    $puck_18 = b(z);
+    $puck_18 = a(z);
   };
   const q5 = $puck_18;
   let $puck_19;
@@ -228,7 +228,7 @@ function h() {
       $puck_20 = -z;
     }
     else {
-      $puck_20 = a(z) + b(z);
+      $puck_20 = a(z) + a(z);
     };
     const y = $puck_20;
     $puck_19 = a(x ** y);
@@ -259,7 +259,7 @@ function h() {
       return z / 2;
     }
     else {
-      return b(z);
+      return a(z);
     };
   };
   function e() {
@@ -267,7 +267,7 @@ function h() {
       return z / 2;
     }
     else {
-      return b(z);
+      return a(z);
     };
   };
   return function g() {
@@ -278,7 +278,7 @@ function h() {
         $puck_23 = -z;
       }
       else {
-        $puck_23 = a(z) + b(z);
+        $puck_23 = a(z) + a(z);
       };
       const y = $puck_23;
       return a(x ** y);

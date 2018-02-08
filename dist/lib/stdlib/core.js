@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.RegExp = exports.Bool = exports.Num = exports.String = exports.List = exports.Range = exports.ObjectMap = exports.JsIterator = exports.Map = exports.Entry = exports.Set = exports.Radix = exports.Result = exports.Option = exports.Ordering = exports.Never = exports.IntoIterator = exports.Iterator = exports.Iterable = exports.Index = exports.PartialEq = exports.PartialOrd = exports.Ord = exports.Unknown = exports.identical = exports.Ok = exports.Err = exports.Some = exports.None = exports.print = exports.panic = undefined;
+exports.RegExp = exports.Bool = exports.Num = exports.String = exports.List = exports.Range = exports.ObjectMap = exports.JsIterator = exports.Map = exports.Entry = exports.Set = exports.Radix = exports.Result = exports.Option = exports.Ordering = exports.Never = exports.Add = exports.Sub = exports.Mul = exports.Div = exports.Rem = exports.Pow = exports.Concat = exports.IntoIterator = exports.Iterator = exports.Iterable = exports.Index = exports.PartialEq = exports.PartialOrd = exports.Ord = exports.Unknown = exports.identical = exports.Ok = exports.Err = exports.Some = exports.None = exports.print = exports.panic = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/js");
 const js = require("./core/js.js");
 const $puck_2 = require("./core/unknown");
@@ -43,6 +43,27 @@ Equal: {kind: 'Equal', value: Symbol('Equal')},
 Greater: {kind: 'Greater', value: Symbol('Greater')},
 };
 var Never = exports.Never = {
+
+};
+var Add = exports.Add = {
+
+};
+var Sub = exports.Sub = {
+
+};
+var Mul = exports.Mul = {
+
+};
+var Div = exports.Div = {
+
+};
+var Rem = exports.Rem = {
+
+};
+var Pow = exports.Pow = {
+
+};
+var Concat = exports.Concat = {
 
 };
 var IntoIterator = exports.IntoIterator = {
@@ -301,10 +322,52 @@ ge: function (other) {
 var Ord = exports.Ord = {
 
 };
+Add["$impl_Add$Num"] = {
+add: function (rhs) {
+  const self = this;
+  return self + rhs;
+}
+};
+Sub["$impl_Sub$Num"] = {
+sub: function (rhs) {
+  const self = this;
+  return self - rhs;
+}
+};
+Mul["$impl_Mul$Num"] = {
+mul: function (rhs) {
+  const self = this;
+  return self * rhs;
+}
+};
+Div["$impl_Div$Num"] = {
+div: function (rhs) {
+  const self = this;
+  return self / rhs;
+}
+};
+Rem["$impl_Rem$Num"] = {
+rem: function (rhs) {
+  const self = this;
+  return self % rhs;
+}
+};
+Pow["$impl_Pow$Num"] = {
+pow: function (rhs) {
+  const self = this;
+  return self ** rhs;
+}
+};
+Concat["$impl_Concat$String"] = {
+concat: function (rhs) {
+  const self = this;
+  return (self + rhs);
+}
+};
 Iterator["$impl_Iterator$lib/stdlib/core.puck:StringIterator"] = {
 next: function () {
   let self = this;
-  if (self.value.index < String.size.call(self.value.string)) {
+  if ((self.value.index < String.size.call(self.value.string))) {
     const char = $unwrapTraitObject(self.value.string.charAt(self.value.index));
     self.value.index += 1;
     return Option.Some(char);
@@ -344,9 +407,15 @@ index: function (index) {
     panic("index out of bounds: index must be positive but is " + index + "");
   };
   if (index >= String.size.call(self.value)) {
-    panic("index out of bounds: the length is " + String.size.call(self.value) + " but the index is " + index + "");
+    panic("index out of bounds: the length is " + Num.toString.call(String.size.call(self.value)) + " but the index is " + index + "");
   };
   return $unwrapTraitObject(self.value.charAt(index));
+}
+};
+Concat["$impl_Concat$List"] = {
+concat: function (rhs) {
+  const self = this;
+  return $unwrapTraitObject(self.value.concat(rhs));
 }
 };
 Iterator["$impl_Iterator$lib/stdlib/core.puck:MapIterator"] = {
@@ -686,7 +755,7 @@ index: function (index) {
     panic("index out of bounds: index must be positive but is " + index + "");
   };
   if (index >= Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self)) {
-    panic("index out of bounds: the length is " + Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self) + " but the index is " + index + "");
+    panic("index out of bounds: the length is " + Num.toString.call(Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self)) + " but the index is " + index + "");
   };
   return $unwrapTraitObject(self.value[$unwrapTraitObject(index)]);
 }
@@ -952,6 +1021,10 @@ Num.cmp = function (other) {
       return Ordering.Equal;
     };
   };
+};
+Num.toString = function () {
+  const self = this;
+  return $unwrapTraitObject(self.toString());
 };
 String.size = function () {
   const self = this;
@@ -1432,7 +1505,8 @@ List.binarySearchBy = function (f) {
     if ((max < min)) {
       return Err(min);
     };
-    let guess = (min + max) / 2;
+    const range = min + max;
+    let guess = range / 2;
     guess = Num.floor.call(guess);
     let $puck_59 = f($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self, $isTraitObject: true}, guess)));
     if (($puck_59.kind === "Equal")) {

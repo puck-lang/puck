@@ -66,3 +66,6 @@ let rf5 = 0 ** 0;
 let rf6 = b ** 0;
 let rf7 = 0 ** b;
 let rf8 = b ** b;
+
+// operator ++
+let rg1 = 'a' ++ 'b'

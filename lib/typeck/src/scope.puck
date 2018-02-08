@@ -91,14 +91,14 @@ impl Scope {
         Option::Some(previous) => {
           if previous.allowRedeclare
             then Some(previous)
-            else return Err(binding.name + ' is already defined')
+            else return Err(binding.name ++ ' is already defined')
         }
         Option::None => {
           if useParentScope {
             if let Some(previous) = self.parent.andThen(|p| p.bindings.get(binding.name)) {
               if previous.allowRedeclare
                 then Some(previous)
-                else return Err(binding.name + ' is already defined')
+                else return Err(binding.name ++ ' is already defined')
             }
             else None
           }

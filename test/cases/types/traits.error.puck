@@ -146,11 +146,11 @@ a.withBody('body')
 import 'traits.puck' as {Generic, GenericType}
 
 export trait GenericSelf<T> {
-  fn generic(self, a: GenericSelf<T>) -> T
+  fn generic(self, a: T) -> T
 }
 
 impl<T> GenericSelf<T> for GenericType<T> {
-  fn generic(self, a: GenericSelf<T>) -> GenericSelf<T> {a}
+  fn generic(self, a: T) -> GenericSelf<T> {a}
 }
 
 let genericNum: GenericType<Num> = {}

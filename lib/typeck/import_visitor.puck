@@ -34,7 +34,7 @@ export fn ImportVisitor(mut context: CompilerContext, file: File) {
             o.members.forEach(|m| {
               if not module.exports.has(m.property.name)
                 then context.reportError(file, m,
-                  CompilationError::Other(importedFile.fileName + ' has no export named ' + m.property.name)
+                  CompilationError::Other(importedFile.fileName ++ ' has no export named ' ++ m.property.name)
                 )
             })
           }
@@ -87,13 +87,13 @@ export fn ImportVisitor(mut context: CompilerContext, file: File) {
         Some(domain) => {
           if domain == 'puck' {
             if not puckModules.contains(i.path)
-              then return context.reportError(file, i, CompilationError::Other('Invalid puck module ' + i.path))
+              then return context.reportError(file, i, CompilationError::Other('Invalid puck module ' ++ i.path))
             let mut importedFile = context.resolvePath(
               path->join(
                 path->dirname(require->resolve('puck-lang/package.json'))
                 'lib'
                 'stdlib'
-                i.path + '.puck'
+                i.path ++ '.puck'
               ).transmute::<String>()
               file
             )
@@ -118,7 +118,7 @@ export fn ImportVisitor(mut context: CompilerContext, file: File) {
                   then importModule(i, importedFile)
               }
               Err(error) => return context.reportError(file, i,
-                CompilationError::Other('Imported file package:' + i.path + ' not found')
+                CompilationError::Other('Imported file package:' ++ i.path ++ ' not found')
               )
             }
           }
@@ -134,7 +134,7 @@ export fn ImportVisitor(mut context: CompilerContext, file: File) {
                 then importModule(i, importedFile)
             }
             Err(error) => return context.reportError(file, i,
-              CompilationError::Other('Imported file ' + i.path + ' not found')
+              CompilationError::Other('Imported file ' ++ i.path ++ ' not found')
             )
           }
         }

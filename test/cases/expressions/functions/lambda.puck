@@ -1,4 +1,4 @@
-let a = |a, b| a + b
+let a = |a: Num, b: Num| a + b
 let b = || a(1, 2)
 let c = |a, b| {
   if a then b()

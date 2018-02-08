@@ -313,7 +313,7 @@ fn getScopeCompletions(node) -> List<Completion> {
               _ => binding.type_.displayName()
             }
         {
-          label: binding.name + ': $typeName'
+          label: binding.name ++ ': $typeName'
           kind: CompletionItemKind.Text
           insertText: binding.name
           insertTextFormat: InsertTextFormat.PlainText
@@ -328,7 +328,7 @@ fn getTraitImplCompletions(trait_: Trait) {
   trait_.functions
     .toList()
     .map(|(name, type_): (String, Type)| {
-      let signature = name + type_.verboseName()
+      let signature = name ++ type_.verboseName()
       {
         label: signature
         kind: CompletionItemKind.Method

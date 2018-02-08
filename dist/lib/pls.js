@@ -488,7 +488,7 @@ function createServer(projectPath, sendDiagnostic, applyEdit) {
           const edit = $puck_7.createImport(name, importingModule, importedModule);
           $puck_1.print("edit", edit);
           let changes = $puck_1.ObjectMap._new();
-          changes[$unwrapTraitObject($puck_6.toUri(importingPath))] = [edit];
+          changes[$puck_6.toUri(importingPath)] = [edit];
           $puck_1.print("changes", changes);
           $puck_68 = applyEdit({changes: [{
             textDocument: {uri: $puck_6.toUri(importingPath)},

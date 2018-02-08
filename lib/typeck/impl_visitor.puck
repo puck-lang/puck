@@ -45,7 +45,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
   let traitName = traitType.displayName()
 
   if implementable.implementations.any(|imp| isSameType(imp.trait_, traitType))
-    then reportError(i, '$traitName has already been implemented for ' + type_.displayName())
+    then reportError(i, '$traitName has already been implemented for ' ++ type_.displayName())
 
   let functions = ObjectMap.fromIter(
     i.members.map(|functionDeclaration| {
@@ -58,7 +58,7 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
   traitFunctions.forEach(|(name, traitFunctionType)| {
     let traitFunction = traitFunctionType.getFunction()
     if traitFunction.isAbstract and not functions.has(name)
-      then reportError(i, 'Function $traitName::$name is not implemented for ' + type_.displayName())
+      then reportError(i, 'Function $traitName::$name is not implemented for ' ++ type_.displayName())
   })
 
   i.members.forEach(|functionDeclaration| {
@@ -150,7 +150,7 @@ export fn ImplVisitor(mut context: CompilerContext, file: File) {
   let mut importDirective: ImportDirective
 
   fn getImplId(type_: Type, trait_: Type) {
-    let mut id = '\$impl_' + type_.id.unwrap() + '\$' + trait_.id.unwrap()
+    let mut id = '\$impl_' ++ type_.id.unwrap() ++ '\$' ++ trait_.id.unwrap()
     if let Some(count) = context.impls.get(id) {
       context.impls.set(id, count + 1)
       id = '$id\$$count'
@@ -203,12 +203,12 @@ export fn ImplVisitor(mut context: CompilerContext, file: File) {
             implementTrait(traitType, trait_, structType, s, i, reportError, id)
           }
           _ => context.reportError(file, i.type_,
-            CompilationError::Other(structType.displayName() + ' is not a struct or an enum')
+            CompilationError::Other(structType.displayName() ++ ' is not a struct or an enum')
           )
         }
       }
       else context.reportError(file, i.trait_,
-        CompilationError::Other(traitType.displayName() + ' is not a trait')
+        CompilationError::Other(traitType.displayName() ++ ' is not a trait')
       )
 
       self.scope = parentScope
@@ -234,7 +234,7 @@ export fn ImplVisitor(mut context: CompilerContext, file: File) {
           implementShorthand(structType, s, i, reportError)
         }
         _ => context.reportError(file, i.type_,
-          CompilationError::Other(structType.displayName() + ' is not a struct or an enum')
+          CompilationError::Other(structType.displayName() ++ ' is not a struct or an enum')
         )
       }
 

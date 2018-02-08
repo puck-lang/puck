@@ -54,5 +54,5 @@ export fn fromUri(uri: String) {
 }
 
 export fn toUri(path: String) {
-  'file://' + global->encodeURI(path)
+  'file://' ++ global->encodeURI(path).transmute::<String>()
 }

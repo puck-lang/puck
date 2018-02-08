@@ -155,7 +155,7 @@ function fileInspect(depth, opts) {
     ast: "[hidden]",
     js: "[hidden]",
     inspect: $puck_2._undefined,
-  }), $puck_2._Object.assign({}, opts, {depth: $unwrapTraitObject(opts).depth - depth}));
+  }), $puck_2._Object.assign({}, opts, {depth: opts.depth - depth}));
 };
 function parseString(context, file, recoverFromSyntaxErrors = false) {
   let ast = $puck_7.parse($puck_8.TokenStream._new($puck_6.InputStream._new(context, file)), file, recoverFromSyntaxErrors);

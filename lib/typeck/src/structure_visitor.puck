@@ -47,7 +47,7 @@ import 'scope.puck' as {Scope, ScopeError}
 import 'types.puck' as {createTypeInstance, isAssignable}
 
 export fn notAssignableError(to: Type, subject: Type) {
-  subject.displayName() + ' is not assignable to type ' + to.displayName()
+  subject.displayName() ++ ' is not assignable to type ' ++ to.displayName()
 }
 
 export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
@@ -225,7 +225,7 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
           }
         }
         else if t.typeParameters.size() > 0
-          then reportError(t, 'Type ' + type_.displayName() + ' is not generic')
+          then reportError(t, 'Type ' ++ type_.displayName() ++ ' is not generic')
       }
 
       visit.walkNamedTypeBound(self, t)
@@ -360,7 +360,7 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
     })
     d->type_ = type_
     if not isAssignable(d.pattern->type_.transmute(), type_)
-      then return reportError(d.pattern, type_.displayName() + ' is not assignable to pattern ' + d.pattern.displayName())
+      then return reportError(d.pattern, type_.displayName() ++ ' is not assignable to pattern ' ++ d.pattern.displayName())
 
     let mut scope: Scope = self.scope
     let mut childScope =

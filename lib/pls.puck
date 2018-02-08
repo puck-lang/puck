@@ -74,10 +74,10 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
   }
   a->validateDocument = fn (filePath: String, contents: String, skipSyntaxErrors: Bool) {
     print('validateDocument')
-    let startTime = Date->now()
+    let startTime = Date->now().transmute::<Num>()
 
     let result = asResult(|| {
-      let startTime = Date->now()
+      let startTime = Date->now().transmute::<Num>()
       let mut file = File({
         isBin: false
         fileName: path->basename(filePath).transmute()
@@ -89,7 +89,7 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
       })
       file = context.importFile(file, true, skipSyntaxErrors)
 
-      let parseTime = Date->now() - startTime
+      let parseTime = Date->now().transmute::<Num>() - startTime
       print('Parse time $parseTime')
 
       if let Some(d) = diagnostics.get(filePath) {
@@ -97,16 +97,16 @@ export fn createServer(projectPath: String, sendDiagnostic: (String, Diagnostic)
         dm.clear()
       }
       context.runTypeVisitor()
-      let typeVisitorTime = Date->now() - startTime - parseTime
+      let typeVisitorTime = Date->now().transmute::<Num>() - startTime - parseTime
       print('Type visitor time $typeVisitorTime')
       context.runImplVisitor()
-      let implVisitorTime = Date->now() - startTime - parseTime - typeVisitorTime
+      let implVisitorTime = Date->now().transmute::<Num>() - startTime - parseTime - typeVisitorTime
       print('Impl visitor time $implVisitorTime')
       context.runCheckerOnFile(file)
-      let scopeVisitorTime = Date->now() - startTime - parseTime - typeVisitorTime - implVisitorTime
+      let scopeVisitorTime = Date->now().transmute::<Num>() - startTime - parseTime - typeVisitorTime - implVisitorTime
       print('Scope visitor time $scopeVisitorTime')
     })
-    let totalTime = Date->now() - startTime
+    let totalTime = Date->now().transmute::<Num>() - startTime
     print('Total time $totalTime')
     print('validateDocument completed')
 
