@@ -113,8 +113,10 @@ fn getFoodTuple() -> (Food, Num) {
   return (Apple({}), 0)
 }
 
-// TODO: Make this work by resolving
-// the type parameters from the turn value
-// fn getFoodGeneric() -> Option<Food> {
-//   return Some(Apple({}))
-// }
+fn getFoodGeneric() -> Option<Food> {
+  Some(Apple({}))
+}
+
+fn getFoodGenericReturn() -> Option<Food> {
+  return Some(Apple({}))
+}

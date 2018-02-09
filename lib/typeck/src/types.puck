@@ -169,7 +169,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
   instance
 }
 
-fn isSameId(to: Type, subject: Type) {
+export fn isSameId(to: Type, subject: Type) {
   match (to.id, subject.id) {
     (Some(toId), Some(subjectId)) => toId == subjectId
     _ => true
@@ -195,7 +195,7 @@ fn checkTypeParameters(to: Type, subject: Type) {
   }
 }
 
-export fn isAssignable(to: Type, subject: Type) {
+export fn isAssignable(to: Type, subject: Type) -> Bool {
   _isAssignable(to, subject, Map.new())
 }
 

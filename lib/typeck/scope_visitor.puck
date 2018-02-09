@@ -72,7 +72,11 @@ import '../compiler.puck' as {CompilerContext}
 import '../ast/token.puck' as {SyntaxKind}
 import '../ast/visit.puck' as visit
 import 'src/enums.puck' as {checkExhaustive}
-import 'src/functions.puck' as {checkFunctionCall, resolveFunctionTypeParameters}
+import 'src/functions.puck' as {
+  checkFunctionCall
+  resolveFunctionTypeParameters
+  resolveFunctionTypeParametersByReturnValue
+}
 import 'src/impls.puck' as {getImplementation, getImplementationForTrait, getImplementationForTraitCall, resolveImplTypeParameters}
 import 'src/patterns.puck' as {PatternError, declarePatternVariables}
 import 'src/range.puck' as {checkRange}
@@ -241,7 +245,9 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
 
       r->type_ = Type.never({file, token: r})
 
-      if let Some(returnType) = self.functionContext.returnType {
+      let returnType: Option<Type> = self.functionContext.returnType
+
+      if let Some(returnType) = returnType {
         self.visitExpression(r.expression, returnType)
         if not isAssignable(returnType, r.expression.getType())
           then reportError(r.expression, notAssignableError(returnType, r.expression.getType()))
@@ -742,6 +748,15 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
         let mut callParameterMap: ObjectMap<Type> = ObjectMap.new()
         let mut functionKind = functionType.getFunction()
         let resolveParameter = resolveTypeParameters(callParameterMap, false)
+
+        if self.assignedTo and functionKind.returnType {
+          resolveFunctionTypeParametersByReturnValue(
+            callParameterMap
+            callTypeParameters
+            functionKind.returnType
+            self.assignedTo
+          )
+        }
 
         e.argumentList.enumerate()
           // If too many arguments are passed e.argumentList will be longer than functionKind.parameters

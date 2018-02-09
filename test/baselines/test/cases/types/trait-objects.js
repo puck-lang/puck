@@ -155,4 +155,10 @@ function getFoodTuple() {
     {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: Apple({}), $isTraitObject: true},
     0,
   ];
+};
+function getFoodGeneric() {
+  return $puck_1.Some({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: Apple({}), $isTraitObject: true});
+};
+function getFoodGenericReturn() {
+  return $puck_1.Some({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: Apple({}), $isTraitObject: true});
 }
