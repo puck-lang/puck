@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.isPatternMutable = exports.createFunctionType = exports.checkFunctionAssignability = exports.checkFunctionCall = exports.resolveFunctionTypeParameters = undefined;
+exports.isPatternMutable = exports.createFunctionType = exports.checkFunctionAssignability = exports.checkFunctionCall = exports.resolveFunctionTypeParametersByReturnValue = exports.resolveFunctionTypeParameters = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("./../../ast/ast");
@@ -207,9 +207,6 @@ function checkFunctionAssignability(functionName, to, subject) {
 };
 exports.checkFunctionAssignability = checkFunctionAssignability;
 function checkFunctionCall(functionType, c) {
-  function toSpan(span) {
-    return span;
-  };
   if ((!functionType)) {
     return $puck_1.Ok($unwrapTraitObject($puck_2._undefined));
   };
@@ -217,20 +214,17 @@ function checkFunctionCall(functionType, c) {
   let $puck_25;
   if ($puck_24.kind === "Identifier") {
     let {value: i} = $puck_24;
-    $puck_25 = $puck_1.Some(i.name);
+    $puck_25 = i.name;
   }
   else {
     let $puck_26;
     if (true) {
       $puck_24;
-      $puck_26 = $puck_1.None;
+      $puck_26 = $puck_6.Type.displayName.call(functionType);
     };
     $puck_25 = $puck_26;
   };
-  const namei = $puck_25;
-  const name = $puck_1.Option.unwrapOrElse.call(namei, function () {
-    return $puck_6.Type.displayName.call(functionType);
-  });
+  const name = $puck_25;
   let $puck_27 = functionType.kind;
   let $puck_28;
   if ($puck_27.kind === "Function") {
@@ -242,7 +236,7 @@ function checkFunctionCall(functionType, c) {
     if (true) {
       $puck_27;
       return $puck_1.Err([
-        toSpan({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: c, $isTraitObject: true}),
+        {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: c, $isTraitObject: true},
         "" + name + " is not callable",
       ]);
     };
@@ -257,7 +251,7 @@ function checkFunctionCall(functionType, c) {
         return binding.mutable;
       }))) {
         return $puck_1.Err([
-          toSpan({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: c, $isTraitObject: true}),
+          {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: c, $isTraitObject: true},
           "" + name + " can only be called on a mutable binding",
         ]);
       };
@@ -267,7 +261,7 @@ function checkFunctionCall(functionType, c) {
   if ($puck_31.kind === "Err") {
     let {value: error} = $puck_31;
     return $puck_1.Err([
-      toSpan({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: c, $isTraitObject: true}),
+      {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: c, $isTraitObject: true},
       error,
     ]);
   };
@@ -283,14 +277,14 @@ function checkFunctionCall(functionType, c) {
       if ($puck_34.kind === "Err") {
         let {value: error} = $puck_34;
         return $puck_1.Err([
-          toSpan({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeArguments', value: t, $isTraitObject: true}),
+          {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeArguments', value: t, $isTraitObject: true},
           error,
         ]);
       };
     }
     else {
       return $puck_1.Err([
-        toSpan({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeArguments', value: t, $isTraitObject: true}),
+        {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeArguments', value: t, $isTraitObject: true},
         "Type " + $puck_6.Type.displayName.call(functionType) + " is not generic",
       ]);
     };
@@ -307,7 +301,7 @@ function checkFunctionCall(functionType, c) {
       const parameterName = parameter.name;
       if ((!$puck_9.isAssignable(parameter.type_, $puck_3.Expression.getType.call(argument)))) {
         return $puck_1.Err([
-          toSpan({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: argument, $isTraitObject: true}),
+          {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: argument, $isTraitObject: true},
           $puck_10.notAssignableError(parameter.type_, $puck_3.Expression.getType.call(argument)) + " in parameter " + parameterName + " of function " + name + "",
         ]);
       };
@@ -318,7 +312,7 @@ function checkFunctionCall(functionType, c) {
           const argumentName = argumentBinding.name;
           if ((!argumentBinding.mutable)) {
             return $puck_1.Err([
-              toSpan({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: argument, $isTraitObject: true}),
+              {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: argument, $isTraitObject: true},
               "Parameter " + parameterName + " of function " + name + " requires a mutable binding " + "but " + argumentName + " is declared as immutable.",
             ]);
           };
@@ -332,13 +326,45 @@ function checkFunctionCall(functionType, c) {
   return $puck_1.Ok(_function);
 };
 exports.checkFunctionCall = checkFunctionCall;
+function resolveFunctionTypeParametersByReturnValue(parameterMap, typeParameters, returnType, assignedTo) {
+  if (($puck_9.isSameId(returnType, assignedTo) && $puck_9.isAssignable(assignedTo, returnType))) {
+    let $puck_41 = [
+      $puck_6.Type.typeParameters.call(returnType),
+      $puck_6.Type.typeParameters.call(assignedTo),
+    ];
+    if ($puck_41[0] !== undefined && $puck_41[1] !== undefined) {
+      let [returnTypeTypeParameters, assignedToTypeParameters] = $puck_41;
+      let $puck_42 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: returnTypeTypeParameters, $isTraitObject: true})
+;
+      return $puck_1.Iterable[$puck_42.type].forEach.call($puck_42, function ([i, returnTypeTypeParameter]) {
+        let $puck_43 = $puck_1.List.get.call(assignedToTypeParameters, i);
+        if ($puck_43 !== undefined) {
+          let assignedToTypeParameter = $puck_43;
+          if (($puck_6.Type.isParameter.call(returnTypeTypeParameter) && !$puck_6.Type.isParameter.call(assignedToTypeParameter))) {
+            const name = $puck_1.Option.unwrap.call(returnTypeTypeParameter.name);
+            if (!$puck_1.ObjectMap.has.call(parameterMap, name)) {
+              return $puck_1.ObjectMap.set.call(parameterMap, name, assignedToTypeParameter);
+            };
+          };
+        };
+      });
+    }
+    else {
+      if (true) {
+        let $puck_44 = $puck_41;;
+        return $puck_44;
+      };
+    };
+  };
+};
+exports.resolveFunctionTypeParametersByReturnValue = resolveFunctionTypeParametersByReturnValue;
 function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType, allowedToFollowFunction = true) {
   if ((!parameterType || !argumentType || $puck_6.Type.isNever.call(argumentType))) {
     return undefined;
   };
-  let $puck_41 = parameterType.kind;
-  if ($puck_41.kind === "Parameter") {
-    $puck_41;
+  let $puck_45 = parameterType.kind;
+  if ($puck_45.kind === "Parameter") {
+    $puck_45;
     const name = $puck_1.Option.unwrap.call(parameterType.name);
     if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: typeParameters, $isTraitObject: true}, function (p) {
       return $puck_1.Option.unwrap.call(p.name) === name;
@@ -349,36 +375,36 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
     };
   }
   else {
-    if ($puck_41.kind === "Struct") {
-      let {value: struct} = $puck_41;
+    if ($puck_45.kind === "Struct") {
+      let {value: struct} = $puck_45;
       if ((!$puck_1.Option.isSome.call(parameterType.id))) {
-        let $puck_42 = struct.kind;
-        if ($puck_42.kind === "Record") {
-          let {value: parameterRecord} = $puck_42;
-          let $puck_43 = argumentType.kind;
-          if (($puck_43.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_43.value).kind).kind === "Record")) {
-            let {value: {kind: {value: argumentRecord}}} = $puck_43;
+        let $puck_46 = struct.kind;
+        if ($puck_46.kind === "Record") {
+          let {value: parameterRecord} = $puck_46;
+          let $puck_47 = argumentType.kind;
+          if (($puck_47.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_47.value).kind).kind === "Record")) {
+            let {value: {kind: {value: argumentRecord}}} = $puck_47;
             $puck_1.ObjectMap.forEach.call(parameterRecord.properties, function ([name, {type_: parameterType}]) {
-              let $puck_44 = $puck_1.ObjectMap.get.call(argumentRecord.properties, name);
-              if ($puck_44 !== undefined) {
-                let {type_: argumentType} = $puck_44;
+              let $puck_48 = $puck_1.ObjectMap.get.call(argumentRecord.properties, name);
+              if ($puck_48 !== undefined) {
+                let {type_: argumentType} = $puck_48;
                 return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType);
               };
             });
           };
         }
         else {
-          if ($puck_42.kind === "Tuple") {
-            let {value: parameterTuple} = $puck_42;
-            let $puck_45 = argumentType.kind;
-            if (($puck_45.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_45.value).kind).kind === "Tuple")) {
-              let {value: {kind: {value: argumentTuple}}} = $puck_45;
-              let $puck_46 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameterTuple.properties, $isTraitObject: true})
+          if ($puck_46.kind === "Tuple") {
+            let {value: parameterTuple} = $puck_46;
+            let $puck_49 = argumentType.kind;
+            if (($puck_49.kind === "Struct" && $unwrapTraitObject($unwrapTraitObject($puck_49.value).kind).kind === "Tuple")) {
+              let {value: {kind: {value: argumentTuple}}} = $puck_49;
+              let $puck_50 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameterTuple.properties, $isTraitObject: true})
 ;
-              $puck_1.Iterable[$puck_46.type].forEach.call($puck_46, function ([i, parameterType]) {
-                let $puck_47 = $puck_1.List.get.call(argumentTuple.properties, i);
-                if ($puck_47 !== undefined) {
-                  let argumentType = $puck_47;
+              $puck_1.Iterable[$puck_50.type].forEach.call($puck_50, function ([i, parameterType]) {
+                let $puck_51 = $puck_1.List.get.call(argumentTuple.properties, i);
+                if ($puck_51 !== undefined) {
+                  let argumentType = $puck_51;
                   return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType);
                 };
               });
@@ -386,19 +412,19 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
           }
           else {
             if (true) {
-              $puck_42;
+              $puck_46;
             };
           };
         };
       };
     }
     else {
-      if ($puck_41.kind === "Function") {
-        let {value: parameterFunction} = $puck_41;
+      if ($puck_45.kind === "Function") {
+        let {value: parameterFunction} = $puck_45;
         if ((allowedToFollowFunction && parameterFunction.returnType)) {
-          let $puck_48 = argumentType.kind;
-          if ($puck_48.kind === "Function") {
-            let {value: argumentFunction} = $puck_48;
+          let $puck_52 = argumentType.kind;
+          if ($puck_52.kind === "Function") {
+            let {value: argumentFunction} = $puck_52;
             if (argumentFunction.returnType) {
               resolveFunctionTypeParameters(parameterMap, typeParameters, parameterFunction.returnType, argumentFunction.returnType);
             };
@@ -407,31 +433,31 @@ function resolveFunctionTypeParameters(parameterMap, typeParameters, parameterTy
       }
       else {
         if (true) {
-          $puck_41;
+          $puck_45;
         };
       };
     };
   };
-  let $puck_49 = [
+  let $puck_53 = [
     $puck_6.Type.typeParameters.call(parameterType),
     $puck_6.Type.typeParameters.call(argumentType),
   ];
-  if (($puck_49[0] !== undefined && $puck_49[1] !== undefined)) {
-    let [parameterParameters, argumentParameters] = $puck_49;
-    let $puck_50 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameterParameters, $isTraitObject: true})
+  if (($puck_53[0] !== undefined && $puck_53[1] !== undefined)) {
+    let [parameterParameters, argumentParameters] = $puck_53;
+    let $puck_54 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: parameterParameters, $isTraitObject: true})
 ;
-    return $puck_1.Iterable[$puck_50.type].forEach.call($puck_50, function ([i, parameterType]) {
-      let $puck_51 = $puck_1.List.get.call(argumentParameters, i);
-      if ($puck_51 !== undefined) {
-        let argumentType = $puck_51;
+    return $puck_1.Iterable[$puck_54.type].forEach.call($puck_54, function ([i, parameterType]) {
+      let $puck_55 = $puck_1.List.get.call(argumentParameters, i);
+      if ($puck_55 !== undefined) {
+        let argumentType = $puck_55;
         return resolveFunctionTypeParameters(parameterMap, typeParameters, parameterType, argumentType, false);
       };
     });
   }
   else {
     if (true) {
-      let $puck_52 = $puck_49;;
-      return $puck_52;
+      let $puck_56 = $puck_53;;
+      return $puck_56;
     };
   };
 };

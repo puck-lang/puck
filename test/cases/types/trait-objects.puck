@@ -100,3 +100,23 @@ passThroughFood(banana).eat()
 passThroughFood(apple).eat()
 passThroughFood(banana2).eat()
 bananaToFood(banana).eat()
+
+fn getFoodDirect() -> Food {
+  Apple({})
+}
+
+fn getFoodReturn() -> Food {
+  return Apple({})
+}
+
+fn getFoodTuple() -> (Food, Num) {
+  return (Apple({}), 0)
+}
+
+fn getFoodGeneric() -> Option<Food> {
+  Some(Apple({}))
+}
+
+fn getFoodGenericReturn() -> Option<Food> {
+  return Some(Apple({}))
+}

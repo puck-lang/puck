@@ -224,15 +224,24 @@ function ScopeVisitor(context, file) {
   },
     visitReturn: function (r) {
     let self = this;
-    visit.walkReturnStatement(self, r);
-    let $puck_29 = $unwrapTraitObject($unwrapTraitObject(self).functionContext).returnType;
+    if ((!$unwrapTraitObject(self).functionContext)) {
+      reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement', value: r, $isTraitObject: true}, "Return used outside of a function");
+    };
+    r.type_ = $puck_17.Type.never({
+      file: file,
+      token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement', value: r, $isTraitObject: true},
+    });
+    const returnType = $unwrapTraitObject($unwrapTraitObject(self).functionContext).returnType;
+    let $puck_29 = returnType;
     if ($puck_29 !== undefined) {
       let returnType = $puck_29;
-      if ((!$puck_16.isAssignable($unwrapTraitObject(returnType), $puck_4.Expression.getType.call(r.expression)))) {
-        return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: r.expression, $isTraitObject: true}, $puck_14.notAssignableError($unwrapTraitObject(returnType), $puck_4.Expression.getType.call(r.expression)));
+      $unwrapTraitObject(self).visitExpression(r.expression, returnType);
+      if ((!$puck_16.isAssignable(returnType, $puck_4.Expression.getType.call(r.expression)))) {
+        return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: r.expression, $isTraitObject: true}, $puck_14.notAssignableError(returnType, $puck_4.Expression.getType.call(r.expression)));
       };
     }
     else {
+      $unwrapTraitObject(self).visitExpression(r.expression);
       if ($puck_4.Expression.getType.call(r.expression)) {
         return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).functionContext).returnTypes).push($puck_4.Expression.getType.call(r.expression));
       };
@@ -881,6 +890,9 @@ function ScopeVisitor(context, file) {
       let callParameterMap = $puck_1.ObjectMap._new();
       let functionKind = $puck_17.Type.getFunction.call(functionType);
       const resolveParameter = $puck_16.resolveTypeParameters(callParameterMap, false);
+      if (($unwrapTraitObject(self).assignedTo && functionKind.returnType)) {
+        $puck_9.resolveFunctionTypeParametersByReturnValue(callParameterMap, callTypeParameters, functionKind.returnType, $unwrapTraitObject(self).assignedTo);
+      };
       let $puck_70 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.argumentList, $isTraitObject: true})
 ;
       let $puck_69 = $puck_1.Iterable[$puck_70.type].take.call($puck_70, $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: functionKind.parameters, $isTraitObject: true}))

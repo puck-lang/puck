@@ -1404,7 +1404,7 @@ function parse(input, file, recover = false) {
       },
         returnType: $puck_1.None,
         body: $puck_1.Some(mockBlock()),
-        type_: $puck_2._undefined,
+        type_: $unwrapTraitObject($puck_2._undefined),
       };
     };
     const openParenOrBar = expect($puck_5.SyntaxKind.OpenParenToken);

@@ -87,6 +87,7 @@ function Emitter() {
     var typeOverrides = {};
     var includeTraitObjectHelper = false;
     var exportPreamble = [];
+    var functionContext;
     function newValueVariable() {
         valueVarableCount += 1;
         return "$puck_" + valueVarableCount;
@@ -466,7 +467,8 @@ function Emitter() {
             ? fn.traitFunctionType.kind.value.returnType
             : fn.returnType && fn.returnType.value.type_;
         var code = "function " + name + "(" + parameterList.map(emitFunctionParameter).join(', ') + ") ";
-        if (returnType && entities_1.Type.isEmpty && entities_1.Type.isEmpty.call(returnType)) {
+        functionContext = { returnType: returnType };
+        if (returnType && entities_1.Type.isEmpty.call(returnType)) {
             code += emitBlock(body, undefined, returnType);
         }
         else {
@@ -1065,7 +1067,7 @@ function Emitter() {
         return "break";
     }
     function emitReturn(e) {
-        var code = emitExpression(e.expression, Context.Return);
+        var code = emitExpression(e.expression, Context.Return, functionContext.returnType);
         allowReturnContext = false;
         return code;
     }

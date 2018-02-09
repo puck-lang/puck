@@ -103,6 +103,22 @@ Type.unused = function (definition) {
     enumMember: $puck_1.None,
   };
 };
+Type.never = function (definition) {
+  return {
+    definition: definition,
+    id: $puck_1.None,
+    displayName: $puck_1.Some("Never"),
+    name: $puck_1.None,
+    kind: TypeKind.Enum({
+    implementations: [],
+    members: $puck_1.ObjectMap._new(),
+  }),
+    _class: $puck_1.None,
+    instance: $puck_1.None,
+    providesType: $puck_1.None,
+    enumMember: $puck_1.None,
+  };
+};
 Type.displayName = function () {
   const self = this;
   if ((!self)) {

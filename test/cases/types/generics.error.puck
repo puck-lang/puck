@@ -21,14 +21,14 @@ let b: Num = a({a: ''})
 fn a<T>(a: {a: T}, b: T) {a.a}
 a({a: ''}, 2)
 
-///// Option<String> is not assignable to type Option<Num>
+///// String is not assignable to type Num in parameter 0 of function Some
 let a: Option<Num> = Some(true).andValue(Some(''))
 
-///// Option<String> is not assignable to type Option<Num>
+///// (p0: Bool) -> Option<String> is not assignable to type (Bool) -> Option<Num> in parameter op of function andThen
 let a: Option<Num> = Some(true).andThen(|_| Some(''))
 
-///// Option<String> is not assignable to type Option<Bool>
+///// String is not assignable to type Bool in parameter 0 of function Some
 let a: Option<Num> = Some(true).orValue(Some(''))
 
-///// () -> Option<String> is not assignable to type () -> Option<Bool>
+///// () -> Option<String> is not assignable to type () -> Option<Bool> in parameter op of function orElse
 let a: Option<Num> = Some(true).orElse(|| Some(''))

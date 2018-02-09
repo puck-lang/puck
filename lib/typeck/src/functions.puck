@@ -13,7 +13,7 @@ import '../scope_visitor.puck' as {getBinding}
 import '../../entities.puck' as {Definition, File, Function, StructKind, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
 import 'scope.puck' as {Binding, Scope}
-import 'types.puck' as {isAssignable}
+import 'types.puck' as {isAssignable, isSameId}
 import 'structure_visitor.puck' as {notAssignableError}
 
 fn getPatternName(pattern: Pattern) -> Option<String> {
@@ -135,40 +135,36 @@ export fn checkFunctionAssignability(functionName: String, to: Function, subject
 
 
 export fn checkFunctionCall(mut functionType: Type, c: CallExpression) -> Result<Function, (ToSpan, String)> {
-  // FIX: Workaround to force creation of trait objects
-  fn toSpan(span: ToSpan) {span}
-
   if not functionType then return Ok(undefined)
-  let namei: Option<String> =
+  let name =
     match c.func {
-      Expression::Identifier(i) => Some(i.name)
-      _ => None
+      Expression::Identifier(i) => i.name
+      _ => functionType.displayName()
     }
-  let name = namei.unwrapOrElse(|| functionType.displayName())
 
   let function = match functionType.kind {
     TypeKind::Function(func) => func
-    _ => return Err((toSpan(c), '$name is not callable'))
+    _ => return Err((c, '$name is not callable'))
   }
 
   if let Option::Some(selfBinding) = function.selfBinding {
     if selfBinding.mutable {
       if not getBinding(c.func).mapOr(true, |binding| binding.mutable)
-        then return Err((toSpan(c), '$name can only be called on a mutable binding'))
+        then return Err((c, '$name can only be called on a mutable binding'))
     }
   }
 
   if let Result::Err(error) = checkRange(c.argumentList, function.parameterRange, 'arguments', name) {
-    return Err((toSpan(c), error))
+    return Err((c, error))
   }
   if let Some(t) = c.typeArguments {
     if let Option::Some(class) = functionType.instance.andThen(|i| i.class.class).orValue(functionType.class) {
       if let Result::Err(error) =
         checkRange(t.typeArguments, class.parameterRange, 'type parameters', functionType.displayName()) {
-        return Err((toSpan(t), error))
+        return Err((t, error))
       }
     }
-    else return Err((toSpan(t), 'Type ' ++ functionType.displayName() ++ ' is not generic'))
+    else return Err((t, 'Type ' ++ functionType.displayName() ++ ' is not generic'))
   }
 
   for (i, argument) of c.argumentList.enumerate().toList() {
@@ -176,7 +172,7 @@ export fn checkFunctionCall(mut functionType: Type, c: CallExpression) -> Result
     let parameterName = parameter.name
 
     if not isAssignable(parameter.type_, argument.getType())
-      then return Err((toSpan(argument)
+      then return Err((argument
         notAssignableError(parameter.type_, argument.getType()) ++
         ' in parameter $parameterName of function $name'
       ))
@@ -186,7 +182,7 @@ export fn checkFunctionCall(mut functionType: Type, c: CallExpression) -> Result
         let argumentName = argumentBinding.name
 
         if not argumentBinding.mutable {
-          return Err((toSpan(argument)
+          return Err((argument
             'Parameter $parameterName of function $name requires a mutable binding ' ++
             'but $argumentName is declared as immutable.'
           ))
@@ -196,6 +192,26 @@ export fn checkFunctionCall(mut functionType: Type, c: CallExpression) -> Result
   }
 
   Ok(function)
+}
+
+export fn resolveFunctionTypeParametersByReturnValue(mut parameterMap: ObjectMap<Type>, typeParameters: List<Type>, returnType: Type, assignedTo: Type) {
+  if isSameId(returnType, assignedTo) and isAssignable(assignedTo, returnType) {
+    match (returnType.typeParameters(), assignedTo.typeParameters()) {
+      (Some(returnTypeTypeParameters), Some(assignedToTypeParameters)) => {
+        returnTypeTypeParameters.enumerate().forEach(|(i, returnTypeTypeParameter)| {
+          if let Some(assignedToTypeParameter) = assignedToTypeParameters.get(i) {
+            if returnTypeTypeParameter.isParameter() and not assignedToTypeParameter.isParameter() {
+              let name = returnTypeTypeParameter.name.unwrap()
+              if not parameterMap.has(name) {
+                parameterMap.set(name, assignedToTypeParameter)
+              }
+            }
+          }
+        })
+      }
+      _ => {}
+    }
+  }
 }
 
 export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeParameters: List<Type>, parameterType: Type, argumentType: Type, allowedToFollowFunction = true) {
