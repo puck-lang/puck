@@ -236,13 +236,21 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
       b->scope = self.scope
     }
     visitReturn: |mut self, mut r: ReturnStatement| {
-      visit.walkReturnStatement(self, r)
+      if not self.functionContext
+        then reportError(r, 'Return used outside of a function')
+
+      r->type_ = Type.never({file, token: r})
+
       if let Some(returnType) = self.functionContext.returnType {
+        self.visitExpression(r.expression, returnType)
         if not isAssignable(returnType, r.expression.getType())
           then reportError(r.expression, notAssignableError(returnType, r.expression.getType()))
       }
-      else if r.expression.getType() {
-        self.functionContext.returnTypes.push(r.expression.getType())
+      else {
+        self.visitExpression(r.expression)
+        if r.expression.getType() {
+          self.functionContext.returnTypes.push(r.expression.getType())
+        }
       }
     }
     visitForLoop: |mut self, mut e: ForLoop| {

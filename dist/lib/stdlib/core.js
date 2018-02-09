@@ -139,7 +139,7 @@ fold: function (init, reducer) {
       accumulator = $unwrapTraitObject(reducer($unwrapTraitObject(accumulator), $unwrapTraitObject(value)));
     }
     else {
-      return accumulator;
+      return $unwrapTraitObject(accumulator);
     };
   };
 },

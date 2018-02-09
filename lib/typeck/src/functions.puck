@@ -139,12 +139,11 @@ export fn checkFunctionCall(mut functionType: Type, c: CallExpression) -> Result
   fn toSpan(span: ToSpan) {span}
 
   if not functionType then return Ok(undefined)
-  let namei: Option<String> =
+  let name =
     match c.func {
-      Expression::Identifier(i) => Some(i.name)
-      _ => None
+      Expression::Identifier(i) => i.name
+      _ => functionType.displayName()
     }
-  let name = namei.unwrapOrElse(|| functionType.displayName())
 
   let function = match functionType.kind {
     TypeKind::Function(func) => func

@@ -217,20 +217,17 @@ function checkFunctionCall(functionType, c) {
   let $puck_25;
   if ($puck_24.kind === "Identifier") {
     let {value: i} = $puck_24;
-    $puck_25 = $puck_1.Some(i.name);
+    $puck_25 = i.name;
   }
   else {
     let $puck_26;
     if (true) {
       $puck_24;
-      $puck_26 = $puck_1.None;
+      $puck_26 = $puck_6.Type.displayName.call(functionType);
     };
     $puck_25 = $puck_26;
   };
-  const namei = $puck_25;
-  const name = $puck_1.Option.unwrapOrElse.call(namei, function () {
-    return $puck_6.Type.displayName.call(functionType);
-  });
+  const name = $puck_25;
   let $puck_27 = functionType.kind;
   let $puck_28;
   if ($puck_27.kind === "Function") {

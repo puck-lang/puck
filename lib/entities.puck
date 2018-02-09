@@ -171,6 +171,21 @@ impl Type {
     enumMember: None
   }}
 
+  fn never(definition: Definition) -> Type {{
+    definition
+    id: None
+    displayName: Some('Never')
+    name: None
+    kind: TypeKind::Enum({
+      implementations: []
+      members: ObjectMap.new()
+    })
+    class: None
+    instance: None
+    providesType: None
+    enumMember: None
+  }}
+
   fn displayName(self) -> String {
     if not self then return '??'
     if let Option::Some(name) = self.displayName {

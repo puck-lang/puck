@@ -126,6 +126,9 @@ export function Emitter() {
   let typeOverrides = {} as {[name: string]: {old: Type, new: Type}}
   let includeTraitObjectHelper = false
   let exportPreamble = [] as Array<string>
+  let functionContext: {
+    returnType: Type|undefined
+  }
 
   function newValueVariable() {
     valueVarableCount += 1
@@ -549,7 +552,8 @@ export function Emitter() {
         ? fn.traitFunctionType.kind.value.returnType
         : fn.returnType && fn.returnType.value.type_
     let code = `function ${name}(${parameterList.map(emitFunctionParameter).join(', ')}) `
-    if (returnType && Type.isEmpty && Type.isEmpty.call(returnType)) {
+    functionContext = {returnType}
+    if (returnType && Type.isEmpty.call(returnType)) {
       code += emitBlock(body, undefined, returnType)
     }
     else {
@@ -1221,7 +1225,7 @@ export function Emitter() {
   }
 
   function emitReturn(e: ReturnStatement) {
-    const code = emitExpression(e.expression, Context.Return)
+    const code = emitExpression(e.expression, Context.Return, functionContext.returnType)
     allowReturnContext = false
     return code
   }

@@ -87,6 +87,9 @@ func::<Num, String>(5, 10)
 fn func<A, B>(a: A, b: B) -> A {a}
 func::<Num, Bool>(5, 'asd')
 
-//// String is not assignable to type Num
+///// String is not assignable to type Num
 let a = {}
 let b: Num = a->b.transmute::<String>()
+
+///// Return used outside of a function
+return 5

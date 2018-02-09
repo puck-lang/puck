@@ -224,15 +224,23 @@ function ScopeVisitor(context, file) {
   },
     visitReturn: function (r) {
     let self = this;
-    visit.walkReturnStatement(self, r);
+    if ((!$unwrapTraitObject(self).functionContext)) {
+      reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement', value: r, $isTraitObject: true}, "Return used outside of a function");
+    };
+    r.type_ = $puck_17.Type.never({
+      file: file,
+      token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ReturnStatement', value: r, $isTraitObject: true},
+    });
     let $puck_29 = $unwrapTraitObject($unwrapTraitObject(self).functionContext).returnType;
     if ($puck_29 !== undefined) {
       let returnType = $puck_29;
+      $unwrapTraitObject(self).visitExpression(r.expression, returnType);
       if ((!$puck_16.isAssignable($unwrapTraitObject(returnType), $puck_4.Expression.getType.call(r.expression)))) {
         return reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: r.expression, $isTraitObject: true}, $puck_14.notAssignableError($unwrapTraitObject(returnType), $puck_4.Expression.getType.call(r.expression)));
       };
     }
     else {
+      $unwrapTraitObject(self).visitExpression(r.expression);
       if ($puck_4.Expression.getType.call(r.expression)) {
         return $unwrapTraitObject($unwrapTraitObject($unwrapTraitObject(self).functionContext).returnTypes).push($puck_4.Expression.getType.call(r.expression));
       };

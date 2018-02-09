@@ -143,4 +143,16 @@ let $puck_16 = passThroughFood(banana2)
 Food[$puck_16.type].eat.call($puck_16);
 let $puck_17 = bananaToFood(banana)
 ;
-Food[$puck_17.type].eat.call($puck_17)
+Food[$puck_17.type].eat.call($puck_17);
+function getFoodDirect() {
+  return {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: Apple({}), $isTraitObject: true};
+};
+function getFoodReturn() {
+  return {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: Apple({}), $isTraitObject: true};
+};
+function getFoodTuple() {
+  return [
+    {type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: Apple({}), $isTraitObject: true},
+    0,
+  ];
+}
