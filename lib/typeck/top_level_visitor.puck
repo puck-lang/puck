@@ -1,6 +1,8 @@
 import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
   Module
+  TopLevelStatement
+  BlockLevelStatement
   Expression
 
   Block
@@ -18,11 +20,13 @@ import '../ast/ast.puck' as {
   FunctionDeclaration
   VariableDeclaration
 
+  Pattern
   TypeBound
 }
 import '../ast/span.puck' as {ToSpan}
+import '../ast/empty_visitor.puck' as {EmptyVisitor}
+import '../ast/empty_visitor.puck' as visit
 import '../compiler.puck' as {CompilerContext}
-import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
 import '../entities.puck' as {File, StructKind, TypeClass, TypeKind}
 
@@ -30,57 +34,81 @@ import '../entities.puck' as {File, StructKind, TypeClass, TypeKind}
 ///
 /// The result is used by the import visitor for import and exports but is then
 /// throwed away becouse too little information is known about the imported bindings
-export fn TopLevelVisitor(context: CompilerContext, file: File) {
-  let mut declarations: ObjectMap<ToSpan> = ObjectMap.new()
+export type TopLevelVisitor {
+  file: File
+  context: CompilerContext
+  declarations: ObjectMap<ToSpan>
+}
 
-  Object->assign({}, visit.emptyVisitor, {
+impl TopLevelVisitor {
+  fn new(mut context: CompilerContext, file: File) -> TopLevelVisitor {{
+    context
+    file
+    declarations: ObjectMap.new()
+  }}
+}
 
-    visitModule: |self, mut m: Module| {
-      m->declarations = declarations
-      visit.walkModule(self, m)
-    }
-    visitEnumDeclaration: |self, t: EnumDeclaration| {
-      declarations.set(t.name.name, t)
-    }
-    visitTraitDeclaration: |self, t: TraitDeclaration| {
-      declarations.set(t.name.name, t)
-    }
-    visitTypeDeclaration: |self, t: TypeDeclaration| {
-      declarations.set(t.name.name, t)
-    }
+impl EmptyVisitor for TopLevelVisitor {
+  fn visitModule(mut self, m: Module) -> () {
+    visit.walkModule(self, m)
+  }
+  fn visitTopLevelStatement(mut self, e: TopLevelStatement) -> () {
+    visit.walkTopLevelStatement(self, e)
+  }
+  fn visitBlockLevelStatement(mut self, e: BlockLevelStatement) -> () {
+    visit.walkBlockLevelStatement(self, e)
+  }
+  fn visitExpression(mut self, e: Expression) -> () {
+    visit.walkExpression(self, e)
+  }
+  fn visitEnumDeclaration(mut self, t: EnumDeclaration) -> () {
+    self.declarations.set(t.name.name, t)
+  }
+  fn visitTraitDeclaration(mut self, t: TraitDeclaration) -> () {
+    self.declarations.set(t.name.name, t)
+  }
+  fn visitTypeDeclaration(mut self, t: TypeDeclaration) -> () {
+    self.declarations.set(t.name.name, t)
+  }
 
-    visitExportDirective: |self, e: ExportDirective| {
-      visit.walkExportDirective(self, e)
-    }
-    visitImportDirective: |self, i: ImportDirective| {
-      match i.specifier {
-        ImportSpecifier::Identifier(identifier) => {
-          declarations.set(identifier.name, identifier)
-        }
-        ImportSpecifier::ObjectDestructure(d) => {
-          self.visitObjectDestructure(d)
-        }
-        ImportSpecifier::Asterisk(_) => {}
+  fn visitExportDirective(mut self, e: ExportDirective) -> () {
+    visit.walkExportDirective(self, e)
+  }
+  fn visitImportDirective(mut self, i: ImportDirective) -> () {
+    match i.specifier {
+      ImportSpecifier::Identifier(identifier) => {
+        self.declarations.set(identifier.name, identifier)
       }
-    }
-    visitObjectDestructure: |self, i: ObjectDestructure| {
-      i.members.forEach(|m| {
-        declarations.set(m.local.name, m)
-      })
-    }
-
-    visitFunctionDeclaration: |self, mut f: FunctionDeclaration| {
-      if let Option::Some(name) = f.name {
-        declarations.set(name.name, f)
+      ImportSpecifier::ObjectDestructure(d) => {
+        self.visitObjectDestructure(d)
       }
+      ImportSpecifier::Asterisk(_) => {}
     }
-    visitVariableDeclaration: |self, d: VariableDeclaration| {
-      visit.walkVariableDeclaration(self, d)
-    }
+  }
+  fn visitObjectDestructure(mut self, i: ObjectDestructure) -> () {
+    i.members.forEach(|m| {
+      self.declarations.set(m.local.name, m)
+    })
+  }
 
-    visitPattern: visit.walkingVisitor.visitPattern
-    visitIdentifierPattern: |self, p: Identifier| {
-      declarations.set(p.name, p)
+  fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {
+    if let Option::Some(name) = f.name {
+      self.declarations.set(name.name, f)
     }
-  })
+  }
+  fn visitVariableDeclaration(mut self, d: VariableDeclaration) -> () {
+    visit.walkVariableDeclaration(self, d)
+  }
+
+  fn visitTypeBound(mut self, t: TypeBound) -> () {
+    visit.walkTypeBound(self, t)
+  }
+
+  fn visitPattern(mut self, p: Pattern) -> () {
+    visit.walkPattern(self, p)
+  }
+
+  fn visitIdentifierPattern(mut self, p: Identifier, _) -> () {
+    self.declarations.set(p.name, p)
+  }
 }
