@@ -14,6 +14,7 @@ import '../../ast/ast.puck' as {
 
   TypeBound
   FunctionTypeBound
+  IntersectionTypeBound
   NamedTypeBound
   RecordTypeBound
   TupleTypeBound
@@ -184,6 +185,32 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
       })
 
       self.scope = parentScope
+    }
+  }
+  visitIntersectionTypeBound: |self, mut t: IntersectionTypeBound| {
+    if not t->scope {
+      t->scope = self.scope
+      visit.walkIntersectionTypeBound(self, t)
+
+      if not t.traitBound.getType().isTrait()
+        then reportError(t.traitBound
+          'Can only add a trait bound, ' ++ t.traitBound.getType().displayName() ++ ' is not a trait'
+        )
+
+      t->type_ = Type({
+        definition: Definition({file, token: t})
+        id: None
+        displayName: None
+        name: None
+        kind: TypeKind::Intersection({
+          baseType: t.baseType.getType()
+          intersectedTrait: t.traitBound.getType()
+        })
+        class: None
+        instance: None
+        providesType: None
+        enumMember: None
+      })
     }
   }
   visitNamedTypeBound: |self, mut t: NamedTypeBound| {

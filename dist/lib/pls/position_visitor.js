@@ -1,5 +1,5 @@
 'use strict';
-exports.PositionVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkMethodDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkObjectDestructureMember = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkTypePath = exports.walkTypePathExpression = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRangeLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkStringLiteralPart = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
+exports.PositionVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkMethodDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkObjectDestructureMember = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkTypePath = exports.walkTypePathExpression = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRangeLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkStringLiteralPart = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkIntersectionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../ast/ast");
 const $puck_3 = require("./../ast/span");
@@ -213,6 +213,10 @@ visitTypeBound: function (t) {
 visitFunctionTypeBound: function (t) {
   let self = this;
   walkFunctionTypeBound(self, t);
+},
+visitIntersectionTypeBound: function (t) {
+  let self = this;
+  walkIntersectionTypeBound(self, t);
 },
 visitNamedTypeBound: function (t) {
   let self = this;
@@ -1151,19 +1155,25 @@ function walkTypeBound(visitor, t) {
     PositionVisitor[visitor.type].visitFunctionTypeBound.call(visitor, t);
   }
   else {
-    if ($puck_41.kind === "NamedTypeBound") {
+    if ($puck_41.kind === "IntersectionTypeBound") {
       let {value: t} = $puck_41;
-      PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, t);
+      PositionVisitor[visitor.type].visitIntersectionTypeBound.call(visitor, t);
     }
     else {
-      if ($puck_41.kind === "RecordTypeBound") {
+      if ($puck_41.kind === "NamedTypeBound") {
         let {value: t} = $puck_41;
-        PositionVisitor[visitor.type].visitRecordTypeBound.call(visitor, t);
+        PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, t);
       }
       else {
-        if ($puck_41.kind === "TupleTypeBound") {
+        if ($puck_41.kind === "RecordTypeBound") {
           let {value: t} = $puck_41;
-          PositionVisitor[visitor.type].visitTupleTypeBound.call(visitor, t);
+          PositionVisitor[visitor.type].visitRecordTypeBound.call(visitor, t);
+        }
+        else {
+          if ($puck_41.kind === "TupleTypeBound") {
+            let {value: t} = $puck_41;
+            PositionVisitor[visitor.type].visitTupleTypeBound.call(visitor, t);
+          };
         };
       };
     };
@@ -1190,6 +1200,17 @@ function walkFunctionTypeBound(visitor, t) {
   };
 };
 exports.walkFunctionTypeBound = walkFunctionTypeBound;
+function walkIntersectionTypeBound(visitor, t) {
+  if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: t.baseType, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
+    PositionVisitor[visitor.type].visitTypeBound.call(visitor, t.baseType);
+  }
+  else {
+    if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t.traitBound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
+      PositionVisitor[visitor.type].visitNamedTypeBound.call(visitor, t.traitBound);
+    };
+  };
+};
+exports.walkIntersectionTypeBound = walkIntersectionTypeBound;
 function walkNamedTypeBound(visitor, t) {
   if ($puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: t.path, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal)) {
     PositionVisitor[visitor.type].visitTypePath.call(visitor, t.path);

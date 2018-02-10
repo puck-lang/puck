@@ -1,5 +1,5 @@
 import 'scope.puck' as {Binding, Scope}
-import '../../entities.puck' as {RecordMember, Type}
+import '../../entities.puck' as {RecordMember, StructKind, Type, TypeKind}
 import 'types.puck' as {createTypeInstance}
 
 export fn getCoreType(scope: Scope, id: String, description: String) -> Result<(Type, Binding), String> {
@@ -15,10 +15,46 @@ export fn wrapInOption(scope: Scope, type_: Type) -> Result<Type, String> {
   }
 }
 
-export fn getRecordPropType(scope: Scope) {
+export fn getRecordPropType(scope: Scope) -> (RecordMember) -> Result<Type, String> {
   |prop: RecordMember| {
     if prop.optional
       then wrapInOption(scope, prop.type_)
       else Ok(prop.type_)
+  }
+}
+
+export enum PropertyError {
+  MissingProperty
+  UnsupportedType
+  Scope(String)
+}
+
+export fn getNamedPropertyType(scope: Scope, type_: Type, propertyName: String) -> Result<Type, PropertyError> {
+  match type_.kind {
+    TypeKind::Struct({kind: StructKind::Record(record)}) => {
+      match record.properties.get(propertyName).map(getRecordPropType(scope)) {
+        Some(result) => result.mapErr(PropertyError::Scope)
+        None => Err(PropertyError::MissingProperty)
+      }
+    }
+    TypeKind::Intersection({baseType}) => {
+      getNamedPropertyType(scope, baseType, propertyName)
+    }
+    _ => Err(PropertyError::UnsupportedType)
+  }
+}
+
+export fn getIndexedPropertyType(type_: Type, index: Num) -> Result<Type, PropertyError> {
+  match type_.kind {
+    TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
+      match tuple.properties.get(index) {
+        Some(type_) => Ok(type_)
+        None => Err(PropertyError::MissingProperty)
+      }
+    }
+    TypeKind::Intersection({baseType}) => {
+      getIndexedPropertyType(baseType, index)
+    }
+    _ => Err(PropertyError::UnsupportedType)
   }
 }

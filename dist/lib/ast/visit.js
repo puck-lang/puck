@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.walkingVisitor = exports.emptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRangeLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
+exports.walkingVisitor = exports.emptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRangeLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkIntersectionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./ast");
 const $puck_3 = require("./../compiler/ast");
@@ -190,6 +190,10 @@ var walkingVisitor = exports.walkingVisitor = {
   const self = this;
   return walkFunctionTypeBound(self, t);
 },
+  IntersectionTypeBound: function (t) {
+  const self = this;
+  return walkIntersectionTypeBound(self, t);
+},
   visitNamedTypeBound: function (t) {
   const self = this;
   return walkNamedTypeBound(self, t);
@@ -274,6 +278,7 @@ var emptyVisitor = exports.emptyVisitor = {
   return walkTypeBound(self, t);
 },
   visitFunctionTypeBound: function () {},
+  visitIntersectionTypeBound: function () {},
   visitNamedTypeBound: function () {},
   visitRecordTypeBound: function () {},
   visitRecordTypeBoundMember: function () {},
@@ -895,19 +900,25 @@ function walkTypeBound(visitor, t) {
     return $unwrapTraitObject(visitor).visitFunctionTypeBound(t);
   }
   else {
-    if ($puck_24.kind === "NamedTypeBound") {
+    if ($puck_24.kind === "IntersectionTypeBound") {
       let {value: t} = $puck_24;
-      return $unwrapTraitObject(visitor).visitNamedTypeBound(t);
+      return $unwrapTraitObject(visitor).visitIntersectionTypeBound(t);
     }
     else {
-      if ($puck_24.kind === "RecordTypeBound") {
+      if ($puck_24.kind === "NamedTypeBound") {
         let {value: t} = $puck_24;
-        return $unwrapTraitObject(visitor).visitRecordTypeBound(t);
+        return $unwrapTraitObject(visitor).visitNamedTypeBound(t);
       }
       else {
-        if ($puck_24.kind === "TupleTypeBound") {
+        if ($puck_24.kind === "RecordTypeBound") {
           let {value: t} = $puck_24;
-          return $unwrapTraitObject(visitor).visitTupleTypeBound(t);
+          return $unwrapTraitObject(visitor).visitRecordTypeBound(t);
+        }
+        else {
+          if ($puck_24.kind === "TupleTypeBound") {
+            let {value: t} = $puck_24;
+            return $unwrapTraitObject(visitor).visitTupleTypeBound(t);
+          };
         };
       };
     };
@@ -920,6 +931,11 @@ function walkFunctionTypeBound(visitor, t) {
   return $unwrapTraitObject(visitor).visitTypeBound(t.returnType);
 };
 exports.walkFunctionTypeBound = walkFunctionTypeBound;
+function walkIntersectionTypeBound(visitor, t) {
+  $unwrapTraitObject(visitor).visitTypeBound(t.baseType);
+  return $unwrapTraitObject(visitor).visitNamedTypeBound(t.traitBound);
+};
+exports.walkIntersectionTypeBound = walkIntersectionTypeBound;
 function walkNamedTypeBound(visitor, t) {
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.typeParameters, $isTraitObject: true}, $unwrapTraitObject($unwrapTraitObject(visitor).visitTypeBound).bind(visitor));
 };

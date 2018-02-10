@@ -1,0 +1,30 @@
+///// {a: String} is not assignable to type {a: String} + Concat<String, String>
+let withRecord: {a: String} + Concat<String, String> = {a: ''}
+
+///// (String) is not assignable to type (String) + Concat<String, String>
+let withTuple: (String) + Concat<String, String> = ((''))
+
+///// Record is not assignable to type {a: String} + Concat<String, String>
+type Record {a: String}
+
+let withRecord: {a: String} + Concat<String, String> = Record({a: ''})
+
+///// Record is not assignable to type Record + Concat<String, String>
+type Record {a: String}
+
+let withRecord: Record + Concat<String, String> = Record({a: ''})
+
+///// Record is not assignable to type {a: String} + Concat<String, String> + Ord
+type Record {a: String}
+
+impl Concat<String, String> for Record {
+  fn concat(self, rhs: String) -> String {self.a ++ rhs}
+}
+let withRecord: {a: String} + Concat<String, String> + Ord = Record({a: ''})
+
+///// Can only add a trait bound, Num is not a trait
+let multipleNamed: String + Num = ''
+
+///// Ord is not assignable to type String + Ord
+let ord: Ord = ''
+let string: String + Ord = ord

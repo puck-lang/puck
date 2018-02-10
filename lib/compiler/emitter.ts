@@ -55,6 +55,7 @@ import {Type, Record, Tuple, Implementation} from '../entities'
 import {isPatternMutable} from '../typeck/src/functions'
 import {getImplementationForTrait} from '../typeck/src/impls'
 import {Scope} from '../typeck/src/scope'
+import {isAssignable} from '../typeck/src/types'
 
 const jsKeywords = [
   'arguments', 'case', 'class', 'default', 'delete', 'function', 'global', 'module', 'new', 'null',
@@ -135,10 +136,13 @@ export function Emitter() {
     return `$puck_${valueVarableCount}`
   }
 
-  function getType(e: Expression): Type {
-    if (e.kind === 'Identifier' &&
-        typeOverrides[(e.value as Identifier).name] &&
-        typeOverrides[(e.value as Identifier).name].old === e.value.type_) {
+  function isOverriden(e: Expression): boolean {
+    return e.kind === 'Identifier' &&
+      typeOverrides[(e.value as Identifier).name] &&
+      typeOverrides[(e.value as Identifier).name].old === e.value.type_
+  }
+  function getType(e: Expression, allowOverriden = true): Type {
+    if (isOverriden(e) && allowOverriden) {
       return typeOverrides[(e.value as Identifier).name].new
     }
     return e.value.type_
@@ -146,7 +150,7 @@ export function Emitter() {
 
   function unwrap(code: string, e: Expression) {
     let type = getType(e)
-    if (type && type.kind.kind === 'Trait') {
+    if (type && (type.kind.kind === 'Trait' || type.kind.kind === 'Intersection')) {
       return `${code}.value`
     }
     else if (!type || type.kind.kind === 'Parameter') {
@@ -205,6 +209,10 @@ export function Emitter() {
   function getImplId(type: Type, trait: Type) {
     let opt = getImplementationForTrait(type, trait).value
     if (!opt) {
+      console.error('type displayName', Type.displayName.call(type))
+      console.error('type verboseName', Type.verboseName.call(type))
+      console.error('trait displayName', Type.displayName.call(trait))
+      console.error('trait verboseName', Type.verboseName.call(trait))
       throw Error('No impl')
     }
     return opt.id
@@ -414,10 +422,44 @@ export function Emitter() {
       if (scalarExpression) {
         const expressionType = getType(expression)
         if (assignedTo && expressionType && (context == Context.Return || context == Context.Value)) {
-          if (assignedTo.kind.kind === 'Trait' && getType(expression).kind.kind !== 'Trait') {
+          if (
+            assignedTo.kind.kind === 'Trait' && expressionType.kind.kind === 'Intersection'
+          ) {
+            let baseType = expressionType
+            do {
+              baseType = baseType.kind.value.baseType
+            } while (baseType.kind.kind === 'Intersection')
+            if (isAssignable(assignedTo, baseType)) {
+              scalarExpression = `{type: '${getImplId(baseType, assignedTo)}', value: ${scalarExpression}.value, $isTraitObject: true}`
+            } else {
+              if (expression.kind !== 'Identifier') {
+                const valueVariable = newValueVariable()
+                hoist!(`let ${valueVariable} = ${scalarExpression}`)
+                scalarExpression = valueVariable
+              }
+              scalarExpression = `{type: ${scalarExpression}.traits['${assignedTo.id}'], value: ${scalarExpression}.value, $isTraitObject: true}`
+            }
+          }
+          else if (
+            assignedTo.kind.kind === 'Trait' && expressionType.kind.kind !== 'Trait'
+          ) {
             scalarExpression = `{type: '${getImplId(expressionType, assignedTo)}', value: ${scalarExpression}, $isTraitObject: true}`
           }
-          else if (assignedTo.kind.kind !== 'Trait') {
+          else if (
+            assignedTo.kind.kind === 'Intersection' && expressionType.kind.kind !== 'Intersection'
+          ) {
+            const traits = []
+            let currentType = assignedTo
+            do {
+              const trait = currentType.kind.value.intersectedTrait
+              traits.push(
+                `'${trait.id}': '${getImplId(expressionType, trait)}'`
+              )
+              currentType = currentType.kind.value.baseType
+            } while (currentType.kind.kind === 'Intersection')
+            scalarExpression = `{traits: {${traits.join(',')}}, value: ${scalarExpression}, $isTraitObject: true}`
+          }
+          else if (assignedTo.kind.kind !== 'Trait' && assignedTo.kind.kind !== 'Intersection') {
             scalarExpression = unwrap(scalarExpression, expression)
           }
         }
@@ -1202,7 +1244,11 @@ export function Emitter() {
   }
 
   function emitTupleIndexAccess(e: TupleIndexAccess) {
-    const boxed = (getType(e.object).kind.value.kind as Tuple).value.properties.length > 1
+    let type_ = getType(e.object, isOverriden(e.object) && getType(e.object).kind.kind === 'Struct')
+    while (type_.kind.kind === 'Intersection') {
+      type_ = type_.kind.value.baseType
+    }
+    const boxed = (type_.kind.value.kind as Tuple).value.properties.length > 1
 
     let object = e.object.kind == 'NumberLiteral'
       ? `(${emitExpression(e.object)})`

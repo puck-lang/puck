@@ -7,6 +7,40 @@ let argv: List<String> = process->argv.transmute()
 let arguments = argv.skipUntil(|arg| arg.contains('cases')).skip(1).toList()
 let command = arguments.get(0)
 
+fn checkErrorsInFile(projectPath: String, buildString: (String, String, String) -> Result<{}, {message: String}>, file: String) {
+  let contents: String = fs->readFileSync(file, {encoding: 'utf-8'}).transmute()
+  contents
+    .split('/////')
+    .enumerate()
+    .forEach(|(i, test)| {
+      let firstNewline = match test.find('\n') {
+        Some(index) => index
+        None => return ()
+      }
+      let error = test.sub(Range.new(0, firstNewline))
+      let code = test.sub(Range.new(firstNewline, test.size()))
+
+      if not error or not code or not error.startsWith(' ') {
+        print('Test $file::$i is invalid, missing error or code')
+        process->exit(1)
+      }
+
+      match buildString(code, file, projectPath) {
+        Result::Ok(_) => {
+          print('error case did not error for $file::$i\nexpected error:$error')
+          process->exit(1)
+          ()
+        }
+        Result::Err({message}) => {
+          if not message.contains(error.trim()) {
+            print('expected error for $file::$i to include $error\n  but got\n$message')
+            process->exit(1)
+          }
+        }
+      }
+    })
+}
+
 match command {
   Option::None => {
     buildTestCompiler()
@@ -19,37 +53,7 @@ match command {
     let buildString: (String, String, String) -> Result<{}, {message: String}> = require('puck-lang/.tmp/old/lib/compiler')->buildString.transmute()
     let projectPath: String = fs->realpathSync('.').transmute()
     failCases.forEach(|file| {
-      let contents: String = fs->readFileSync(file, {encoding: 'utf-8'}).transmute()
-      contents
-        .split('/////')
-        .enumerate()
-        .forEach(|(i, test)| {
-          let firstNewline = match test.find('\n') {
-            Some(index) => index
-            None => return ()
-          }
-          let error = test.sub(Range.new(0, firstNewline))
-          let code = test.sub(Range.new(firstNewline, test.size()))
-
-          if not error or not code or not error.startsWith(' ') {
-            print('Test $file::$i is invalid, missing error or code')
-            process->exit(1)
-          }
-
-          match buildString(code, file, projectPath) {
-            Result::Ok(_) => {
-              print('error case did not error for $file::$i\nexpected error:$error')
-              process->exit(1)
-              ()
-            }
-            Result::Err({message}) => {
-              if not message.contains(error.trim()) {
-                print('expected error for $file::$i to include $error\n  but got\n$message')
-                process->exit(1)
-              }
-            }
-          }
-        })
+      checkErrorsInFile(projectPath, buildString, file)
     })
 
     cmd('diff -Nr test/baselines .tmp/cases')
@@ -61,9 +65,15 @@ match command {
       let built = file->replace(RegExp.new('\\.puck$'), '.js')
       buildTestCompiler()
 
-      cmd('.tmp/old/bin/puckc --out-dir .tmp/cases $file')
-
-      cmd('diff -Nr test/baselines/$built .tmp/cases/$built')
+      if file.endsWith('.error.puck') {
+        let projectPath: String = fs->realpathSync('.').transmute()
+        let buildString: (String, String, String) -> Result<{}, {message: String}> = require('puck-lang/.tmp/old/lib/compiler')->buildString.transmute()
+        checkErrorsInFile(projectPath, buildString, file)
+      }
+      else {
+        cmd('.tmp/old/bin/puckc --out-dir .tmp/cases $file')
+        cmd('diff -Nr test/baselines/$built .tmp/cases/$built')
+      }
       print('done')
     }
     else if command == 'update-baselines' {

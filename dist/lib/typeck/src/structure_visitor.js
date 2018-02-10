@@ -209,6 +209,33 @@ function structureVisitor(context, file, visitor = "") {
       return $unwrapTraitObject(self).scope = parentScope;
     };
   },
+    visitIntersectionTypeBound: function (t) {
+    const self = this;
+    if ((!t.scope)) {
+      t.scope = $unwrapTraitObject(self).scope;
+      visit.walkIntersectionTypeBound(self, t);
+      if (!$puck_8.Type.isTrait.call($puck_4.NamedTypeBound.getType.call(t.traitBound))) {
+        reportError({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t.traitBound, $isTraitObject: true}, "Can only add a trait bound, " + $puck_8.Type.displayName.call($puck_4.NamedTypeBound.getType.call(t.traitBound)) + " is not a trait");
+      };
+      return t.type_ = $puck_8.Type({
+        definition: $puck_8.Definition({
+        file: file,
+        token: {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IntersectionTypeBound', value: t, $isTraitObject: true},
+      }),
+        id: $puck_1.None,
+        displayName: $puck_1.None,
+        name: $puck_1.None,
+        kind: $puck_8.TypeKind.Intersection({
+        baseType: $puck_4.TypeBound.getType.call(t.baseType),
+        intersectedTrait: $puck_4.NamedTypeBound.getType.call(t.traitBound),
+      }),
+        _class: $puck_1.None,
+        instance: $puck_1.None,
+        providesType: $puck_1.None,
+        enumMember: $puck_1.None,
+      });
+    };
+  },
     visitNamedTypeBound: function (t) {
     const self = this;
     if ((!t.scope)) {

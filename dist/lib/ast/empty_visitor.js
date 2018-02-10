@@ -59,6 +59,7 @@ visitTuplePattern: function (p) {},
 visitTupleTypePattern: function (t, p) {},
 visitTypeBound: function (t) {},
 visitFunctionTypeBound: function (t) {},
+visitIntersectionTypeBound: function (t) {},
 visitNamedTypeBound: function (t) {},
 visitRecordTypeBound: function (t) {},
 visitRecordTypeBoundMember: function (t) {},
@@ -692,19 +693,25 @@ function walkTypeBound(visitor, t) {
     return EmptyVisitor[visitor.type].visitFunctionTypeBound.call(visitor, t);
   }
   else {
-    if ($puck_24.kind === "NamedTypeBound") {
+    if ($puck_24.kind === "IntersectionTypeBound") {
       let {value: t} = $puck_24;
-      return EmptyVisitor[visitor.type].visitNamedTypeBound.call(visitor, t);
+      return EmptyVisitor[visitor.type].visitIntersectionTypeBound.call(visitor, t);
     }
     else {
-      if ($puck_24.kind === "RecordTypeBound") {
+      if ($puck_24.kind === "NamedTypeBound") {
         let {value: t} = $puck_24;
-        return EmptyVisitor[visitor.type].visitRecordTypeBound.call(visitor, t);
+        return EmptyVisitor[visitor.type].visitNamedTypeBound.call(visitor, t);
       }
       else {
-        if ($puck_24.kind === "TupleTypeBound") {
+        if ($puck_24.kind === "RecordTypeBound") {
           let {value: t} = $puck_24;
-          return EmptyVisitor[visitor.type].visitTupleTypeBound.call(visitor, t);
+          return EmptyVisitor[visitor.type].visitRecordTypeBound.call(visitor, t);
+        }
+        else {
+          if ($puck_24.kind === "TupleTypeBound") {
+            let {value: t} = $puck_24;
+            return EmptyVisitor[visitor.type].visitTupleTypeBound.call(visitor, t);
+          };
         };
       };
     };

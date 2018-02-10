@@ -46,6 +46,12 @@ banana.asFood().eat()
 apple2.asFood().eat()
 banana2.asFood().eat()
 
+Food.eat(apple)
+Food.eat(banana)
+// TODO: Support direct trait calls with trait objects
+// Food.eat(apple2)
+// Food.eat(banana2)
+
 let fruitSallad: {
   apple: Apple
   banana: Banana

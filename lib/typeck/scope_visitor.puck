@@ -77,7 +77,15 @@ import 'src/functions.puck' as {
   resolveFunctionTypeParameters
   resolveFunctionTypeParametersByReturnValue
 }
-import 'src/impls.puck' as {getImplementation, getImplementationForTrait, getImplementationForTraitCall, resolveImplTypeParameters}
+import 'src/impls.puck' as {
+  TraitCall
+
+  getImplementation
+  getImplementationForTrait
+  getImplementationForTraitCall
+  resolveImplTypeParameters
+  getTraitCall
+}
 import 'src/patterns.puck' as {PatternError, declarePatternVariables}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {Binding, Scope}
@@ -103,7 +111,13 @@ import '../entities.puck' as {
   TypeInstance
   TypeKind
 }
-import 'src/core_type_helpers.puck' as {getCoreType, getRecordPropType}
+import 'src/core_type_helpers.puck' as {
+  PropertyError
+  getCoreType
+  // getRecordPropType
+  getNamedPropertyType
+  getIndexedPropertyType
+}
 
 fn asType(a: Unknown) -> Type {a.transmute()}
 
@@ -643,8 +657,8 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
           }
           // It is a normal trait call, for example 'hello'.toUpperCase()
           else {
-            if let TypeKind::Trait(trait_) = objectType.kind {
-              if let Some(func) = trait_.functions.get(name) {
+            match getTraitCall(objectType, name, e) {
+              TraitCall::TraitObject {objectType, trait_, functionType: func} => {
                 functionType = func
                 let function = functionType.getFunction()
 
@@ -668,9 +682,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                   }
                 }
               }
-            }
-            else match getImplementation(name, objectType, e) {
-              Ok(Some(implementation)) => {
+              TraitCall::TypeObject(implementation) => {
                 let trait_: Type =
                   if let Option::Some(instance) = implementation.trait_.instance
                     then instance.class
@@ -697,8 +709,8 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                   )
                 }
               }
-              Ok(None) => {}
-              Err => reportError(e, 'Ambiguous trait call')
+              TraitCall::None => {}
+              TraitCall::Error(token, message) => reportError(token, message)
             }
 
             if e->traitName {
@@ -1001,49 +1013,46 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
     visitMemberAccess: |self, mut a: MemberAccess, inCallExpression = false| {
       self.visitExpression(a.object)
       if a.object.getType() {
-        if let TypeKind::Struct({kind: StructKind::Record(record)}) = a.object.getType().kind {
-          match record.properties.get(a.member.name).map(getRecordPropType(self.scope)) {
-            Some(Ok(type_)) => a->type_ = type_
-            Some(Err(err)) => reportError(a, err)
-            None => {
-              let message = a.object.getType().displayName() ++ ' has no property ' ++ a.member.name
-              let token: ToSpan = a.member
-              if inCallExpression
-                then accessError = Some((token, message))
-                else reportError(a, message)
-            }
+        match getNamedPropertyType(self.scope, a.object.getType(), a.member.name) {
+          Ok(type_) => a->type_ = type_
+          Err(PropertyError::MissingProperty) => {
+            let message = a.object.getType().displayName() ++ ' has no property ' ++ a.member.name
+            let token: ToSpan = a.member
+            if inCallExpression
+              then accessError = Some((token, message))
+              else reportError(a, message)
           }
-        }
-        else {
-          let message = 'Can only read properties on record types'
-          let token: ToSpan = a.member
-          if inCallExpression
-            then accessError = Some((token, message))
-            else reportError(a, message)
+          Err(PropertyError::UnsupportedType) => {
+            let message = 'Can only read properties on record types'
+            let token: ToSpan = a.member
+            if inCallExpression
+              then accessError = Some((token, message))
+              else reportError(a, message)
+          }
+          Err(PropertyError::Scope(message)) => reportError(a, message)
         }
       }
     }
     visitTupleIndexAccess: |self, mut a: TupleIndexAccess, inCallExpression = false| {
       self.visitExpression(a.object)
       if a.object.getType() {
-        if let TypeKind::Struct({kind: StructKind::Tuple(record)}) = a.object.getType().kind {
-          match record.properties.get(a.index.value) {
-            Some(type_) => a->type_ = type_
-            None => {
-              let message = a.object.getType().displayName() ++ ' has no index ' ++ a.index.value.toString()
-              let token: ToSpan = a.index
-              if inCallExpression
-                then accessError = Some((token, message))
-                else reportError(a, message)
-            }
+        match getIndexedPropertyType(a.object.getType(), a.index.value) {
+          Ok(type_) => a->type_ = type_
+          Err(PropertyError::MissingProperty) => {
+            let message = a.object.getType().displayName() ++ ' has no index ' ++ a.index.value.toString()
+            let token: ToSpan = a.index
+            if inCallExpression
+              then accessError = Some((token, message))
+              else reportError(a, message)
           }
-        }
-        else {
-          let message = 'Can only read properties on tuple types'
-          let token: ToSpan = a.index
-          if inCallExpression
-            then accessError = Some((token, message))
-            else reportError(a, message)
+          Err(PropertyError::UnsupportedType) => {
+            let message = 'Can only read indexed properties on tuple types'
+            let token: ToSpan = a.index
+            if inCallExpression
+              then accessError = Some((token, message))
+              else reportError(a, message)
+          }
+          Err(PropertyError::Scope(message)) => reportError(a, message)
         }
       }
     }

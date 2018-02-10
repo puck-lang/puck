@@ -303,6 +303,7 @@ visitTupleTypePattern: function (t, p) {
 },
 visitTypeBound: $puck_5.PositionVisitor.visitTypeBound,
 visitFunctionTypeBound: $puck_5.PositionVisitor.visitFunctionTypeBound,
+visitIntersectionTypeBound: $puck_5.PositionVisitor.visitIntersectionTypeBound,
 visitNamedTypeBound: $puck_5.PositionVisitor.visitNamedTypeBound,
 visitRecordTypeBound: $puck_5.PositionVisitor.visitRecordTypeBound,
 visitRecordTypeBoundMember: $puck_5.PositionVisitor.visitRecordTypeBoundMember,

@@ -19,6 +19,7 @@ import '../../ast/ast.puck' as {
 import '../../ast/span.puck' as {ToSpan}
 import '../../entities.puck' as {
   Implementation
+  Trait
   Type
   TypeInstance
   TypeKind
@@ -30,6 +31,7 @@ import 'types.puck' as {findCommonType, isAssignable, resolveTypeParameters}
 fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
   let implementations = match type_.kind {
     TypeKind::Enum(enum_) => enum_.implementations
+    TypeKind::Intersection(intersection) => getImplementationsForInstance(intersection.baseType)
     TypeKind::Struct(struct) => struct.implementations
     _ => []
   }
@@ -258,4 +260,46 @@ fn collectTypeParameters(mut parameterMap: ObjectMap<Type>, ip: Type, op: Type) 
     }
   }
   Ok(())
+}
+
+export enum TraitCall {
+  TraitObject {
+    objectType: Type
+    trait_: Trait
+    functionType: Type
+  }
+  TypeObject(Implementation)
+  None
+  Error(ToSpan, String)
+}
+
+impl TraitCall {
+  fn orElse(self, op: () -> TraitCall) -> TraitCall {
+    match self {
+      TraitCall::None => op()
+      _ => self
+    }
+  }
+}
+
+export fn getTraitCall(objectType: Type, methodName: String, e: CallExpression) -> TraitCall {
+  match objectType.kind {
+    TypeKind::Intersection(intersection) => {
+      getTraitCall(intersection.baseType, methodName, e)
+        .orElse(|| getTraitCall(intersection.intersectedTrait, methodName, e))
+    }
+    TypeKind::Trait(trait_) => {
+      match trait_.functions.get(methodName) {
+        Some(functionType) => TraitCall::TraitObject({objectType, trait_, functionType})
+        None => TraitCall::None
+      }
+    }
+    _ => {
+      match getImplementation(methodName, objectType, e) {
+        Ok(Some(implementation)) => TraitCall::TypeObject(implementation)
+        Ok(None) => TraitCall::None
+        Err => TraitCall::Error(e, 'Ambiguous trait call')
+      }
+    }
+  }
 }

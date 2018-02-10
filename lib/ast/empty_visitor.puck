@@ -61,6 +61,7 @@ import 'ast.puck' as {
 
   TypeBound
   FunctionTypeBound
+  IntersectionTypeBound
   NamedTypeBound
   RecordTypeBound
   RecordTypeBoundMember
@@ -137,6 +138,7 @@ export trait EmptyVisitor {
 
   fn visitTypeBound(mut self, t: TypeBound) -> () {}
   fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {}
+  fn visitIntersectionTypeBound(mut self, t: IntersectionTypeBound) -> () {}
   fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {}
   fn visitRecordTypeBound(mut self, t: RecordTypeBound) -> () {}
   fn visitRecordTypeBoundMember(mut self, t: RecordTypeBoundMember) -> () {}
@@ -409,6 +411,7 @@ export fn walkTuplePattern(mut visitor: EmptyVisitor, p: TuplePattern) {
 export fn walkTypeBound(mut visitor: EmptyVisitor, t: TypeBound) {
   match t {
     TypeBound::FunctionTypeBound(t) => visitor.visitFunctionTypeBound(t)
+    TypeBound::IntersectionTypeBound(t) => visitor.visitIntersectionTypeBound(t)
     TypeBound::NamedTypeBound(t) => visitor.visitNamedTypeBound(t)
     TypeBound::RecordTypeBound(t) => visitor.visitRecordTypeBound(t)
     TypeBound::TupleTypeBound(t) => visitor.visitTupleTypeBound(t)

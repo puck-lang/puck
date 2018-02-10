@@ -132,6 +132,7 @@ visitTypeBound: function (t) {
   visit.walkTypeBound(self, t);
 },
 visitFunctionTypeBound: $puck_5.EmptyVisitor.visitFunctionTypeBound,
+visitIntersectionTypeBound: $puck_5.EmptyVisitor.visitIntersectionTypeBound,
 visitNamedTypeBound: $puck_5.EmptyVisitor.visitNamedTypeBound,
 visitRecordTypeBound: $puck_5.EmptyVisitor.visitRecordTypeBound,
 visitRecordTypeBoundMember: $puck_5.EmptyVisitor.visitRecordTypeBoundMember,

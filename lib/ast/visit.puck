@@ -60,6 +60,7 @@ import 'ast.puck' as {
 
   TypeBound
   FunctionTypeBound
+  IntersectionTypeBound
   NamedTypeBound
   RecordTypeBound
   RecordTypeBoundMember
@@ -150,6 +151,7 @@ export let walkingVisitor = {
 
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitFunctionTypeBound: |self, t: FunctionTypeBound| walkFunctionTypeBound(self, t)
+  IntersectionTypeBound: |self, t: IntersectionTypeBound| walkIntersectionTypeBound(self, t)
   visitNamedTypeBound: |self, t: NamedTypeBound| walkNamedTypeBound(self, t)
   visitRecordTypeBound: |self, t: RecordTypeBound| walkRecordTypeBound(self, t)
   visitRecordTypeBoundMember: |self, t: RecordTypeBoundMember| walkRecordTypeBoundMember(self, t)
@@ -218,6 +220,7 @@ export let emptyVisitor = {
 
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitFunctionTypeBound: || {}
+  visitIntersectionTypeBound: || {}
   visitNamedTypeBound: || {}
   visitRecordTypeBound: || {}
   visitRecordTypeBoundMember: || {}
@@ -492,6 +495,7 @@ export fn walkTuplePattern(visitor, p: TuplePattern) {
 export fn walkTypeBound(visitor, t: TypeBound) {
   match t {
     TypeBound::FunctionTypeBound(t) => visitor.visitFunctionTypeBound(t)
+    TypeBound::IntersectionTypeBound(t) => visitor.visitIntersectionTypeBound(t)
     TypeBound::NamedTypeBound(t) => visitor.visitNamedTypeBound(t)
     TypeBound::RecordTypeBound(t) => visitor.visitRecordTypeBound(t)
     TypeBound::TupleTypeBound(t) => visitor.visitTupleTypeBound(t)
@@ -501,6 +505,10 @@ export fn walkFunctionTypeBound(visitor, t: FunctionTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   visitor.visitTupleTypeBound(t.parameters)
   visitor.visitTypeBound(t.returnType)
+}
+export fn walkIntersectionTypeBound(visitor, t: IntersectionTypeBound) {
+  visitor.visitTypeBound(t.baseType)
+  visitor.visitNamedTypeBound(t.traitBound)
 }
 export fn walkNamedTypeBound(visitor, t: NamedTypeBound) {
   t.typeParameters.forEach(visitor.visitTypeBound.bind(visitor))
