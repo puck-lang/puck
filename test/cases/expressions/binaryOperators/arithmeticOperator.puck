@@ -69,3 +69,5 @@ let rf8 = b ** b;
 
 // operator ++
 let rg1 = 'a' ++ 'b'
+
+let binary = (if true then 'true' else 'false') ++ (if false then 'true' else 'false')

@@ -751,7 +751,7 @@ function Emitter() {
             return emitCallExpression(e.call);
         }
         return withPrecedence(e.operator, function () {
-            return emitExpression(e.lhs) + " " + tokenToJs(e.operator.kind) + " " + emitExpression(e.rhs);
+            return emitExpression(e.lhs, Context.Value) + " " + tokenToJs(e.operator.kind) + " " + emitExpression(e.rhs, Context.Value);
         });
     }
     function emitCallExpression(fn_) {

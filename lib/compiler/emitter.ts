@@ -873,7 +873,7 @@ export function Emitter() {
       return emitCallExpression(e.call)
     }
     return withPrecedence(e.operator, () =>
-      `${emitExpression(e.lhs)} ${tokenToJs(e.operator.kind!)} ${emitExpression(e.rhs)}`
+      `${emitExpression(e.lhs, Context.Value)} ${tokenToJs(e.operator.kind!)} ${emitExpression(e.rhs, Context.Value)}`
     )
   }
 

@@ -50,4 +50,19 @@ const rf5 = 0 ** 0;
 const rf6 = b ** 0;
 const rf7 = 0 ** b;
 const rf8 = b ** b;
-const rg1 = ("a" + "b")
+const rg1 = ("a" + "b");
+let $puck_2;
+if (true) {
+  $puck_2 = "true";
+}
+else {
+  $puck_2 = "false";
+};
+let $puck_3;
+if (false) {
+  $puck_3 = "true";
+}
+else {
+  $puck_3 = "false";
+};
+const binary = $puck_2 + $puck_3
