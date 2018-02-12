@@ -28,6 +28,7 @@ CompilerContext._new = function (projectPath, onReportError, onFileParsed = func
     impls: $puck_1.Map._new(),
     files: $puck_1.Map._new(),
     deferred: $puck_1.Map._new(),
+    deferredImpl: $puck_1.Map._new(),
     onFileParsed: onFileParsed,
     onReportError: onReportError,
   };
@@ -47,9 +48,34 @@ CompilerContext.runImplVisitor = function () {
   $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if ((!file.implVisitorStarted && $puck_1.Option.isSome.call(file.ast))) {
       file.implVisitorStarted = true;
-      return $puck_11.ImplVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+      $puck_11.ImplVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+      return $puck_11.checkDefferedImpls(self.deferredImpl);
     };
   });
+  $puck_11.checkDefferedImpls(self.deferredImpl);
+  let $puck_18 = $puck_1.IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:JsIterator"].iter.call({type: '$impl_IntoIterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.entries.call(self.deferredImpl), $isTraitObject: true});
+  let $puck_19 = true;
+  while ($puck_19) {
+    let $puck_21 = $puck_1.Iterator[$puck_18.type].next.call($puck_18);
+    if ($puck_21 !== undefined) {
+      let [, awaiters] = $puck_21;
+      let $puck_22 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: awaiters, $isTraitObject: true});
+      let $puck_23 = true;
+      while ($puck_23) {
+        let $puck_25 = $puck_1.Iterator[$puck_22.type].next.call($puck_22);
+        if ($puck_25 !== undefined) {
+          let [, callback] = $puck_25;
+          callback();
+        }
+        else {
+          $puck_23 = false;
+        };
+      };
+    }
+    else {
+      $puck_19 = false;
+    };
+  };
 };
 CompilerContext.runChecker = function () {
   let self = this;
@@ -77,6 +103,7 @@ CompilerContext.runImplVisitorOnFile = function (file) {
   };
   file.implVisitorStarted = true;
   $puck_11.ImplVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+  $puck_11.checkDefferedImpls(self.deferredImpl);
 };
 CompilerContext.runCheckerOnFile = function (file) {
   let self = this;
@@ -90,17 +117,25 @@ CompilerContext.runCheckerOnFile = function (file) {
 };
 CompilerContext.defer = function (file, func) {
   let self = this;
-  $puck_1.List.push.call($puck_1.Entry.orInsert.call($puck_1.Map.entry.call(self.deferred, $unwrapTraitObject(file).absolutePath), []), func);
+  $puck_1.List.push.call($puck_1.Entry.orInsert.call($puck_1.Map.entry.call(self.deferred, file.absolutePath), []), func);
+};
+CompilerContext.deferAfterImpl = function (type_, traits, func) {
+  let self = this;
+  $puck_1.List.push.call($puck_1.Entry.orInsert.call($puck_1.Map.entry.call(self.deferredImpl, type_), []), [
+    traits,
+    func,
+  ]);
+  $puck_11.checkDefferedImpls(self.deferredImpl);
 };
 CompilerContext.resolvePath = function (file, relativeTo) {
-  let $puck_18;
+  let $puck_26;
   if ($puck_1.String.startsWith.call(file, "/")) {
-    $puck_18 = file;
+    $puck_26 = file;
   }
   else {
-    $puck_18 = path.join(path.dirname($unwrapTraitObject(relativeTo).absolutePath), file);
+    $puck_26 = path.join(path.dirname(relativeTo.absolutePath), file);
   };
-  const filePath = $puck_18;
+  const filePath = $puck_26;
   const absolutePath = fs.realpathSync(path.resolve(path.normalize(filePath)));
   const fileName = path.basename(absolutePath);
   return {
@@ -115,12 +150,12 @@ CompilerContext.resolvePath = function (file, relativeTo) {
 };
 CompilerContext.importFile = function (file, force = false, recoverFromSyntaxErrors = false) {
   let self = this;
-  let $puck_19 = file.outFile;
-  if ($puck_19 !== undefined) {
-    let outFile = $puck_19;
-    let $puck_20 = $puck_1.Map.get.call(self.files, file.absolutePath);
-    if ($puck_20 !== undefined) {
-      let existingFile = $puck_20;
+  let $puck_27 = file.outFile;
+  if ($puck_27 !== undefined) {
+    let outFile = $puck_27;
+    let $puck_28 = $puck_1.Map.get.call(self.files, file.absolutePath);
+    if ($puck_28 !== undefined) {
+      let existingFile = $puck_28;
       existingFile.outFile = $puck_1.Some(outFile);
     };
   };
@@ -131,9 +166,9 @@ CompilerContext.importFile = function (file, force = false, recoverFromSyntaxErr
     };
     file.ast = $puck_1.Some(parseString(self, file, recoverFromSyntaxErrors));
     self.onFileParsed(file);
-    let $puck_21 = $puck_1.Map.get.call(self.deferred, file.absolutePath);
-    if ($puck_21 !== undefined) {
-      let callbacks = $puck_21;
+    let $puck_29 = $puck_1.Map.get.call(self.deferred, file.absolutePath);
+    if ($puck_29 !== undefined) {
+      let callbacks = $puck_29;
       $puck_1.Map._delete.call(self.deferred, file.absolutePath);
       callbacks.forEach(function (callback) {
         return callback();
@@ -181,24 +216,24 @@ function dumpFiles(files, prop) {
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: files, $isTraitObject: true}, function (file) {
     $puck_1.print("");
     $puck_1.print(file.absolutePath);
-    let $puck_22 = $puck_1.Unknown.asString.call(file[prop]);
-    let $puck_23;
-    if (($puck_22 !== undefined)) {
-      let data = $puck_22;
-      $puck_23 = data;
+    let $puck_30 = $puck_1.Unknown.asString.call(file[prop]);
+    let $puck_31;
+    if (($puck_30 !== undefined)) {
+      let data = $puck_30;
+      $puck_31 = data;
     }
     else {
-      let $puck_24;
+      let $puck_32;
       if (true) {
-        const None = $puck_22;
-        $puck_24 = $puck_3.inspect(file[prop], {
+        const None = $puck_30;
+        $puck_32 = $puck_3.inspect(file[prop], {
           colors: false,
           depth: 25,
         });
       };
-      $puck_23 = $puck_24;
+      $puck_31 = $puck_32;
     };
-    const data = $puck_23;
+    const data = $puck_31;
     return $puck_1.print($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.String.split.call(data, "\n"), $isTraitObject: true}, function (line) {
       return "  " + line + "";
     }).value.join("\n"));
@@ -252,11 +287,11 @@ function build(files, context, options = {
       js: $puck_1.None,
     };
   });
-  let $puck_25 = $puck_1.Iterable[files.type].map.call(files, function (f) {
+  let $puck_33 = $puck_1.Iterable[files.type].map.call(files, function (f) {
     return CompilerContext.importFile.call(context, f);
   })
 ;
-  files = $puck_1.Iterable[$puck_25.type].toList.call($puck_25);
+  files = $puck_1.Iterable[$puck_33.type].toList.call($puck_33);
   if ((dump === "ast")) {
     dumpFiles(files, "ast");
     return $puck_2._undefined;

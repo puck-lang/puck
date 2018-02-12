@@ -756,7 +756,7 @@ function ScopeVisitor(context, file) {
         else {
           let $puck_55 = $puck_10.getTraitCall(objectType, name, e);
           if (($puck_55.kind === "TraitObject")) {
-            let {value: {objectType: objectType, trait_: trait_, functionType: func}} = $puck_55;
+            let {value: {objectType: objectType, functionType: func}} = $puck_55;
             functionType = func;
             const _function = $puck_17.Type.getFunction.call(functionType);
             if ($puck_1.Option.isSome.call(_function.selfBinding)) {

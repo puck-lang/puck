@@ -68,20 +68,22 @@ Scope.getBinding = function (name, visitor = "") {
     return binding;
   });
 };
-Scope.getBindingByTypeId = function (id) {
+Scope.getBindingByTypeId = function (id, visitor = "") {
   const self = this;
   return $puck_1.Option.map.call($puck_1.Option.orElse.call($puck_1.ObjectMap.get.call(self.bindingsByTypeId, id), function () {
     return $puck_1.Option.andThen.call(self.parent, function (p) {
-      return Scope.getBindingByTypeId.call(p, id);
+      return Scope.getBindingByTypeId.call(p, id, visitor);
     });
   }), function (binding) {
-    let $puck_13 = binding.completeType;
-    if ($puck_13 !== undefined) {
-      let completeType = $puck_13;
-      let $puck_14 = completeType("");
-      if ($puck_14 !== undefined) {
-        let type_ = $puck_14;
-        binding.type_ = type_;
+    if ((!binding.type_)) {
+      let $puck_13 = binding.completeType;
+      if ($puck_13 !== undefined) {
+        let completeType = $puck_13;
+        let $puck_14 = completeType(visitor);
+        if ($puck_14 !== undefined) {
+          let type_ = $puck_14;
+          binding.type_ = type_;
+        };
       };
     };
     return binding;

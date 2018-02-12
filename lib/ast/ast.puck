@@ -333,6 +333,10 @@ export type TraitDeclaration {
   keyword: SimpleToken
   name: Identifier
   typeParameters: List<TypeParameter>
+  traitBound: Option<{
+    colonToken: SimpleToken
+    bound: TypeBound
+  }>
   openBrace: SimpleToken
   members: List<FunctionDeclaration>
   closeBrace: SimpleToken

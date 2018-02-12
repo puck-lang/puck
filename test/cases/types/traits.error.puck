@@ -182,3 +182,6 @@ trait Trait {
 trait Trait {
   fn a() -> String
 }
+
+///// A trait can not extend itself
+trait Trait: Trait {}

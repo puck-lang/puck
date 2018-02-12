@@ -88,6 +88,13 @@ impl RegExp {
 
 #[type_id = 'Bool']
 export type Bool {}
+impl Bool {
+  fn toString(self) -> String {
+    if self
+      then 'true'
+      else 'false'
+  }
+}
 
 export enum Radix {
   Binary
@@ -604,6 +611,39 @@ impl<E> List<E> {
 
   fn lpush(mut self, element: E) -> () {
     self->unshift(element)
+  }
+
+  /// Removes the element at position index from this list.
+  ///
+  /// This method reduces the length of this by one and moves all later objects down by one position.
+  ///
+  /// Returns the removed object.
+  ///
+  /// The index must be in the range 0 ≤ index < length.
+  fn removeAt(mut self, index: Num) -> E {
+    let element = self[index]
+    self->splice(index, 1)
+    element
+  }
+
+  /// Removes all objects from this list that satisfy test.
+  ///
+  /// An object o satisfies test if test(o) is true.
+  fn removeWhere(mut self, test: (E) -> Bool) -> () {
+    let mut index = -1
+    let mut i = 0
+    for e of self {
+      if test(e) {
+        index = i
+      }
+      i += 1
+    }
+
+    if index > -1 {
+      self.removeAt(index)
+      true
+    }
+    else false
   }
 
   fn get(self, index: Num) -> Option<E> {
@@ -1481,6 +1521,13 @@ impl<E> Iterator<E> for JsIterator<E> {
     if done
       then None
       else Some(value)
+  }
+}
+
+impl<E> IntoIterator<E> for JsIterator<E> {
+  fn iter(self) -> Iterator<E> {
+    let iterator: JsIterator<E> = self
+    iterator
   }
 }
 

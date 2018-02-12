@@ -28,7 +28,7 @@ export type File {
 
 export enum CompilationError {
   UndefinedVariable(String)
-  TraitNotInScope {functionName: String, traitName: String, id: String}
+  TraitNotInScope {functionName?: String, traitName: String, id: String}
   Other(String)
 }
 
@@ -37,7 +37,9 @@ impl CompilationError {
     match self {
       CompilationError::UndefinedVariable(name) => 'Use of undefined variable $name'
       CompilationError::TraitNotInScope {functionName, traitName} => {
-        'The function $functionName is defined in trait $traitName but it is not in scope'
+        if let Some(functionName) = functionName
+          then 'The function $functionName is defined in trait $traitName but it is not in scope'
+          else 'The trait $traitName it is not in scope'
       }
       CompilationError::Other(name) => name
     }
@@ -232,6 +234,20 @@ impl Type {
     }
   }
 
+  fn debugName(self) -> String {
+    if not self then return '??'
+
+    self.id.unwrapOr('no-id') ++ ': ' ++
+      self.providesType.map(|t| 'provides[' ++ t.debugName() ++ ']').unwrapOr('') ++
+      match self.kind {
+        TypeKind::Trait(trait_) => {
+          'trait: ' ++ getGenericName(self.name.unwrap(), self, true) ++
+          ' [' ++ trait_.requiredTraits.map(|t| t.debugName())->join(', ').transmute::<String>() ++ ']'
+        }
+        _ => self.verboseName()
+      }
+  }
+
   fn getEnum(self: Type) -> Enum {
     match self.kind {
       TypeKind::Enum(enum_) => enum_
@@ -255,9 +271,12 @@ impl Type {
   fn getTrait(self: Type) -> Trait {
     match self.kind {
       TypeKind::Trait(trait_) => trait_
-      _ => {
-        let name = self.displayName()
-        throw Error('Type $name is not a trait')
+      _ => match self.providesType {
+        Some(type_) => type_.getTrait()
+        Option::None => {
+          let name = self.displayName()
+          throw Error('Type $name is not a trait')
+        }
       }
     }
   }
@@ -351,6 +370,7 @@ export type Struct {
 
 export type Trait {
   isShorthand: Bool
+  requiredTraits: List<Type>
   functions: ObjectMap<Type>
 }
 

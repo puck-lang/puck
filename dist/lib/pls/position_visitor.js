@@ -595,16 +595,24 @@ function walkTraitDeclaration(visitor, t) {
       return true;
     }
     else {
-      let $puck_14 = $puck_1.List.binarySearchBy.call(t.typeParameters, function (member) {
-        return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
-      });
-      if ($puck_14.kind === "Ok") {
-        let {value: index} = $puck_14;
-        PositionVisitor[visitor.type].visitTypeParameter.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true}, index));
+      if ($puck_1.Option.unwrapOr.call($puck_1.Option.map.call(t.traitBound, function ({bound: bound}) {
+        return $puck_1.identical($puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: bound, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor)), $puck_1.Ordering.Equal);
+      }), false)) {
+        PositionVisitor[visitor.type].visitTypeBound.call(visitor, $puck_1.Option.unwrap.call(t.traitBound).bound);
         return true;
       }
       else {
-        return false;
+        let $puck_14 = $puck_1.List.binarySearchBy.call(t.typeParameters, function (member) {
+          return $puck_3.Span.cmp.call($puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: member, $isTraitObject: true}), PositionVisitor[visitor.type].position.call(visitor));
+        });
+        if ($puck_14.kind === "Ok") {
+          let {value: index} = $puck_14;
+          PositionVisitor[visitor.type].visitTypeParameter.call(visitor, $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: t.typeParameters, $isTraitObject: true}, index));
+          return true;
+        }
+        else {
+          return false;
+        };
       };
     };
   };

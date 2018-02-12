@@ -123,8 +123,7 @@ function structureVisitor(context, file, visitor = "") {
         if ($puck_25.kind === "Identifier") {
           let {value: {identifier: {name: name, span: span}}} = $puck_25;
           if (name === "self") {
-            const selfTypeBound = first.typeBound;
-            if ($puck_1.Option.isNone.call(selfTypeBound)) {
+            if ($puck_1.Option.isNone.call(first.typeBound)) {
               $puck_1.Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: f.parameterList, $isTraitObject: true}, 0).typeBound = $puck_1.Some($puck_4.TypeBound.NamedTypeBound({
                 path: $puck_4.TypePath.Member({
                 name: "Self",
@@ -227,7 +226,7 @@ function structureVisitor(context, file, visitor = "") {
         name: $puck_1.None,
         kind: $puck_8.TypeKind.Intersection({
         baseType: $puck_4.TypeBound.getType.call(t.baseType),
-        intersectedTrait: $puck_4.NamedTypeBound.getType.call(t.traitBound),
+        intersectedTrait: $puck_1.Option.unwrapOr.call($puck_4.NamedTypeBound.getType.call(t.traitBound).providesType, $puck_4.NamedTypeBound.getType.call(t.traitBound)),
       }),
         _class: $puck_1.None,
         instance: $puck_1.None,

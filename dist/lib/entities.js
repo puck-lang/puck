@@ -50,7 +50,14 @@ CompilationError.message = function () {
   else {
     if ($puck_7.kind === "TraitNotInScope") {
       let {value: {functionName: functionName, traitName: traitName}} = $puck_7;
-      return "The function " + functionName + " is defined in trait " + traitName + " but it is not in scope";
+      let $puck_8 = functionName;
+      if ($puck_8 !== undefined) {
+        let functionName = $puck_8;
+        return "The function " + functionName + " is defined in trait " + traitName + " but it is not in scope";
+      }
+      else {
+        return "The trait " + traitName + " it is not in scope";
+      };
     }
     else {
       if ($puck_7.kind === "Other") {
@@ -126,50 +133,50 @@ Type.displayName = function () {
   if ((!self)) {
     return "??";
   };
-  let $puck_8 = self.displayName;
-  if ($puck_8 !== undefined) {
-    let name = $puck_8;
+  let $puck_9 = self.displayName;
+  if ($puck_9 !== undefined) {
+    let name = $puck_9;
     return name;
   };
-  let $puck_9 = self.kind;
-  if ($puck_9.kind === "Enum") {
-    let {value: enum_} = $puck_9;
+  let $puck_10 = self.kind;
+  if ($puck_10.kind === "Enum") {
+    let {value: enum_} = $puck_10;
     return getGenericName($puck_1.Option.unwrap.call(self.name), self);
   }
   else {
-    if ($puck_9.kind === "Function") {
-      let {value: _function} = $puck_9;
+    if ($puck_10.kind === "Function") {
+      let {value: _function} = $puck_10;
       return $puck_1.Option.unwrapOrElse.call(self.name, function () {
         return getFunctionTypeName(_function);
       });
     }
     else {
-      if ($puck_9.kind === "Intersection") {
-        let {value: intersection} = $puck_9;
+      if ($puck_10.kind === "Intersection") {
+        let {value: intersection} = $puck_10;
         return Type.displayName.call(intersection.baseType) + " + " + Type.displayName.call(intersection.intersectedTrait);
       }
       else {
-        if (($puck_9.kind === "Parameter")) {
-          $puck_9;
+        if (($puck_10.kind === "Parameter")) {
+          $puck_10;
           return $puck_1.Option.unwrap.call(self.name);
         }
         else {
-          if ($puck_9.kind === "Struct") {
-            let {value: struct} = $puck_9;
+          if ($puck_10.kind === "Struct") {
+            let {value: struct} = $puck_10;
             return $puck_1.Option.mapOrElse.call(self.name, function () {
-              let $puck_10 = struct.kind;
-              if ($puck_10.kind === "Record") {
-                let {value: {properties: properties}} = $puck_10;
+              let $puck_11 = struct.kind;
+              if ($puck_11.kind === "Record") {
+                let {value: {properties: properties}} = $puck_11;
                 return getRecordTypeName(properties);
               }
               else {
-                if ($puck_10.kind === "Tuple") {
-                  let {value: {properties: properties}} = $puck_10;
+                if ($puck_11.kind === "Tuple") {
+                  let {value: {properties: properties}} = $puck_11;
                   return getTupleTypeName({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: properties, $isTraitObject: true});
                 }
                 else {
-                  if ($puck_10.kind === "Unit") {
-                    $puck_10;
+                  if ($puck_11.kind === "Unit") {
+                    $puck_11;
                     return $puck_1.Option.unwrap.call(self.name);
                   };
                 };
@@ -179,8 +186,8 @@ Type.displayName = function () {
             });
           }
           else {
-            if ($puck_9.kind === "Trait") {
-              $puck_9;
+            if ($puck_10.kind === "Trait") {
+              $puck_10;
               return getGenericName($puck_1.Option.unwrap.call(self.name), self, true);
             };
           };
@@ -194,50 +201,50 @@ Type.verboseName = function () {
   if ((!self)) {
     return "??";
   };
-  let $puck_11 = self.kind;
-  if ($puck_11.kind === "Enum") {
-    let {value: enum_} = $puck_11;
+  let $puck_12 = self.kind;
+  if ($puck_12.kind === "Enum") {
+    let {value: enum_} = $puck_12;
     return getGenericName($puck_1.Option.unwrap.call(self.name), self, true);
   }
   else {
-    if ($puck_11.kind === "Function") {
-      let {value: _function} = $puck_11;
+    if ($puck_12.kind === "Function") {
+      let {value: _function} = $puck_12;
       return getGenericName(getFunctionTypeName(_function), self, true);
     }
     else {
-      if ($puck_11.kind === "Intersection") {
-        let {value: intersection} = $puck_11;
+      if ($puck_12.kind === "Intersection") {
+        let {value: intersection} = $puck_12;
         return Type.verboseName.call(intersection.baseType) + " + " + Type.verboseName.call(intersection.intersectedTrait);
       }
       else {
-        if (($puck_11.kind === "Parameter")) {
-          $puck_11;
+        if (($puck_12.kind === "Parameter")) {
+          $puck_12;
           return $puck_1.Option.unwrap.call(self.name);
         }
         else {
-          if ($puck_11.kind === "Struct") {
-            let {value: struct} = $puck_11;
-            let $puck_12 = struct.kind;
-            if ($puck_12.kind === "Record") {
-              let {value: {properties: properties}} = $puck_12;
+          if ($puck_12.kind === "Struct") {
+            let {value: struct} = $puck_12;
+            let $puck_13 = struct.kind;
+            if ($puck_13.kind === "Record") {
+              let {value: {properties: properties}} = $puck_13;
               return getRecordTypeName(properties);
             }
             else {
-              if ($puck_12.kind === "Tuple") {
-                let {value: {properties: properties}} = $puck_12;
+              if ($puck_13.kind === "Tuple") {
+                let {value: {properties: properties}} = $puck_13;
                 return getTupleTypeName({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: properties, $isTraitObject: true});
               }
               else {
-                if ($puck_12.kind === "Unit") {
-                  $puck_12;
+                if ($puck_13.kind === "Unit") {
+                  $puck_13;
                   return $puck_1.Option.unwrap.call(self.name);
                 };
               };
             };
           }
           else {
-            if ($puck_11.kind === "Trait") {
-              $puck_11;
+            if ($puck_12.kind === "Trait") {
+              $puck_12;
               return getGenericName($puck_1.Option.unwrap.call(self.name), self, true);
             };
           };
@@ -246,16 +253,41 @@ Type.verboseName = function () {
     };
   };
 };
+Type.debugName = function () {
+  const self = this;
+  if ((!self)) {
+    return "??";
+  };
+  let $puck_14 = self.kind;
+  let $puck_15;
+  if (($puck_14.kind === "Trait")) {
+    let {value: trait_} = $puck_14;
+    $puck_15 = "trait: " + getGenericName($puck_1.Option.unwrap.call(self.name), self, true) + " [" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: trait_.requiredTraits, $isTraitObject: true}, function (t) {
+      return Type.debugName.call(t);
+    }).value.join(", ") + "]";
+  }
+  else {
+    let $puck_16;
+    if (true) {
+      $puck_14;
+      $puck_16 = Type.verboseName.call(self);
+    };
+    $puck_15 = $puck_16;
+  };
+  return $puck_1.Option.unwrapOr.call(self.id, "no-id") + ": " + $puck_1.Option.unwrapOr.call($puck_1.Option.map.call(self.providesType, function (t) {
+    return "provides[" + Type.debugName.call(t) + "]";
+  }), "") + $puck_15;
+};
 Type.getEnum = function () {
   const self = this;
-  let $puck_13 = self.kind;
-  if ($puck_13.kind === "Enum") {
-    let {value: enum_} = $puck_13;
+  let $puck_17 = self.kind;
+  if (($puck_17.kind === "Enum")) {
+    let {value: enum_} = $puck_17;
     return enum_;
   }
   else {
     if (true) {
-      $puck_13;
+      $puck_17;
       const name = Type.displayName.call(self);
       throw $puck_2.Error("Type " + name + " is not an enum");
     };
@@ -263,14 +295,14 @@ Type.getEnum = function () {
 };
 Type.getFunction = function () {
   const self = this;
-  let $puck_14 = self.kind;
-  if ($puck_14.kind === "Function") {
-    let {value: _function} = $puck_14;
+  let $puck_18 = self.kind;
+  if ($puck_18.kind === "Function") {
+    let {value: _function} = $puck_18;
     return _function;
   }
   else {
     if (true) {
-      $puck_14;
+      $puck_18;
       const name = Type.displayName.call(self);
       throw $puck_2.Error("Type " + name + " is not a function");
     };
@@ -278,91 +310,45 @@ Type.getFunction = function () {
 };
 Type.getTrait = function () {
   const self = this;
-  let $puck_15 = self.kind;
-  if ($puck_15.kind === "Trait") {
-    let {value: trait_} = $puck_15;
+  let $puck_19 = self.kind;
+  if ($puck_19.kind === "Trait") {
+    let {value: trait_} = $puck_19;
     return trait_;
   }
   else {
     if (true) {
-      $puck_15;
-      const name = Type.displayName.call(self);
-      throw $puck_2.Error("Type " + name + " is not a trait");
+      $puck_19;
+      let $puck_20 = self.providesType;
+      if ($puck_20 !== undefined) {
+        let type_ = $puck_20;
+        return Type.getTrait.call(type_);
+      }
+      else {
+        if ($puck_20 === undefined) {
+          $puck_20;
+          const name = Type.displayName.call(self);
+          throw $puck_2.Error("Type " + name + " is not a trait");
+        };
+      };
     };
   };
 };
 Type.isEmpty = function () {
   const self = this;
-  let $puck_16 = self.kind;
-  if ($puck_16.kind === "Struct") {
-    let {value: struct} = $puck_16;
-    let $puck_17 = struct.kind;
-    if ($puck_17.kind === "Tuple") {
-      let {value: tuple} = $puck_17;
+  let $puck_21 = self.kind;
+  if ($puck_21.kind === "Struct") {
+    let {value: struct} = $puck_21;
+    let $puck_22 = struct.kind;
+    if ($puck_22.kind === "Tuple") {
+      let {value: tuple} = $puck_22;
       return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true});
     }
     else {
       if (true) {
-        $puck_17;
+        $puck_22;
         return false;
       };
     };
-  }
-  else {
-    if (true) {
-      $puck_16;
-      return false;
-    };
-  };
-};
-Type.isNever = function () {
-  const self = this;
-  let $puck_18 = self.kind;
-  if ($puck_18.kind === "Enum") {
-    let {value: enum_} = $puck_18;
-    return $puck_1.ObjectMap.isEmpty.call(enum_.members);
-  }
-  else {
-    if (true) {
-      $puck_18;
-      return false;
-    };
-  };
-};
-Type.isEnum = function () {
-  const self = this;
-  let $puck_19 = self.kind;
-  if ($puck_19.kind === "Enum") {
-    $puck_19;
-    return true;
-  }
-  else {
-    if (true) {
-      $puck_19;
-      return false;
-    };
-  };
-};
-Type.isFunction = function () {
-  const self = this;
-  let $puck_20 = self.kind;
-  if ($puck_20.kind === "Function") {
-    $puck_20;
-    return true;
-  }
-  else {
-    if (true) {
-      $puck_20;
-      return false;
-    };
-  };
-};
-Type.isParameter = function () {
-  const self = this;
-  let $puck_21 = self.kind;
-  if ($puck_21.kind === "Parameter") {
-    $puck_21;
-    return true;
   }
   else {
     if (true) {
@@ -371,16 +357,72 @@ Type.isParameter = function () {
     };
   };
 };
-Type.isTrait = function () {
+Type.isNever = function () {
   const self = this;
-  let $puck_22 = self.kind;
-  if ($puck_22.kind === "Trait") {
-    $puck_22;
+  let $puck_23 = self.kind;
+  if ($puck_23.kind === "Enum") {
+    let {value: enum_} = $puck_23;
+    return $puck_1.ObjectMap.isEmpty.call(enum_.members);
+  }
+  else {
+    if (true) {
+      $puck_23;
+      return false;
+    };
+  };
+};
+Type.isEnum = function () {
+  const self = this;
+  let $puck_24 = self.kind;
+  if ($puck_24.kind === "Enum") {
+    $puck_24;
     return true;
   }
   else {
     if (true) {
-      $puck_22;
+      $puck_24;
+      return false;
+    };
+  };
+};
+Type.isFunction = function () {
+  const self = this;
+  let $puck_25 = self.kind;
+  if ($puck_25.kind === "Function") {
+    $puck_25;
+    return true;
+  }
+  else {
+    if (true) {
+      $puck_25;
+      return false;
+    };
+  };
+};
+Type.isParameter = function () {
+  const self = this;
+  let $puck_26 = self.kind;
+  if ($puck_26.kind === "Parameter") {
+    $puck_26;
+    return true;
+  }
+  else {
+    if (true) {
+      $puck_26;
+      return false;
+    };
+  };
+};
+Type.isTrait = function () {
+  const self = this;
+  let $puck_27 = self.kind;
+  if ($puck_27.kind === "Trait") {
+    $puck_27;
+    return true;
+  }
+  else {
+    if (true) {
+      $puck_27;
       return false;
     };
   };
@@ -411,16 +453,16 @@ TypeClass.fromAstNode = function (astNode, reportError) {
 };
 const startWithNumber = $puck_1.RegExp._new("^[0-9]");
 function getFunctionTypeName(_function) {
-  let $puck_23 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _function.parameters, $isTraitObject: true}, function (b) {
+  let $puck_28 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _function.parameters, $isTraitObject: true}, function (b) {
     const typeName = Type.displayName.call(b.type_);
-    let $puck_24;
+    let $puck_29;
     if ($puck_1.RegExp.test.call(startWithNumber, b.name)) {
-      $puck_24 = typeName;
+      $puck_29 = typeName;
     }
     else {
-      $puck_24 = b.name + ": " + typeName + "";
+      $puck_29 = b.name + ": " + typeName + "";
     };
-    const typed = $puck_24;
+    const typed = $puck_29;
     if (b.mutable) {
       return "mut " + typed + "";
     }
@@ -429,10 +471,10 @@ function getFunctionTypeName(_function) {
     };
   })
 ;
-  let parameters = $puck_1.Iterable[$puck_23.type].toList.call($puck_23);
-  let $puck_25 = _function.selfBinding;
-  if (($puck_25 !== undefined)) {
-    let selfBinding = $puck_25;
+  let parameters = $puck_1.Iterable[$puck_28.type].toList.call($puck_28);
+  let $puck_30 = _function.selfBinding;
+  if (($puck_30 !== undefined)) {
+    let selfBinding = $puck_30;
     if (selfBinding.mutable) {
       $puck_1.List.lpush.call(parameters, "mut self");
     }
@@ -451,48 +493,48 @@ function getTupleTypeName(properties) {
 };
 function getRecordTypeName(properties) {
   return "{" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.ObjectMap.toList.call(properties), $isTraitObject: true}, function ([key, {type_: type_, optional: optional}]) {
-    let $puck_26;
+    let $puck_31;
     if (optional) {
-      $puck_26 = "?";
+      $puck_31 = "?";
     }
     else {
-      $puck_26 = "";
+      $puck_31 = "";
     };
-    const questionMark = $puck_26;
+    const questionMark = $puck_31;
     return "" + key + "" + questionMark + ": " + Type.displayName.call(type_);
   }).value.join(", ") + "}";
 };
 function getGenericName(name, type_, showClassParameters = false) {
-  let $puck_27 = type_.instance;
-  let $puck_28;
-  if (($puck_27 !== undefined)) {
-    let instance = $puck_27;
-    $puck_28 = "<" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, function (p) {
+  let $puck_32 = type_.instance;
+  let $puck_33;
+  if (($puck_32 !== undefined)) {
+    let instance = $puck_32;
+    $puck_33 = "<" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, function (p) {
       return Type.displayName.call(p);
     }).value.join(", ") + ">";
   }
   else {
-    let $puck_29;
+    let $puck_34;
     if (showClassParameters) {
-      let $puck_30 = type_._class;
-      let $puck_31;
-      if (($puck_30 !== undefined)) {
-        let _class = $puck_30;
-        $puck_31 = "<" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true}, function (p) {
+      let $puck_35 = type_._class;
+      let $puck_36;
+      if (($puck_35 !== undefined)) {
+        let _class = $puck_35;
+        $puck_36 = "<" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _class.typeParameters, $isTraitObject: true}, function (p) {
           return Type.displayName.call(p);
         }).value.join(", ") + ">";
       }
       else {
-        $puck_31 = "";
+        $puck_36 = "";
       };
-      $puck_29 = $puck_31;
+      $puck_34 = $puck_36;
     }
     else {
-      $puck_29 = "";
+      $puck_34 = "";
     };
-    $puck_28 = $puck_29;
+    $puck_33 = $puck_34;
   };
-  const parameters = $puck_28;
+  const parameters = $puck_33;
   if (Type.isFunction.call(type_)) {
     return parameters + name;
   }
