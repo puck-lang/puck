@@ -259,9 +259,11 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
       _ => false
     }
     TypeKind::Trait => match subject.kind {
-      TypeKind::Trait => {
-        isSameId(to, subject) and
-        checkTypeParameters(to, subject)
+      TypeKind::Trait(subjectTrait) => {
+        (
+          isSameId(to, subject) and
+          checkTypeParameters(to, subject)
+        ) or subjectTrait.requiredTraits.any(|requiredTrait| _isAssignable(to, requiredTrait, checked))
       }
       TypeKind::Enum(subjectEnum) => {
         subjectEnum.implementations.any(|implementation|

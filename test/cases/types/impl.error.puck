@@ -108,3 +108,63 @@ trait Bar {}
 trait Baz: Foo + Bar {}
 impl Foo for FooBar {}
 impl Baz for FooBar {}
+
+///// Type has no property a
+trait TraitFoo {
+  fn a(self) -> () {}
+}
+trait TraitBar {
+  fn b(self) -> ()
+}
+type Type {}
+
+impl TraitBar for Type where Type: TraitFoo {
+  fn b(self) -> () {
+    self.a()
+    TraitFoo.a(self)
+  }
+}
+
+let bar = Type({})
+bar.b()
+
+// TODO: Make this error
+//// Type has no property b
+// trait TraitFoo {
+//   fn a(self) -> () {}
+// }
+// trait TraitBar {
+//   fn b(self) -> ()
+// }
+// type Type<T> {}
+
+// impl<T> TraitFoo for Type<T> {}
+// impl TraitBar for Type<Num> where Type<Num>: TraitFoo {
+//   fn b(self) -> () {
+//     self.a()
+//     TraitFoo.a(self)
+//   }
+// }
+
+// let bar = Type::<String>({})
+// bar.b()
+
+//// Type has no property b
+// trait TraitFoo {
+//   fn a(self) -> () {}
+// }
+// trait TraitBar {
+//   fn b(self) -> ()
+// }
+// type Type<T> {}
+
+// impl TraitFoo for Type<Num> {}
+// impl<T> TraitBar for Type<T> where Type<T>: TraitFoo {
+//   fn b(self) -> () {
+//     self.a()
+//     TraitFoo.a(self)
+//   }
+// }
+
+// let bar = Type::<String>({})
+// bar.b()

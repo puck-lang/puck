@@ -26,7 +26,7 @@ import '../../entities.puck' as {
 }
 import 'functions.puck' as {checkFunctionCall}
 import 'scope.puck' as {Scope}
-import 'types.puck' as {findCommonType, isAssignable, resolveTypeParameters}
+import 'types.puck' as {findCommonType, isSameId, isAssignable, resolveTypeParameters}
 
 fn getParameterMap(objectInstance: TypeInstance, implementation: Implementation) -> ObjectMap<Type> {
   let mut parameterMap: ObjectMap<Type> = ObjectMap.new()
@@ -88,7 +88,7 @@ fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
     else implementations
 }
 
-fn getMostSpecificImplementations(type_: Type, implementations: List<Implementation>) -> List<Implementation> {
+fn getMostSpecificImplementations(type_: Type, trait_: Option<Type>, implementations: List<Implementation>) -> List<Implementation> {
   if let Option::Some(objectInstance) = type_.instance {
     let mut maxSpecificity = 0
 
@@ -102,7 +102,12 @@ fn getMostSpecificImplementations(type_: Type, implementations: List<Implementat
       .map(|(i, _)| i)
       .toList()
   }
-  else implementations
+  else {
+    let hasSameTrait = trait_.isSome() and implementations.any(|i| isSameId(i.trait_, trait_.unwrap()))
+    if hasSameTrait
+      then implementations.filter(|i| isSameId(i.trait_, trait_.unwrap())).toList()
+      else implementations
+  }
 }
 
 export fn getImplementationForTrait(type_: Type, trait_: Type) -> Result<Option<Implementation>, List<Implementation>> {
@@ -113,7 +118,7 @@ export fn getImplementationForTrait(type_: Type, trait_: Type) -> Result<Option<
 
   let implementations =
     if implementations.size() > 1
-      then getMostSpecificImplementations(type_, implementations)
+      then getMostSpecificImplementations(type_, Some(trait_), implementations)
       else implementations
 
   if implementations.size() > 1
@@ -172,7 +177,7 @@ fn getImplementationForTraitCall(functionName: String, type_: Type, trait_: Type
 
   let implementations =
     if implementations.size() > 1
-      then getMostSpecificImplementations(type_, implementations)
+      then getMostSpecificImplementations(type_, Some(trait_), implementations)
       else implementations
 
   if implementations.size() > 1
@@ -230,7 +235,7 @@ export fn getImplementation(functionName: String, type_: Type, e: CallExpression
   // For example an impl for List<String> is more specific than one for List<T>
   let implementations =
     if implementations.size() > 1 and type_.instance.isSome()
-      then getMostSpecificImplementations(type_, implementations)
+      then getMostSpecificImplementations(type_, None, implementations)
       else implementations
 
   if implementations.size() > 1

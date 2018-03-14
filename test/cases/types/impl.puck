@@ -1,8 +1,8 @@
-type Type {
+type TypeFoo {
   value: Num
 }
 
-impl Type {
+impl TypeFoo {
   fn isAnswer(self) -> Bool {
     self.value == 42
   }
@@ -16,14 +16,40 @@ impl Type {
   }
 }
 
-let type_: Type = {value: 42}
+let type_: TypeFoo = {value: 42}
 
 type_.isAnswer()
 
-trait Trait {
+trait TraitFoo {
   fn a(self) -> () {}
 }
 
-impl Trait for Type {
+impl TraitFoo for TypeFoo {
   fn a(self: {value: Num}) -> () {}
 }
+
+trait TraitBar {
+  fn b(self) -> ()
+}
+type TypeBar<T> {}
+
+impl<T> TraitFoo for TypeBar<T> {}
+impl TraitBar for TypeBar<Num> where TypeBar<Num>: TraitFoo {
+  fn b(self) -> () {
+    self.a()
+    TraitFoo.a(self)
+  }
+}
+
+let bar = TypeBar::<Num>({})
+bar.b()
+
+trait TraitFooBar: TraitFoo {
+  fn c(self) -> () {
+    self.a()
+    TraitFoo.a(self)
+  }
+}
+
+impl TraitFooBar for TypeBar<Num> {}
+bar.c()

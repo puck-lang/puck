@@ -145,7 +145,7 @@ export function Emitter() {
     if (isOverriden(e) && allowOverriden) {
       return typeOverrides[(e.value as Identifier).name].new
     }
-    return e.value.type_
+    return (e.value as Identifier).type_!
   }
 
   function unwrap(code: string, e: Expression) {
@@ -208,11 +208,15 @@ export function Emitter() {
 
   function getImplId(type: Type, trait: Type) {
     let opt = getImplementationForTrait(type, trait).value
-    if (!opt) {
+    if (!opt || !opt.id) {
       console.error('type displayName', Type.displayName.call(type))
       console.error('type verboseName', Type.verboseName.call(type))
       console.error('trait displayName', Type.displayName.call(trait))
       console.error('trait verboseName', Type.verboseName.call(trait))
+      console.error('trait id', trait.id)
+      if (opt) {
+        console.error('opt', opt)
+      }
       throw Error('No impl')
     }
     return opt.id
@@ -933,7 +937,7 @@ export function Emitter() {
             kind: 'Identifier',
             value: {
               name: valueVariable,
-              type_: (fn.func.value as MemberAccess).object.value.type_,
+              type_: ((fn.func.value as MemberAccess).object.value as Identifier).type_,
             } as Identifier,
           })
         }

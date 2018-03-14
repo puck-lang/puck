@@ -163,11 +163,15 @@ function Emitter() {
     }
     function getImplId(type, trait) {
         var opt = impls_1.getImplementationForTrait(type, trait).value;
-        if (!opt) {
+        if (!opt || !opt.id) {
             console.error('type displayName', entities_1.Type.displayName.call(type));
             console.error('type verboseName', entities_1.Type.verboseName.call(type));
             console.error('trait displayName', entities_1.Type.displayName.call(trait));
             console.error('trait verboseName', entities_1.Type.verboseName.call(trait));
+            console.error('trait id', trait.id);
+            if (opt) {
+                console.error('opt', opt);
+            }
             throw Error('No impl');
         }
         return opt.id;
