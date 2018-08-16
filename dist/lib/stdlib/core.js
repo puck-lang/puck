@@ -1259,7 +1259,7 @@ Result.unwrap = function () {
   else {
     if ($puck_41.kind === "Err") {
       let {value: err} = $puck_41;
-      throw $puck_1.Error($unwrapTraitObject(err));
+      return panic($puck_1.Error($unwrapTraitObject(err)));
     };
   };
 };
@@ -1290,7 +1290,7 @@ Result.unwrapErr = function () {
   let $puck_44 = self;
   if ($puck_44.kind === "Ok") {
     let {value: value} = $puck_44;
-    throw $puck_1.Error($unwrapTraitObject(value));
+    return panic($puck_1.Error($unwrapTraitObject(value)));
   }
   else {
     if ($puck_44.kind === "Err") {
@@ -1478,7 +1478,7 @@ Ordering.reverse = function () {
 };
 List.zip = function (a, b) {
   if (Iterable[a.type].size.call(a) !== Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: b, $isTraitObject: true})) {
-    throw $puck_1.Error("Iterable a and b are not of the same length");
+    panic($puck_1.Error("Iterable a and b are not of the same length"));
   };
   let $puck_58 = Iterable[a.type].enumerate.call(a)
 ;

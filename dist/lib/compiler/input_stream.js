@@ -73,5 +73,5 @@ InputStream.croak = function (message) {
   };
   const token = {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/span.puck:Span', value: span, $isTraitObject: true};
   $puck_5.CompilerContext.reportError.call(self.context, self.file, token, $puck_4.CompilationError.Other(message));
-  throw "Syntax Error";
+  return $puck_1.panic("Syntax Error");
 }

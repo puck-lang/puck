@@ -289,7 +289,7 @@ Type.getEnum = function () {
     if (true) {
       $puck_17;
       const name = Type.displayName.call(self);
-      throw $puck_2.Error("Type " + name + " is not an enum");
+      return $puck_1.panic($puck_2.Error("Type " + name + " is not an enum"));
     };
   };
 };
@@ -304,7 +304,7 @@ Type.getFunction = function () {
     if (true) {
       $puck_18;
       const name = Type.displayName.call(self);
-      throw $puck_2.Error("Type " + name + " is not a function");
+      return $puck_1.panic($puck_2.Error("Type " + name + " is not a function"));
     };
   };
 };
@@ -327,7 +327,7 @@ Type.getTrait = function () {
         if ($puck_20 === undefined) {
           $puck_20;
           const name = Type.displayName.call(self);
-          throw $puck_2.Error("Type " + name + " is not a trait");
+          return $puck_1.panic($puck_2.Error("Type " + name + " is not a trait"));
         };
       };
     };

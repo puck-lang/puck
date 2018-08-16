@@ -232,7 +232,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
         if let TypeKind::Enum(enum_) = type_.providesType.unwrap().kind {
           Object->assign(enum_.members, memberMap)
         }
-        else throw 'is not an enum'
+        else panic('is not an enum')
 
         self.scope = parentScope
       }
@@ -332,7 +332,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
             match typeBound {
               TypeBound::RecordTypeBound(record) => StructKind::Record({properties: ObjectMap.new()})
               TypeBound::TupleTypeBound(tuple) => StructKind::Tuple({properties: []})
-              _ => throw 'Unreachable'
+              _ => panic('Unreachable')
             }
           }
           else StructKind::Unit
@@ -467,7 +467,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
                   let mut r = record
                   r.properties = typeProperties
                 }
-                _ => throw 'Unreachable'
+                _ => panic('Unreachable')
               }
               Some(type_)
             })

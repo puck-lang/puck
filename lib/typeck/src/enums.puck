@@ -95,9 +95,9 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
     let member = match pattern {
       Pattern::CatchAll => return true
       Pattern::Identifier => return true
-      Pattern::Record(_) => throw 'Invalid pattern'
+      Pattern::Record(_) => panic('Invalid pattern')
       Pattern::RecordType(typePath, _) => getEnumMember(typePath)
-      Pattern::Tuple(_) => throw 'Invalid pattern'
+      Pattern::Tuple(_) => panic('Invalid pattern')
       Pattern::TupleType(typePath, _) => getEnumMember(typePath)
       Pattern::UnitType(typePath) => getEnumMember(typePath)
     }
@@ -132,12 +132,12 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
           Pattern::RecordType(typePath, _) => getEnumType(typePath, scope)
           Pattern::TupleType(typePath, _) => getEnumType(typePath, scope)
           Pattern::UnitType(typePath) => getEnumType(typePath, scope)
-          _ => throw 'Invalid pattern'
+          _ => panic('Invalid pattern')
         }
         let enum_ =
           if let Option::Some(type_) = type_
             then type_.getEnum()
-            else throw 'no type'
+            else panic('no type')
 
         let subPatterns = patterns
           .map(getSubPatterns)

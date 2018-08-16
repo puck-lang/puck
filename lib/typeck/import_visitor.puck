@@ -74,7 +74,7 @@ impl ImportVisitor {
         if err.transmute::<String>() == 'Syntax Error' {
           self.context.reportError(self.file, i, CompilationError::Other(err.transmute::<String>()))
         }
-        else throw err
+        else panic(err.transmute::<String>())
       }
     }
   }

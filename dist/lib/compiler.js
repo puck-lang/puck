@@ -99,7 +99,7 @@ CompilerContext.runImplVisitorOnFile = function (file) {
     CompilerContext.runTypeVisitorOnFile.call(self, file);
   };
   if (file.implVisitorStarted) {
-    throw $puck_2.Error("runImplVisitorOnFile??");
+    $puck_1.panic($puck_2.Error("runImplVisitorOnFile??"));
   };
   file.implVisitorStarted = true;
   $puck_11.ImplVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
@@ -244,7 +244,7 @@ function buildString(code, filePath, projectPath, options = {useBabel: false}) {
     function reportError(file, token, error) {
       const self = this;
       let {line: line, column: column} = $puck_5.ToSpan[token.type].span.call(token).start;
-      throw $puck_2.Error($puck_16.CompilationError.message.call(error) + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")");
+      return $puck_1.panic($puck_2.Error($puck_16.CompilationError.message.call(error) + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")"));
     };
     let context = CompilerContext._new(projectPath, reportError);
     let file = CompilerContext.importFile.call(context, {

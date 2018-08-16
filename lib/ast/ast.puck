@@ -34,7 +34,6 @@ export enum BlockLevelStatement {
 }
 
 export enum Expression {
-  ThrowStatement({expression: Expression})
   Comment(Comment)
   Identifier(Identifier)
 
@@ -74,8 +73,8 @@ export enum SimpleLiteral {
 impl TopLevelStatement {
   fn getType(self) -> Type {
     match self {
-      TopLevelStatement::ExportDirective(e) => throw 'type on export'
-      TopLevelStatement::ImportDirective(e) => throw 'type on import'
+      TopLevelStatement::ExportDirective(e) => panic('type on export')
+      TopLevelStatement::ImportDirective(e) => panic('type on import')
 
       TopLevelStatement::EnumDeclaration(e) => e->type_.transmute()
       TopLevelStatement::ImplDeclaration(e) => e.type_->type_.transmute()
@@ -159,7 +158,6 @@ impl ToSpan for BlockLevelStatement {
 impl Expression {
   fn getType(self) -> Type {
     match self {
-      Expression::ThrowStatement(e) => e->type_.transmute()
       Expression::Comment(_) => panic('getType on comment')
 
       Expression::Identifier(e) => e->type_.transmute()
@@ -195,8 +193,7 @@ impl Expression {
 impl ToSpan for Expression {
   fn start(self) -> Position {
     match self {
-      Expression::ThrowStatement(e) => e.expression.start()
-      Expression::Comment(_) => throw 'No span for Comment'
+      Expression::Comment(_) => panic('No span for Comment')
 
       Expression::Identifier(e) => e.start()
       Expression::FunctionDeclaration(e) => e.start()
@@ -228,8 +225,7 @@ impl ToSpan for Expression {
   }
   fn end(self) -> Position {
     match self {
-      Expression::ThrowStatement(e) => e.expression.end()
-      Expression::Comment(_) => throw 'No span for Comment'
+      Expression::Comment(_) => panic('No span for Comment')
 
       Expression::Identifier(e) => e.end()
       Expression::FunctionDeclaration(e) => e.end()
@@ -1135,14 +1131,14 @@ impl TypeBound {
   fn getRecordTypeBound(self) -> RecordTypeBound {
     match self {
       TypeBound::RecordTypeBound(record) => record
-      _ => throw 'TypeBound is not a RecordTypeBound'
+      _ => panic('TypeBound is not a RecordTypeBound')
     }
   }
 
   fn getTupleTypeBound(self) -> TupleTypeBound {
     match self {
       TypeBound::TupleTypeBound(tuple) => tuple
-      _ => throw 'TypeBound is not a TupleTypeBound'
+      _ => panic('TypeBound is not a TupleTypeBound')
     }
   }
 }

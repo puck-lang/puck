@@ -176,7 +176,6 @@ export fn walkBlockLevelStatement(mut visitor: EmptyVisitor, s: BlockLevelStatem
 }
 export fn walkExpression(mut visitor: EmptyVisitor, e: Expression) {
   match e {
-    Expression::ThrowStatement(e) => visitor.visitExpression(e.expression)
     Expression::Comment(_) => {}
 
     Expression::Identifier(e) => visitor.visitIdentifier(e)

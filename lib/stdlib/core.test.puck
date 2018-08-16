@@ -683,7 +683,7 @@ describe('core', || {
       it('should map lazily', || {
         let mut iterator = [1, 2, 3].iter().map(|i: Num| {
           if i > 1
-            then throw 'Should only be called once'
+            then panic('Should only be called once')
           i
         })
 

@@ -253,7 +253,7 @@ impl Type {
       TypeKind::Enum(enum_) => enum_
       _ => {
         let name = self.displayName()
-        throw Error('Type $name is not an enum')
+        panic(Error('Type $name is not an enum'))
       }
     }
   }
@@ -263,7 +263,7 @@ impl Type {
       TypeKind::Function(function) => function
       _ => {
         let name = self.displayName()
-        throw Error('Type $name is not a function')
+        panic(Error('Type $name is not a function'))
       }
     }
   }
@@ -275,7 +275,7 @@ impl Type {
         Some(type_) => type_.getTrait()
         Option::None => {
           let name = self.displayName()
-          throw Error('Type $name is not a trait')
+          panic(Error('Type $name is not a trait'))
         }
       }
     }

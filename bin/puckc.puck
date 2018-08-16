@@ -34,7 +34,7 @@ if arguments.size() == 0 {
   fn reportError(self, file: File, token: ToSpan, error: CompilationError) {
     if not ignoreErrors {
       let {line, column} = token.span().start
-      throw Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ' ($line:$column)')
+      panic(Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ' ($line:$column)'))
     }
   }
   let mut context = CompilerContext.new(projectPath, reportError)

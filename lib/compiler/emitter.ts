@@ -382,7 +382,6 @@ export function Emitter() {
   function emitScalarExpression(expression: Expression, assignedTo: Type|undefined) {
     switch (expression.kind) {
       case 'JsExpression': return expression.value;
-      case 'ThrowStatement': return emitThrow(expression.value);
       case 'FunctionDeclaration': return emitFunctionDeclaration(expression.value)
       case 'Identifier': return emitIdentifier(expression.value)
       case 'VariableDeclaration': return emitVariableDeclaration(expression.value)
@@ -1291,11 +1290,6 @@ export function Emitter() {
     const code = emitExpression(e.expression, Context.Return, functionContext.returnType)
     allowReturnContext = false
     return code
-  }
-
-  function emitThrow(e: any) {
-    allowReturnContext = false
-    return `throw ${emitExpression(e.expression, Context.Value)}`
   }
 
   function emitBooleanLiteral(l: BooleanLiteral) {

@@ -27,7 +27,6 @@ export enum SyntaxKind {
   OrKeyword
   ReturnKeyword
   ThenKeyword
-  ThrowKeyword
   TraitKeyword
   TrueKeyword
   TypeKeyword
@@ -146,7 +145,6 @@ impl SyntaxKind {
     else if text == 'of' then Some(SyntaxKind::OfKeyword)
     else if text == 'or' then Some(SyntaxKind::OrKeyword)
     else if text == 'return' then Some(SyntaxKind::ReturnKeyword)
-    else if text == 'throw' then Some(SyntaxKind::ThrowKeyword)
     else if text == 'true' then Some(SyntaxKind::TrueKeyword)
     else if text == 'then' then Some(SyntaxKind::ThenKeyword)
     else if text == 'trait' then Some(SyntaxKind::TraitKeyword)
@@ -216,7 +214,6 @@ impl SyntaxKind {
       SyntaxKind::OfKeyword => 'of'
       SyntaxKind::OrKeyword => 'or'
       SyntaxKind::ReturnKeyword => 'return'
-      SyntaxKind::ThrowKeyword => 'throw'
       SyntaxKind::TrueKeyword => 'true'
       SyntaxKind::ThenKeyword => 'then'
       SyntaxKind::TraitKeyword => 'trait'

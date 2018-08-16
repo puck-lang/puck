@@ -79,7 +79,6 @@ WhileLoop: (member) => ({kind: 'WhileLoop', value: member}),
 Expression: (member) => ({kind: 'Expression', value: member}),
 };
 var Expression = exports.Expression = {
-ThrowStatement: (member) => ({kind: 'ThrowStatement', value: member}),
 Comment: (member) => ({kind: 'Comment', value: member}),
 Identifier: (member) => ({kind: 'Identifier', value: member}),
 FunctionDeclaration: (member) => ({kind: 'FunctionDeclaration', value: member}),
@@ -347,130 +346,124 @@ span: $puck_3.ToSpan.span,
 start: function () {
   const self = this;
   let $puck_9 = self;
-  if ($puck_9.value.kind === "ThrowStatement") {
-    let {value: e} = $puck_9.value;
-    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true});
+  if ($puck_9.value.kind === "Comment") {
+    $puck_9.value;
+    return $puck_1.panic("No span for Comment");
   }
   else {
-    if ($puck_9.value.kind === "Comment") {
-      $puck_9.value;
-      throw "No span for Comment";
+    if ($puck_9.value.kind === "Identifier") {
+      let {value: e} = $puck_9.value;
+      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e, $isTraitObject: true});
     }
     else {
-      if ($puck_9.value.kind === "Identifier") {
+      if ($puck_9.value.kind === "FunctionDeclaration") {
         let {value: e} = $puck_9.value;
-        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e, $isTraitObject: true});
+        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: e, $isTraitObject: true});
       }
       else {
-        if ($puck_9.value.kind === "FunctionDeclaration") {
+        if ($puck_9.value.kind === "VariableDeclaration") {
           let {value: e} = $puck_9.value;
-          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: e, $isTraitObject: true});
+          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: e, $isTraitObject: true});
         }
         else {
-          if ($puck_9.value.kind === "VariableDeclaration") {
+          if ($puck_9.value.kind === "AssignmentExpression") {
             let {value: e} = $puck_9.value;
-            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: e, $isTraitObject: true});
+            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression', value: e, $isTraitObject: true});
           }
           else {
-            if ($puck_9.value.kind === "AssignmentExpression") {
+            if ($puck_9.value.kind === "BinaryExpression") {
               let {value: e} = $puck_9.value;
-              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression', value: e, $isTraitObject: true});
+              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression', value: e, $isTraitObject: true});
             }
             else {
-              if ($puck_9.value.kind === "BinaryExpression") {
+              if ($puck_9.value.kind === "CallExpression") {
                 let {value: e} = $puck_9.value;
-                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression', value: e, $isTraitObject: true});
+                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true});
               }
               else {
-                if ($puck_9.value.kind === "CallExpression") {
+                if ($puck_9.value.kind === "IfExpression") {
                   let {value: e} = $puck_9.value;
-                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true});
+                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true});
                 }
                 else {
-                  if ($puck_9.value.kind === "IfExpression") {
+                  if ($puck_9.value.kind === "IfLetExpression") {
                     let {value: e} = $puck_9.value;
-                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true});
+                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true});
                   }
                   else {
-                    if ($puck_9.value.kind === "IfLetExpression") {
+                    if ($puck_9.value.kind === "MatchExpression") {
                       let {value: e} = $puck_9.value;
-                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true});
+                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true});
                     }
                     else {
-                      if ($puck_9.value.kind === "MatchExpression") {
+                      if ($puck_9.value.kind === "TypePathExpression") {
                         let {value: e} = $puck_9.value;
-                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true});
+                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression', value: e, $isTraitObject: true});
                       }
                       else {
-                        if ($puck_9.value.kind === "TypePathExpression") {
+                        if ($puck_9.value.kind === "UnaryExpression") {
                           let {value: e} = $puck_9.value;
-                          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression', value: e, $isTraitObject: true});
+                          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression', value: e, $isTraitObject: true});
                         }
                         else {
-                          if ($puck_9.value.kind === "UnaryExpression") {
+                          if ($puck_9.value.kind === "IndexAccess") {
                             let {value: e} = $puck_9.value;
-                            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression', value: e, $isTraitObject: true});
+                            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess', value: e, $isTraitObject: true});
                           }
                           else {
-                            if ($puck_9.value.kind === "IndexAccess") {
+                            if ($puck_9.value.kind === "MemberAccess") {
                               let {value: e} = $puck_9.value;
-                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess', value: e, $isTraitObject: true});
+                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: e, $isTraitObject: true});
                             }
                             else {
-                              if ($puck_9.value.kind === "MemberAccess") {
+                              if ($puck_9.value.kind === "TupleIndexAccess") {
                                 let {value: e} = $puck_9.value;
-                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: e, $isTraitObject: true});
+                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess', value: e, $isTraitObject: true});
                               }
                               else {
-                                if ($puck_9.value.kind === "TupleIndexAccess") {
+                                if ($puck_9.value.kind === "UnknownAccess") {
                                   let {value: e} = $puck_9.value;
-                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess', value: e, $isTraitObject: true});
+                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
                                 }
                                 else {
-                                  if ($puck_9.value.kind === "UnknownAccess") {
+                                  if ($puck_9.value.kind === "UnknownIndexAccess") {
                                     let {value: e} = $puck_9.value;
-                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
+                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
                                   }
                                   else {
-                                    if ($puck_9.value.kind === "UnknownIndexAccess") {
+                                    if ($puck_9.value.kind === "BooleanLiteral") {
                                       let {value: e} = $puck_9.value;
-                                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
+                                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
                                     }
                                     else {
-                                      if ($puck_9.value.kind === "BooleanLiteral") {
+                                      if ($puck_9.value.kind === "ListLiteral") {
                                         let {value: e} = $puck_9.value;
-                                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
+                                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
                                       }
                                       else {
-                                        if ($puck_9.value.kind === "ListLiteral") {
+                                        if ($puck_9.value.kind === "NumberLiteral") {
                                           let {value: e} = $puck_9.value;
-                                          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
+                                          return e.span.start;
                                         }
                                         else {
-                                          if ($puck_9.value.kind === "NumberLiteral") {
+                                          if ($puck_9.value.kind === "RangeLiteral") {
                                             let {value: e} = $puck_9.value;
-                                            return e.span.start;
+                                            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RangeLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RangeLiteral', value: e, $isTraitObject: true});
                                           }
                                           else {
-                                            if ($puck_9.value.kind === "RangeLiteral") {
+                                            if ($puck_9.value.kind === "RecordLiteral") {
                                               let {value: e} = $puck_9.value;
-                                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RangeLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RangeLiteral', value: e, $isTraitObject: true});
+                                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
                                             }
                                             else {
-                                              if ($puck_9.value.kind === "RecordLiteral") {
+                                              if ($puck_9.value.kind === "StringLiteral") {
                                                 let {value: e} = $puck_9.value;
-                                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
+                                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
                                               }
                                               else {
-                                                if ($puck_9.value.kind === "StringLiteral") {
+                                                if ($puck_9.value.kind === "TupleLiteral") {
                                                   let {value: e} = $puck_9.value;
-                                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
-                                                }
-                                                else {
-                                                  if ($puck_9.value.kind === "TupleLiteral") {
-                                                    let {value: e} = $puck_9.value;
-                                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
-                                                  };
+                                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
                                                 };
                                               };
                                             };
@@ -499,130 +492,124 @@ start: function () {
 end: function () {
   const self = this;
   let $puck_10 = self;
-  if ($puck_10.value.kind === "ThrowStatement") {
-    let {value: e} = $puck_10.value;
-    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Expression', value: e.expression, $isTraitObject: true});
+  if ($puck_10.value.kind === "Comment") {
+    $puck_10.value;
+    return $puck_1.panic("No span for Comment");
   }
   else {
-    if ($puck_10.value.kind === "Comment") {
-      $puck_10.value;
-      throw "No span for Comment";
+    if ($puck_10.value.kind === "Identifier") {
+      let {value: e} = $puck_10.value;
+      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e, $isTraitObject: true});
     }
     else {
-      if ($puck_10.value.kind === "Identifier") {
+      if ($puck_10.value.kind === "FunctionDeclaration") {
         let {value: e} = $puck_10.value;
-        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: e, $isTraitObject: true});
+        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: e, $isTraitObject: true});
       }
       else {
-        if ($puck_10.value.kind === "FunctionDeclaration") {
+        if ($puck_10.value.kind === "VariableDeclaration") {
           let {value: e} = $puck_10.value;
-          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: e, $isTraitObject: true});
+          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: e, $isTraitObject: true});
         }
         else {
-          if ($puck_10.value.kind === "VariableDeclaration") {
+          if ($puck_10.value.kind === "AssignmentExpression") {
             let {value: e} = $puck_10.value;
-            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:VariableDeclaration', value: e, $isTraitObject: true});
+            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression', value: e, $isTraitObject: true});
           }
           else {
-            if ($puck_10.value.kind === "AssignmentExpression") {
+            if ($puck_10.value.kind === "BinaryExpression") {
               let {value: e} = $puck_10.value;
-              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:AssignmentExpression', value: e, $isTraitObject: true});
+              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression', value: e, $isTraitObject: true});
             }
             else {
-              if ($puck_10.value.kind === "BinaryExpression") {
+              if ($puck_10.value.kind === "CallExpression") {
                 let {value: e} = $puck_10.value;
-                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BinaryExpression', value: e, $isTraitObject: true});
+                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true});
               }
               else {
-                if ($puck_10.value.kind === "CallExpression") {
+                if ($puck_10.value.kind === "IfExpression") {
                   let {value: e} = $puck_10.value;
-                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true});
+                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true});
                 }
                 else {
-                  if ($puck_10.value.kind === "IfExpression") {
+                  if ($puck_10.value.kind === "IfLetExpression") {
                     let {value: e} = $puck_10.value;
-                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfExpression', value: e, $isTraitObject: true});
+                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true});
                   }
                   else {
-                    if ($puck_10.value.kind === "IfLetExpression") {
+                    if ($puck_10.value.kind === "MatchExpression") {
                       let {value: e} = $puck_10.value;
-                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IfLetExpression', value: e, $isTraitObject: true});
+                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true});
                     }
                     else {
-                      if ($puck_10.value.kind === "MatchExpression") {
+                      if ($puck_10.value.kind === "TypePathExpression") {
                         let {value: e} = $puck_10.value;
-                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MatchExpression', value: e, $isTraitObject: true});
+                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression', value: e, $isTraitObject: true});
                       }
                       else {
-                        if ($puck_10.value.kind === "TypePathExpression") {
+                        if ($puck_10.value.kind === "UnaryExpression") {
                           let {value: e} = $puck_10.value;
-                          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePathExpression', value: e, $isTraitObject: true});
+                          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression', value: e, $isTraitObject: true});
                         }
                         else {
-                          if ($puck_10.value.kind === "UnaryExpression") {
+                          if ($puck_10.value.kind === "IndexAccess") {
                             let {value: e} = $puck_10.value;
-                            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnaryExpression', value: e, $isTraitObject: true});
+                            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess', value: e, $isTraitObject: true});
                           }
                           else {
-                            if ($puck_10.value.kind === "IndexAccess") {
+                            if ($puck_10.value.kind === "MemberAccess") {
                               let {value: e} = $puck_10.value;
-                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IndexAccess', value: e, $isTraitObject: true});
+                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: e, $isTraitObject: true});
                             }
                             else {
-                              if ($puck_10.value.kind === "MemberAccess") {
+                              if ($puck_10.value.kind === "TupleIndexAccess") {
                                 let {value: e} = $puck_10.value;
-                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:MemberAccess', value: e, $isTraitObject: true});
+                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess', value: e, $isTraitObject: true});
                               }
                               else {
-                                if ($puck_10.value.kind === "TupleIndexAccess") {
+                                if ($puck_10.value.kind === "UnknownAccess") {
                                   let {value: e} = $puck_10.value;
-                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleIndexAccess', value: e, $isTraitObject: true});
+                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
                                 }
                                 else {
-                                  if ($puck_10.value.kind === "UnknownAccess") {
+                                  if ($puck_10.value.kind === "UnknownIndexAccess") {
                                     let {value: e} = $puck_10.value;
-                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownAccess', value: e, $isTraitObject: true});
+                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
                                   }
                                   else {
-                                    if ($puck_10.value.kind === "UnknownIndexAccess") {
+                                    if ($puck_10.value.kind === "BooleanLiteral") {
                                       let {value: e} = $puck_10.value;
-                                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:UnknownIndexAccess', value: e, $isTraitObject: true});
+                                      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
                                     }
                                     else {
-                                      if ($puck_10.value.kind === "BooleanLiteral") {
+                                      if ($puck_10.value.kind === "ListLiteral") {
                                         let {value: e} = $puck_10.value;
-                                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:BooleanLiteral', value: e, $isTraitObject: true});
+                                        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
                                       }
                                       else {
-                                        if ($puck_10.value.kind === "ListLiteral") {
+                                        if ($puck_10.value.kind === "NumberLiteral") {
                                           let {value: e} = $puck_10.value;
-                                          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ListLiteral', value: e, $isTraitObject: true});
+                                          return e.span.end;
                                         }
                                         else {
-                                          if ($puck_10.value.kind === "NumberLiteral") {
+                                          if ($puck_10.value.kind === "RangeLiteral") {
                                             let {value: e} = $puck_10.value;
-                                            return e.span.end;
+                                            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RangeLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RangeLiteral', value: e, $isTraitObject: true});
                                           }
                                           else {
-                                            if ($puck_10.value.kind === "RangeLiteral") {
+                                            if ($puck_10.value.kind === "RecordLiteral") {
                                               let {value: e} = $puck_10.value;
-                                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RangeLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RangeLiteral', value: e, $isTraitObject: true});
+                                              return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
                                             }
                                             else {
-                                              if ($puck_10.value.kind === "RecordLiteral") {
+                                              if ($puck_10.value.kind === "StringLiteral") {
                                                 let {value: e} = $puck_10.value;
-                                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordLiteral', value: e, $isTraitObject: true});
+                                                return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
                                               }
                                               else {
-                                                if ($puck_10.value.kind === "StringLiteral") {
+                                                if ($puck_10.value.kind === "TupleLiteral") {
                                                   let {value: e} = $puck_10.value;
-                                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:StringLiteral', value: e, $isTraitObject: true});
-                                                }
-                                                else {
-                                                  if ($puck_10.value.kind === "TupleLiteral") {
-                                                    let {value: e} = $puck_10.value;
-                                                    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
-                                                  };
+                                                  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleLiteral', value: e, $isTraitObject: true});
                                                 };
                                               };
                                             };
@@ -1494,12 +1481,12 @@ TopLevelStatement.getType = function () {
   let $puck_23 = self;
   if ($puck_23.kind === "ExportDirective") {
     let {value: e} = $puck_23;
-    throw "type on export";
+    return $puck_1.panic("type on export");
   }
   else {
     if ($puck_23.kind === "ImportDirective") {
       let {value: e} = $puck_23;
-      throw "type on import";
+      return $puck_1.panic("type on import");
     }
     else {
       if ($puck_23.kind === "EnumDeclaration") {
@@ -1580,130 +1567,124 @@ BlockLevelStatement.getType = function () {
 Expression.getType = function () {
   const self = this;
   let $puck_25 = self;
-  if ($puck_25.kind === "ThrowStatement") {
-    let {value: e} = $puck_25;
-    return e.type_;
+  if ($puck_25.kind === "Comment") {
+    $puck_25;
+    return $puck_1.panic("getType on comment");
   }
   else {
-    if ($puck_25.kind === "Comment") {
-      $puck_25;
-      return $puck_1.panic("getType on comment");
+    if ($puck_25.kind === "Identifier") {
+      let {value: e} = $puck_25;
+      return e.type_;
     }
     else {
-      if ($puck_25.kind === "Identifier") {
+      if ($puck_25.kind === "FunctionDeclaration") {
         let {value: e} = $puck_25;
         return e.type_;
       }
       else {
-        if ($puck_25.kind === "FunctionDeclaration") {
+        if ($puck_25.kind === "VariableDeclaration") {
           let {value: e} = $puck_25;
           return e.type_;
         }
         else {
-          if ($puck_25.kind === "VariableDeclaration") {
+          if ($puck_25.kind === "AssignmentExpression") {
             let {value: e} = $puck_25;
             return e.type_;
           }
           else {
-            if ($puck_25.kind === "AssignmentExpression") {
+            if ($puck_25.kind === "BinaryExpression") {
               let {value: e} = $puck_25;
               return e.type_;
             }
             else {
-              if ($puck_25.kind === "BinaryExpression") {
+              if ($puck_25.kind === "CallExpression") {
                 let {value: e} = $puck_25;
                 return e.type_;
               }
               else {
-                if ($puck_25.kind === "CallExpression") {
+                if ($puck_25.kind === "IfExpression") {
                   let {value: e} = $puck_25;
                   return e.type_;
                 }
                 else {
-                  if ($puck_25.kind === "IfExpression") {
+                  if ($puck_25.kind === "IfLetExpression") {
                     let {value: e} = $puck_25;
                     return e.type_;
                   }
                   else {
-                    if ($puck_25.kind === "IfLetExpression") {
+                    if ($puck_25.kind === "MatchExpression") {
                       let {value: e} = $puck_25;
                       return e.type_;
                     }
                     else {
-                      if ($puck_25.kind === "MatchExpression") {
+                      if ($puck_25.kind === "TypePathExpression") {
                         let {value: e} = $puck_25;
                         return e.type_;
                       }
                       else {
-                        if ($puck_25.kind === "TypePathExpression") {
+                        if ($puck_25.kind === "UnaryExpression") {
                           let {value: e} = $puck_25;
                           return e.type_;
                         }
                         else {
-                          if ($puck_25.kind === "UnaryExpression") {
+                          if ($puck_25.kind === "IndexAccess") {
                             let {value: e} = $puck_25;
                             return e.type_;
                           }
                           else {
-                            if ($puck_25.kind === "IndexAccess") {
+                            if ($puck_25.kind === "MemberAccess") {
                               let {value: e} = $puck_25;
                               return e.type_;
                             }
                             else {
-                              if ($puck_25.kind === "MemberAccess") {
+                              if ($puck_25.kind === "TupleIndexAccess") {
                                 let {value: e} = $puck_25;
                                 return e.type_;
                               }
                               else {
-                                if ($puck_25.kind === "TupleIndexAccess") {
+                                if ($puck_25.kind === "UnknownAccess") {
                                   let {value: e} = $puck_25;
                                   return e.type_;
                                 }
                                 else {
-                                  if ($puck_25.kind === "UnknownAccess") {
+                                  if ($puck_25.kind === "UnknownIndexAccess") {
                                     let {value: e} = $puck_25;
                                     return e.type_;
                                   }
                                   else {
-                                    if ($puck_25.kind === "UnknownIndexAccess") {
+                                    if ($puck_25.kind === "BooleanLiteral") {
                                       let {value: e} = $puck_25;
                                       return e.type_;
                                     }
                                     else {
-                                      if ($puck_25.kind === "BooleanLiteral") {
+                                      if ($puck_25.kind === "ListLiteral") {
                                         let {value: e} = $puck_25;
                                         return e.type_;
                                       }
                                       else {
-                                        if ($puck_25.kind === "ListLiteral") {
+                                        if ($puck_25.kind === "NumberLiteral") {
                                           let {value: e} = $puck_25;
                                           return e.type_;
                                         }
                                         else {
-                                          if ($puck_25.kind === "NumberLiteral") {
+                                          if ($puck_25.kind === "RangeLiteral") {
                                             let {value: e} = $puck_25;
                                             return e.type_;
                                           }
                                           else {
-                                            if ($puck_25.kind === "RangeLiteral") {
+                                            if ($puck_25.kind === "RecordLiteral") {
                                               let {value: e} = $puck_25;
                                               return e.type_;
                                             }
                                             else {
-                                              if ($puck_25.kind === "RecordLiteral") {
+                                              if ($puck_25.kind === "StringLiteral") {
                                                 let {value: e} = $puck_25;
                                                 return e.type_;
                                               }
                                               else {
-                                                if ($puck_25.kind === "StringLiteral") {
+                                                if ($puck_25.kind === "TupleLiteral") {
                                                   let {value: e} = $puck_25;
                                                   return e.type_;
-                                                }
-                                                else {
-                                                  if ($puck_25.kind === "TupleLiteral") {
-                                                    let {value: e} = $puck_25;
-                                                    return e.type_;
-                                                  };
                                                 };
                                               };
                                             };
@@ -1884,7 +1865,7 @@ TypeBound.getRecordTypeBound = function () {
   else {
     if (true) {
       $puck_31;
-      throw "TypeBound is not a RecordTypeBound";
+      return $puck_1.panic("TypeBound is not a RecordTypeBound");
     };
   };
 };
@@ -1898,7 +1879,7 @@ TypeBound.getTupleTypeBound = function () {
   else {
     if (true) {
       $puck_32;
-      throw "TypeBound is not a TupleTypeBound";
+      return $puck_1.panic("TypeBound is not a TupleTypeBound");
     };
   };
 };
