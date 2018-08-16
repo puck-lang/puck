@@ -116,8 +116,7 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
       if let Option::Some(first) = f.parameterList.first() {
         if let Pattern::Identifier {identifier: {name, span}} = first.pattern {
           if name == 'self' {
-            let selfTypeBound = first.typeBound
-            if selfTypeBound.isNone() {
+            if first.typeBound.isNone() {
               f.parameterList[0].typeBound = Some(TypeBound::NamedTypeBound({
                 path: TypePath::Member({name: 'Self', span})
                 typeParameters: []
@@ -204,7 +203,7 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
         name: None
         kind: TypeKind::Intersection({
           baseType: t.baseType.getType()
-          intersectedTrait: t.traitBound.getType()
+          intersectedTrait: t.traitBound.getType().providesType.unwrapOr(t.traitBound.getType())
         })
         class: None
         instance: None

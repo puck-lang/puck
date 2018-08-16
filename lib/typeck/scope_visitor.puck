@@ -658,7 +658,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
           // It is a normal trait call, for example 'hello'.toUpperCase()
           else {
             match getTraitCall(objectType, name, e) {
-              TraitCall::TraitObject {objectType, trait_, functionType: func} => {
+              TraitCall::TraitObject({objectType, functionType: func}) => {
                 functionType = func
                 let function = functionType.getFunction()
 

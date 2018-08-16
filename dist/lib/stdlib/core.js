@@ -891,6 +891,13 @@ position: Iterator.position,
 forEach: Iterator.forEach,
 collect: Iterator.collect
 };
+IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:JsIterator"] = {
+iter: function () {
+  const self = this;
+  const iterator = self.value;
+  return {type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: iterator, $isTraitObject: true};
+}
+};
 IntoIterator["$impl_IntoIterator$lib/stdlib/core.puck:Set"] = {
 iter: function () {
   const self = this;
@@ -905,6 +912,15 @@ RegExp._new = function (pattern, flags = "") {
 RegExp.test = function (string) {
   const self = this;
   return $unwrapTraitObject(self.test(string));
+};
+Bool.toString = function () {
+  const self = this;
+  if (self) {
+    return "true";
+  }
+  else {
+    return "false";
+  };
 };
 Radix.pattern = function () {
   const self = this;
@@ -1483,6 +1499,39 @@ List.lpush = function (element) {
   let self = this;
   self.unshift(element);
 };
+List.removeAt = function (index) {
+  let self = this;
+  const element = $unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self, $isTraitObject: true}, index));
+  self.splice(index, 1);
+  return $unwrapTraitObject(element);
+};
+List.removeWhere = function (test) {
+  let self = this;
+  let index = -1;
+  let i = 0;
+  let $puck_59 = IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: self, $isTraitObject: true});
+  let $puck_60 = true;
+  while ($puck_60) {
+    let $puck_62 = Iterator[$puck_59.type].next.call($puck_59);
+    if (($puck_62 !== undefined)) {
+      let e = $puck_62;
+      if (test($unwrapTraitObject(e))) {
+        index = i;
+      };
+      i += 1;
+    }
+    else {
+      $puck_60 = false;
+    };
+  };
+  if (index > -1) {
+    List.removeAt.call(self, index);
+    true;
+  }
+  else {
+    false;
+  };
+};
 List.get = function (index) {
   const self = this;
   if ((index >= 0 && index < Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self, $isTraitObject: true}))) {
@@ -1508,19 +1557,19 @@ List.binarySearchBy = function (f) {
     const range = min + max;
     let guess = range / 2;
     guess = Num.floor.call(guess);
-    let $puck_59 = f($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self, $isTraitObject: true}, guess)));
-    if (($puck_59.kind === "Equal")) {
-      $puck_59;
+    let $puck_63 = f($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self, $isTraitObject: true}, guess)));
+    if (($puck_63.kind === "Equal")) {
+      $puck_63;
       return Ok(guess);
     }
     else {
-      if ($puck_59.kind === "Less") {
-        $puck_59;
+      if ($puck_63.kind === "Less") {
+        $puck_63;
         min = guess + 1;
       }
       else {
-        if (($puck_59.kind === "Greater")) {
-          $puck_59;
+        if (($puck_63.kind === "Greater")) {
+          $puck_63;
           max = guess - 1;
         };
       };
@@ -1570,22 +1619,22 @@ ObjectMap.keys = function () {
 };
 ObjectMap.values = function () {
   const self = this;
-  let $puck_60 = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ObjectMap.keys.call(self), $isTraitObject: true}, function (key) {
+  let $puck_64 = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ObjectMap.keys.call(self), $isTraitObject: true}, function (key) {
     return Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key);
   })
 ;
-  return Iterable[$puck_60.type].toList.call($puck_60);
+  return Iterable[$puck_64.type].toList.call($puck_64);
 };
 ObjectMap.toList = function () {
   const self = this;
-  let $puck_61 = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ObjectMap.keys.call(self), $isTraitObject: true}, function (key) {
+  let $puck_65 = Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: ObjectMap.keys.call(self), $isTraitObject: true}, function (key) {
     return [
       key,
       Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key),
     ];
   })
 ;
-  return Iterable[$puck_61.type].toList.call($puck_61);
+  return Iterable[$puck_65.type].toList.call($puck_65);
 };
 ObjectMap.all = function (predicate) {
   const self = this;
@@ -1627,9 +1676,9 @@ ObjectMap.find = function (predicate) {
       $unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key)),
     ]);
   });
-  let $puck_62 = key;
-  if ($puck_62 !== undefined) {
-    let key = $puck_62;
+  let $puck_66 = key;
+  if ($puck_66 !== undefined) {
+    let key = $puck_66;
     return Some([
       key,
       $unwrapTraitObject(Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: self, $isTraitObject: true}, key)),
@@ -1732,9 +1781,9 @@ Map.entry = function (key) {
 };
 Entry.orInsert = function (_default) {
   let self = this;
-  let $puck_63 = Map.get.call(self.map, $unwrapTraitObject(self.key));
-  if ($puck_63 !== undefined) {
-    let value = $puck_63;
+  let $puck_67 = Map.get.call(self.map, $unwrapTraitObject(self.key));
+  if ($puck_67 !== undefined) {
+    let value = $puck_67;
     return value;
   }
   else {
@@ -1744,9 +1793,9 @@ Entry.orInsert = function (_default) {
 };
 Entry.orInsertWith = function (_default) {
   let self = this;
-  let $puck_64 = Map.get.call(self.map, $unwrapTraitObject(self.key));
-  if ($puck_64 !== undefined) {
-    let value = $puck_64;
+  let $puck_68 = Map.get.call(self.map, $unwrapTraitObject(self.key));
+  if ($puck_68 !== undefined) {
+    let value = $puck_68;
     return value;
   }
   else {

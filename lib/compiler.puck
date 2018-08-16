@@ -10,12 +10,12 @@ import 'compiler/input_stream.puck' as {InputStream}
 import 'compiler/parser.puck' as {parse}
 import 'compiler/token_stream.puck' as {TokenStream}
 import 'helpers.puck' as {cmd}
-import 'typeck/impl_visitor.puck' as {ImplVisitor}
+import 'typeck/impl_visitor.puck' as {ImplVisitor, checkDefferedImpls}
 import 'typeck/import_visitor.puck' as {ImportVisitor}
 import 'typeck/scope_visitor.puck' as {ScopeVisitor}
 import 'typeck/top_level_visitor.puck' as {TopLevelVisitor}
 import 'typeck/type_visitor.puck' as {TypeVisitor}
-import 'entities.puck' as {BuildFile, CompilationError, File}
+import 'entities.puck' as {BuildFile, CompilationError, File, Type}
 
 fn fileInspect(self, depth: Num, opts: {depth: Num}) {
   inspect(
@@ -63,6 +63,7 @@ export type CompilerContext {
   impls: Map<String, Num>
   files: Map<String, File>
   deferred: Map<String, List<() -> ()>>
+  deferredImpl: Map<Type, List<(List<Type>, () -> ())>>
   onFileParsed: (File) -> ()
   onReportError: (File, ToSpan, CompilationError) -> ()
 }
@@ -73,6 +74,7 @@ impl CompilerContext {
     impls: Map.new()
     files: Map.new()
     deferred: Map.new()
+    deferredImpl: Map.new()
     onFileParsed
     onReportError
   }}
@@ -94,8 +96,15 @@ impl CompilerContext {
         if not file->implVisitorStarted and file.ast.isSome() {
           file->implVisitorStarted = true
           ImplVisitor(self, file)->visitModule(file.ast.unwrap())
+          checkDefferedImpls(self.deferredImpl)
         }
       })
+    checkDefferedImpls(self.deferredImpl)
+    for (_, awaiters) of self.deferredImpl.entries() {
+      for (_, callback) of awaiters {
+        callback()
+      }
+    }
   }
 
   fn runChecker(mut self) -> () {
@@ -124,6 +133,7 @@ impl CompilerContext {
     }
     file->implVisitorStarted = true
     ImplVisitor(self, file)->visitModule(file.ast.unwrap())
+    checkDefferedImpls(self.deferredImpl)
   }
 
   fn runCheckerOnFile(mut self, mut file: File) -> () {
@@ -136,13 +146,20 @@ impl CompilerContext {
     }
   }
 
-  fn defer(mut self, file, func) -> () {
+  fn defer(mut self, file: File, func: () -> ()) -> () {
     self.deferred.entry(file.absolutePath)
       .orInsert([])
       .push(func)
   }
 
-  fn resolvePath(file: String, relativeTo) -> File {
+  fn deferAfterImpl(mut self, type_: Type, traits: List<Type>, func: () -> ()) -> () {
+    self.deferredImpl.entry(type_)
+      .orInsert([])
+      .push((traits, func))
+    checkDefferedImpls(self.deferredImpl)
+  }
+
+  fn resolvePath(file: String, relativeTo: File) -> File {
     let filePath =
       if file.startsWith('/')
         then file

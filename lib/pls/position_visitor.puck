@@ -402,6 +402,10 @@ export fn walkTraitDeclaration(mut visitor: PositionVisitor, t: TraitDeclaration
     visitor.visitIdentifier(t.name)
     true
   }
+  else if t.traitBound.map(|{bound}| identical(bound.span().cmp(visitor.position()), Ordering::Equal)).unwrapOr(false)  {
+    visitor.visitTypeBound(t.traitBound.unwrap().bound)
+    true
+  }
   else if let Ok(index) = t.typeParameters.binarySearchBy(
     |member| member.span().cmp(visitor.position())
   ) {

@@ -625,16 +625,33 @@ export function Emitter() {
   }
 
   function emitImplDeclaration(i: ImplDeclaration) {
-    let functions: any = Object['assign']({}, i.trait_.type_.kind.value.functions)
+    let functions: {[name: string]: Type|string} = {...i.trait_.type_.kind.value.functions}
+    let inherited =
+      (i.trait_.type_.kind.value.requiredTraits || []).reduce(
+        (members, trait) => {
+          Object.keys(trait.kind.value.functions).forEach(fn => {
+            members[fn] = trait
+          })
+          return members
+        },
+        {} as {[name: string]: Type}
+      )
     i.members.forEach(m => functions[m.name!.name] = emitFunctionDeclaration(m, false))
     return `${emitTypePath(i.trait_.path)}${implProp(i.implementation)} = {\n${
       indent(
-        Object.keys(functions).map(f =>
+
+        Object.keys(inherited).map(f =>
           `${emitIdentifier({name: f})}: ${
-            typeof functions[f] === 'string'
-              ? functions[f]
-              : `${emitTypePath(i.trait_.path)}.${emitIdentifier({name: f})}`
-          }`)
+            `${i.extendedTraits[inherited[f].id!]}.${emitIdentifier({name: f})}`
+          }`
+        ).concat(
+          Object.keys(functions).map(f =>
+            `${emitIdentifier({name: f})}: ${
+              typeof functions[f] === 'string'
+                ? functions[f]
+                : `${emitTypePath(i.trait_.path)}.${emitIdentifier({name: f})}`
+            }`)
+        )
       )
       .join(',\n')
     }\n}`
@@ -873,7 +890,7 @@ export function Emitter() {
       return emitCallExpression(e.call)
     }
     return withPrecedence(e.operator, () =>
-      `${emitExpression(e.lhs)} ${tokenToJs(e.operator.kind!)} ${emitExpression(e.rhs)}`
+      `${emitExpression(e.lhs, Context.Value)} ${tokenToJs(e.operator.kind!)} ${emitExpression(e.rhs, Context.Value)}`
     )
   }
 

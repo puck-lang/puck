@@ -664,6 +664,11 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
         then delimited(SyntaxKind::LessThanToken, SyntaxKind::GreaterThanToken, SyntaxKind::CommaToken, parseTypeParameter, true)
       else []
 
+    let traitBound = maybeConsumeToken(SyntaxKind::ColonToken).map(|colonToken| {{
+      colonToken
+      bound: parseTypeBound()
+    }})
+
     let openBrace = expect(SyntaxKind::OpenBraceToken)
     let members = delimited(SyntaxKind::OpenBraceToken, SyntaxKind::CloseBraceToken, SyntaxKind::SemicolonToken, || parseFunctionDeclaration(true), false)
       .toList()
@@ -674,6 +679,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       keyword
       name
       typeParameters
+      traitBound
       openBrace
       members
       closeBrace

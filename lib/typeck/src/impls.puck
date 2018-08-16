@@ -262,12 +262,12 @@ fn collectTypeParameters(mut parameterMap: ObjectMap<Type>, ip: Type, op: Type) 
   Ok(())
 }
 
-export enum TraitCall {
-  TraitObject {
+type TraitObject {
     objectType: Type
-    trait_: Trait
     functionType: Type
   }
+export enum TraitCall {
+  TraitObject(TraitObject)
   TypeObject(Implementation)
   None
   Error(ToSpan, String)
@@ -282,6 +282,22 @@ impl TraitCall {
   }
 }
 
+fn getTraitCallForTrait(objectType: Type, methodName: String) -> Option<Type> {
+  match objectType.kind {
+    TypeKind::Trait(trait_) => {
+      match trait_.functions.get(methodName) {
+        Some(functionType) => Some(functionType)
+        None => {
+          trait_.requiredTraits
+            .filterMap(|type_| getTraitCallForTrait(type_, methodName))
+            .first()
+        }
+      }
+    }
+    _ => None
+  }
+}
+
 export fn getTraitCall(objectType: Type, methodName: String, e: CallExpression) -> TraitCall {
   match objectType.kind {
     TypeKind::Intersection(intersection) => {
@@ -289,10 +305,9 @@ export fn getTraitCall(objectType: Type, methodName: String, e: CallExpression) 
         .orElse(|| getTraitCall(intersection.intersectedTrait, methodName, e))
     }
     TypeKind::Trait(trait_) => {
-      match trait_.functions.get(methodName) {
-        Some(functionType) => TraitCall::TraitObject({objectType, trait_, functionType})
-        None => TraitCall::None
-      }
+      getTraitCallForTrait(objectType, methodName)
+        .map(|functionType| TraitCall::TraitObject({objectType, functionType}))
+        .unwrapOr(TraitCall::None)
     }
     _ => {
       match getImplementation(methodName, objectType, e) {

@@ -67,3 +67,23 @@ genericString.generic('hello')
 
 Generic.generic(genericNum, 5)
 Generic.generic(genericString, 'hello')
+
+export trait MoreFunctions: Functions {
+  fn doubleNoBody(self) -> Num {
+    self.noBody() * 2
+  }
+
+  fn doubleWithBody(self, a: String) -> String {
+    self.withBody(a) ++ self.withBody(a)
+  }
+}
+
+impl MoreFunctions for FunctionsType {}
+
+let func: FunctionsType = {name: 'func'}
+func.withBody('body')
+func.doubleWithBody('body')
+
+let func: MoreFunctions = func
+func.withBody('body')
+func.doubleWithBody('body')

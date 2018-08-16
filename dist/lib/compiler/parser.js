@@ -1072,6 +1072,12 @@ function parse(input, file, recover = false) {
       $puck_67 = [];
     };
     const typeParameters = $puck_67;
+    const traitBound = $puck_1.Option.map.call(maybeConsumeToken($puck_5.SyntaxKind.ColonToken), function (colonToken) {
+      return {
+        colonToken: colonToken,
+        bound: parseTypeBound(),
+      };
+    });
     const openBrace = expect($puck_5.SyntaxKind.OpenBraceToken);
     const members = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].toList.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: delimited($puck_5.SyntaxKind.OpenBraceToken, $puck_5.SyntaxKind.CloseBraceToken, $puck_5.SyntaxKind.SemicolonToken, function () {
       return parseFunctionDeclaration(true);
@@ -1082,6 +1088,7 @@ function parse(input, file, recover = false) {
       keyword: keyword,
       name: name,
       typeParameters: typeParameters,
+      traitBound: traitBound,
       openBrace: openBrace,
       members: members,
       closeBrace: closeBrace,

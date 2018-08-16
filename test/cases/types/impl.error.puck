@@ -86,3 +86,25 @@ trait Trait<T> {
 impl Trait<Num> for Type {
   fn a(self, a: String) -> () {}
 }
+
+///// The trait Foo is not implemented for the type FooBar
+type FooBar {}
+trait Foo {}
+trait Bar: Foo {}
+impl Bar for FooBar {}
+
+///// The trait Foo is not implemented for the type FooBar
+type FooBar {}
+trait Foo {}
+trait Bar {}
+trait Baz: Foo + Bar {}
+impl Bar for FooBar {}
+impl Baz for FooBar {}
+
+///// The trait Bar is not implemented for the type FooBar
+type FooBar {}
+trait Foo {}
+trait Bar {}
+trait Baz: Foo + Bar {}
+impl Foo for FooBar {}
+impl Baz for FooBar {}

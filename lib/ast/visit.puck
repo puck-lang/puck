@@ -312,6 +312,8 @@ export fn walkImplShorthandDeclaration(visitor, i: ImplShorthandDeclaration) {
 export fn walkTraitDeclaration(visitor, t: TraitDeclaration) {
   if t.typeParameters
     then t.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
+  if let Some({bound}) = t.traitBound
+    then visitor.visitTypeBound(bound)
   t.members.forEach(|t| visitor.visitFunctionDeclaration(t))
 }
 export fn walkTypeDeclaration(visitor, t: TypeDeclaration) {

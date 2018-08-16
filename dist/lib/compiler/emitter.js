@@ -529,13 +529,21 @@ function Emitter() {
         return identifier.name;
     }
     function emitImplDeclaration(i) {
-        var functions = Object['assign']({}, i.trait_.type_.kind.value.functions);
+        var functions = __assign({}, i.trait_.type_.kind.value.functions);
+        var inherited = (i.trait_.type_.kind.value.requiredTraits || []).reduce(function (members, trait) {
+            Object.keys(trait.kind.value.functions).forEach(function (fn) {
+                members[fn] = trait;
+            });
+            return members;
+        }, {});
         i.members.forEach(function (m) { return functions[m.name.name] = emitFunctionDeclaration(m, false); });
-        return "" + emitTypePath(i.trait_.path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(functions).map(function (f) {
+        return "" + emitTypePath(i.trait_.path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(inherited).map(function (f) {
+            return emitIdentifier({ name: f }) + ": " + (i.extendedTraits[inherited[f].id] + "." + emitIdentifier({ name: f }));
+        }).concat(Object.keys(functions).map(function (f) {
             return emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]
                 : emitTypePath(i.trait_.path) + "." + emitIdentifier({ name: f }));
-        }))
+        })))
             .join(',\n') + "\n}";
     }
     function emitImplShorthandDeclaration(i) {
@@ -751,7 +759,7 @@ function Emitter() {
             return emitCallExpression(e.call);
         }
         return withPrecedence(e.operator, function () {
-            return emitExpression(e.lhs) + " " + tokenToJs(e.operator.kind) + " " + emitExpression(e.rhs);
+            return emitExpression(e.lhs, Context.Value) + " " + tokenToJs(e.operator.kind) + " " + emitExpression(e.rhs, Context.Value);
         });
     }
     function emitCallExpression(fn_) {

@@ -37,6 +37,7 @@ import '../ast/visit.puck' as visit
 import '../entities.puck' as {Definition, File, StructKind, Type, TypeClass, TypeKind, CompilationError}
 import 'src/scope.puck' as {Binding, Scope, ScopeError}
 import 'src/structure_visitor.puck' as {structureVisitor}
+import 'src/types.puck' as {isSameId}
 
 fn isTypeScope(e: ExportDirective) {
   match e.statement {
@@ -68,6 +69,22 @@ fn getTypeId(declaration: {attributes: List<Attribute>, name: Identifier}, conte
       }
     }
     else generateTypeId(context, file, declaration.name.name)
+}
+
+fn getTraits(type_: Type) -> Result<List<Type>, (ToSpan, String)> {
+  let type_ = type_.providesType.unwrapOr(type_)
+  match type_.kind {
+    TypeKind::Trait(trait_) => Ok([type_])
+    // TODO: This did not error?
+    // TypeKind::Trait(trait_) => Ok([trait_])
+    TypeKind::Intersection(intersection) => {
+      getTraits(intersection.baseType).map(|mut types| {
+        types.push(intersection.intersectedTrait)
+        types
+      })
+    }
+    _ => Err((type_.definition.token, 'Can only extend other traits'))
+  }
 }
 
 /// Visits and declares Enums, Traits and Types
@@ -233,6 +250,7 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
           name: Some(t.name.name)
           kind: TypeKind::Trait({
             isShorthand: false
+            requiredTraits: []
             functions: ObjectMap.new()
           })
           class: TypeClass.fromAstNode(t, reportError)
@@ -262,6 +280,19 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
             c.typeParameters.push(p->type_.transmute())
           })
         }
+        if let Some({bound}) = t.traitBound {
+          self.visitTypeBound(bound)
+          match getTraits(bound.getType()) {
+            Ok(requiredTraits) => {
+              if let Some(trait_) = requiredTraits.find(|t| isSameId(t, type_.providesType.unwrap())) {
+                reportError(trait_.definition.token, 'A trait can not extend itself')
+              }
+              let mut trait_ = type_.getTrait()
+              trait_.requiredTraits = requiredTraits
+            }
+            Err((token, message)) => reportError(token, message)
+          }
+        }
         scope.setSelfType(type_.providesType.unwrap())
         self.scope = parentScope
       }
@@ -269,30 +300,24 @@ export fn TypeVisitor(mut context: CompilerContext, file: File) {
         self.scope = t->scope
         t.members.forEach(|m| self.visitMethodDeclaration(m, type_.providesType.unwrap()))
 
-        if let TypeKind::Trait(trait_) = type_.providesType.unwrap().kind {
-          Object->assign(trait_.functions, ObjectMap.fromIter(
-            t.members.map(|m| {
-              if let TypeKind::Function(function) = m.type_.kind {
-                if function.isAbstract and function.selfBinding.isNone() {
-                  reportError(m, 'Static trait functions can not be abstract')
-                }
+        let mut trait_ = type_.getTrait()
+        trait_.functions.merge(ObjectMap.fromIter(
+          t.members.map(|m| {
+            if let TypeKind::Function(function) = m.type_.kind {
+              if function.isAbstract and function.selfBinding.isNone() {
+                reportError(m, 'Static trait functions can not be abstract')
               }
-              (m.name.unwrap().name, m.type_)
-            })
-          ))
+            }
+            (m.name.unwrap().name, m.type_)
+          })
+        ))
 
-          if let Some(class) = type_.providesType.unwrap().class {
-            class.instances.forEach(|mut instance| {
-              if let TypeKind::Trait(instanceTrait) = instance.kind {
-                Object->assign(instanceTrait, {
-                  functions: trait_.functions
-                })
-              }
-              else throw 'instance is not a trait'
-            })
-          }
+        if let Some(class) = type_.providesType.unwrap().class {
+          class.instances.forEach(|mut instance| {
+            let mut instanceTrait = instance.getTrait()
+            instanceTrait.functions = trait_.functions
+          })
         }
-        else throw 'is not a trait'
 
         self.scope = parentScope
       }

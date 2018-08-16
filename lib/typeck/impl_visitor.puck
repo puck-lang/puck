@@ -41,11 +41,41 @@ import '../entities.puck' as {
   CompilationError
 }
 
+export fn checkDefferedImpls(mut deferredImpl: Map<Type, List<(List<Type>, () -> ())>>) {
+  for (type_, mut awaiters) of deferredImpl.entries() {
+    let implementations = match type_.kind {
+      TypeKind::Enum(enum_) => enum_.implementations
+      TypeKind::Struct(struct) => struct.implementations
+      _ => panic('Type ' ++ type_.displayName() ++ 'is not implementable')
+    }
+
+    if implementations.isNotEmpty() {
+      let mut finished = Set.new()
+      awaiters.iter().enumerate().forEach(|(i, (requiredTraits, callback))| {
+        if requiredTraits.all(|trait_| isAssignable(trait_, type_)) {
+          finished.add(requiredTraits)
+          callback()
+        }
+      })
+      awaiters.removeWhere(|(requiredTraits, _)| finished.has(requiredTraits))
+    }
+    if awaiters.isEmpty() {
+      deferredImpl.delete(type_)
+    }
+  }
+}
+
 fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable: {implementations: List<Implementation>}, mut i: ImplDeclaration, reportError: (ToSpan, String) -> (), id: String) {
   let traitName = traitType.displayName()
 
   if implementable.implementations.any(|imp| isSameType(imp.trait_, traitType))
     then reportError(i, '$traitName has already been implemented for ' ++ type_.displayName())
+
+  trait_.requiredTraits.forEach(|requiredTrait| {
+    if not isAssignable(requiredTrait, type_)
+      then reportError(i, 'The trait ' ++ requiredTrait.displayName() ++
+        ' is not implemented for the type ' ++ type_.displayName())
+  })
 
   let functions = ObjectMap.fromIter(
     i.members.map(|functionDeclaration| {
@@ -134,6 +164,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
       name: type_.name
       kind: TypeKind::Trait({
         isShorthand: true
+        requiredTraits: []
         functions
       })
       class: None
@@ -167,7 +198,6 @@ export fn ImplVisitor(mut context: CompilerContext, file: File) {
 
   Object->assign({}, visit.emptyVisitor, structureVisitor(context, file, 'ImplVisitor'), {
     visitModule: |mut self, mut m: Module| {
-
       self.scope = m->scope
       m.statements
         .filter(|e| match e {
@@ -193,19 +223,43 @@ export fn ImplVisitor(mut context: CompilerContext, file: File) {
       let id = getImplId(traitType, structType)
 
       if let TypeKind::Trait(trait_) = traitType.kind {
-        match structType.kind {
-          TypeKind::Enum(enum_) => {
-            let mut e = enum_
-            implementTrait(traitType, trait_, structType, e, i, reportError, id)
+        fn implement() {
+          match structType.kind {
+            TypeKind::Enum(mut enum_) => {
+              implementTrait(traitType, trait_, structType, enum_, i, reportError, id)
+            }
+            TypeKind::Struct(mut struct) => {
+              implementTrait(traitType, trait_, structType, struct, i, reportError, id)
+            }
+            _ => context.reportError(file, i.type_,
+              CompilationError::Other(structType.displayName() ++ ' is not a struct or an enum')
+            )
           }
-          TypeKind::Struct(struct) => {
-            let mut s = struct
-            implementTrait(traitType, trait_, structType, s, i, reportError, id)
-          }
-          _ => context.reportError(file, i.type_,
-            CompilationError::Other(structType.displayName() ++ ' is not a struct or an enum')
+
+          i->extendedTraits = ObjectMap.fromIter(
+            traitType.getTrait().requiredTraits.iter().filterMap(|trait_| {
+              if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap(), 'ImplVisitor') {
+                Some((trait_.id.unwrap(), binding.name))
+              }
+              else {
+                let typeName = trait_.name.unwrap()
+                context.reportError(
+                  file
+                  i
+                  CompilationError::TraitNotInScope({
+                    traitName: typeName
+                    id: trait_.id.unwrap()
+                  })
+                )
+                None
+              }
+            }).collect()
           )
         }
+
+        if trait_.requiredTraits.isNotEmpty()
+          then context.deferAfterImpl(structType, trait_.requiredTraits, implement)
+          else implement()
       }
       else context.reportError(file, i.trait_,
         CompilationError::Other(traitType.displayName() ++ ' is not a trait')

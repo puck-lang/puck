@@ -4,7 +4,7 @@ export class Type {
   static displayName(this: Type): string
   static verboseName(this: Type): string
   static isEmpty(): boolean
-  id: Option<String>
+  id: Option<string>
 
   kind: {
     kind:
@@ -23,6 +23,7 @@ export class Type {
       returnType: Type
       baseType: Type
       intersectedTrait: Type
+      requiredTraits: Array<Type>
     }
   }
 
