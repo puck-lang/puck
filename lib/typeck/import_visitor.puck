@@ -8,9 +8,9 @@ import '../ast/ast.puck' as {
   ImportDirective
   ImportSpecifier
 }
+import '../ast/empty_visitor.puck' as {EmptyVisitor}
 import '../ast/span.puck' as {ToSpan}
 import '../compiler.puck' as {CompilerContext}
-import '../ast/visit.puck' as visit
 import '../entities.puck' as {File, CompilationError}
 import '../compiler/ast.ts' as {SyntaxKind}
 
@@ -18,22 +18,32 @@ let domains = ['node', 'puck', 'package']
 export let puckFile = RegExp.new('\\.puck$', 'i')
 export let puckModules = ['core', 'js', 'test']
 
-export fn ImportVisitor(mut context: CompilerContext, file: File) {
-  let mut declarations: ObjectMap<ToSpan>
+export type ImportVisitor {
+  file: File
+  context: CompilerContext
+  declarations: ObjectMap<ToSpan>
+}
 
-  fn importModule(mut i: ImportDirective, mut importedFile: File) -> () {
-    match asResult(|| context.importFile(importedFile)) {
+impl ImportVisitor {
+  fn new(mut context: CompilerContext, file: File, declarations: ObjectMap<ToSpan>) -> ImportVisitor {{
+    context
+    file
+    declarations
+  }}
+
+  fn importModule(mut self, mut i: ImportDirective, mut importedFile: File) -> () {
+    match asResult(|| self.context.importFile(importedFile)) {
       Ok(contextFile) => {
         let module = match contextFile.ast {
           Some(module) => module
-          Option::None => return context.defer(importedFile, || importModule(i, importedFile))
+          Option::None => return self.context.defer(importedFile, || self.importModule(i, importedFile))
         }
 
         match i.specifier {
           ImportSpecifier::ObjectDestructure(o) => {
             o.members.forEach(|m| {
               if not module.exports.has(m.property.name)
-                then context.reportError(file, m,
+                then self.context.reportError(self.file, m,
                   CompilationError::Other(importedFile.fileName ++ ' has no export named ' ++ m.property.name)
                 )
             })
@@ -43,7 +53,7 @@ export fn ImportVisitor(mut context: CompilerContext, file: File) {
               openBrace: token
               closeBrace: token
               members: module.exports.keys()
-                .filter(|e| not declarations.has(e))
+                .filter(|e| not self.declarations.has(e))
                 .map(|e| {
                   let property = module.exports[e].identifier
                   {
@@ -62,84 +72,84 @@ export fn ImportVisitor(mut context: CompilerContext, file: File) {
       }
       Err(err) => {
         if err.transmute::<String>() == 'Syntax Error' {
-          context.reportError(file, i, CompilationError::Other(err.transmute::<String>()))
+          self.context.reportError(self.file, i, CompilationError::Other(err.transmute::<String>()))
         }
         else throw err
       }
     }
   }
+}
 
-  Object->assign({}, visit.emptyVisitor, {
+impl EmptyVisitor for ImportVisitor {
+  fn visitModule(mut self, m: Module) -> () {
+    m.statements.forEach(|s| {
+      if let TopLevelStatement::ImportDirective(mut e) = s {
+        self.visitImportDirective(e)
+      }
+    })
+  }
 
-    visitModule: |self, mut m: Module| {
-      declarations = m->declarations.transmute()
-      m.statements.forEach(|s| {
-        if let TopLevelStatement::ImportDirective(e) = s {
-          self.visitImportDirective(e)
+  fn visitImportDirective(mut self, mut i: ImportDirective) -> () {
+    match i.domain {
+      Some(domain) => {
+        if domain == 'puck' {
+          if not puckModules.contains(i.path)
+            then return self.context.reportError(
+              self.file, i
+              CompilationError::Other('Invalid puck module ' ++ i.path)
+            )
+
+          let mut importedFile = self.context.resolvePath(
+            path->join(
+              path->dirname(require->resolve('puck-lang/package.json'))
+              'lib'
+              'stdlib'
+              i.path ++ '.puck'
+            ).transmute::<String>()
+            self.file
+          )
+          self.importModule(i, importedFile)
         }
-      })
-      // No need to keep this around after this step
-      m->declarations = undefined
-    }
-
-    visitImportDirective: |self, mut i: ImportDirective| {
-      match i.domain {
-        Some(domain) => {
-          if domain == 'puck' {
-            if not puckModules.contains(i.path)
-              then return context.reportError(file, i, CompilationError::Other('Invalid puck module ' ++ i.path))
-            let mut importedFile = context.resolvePath(
+        else if domain == 'package' {
+          let slash = i.path.iter().position(|c: String| c == '/').unwrapOr(i.path.size())
+          let packageName = i.path.sub(Range.new(0, slash))
+          let packagePath = i.path.sub(Range.new(slash, i.path.size()))
+          let result = asResult(|| self.context.resolvePath(
               path->join(
-                path->dirname(require->resolve('puck-lang/package.json'))
+                path->dirname(requireRelative->resolve('puck-$packageName/package.json', self.file.absolutePath))
                 'lib'
-                'stdlib'
-                i.path ++ '.puck'
+                packagePath
               ).transmute::<String>()
-              file
+              self.file
             )
-            importModule(i, importedFile)
-          }
-          else if domain == 'package' {
-            let slash = i.path.iter().position(|c: String| c == '/').unwrapOr(i.path.size())
-            let packageName = i.path.sub(Range.new(0, slash))
-            let packagePath = i.path.sub(Range.new(slash, i.path.size()))
-            let result = asResult(|| context.resolvePath(
-                path->join(
-                  path->dirname(requireRelative->resolve('puck-$packageName/package.json', file.absolutePath))
-                  'lib'
-                  packagePath
-                ).transmute::<String>()
-                file
-              )
-            )
-            match result {
-              Ok(mut importedFile) => {
-                if puckFile.test(importedFile.absolutePath)
-                  then importModule(i, importedFile)
-              }
-              Err(error) => return context.reportError(file, i,
-                CompilationError::Other('Imported file package:' ++ i.path ++ ' not found')
-              )
-            }
-          }
-          else if not domains.contains(domain) {
-            context.reportError(file, i, CompilationError::Other('Invalid import domain $domain'))
-          }
-        }
-        None => {
-          let result = asResult(|| context.resolvePath(i.path, file))
+          )
           match result {
             Ok(mut importedFile) => {
               if puckFile.test(importedFile.absolutePath)
-                then importModule(i, importedFile)
+                then self.importModule(i, importedFile)
             }
-            Err(error) => return context.reportError(file, i,
-              CompilationError::Other('Imported file ' ++ i.path ++ ' not found')
+            Err(error) => return self.context.reportError(self.file, i,
+              CompilationError::Other('Imported file package:' ++ i.path ++ ' not found')
             )
           }
         }
+        else if not domains.contains(domain) {
+          self.context.reportError(self.file, i, CompilationError::Other('Invalid import domain $domain'))
+        }
       }
-      ()
+      None => {
+        let result = asResult(|| self.context.resolvePath(i.path, self.file))
+        match result {
+          Ok(mut importedFile) => {
+            if puckFile.test(importedFile.absolutePath)
+              then self.importModule(i, importedFile)
+          }
+          Err(error) => return self.context.reportError(self.file, i,
+            CompilationError::Other('Imported file ' ++ i.path ++ ' not found')
+          )
+        }
+      }
     }
-  })
+    ()
+  }
 }

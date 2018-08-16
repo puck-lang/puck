@@ -13,6 +13,7 @@ var entities_1 = require("../entities");
 var functions_1 = require("../typeck/src/functions");
 var impls_1 = require("../typeck/src/impls");
 var scope_1 = require("../typeck/src/scope");
+var types_1 = require("../typeck/src/types");
 var jsKeywords = [
     'arguments', 'case', 'class', 'default', 'delete', 'function', 'global', 'module', 'new', 'null',
     'require', 'static', 'Object', 'typeof', 'undefined',
@@ -92,17 +93,21 @@ function Emitter() {
         valueVarableCount += 1;
         return "$puck_" + valueVarableCount;
     }
-    function getType(e) {
-        if (e.kind === 'Identifier' &&
+    function isOverriden(e) {
+        return e.kind === 'Identifier' &&
             typeOverrides[e.value.name] &&
-            typeOverrides[e.value.name].old === e.value.type_) {
+            typeOverrides[e.value.name].old === e.value.type_;
+    }
+    function getType(e, allowOverriden) {
+        if (allowOverriden === void 0) { allowOverriden = true; }
+        if (isOverriden(e) && allowOverriden) {
             return typeOverrides[e.value.name].new;
         }
         return e.value.type_;
     }
     function unwrap(code, e) {
         var type = getType(e);
-        if (type && type.kind.kind === 'Trait') {
+        if (type && (type.kind.kind === 'Trait' || type.kind.kind === 'Intersection')) {
             return code + ".value";
         }
         else if (!type || type.kind.kind === 'Parameter') {
@@ -159,6 +164,10 @@ function Emitter() {
     function getImplId(type, trait) {
         var opt = impls_1.getImplementationForTrait(type, trait).value;
         if (!opt) {
+            console.error('type displayName', entities_1.Type.displayName.call(type));
+            console.error('type verboseName', entities_1.Type.verboseName.call(type));
+            console.error('trait displayName', entities_1.Type.displayName.call(trait));
+            console.error('trait verboseName', entities_1.Type.verboseName.call(trait));
             throw Error('No impl');
         }
         return opt.id;
@@ -344,10 +353,37 @@ function Emitter() {
             if (scalarExpression) {
                 var expressionType = getType(expression);
                 if (assignedTo && expressionType && (context == Context.Return || context == Context.Value)) {
-                    if (assignedTo.kind.kind === 'Trait' && getType(expression).kind.kind !== 'Trait') {
+                    if (assignedTo.kind.kind === 'Trait' && expressionType.kind.kind === 'Intersection') {
+                        var baseType = expressionType;
+                        do {
+                            baseType = baseType.kind.value.baseType;
+                        } while (baseType.kind.kind === 'Intersection');
+                        if (types_1.isAssignable(assignedTo, baseType)) {
+                            scalarExpression = "{type: '" + getImplId(baseType, assignedTo) + "', value: " + scalarExpression + ".value, $isTraitObject: true}";
+                        }
+                        else {
+                            if (expression.kind !== 'Identifier') {
+                                var valueVariable_1 = newValueVariable();
+                                hoist("let " + valueVariable_1 + " = " + scalarExpression);
+                                scalarExpression = valueVariable_1;
+                            }
+                            scalarExpression = "{type: " + scalarExpression + ".traits['" + assignedTo.id + "'], value: " + scalarExpression + ".value, $isTraitObject: true}";
+                        }
+                    }
+                    else if (assignedTo.kind.kind === 'Trait' && expressionType.kind.kind !== 'Trait') {
                         scalarExpression = "{type: '" + getImplId(expressionType, assignedTo) + "', value: " + scalarExpression + ", $isTraitObject: true}";
                     }
-                    else if (assignedTo.kind.kind !== 'Trait') {
+                    else if (assignedTo.kind.kind === 'Intersection' && expressionType.kind.kind !== 'Intersection') {
+                        var traits = [];
+                        var currentType = assignedTo;
+                        do {
+                            var trait = currentType.kind.value.intersectedTrait;
+                            traits.push("'" + trait.id + "': '" + getImplId(expressionType, trait) + "'");
+                            currentType = currentType.kind.value.baseType;
+                        } while (currentType.kind.kind === 'Intersection');
+                        scalarExpression = "{traits: {" + traits.join(',') + "}, value: " + scalarExpression + ", $isTraitObject: true}";
+                    }
+                    else if (assignedTo.kind.kind !== 'Trait' && assignedTo.kind.kind !== 'Intersection') {
                         scalarExpression = unwrap(scalarExpression, expression);
                     }
                 }
@@ -576,15 +612,15 @@ function Emitter() {
             return "" + (destructure || '') + initializer;
         }
         if (context) {
-            var valueVariable_1 = newValueVariable();
+            var valueVariable_2 = newValueVariable();
             if (destructure) {
-                hoist("let " + valueVariable_1 + initializer + ";");
-                hoist("let " + destructure + " = " + valueVariable_1 + ";");
+                hoist("let " + valueVariable_2 + initializer + ";");
+                hoist("let " + destructure + " = " + valueVariable_2 + ";");
             }
             else {
-                hoist("let " + valueVariable_1 + " = " + initializer + ";");
+                hoist("let " + valueVariable_2 + " = " + initializer + ";");
             }
-            return valueVariable_1;
+            return valueVariable_2;
         }
         if (!destructure)
             return initializer;
@@ -1047,7 +1083,11 @@ function Emitter() {
         return code;
     }
     function emitTupleIndexAccess(e) {
-        var boxed = getType(e.object).kind.value.kind.value.properties.length > 1;
+        var type_ = getType(e.object, isOverriden(e.object) && getType(e.object).kind.kind === 'Struct');
+        while (type_.kind.kind === 'Intersection') {
+            type_ = type_.kind.value.baseType;
+        }
+        var boxed = type_.kind.value.kind.value.properties.length > 1;
         var object = e.object.kind == 'NumberLiteral'
             ? "(" + emitExpression(e.object) + ")"
             : unwrap(emitExpression(e.object), e.object);

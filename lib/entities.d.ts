@@ -1,12 +1,19 @@
 import {Option} from './compiler/ast'
 
 export class Type {
-  static displayName(): string
+  static displayName(this: Type): string
+  static verboseName(this: Type): string
   static isEmpty(): boolean
   id: Option<String>
 
   kind: {
-    kind: string
+    kind:
+      | 'Enum'
+      | 'Function'
+      | 'Intersection'
+      | 'Parameter'
+      | 'Struct'
+      | 'Trait'
     value: {
       members: {[name: string]: Type}
       functions: {[name: string]: Type}
@@ -14,6 +21,8 @@ export class Type {
       selfBinding: Option<{type_: Type}>
       kind: Record | Tuple | {kind: 'Unit'}
       returnType: Type
+      baseType: Type
+      intersectedTrait: Type
     }
   }
 

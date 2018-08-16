@@ -1111,6 +1111,7 @@ impl ToSpan for TuplePattern {
 
 export enum TypeBound {
   FunctionTypeBound(FunctionTypeBound)
+  IntersectionTypeBound(IntersectionTypeBound)
   NamedTypeBound(NamedTypeBound)
   RecordTypeBound(RecordTypeBound)
   TupleTypeBound(TupleTypeBound)
@@ -1120,7 +1121,8 @@ impl TypeBound {
   fn getType(self) -> Type {
     match self {
       TypeBound::FunctionTypeBound(t) => t->type_.transmute()
-      TypeBound::NamedTypeBound(t) => t->type_.transmute()
+      TypeBound::IntersectionTypeBound(t) => t->type_.transmute()
+      TypeBound::NamedTypeBound(t) => t.getType()
       TypeBound::RecordTypeBound(t) => t->type_.transmute()
       TypeBound::TupleTypeBound(t) => t->type_.transmute()
     }
@@ -1145,6 +1147,7 @@ impl ToSpan for TypeBound {
   fn span(self) -> Span {
     match self {
       TypeBound::FunctionTypeBound(t) => t.span()
+      TypeBound::IntersectionTypeBound(t) => t.span()
       TypeBound::NamedTypeBound(t) => t.span()
       TypeBound::RecordTypeBound(t) => t.span()
       TypeBound::TupleTypeBound(t) => t.span()
@@ -1159,10 +1162,27 @@ export type FunctionTypeBound {
 }
 
 impl ToSpan for FunctionTypeBound {
-  fn span(self) -> Span {{
-    start: self.typeParameters.first().mapOrElse(|| self.parameters.span(), |p| p.span()).start
-    end: self.returnType.end()
-  }}
+  fn start(self) -> Position {
+    self.typeParameters.first().mapOrElse(|| self.parameters.start(), |p| p.start())
+  }
+  fn end(self) -> Position {
+    self.returnType.end()
+  }
+}
+
+export type IntersectionTypeBound {
+  baseType: TypeBound
+  plusToken: SimpleToken
+  traitBound: NamedTypeBound
+}
+
+impl ToSpan for IntersectionTypeBound {
+  fn start(self) -> Position {
+    self.baseType.start()
+  }
+  fn end(self) -> Position {
+    self.traitBound.end()
+  }
 }
 
 export type NamedTypeBound {
@@ -1177,10 +1197,12 @@ impl NamedTypeBound {
 }
 
 impl ToSpan for NamedTypeBound {
-  fn span(self) -> Span {{
-    start: self.path.start()
-    end: self.typeParameters.last().mapOr(self.path.span(), |p| p.span()).end
-  }}
+  fn start(self) -> Position {
+    self.path.start()
+  }
+  fn end(self) -> Position {
+    self.typeParameters.last().mapOr(self.path.end(), |p| p.end())
+  }
 }
 
 export type RecordTypeBound {
@@ -1190,10 +1212,12 @@ export type RecordTypeBound {
 }
 
 impl ToSpan for RecordTypeBound {
-  fn span(self) -> Span {{
-    start: self.openBrace.span.start
-    end: self.closeBrace.span.end
-  }}
+  fn start(self) -> Position {
+    self.openBrace.span.start
+  }
+  fn end(self) -> Position {
+    self.closeBrace.span.end
+  }
 }
 
 export enum RecordTypeBoundMember {
@@ -1242,8 +1266,7 @@ export type TypeParameter {
 }
 
 impl ToSpan for TypeParameter {
-  fn span(self) -> Span {{
-    start: self.name.span.start
-    end: self.name.span.end
-  }}
+  fn span(self) -> Span {
+    self.name.span
+  }
 }

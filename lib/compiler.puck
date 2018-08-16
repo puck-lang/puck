@@ -3,6 +3,7 @@ import 'node:babel-core' as babel
 import 'node:fs' as fs
 import 'node:path' as path
 import 'node:util' as {inspect}
+import 'ast/empty_visitor.puck' as {EmptyVisitor}
 import 'ast/span.puck' as {ToSpan}
 import 'compiler/emitter.ts' as {Emitter}
 import 'compiler/input_stream.puck' as {InputStream}
@@ -25,8 +26,9 @@ fn fileInspect(self, depth: Num, opts: {depth: Num}) {
 
 export fn parseString(mut context, file: File, recoverFromSyntaxErrors = false) {
   let mut ast = parse(TokenStream.new(InputStream.new(context, file)), file, recoverFromSyntaxErrors)
-  TopLevelVisitor(context, file)->visitModule(ast)
-  ImportVisitor(context, file)->visitModule(ast)
+  let mut topLevelVisitor = TopLevelVisitor.new(context, file)
+  topLevelVisitor.visitModule(ast)
+  ImportVisitor.new(context, file, topLevelVisitor.declarations).visitModule(ast)
   ast
 }
 

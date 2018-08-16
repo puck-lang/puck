@@ -1,0 +1,75 @@
+type Record {a: String}
+type Tuple (String)
+
+impl Concat<String, String> for Record {
+  fn concat(self, rhs: String) -> String {self.a ++ rhs}
+}
+impl Ord for Record {
+  fn cmp(self, other: Record) -> Ordering {self.a.cmp(other.a)}
+}
+impl Concat<String, String> for Tuple {
+  fn concat(self, rhs: String) -> String {self.0 ++ rhs}
+}
+impl Ord for Tuple {
+  fn cmp(self, other: Tuple) -> Ordering {self.0.cmp(other.0)}
+}
+
+let withNamed: String + Concat<String, String> = ''
+let withRecord: {a: String} + Concat<String, String> = Record({a: ''})
+let withTuple: (String) + Concat<String, String> = Tuple('')
+// TODO: When traits can be implemented for other typekinds, test these
+
+let multipleNamed: String + Concat<String, String> + Ord = ''
+let multipleRecord: {a: String} + Concat<String, String> + Ord = Record({a: ''})
+let multipleTuple: (String) + Concat<String, String> + Ord = Tuple('')
+
+fn returnValue1() -> Tuple + Concat<String, String> {
+  Tuple('')
+}
+fn returnValue2() -> (String) + Concat<String, String> {
+  Tuple('')
+}
+
+let useOperator1: String = withNamed ++ ''
+// TODO: Support direct trait calls with trait objects
+// let useOperator2: String = withRecord ++ ''
+// let useOperator3: String = withTuple ++ ''
+let useOperator4: String = multipleNamed ++ ''
+// TODO: Support direct trait calls with trait objects
+// let useOperator5: String = multipleRecord ++ ''
+// let useOperator6: String = multipleTuple ++ ''
+let useTraitFromBase1: Bool = withNamed.contains('')
+let useTraitFromBase2: Bool = multipleNamed.contains('')
+let useTraitFromTrait1: Bool = withRecord.concat('')
+let useTraitFromTrait2: Bool = withTuple.concat('')
+let useTraitFromTrait3: Bool = multipleRecord.concat('')
+let useTraitFromTrait4: Bool = multipleTuple.concat('')
+let useTraitFromTrait5: Ordering = multipleRecord.cmp(multipleRecord)
+let useTraitFromTrait6: Ordering = multipleTuple.cmp(multipleTuple)
+let useTraitFromBaseAndTrait1: Ordering = multipleNamed.cmp('')
+let useProperty1: String = withRecord.a
+let useProperty2: String = withTuple.0
+let useProperty3: String = multipleRecord.a
+let useProperty4: String = multipleTuple.0
+let assingBase1: String = withNamed
+let assingBase2: {a: String} = withRecord
+let assingBase3: Record = withRecord
+let assingBase4: (String) = withTuple
+let assingBase5: Tuple = withTuple
+let assingBase6: String = multipleNamed
+let assingBase7: {a: String} = multipleRecord
+let assingBase8: Record = multipleRecord
+let assingBase9: (String) = multipleTuple
+let assingBase10: Tuple = multipleTuple
+let assingTrait1: Concat<String, String> = withNamed
+let assingTrait2: Concat<String, String> = withRecord
+let assingTrait3: Concat<String, String> = withTuple
+let assingTrait4: Concat<String, String> = multipleNamed
+let assingTrait5: Ord = withNamed
+let assingTrait6: Ord = multipleNamed
+let assingTrait7: Ord = multipleRecord
+let assingTrait8: Ord = multipleTuple
+let assingTrait9: Concat<String, String> = returnValue1()
+let assingTrait10: Concat<String, String> = returnValue2()
+let assingTrait11: Ord = returnValue1()
+let assingTrait12: Ord = Tuple('')

@@ -194,6 +194,9 @@ impl Type {
     match self.kind {
       TypeKind::Enum(enum_) => getGenericName(self.name.unwrap(), self)
       TypeKind::Function(function) => self.name.unwrapOrElse(|| getFunctionTypeName(function))
+      TypeKind::Intersection(intersection) => {
+        intersection.baseType.displayName() ++ ' + ' ++ intersection.intersectedTrait.displayName()
+      }
       TypeKind::Parameter(_) => self.name.unwrap()
       TypeKind::Struct(struct) => {
         self.name
@@ -214,6 +217,9 @@ impl Type {
     match self.kind {
       TypeKind::Enum(enum_) => getGenericName(self.name.unwrap(), self, true)
       TypeKind::Function(function) => getGenericName(getFunctionTypeName(function), self, true)
+      TypeKind::Intersection(intersection) => {
+        intersection.baseType.verboseName() ++ ' + ' ++ intersection.intersectedTrait.verboseName()
+      }
       TypeKind::Parameter(_) => self.name.unwrap()
       TypeKind::Struct(struct) => {
         match struct.kind {
@@ -294,6 +300,13 @@ impl Type {
     }
   }
 
+  fn isTrait(self) -> Bool {
+    match self.kind {
+      TypeKind::Trait(_) => true
+      _ => false
+    }
+  }
+
   fn typeParameters(self) -> Option<List<Type>> {
     self.instance
       .map(|i| i.typeParameters)
@@ -304,6 +317,7 @@ impl Type {
 export enum TypeKind {
   Enum(Enum)
   Function(Function)
+  Intersection(Intersection)
   Parameter(TypeParameter)
   Struct(Struct)
   Trait(Trait)
@@ -321,6 +335,12 @@ export type Function {
   parameterRange: Range
   returnType: Type
   isAbstract: Bool
+}
+
+/// Represents an intersection of two types Add + Sub
+export type Intersection {
+  baseType: Type
+  intersectedTrait: Type
 }
 
 /// A data type (the ones declared with the `type` keywords), like String or Num

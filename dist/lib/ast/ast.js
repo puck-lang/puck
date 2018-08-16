@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.ForLoop = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.TupleIndexAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RangeLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMember = undefined;
+exports.Module = exports.EnumDeclaration = exports.EnumMember = exports.ImplDeclaration = exports.ImplShorthandDeclaration = exports.TraitDeclaration = exports.TypeDeclaration = exports.ExportDirective = exports.ImportDirective = exports.ObjectDestructure = exports.ObjectDestructureMember = exports.Block = exports.BreakStatement = exports.ReturnStatement = exports.ForLoop = exports.WhileLoop = exports.Comment = exports.Attribute = exports.AttributeArgument = exports.Identifier = exports.FunctionDeclaration = exports.VariableDeclaration = exports.AssignmentExpression = exports.BinaryExpression = exports.CallExpression = exports.TypeArguments = exports.IfExpression = exports.IfLetExpression = exports.MatchExpression = exports.MatchArm = exports.TypePathExpression = exports.UnaryExpression = exports.IndexAccess = exports.MemberAccess = exports.TupleIndexAccess = exports.UnknownAccess = exports.UnknownIndexAccess = exports.BooleanLiteral = exports.ListLiteral = exports.NumberLiteral = exports.RangeLiteral = exports.RecordLiteral = exports.StringLiteral = exports.SimpleStringLiteral = exports.TupleLiteral = exports.RecordPattern = exports.RecordPatternMember = exports.TuplePattern = exports.FunctionTypeBound = exports.IntersectionTypeBound = exports.NamedTypeBound = exports.RecordTypeBound = exports.TupleTypeBound = exports.TypeParameter = exports.TopLevelStatement = exports.BlockLevelStatement = exports.Expression = exports.SimpleLiteral = exports.ExportedStatement = exports.ImportSpecifier = exports.AttributeData = exports.TypePath = exports.RecordLiteralMember = exports.StringLiteralPart = exports.Pattern = exports.TypeBound = exports.RecordTypeBoundMember = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../entities");
 const $puck_3 = require("./span");
@@ -55,6 +55,7 @@ var RecordPattern = exports.RecordPattern = (object) => object;
 var RecordPatternMember = exports.RecordPatternMember = (object) => object;
 var TuplePattern = exports.TuplePattern = (object) => object;
 var FunctionTypeBound = exports.FunctionTypeBound = (object) => object;
+var IntersectionTypeBound = exports.IntersectionTypeBound = (object) => object;
 var NamedTypeBound = exports.NamedTypeBound = (object) => object;
 var RecordTypeBound = exports.RecordTypeBound = (object) => object;
 var TupleTypeBound = exports.TupleTypeBound = (object) => object;
@@ -150,6 +151,7 @@ UnitType: (member) => ({kind: 'UnitType', value: member}),
 };
 var TypeBound = exports.TypeBound = {
 FunctionTypeBound: (member) => ({kind: 'FunctionTypeBound', value: member}),
+IntersectionTypeBound: (member) => ({kind: 'IntersectionTypeBound', value: member}),
 NamedTypeBound: (member) => ({kind: 'NamedTypeBound', value: member}),
 RecordTypeBound: (member) => ({kind: 'RecordTypeBound', value: member}),
 TupleTypeBound: (member) => ({kind: 'TupleTypeBound', value: member}),
@@ -1360,19 +1362,25 @@ span: function () {
     return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound', value: t, $isTraitObject: true});
   }
   else {
-    if ($puck_20.value.kind === "NamedTypeBound") {
+    if ($puck_20.value.kind === "IntersectionTypeBound") {
       let {value: t} = $puck_20.value;
-      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true});
+      return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IntersectionTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IntersectionTypeBound', value: t, $isTraitObject: true});
     }
     else {
-      if ($puck_20.value.kind === "RecordTypeBound") {
+      if ($puck_20.value.kind === "NamedTypeBound") {
         let {value: t} = $puck_20.value;
-        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound', value: t, $isTraitObject: true});
+        return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: t, $isTraitObject: true});
       }
       else {
-        if ($puck_20.value.kind === "TupleTypeBound") {
+        if ($puck_20.value.kind === "RecordTypeBound") {
           let {value: t} = $puck_20.value;
-          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: t, $isTraitObject: true});
+          return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound', value: t, $isTraitObject: true});
+        }
+        else {
+          if ($puck_20.value.kind === "TupleTypeBound") {
+            let {value: t} = $puck_20.value;
+            return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: t, $isTraitObject: true});
+          };
         };
       };
     };
@@ -1382,43 +1390,54 @@ start: $puck_3.ToSpan.start,
 end: $puck_3.ToSpan.end
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionTypeBound"] = {
-span: function () {
+span: $puck_3.ToSpan.span,
+start: function () {
   const self = this;
-  return {
-    start: $puck_1.Option.mapOrElse.call($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.typeParameters, $isTraitObject: true}), function () {
-    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: self.value.parameters, $isTraitObject: true});
+  return $puck_1.Option.mapOrElse.call($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.typeParameters, $isTraitObject: true}), function () {
+    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TupleTypeBound', value: self.value.parameters, $isTraitObject: true});
   }, function (p) {
-    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: p, $isTraitObject: true});
-  }).start,
-    end: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: self.value.returnType, $isTraitObject: true}),
-  };
+    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter', value: p, $isTraitObject: true});
+  });
 },
-start: $puck_3.ToSpan.start,
-end: $puck_3.ToSpan.end
+end: function () {
+  const self = this;
+  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: self.value.returnType, $isTraitObject: true});
+}
+};
+$puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:IntersectionTypeBound"] = {
+span: $puck_3.ToSpan.span,
+start: function () {
+  const self = this;
+  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: self.value.baseType, $isTraitObject: true});
+},
+end: function () {
+  const self = this;
+  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: self.value.traitBound, $isTraitObject: true});
+}
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound"] = {
-span: function () {
+span: $puck_3.ToSpan.span,
+start: function () {
   const self = this;
-  return {
-    start: $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: self.value.path, $isTraitObject: true}),
-    end: $puck_1.Option.mapOr.call($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].last.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.typeParameters, $isTraitObject: true}), $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: self.value.path, $isTraitObject: true}), function (p) {
-    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].span.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: p, $isTraitObject: true});
-  }).end,
-  };
+  return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].start.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: self.value.path, $isTraitObject: true});
 },
-start: $puck_3.ToSpan.start,
-end: $puck_3.ToSpan.end
+end: function () {
+  const self = this;
+  return $puck_1.Option.mapOr.call($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].last.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value.typeParameters, $isTraitObject: true}), $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypePath', value: self.value.path, $isTraitObject: true}), function (p) {
+    return $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound"].end.call({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeBound', value: p, $isTraitObject: true});
+  });
+}
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBound"] = {
-span: function () {
+span: $puck_3.ToSpan.span,
+start: function () {
   const self = this;
-  return {
-    start: self.value.openBrace.span.start,
-    end: self.value.closeBrace.span.end,
-  };
+  return self.value.openBrace.span.start;
 },
-start: $puck_3.ToSpan.start,
-end: $puck_3.ToSpan.end
+end: function () {
+  const self = this;
+  return self.value.closeBrace.span.end;
+}
 };
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:RecordTypeBoundMember"] = {
 span: $puck_3.ToSpan.span,
@@ -1465,10 +1484,7 @@ end: function () {
 $puck_3.ToSpan["$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeParameter"] = {
 span: function () {
   const self = this;
-  return {
-    start: self.value.name.span.start,
-    end: self.value.name.span.end,
-  };
+  return self.value.name.span;
 },
 start: $puck_3.ToSpan.start,
 end: $puck_3.ToSpan.end
@@ -1834,19 +1850,25 @@ TypeBound.getType = function () {
     return t.type_;
   }
   else {
-    if ($puck_30.kind === "NamedTypeBound") {
+    if ($puck_30.kind === "IntersectionTypeBound") {
       let {value: t} = $puck_30;
       return t.type_;
     }
     else {
-      if ($puck_30.kind === "RecordTypeBound") {
+      if ($puck_30.kind === "NamedTypeBound") {
         let {value: t} = $puck_30;
-        return t.type_;
+        return NamedTypeBound.getType.call(t);
       }
       else {
-        if ($puck_30.kind === "TupleTypeBound") {
+        if ($puck_30.kind === "RecordTypeBound") {
           let {value: t} = $puck_30;
           return t.type_;
+        }
+        else {
+          if ($puck_30.kind === "TupleTypeBound") {
+            let {value: t} = $puck_30;
+            return t.type_;
+          };
         };
       };
     };

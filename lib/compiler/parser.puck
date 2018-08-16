@@ -1251,17 +1251,19 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
   }
 
   fn parseTypeBound() -> TypeBound {
-    if isToken(SyntaxKind::LessThanToken)
-      then parseFunctionTypeBound(None)
-    else if isToken(SyntaxKind::OpenParenToken) {
-      let tuple = parseTupleTypeBound()
-      if isToken(SyntaxKind::MinusGreaterThanToken)
-        then parseFunctionTypeBound(Some(tuple))
-        else tuple
-    }
-    else if isToken(SyntaxKind::OpenBraceToken)
-      then parseRecordTypeBound()
-    else TypeBound::NamedTypeBound(parseNamedTypeBound())
+    maybeParseIntersectionTypeBound(
+      if isToken(SyntaxKind::LessThanToken)
+        then parseFunctionTypeBound(None)
+      else if isToken(SyntaxKind::OpenParenToken) {
+        let tuple = parseTupleTypeBound()
+        if isToken(SyntaxKind::MinusGreaterThanToken)
+          then parseFunctionTypeBound(Some(tuple))
+          else tuple
+      }
+      else if isToken(SyntaxKind::OpenBraceToken)
+        then parseRecordTypeBound()
+      else TypeBound::NamedTypeBound(parseNamedTypeBound())
+    )
   }
 
   fn parseFunctionTypeBound(tuple: Option<TypeBound>) -> TypeBound {
@@ -1279,6 +1281,20 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       parameters
       returnType
     })
+  }
+
+  fn maybeParseIntersectionTypeBound(mut baseType: TypeBound) -> TypeBound {
+    while true {
+      if let Some(plusToken) = maybeConsumeToken(SyntaxKind::PlusToken) {
+        baseType = TypeBound::IntersectionTypeBound({
+          baseType
+          plusToken
+          traitBound: parseNamedTypeBound()
+        })
+      }
+      else return baseType
+    }
+    baseType
   }
 
   fn parseNamedTypeBound() -> NamedTypeBound {

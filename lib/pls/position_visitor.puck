@@ -61,6 +61,7 @@ import '../ast/ast.puck' as {
 
   TypeBound
   FunctionTypeBound
+  IntersectionTypeBound
   NamedTypeBound
   RecordTypeBound
   RecordTypeBoundMember
@@ -242,6 +243,9 @@ export trait PositionVisitor {
   }
   fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {
     walkFunctionTypeBound(self, t)
+  }
+  fn visitIntersectionTypeBound(mut self, t: IntersectionTypeBound) -> () {
+    walkIntersectionTypeBound(self, t)
   }
   fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {
     walkNamedTypeBound(self, t)
@@ -719,6 +723,7 @@ export fn walkTuplePattern(mut visitor: PositionVisitor, p: TuplePattern) -> () 
 export fn walkTypeBound(mut visitor: PositionVisitor, t: TypeBound) -> () {
   match t {
     TypeBound::FunctionTypeBound(t) => visitor.visitFunctionTypeBound(t)
+    TypeBound::IntersectionTypeBound(t) => visitor.visitIntersectionTypeBound(t)
     TypeBound::NamedTypeBound(t) => visitor.visitNamedTypeBound(t)
     TypeBound::RecordTypeBound(t) => visitor.visitRecordTypeBound(t)
     TypeBound::TupleTypeBound(t) => visitor.visitTupleTypeBound(t)
@@ -734,6 +739,12 @@ export fn walkFunctionTypeBound(mut visitor: PositionVisitor, t: FunctionTypeBou
   ) {
     visitor.visitTypeParameter(t.typeParameters[index])
   }
+}
+export fn walkIntersectionTypeBound(mut visitor: PositionVisitor, t: IntersectionTypeBound) -> () {
+  if identical(t.baseType.span().cmp(visitor.position()), Ordering::Equal)
+    then visitor.visitTypeBound(t.baseType)
+  else if identical(t.traitBound.span().cmp(visitor.position()), Ordering::Equal)
+    then visitor.visitNamedTypeBound(t.traitBound)
 }
 export fn walkNamedTypeBound(mut visitor: PositionVisitor, t: NamedTypeBound) -> () {
   if identical(t.path.span().cmp(visitor.position()), Ordering::Equal)

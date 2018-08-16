@@ -67,6 +67,8 @@ Food[$puck_8.type].eat.call($puck_8);
 let $puck_9 = Food[banana2.type].asFood.call(banana2)
 ;
 Food[$puck_9.type].eat.call($puck_9);
+Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple"].eat.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Apple', value: apple, $isTraitObject: true});
+Food["$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana"].eat.call({type: '$impl_test/cases/types/trait-objects.puck:Food$test/cases/types/trait-objects.puck:Banana', value: banana, $isTraitObject: true});
 const fruitSallad = {
   apple: apple,
   banana: banana,

@@ -349,51 +349,69 @@ function _isAssignable(to, subject, checked) {
       };
     }
     else {
-      if ($puck_34.kind === "Parameter") {
-        $puck_34;
-        return true;
+      if ($puck_34.kind === "Intersection") {
+        let {value: toIntersection} = $puck_34;
+        return (_isAssignable(toIntersection.baseType, subject, checked) && _isAssignable(toIntersection.intersectedTrait, subject, checked));
       }
       else {
-        if ($puck_34.kind === "Struct") {
-          let {value: toStruct} = $puck_34;
-          let $puck_37 = subject.kind;
-          if ($puck_37.kind === "Struct") {
-            let {value: subjectStruct} = $puck_37;
-            return (isSameId(to, subject) && (bothHasId(to, subject) || isStructAssignable(toStruct, subjectStruct, checked)) && checkTypeParameters(to, subject));
-          }
-          else {
-            if (true) {
-              $puck_37;
-              return false;
-            };
-          };
+        if ($puck_34.kind === "Parameter") {
+          $puck_34;
+          return true;
         }
         else {
-          if ($puck_34.kind === "Trait") {
-            $puck_34;
-            let $puck_38 = subject.kind;
-            if ($puck_38.kind === "Trait") {
-              $puck_38;
-              return (isSameId(to, subject) && checkTypeParameters(to, subject));
+          if ($puck_34.kind === "Struct") {
+            let {value: toStruct} = $puck_34;
+            let $puck_37 = subject.kind;
+            if ($puck_37.kind === "Struct") {
+              let {value: subjectStruct} = $puck_37;
+              return (isSameId(to, subject) && (bothHasId(to, subject) || isStructAssignable(toStruct, subjectStruct, checked)) && checkTypeParameters(to, subject));
             }
             else {
-              if ($puck_38.kind === "Enum") {
-                let {value: subjectEnum} = $puck_38;
-                return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectEnum.implementations, $isTraitObject: true}, function (implementation) {
-                  return _isAssignable(to, implementation.trait_, checked);
-                });
+              if ($puck_37.kind === "Intersection") {
+                let {value: subjectIntersection} = $puck_37;
+                return _isAssignable(to, subjectIntersection.baseType, checked);
               }
               else {
-                if ($puck_38.kind === "Struct") {
-                  let {value: subjectStruct} = $puck_38;
-                  return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectStruct.implementations, $isTraitObject: true}, function (implementation) {
+                if (true) {
+                  $puck_37;
+                  return false;
+                };
+              };
+            };
+          }
+          else {
+            if ($puck_34.kind === "Trait") {
+              $puck_34;
+              let $puck_38 = subject.kind;
+              if ($puck_38.kind === "Trait") {
+                $puck_38;
+                return (isSameId(to, subject) && checkTypeParameters(to, subject));
+              }
+              else {
+                if ($puck_38.kind === "Enum") {
+                  let {value: subjectEnum} = $puck_38;
+                  return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectEnum.implementations, $isTraitObject: true}, function (implementation) {
                     return _isAssignable(to, implementation.trait_, checked);
                   });
                 }
                 else {
-                  if (true) {
-                    $puck_38;
-                    return false;
+                  if ($puck_38.kind === "Intersection") {
+                    let {value: subjectIntersection} = $puck_38;
+                    return (_isAssignable(to, subjectIntersection.baseType, checked) || _isAssignable(to, subjectIntersection.intersectedTrait, checked));
+                  }
+                  else {
+                    if ($puck_38.kind === "Struct") {
+                      let {value: subjectStruct} = $puck_38;
+                      return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectStruct.implementations, $isTraitObject: true}, function (implementation) {
+                        return _isAssignable(to, implementation.trait_, checked);
+                      });
+                    }
+                    else {
+                      if (true) {
+                        $puck_38;
+                        return false;
+                      };
+                    };
                   };
                 };
               };

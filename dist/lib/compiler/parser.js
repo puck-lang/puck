@@ -1847,38 +1847,46 @@ function parse(input, file, recover = false) {
     };
   };
   function parseTypeBound() {
+    let $puck_109;
     if (isToken($puck_5.SyntaxKind.LessThanToken)) {
-      return parseFunctionTypeBound($puck_1.None);
+      $puck_109 = parseFunctionTypeBound($puck_1.None);
     }
     else {
+      let $puck_110;
       if (isToken($puck_5.SyntaxKind.OpenParenToken)) {
         const tuple = parseTupleTypeBound();
+        let $puck_111;
         if (isToken($puck_5.SyntaxKind.MinusGreaterThanToken)) {
-          return parseFunctionTypeBound($puck_1.Some(tuple));
+          $puck_111 = parseFunctionTypeBound($puck_1.Some(tuple));
         }
         else {
-          return tuple;
+          $puck_111 = tuple;
         };
+        $puck_110 = $puck_111;
       }
       else {
+        let $puck_112;
         if (isToken($puck_5.SyntaxKind.OpenBraceToken)) {
-          return parseRecordTypeBound();
+          $puck_112 = parseRecordTypeBound();
         }
         else {
-          return $puck_3.TypeBound.NamedTypeBound(parseNamedTypeBound());
+          $puck_112 = $puck_3.TypeBound.NamedTypeBound(parseNamedTypeBound());
         };
+        $puck_110 = $puck_112;
       };
+      $puck_109 = $puck_110;
     };
+    return maybeParseIntersectionTypeBound($puck_109);
   };
   function parseFunctionTypeBound(tuple) {
-    let $puck_109;
+    let $puck_113;
     if ($puck_1.Option.isNone.call(tuple) && isToken($puck_5.SyntaxKind.LessThanToken)) {
-      $puck_109 = delimited($puck_5.SyntaxKind.LessThanToken, $puck_5.SyntaxKind.GreaterThanToken, $puck_5.SyntaxKind.CommaToken, parseTypeParameter, true);
+      $puck_113 = delimited($puck_5.SyntaxKind.LessThanToken, $puck_5.SyntaxKind.GreaterThanToken, $puck_5.SyntaxKind.CommaToken, parseTypeParameter, true);
     }
     else {
-      $puck_109 = [];
+      $puck_113 = [];
     };
-    const typeParameters = $puck_109;
+    const typeParameters = $puck_113;
     const parameters = $puck_3.TypeBound.getTupleTypeBound.call($puck_1.Option.unwrapOrElse.call(tuple, parseTupleTypeBound));
     consumeToken($puck_5.SyntaxKind.MinusGreaterThanToken);
     const returnType = parseTypeBound();
@@ -1888,16 +1896,33 @@ function parse(input, file, recover = false) {
       returnType: returnType,
     });
   };
+  function maybeParseIntersectionTypeBound(baseType) {
+    while (true) {
+      let $puck_114 = maybeConsumeToken($puck_5.SyntaxKind.PlusToken);
+      if ($puck_114 !== undefined) {
+        let plusToken = $puck_114;
+        baseType = $puck_3.TypeBound.IntersectionTypeBound({
+          baseType: baseType,
+          plusToken: plusToken,
+          traitBound: parseNamedTypeBound(),
+        });
+      }
+      else {
+        return baseType;
+      };
+    };
+    return baseType;
+  };
   function parseNamedTypeBound() {
     const path = parseTypePath($puck_1.None);
-    let $puck_110;
+    let $puck_115;
     if (isToken($puck_5.SyntaxKind.LessThanToken)) {
-      $puck_110 = delimited($puck_5.SyntaxKind.LessThanToken, $puck_5.SyntaxKind.GreaterThanToken, $puck_5.SyntaxKind.CommaToken, parseTypeBound, true);
+      $puck_115 = delimited($puck_5.SyntaxKind.LessThanToken, $puck_5.SyntaxKind.GreaterThanToken, $puck_5.SyntaxKind.CommaToken, parseTypeBound, true);
     }
     else {
-      $puck_110 = [];
+      $puck_115 = [];
     };
-    const typeParameters = $puck_110;
+    const typeParameters = $puck_115;
     return {
       path: path,
       typeParameters: typeParameters,
@@ -1942,15 +1967,15 @@ function parse(input, file, recover = false) {
   };
   function parseTypeParameter() {
     const name = consumeIdentifier();
-    let $puck_111;
+    let $puck_116;
     if (isToken($puck_5.SyntaxKind.EqualsToken)) {
       $puck_7.TokenStream.next.call(input);
-      $puck_111 = $puck_1.Some(parseTypeBound());
+      $puck_116 = $puck_1.Some(parseTypeBound());
     }
     else {
-      $puck_111 = $puck_1.None;
+      $puck_116 = $puck_1.None;
     };
-    const defaultValue = $puck_111;
+    const defaultValue = $puck_116;
     return {
       name: name,
       defaultValue: defaultValue,

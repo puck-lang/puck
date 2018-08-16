@@ -240,6 +240,10 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
       TypeKind::Function(subjectFunc) => isFunctionAssignable(toFunc, subjectFunc, checked)
       _ => false
     }
+    TypeKind::Intersection(toIntersection) => {
+      _isAssignable(toIntersection.baseType, subject, checked) and
+      _isAssignable(toIntersection.intersectedTrait, subject, checked)
+    }
     TypeKind::Parameter => true
     TypeKind::Struct(toStruct) => match subject.kind {
       TypeKind::Struct(subjectStruct) => {
@@ -248,6 +252,9 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
           isStructAssignable(toStruct, subjectStruct, checked)
         ) and
         checkTypeParameters(to, subject)
+      }
+      TypeKind::Intersection(subjectIntersection) => {
+        _isAssignable(to, subjectIntersection.baseType, checked)
       }
       _ => false
     }
@@ -260,6 +267,10 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
         subjectEnum.implementations.any(|implementation|
           _isAssignable(to, implementation.trait_, checked)
         )
+      }
+      TypeKind::Intersection(subjectIntersection) => {
+        _isAssignable(to, subjectIntersection.baseType, checked) or
+        _isAssignable(to, subjectIntersection.intersectedTrait, checked)
       }
       TypeKind::Struct(subjectStruct) => {
         subjectStruct.implementations.any(|implementation|
