@@ -18,7 +18,7 @@ var Number = exports.Number = js._Number;
 var _Object = exports._Object = js._Object;
 var RegExp = exports.RegExp = js._RegExp;
 var String = exports.String = js._String;
-var console = exports.console = $unwrapTraitObject(_global).console;
+var console = exports.console = _global.console;
 var _module = exports._module = js._module;
 var process = exports.process = js._process;
 var _require = exports._require = $unwrapTraitObject(js._require);

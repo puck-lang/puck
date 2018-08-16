@@ -1856,10 +1856,10 @@ function asList(a) {
 };
 function print(message, extra = undefined) {
   if (identical($unwrapTraitObject(extra), undefined)) {
-    $unwrapTraitObject($puck_1.console).log(message);
+    $puck_1.console.log(message);
   }
   else {
-    $unwrapTraitObject($unwrapTraitObject($puck_1.console).log).apply($puck_1.console, [message].concat(extra));
+    $puck_1.console.log.apply($puck_1.console, [message].concat(extra));
   };
 };
 exports.print = print;

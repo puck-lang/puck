@@ -103,7 +103,7 @@ else {
         $puck_1.print("done");
       }
       else {
-        $unwrapTraitObject($puck_2.console).error("Unknown command", command);
+        $puck_2.console.error("Unknown command", command);
         $puck_2.process.exit(1);
       };
     };

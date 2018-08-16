@@ -1,6 +1,4 @@
 'use strict';
-
-const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
 exports.jest = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
@@ -25,7 +23,7 @@ function jest(watch, rootDir) {
   };
   let jestArgs = [
     "--config",
-    $unwrapTraitObject($unwrapTraitObject($puck_2._global).JSON).stringify(config),
+    $puck_2._global.JSON.stringify(config),
   ];
   if (watch) {
     $puck_1.List.push.call(jestArgs, "--watch");

@@ -21,7 +21,7 @@ export fn jest(watch: Bool, rootDir: String) {
 
   let mut jestArgs = [
     '--config'
-    global.JSON.stringify(config)
+    global->JSON->stringify(config).transmute::<String>()
   ]
 
   // Watch unless on CI
