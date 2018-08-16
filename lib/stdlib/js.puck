@@ -9,7 +9,7 @@ export let undefined = js->_undefined.transmute()
 /// The global object
 ///
 /// Will reference global in node, window in browsers and self in workers
-export let global = js->_global or js->_window or js->_self
+export let global: Unknown = js->_global or js->_window or js->_self
 /// The window object that is avalible in browsers
 export let window = js->_window
 /// The self object that is avalible in workers
@@ -24,7 +24,7 @@ export let Object = js->_Object
 export let RegExp = js->_RegExp
 export let String = js->_String
 
-export let console = global.console
+export let console = global->console
 
 /// The module object that is avalible in node and other commonjs modules (for example Browserify and Webpack)
 export let module = js->_module

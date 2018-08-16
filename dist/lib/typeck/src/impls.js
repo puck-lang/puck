@@ -92,7 +92,7 @@ function getMostSpecificImplementations(type_, implementations) {
     let maxSpecificity = 0;
     let $puck_21 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
       const specificity = getTypeSpecificity(i.type_);
-      maxSpecificity = $unwrapTraitObject($unwrapTraitObject($puck_2._global).Math).max(maxSpecificity, specificity);
+      maxSpecificity = $puck_2._global.Math.max(maxSpecificity, specificity);
       return [
         i,
         specificity,

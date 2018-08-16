@@ -57,7 +57,7 @@ fn getMostSpecificImplementations(type_: Type, implementations: List<Implementat
     implementations
       .map(|i| {
         let specificity = getTypeSpecificity(i.type_)
-        maxSpecificity = global.Math.max(maxSpecificity, specificity)
+        maxSpecificity = global->Math->max(maxSpecificity, specificity).transmute::<Num>()
         (i, specificity)
       })
       .filter(|(_, specificity)| specificity == maxSpecificity)

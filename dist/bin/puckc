@@ -55,7 +55,7 @@ else {
 };
 const useBabel = $puck_14;
 if (($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true}) > 1 && outFile)) {
-  $unwrapTraitObject($puck_2.console).error("Can't specify --out-file with more than one input file");
+  $puck_2.console.error("Can't specify --out-file with more than one input file");
   $puck_2.process.exit(1);
 };
 if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: _arguments, $isTraitObject: true}) === 0) {

@@ -24,25 +24,25 @@ export type ExpectationObject<T> {
 }
 
 export fn expect<T>(value: T) -> ExpectationObject<T> {
-  global.expect(value)
+  global->expect(value).transmute::<ExpectationObject<T>>()
 }
 
 export fn describe(message: String, group: () -> ()) -> () {
-  global.describe(message, group)
+  global->describe(message, group)
 }
 export fn ddescribe(message: String, group: () -> ()) -> () {
-  global.describe.only(message, group)
+  global->describe->only(message, group)
 }
 export fn xdescribe(message: String, group: () -> ()) -> () {
-  global.describe.skip(message, group)
+  global->describe->skip(message, group)
 }
 
 export fn it(message: String, test: () -> ()) -> () {
-  global.it(message, test)
+  global->it(message, test)
 }
 export fn iit(message: String, test: () -> ()) -> () {
-  global.it.only(message, test)
+  global->it->only(message, test)
 }
 export fn xit(message: String, test: () -> ()) -> () {
-  global.it.skip(message, test)
+  global->it->skip(message, test)
 }

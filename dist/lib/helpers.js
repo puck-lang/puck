@@ -35,10 +35,10 @@ function cmd(cmd) {
         $puck_1.print($puck_1.String.trim.call(stdout));
       };
       if (stderr) {
-        $unwrapTraitObject($puck_2.console).error($puck_1.String.trim.call(stderr));
+        $puck_2.console.error($puck_1.String.trim.call(stderr));
       };
       if (error.stack) {
-        $unwrapTraitObject($puck_2.console).error(error.stack);
+        $puck_2.console.error(error.stack);
       };
       $puck_2.process.exit(1);
       return undefined;
