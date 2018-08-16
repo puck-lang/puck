@@ -380,130 +380,124 @@ function walkBlockLevelStatement(visitor, s) {
 exports.walkBlockLevelStatement = walkBlockLevelStatement;
 function walkExpression(visitor, e) {
   let $puck_6 = e;
-  if ($puck_6.kind === "ThrowStatement") {
-    let {value: e} = $puck_6;
-    return $unwrapTraitObject(visitor).visitExpression(e.expression);
+  if ($puck_6.kind === "Comment") {
+    let $puck_7 = $puck_6;;
+    return $puck_7;
   }
   else {
-    if ($puck_6.kind === "Comment") {
-      let $puck_7 = $puck_6;;
-      return $puck_7;
+    if ($puck_6.kind === "Identifier") {
+      let {value: e} = $puck_6;
+      return $unwrapTraitObject(visitor).visitIdentifier(e);
     }
     else {
-      if ($puck_6.kind === "Identifier") {
+      if ($puck_6.kind === "FunctionDeclaration") {
         let {value: e} = $puck_6;
-        return $unwrapTraitObject(visitor).visitIdentifier(e);
+        return $unwrapTraitObject(visitor).visitFunctionDeclaration(e);
       }
       else {
-        if ($puck_6.kind === "FunctionDeclaration") {
+        if ($puck_6.kind === "VariableDeclaration") {
           let {value: e} = $puck_6;
-          return $unwrapTraitObject(visitor).visitFunctionDeclaration(e);
+          return $unwrapTraitObject(visitor).visitVariableDeclaration(e);
         }
         else {
-          if ($puck_6.kind === "VariableDeclaration") {
+          if ($puck_6.kind === "AssignmentExpression") {
             let {value: e} = $puck_6;
-            return $unwrapTraitObject(visitor).visitVariableDeclaration(e);
+            return $unwrapTraitObject(visitor).visitAssignmentExpression(e);
           }
           else {
-            if ($puck_6.kind === "AssignmentExpression") {
+            if ($puck_6.kind === "BinaryExpression") {
               let {value: e} = $puck_6;
-              return $unwrapTraitObject(visitor).visitAssignmentExpression(e);
+              return $unwrapTraitObject(visitor).visitBinaryExpression(e);
             }
             else {
-              if ($puck_6.kind === "BinaryExpression") {
+              if ($puck_6.kind === "CallExpression") {
                 let {value: e} = $puck_6;
-                return $unwrapTraitObject(visitor).visitBinaryExpression(e);
+                return $unwrapTraitObject(visitor).visitCallExpression(e);
               }
               else {
-                if ($puck_6.kind === "CallExpression") {
+                if ($puck_6.kind === "IfExpression") {
                   let {value: e} = $puck_6;
-                  return $unwrapTraitObject(visitor).visitCallExpression(e);
+                  return $unwrapTraitObject(visitor).visitIfExpression(e);
                 }
                 else {
-                  if ($puck_6.kind === "IfExpression") {
+                  if ($puck_6.kind === "IfLetExpression") {
                     let {value: e} = $puck_6;
-                    return $unwrapTraitObject(visitor).visitIfExpression(e);
+                    return $unwrapTraitObject(visitor).visitIfLetExpression(e);
                   }
                   else {
-                    if ($puck_6.kind === "IfLetExpression") {
+                    if ($puck_6.kind === "MatchExpression") {
                       let {value: e} = $puck_6;
-                      return $unwrapTraitObject(visitor).visitIfLetExpression(e);
+                      return $unwrapTraitObject(visitor).visitMatchExpression(e);
                     }
                     else {
-                      if ($puck_6.kind === "MatchExpression") {
+                      if ($puck_6.kind === "TypePathExpression") {
                         let {value: e} = $puck_6;
-                        return $unwrapTraitObject(visitor).visitMatchExpression(e);
+                        return $unwrapTraitObject(visitor).visitTypePathExpression(e);
                       }
                       else {
-                        if ($puck_6.kind === "TypePathExpression") {
+                        if ($puck_6.kind === "UnaryExpression") {
                           let {value: e} = $puck_6;
-                          return $unwrapTraitObject(visitor).visitTypePathExpression(e);
+                          return $unwrapTraitObject(visitor).visitUnaryExpression(e);
                         }
                         else {
-                          if ($puck_6.kind === "UnaryExpression") {
+                          if ($puck_6.kind === "IndexAccess") {
                             let {value: e} = $puck_6;
-                            return $unwrapTraitObject(visitor).visitUnaryExpression(e);
+                            return $unwrapTraitObject(visitor).visitIndexAccess(e);
                           }
                           else {
-                            if ($puck_6.kind === "IndexAccess") {
+                            if ($puck_6.kind === "MemberAccess") {
                               let {value: e} = $puck_6;
-                              return $unwrapTraitObject(visitor).visitIndexAccess(e);
+                              return $unwrapTraitObject(visitor).visitMemberAccess(e);
                             }
                             else {
-                              if ($puck_6.kind === "MemberAccess") {
+                              if ($puck_6.kind === "TupleIndexAccess") {
                                 let {value: e} = $puck_6;
-                                return $unwrapTraitObject(visitor).visitMemberAccess(e);
+                                return $unwrapTraitObject(visitor).visitTupleIndexAccess(e);
                               }
                               else {
-                                if ($puck_6.kind === "TupleIndexAccess") {
+                                if ($puck_6.kind === "UnknownAccess") {
                                   let {value: e} = $puck_6;
-                                  return $unwrapTraitObject(visitor).visitTupleIndexAccess(e);
+                                  return $unwrapTraitObject(visitor).visitUnknownAccess(e);
                                 }
                                 else {
-                                  if ($puck_6.kind === "UnknownAccess") {
+                                  if ($puck_6.kind === "UnknownIndexAccess") {
                                     let {value: e} = $puck_6;
-                                    return $unwrapTraitObject(visitor).visitUnknownAccess(e);
+                                    return $unwrapTraitObject(visitor).visitUnknownIndexAccess(e);
                                   }
                                   else {
-                                    if ($puck_6.kind === "UnknownIndexAccess") {
+                                    if ($puck_6.kind === "BooleanLiteral") {
                                       let {value: e} = $puck_6;
-                                      return $unwrapTraitObject(visitor).visitUnknownIndexAccess(e);
+                                      return $unwrapTraitObject(visitor).visitBooleanLiteral(e);
                                     }
                                     else {
-                                      if ($puck_6.kind === "BooleanLiteral") {
+                                      if ($puck_6.kind === "ListLiteral") {
                                         let {value: e} = $puck_6;
-                                        return $unwrapTraitObject(visitor).visitBooleanLiteral(e);
+                                        return $unwrapTraitObject(visitor).visitListLiteral(e);
                                       }
                                       else {
-                                        if ($puck_6.kind === "ListLiteral") {
+                                        if ($puck_6.kind === "NumberLiteral") {
                                           let {value: e} = $puck_6;
-                                          return $unwrapTraitObject(visitor).visitListLiteral(e);
+                                          return $unwrapTraitObject(visitor).visitNumberLiteral(e);
                                         }
                                         else {
-                                          if ($puck_6.kind === "NumberLiteral") {
+                                          if ($puck_6.kind === "RangeLiteral") {
                                             let {value: e} = $puck_6;
-                                            return $unwrapTraitObject(visitor).visitNumberLiteral(e);
+                                            return $unwrapTraitObject(visitor).visitRangeLiteral(e);
                                           }
                                           else {
-                                            if ($puck_6.kind === "RangeLiteral") {
+                                            if ($puck_6.kind === "RecordLiteral") {
                                               let {value: e} = $puck_6;
-                                              return $unwrapTraitObject(visitor).visitRangeLiteral(e);
+                                              return $unwrapTraitObject(visitor).visitRecordLiteral(e);
                                             }
                                             else {
-                                              if ($puck_6.kind === "RecordLiteral") {
+                                              if ($puck_6.kind === "StringLiteral") {
                                                 let {value: e} = $puck_6;
-                                                return $unwrapTraitObject(visitor).visitRecordLiteral(e);
+                                                return $unwrapTraitObject(visitor).visitStringLiteral(e);
                                               }
                                               else {
-                                                if ($puck_6.kind === "StringLiteral") {
+                                                if ($puck_6.kind === "TupleLiteral") {
                                                   let {value: e} = $puck_6;
-                                                  return $unwrapTraitObject(visitor).visitStringLiteral(e);
-                                                }
-                                                else {
-                                                  if ($puck_6.kind === "TupleLiteral") {
-                                                    let {value: e} = $puck_6;
-                                                    return $unwrapTraitObject(visitor).visitTupleLiteral(e);
-                                                  };
+                                                  return $unwrapTraitObject(visitor).visitTupleLiteral(e);
                                                 };
                                               };
                                             };

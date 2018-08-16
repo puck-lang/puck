@@ -156,7 +156,7 @@ function createTypeInstance(type_, typeParameters_) {
         return $puck_1.Option.unwrapOr.call(parameter.defaultValue, p);
       }
       else {
-        throw "not a type parameter";
+        return $puck_1.panic("not a type parameter");
       };
     })
 ;

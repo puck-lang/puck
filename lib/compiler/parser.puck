@@ -468,12 +468,6 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
           SyntaxKind::NotKeyword => Expression::UnaryExpression(parseUnaryExpression())
           SyntaxKind::MinusToken => Expression::UnaryExpression(parseUnaryExpression())
           SyntaxKind::PlusToken => Expression::UnaryExpression(parseUnaryExpression())
-          SyntaxKind::ThrowKeyword => {
-            input.next()
-            Expression::ThrowStatement({
-              expression: parseExpression()
-            })
-          }
           SyntaxKind::TrueKeyword => {
             maybeAccess(Expression::BooleanLiteral({
               keyword: consumeToken(SyntaxKind::TrueKeyword)

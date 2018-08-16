@@ -446,7 +446,7 @@ impl<T, E> Result<T, E> {
   fn unwrap(self) -> T {
     match self {
       Ok(value) => value
-      Err(err) => throw Error(err)
+      Err(err) => panic(Error(err))
     }
   }
 
@@ -464,7 +464,7 @@ impl<T, E> Result<T, E> {
 
   fn unwrapErr(self) -> E {
     match self {
-      Ok(value) => throw Error(value)
+      Ok(value) => panic(Error(value))
       Err(err) => err
     }
   }
@@ -600,7 +600,7 @@ export type List<E> {}
 impl<E> List<E> {
   fn zip<A, B>(a: Iterable<A>, b: List<B>) -> List<(A, B)> {
     if a.size() != b.size()
-      then throw Error('Iterable a and b are not of the same length')
+      then panic(Error('Iterable a and b are not of the same length'))
 
     a.enumerate().map(|(i, a)| (a, b[i])).toList()
   }

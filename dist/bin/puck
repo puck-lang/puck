@@ -65,7 +65,7 @@ if (command === "build") {
   function reportError(file, token, error) {
     const self = this;
     let {line: line, column: column} = $puck_4.ToSpan[token.type].span.call(token).start;
-    throw $puck_2.Error($puck_5.CompilationError.message.call(error) + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")");
+    return $puck_1.panic($puck_2.Error($puck_5.CompilationError.message.call(error) + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")"));
   };
   let context = $puck_6.CompilerContext._new(projectPath, reportError);
   $puck_6.build(libFiles, context, {

@@ -60,6 +60,6 @@ impl InputStream {
     }
     let token: ToSpan = span
     self.context.reportError(self.file, token, CompilationError::Other(message))
-    throw 'Syntax Error'
+    panic('Syntax Error')
   }
 }

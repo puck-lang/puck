@@ -119,7 +119,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
             if let TypeKind::Parameter(parameter) = p.kind {
               parameter.defaultValue.unwrapOr(p)
             }
-            else throw 'not a type parameter'
+            else panic('not a type parameter')
           })
           .toList()
       )

@@ -10,7 +10,6 @@ export interface SimpleToken {
 export type Expression
   = {kind: 'JsExpression', value: string}
   | {kind: 'Identifier', value: Identifier}
-  | {kind: 'ThrowStatement', value: any}
   | {kind: 'FunctionDeclaration', value: FunctionDeclaration}
   | {kind: 'VariableDeclaration', value: VariableDeclaration}
 

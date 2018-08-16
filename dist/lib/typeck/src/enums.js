@@ -233,7 +233,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
         let $puck_17;
         if ($puck_14.kind === "Record") {
           $puck_14;
-          throw "Invalid pattern";
+          $puck_17 = $puck_1.panic("Invalid pattern");
         }
         else {
           let $puck_18;
@@ -245,7 +245,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
             let $puck_19;
             if ($puck_14.kind === "Tuple") {
               $puck_14;
-              throw "Invalid pattern";
+              $puck_19 = $puck_1.panic("Invalid pattern");
             }
             else {
               let $puck_20;
@@ -324,7 +324,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
             let $puck_29;
             if (true) {
               $puck_25;
-              throw "Invalid pattern";
+              $puck_29 = $puck_1.panic("Invalid pattern");
             };
             $puck_28 = $puck_29;
           };
@@ -340,7 +340,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
         $puck_31 = $puck_4.Type.getEnum.call(type_);
       }
       else {
-        throw "no type";
+        $puck_31 = $puck_1.panic("no type");
       };
       const enum_ = $puck_31;
       let $puck_33 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: patterns, $isTraitObject: true}, getSubPatterns)

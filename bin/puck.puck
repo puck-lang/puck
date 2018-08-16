@@ -41,7 +41,7 @@ if command == 'build' {
   let projectPath: String = fs->realpathSync('.').transmute()
   fn reportError(self, file: File, token: ToSpan, error: CompilationError) {
     let {line, column} = token.span().start
-    throw Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ' ($line:$column)')
+    panic(Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ' ($line:$column)'))
   }
   let mut context = CompilerContext.new(projectPath, reportError)
   build(libFiles, context, {dump: '', useBabel})

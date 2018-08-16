@@ -720,7 +720,7 @@ $puck_1.describe("core", function () {
 ;
         let iterator = $puck_2.Iterator[$puck_13.type].map.call($puck_13, function (i) {
           if ((i > 1)) {
-            throw "Should only be called once";
+            $puck_2.panic("Should only be called once");
           };
           return i;
         });

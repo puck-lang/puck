@@ -129,7 +129,7 @@ impl CompilerContext {
       self.runTypeVisitorOnFile(file)
     }
     if file->implVisitorStarted {
-      throw Error('runImplVisitorOnFile??')
+      panic(Error('runImplVisitorOnFile??'))
     }
     file->implVisitorStarted = true
     ImplVisitor(self, file)->visitModule(file.ast.unwrap())
@@ -213,7 +213,7 @@ export fn buildString(code: String, filePath: String, projectPath: String, optio
   asResult(|| {
     fn reportError(self, file: File, token: ToSpan, error: CompilationError) {
       let {line, column} = token.span().start
-      throw Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ' ($line:$column)')
+      panic(Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ' ($line:$column)'))
     }
     let mut context = CompilerContext.new(projectPath, reportError)
     let mut file = context.importFile({

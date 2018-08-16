@@ -229,7 +229,7 @@ ImportVisitor.importModule = function (i, importedFile) {
         $puck_7.CompilerContext.reportError.call(self.context, self.file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:ImportDirective', value: i, $isTraitObject: true}, $puck_8.CompilationError.Other(err));
       }
       else {
-        throw err;
+        $puck_1.panic(err);
       };
     };
   };

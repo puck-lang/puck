@@ -312,7 +312,7 @@ function TypeVisitor(context, file) {
           $puck_2._Object.assign(enum_.members, memberMap);
         }
         else {
-          throw "is not an enum";
+          $puck_1.panic("is not an enum");
         };
         $unwrapTraitObject(self).scope = parentScope;
       };
@@ -455,7 +455,7 @@ function TypeVisitor(context, file) {
             let $puck_35;
             if (true) {
               $puck_32;
-              throw "Unreachable";
+              $puck_35 = $puck_1.panic("Unreachable");
             };
             $puck_34 = $puck_35;
           };
@@ -641,7 +641,7 @@ function TypeVisitor(context, file) {
           else {
             if (true) {
               $puck_47;
-              throw "Unreachable";
+              $puck_1.panic("Unreachable");
             };
           };
           return $puck_1.Some(type_);

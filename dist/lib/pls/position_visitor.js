@@ -343,129 +343,123 @@ function walkBlockLevelStatement(visitor, e) {
 exports.walkBlockLevelStatement = walkBlockLevelStatement;
 function walkExpression(visitor, e) {
   let $puck_7 = e;
-  if ($puck_7.kind === "ThrowStatement") {
-    let {value: e} = $puck_7;
-    PositionVisitor[visitor.type].visitExpression.call(visitor, e.expression);
+  if ($puck_7.kind === "Comment") {
+    $puck_7;
   }
   else {
-    if ($puck_7.kind === "Comment") {
-      $puck_7;
+    if ($puck_7.kind === "Identifier") {
+      let {value: e} = $puck_7;
+      PositionVisitor[visitor.type].visitIdentifier.call(visitor, e);
     }
     else {
-      if ($puck_7.kind === "Identifier") {
+      if ($puck_7.kind === "FunctionDeclaration") {
         let {value: e} = $puck_7;
-        PositionVisitor[visitor.type].visitIdentifier.call(visitor, e);
+        PositionVisitor[visitor.type].visitFunctionDeclaration.call(visitor, e);
       }
       else {
-        if ($puck_7.kind === "FunctionDeclaration") {
+        if ($puck_7.kind === "VariableDeclaration") {
           let {value: e} = $puck_7;
-          PositionVisitor[visitor.type].visitFunctionDeclaration.call(visitor, e);
+          PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, e);
         }
         else {
-          if ($puck_7.kind === "VariableDeclaration") {
+          if ($puck_7.kind === "AssignmentExpression") {
             let {value: e} = $puck_7;
-            PositionVisitor[visitor.type].visitVariableDeclaration.call(visitor, e);
+            PositionVisitor[visitor.type].visitAssignmentExpression.call(visitor, e);
           }
           else {
-            if ($puck_7.kind === "AssignmentExpression") {
+            if ($puck_7.kind === "BinaryExpression") {
               let {value: e} = $puck_7;
-              PositionVisitor[visitor.type].visitAssignmentExpression.call(visitor, e);
+              PositionVisitor[visitor.type].visitBinaryExpression.call(visitor, e);
             }
             else {
-              if ($puck_7.kind === "BinaryExpression") {
+              if ($puck_7.kind === "CallExpression") {
                 let {value: e} = $puck_7;
-                PositionVisitor[visitor.type].visitBinaryExpression.call(visitor, e);
+                PositionVisitor[visitor.type].visitCallExpression.call(visitor, e);
               }
               else {
-                if ($puck_7.kind === "CallExpression") {
+                if ($puck_7.kind === "IfExpression") {
                   let {value: e} = $puck_7;
-                  PositionVisitor[visitor.type].visitCallExpression.call(visitor, e);
+                  PositionVisitor[visitor.type].visitIfExpression.call(visitor, e);
                 }
                 else {
-                  if ($puck_7.kind === "IfExpression") {
+                  if ($puck_7.kind === "IfLetExpression") {
                     let {value: e} = $puck_7;
-                    PositionVisitor[visitor.type].visitIfExpression.call(visitor, e);
+                    PositionVisitor[visitor.type].visitIfLetExpression.call(visitor, e);
                   }
                   else {
-                    if ($puck_7.kind === "IfLetExpression") {
+                    if ($puck_7.kind === "MatchExpression") {
                       let {value: e} = $puck_7;
-                      PositionVisitor[visitor.type].visitIfLetExpression.call(visitor, e);
+                      PositionVisitor[visitor.type].visitMatchExpression.call(visitor, e);
                     }
                     else {
-                      if ($puck_7.kind === "MatchExpression") {
+                      if ($puck_7.kind === "TypePathExpression") {
                         let {value: e} = $puck_7;
-                        PositionVisitor[visitor.type].visitMatchExpression.call(visitor, e);
+                        PositionVisitor[visitor.type].visitTypePathExpression.call(visitor, e);
                       }
                       else {
-                        if ($puck_7.kind === "TypePathExpression") {
+                        if ($puck_7.kind === "UnaryExpression") {
                           let {value: e} = $puck_7;
-                          PositionVisitor[visitor.type].visitTypePathExpression.call(visitor, e);
+                          PositionVisitor[visitor.type].visitUnaryExpression.call(visitor, e);
                         }
                         else {
-                          if ($puck_7.kind === "UnaryExpression") {
+                          if ($puck_7.kind === "IndexAccess") {
                             let {value: e} = $puck_7;
-                            PositionVisitor[visitor.type].visitUnaryExpression.call(visitor, e);
+                            PositionVisitor[visitor.type].visitIndexAccess.call(visitor, e);
                           }
                           else {
-                            if ($puck_7.kind === "IndexAccess") {
+                            if ($puck_7.kind === "MemberAccess") {
                               let {value: e} = $puck_7;
-                              PositionVisitor[visitor.type].visitIndexAccess.call(visitor, e);
+                              PositionVisitor[visitor.type].visitMemberAccess.call(visitor, e);
                             }
                             else {
-                              if ($puck_7.kind === "MemberAccess") {
+                              if ($puck_7.kind === "TupleIndexAccess") {
                                 let {value: e} = $puck_7;
-                                PositionVisitor[visitor.type].visitMemberAccess.call(visitor, e);
+                                PositionVisitor[visitor.type].visitTupleIndexAccess.call(visitor, e);
                               }
                               else {
-                                if ($puck_7.kind === "TupleIndexAccess") {
+                                if ($puck_7.kind === "UnknownAccess") {
                                   let {value: e} = $puck_7;
-                                  PositionVisitor[visitor.type].visitTupleIndexAccess.call(visitor, e);
+                                  PositionVisitor[visitor.type].visitUnknownAccess.call(visitor, e);
                                 }
                                 else {
-                                  if ($puck_7.kind === "UnknownAccess") {
+                                  if ($puck_7.kind === "UnknownIndexAccess") {
                                     let {value: e} = $puck_7;
-                                    PositionVisitor[visitor.type].visitUnknownAccess.call(visitor, e);
+                                    PositionVisitor[visitor.type].visitUnknownIndexAccess.call(visitor, e);
                                   }
                                   else {
-                                    if ($puck_7.kind === "UnknownIndexAccess") {
+                                    if ($puck_7.kind === "BooleanLiteral") {
                                       let {value: e} = $puck_7;
-                                      PositionVisitor[visitor.type].visitUnknownIndexAccess.call(visitor, e);
+                                      PositionVisitor[visitor.type].visitBooleanLiteral.call(visitor, e);
                                     }
                                     else {
-                                      if ($puck_7.kind === "BooleanLiteral") {
+                                      if ($puck_7.kind === "ListLiteral") {
                                         let {value: e} = $puck_7;
-                                        PositionVisitor[visitor.type].visitBooleanLiteral.call(visitor, e);
+                                        PositionVisitor[visitor.type].visitListLiteral.call(visitor, e);
                                       }
                                       else {
-                                        if ($puck_7.kind === "ListLiteral") {
+                                        if ($puck_7.kind === "NumberLiteral") {
                                           let {value: e} = $puck_7;
-                                          PositionVisitor[visitor.type].visitListLiteral.call(visitor, e);
+                                          PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, e);
                                         }
                                         else {
-                                          if ($puck_7.kind === "NumberLiteral") {
+                                          if ($puck_7.kind === "RangeLiteral") {
                                             let {value: e} = $puck_7;
-                                            PositionVisitor[visitor.type].visitNumberLiteral.call(visitor, e);
+                                            PositionVisitor[visitor.type].visitRangeLiteral.call(visitor, e);
                                           }
                                           else {
-                                            if ($puck_7.kind === "RangeLiteral") {
+                                            if ($puck_7.kind === "RecordLiteral") {
                                               let {value: e} = $puck_7;
-                                              PositionVisitor[visitor.type].visitRangeLiteral.call(visitor, e);
+                                              PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, e);
                                             }
                                             else {
-                                              if ($puck_7.kind === "RecordLiteral") {
+                                              if ($puck_7.kind === "StringLiteral") {
                                                 let {value: e} = $puck_7;
-                                                PositionVisitor[visitor.type].visitRecordLiteral.call(visitor, e);
+                                                PositionVisitor[visitor.type].visitStringLiteral.call(visitor, e);
                                               }
                                               else {
-                                                if ($puck_7.kind === "StringLiteral") {
+                                                if ($puck_7.kind === "TupleLiteral") {
                                                   let {value: e} = $puck_7;
-                                                  PositionVisitor[visitor.type].visitStringLiteral.call(visitor, e);
-                                                }
-                                                else {
-                                                  if ($puck_7.kind === "TupleLiteral") {
-                                                    let {value: e} = $puck_7;
-                                                    PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, e);
-                                                  };
+                                                  PositionVisitor[visitor.type].visitTupleLiteral.call(visitor, e);
                                                 };
                                               };
                                             };
