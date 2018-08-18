@@ -353,6 +353,7 @@ export type Function {
   parameters: List<Binding>
   parameterRange: Range
   returnType: Type
+  typeParameterBounds: Option<Map<Type, Type>>
   isAbstract: Bool
 }
 

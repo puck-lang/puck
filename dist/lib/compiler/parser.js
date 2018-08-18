@@ -1440,6 +1440,7 @@ function parse(input, file, recover = false) {
         span: $puck_4.Span.empty(),
       },
         returnType: $puck_1.None,
+        whereClause: $puck_1.None,
         body: $puck_1.Some(mockBlock()),
         type_: $unwrapTraitObject($puck_2._undefined),
       };
@@ -1455,6 +1456,7 @@ function parse(input, file, recover = false) {
       $puck_89 = $puck_1.None;
     };
     const returnType = $puck_89;
+    const whereClause = maybeWhereClause();
     let $puck_90;
     if ((recover && !isToken($puck_5.SyntaxKind.OpenBraceToken) && (!optionalBody || $puck_1.Option.isNone.call(returnType)))) {
       $puck_90 = $puck_1.Some(mockBlock());
@@ -1477,6 +1479,7 @@ function parse(input, file, recover = false) {
       parameterList: parameterList,
       closeParenOrBar: closeParenOrBar,
       returnType: returnType,
+      whereClause: whereClause,
       body: body,
       type_: $unwrapTraitObject($puck_2._undefined),
     };
@@ -1505,6 +1508,7 @@ function parse(input, file, recover = false) {
       parameterList: parameterList,
       closeParenOrBar: closeParenOrBar,
       returnType: $puck_1.None,
+      whereClause: $puck_1.None,
       body: body,
       type_: $unwrapTraitObject($puck_2._undefined),
     };

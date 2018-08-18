@@ -160,7 +160,7 @@ function createTypeInstance(type_, typeParameters_) {
       };
     })
 ;
-    $puck_22 = typeParameters_.concat($puck_1.Iterable[$puck_23.type].toList.call($puck_23));
+    $puck_22 = $puck_1.Concat["$impl_Concat$List"].concat.call({type: '$impl_Concat$List', value: typeParameters_, $isTraitObject: true}, $puck_1.Iterable[$puck_23.type].toList.call($puck_23));
   }
   else {
     $puck_22 = typeParameters_;

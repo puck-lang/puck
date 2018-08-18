@@ -145,9 +145,10 @@ export fn getImplementationForTraitCall(functionName: String, type_: Type, trait
                   name: functionType.name
                   kind: TypeKind::Function({
                     selfBinding: None
-                    parameters: [selfBinding]->concat(function.parameters).transmute()
+                    parameters: [selfBinding].concat(function.parameters)
                     parameterRange: {start: function.parameterRange.start + 1, end: function.parameterRange.end + 1}
                     returnType: function.returnType
+                    typeParameterBounds: function.typeParameterBounds
                     isAbstract: function.isAbstract
                   })
                   class: functionType.class

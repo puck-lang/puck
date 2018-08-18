@@ -166,6 +166,14 @@ function createFunctionType(file, scope, f, reportError) {
     parameters: parameters,
     parameterRange: $puck_21,
     returnType: returnType,
+    typeParameterBounds: $puck_1.Option.map.call(f.whereClause, function (w) {
+    return $puck_1.Map.fromIter($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: w.bounds, $isTraitObject: true}, function (b) {
+      return [
+        $puck_3.TypeBound.getType.call(b.subType),
+        $puck_3.TypeBound.getType.call(b.superType),
+      ];
+    }));
+  }),
     isAbstract: $puck_1.Option.isNone.call(f.body),
   }),
     _class: _class,

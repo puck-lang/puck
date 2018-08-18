@@ -1,0 +1,10 @@
+fn gt<T>(a: T, b: T) -> Bool where T: PartialOrd<T> {
+  // TODO: a > b
+  return true
+}
+
+gt(1, 2)
+gt('1', '2')
+
+// TODO: trait fns
+// TODO: shorthand impl fns

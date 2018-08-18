@@ -82,6 +82,7 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
         self.visitVariableDeclaration(p, undefined, type_)
       })
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
+      if let Option::Some(whereClause) = f.whereClause then self.visitWhereClause(whereClause)
 
       f.type_ = createFunctionType(file, f->scope.transmute(), f, reportError)
       if let Option::Some(name) = f.name {
@@ -133,6 +134,7 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
 
       f.parameterList.forEach(|p| self.visitVariableDeclaration(p))
       if let Option::Some(returnType) = f.returnType then self.visitTypeBound(returnType)
+      if let Option::Some(whereClause) = f.whereClause then self.visitWhereClause(whereClause)
 
       f.type_ = createFunctionType(file, f->scope.transmute(), f, reportError)
 
@@ -175,6 +177,7 @@ export fn structureVisitor(context: CompilerContext, file: File, visitor = '') {
           parameters
           parameterRange: {start: parameters.size(), end: parameters.size() + 1}
           returnType: t.returnType.getType()
+          typeParameterBounds: None
           isAbstract: false
         })
         class: TypeClass.fromAstNode(t, reportError)

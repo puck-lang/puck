@@ -207,12 +207,13 @@ function getImplementationForTraitCall(functionName, type_, trait_, e, functionT
             name: functionType.name,
             kind: $puck_6.TypeKind.Function({
             selfBinding: $puck_1.None,
-            parameters: $unwrapTraitObject([selfBinding].concat(_function.parameters)),
+            parameters: $unwrapTraitObject($puck_1.Concat["$impl_Concat$List"].concat.call({type: '$impl_Concat$List', value: [selfBinding], $isTraitObject: true}, _function.parameters)),
             parameterRange: {
             start: _function.parameterRange.start + 1,
             end: _function.parameterRange.end + 1,
           },
             returnType: _function.returnType,
+            typeParameterBounds: _function.typeParameterBounds,
             isAbstract: _function.isAbstract,
           }),
             _class: functionType._class,

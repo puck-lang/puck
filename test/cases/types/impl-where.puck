@@ -4,6 +4,7 @@ export trait Order<T> {
 
 impl<T> Order<T> for List<T> where T: PartialOrd<T> {
   fn order(self) -> List<T> {
+    // TODO: self > self
     self.toList()
   }
 }

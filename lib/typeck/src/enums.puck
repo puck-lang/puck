@@ -152,7 +152,7 @@ fn checkExhaustiveEnum(patterns: Iterable<Pattern>, type_: Type, enum_: Enum, sc
       .filter(|result| result.isErr())
       .toList()
 
-    innerErrors = innerErrors->concat(errors).transmute()
+    innerErrors = innerErrors.concat(errors)
 
     exhaustiveMap[member] = errors.size() == 0
   })

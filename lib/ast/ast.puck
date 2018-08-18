@@ -593,6 +593,9 @@ export type FunctionDeclaration {
   parameterList: List<VariableDeclaration>
   closeParenOrBar: SimpleToken
   returnType: Option<TypeBound>
+
+  whereClause: Option<WhereClause>
+
   body: Option<Block>
 
   type_: Type

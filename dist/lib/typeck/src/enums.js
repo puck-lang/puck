@@ -365,7 +365,7 @@ function checkExhaustiveEnum(patterns, type_, enum_, scope) {
     })
 ;
     const errors = $puck_1.Iterable[$puck_34.type].toList.call($puck_34);
-    innerErrors = $unwrapTraitObject(innerErrors.concat(errors));
+    innerErrors = $unwrapTraitObject($puck_1.Concat["$impl_Concat$List"].concat.call({type: '$impl_Concat$List', value: innerErrors, $isTraitObject: true}, errors));
     return exhaustiveMap[member] = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: errors, $isTraitObject: true}) === 0;
   });
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: innerErrors, $isTraitObject: true}) > 0) {

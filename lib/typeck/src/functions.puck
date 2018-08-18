@@ -100,6 +100,9 @@ export fn createFunctionType(file: File, scope: Scope, f: FunctionDeclaration, r
           )
           else {{start: 0, end: 1}}
       returnType
+      typeParameterBounds: f.whereClause.map(|w| Map.fromIter(w.bounds.map(|b| {
+        (b.subType.getType(), b.superType.getType())
+      })))
       isAbstract: f.body.isNone()
     })
     class
