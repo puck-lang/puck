@@ -907,11 +907,15 @@ export function Emitter() {
       }
       let outerValueVariable = valueVariable
       if (fn.isTraitObject) {
-        if ((fn.func.value as MemberAccess).object.kind === 'Identifier') {
-          valueVariable = ((fn.func.value as MemberAccess).object.value as Identifier).name
+        const selfValue = fn.isDirectTraitCall
+          ? fn.argumentList[0]
+          : (fn.func.value as MemberAccess).object
+
+        if (selfValue.kind === 'Identifier') {
+          valueVariable = (selfValue.value as Identifier).name
         } else {
           valueVariable = newValueVariable()
-          hoist!(`let ${valueVariable} = ${emitExpression((fn.func.value as MemberAccess).object)}\n`)
+          hoist!(`let ${valueVariable} = ${emitExpression(selfValue)}\n`)
         }
       }
       let traitName = fn.traitBinding && fn.traitBinding.definition.token.value.importName

@@ -114,4 +114,6 @@ Functions["$impl_test/cases/types/traits.puck:Functions$test/cases/types/traits.
 MoreFunctions["$impl_test/cases/types/traits.puck:MoreFunctions$test/cases/types/traits.puck:FunctionsType"].doubleWithBody.call({type: '$impl_test/cases/types/traits.puck:MoreFunctions$test/cases/types/traits.puck:FunctionsType', value: func, $isTraitObject: true}, "body");
 func = {type: '$impl_test/cases/types/traits.puck:MoreFunctions$test/cases/types/traits.puck:FunctionsType', value: func, $isTraitObject: true};
 MoreFunctions[func.type].withBody.call(func, "body");
+MoreFunctions[func.type].doubleWithBody.call(func, "body");
+MoreFunctions[func.type].doubleNoBody.call(func);
 MoreFunctions[func.type].doubleWithBody.call(func, "body")

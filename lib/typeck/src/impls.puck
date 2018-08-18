@@ -121,7 +121,7 @@ export fn getImplementationForTrait(type_: Type, trait_: Type) -> Result<Option<
     else Ok(implementations.first())
 }
 
-export fn getImplementationForTraitCall(functionName: String, type_: Type, trait_: Type, e: CallExpression, mut functionType_: Type) -> Result<Option<Implementation>, List<Implementation>> {
+fn getImplementationForTraitCall(functionName: String, type_: Type, trait_: Type, e: CallExpression, mut functionType_: Type) -> Result<Option<Implementation>, List<Implementation>> {
   let implementations = getImplementationsForInstance(type_)
     .filter(|i| not i.trait_.getTrait().isShorthand)
     .filter(|i| isAssignable(i.trait_, trait_))
@@ -333,6 +333,27 @@ fn getTraitCallForTrait(objectType: Type, methodName: String) -> Option<Type> {
       }
     }
     _ => None
+  }
+}
+
+export fn getTraitObjectCall(functionName: String, objectType: Type, trait_: Type, e: CallExpression, mut functionType_: Type) -> TraitCall {
+  match objectType.kind {
+    TypeKind::Intersection(intersection) => {
+      getTraitCall(intersection.baseType, functionName, e)
+        .orElse(|| getTraitCall(intersection.intersectedTrait, functionName, e))
+    }
+    TypeKind::Trait(trait_) => {
+      getTraitCallForTrait(objectType, functionName)
+        .map(|functionType| TraitCall::TraitObject({objectType, functionType}))
+        .unwrapOr(TraitCall::None)
+    }
+    _ => {
+      match getImplementationForTraitCall(functionName, objectType, trait_, e, functionType_) {
+        Ok(Some(implementation)) => TraitCall::TypeObject(implementation)
+        Ok(None) => TraitCall::None
+        Err => TraitCall::Error(e, 'Ambiguous trait call')
+      }
+    }
   }
 }
 
