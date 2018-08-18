@@ -185,3 +185,14 @@ trait Trait {
 
 ///// A trait can not extend itself
 trait Trait: Trait {}
+
+///// TraitB has no function named a
+type Type {}
+trait TraitA {
+  fn a(self) -> () {}
+}
+trait TraitB: TraitA {}
+impl TraitA for Type {}
+impl TraitB for Type {}
+let b: TraitB = Type({})
+TraitB.a(b)
