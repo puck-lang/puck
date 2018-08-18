@@ -142,6 +142,14 @@ function implementTrait(traitType, trait_, type_, implementable, i, reportError,
     type_: type_,
     trait_: traitType,
     typeParameters: $puck_1.Iterable[$puck_25.type].toList.call($puck_25),
+    typeParameterBounds: $puck_1.Option.map.call(i.whereClause, function (w) {
+    return $puck_1.Map.fromIter($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: w.bounds, $isTraitObject: true}, function (b) {
+      return [
+        $puck_3.TypeBound.getType.call(b.subType),
+        $puck_3.TypeBound.getType.call(b.superType),
+      ];
+    }));
+  }),
     functions: functions,
   });
   i.implementation = implementation;
@@ -209,6 +217,7 @@ function implementShorthand(type_, implementable, i, reportError) {
     enumMember: $puck_1.None,
   },
     typeParameters: $puck_1.Iterable[$puck_30.type].toList.call($puck_30),
+    typeParameterBounds: $puck_1.None,
     functions: functions,
   });
 };
@@ -269,37 +278,42 @@ function ImplVisitor(context, file) {
     const traitType = $puck_3.NamedTypeBound.getType.call(i.trait_);
     let structType = $puck_3.NamedTypeBound.getType.call(i.type_);
     $puck_9.Scope.setSelfType.call(scope, structType);
+    let $puck_34 = i.whereClause;
+    if ($puck_34 !== undefined) {
+      let whereClause = $puck_34;
+      $unwrapTraitObject(self).visitWhereClause(whereClause);
+    };
     $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true}, function (m) {
       return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
     });
     const id = getImplId(traitType, structType);
-    let $puck_34 = traitType.kind;
-    if ($puck_34.kind === "Trait") {
-      let {value: trait_} = $puck_34;
+    let $puck_35 = traitType.kind;
+    if ($puck_35.kind === "Trait") {
+      let {value: trait_} = $puck_35;
       function implement() {
-        let $puck_35 = structType.kind;
-        if ($puck_35.kind === "Enum") {
-          let {value: enum_} = $puck_35;
+        let $puck_36 = structType.kind;
+        if ($puck_36.kind === "Enum") {
+          let {value: enum_} = $puck_36;
           implementTrait(traitType, trait_, structType, enum_, i, reportError, id);
         }
         else {
-          if ($puck_35.kind === "Struct") {
-            let {value: struct} = $puck_35;
+          if ($puck_36.kind === "Struct") {
+            let {value: struct} = $puck_36;
             implementTrait(traitType, trait_, structType, struct, i, reportError, id);
           }
           else {
             if (true) {
-              $puck_35;
+              $puck_36;
               $puck_5.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: i.type_, $isTraitObject: true}, $puck_12.CompilationError.Other($puck_12.Type.displayName.call(structType) + " is not a struct or an enum"));
             };
           };
         };
-        let $puck_37 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: $puck_12.Type.getTrait.call(traitType).requiredTraits, $isTraitObject: true})
+        let $puck_38 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: $puck_12.Type.getTrait.call(traitType).requiredTraits, $isTraitObject: true})
 ;
-        let $puck_36 = $puck_1.Iterator[$puck_37.type].filterMap.call($puck_37, function (trait_) {
-          let $puck_38 = $puck_9.Scope.getBindingByTypeId.call(scope, $puck_1.Option.unwrap.call(trait_.id), "ImplVisitor");
-          if (($puck_38 !== undefined)) {
-            let binding = $puck_38;
+        let $puck_37 = $puck_1.Iterator[$puck_38.type].filterMap.call($puck_38, function (trait_) {
+          let $puck_39 = $puck_9.Scope.getBindingByTypeId.call(scope, $puck_1.Option.unwrap.call(trait_.id), "ImplVisitor");
+          if (($puck_39 !== undefined)) {
+            let binding = $puck_39;
             return $puck_1.Some([
               $puck_1.Option.unwrap.call(trait_.id),
               binding.name,
@@ -315,7 +329,7 @@ function ImplVisitor(context, file) {
           };
         })
 ;
-        return i.extendedTraits = $puck_1.ObjectMap.fromIter({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.Iterator[$puck_36.type].collect.call($puck_36), $isTraitObject: true});
+        return i.extendedTraits = $puck_1.ObjectMap.fromIter({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.Iterator[$puck_37.type].collect.call($puck_37), $isTraitObject: true});
       };
       if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].isNotEmpty.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: trait_.requiredTraits, $isTraitObject: true})) {
         $puck_5.CompilerContext.deferAfterImpl.call(context, structType, trait_.requiredTraits, implement);
@@ -341,21 +355,21 @@ function ImplVisitor(context, file) {
     $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true}, function (m) {
       return $unwrapTraitObject(self).visitMethodDeclaration(m, structType);
     });
-    let $puck_39 = structType.kind;
-    if (($puck_39.kind === "Enum")) {
-      let {value: enum_} = $puck_39;
+    let $puck_40 = structType.kind;
+    if (($puck_40.kind === "Enum")) {
+      let {value: enum_} = $puck_40;
       let e = enum_;
       implementShorthand(structType, e, i, reportError);
     }
     else {
-      if ($puck_39.kind === "Struct") {
-        let {value: struct} = $puck_39;
+      if ($puck_40.kind === "Struct") {
+        let {value: struct} = $puck_40;
         let s = struct;
         implementShorthand(structType, s, i, reportError);
       }
       else {
         if (true) {
-          $puck_39;
+          $puck_40;
           $puck_5.CompilerContext.reportError.call(context, file, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:NamedTypeBound', value: i.type_, $isTraitObject: true}, $puck_12.CompilationError.Other($puck_12.Type.displayName.call(structType) + " is not a struct or an enum"));
         };
       };

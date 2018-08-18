@@ -28,6 +28,35 @@ import 'functions.puck' as {checkFunctionCall}
 import 'scope.puck' as {Scope}
 import 'types.puck' as {findCommonType, isAssignable, resolveTypeParameters}
 
+fn getParameterMap(objectInstance: TypeInstance, implementation: Implementation) -> ObjectMap<Type> {
+  let mut parameterMap: ObjectMap<Type> = ObjectMap.new()
+
+  implementation.typeParameters.forEach(|implementationParameter| {
+    let objectParameter =
+      findTypeParameterName(objectInstance, implementationParameter, implementation)
+        .andThen(|p| objectInstance.parameterMap.get(p))
+
+    if let Some(objectParameter) = objectParameter {
+      parameterMap.set(implementationParameter.name.unwrap(), objectParameter)
+    }
+  })
+
+  parameterMap
+}
+
+fn findTypeParameterName(objectInstance: TypeInstance, parameter: Type, implementation: Implementation) -> Option<String> {
+  implementation.type_.instance
+    .andThen(|i| {
+      i.typeParameters
+        .enumerate()
+        .find(|(_, p)| {
+          p.name.mapOr(false, |name| name == parameter.name.unwrap())
+        })
+        .andThen(|(index, _)| objectInstance.class.class.unwrap().typeParameters.get(index))
+        .andThen(|p| p.name)
+    })
+}
+
 fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
   let implementations = match type_.kind {
     TypeKind::Enum(enum_) => enum_.implementations
@@ -44,6 +73,15 @@ fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
 
           List.zip(objectInstance.typeParameters, implementationInstance.typeParameters)
             .all(|(objectP, implP)| isAssignable(implP, objectP))
+        })
+        .filter(|i| {
+          i.typeParameterBounds.mapOr(true, |bounds|
+            bounds.entries().all(|(mut subType, mut superType)|{
+              let resolve = resolveTypeParameters(getParameterMap(objectInstance, i))
+              let implementationInstance = i.type_.instance.unwrap()
+              isAssignable(resolve(superType), resolve(subType))
+            })
+          )
         })
         .toList()
       else implementations

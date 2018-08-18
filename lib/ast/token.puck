@@ -30,6 +30,7 @@ export enum SyntaxKind {
   TraitKeyword
   TrueKeyword
   TypeKeyword
+  WhereKeyword
   WhileKeyword
 
   OpenBraceToken
@@ -149,6 +150,7 @@ impl SyntaxKind {
     else if text == 'then' then Some(SyntaxKind::ThenKeyword)
     else if text == 'trait' then Some(SyntaxKind::TraitKeyword)
     else if text == 'type' then Some(SyntaxKind::TypeKeyword)
+    else if text == 'where' then Some(SyntaxKind::WhereKeyword)
     else if text == 'while' then Some(SyntaxKind::WhileKeyword)
     else if text == '{' then Some(SyntaxKind::OpenBraceToken)
     else if text == '}' then Some(SyntaxKind::CloseBraceToken)
@@ -218,6 +220,7 @@ impl SyntaxKind {
       SyntaxKind::ThenKeyword => 'then'
       SyntaxKind::TraitKeyword => 'trait'
       SyntaxKind::TypeKeyword => 'type'
+      SyntaxKind::WhereKeyword => 'where'
       SyntaxKind::WhileKeyword => 'while'
       SyntaxKind::OpenBraceToken => '{'
       SyntaxKind::CloseBraceToken => '}'

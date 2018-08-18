@@ -66,6 +66,8 @@ import 'ast.puck' as {
   RecordTypeBoundMember
   TupleTypeBound
   TypeParameter
+  TypeParameterBound
+  WhereClause
 }
 import '../compiler/ast.ts' as {SyntaxKind}
 
@@ -157,6 +159,8 @@ export let walkingVisitor = {
   visitRecordTypeBoundMember: |self, t: RecordTypeBoundMember| walkRecordTypeBoundMember(self, t)
   visitTupleTypeBound: |self, t: TupleTypeBound| walkTupleTypeBound(self, t)
   visitTypeParameter: |self, t: TypeParameter| walkTypeParameter(self, t)
+  visitTypeParameterBound: |self, t: TypeParameterBound| walkTypeParameterBound(self, t)
+  visitWhereClause: |self, t: WhereClause| walkWhereClause(self, t)
 }
 
 export let emptyVisitor = {
@@ -217,6 +221,8 @@ export let emptyVisitor = {
   visitRecordPattern: || {}
   visitTuplePattern: || {}
   visitTypeParameter: || {}
+  visitTypeParameterBound: || {}
+  visitWhereClause: || {}
 
   visitTypeBound: |self, t: TypeBound| walkTypeBound(self, t)
   visitFunctionTypeBound: || {}
@@ -301,6 +307,8 @@ export fn walkImplDeclaration(visitor, i: ImplDeclaration) {
   i.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   visitor.visitNamedTypeBound(i.trait_)
   visitor.visitNamedTypeBound(i.type_)
+  if let Option::Some(whereClause) = i.whereClause
+    then visitor.visitWhereClause(whereClause)
   i.members.forEach(visitor.visitFunctionDeclaration.bind(visitor))
 }
 export fn walkImplShorthandDeclaration(visitor, i: ImplShorthandDeclaration) {
@@ -532,4 +540,11 @@ export fn walkTupleTypeBound(visitor, t: TupleTypeBound) {
 export fn walkTypeParameter(visitor, t: TypeParameter) {
   // visitor.visitIdentifier(t.name)
   if let Option::Some(defaultValue) = t.defaultValue then visitor.visitTypeBound(defaultValue)
+}
+export fn walkTypeParameterBound(visitor, t: TypeParameterBound) {
+  visitor.visitTypeBound(t.subType)
+  visitor.visitTypeBound(t.superType)
+}
+export fn walkWhereClause(visitor, w: WhereClause) {
+  w.bounds.forEach(|b| visitor.visitTypeParameterBound(b))
 }

@@ -1,0 +1,12 @@
+export trait Order<T> {
+  fn order(self) -> List<T>
+}
+
+impl<T> Order<T> for List<T> where T: PartialOrd<T> {
+  fn order(self) -> List<T> {
+    self.toList()
+  }
+}
+
+[1, 2].order()
+['a', 'b'].order()

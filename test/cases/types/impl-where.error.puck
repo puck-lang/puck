@@ -1,0 +1,15 @@
+///// Use of undefined variable Missing
+import './impl-where.puck' as {Order}
+
+impl<T> Order<T> for List<T> where T: Missing {
+  fn order(self) -> List<T> {
+    self.toList()
+  }
+}
+
+///// List<Obj> has no property order
+import './impl-where.puck' as {Order}
+
+type Obj {}
+
+[Obj({}), Obj({})].order()

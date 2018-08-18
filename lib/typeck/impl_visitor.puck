@@ -119,6 +119,9 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
     type_: type_
     trait_: traitType
     typeParameters: i.typeParameters.map(|p| p->type_.transmute()).toList()
+    typeParameterBounds: i.whereClause.map(|w| Map.fromIter(w.bounds.map(|b| {
+      (b.subType.getType(), b.superType.getType())
+    })))
     functions
   })
 
@@ -173,6 +176,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
       enumMember: None
     }
     typeParameters: i.typeParameters.map(|p| p->type_.transmute()).toList()
+    typeParameterBounds: None
     functions
   })
 }
@@ -219,6 +223,8 @@ export fn ImplVisitor(mut context: CompilerContext, file: File) {
       let traitType = i.trait_.getType()
       let mut structType = i.type_.getType()
       scope.setSelfType(structType)
+      if let Option::Some(whereClause) = i.whereClause
+        then self.visitWhereClause(whereClause)
       i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
       let id = getImplId(traitType, structType)
 

@@ -294,6 +294,8 @@ export type ImplDeclaration {
   forKeyword: SimpleToken
   type_: NamedTypeBound
 
+  whereClause: Option<WhereClause>
+
   openBrace: SimpleToken
   members: List<FunctionDeclaration>
   closeBrace: SimpleToken
@@ -311,6 +313,8 @@ export type ImplShorthandDeclaration {
   typeParameters: List<TypeParameter>
 
   type_: NamedTypeBound
+
+  whereClause: Option<WhereClause>
 
   openBrace: SimpleToken
   members: List<FunctionDeclaration>
@@ -1269,4 +1273,16 @@ impl ToSpan for TypeParameter {
   fn span(self) -> Span {
     self.name.span
   }
+}
+
+export type TypeParameterBound {
+  subType: TypeBound
+  colonToken: SimpleToken
+  superType: TypeBound
+  commaToken: Option<SimpleToken>
+}
+
+export type WhereClause {
+  whereKeyword: SimpleToken
+  bounds: List<TypeParameterBound>
 }

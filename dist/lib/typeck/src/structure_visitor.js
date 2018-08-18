@@ -528,6 +528,8 @@ function structureVisitor(context, file, visitor = "") {
       };
     };
   },
+    visitTypeParameterBound: visit.walkingVisitor.visitTypeParameterBound,
+    visitWhereClause: visit.walkingVisitor.visitWhereClause,
   };
 };
 exports.structureVisitor = structureVisitor

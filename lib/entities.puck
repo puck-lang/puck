@@ -397,6 +397,7 @@ export type Implementation {
   type_: Type
   trait_: Type
   typeParameters: List<Type>
+  typeParameterBounds: Option<Map<Type, Type>>
   functions: ObjectMap<Type>
 }
 

@@ -32,50 +32,89 @@ TraitCall.orElse = function (op) {
     };
   };
 };
+function getParameterMap(objectInstance, implementation) {
+  let parameterMap = $puck_1.ObjectMap._new();
+  $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementation.typeParameters, $isTraitObject: true}, function (implementationParameter) {
+    const objectParameter = $puck_1.Option.andThen.call(findTypeParameterName(objectInstance, implementationParameter, implementation), function (p) {
+      return $puck_1.ObjectMap.get.call(objectInstance.parameterMap, p);
+    });
+    let $puck_11 = objectParameter;
+    if ($puck_11 !== undefined) {
+      let objectParameter = $puck_11;
+      return $puck_1.ObjectMap.set.call(parameterMap, $puck_1.Option.unwrap.call(implementationParameter.name), objectParameter);
+    };
+  });
+  return parameterMap;
+};
+function findTypeParameterName(objectInstance, parameter, implementation) {
+  return $puck_1.Option.andThen.call(implementation.type_.instance, function (i) {
+    let $puck_12 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].enumerate.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.typeParameters, $isTraitObject: true})
+;
+    return $puck_1.Option.andThen.call($puck_1.Option.andThen.call($puck_1.Iterable[$puck_12.type].find.call($puck_12, function ([, p]) {
+      return $puck_1.Option.mapOr.call(p.name, false, function (name) {
+        return name === $puck_1.Option.unwrap.call(parameter.name);
+      });
+    }), function ([index, ]) {
+      return $puck_1.List.get.call($puck_1.Option.unwrap.call(objectInstance._class._class).typeParameters, index);
+    }), function (p) {
+      return p.name;
+    });
+  });
+};
 function getImplementationsForInstance(type_) {
-  let $puck_11 = type_.kind;
-  let $puck_12;
-  if ($puck_11.kind === "Enum") {
-    let {value: enum_} = $puck_11;
-    $puck_12 = enum_.implementations;
+  let $puck_13 = type_.kind;
+  let $puck_14;
+  if ($puck_13.kind === "Enum") {
+    let {value: enum_} = $puck_13;
+    $puck_14 = enum_.implementations;
   }
   else {
-    let $puck_13;
-    if ($puck_11.kind === "Intersection") {
-      let {value: intersection} = $puck_11;
-      $puck_13 = getImplementationsForInstance(intersection.baseType);
+    let $puck_15;
+    if ($puck_13.kind === "Intersection") {
+      let {value: intersection} = $puck_13;
+      $puck_15 = getImplementationsForInstance(intersection.baseType);
     }
     else {
-      let $puck_14;
-      if ($puck_11.kind === "Struct") {
-        let {value: struct} = $puck_11;
-        $puck_14 = struct.implementations;
+      let $puck_16;
+      if ($puck_13.kind === "Struct") {
+        let {value: struct} = $puck_13;
+        $puck_16 = struct.implementations;
       }
       else {
-        let $puck_15;
+        let $puck_17;
         if (true) {
-          $puck_11;
-          $puck_15 = [];
+          $puck_13;
+          $puck_17 = [];
         };
-        $puck_14 = $puck_15;
+        $puck_16 = $puck_17;
       };
-      $puck_13 = $puck_14;
+      $puck_15 = $puck_16;
     };
-    $puck_12 = $puck_13;
+    $puck_14 = $puck_15;
   };
-  const implementations = $puck_12;
+  const implementations = $puck_14;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
-    let $puck_16 = type_.instance;
-    if ($puck_16 !== undefined) {
-      let objectInstance = $puck_16;
-      let $puck_17 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
+    let $puck_18 = type_.instance;
+    if ($puck_18 !== undefined) {
+      let objectInstance = $puck_18;
+      let $puck_20 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
         const implementationInstance = $puck_1.Option.unwrap.call(i.type_.instance);
         return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].all.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.List.zip({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: objectInstance.typeParameters, $isTraitObject: true}, implementationInstance.typeParameters), $isTraitObject: true}, function ([objectP, implP]) {
           return $puck_9.isAssignable(implP, objectP);
         });
       })
 ;
-      return $puck_1.Iterable[$puck_17.type].toList.call($puck_17);
+      let $puck_19 = $puck_1.Iterable[$puck_20.type].filter.call($puck_20, function (i) {
+        return $puck_1.Option.mapOr.call(i.typeParameterBounds, true, function (bounds) {
+          return $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].all.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.entries.call(bounds), $isTraitObject: true}, function ([subType, superType]) {
+            const resolve = $puck_9.resolveTypeParameters(getParameterMap(objectInstance, i));
+            const implementationInstance = $puck_1.Option.unwrap.call(i.type_.instance);
+            return $puck_9.isAssignable(resolve(superType), resolve(subType));
+          });
+        });
+      })
+;
+      return $puck_1.Iterable[$puck_19.type].toList.call($puck_19);
     }
     else {
       return implementations;
@@ -86,11 +125,11 @@ function getImplementationsForInstance(type_) {
   };
 };
 function getMostSpecificImplementations(type_, implementations) {
-  let $puck_18 = type_.instance;
-  if ($puck_18 !== undefined) {
-    let objectInstance = $puck_18;
+  let $puck_21 = type_.instance;
+  if ($puck_21 !== undefined) {
+    let objectInstance = $puck_21;
     let maxSpecificity = 0;
-    let $puck_21 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
+    let $puck_24 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
       const specificity = getTypeSpecificity(i.type_);
       maxSpecificity = $puck_2._global.Math.max(maxSpecificity, specificity);
       return [
@@ -99,47 +138,21 @@ function getMostSpecificImplementations(type_, implementations) {
       ];
     })
 ;
-    let $puck_20 = $puck_1.Iterable[$puck_21.type].filter.call($puck_21, function ([, specificity]) {
+    let $puck_23 = $puck_1.Iterable[$puck_24.type].filter.call($puck_24, function ([, specificity]) {
       return specificity === maxSpecificity;
     })
 ;
-    let $puck_19 = $puck_1.Iterable[$puck_20.type].map.call($puck_20, function ([i, ]) {
+    let $puck_22 = $puck_1.Iterable[$puck_23.type].map.call($puck_23, function ([i, ]) {
       return i;
     })
 ;
-    return $puck_1.Iterable[$puck_19.type].toList.call($puck_19);
+    return $puck_1.Iterable[$puck_22.type].toList.call($puck_22);
   }
   else {
     return implementations;
   };
 };
 function getImplementationForTrait(type_, trait_) {
-  let $puck_23 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getImplementationsForInstance(type_), $isTraitObject: true}, function (i) {
-    return (!$puck_6.Type.getTrait.call(i.trait_).isShorthand);
-  })
-;
-  let $puck_22 = $puck_1.Iterable[$puck_23.type].filter.call($puck_23, function (i) {
-    return $puck_9.isAssignable(i.trait_, trait_);
-  })
-;
-  let implementations = $puck_1.Iterable[$puck_22.type].toList.call($puck_22);
-  let $puck_24;
-  if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
-    $puck_24 = getMostSpecificImplementations(type_, implementations);
-  }
-  else {
-    $puck_24 = implementations;
-  };
-  implementations = $puck_24;
-  if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
-    return $puck_1.Err(implementations);
-  }
-  else {
-    return $puck_1.Ok($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}));
-  };
-};
-exports.getImplementationForTrait = getImplementationForTrait;
-function getImplementationForTraitCall(functionName, type_, trait_, e, functionType_) {
   let $puck_26 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getImplementationsForInstance(type_), $isTraitObject: true}, function (i) {
     return (!$puck_6.Type.getTrait.call(i.trait_).isShorthand);
   })
@@ -151,17 +164,43 @@ function getImplementationForTraitCall(functionName, type_, trait_, e, functionT
   let implementations = $puck_1.Iterable[$puck_25.type].toList.call($puck_25);
   let $puck_27;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
-    let $puck_28 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
-      let $puck_29 = resolveImplTypeParameters(i, type_);
-      if ($puck_29.kind === "Ok") {
-        let {value: type_} = $puck_29;
+    $puck_27 = getMostSpecificImplementations(type_, implementations);
+  }
+  else {
+    $puck_27 = implementations;
+  };
+  implementations = $puck_27;
+  if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
+    return $puck_1.Err(implementations);
+  }
+  else {
+    return $puck_1.Ok($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}));
+  };
+};
+exports.getImplementationForTrait = getImplementationForTrait;
+function getImplementationForTraitCall(functionName, type_, trait_, e, functionType_) {
+  let $puck_29 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: getImplementationsForInstance(type_), $isTraitObject: true}, function (i) {
+    return (!$puck_6.Type.getTrait.call(i.trait_).isShorthand);
+  })
+;
+  let $puck_28 = $puck_1.Iterable[$puck_29.type].filter.call($puck_29, function (i) {
+    return $puck_9.isAssignable(i.trait_, trait_);
+  })
+;
+  let implementations = $puck_1.Iterable[$puck_28.type].toList.call($puck_28);
+  let $puck_30;
+  if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
+    let $puck_31 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
+      let $puck_32 = resolveImplTypeParameters(i, type_);
+      if ($puck_32.kind === "Ok") {
+        let {value: type_} = $puck_32;
         let functionType = $puck_1.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: $puck_6.Type.getTrait.call(type_).functions, $isTraitObject: true}, functionName);
         const _function = $puck_6.Type.getFunction.call(functionType);
-        let $puck_30 = _function.selfBinding;
-        let $puck_31;
-        if ($puck_30 !== undefined) {
-          let selfBinding = $puck_30;
-          $puck_31 = {
+        let $puck_33 = _function.selfBinding;
+        let $puck_34;
+        if ($puck_33 !== undefined) {
+          let selfBinding = $puck_33;
+          $puck_34 = {
             definition: functionType.definition,
             id: functionType.id,
             displayName: functionType.displayName,
@@ -183,9 +222,9 @@ function getImplementationForTraitCall(functionName, type_, trait_, e, functionT
           };
         }
         else {
-          $puck_31 = functionType;
+          $puck_34 = functionType;
         };
-        functionType = $puck_31;
+        functionType = $puck_34;
         return $puck_1.Result.isOk.call($puck_1.Result.mapErr.call($puck_7.checkFunctionCall(functionType, e), function ([, e]) {
           return $puck_1.print("error", e);
         }));
@@ -195,28 +234,28 @@ function getImplementationForTraitCall(functionName, type_, trait_, e, functionT
       };
     })
 ;
-    const filteredImplementations = $puck_1.Iterable[$puck_28.type].toList.call($puck_28);
-    let $puck_32;
+    const filteredImplementations = $puck_1.Iterable[$puck_31.type].toList.call($puck_31);
+    let $puck_35;
     if (($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: filteredImplementations, $isTraitObject: true}) > 0)) {
-      $puck_32 = filteredImplementations;
+      $puck_35 = filteredImplementations;
     }
     else {
-      $puck_32 = implementations;
+      $puck_35 = implementations;
     };
-    $puck_27 = $puck_32;
+    $puck_30 = $puck_35;
   }
   else {
-    $puck_27 = implementations;
+    $puck_30 = implementations;
   };
-  implementations = $puck_27;
-  let $puck_33;
+  implementations = $puck_30;
+  let $puck_36;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
-    $puck_33 = getMostSpecificImplementations(type_, implementations);
+    $puck_36 = getMostSpecificImplementations(type_, implementations);
   }
   else {
-    $puck_33 = implementations;
+    $puck_36 = implementations;
   };
-  implementations = $puck_33;
+  implementations = $puck_36;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
     return $puck_1.Err(implementations);
   }
@@ -227,42 +266,42 @@ function getImplementationForTraitCall(functionName, type_, trait_, e, functionT
 exports.getImplementationForTraitCall = getImplementationForTraitCall;
 function getImplementation(functionName, type_, e) {
   let implementations = getImplementationsForInstance(type_);
-  let $puck_34 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
+  let $puck_37 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
     return $puck_1.ObjectMap.has.call($puck_6.Type.getTrait.call(i.trait_).functions, functionName);
   })
 ;
-  implementations = $puck_1.Iterable[$puck_34.type].toList.call($puck_34);
+  implementations = $puck_1.Iterable[$puck_37.type].toList.call($puck_37);
   const scope = $unwrapTraitObject(e.scope);
-  let $puck_35;
+  let $puck_38;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
-    let $puck_36 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
+    let $puck_39 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
       return $puck_1.Option.isSome.call($puck_8.Scope.getBinding.call(scope, $puck_1.Option.unwrap.call(i.trait_.name)));
     })
 ;
-    $puck_35 = $puck_1.Iterable[$puck_36.type].toList.call($puck_36);
+    $puck_38 = $puck_1.Iterable[$puck_39.type].toList.call($puck_39);
   }
   else {
-    $puck_35 = implementations;
+    $puck_38 = implementations;
   };
-  implementations = $puck_35;
-  let $puck_37;
+  implementations = $puck_38;
+  let $puck_40;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
-    let $puck_38 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
+    let $puck_41 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
       return $puck_1.Range.contains.call($puck_6.Type.getFunction.call($puck_1.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: $puck_6.Type.getTrait.call(i.trait_).functions, $isTraitObject: true}, functionName)).parameterRange, $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: e.argumentList, $isTraitObject: true}));
     })
 ;
-    $puck_37 = $puck_1.Iterable[$puck_38.type].toList.call($puck_38);
+    $puck_40 = $puck_1.Iterable[$puck_41.type].toList.call($puck_41);
   }
   else {
-    $puck_37 = implementations;
+    $puck_40 = implementations;
   };
-  implementations = $puck_37;
-  let $puck_39;
+  implementations = $puck_40;
+  let $puck_42;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
-    let $puck_40 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
-      let $puck_41 = resolveImplTypeParameters(i, type_);
-      if ($puck_41.kind === "Ok") {
-        let {value: type_} = $puck_41;
+    let $puck_43 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
+      let $puck_44 = resolveImplTypeParameters(i, type_);
+      if ($puck_44.kind === "Ok") {
+        let {value: type_} = $puck_44;
         return $puck_1.Result.isOk.call($puck_7.checkFunctionCall($puck_1.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: $puck_6.Type.getTrait.call(type_).functions, $isTraitObject: true}, functionName), e));
       }
       else {
@@ -270,28 +309,28 @@ function getImplementation(functionName, type_, e) {
       };
     })
 ;
-    const filteredImplementations = $puck_1.Iterable[$puck_40.type].toList.call($puck_40);
-    let $puck_42;
+    const filteredImplementations = $puck_1.Iterable[$puck_43.type].toList.call($puck_43);
+    let $puck_45;
     if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: filteredImplementations, $isTraitObject: true}) > 0) {
-      $puck_42 = filteredImplementations;
+      $puck_45 = filteredImplementations;
     }
     else {
-      $puck_42 = implementations;
+      $puck_45 = implementations;
     };
-    $puck_39 = $puck_42;
+    $puck_42 = $puck_45;
   }
   else {
-    $puck_39 = implementations;
+    $puck_42 = implementations;
   };
-  implementations = $puck_39;
-  let $puck_43;
+  implementations = $puck_42;
+  let $puck_46;
   if (($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1 && $puck_1.Option.isSome.call(type_.instance))) {
-    $puck_43 = getMostSpecificImplementations(type_, implementations);
+    $puck_46 = getMostSpecificImplementations(type_, implementations);
   }
   else {
-    $puck_43 = implementations;
+    $puck_46 = implementations;
   };
-  implementations = $puck_43;
+  implementations = $puck_46;
   if ($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}) > 1) {
     return $puck_1.Err(implementations);
   }
@@ -301,43 +340,43 @@ function getImplementation(functionName, type_, e) {
 };
 exports.getImplementation = getImplementation;
 function getTypeSpecificity(type_) {
-  let $puck_44 = type_.kind;
-  if ($puck_44.kind === "Parameter") {
-    $puck_44;
+  let $puck_47 = type_.kind;
+  if ($puck_47.kind === "Parameter") {
+    $puck_47;
     return 0;
   };
-  let $puck_45 = type_.instance;
-  if ($puck_45 !== undefined) {
-    let instance = $puck_45;
-    let $puck_46 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: instance.typeParameters, $isTraitObject: true})
+  let $puck_48 = type_.instance;
+  if ($puck_48 !== undefined) {
+    let instance = $puck_48;
+    let $puck_49 = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: instance.typeParameters, $isTraitObject: true})
 ;
-    return $puck_1.Iterator[$puck_46.type].fold.call($puck_46, 1, function (sum, type_) {
+    return $puck_1.Iterator[$puck_49.type].fold.call($puck_49, 1, function (sum, type_) {
       return sum + getTypeSpecificity(type_);
     });
   }
   else {
-    if (($puck_45 === undefined)) {
-      $puck_45;
+    if (($puck_48 === undefined)) {
+      $puck_48;
       return 1;
     };
   };
 };
 function resolveImplTypeParameters(implementation, objectType) {
   let parameterMap = $puck_1.ObjectMap._new();
-  let $puck_47 = implementation.type_.instance;
-  if ($puck_47 !== undefined) {
-    let instance = $puck_47;
+  let $puck_50 = implementation.type_.instance;
+  if ($puck_50 !== undefined) {
+    let instance = $puck_50;
     $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, function (p) {
       return $puck_1.ObjectMap.set.call(parameterMap, $puck_1.Option.unwrap.call(p.name), p);
     });
     let iter = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: $puck_1.List.zip({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, $puck_1.Option.unwrap.call($puck_6.Type.typeParameters.call(objectType))), $isTraitObject: true});
     while (true) {
-      let $puck_48 = $puck_1.Iterator[iter.type].next.call(iter);
-      if ($puck_48 !== undefined) {
-        let [ip, op] = $puck_48;
-        let $puck_49 = collectTypeParameters(parameterMap, ip, op);
-        if ($puck_49.kind === "Err") {
-          let {value: err} = $puck_49;
+      let $puck_51 = $puck_1.Iterator[iter.type].next.call(iter);
+      if ($puck_51 !== undefined) {
+        let [ip, op] = $puck_51;
+        let $puck_52 = collectTypeParameters(parameterMap, ip, op);
+        if ($puck_52.kind === "Err") {
+          let {value: err} = $puck_52;
           return $puck_1.Err(err);
         };
       }
@@ -349,9 +388,9 @@ function resolveImplTypeParameters(implementation, objectType) {
 };
 exports.resolveImplTypeParameters = resolveImplTypeParameters;
 function collectTypeParameters(parameterMap, ip, op) {
-  let $puck_50 = ip.kind;
-  if ($puck_50.kind === "Parameter") {
-    $puck_50;
+  let $puck_53 = ip.kind;
+  if ($puck_53.kind === "Parameter") {
+    $puck_53;
     const name = $puck_1.Option.unwrap.call(ip.name);
     if ($puck_9.isAssignable($puck_1.Index["$impl_Index$lib/stdlib/core.puck:ObjectMap"].index.call({type: '$impl_Index$lib/stdlib/core.puck:ObjectMap', value: parameterMap, $isTraitObject: true}, name), op)) {
       parameterMap[name] = op;
@@ -365,18 +404,18 @@ function collectTypeParameters(parameterMap, ip, op) {
   }
   else {
     if (true) {
-      $puck_50;
-      let $puck_51 = ip.instance;
-      if ($puck_51 !== undefined) {
-        let instance = $puck_51;
+      $puck_53;
+      let $puck_54 = ip.instance;
+      if ($puck_54 !== undefined) {
+        let instance = $puck_54;
         let iter = $puck_1.IntoIterator["$impl_IntoIterator$List"].iter.call({type: '$impl_IntoIterator$List', value: $puck_1.List.zip({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: instance.typeParameters, $isTraitObject: true}, $puck_1.Option.unwrap.call(op.instance).typeParameters), $isTraitObject: true});
         while (true) {
-          let $puck_52 = $puck_1.Iterator[iter.type].next.call(iter);
-          if ($puck_52 !== undefined) {
-            let [ip, op] = $puck_52;
-            let $puck_53 = collectTypeParameters(parameterMap, ip, op);
-            if ($puck_53.kind === "Err") {
-              let {value: err} = $puck_53;
+          let $puck_55 = $puck_1.Iterator[iter.type].next.call(iter);
+          if ($puck_55 !== undefined) {
+            let [ip, op] = $puck_55;
+            let $puck_56 = collectTypeParameters(parameterMap, ip, op);
+            if ($puck_56.kind === "Err") {
+              let {value: err} = $puck_56;
               return $puck_1.Err(err);
             };
           }
@@ -389,43 +428,43 @@ function collectTypeParameters(parameterMap, ip, op) {
   return $puck_1.Ok(undefined);
 };
 function getTraitCallForTrait(objectType, methodName) {
-  let $puck_54 = objectType.kind;
-  if ($puck_54.kind === "Trait") {
-    let {value: trait_} = $puck_54;
-    let $puck_55 = $puck_1.ObjectMap.get.call(trait_.functions, methodName);
-    if ($puck_55 !== undefined) {
-      let functionType = $puck_55;
+  let $puck_57 = objectType.kind;
+  if ($puck_57.kind === "Trait") {
+    let {value: trait_} = $puck_57;
+    let $puck_58 = $puck_1.ObjectMap.get.call(trait_.functions, methodName);
+    if ($puck_58 !== undefined) {
+      let functionType = $puck_58;
       return $puck_1.Some(functionType);
     }
     else {
       if (true) {
-        const None = $puck_55;
-        let $puck_56 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: trait_.requiredTraits, $isTraitObject: true}, function (type_) {
+        const None = $puck_58;
+        let $puck_59 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: trait_.requiredTraits, $isTraitObject: true}, function (type_) {
           return getTraitCallForTrait(type_, methodName);
         })
 ;
-        return $puck_1.Iterable[$puck_56.type].first.call($puck_56);
+        return $puck_1.Iterable[$puck_59.type].first.call($puck_59);
       };
     };
   }
   else {
     if (true) {
-      $puck_54;
+      $puck_57;
       return $puck_1.None;
     };
   };
 };
 function getTraitCall(objectType, methodName, e) {
-  let $puck_57 = objectType.kind;
-  if ($puck_57.kind === "Intersection") {
-    let {value: intersection} = $puck_57;
+  let $puck_60 = objectType.kind;
+  if ($puck_60.kind === "Intersection") {
+    let {value: intersection} = $puck_60;
     return TraitCall.orElse.call(getTraitCall(intersection.baseType, methodName, e), function () {
       return getTraitCall(intersection.intersectedTrait, methodName, e);
     });
   }
   else {
-    if ($puck_57.kind === "Trait") {
-      let {value: trait_} = $puck_57;
+    if ($puck_60.kind === "Trait") {
+      let {value: trait_} = $puck_60;
       return $puck_1.Option.unwrapOr.call($puck_1.Option.map.call(getTraitCallForTrait(objectType, methodName), function (functionType) {
         return TraitCall.TraitObject({
           objectType: objectType,
@@ -435,20 +474,20 @@ function getTraitCall(objectType, methodName, e) {
     }
     else {
       if (true) {
-        $puck_57;
-        let $puck_58 = getImplementation(methodName, objectType, e);
-        if (($puck_58.kind === "Ok" && $puck_58.value !== undefined)) {
-          let {value: implementation} = $puck_58;
+        $puck_60;
+        let $puck_61 = getImplementation(methodName, objectType, e);
+        if (($puck_61.kind === "Ok" && $puck_61.value !== undefined)) {
+          let {value: implementation} = $puck_61;
           return TraitCall.TypeObject(implementation);
         }
         else {
-          if ($puck_58.kind === "Ok") {
-            let {value: None} = $puck_58;
+          if ($puck_61.kind === "Ok") {
+            let {value: None} = $puck_61;
             return TraitCall.None;
           }
           else {
             if (true) {
-              const Err = $puck_58;
+              const Err = $puck_61;
               return TraitCall.Error({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true}, "Ambiguous trait call");
             };
           };
