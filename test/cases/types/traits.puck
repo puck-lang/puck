@@ -87,3 +87,6 @@ func.doubleWithBody('body')
 let func: MoreFunctions = func
 func.withBody('body')
 func.doubleWithBody('body')
+
+MoreFunctions.doubleNoBody(func)
+MoreFunctions.doubleWithBody(func, 'body')

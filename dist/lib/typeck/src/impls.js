@@ -1,7 +1,7 @@
 'use strict';
 
 const $unwrapTraitObject = obj => obj && (obj.$isTraitObject ? obj.value : obj);
-exports.TraitCall = exports.getImplementationForTrait = exports.getImplementationForTraitCall = exports.getImplementation = exports.resolveImplTypeParameters = exports.getTraitCall = undefined;
+exports.TraitCall = exports.getImplementationForTrait = exports.getImplementation = exports.resolveImplTypeParameters = exports.getTraitObjectCall = exports.getTraitCall = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("util");
@@ -264,7 +264,6 @@ function getImplementationForTraitCall(functionName, type_, trait_, e, functionT
     return $puck_1.Ok($puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].first.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}));
   };
 };
-exports.getImplementationForTraitCall = getImplementationForTraitCall;
 function getImplementation(functionName, type_, e) {
   let implementations = getImplementationsForInstance(type_);
   let $puck_37 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filter.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: implementations, $isTraitObject: true}, function (i) {
@@ -455,18 +454,18 @@ function getTraitCallForTrait(objectType, methodName) {
     };
   };
 };
-function getTraitCall(objectType, methodName, e) {
+function getTraitObjectCall(functionName, objectType, trait_, e, functionType_) {
   let $puck_60 = objectType.kind;
   if ($puck_60.kind === "Intersection") {
     let {value: intersection} = $puck_60;
-    return TraitCall.orElse.call(getTraitCall(intersection.baseType, methodName, e), function () {
-      return getTraitCall(intersection.intersectedTrait, methodName, e);
+    return TraitCall.orElse.call(getTraitCall(intersection.baseType, functionName, e), function () {
+      return getTraitCall(intersection.intersectedTrait, functionName, e);
     });
   }
   else {
     if ($puck_60.kind === "Trait") {
       let {value: trait_} = $puck_60;
-      return $puck_1.Option.unwrapOr.call($puck_1.Option.map.call(getTraitCallForTrait(objectType, methodName), function (functionType) {
+      return $puck_1.Option.unwrapOr.call($puck_1.Option.map.call(getTraitCallForTrait(objectType, functionName), function (functionType) {
         return TraitCall.TraitObject({
           objectType: objectType,
           functionType: functionType,
@@ -476,7 +475,7 @@ function getTraitCall(objectType, methodName, e) {
     else {
       if (true) {
         $puck_60;
-        let $puck_61 = getImplementation(methodName, objectType, e);
+        let $puck_61 = getImplementationForTraitCall(functionName, objectType, trait_, e, functionType_);
         if (($puck_61.kind === "Ok" && $puck_61.value !== undefined)) {
           let {value: implementation} = $puck_61;
           return TraitCall.TypeObject(implementation);
@@ -489,6 +488,49 @@ function getTraitCall(objectType, methodName, e) {
           else {
             if (true) {
               const Err = $puck_61;
+              return TraitCall.Error({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true}, "Ambiguous trait call");
+            };
+          };
+        };
+      };
+    };
+  };
+};
+exports.getTraitObjectCall = getTraitObjectCall;
+function getTraitCall(objectType, methodName, e) {
+  let $puck_62 = objectType.kind;
+  if ($puck_62.kind === "Intersection") {
+    let {value: intersection} = $puck_62;
+    return TraitCall.orElse.call(getTraitCall(intersection.baseType, methodName, e), function () {
+      return getTraitCall(intersection.intersectedTrait, methodName, e);
+    });
+  }
+  else {
+    if ($puck_62.kind === "Trait") {
+      let {value: trait_} = $puck_62;
+      return $puck_1.Option.unwrapOr.call($puck_1.Option.map.call(getTraitCallForTrait(objectType, methodName), function (functionType) {
+        return TraitCall.TraitObject({
+          objectType: objectType,
+          functionType: functionType,
+        });
+      }), TraitCall.None);
+    }
+    else {
+      if (true) {
+        $puck_62;
+        let $puck_63 = getImplementation(methodName, objectType, e);
+        if (($puck_63.kind === "Ok" && $puck_63.value !== undefined)) {
+          let {value: implementation} = $puck_63;
+          return TraitCall.TypeObject(implementation);
+        }
+        else {
+          if ($puck_63.kind === "Ok") {
+            let {value: None} = $puck_63;
+            return TraitCall.None;
+          }
+          else {
+            if (true) {
+              const Err = $puck_63;
               return TraitCall.Error({type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:CallExpression', value: e, $isTraitObject: true}, "Ambiguous trait call");
             };
           };

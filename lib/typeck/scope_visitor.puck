@@ -82,9 +82,9 @@ import 'src/impls.puck' as {
 
   getImplementation
   getImplementationForTrait
-  getImplementationForTraitCall
   resolveImplTypeParameters
   getTraitCall
+  getTraitObjectCall
 }
 import 'src/patterns.puck' as {PatternError, declarePatternVariables}
 import 'src/range.puck' as {checkRange}
@@ -623,8 +623,28 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                   if not selfArgument.getType() {
                     reportError(selfArgument, 'selfArgument has no type')
                   }
-                  match getImplementationForTraitCall(name, selfArgument.getType(), objectType.providesType.unwrapOr(objectType), e, functionType) {
-                    Ok(Some(implementation)) => {
+                  match getTraitObjectCall(name, selfArgument.getType(), objectType.providesType.unwrapOr(objectType), e, functionType) {
+                    TraitCall::TraitObject({objectType}) => {
+                      if let Some(binding) = scope.getBindingByTypeId(objectType.id.unwrap()) {
+                        e->traitName = binding.name
+                        e->traitBinding = binding
+                        e->isTraitObject =  true
+                        e->isDirectTraitCall =  true
+                      }
+                      else {
+                        let typeName = objectType.name.unwrap()
+                        context.reportError(
+                          file
+                          e
+                          CompilationError::TraitNotInScope({
+                            functionName: name
+                            traitName: typeName
+                            id: objectType.id.unwrap()
+                          })
+                        )
+                      }
+                    }
+                    TraitCall::TypeObject(implementation) => {
                       e->traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
                       e->traitBinding = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap()
                       e->isDirectTraitCall =  true
@@ -639,12 +659,12 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                         }
                       }
                     }
-                    Ok(Option::None) => {
+                    TraitCall::None => {
                       reportError(e,
                         objectType.displayName() ++ ' has not been implemented for type ' ++ selfArgument.getType().displayName()
                       )
                     }
-                    Err => reportError(e, 'Ambiguous trait call')
+                    TraitCall::Error(token, message) => reportError(token, message)
                   }
                 }
               }

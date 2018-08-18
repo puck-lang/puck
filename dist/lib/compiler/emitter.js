@@ -774,12 +774,15 @@ function Emitter() {
             }
             var outerValueVariable = valueVariable;
             if (fn.isTraitObject) {
-                if (fn.func.value.object.kind === 'Identifier') {
-                    valueVariable = fn.func.value.object.value.name;
+                var selfValue = fn.isDirectTraitCall
+                    ? fn.argumentList[0]
+                    : fn.func.value.object;
+                if (selfValue.kind === 'Identifier') {
+                    valueVariable = selfValue.value.name;
                 }
                 else {
                     valueVariable = newValueVariable();
-                    hoist("let " + valueVariable + " = " + emitExpression(fn.func.value.object) + "\n");
+                    hoist("let " + valueVariable + " = " + emitExpression(selfValue) + "\n");
                 }
             }
             var traitName = fn.traitBinding && fn.traitBinding.definition.token.value.importName
