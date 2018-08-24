@@ -945,6 +945,8 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
         parameterList: []
         closeParenOrBar: {kind: SyntaxKind::OpenParenToken, span: Span.empty()}
         returnType: None
+        whereClause: None
+
         body: Some(mockBlock())
         type_: undefined
       }
@@ -957,6 +959,8 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       if maybeConsumeToken(SyntaxKind::MinusGreaterThanToken).isSome()
         then Some(parseTypeBound())
         else None
+
+    let whereClause = maybeWhereClause()
 
     let body =
       if recover and not isToken(SyntaxKind::OpenBraceToken) and (not optionalBody or returnType.isNone())
@@ -972,6 +976,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       parameterList
       closeParenOrBar
       returnType
+      whereClause
       body
       type_: undefined
     }
@@ -999,6 +1004,7 @@ export fn parse(mut input: TokenStream, file: File, recover = false) {
       parameterList
       closeParenOrBar
       returnType: None
+      whereClause: None
       body
       type_: undefined
     }

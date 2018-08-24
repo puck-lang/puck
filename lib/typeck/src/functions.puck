@@ -13,7 +13,7 @@ import '../scope_visitor.puck' as {getBinding}
 import '../../entities.puck' as {Definition, File, Function, StructKind, Type, TypeKind}
 import 'range.puck' as {checkRange, getRange}
 import 'scope.puck' as {Binding, Scope}
-import 'types.puck' as {isAssignable, isSameId}
+import 'types.puck' as {assignTypeBounds, isAssignable, isSameId}
 import 'structure_visitor.puck' as {notAssignableError}
 
 fn getPatternName(pattern: Pattern) -> Option<String> {
@@ -35,9 +35,10 @@ export fn isPatternMutable(pattern: Pattern) -> Bool {
   }
 }
 
-export fn createFunctionType(file: File, scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> ()) -> Type {
+export fn createFunctionType(file: File, mut scope: Scope, f: FunctionDeclaration, reportError: (ToSpan, String) -> ()) -> Type {
+  let mut typeParameters = f.typeParameters.map(|p| p->type_.transmute()).toList()
   let class =
-    if f.typeParameters.size() {
+    if f.typeParameters.isNotEmpty() {
       Some({
         parameterRange: getRange(
           f.typeParameters
@@ -46,7 +47,7 @@ export fn createFunctionType(file: File, scope: Scope, f: FunctionDeclaration, r
           'type parameter'
         )
         instances: []
-        typeParameters: f.typeParameters.map(|p| p->type_.transmute()).toList()
+        typeParameters
       })
     }
     else None
@@ -79,6 +80,18 @@ export fn createFunctionType(file: File, scope: Scope, f: FunctionDeclaration, r
       then parameters.skip(1).toList()
       else parameters
 
+  let typeParameterBounds =
+    f.whereClause.mapOr([], |w| w.bounds
+      .iter()
+      .map(|b| (b.subType.getType(), b.superType.getType()))
+      .collect()
+    )
+
+  let unassignedTypeBounds = assignTypeBounds(typeParameters, typeParameterBounds)
+  for (lower, upper) of unassignedTypeBounds {
+    scope.defineTypeBound(lower, upper)
+  }
+
   {
     definition: Definition({file, token: f})
     id: None
@@ -100,6 +113,7 @@ export fn createFunctionType(file: File, scope: Scope, f: FunctionDeclaration, r
           )
           else {{start: 0, end: 1}}
       returnType
+      typeParameterBounds
       isAbstract: f.body.isNone()
     })
     class
@@ -220,7 +234,7 @@ export fn resolveFunctionTypeParameters(mut parameterMap: ObjectMap<Type>, typeP
     TypeKind::Parameter(_) => {
       let name = parameterType.name.unwrap()
       if typeParameters.any(|p| p.name.unwrap() == name) {
-        if not parameterMap.has(name) {
+        if not parameterMap.has(name) and isAssignable(parameterType, argumentType) {
           parameterMap[name] = argumentType
         }
       }

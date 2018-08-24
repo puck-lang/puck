@@ -415,10 +415,11 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
             }
           }
           self.scope = Scope({
-            context: self.scope.context
-            parent: Some(self.variableDeclarationScope)
+            context: fScope.context
+            parent: Some(vdScope)
             bindings: bindings
-            bindingsByTypeId: self.scope.bindingsByTypeId
+            bindingsByTypeId: fScope.bindingsByTypeId
+            typeOverrides: fScope.typeOverrides
           })
         }
 
@@ -572,7 +573,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
 
         if access.object.getType() {
           let name = access.member.name
-          let objectType = access.object.getType()
+          let objectType = scope.getTypeOverride(access.object.getType())
 
           // If the call is directly on the type, for example Num.parse()
           if let Option::Some(providesType) = objectType.providesType {
@@ -606,9 +607,10 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                   name: functionType.name
                   kind: TypeKind::Function({
                     selfBinding: None
-                    parameters: [selfBinding]->concat(function.parameters).transmute()
+                    parameters: [selfBinding].concat(function.parameters)
                     parameterRange: {start: function.parameterRange.start + 1, end: function.parameterRange.end + 1}
                     returnType: function.returnType
+                    typeParameterBounds: function.typeParameterBounds
                     isAbstract: function.isAbstract
                   })
                   class: functionType.class
@@ -622,7 +624,8 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                   if not selfArgument.getType() {
                     reportError(selfArgument, 'selfArgument has no type')
                   }
-                  match getTraitObjectCall(name, selfArgument.getType(), objectType.providesType.unwrapOr(objectType), e, functionType) {
+                  let selfType = scope.getTypeOverride(selfArgument.getType())
+                  match getTraitObjectCall(name, selfType, objectType.providesType.unwrapOr(objectType), e, functionType) {
                     TraitCall::TraitObject({objectType}) => {
                       if let Some(binding) = scope.getBindingByTypeId(objectType.id.unwrap()) {
                         e->traitName = binding.name
@@ -649,11 +652,13 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                       e->isDirectTraitCall =  true
                       e->implementation = implementation
                       if providesType.class.isSome() {
-                        match resolveImplTypeParameters(e->implementation.transmute(), selfArgument.getType()) {
-                          Ok(resolvedTrait) => {
+                        let result = resolveImplTypeParameters(e->implementation.transmute(), selfType)
+                          .andThen(|resolvedTrait| {
                             let mut parameterMap = resolvedTrait.instance.unwrap().parameterMap
-                            functionType = resolveTypeParameters(parameterMap)(functionType)
-                          }
+                            resolveTypeParameters(parameterMap)(functionType)
+                          })
+                        match result {
+                          Ok(type_) => functionType = type_
                           Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
                         }
                       }
@@ -735,7 +740,10 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
 
             if e->traitName {
               if let Option::Some(instance) = objectType.instance {
-                functionType = resolveTypeParameters(instance.parameterMap)(functionType)
+                match resolveTypeParameters(instance.parameterMap)(functionType) {
+                  Ok(type_) => functionType = type_
+                  Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
+                }
               }
             }
           }
@@ -812,7 +820,10 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
             }
           })
         if callTypeParameters.isNotEmpty() {
-          functionType = resolveTypeParameters(callParameterMap)(functionType)
+          match resolveTypeParameters(callParameterMap)(functionType) {
+            Ok(type_) => functionType = type_
+            Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
+          }
         }
       }
       else {

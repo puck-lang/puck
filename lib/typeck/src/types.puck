@@ -12,14 +12,15 @@ import '../../entities.puck' as {
   TypeClass
   TypeInstance
   TypeKind
+  TypeParameter
 }
 
 fn assign(a, b) {
   Object->assign({}, a, b).transmute()
 }
 
-export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = true| fn resolveTypeParametersInner(mut type_: Type) -> Type {
-  if not type_ then return type_
+export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = true| fn resolveTypeParametersInner(mut type_: Type) -> Result<Type, (Type, Type)> {
+  if not type_ then return Ok(type_)
 
   if let Option::Some(instance) = type_.instance {
     let mut i = instance
@@ -34,47 +35,95 @@ export let resolveTypeParameters = |parameterMap: ObjectMap<Type>, enterNamed = 
 
   if not enterNamed and not type_.isParameter()
      and (type_.name.isSome() or type_.displayName.isSome())
-    then return type_
+    then return Ok(type_)
 
    let resolvedKind = match type_.kind {
-    TypeKind::Enum(enum_) => TypeKind::Enum(resolveTypeParametersEnum(parameterMap, enum_))
-    TypeKind::Function(func) => {
-      let mut f = func
-      TypeKind::Function(resolveTypeParametersFn(parameterMap, f))
+    TypeKind::Enum(mut enum_) => {
+      TypeKind::Enum(
+        match resolveTypeParametersEnum(parameterMap, enum_) {
+          Ok(kind) => kind
+          err => return err
+        }
+      )
     }
-    TypeKind::Parameter => return parameterMap.get(type_.name.unwrap()).unwrapOr(type_)
-    TypeKind::Struct(struct) => TypeKind::Struct(resolveTypeParametersStruct(parameterMap, struct))
-    TypeKind::Trait(trait_) => TypeKind::Trait(resolveTypeParametersTrait(parameterMap, trait_))
-    _ => return type_
+    TypeKind::Function(mut func) => {
+      TypeKind::Function(
+        match resolveTypeParametersFn(parameterMap, func) {
+          Ok(kind) => kind
+          err => return err
+        }
+      )
+    }
+    TypeKind::Parameter => {
+      let resolvedType = parameterMap.get(type_.name.unwrap()).unwrapOr(type_)
+      if isAssignable(type_, resolvedType) then return (resolvedType, type_)
+      return Ok(resolvedType)
+      // if not enterNamed then return resolvedType
+
+      // match resolvedType.kind {
+      //   TypeKind::Parameter(mut parameter) => TypeKind::Parameter(resolveTypeParametersParameter(parameterMap, parameter))
+      //   _ => return Ok(resolvedType)
+      // }
+    }
+    TypeKind::Struct(struct) => {
+      match TypeKind::Struct(resolveTypeParametersStruct(parameterMap, struct)) {
+        Ok(kind) => kind
+        err => return err
+      }
+    }
+    TypeKind::Trait(trait_) => {
+      match TypeKind::Trait(resolveTypeParametersTrait(parameterMap, trait_)) {
+        Ok(kind) => kind
+        err => return err
+      }
+    }
+    _ => return Ok(type_)
   }
 
-  assign(type_, {
+  Ok(assign(type_, {
     kind: resolvedKind
-  })
+  }))
 }
 
-fn resolveTypeParametersEnum(parameterMap: ObjectMap<Type>, e: Enum) {
-  assign(e, {
+fn resolveTypeParametersEnum(parameterMap: ObjectMap<Type>, mut e: Enum) -> Result<Enum, (Type, Type)> {
+  Ok(assign(e, {
     members: e.members.map(resolveTypeParameters(parameterMap))
-  })
+  }))
 }
 
-fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, mut func: Function) {
-  assign(func, {
+fn resolveTypeParametersFn(parameterMap: ObjectMap<Type>, mut func: Function) -> Result<Function, (Type, Type)> {
+  Ok(assign(func, {
     parameters: func.parameters.map(|mut binding| assign(binding, {
       type_: resolveTypeParameters(parameterMap, false)(binding.type_)
     })).toList()
     returnType: resolveTypeParameters(parameterMap, false)(func.returnType)
-  })
+  }))
 }
 
-fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct) -> Struct {
-  assign(struct, {
+// fn resolveTypeParametersParameter(parameterMap: ObjectMap<Type>,  mut parameter: TypeParameter) -> TypeParameter {
+//   let resolve = resolveTypeParameters(parameterMap, false)
+//   assign(parameter, {
+//     upperBounds: parameter.upperBounds
+//       .iter()
+//       .map(|(mut a, mut b)| (resolve(a), resolve(b)))
+//       .collect()
+//     lowerBounds: parameter.lowerBounds
+//       .iter()
+//       .map(|(mut a, mut b)| (resolve(a), resolve(b)))
+//       .collect()
+//   })
+// }
+
+fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct) -> Result<Struct, (Type, Type)>  {
+  Ok(assign(struct, {
     kind: match struct.kind {
       StructKind::Record({properties}) => StructKind::Record({
         properties: properties.map(|mut p| {{
           optional: p.optional
-          type_: resolveTypeParameters(parameterMap, false)(p.type_)
+          type_: match resolveTypeParameters(parameterMap, false)(p.type_) {
+            Ok(type_) => type_
+            err => return err
+          }
         }})
       })
 
@@ -84,13 +133,13 @@ fn resolveTypeParametersStruct(parameterMap: ObjectMap<Type>, struct: Struct) ->
 
       StructKind::Unit => struct.kind
     }
-  })
+  }))
 }
 
-fn resolveTypeParametersTrait(parameterMap: ObjectMap<Type>, t: Trait) {
-  assign(t, {
+fn resolveTypeParametersTrait(parameterMap: ObjectMap<Type>, t: Trait) -> Result<Trait, (Type, Type)> {
+  Ok(assign(t, {
     functions: t.functions.map(resolveTypeParameters(parameterMap, false))
-  })
+  }))
 }
 
 
@@ -112,7 +161,7 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
   let mut class: TypeClass = type_.class.unwrap()
   let typeParameters: List<Type> =
     if typeParameters_.size() < class.parameterRange.end - 1 {
-      typeParameters_->concat(
+      typeParameters_.concat(
         class.typeParameters
           .skip(typeParameters_.size())
           .map(|p| {
@@ -123,7 +172,6 @@ export fn createTypeInstance(mut type_: Type, typeParameters_: List<Type>) {
           })
           .toList()
       )
-      .transmute()
     }
     else typeParameters_
 
@@ -180,19 +228,31 @@ fn bothHasId(to: Type, subject: Type) {
   to.id.isSome() and subject.id.isSome()
 }
 
-fn checkTypeParameters(to: Type, subject: Type) {
+fn checkTypeParameters(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
   if to.id.isNone() or subject.id.isNone() then return true
 
   match (to.typeParameters(), subject.typeParameters()) {
     (Some(toParameters), Some(subjectParameters)) => {
       if toParameters.size() == subjectParameters.size()
         then List.zip(toParameters, subjectParameters)
-          .all(|(toParameter, subjectParameter)| isAssignable(toParameter, subjectParameter))
+          .all(|(toParameter, subjectParameter)| _isAssignable(toParameter, subjectParameter, checked))
         else false
     }
     (Option::None, Option::None) => true
     _ => false
   }
+}
+
+export fn assignTypeBounds(mut typeParameters: List<Type>, bounds: List<(Type, Type)>) -> List<(Type, Type)> {
+  let mut missing = []
+  for (lower, upper) of bounds {
+    if let Some(typeParameter) = typeParameters.find(|p| isSameType(lower, p)) {
+      typeParameter.getTypeParameter().lowerBounds.push((lower, upper))
+    } else {
+      missing.push((lower, upper))
+    }
+  }
+  missing
 }
 
 export fn isAssignable(to: Type, subject: Type) -> Bool {
@@ -228,11 +288,12 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
   match to.kind {
     TypeKind::Enum(toEnum) => match subject.kind {
       TypeKind::Enum(subjectEnum) => {
-        isSameId(to, subject) and (
-          bothHasId(to, subject) or
-          isEnumAssignable(toEnum, subjectEnum, checked)
-        ) and
-        checkTypeParameters(to, subject)
+        isSameId(to, subject)
+          and (
+            bothHasId(to, subject) or
+            isEnumAssignable(toEnum, subjectEnum, checked)
+          )
+          and checkTypeParameters(to, subject, checked)
       }
       _ => false
     }
@@ -244,14 +305,16 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
       _isAssignable(toIntersection.baseType, subject, checked) and
       _isAssignable(toIntersection.intersectedTrait, subject, checked)
     }
-    TypeKind::Parameter => true
+    TypeKind::Parameter(toParameter) => {
+      toParameter.lowerBounds.all(|(_, super)| _isAssignable(super, subject, checked))
+    }
     TypeKind::Struct(toStruct) => match subject.kind {
       TypeKind::Struct(subjectStruct) => {
         isSameId(to, subject) and (
           bothHasId(to, subject) or
           isStructAssignable(toStruct, subjectStruct, checked)
         ) and
-        checkTypeParameters(to, subject)
+        checkTypeParameters(to, subject, checked)
       }
       TypeKind::Intersection(subjectIntersection) => {
         _isAssignable(to, subjectIntersection.baseType, checked)
@@ -261,7 +324,7 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
     TypeKind::Trait => match subject.kind {
       TypeKind::Trait => {
         isSameId(to, subject) and
-        checkTypeParameters(to, subject)
+        checkTypeParameters(to, subject, checked)
       }
       TypeKind::Enum(subjectEnum) => {
         subjectEnum.implementations.any(|implementation|
@@ -275,6 +338,7 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
       TypeKind::Struct(subjectStruct) => {
         subjectStruct.implementations.any(|implementation|
           _isAssignable(to, implementation.trait_, checked)
+          and _isAssignable(implementation.type_, subject, checked)
         )
       }
       _ => false

@@ -166,6 +166,8 @@ impl Type {
     name: None
     kind: TypeKind::Parameter({
       defaultValue: None
+      lowerBounds: []
+      upperBounds: []
     })
     class: None
     instance: None
@@ -248,7 +250,7 @@ impl Type {
       }
   }
 
-  fn getEnum(self: Type) -> Enum {
+  fn getEnum(self) -> Enum {
     match self.kind {
       TypeKind::Enum(enum_) => enum_
       _ => {
@@ -258,7 +260,7 @@ impl Type {
     }
   }
 
-  fn getFunction(self: Type) -> Function {
+  fn getFunction(self) -> Function {
     match self.kind {
       TypeKind::Function(function) => function
       _ => {
@@ -268,7 +270,7 @@ impl Type {
     }
   }
 
-  fn getTrait(self: Type) -> Trait {
+  fn getTrait(self) -> Trait {
     match self.kind {
       TypeKind::Trait(trait_) => trait_
       _ => match self.providesType {
@@ -281,6 +283,16 @@ impl Type {
     }
   }
 
+
+  fn getTypeParameter(self) -> TypeParameter {
+    match self.kind {
+      TypeKind::Parameter(parameter) => parameter
+      _ => {
+        let name = self.displayName()
+        panic(Error('Type $name is not a parameter'))
+      }
+    }
+  }
   fn isEmpty(self) -> Bool {
     match self.kind {
       TypeKind::Struct(struct) => match struct.kind {
@@ -353,6 +365,7 @@ export type Function {
   parameters: List<Binding>
   parameterRange: Range
   returnType: Type
+  typeParameterBounds: List<(Type, Type)>
   isAbstract: Bool
 }
 
@@ -397,7 +410,7 @@ export type Implementation {
   type_: Type
   trait_: Type
   typeParameters: List<Type>
-  typeParameterBounds: Option<Map<Type, Type>>
+  typeParameterBounds: List<(Type, Type)>
   functions: ObjectMap<Type>
 }
 
@@ -409,7 +422,7 @@ export type TypeClass {
 }
 impl TypeClass {
   fn fromAstNode(astNode: {typeParameters: List<AstTypeParameter>}, reportError: (ToSpan, String) -> ()) -> Option<TypeClass> {
-    if astNode.typeParameters and astNode.typeParameters.size() {
+    if astNode.typeParameters.isNotEmpty() {
       let parameterRange = getRange(
         astNode.typeParameters
         |p| p.defaultValue.isSome()
@@ -436,4 +449,6 @@ export type TypeInstance {
 }
 export type TypeParameter {
   defaultValue: Option<Type>
+  lowerBounds: List<(Type, Type)>
+  upperBounds: List<(Type, Type)>
 }

@@ -374,6 +374,7 @@ export fn walkFunctionDeclaration(visitor, f: FunctionDeclaration) {
     then f.typeParameters.forEach(visitor.visitTypeParameter.bind(visitor))
   f.parameterList.forEach(visitor.visitVariableDeclaration.bind(visitor))
   if let Option::Some(returnType) = f.returnType then visitor.visitTypeBound(returnType)
+  if let Option::Some(whereClause) = f.whereClause then visitor.visitWhereClause(whereClause)
   if let Option::Some(body) = f.body then visitor.visitBlock(body)
 }
 export fn walkVariableDeclaration(visitor, d: VariableDeclaration) {

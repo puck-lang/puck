@@ -2,8 +2,18 @@ export trait Order<T> {
   fn order(self) -> List<T>
 }
 
-impl<T> Order<T> for List<T> where T: PartialOrd<T> {
-  fn order(self) -> List<T> {
+impl<U> Order<U> for List<U> where U: PartialOrd<U> {
+  fn order(self) -> List<U> {
+    // TODO: Add type support for impl-where
+    // let e = self.first().unwrap()
+    // e > e and e.gt(e)
+
+    // self
+    //   .iter()
+    //   .map(|e| {
+    //     e > e and e.gt(e)
+    //   })
+    //   .collect()
     self.toList()
   }
 }

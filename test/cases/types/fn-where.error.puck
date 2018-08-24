@@ -1,0 +1,75 @@
+///// Use of undefined variable Missing
+fn gt<T>(a: T, b: T) -> Bool where T: Missing {
+  return true
+}
+
+///// String is not assignable to type Num in parameter b of function gt
+fn gt<T>(a: T, b: T) -> Bool where T: PartialOrd<T> {
+  return true
+}
+
+gt(1, '2')
+
+///// List is not assignable to type T in parameter a of function gt
+fn gt<T>(a: T, b: T) -> Bool where T: PartialOrd<T> {
+  return true
+}
+
+gt([], [])
+
+///// Concat has not been implemented for type T
+fn concat<T>(a: T, b: T) -> Bool where T: PartialOrd<T> {
+  a ++ b
+}
+
+concat(1, 2)
+
+///// PartialOrd has not been implemented for type T
+fn gt<T, U>(a: T, b: T) -> Bool where U: PartialOrd<T> {
+  a > b
+}
+
+//// TODO: Handle this
+// fn gt<T, U>(a: T, b: U) -> Bool where T: PartialOrd<U> {
+//   a > b
+// }
+
+// gt(1, '2')
+
+
+///// List<Bool> is not assignable to type Ord
+trait Ord {
+  fn gt<T>(self, a: T, b: T) -> Bool where T: PartialOrd<T> {
+    return true
+  }
+}
+
+impl<T> Ord for List<T> where T: PartialOrd<T> {}
+
+let list: Ord = [true, false]
+
+///// Concat has not been implemented for type T
+fn combine<T, U>(a: T, b: U) -> Bool where T: PartialOrd<T>, U: Concat<U, U> {
+  a ++ a
+}
+
+///// Num is not assignable to type U in parameter b of function combine
+fn combine<T, U>(a: T, b: U) -> Bool where T: PartialOrd<T>, U: Concat<U, U> {
+  a < a
+}
+
+combine(5, 5)
+
+///// TODO: Support bounds on outer type parameters
+type Thing<T> {value: T}
+impl<T> Thing<T> {
+  fn subZero(self) -> Bool where T: PartialOrd<Num> {
+    self.value < 0
+  }
+}
+
+let thing = Thing({value: '1'})
+thing.subZero()
+
+
+// TODO: impl fns not matching trait fns

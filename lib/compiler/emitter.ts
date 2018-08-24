@@ -57,9 +57,13 @@ import {getImplementationForTrait} from '../typeck/src/impls'
 import {Scope} from '../typeck/src/scope'
 import {isAssignable} from '../typeck/src/types'
 
+/**
+ * List of names we can not use. It is not strictly limited to keywords
+ * as but also includes global variable names that we do not want to override.
+ */
 const jsKeywords = [
   'arguments', 'case', 'class', 'default', 'delete', 'function', 'global', 'module', 'new', 'null',
-  'require', 'static', 'Object', 'typeof', 'undefined',
+  'require', 'super', 'static', 'Object', 'typeof', 'undefined',
 ]
 const tokenToJs = (kind: {kind: string}) => {
   if (kind.kind == 'AndKeyword') return '&&'
@@ -440,9 +444,24 @@ export function Emitter() {
             }
           }
           else if (
-            assignedTo.kind.kind === 'Trait' && expressionType.kind.kind !== 'Trait'
+            (
+              assignedTo.kind.kind === 'Trait' ||
+              (
+                assignedTo.kind.kind === 'Parameter' &&
+                assignedTo.kind.value.lowerBounds &&
+                assignedTo.kind.value.lowerBounds.length > 0
+              )
+            ) &&
+            expressionType.kind.kind !== 'Trait' &&
+            expressionType.kind.kind !== 'Parameter'
           ) {
-            scalarExpression = `{type: '${getImplId(expressionType, assignedTo)}', value: ${scalarExpression}, $isTraitObject: true}`
+            if (assignedTo.kind.kind === 'Parameter' && assignedTo.kind.value.lowerBounds.length > 1) {
+              throw Error(`Emits with typebound > 1 is not implemented yet`)
+            }
+            let toType = assignedTo.kind.kind === 'Parameter'
+              ? assignedTo.kind.value.lowerBounds[0][1]
+              : assignedTo
+            scalarExpression = `{type: '${getImplId(expressionType, toType)}', value: ${scalarExpression}, $isTraitObject: true}`
           }
           else if (
             assignedTo.kind.kind === 'Intersection' && expressionType.kind.kind !== 'Intersection'
@@ -458,7 +477,15 @@ export function Emitter() {
             } while (currentType.kind.kind === 'Intersection')
             scalarExpression = `{traits: {${traits.join(',')}}, value: ${scalarExpression}, $isTraitObject: true}`
           }
-          else if (assignedTo.kind.kind !== 'Trait' && assignedTo.kind.kind !== 'Intersection') {
+          else if (
+            assignedTo.kind.kind !== 'Trait' &&
+            assignedTo.kind.kind !== 'Intersection' &&
+            !(
+              expressionType.kind.kind === 'Parameter' &&
+              expressionType.kind.value.lowerBounds &&
+              expressionType.kind.value.lowerBounds.length > 0
+            )
+          ) {
             scalarExpression = unwrap(scalarExpression, expression)
           }
         }

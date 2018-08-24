@@ -57,6 +57,7 @@ function enumMemberToFunction(type_) {
         end: 2,
       },
         returnType: returnType,
+        typeParameterBounds: $puck_1.None,
         isAbstract: false,
       });
     }
@@ -86,6 +87,7 @@ function enumMemberToFunction(type_) {
           end: $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: tuple.properties, $isTraitObject: true}) + 1,
         },
           returnType: returnType,
+          typeParameterBounds: $puck_1.None,
           isAbstract: false,
         });
       }

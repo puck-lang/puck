@@ -8,7 +8,7 @@ export interface SimpleToken {
 }
 
 export type Expression
-  = {kind: 'JsExpression', value: string}
+  = {kind: 'JsExpression', value: string & {type_?: Type}}
   | {kind: 'Identifier', value: Identifier}
   | {kind: 'FunctionDeclaration', value: FunctionDeclaration}
   | {kind: 'VariableDeclaration', value: VariableDeclaration}
