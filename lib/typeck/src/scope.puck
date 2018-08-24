@@ -21,6 +21,7 @@ export type Scope {
   parent: Option<Scope>
   bindings: ObjectMap<Binding>
   bindingsByTypeId: ObjectMap<Binding>
+  typeOverrides: ObjectMap<Type>
 }
 
 export enum ScopeError {
@@ -34,6 +35,7 @@ impl Scope {
     parent: None
     bindings: ObjectMap.new()
     bindingsByTypeId: ObjectMap.new()
+    typeOverrides: ObjectMap.new()
   }}
 
   fn createChild(self) -> Scope {{
@@ -41,6 +43,7 @@ impl Scope {
     parent: Some(self)
     bindings: ObjectMap.new()
     bindingsByTypeId: ObjectMap.new()
+    typeOverrides: ObjectMap.new()
   }}
 
   fn getBindings(self) -> ObjectMap<Binding> {
@@ -203,6 +206,26 @@ impl Scope {
 
   fn merge(mut self, other: Scope) -> () {
     Object->assign(self.bindings, other.bindings)
+  }
+
+  fn getTypeOverride(self, type_: Type) -> Type {
+    if let Some(id) = type_.id {
+      self.typeOverrides.get(id)
+        .unwrapOrElse(|| self.parent.mapOr(type_, |parent| parent.getTypeOverride(type_)))
+    }
+    else type_
+  }
+
+  fn defineTypeBound(mut self, lower: Type, upper: Type) -> () {
+    if let (Some(id), TypeKind::Parameter(parameter)) = (lower.id, lower.kind) {
+      self.typeOverrides.set(id, Type({
+        ...lower
+        kind: TypeKind::Parameter({
+          ...parameter
+          lowerBounds: parameter.lowerBounds.concat([(lower, upper)])
+        })
+      }))
+    }
   }
 }
 

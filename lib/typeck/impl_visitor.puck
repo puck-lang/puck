@@ -27,6 +27,7 @@ import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {Binding, Scope}
 import 'src/structure_visitor.puck' as {structureVisitor}
 import 'src/types.puck' as {
+  assignTypeBounds
   isAssignable
   isSameType
   resolveTypeParameters
@@ -119,9 +120,12 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
     type_: type_
     trait_: traitType
     typeParameters: i.typeParameters.map(|p| p->type_.transmute()).toList()
-    typeParameterBounds: i.whereClause.map(|w| Map.fromIter(w.bounds.map(|b| {
-      (b.subType.getType(), b.superType.getType())
-    })))
+    typeParameterBounds:
+      i.whereClause.mapOr([], |w| w.bounds
+        .iter()
+        .map(|b| (b.subType.getType(), b.superType.getType()))
+        .collect()
+      )
     functions
   })
 
@@ -176,7 +180,7 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
       enumMember: None
     }
     typeParameters: i.typeParameters.map(|p| p->type_.transmute()).toList()
-    typeParameterBounds: None
+    typeParameterBounds: []
     functions
   })
 }
@@ -223,8 +227,17 @@ export fn ImplVisitor(mut context: CompilerContext, file: File) {
       let traitType = i.trait_.getType()
       let mut structType = i.type_.getType()
       scope.setSelfType(structType)
-      if let Option::Some(whereClause) = i.whereClause
-        then self.visitWhereClause(whereClause)
+      if let Option::Some(whereClause) = i.whereClause {
+        self.visitWhereClause(whereClause)
+
+        let mut typeParameters = i.typeParameters.map(|p| p->type_.transmute()).toList()
+        let typeParameterBounds = whereClause.bounds
+          .iter()
+          .map(|b| (b.subType.getType(), b.superType.getType()))
+          .collect()
+
+        assignTypeBounds(typeParameters, typeParameterBounds)
+      }
       i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
       let id = getImplId(traitType, structType)
 

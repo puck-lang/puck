@@ -415,10 +415,11 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
             }
           }
           self.scope = Scope({
-            context: self.scope.context
-            parent: Some(self.variableDeclarationScope)
+            context: fScope.context
+            parent: Some(vdScope)
             bindings: bindings
-            bindingsByTypeId: self.scope.bindingsByTypeId
+            bindingsByTypeId: fScope.bindingsByTypeId
+            typeOverrides: fScope.typeOverrides
           })
         }
 
@@ -572,7 +573,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
 
         if access.object.getType() {
           let name = access.member.name
-          let objectType = access.object.getType()
+          let objectType = scope.getTypeOverride(access.object.getType())
 
           // If the call is directly on the type, for example Num.parse()
           if let Option::Some(providesType) = objectType.providesType {
@@ -623,7 +624,8 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                   if not selfArgument.getType() {
                     reportError(selfArgument, 'selfArgument has no type')
                   }
-                  match getTraitObjectCall(name, selfArgument.getType(), objectType.providesType.unwrapOr(objectType), e, functionType) {
+                  let selfType = scope.getTypeOverride(selfArgument.getType())
+                  match getTraitObjectCall(name, selfType, objectType.providesType.unwrapOr(objectType), e, functionType) {
                     TraitCall::TraitObject({objectType}) => {
                       if let Some(binding) = scope.getBindingByTypeId(objectType.id.unwrap()) {
                         e->traitName = binding.name
@@ -650,7 +652,7 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                       e->isDirectTraitCall =  true
                       e->implementation = implementation
                       if providesType.class.isSome() {
-                        match resolveImplTypeParameters(e->implementation.transmute(), selfArgument.getType()) {
+                        match resolveImplTypeParameters(e->implementation.transmute(), selfType) {
                           Ok(resolvedTrait) => {
                             let mut parameterMap = resolvedTrait.instance.unwrap().parameterMap
                             functionType = resolveTypeParameters(parameterMap)(functionType)

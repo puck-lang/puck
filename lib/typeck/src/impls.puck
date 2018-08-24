@@ -75,13 +75,11 @@ fn getImplementationsForInstance(type_: Type) -> List<Implementation> {
             .all(|(objectP, implP)| isAssignable(implP, objectP))
         })
         .filter(|i| {
-          i.typeParameterBounds.mapOr(true, |bounds|
-            bounds.entries().all(|(mut subType, mut superType)|{
-              let resolve = resolveTypeParameters(getParameterMap(objectInstance, i))
-              let implementationInstance = i.type_.instance.unwrap()
-              isAssignable(resolve(superType), resolve(subType))
-            })
-          )
+          i.typeParameterBounds.all(|(mut subType, mut superType)|{
+            let resolve = resolveTypeParameters(getParameterMap(objectInstance, i))
+            let implementationInstance = i.type_.instance.unwrap()
+            isAssignable(resolve(superType), resolve(subType))
+          })
         })
         .toList()
       else implementations
@@ -343,6 +341,25 @@ export fn getTraitObjectCall(functionName: String, objectType: Type, trait_: Typ
       getTraitCall(intersection.baseType, functionName, e)
         .orElse(|| getTraitCall(intersection.intersectedTrait, functionName, e))
     }
+    TypeKind::Parameter(parameter) => {
+      let traitCalls =
+        parameter.lowerBounds
+          .iter()
+          .filterMap(|(lower, upper)| {
+            match getTraitCall(upper, functionName, e) {
+              TraitCall::TraitObject(traitObject) => Some(TraitCall::TraitObject(traitObject))
+              _ => None
+            }
+          })
+          .collect()
+      if traitCalls.isEmpty() {
+        TraitCall::None
+      }
+      else if traitCalls.size() == 1 {
+        traitCalls.first().unwrap()
+      }
+      else TraitCall::Error(e, 'Ambiguous trait call')
+    }
     TypeKind::Trait(trait_) => {
       getTraitCallForTrait(objectType, functionName)
         .map(|functionType| TraitCall::TraitObject({objectType, functionType}))
@@ -363,6 +380,25 @@ export fn getTraitCall(objectType: Type, methodName: String, e: CallExpression) 
     TypeKind::Intersection(intersection) => {
       getTraitCall(intersection.baseType, methodName, e)
         .orElse(|| getTraitCall(intersection.intersectedTrait, methodName, e))
+    }
+    TypeKind::Parameter(parameter) => {
+      let traitCalls =
+        parameter.lowerBounds
+          .iter()
+          .filterMap(|(lower, upper)| {
+            match getTraitCall(upper, methodName, e) {
+              TraitCall::TraitObject(traitObject) => Some(TraitCall::TraitObject(traitObject))
+              _ => None
+            }
+          })
+          .collect()
+      if traitCalls.isEmpty() {
+        TraitCall::None
+      }
+      else if traitCalls.size() == 1 {
+        traitCalls.first().unwrap()
+      }
+      else TraitCall::Error(e, 'Ambiguous trait call')
     }
     TypeKind::Trait(trait_) => {
       getTraitCallForTrait(objectType, methodName)

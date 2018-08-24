@@ -1,10 +1,44 @@
 fn gt<T>(a: T, b: T) -> Bool where T: PartialOrd<T> {
-  // TODO: a > b
-  return true
+  a.gt(b) and a > b
 }
 
 gt(1, 2)
 gt('1', '2')
 
-// TODO: trait fns
-// TODO: shorthand impl fns
+trait Ord {
+  fn gt<T>(self, a: T, b: T) -> Bool where T: PartialOrd<T> {
+    a.gt(b) and a > b
+  }
+}
+
+impl<T> Ord for List<T> where T: PartialOrd<T> {}
+
+let list: Ord = [5, 3]
+
+list.gt(1, 2)
+
+// TODO: Handle this?
+// fn lt<T, U>(a: T, b: U) -> Bool where T: PartialOrd<U> {
+//   a < b
+// }
+
+// lt(1, 2)
+// lt('1', '2')
+
+// TODO: Support bounds on outer type parameters
+// type Thing<T> {value: T}
+// impl<T> Thing<T> {
+//   fn subZero(self) -> Bool where T: PartialOrd<Num> {
+//     self.value.gt(0) and self.value < 0
+//   }
+
+//   fn subZeroNum(self) -> Bool where T: Num {
+//     // self.value.gt(0) and self.value < 0
+//     // TODO: ???
+//     true
+//   }
+// }
+
+// let thing = Thing({value: 1})
+// thing.subZero()
+// thing.subZeroNum()
