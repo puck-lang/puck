@@ -267,7 +267,7 @@ export fn resolveImplTypeParameters(mut implementation: Implementation, objectTy
     }
   }
 
-  Ok(resolveTypeParameters(parameterMap)(implementation.trait_))
+  resolveTypeParameters(parameterMap)(implementation.trait_)
 }
 
 fn collectTypeParameters(mut parameterMap: ObjectMap<Type>, ip: Type, op: Type) -> Result<(), (Type, Type)> {

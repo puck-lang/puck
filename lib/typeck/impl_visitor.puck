@@ -132,10 +132,17 @@ fn implementTrait(traitType: Type, trait_: Trait, type_: Type, mut implementable
   i->implementation = implementation
   implementable.implementations.push(implementation)
 
+  let _resolve = resolveTypeParameters(traitInstance.parameterMap)
   let resolve =
-    if let Some(traitInstance) = traitType.instance
-      then resolveTypeParameters(traitInstance.parameterMap)
-      else |t| t
+    if let Some(traitInstance) = traitType.instance {
+      fn (type_) {
+        match _resolve(type_) {
+          Ok(type_) => type_
+          Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
+        }
+      }
+    }
+    else |t| t
 
   i.members.forEach(|mut functionDeclaration| {
     let functionName = functionDeclaration.type_.displayName()

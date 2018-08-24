@@ -48,16 +48,28 @@ impl<T> Ord for List<T> where T: PartialOrd<T> {}
 
 let list: Ord = [true, false]
 
-// TODO: Support bounds on outer type parameters
-// type Thing<T> {value: T}
-// impl<T> Thing<T> {
-//   fn subZero(self) -> Bool where T: PartialOrd<Num> {
-//     self.value < 0
-//   }
-// }
+///// Concat has not been implemented for type T
+fn combine<T, U>(a: T, b: U) -> Bool where T: PartialOrd<T>, U: Concat<U, U> {
+  a ++ a
+}
 
-// let thing = Thing({value: '1'})
-// thing.subZero()
+///// Num is not assignable to type U in parameter b of function combine
+fn combine<T, U>(a: T, b: U) -> Bool where T: PartialOrd<T>, U: Concat<U, U> {
+  a < a
+}
+
+combine(5, 5)
+
+///// TODO: Support bounds on outer type parameters
+type Thing<T> {value: T}
+impl<T> Thing<T> {
+  fn subZero(self) -> Bool where T: PartialOrd<Num> {
+    self.value < 0
+  }
+}
+
+let thing = Thing({value: '1'})
+thing.subZero()
 
 
 // TODO: impl fns not matching trait fns

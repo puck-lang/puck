@@ -18,6 +18,8 @@ export class Type {
       members: {[name: string]: Type}
       functions: {[name: string]: Type}
       parameters: Array<{type_: Type}>
+      upperBounds: Array<[Type, Type]>
+      lowerBounds: Array<[Type, Type]>
       selfBinding: Option<{type_: Type}>
       kind: Record | Tuple | {kind: 'Unit'}
       returnType: Type

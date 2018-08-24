@@ -652,11 +652,13 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
                       e->isDirectTraitCall =  true
                       e->implementation = implementation
                       if providesType.class.isSome() {
-                        match resolveImplTypeParameters(e->implementation.transmute(), selfType) {
-                          Ok(resolvedTrait) => {
+                        let result = resolveImplTypeParameters(e->implementation.transmute(), selfType)
+                          .andThen(|resolvedTrait| {
                             let mut parameterMap = resolvedTrait.instance.unwrap().parameterMap
-                            functionType = resolveTypeParameters(parameterMap)(functionType)
-                          }
+                            resolveTypeParameters(parameterMap)(functionType)
+                          })
+                        match result {
+                          Ok(type_) => functionType = type_
                           Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
                         }
                       }
@@ -738,7 +740,10 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
 
             if e->traitName {
               if let Option::Some(instance) = objectType.instance {
-                functionType = resolveTypeParameters(instance.parameterMap)(functionType)
+                match resolveTypeParameters(instance.parameterMap)(functionType) {
+                  Ok(type_) => functionType = type_
+                  Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
+                }
               }
             }
           }
@@ -815,7 +820,10 @@ export fn ScopeVisitor(context: CompilerContext, file: File) {
             }
           })
         if callTypeParameters.isNotEmpty() {
-          functionType = resolveTypeParameters(callParameterMap)(functionType)
+          match resolveTypeParameters(callParameterMap)(functionType) {
+            Ok(type_) => functionType = type_
+            Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
+          }
         }
       }
       else {

@@ -17,6 +17,15 @@ let list: Ord = [5, 3]
 
 list.gt(1, 2)
 
+fn combine<T, U>(a: T, b: U) -> Bool where T: PartialOrd<T>, U: Concat<U, U> {
+  b.concat(b)
+  b ++ b
+  a.gt(a) and a > a
+}
+
+combine('', '')
+combine(5, '')
+
 // TODO: Handle this?
 // fn lt<T, U>(a: T, b: U) -> Bool where T: PartialOrd<U> {
 //   a < b
@@ -25,20 +34,19 @@ list.gt(1, 2)
 // lt(1, 2)
 // lt('1', '2')
 
-// TODO: Support bounds on outer type parameters
-// type Thing<T> {value: T}
-// impl<T> Thing<T> {
-//   fn subZero(self) -> Bool where T: PartialOrd<Num> {
-//     self.value.gt(0) and self.value < 0
-//   }
+type Thing<T> {value: T}
+impl<T> Thing<T> {
+  fn subZero(self) -> Bool where T: PartialOrd<Num> {
+    self.value.gt(0) and self.value < 0
+  }
 
-//   fn subZeroNum(self) -> Bool where T: Num {
-//     // self.value.gt(0) and self.value < 0
-//     // TODO: ???
-//     true
-//   }
-// }
+  fn subZeroNum(self) -> Bool where T: Num {
+    // self.value.gt(0) and self.value < 0
+    // TODO: ???
+    true
+  }
+}
 
-// let thing = Thing({value: 1})
-// thing.subZero()
-// thing.subZeroNum()
+let thing = Thing({value: 1})
+thing.subZero()
+thing.subZeroNum()
