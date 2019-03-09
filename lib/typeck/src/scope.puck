@@ -29,7 +29,7 @@ export enum ScopeError {
 }
 
 impl Scope {
-  fn new(context) -> Scope {{
+  fn new(context: CompilerContext) -> Scope {{
     context
     parent: None
     bindings: ObjectMap.new()
@@ -49,7 +49,7 @@ impl Scope {
       else self.bindings
   }
 
-  fn getBinding(self, name: String, visitor = '') -> Option<Binding> {
+  fn getBinding(self, name: String, visitor: String = '') -> Option<Binding> {
     self.bindings
       .get(name)
       .orElse(|| self.parent.andThen(|p| p.getBinding(name, visitor)))
@@ -68,7 +68,7 @@ impl Scope {
       })
   }
 
-  fn getBindingByTypeId(self, id: String, visitor = '') -> Option<Binding> {
+  fn getBindingByTypeId(self, id: String, visitor: String = '') -> Option<Binding> {
     self.bindingsByTypeId
       .get(id)
       .orElse(|| self.parent.andThen(|p| p.getBindingByTypeId(id, visitor)))
@@ -84,7 +84,7 @@ impl Scope {
       })
   }
 
-  fn define(mut self, binding: Binding, useParentScope = false) -> Result<Binding, String> {
+  fn define(mut self, binding: Binding, useParentScope: Bool = false) -> Result<Binding, String> {
     if binding.name == 'Self'
       then return Err('Self is a reserved name')
 
@@ -139,7 +139,7 @@ impl Scope {
     })
   }
 
-  fn getTypePath(self, typePath: TypePath, visitor = '') -> Result<Binding, ScopeError> {
+  fn getTypePath(self, typePath: TypePath, visitor: String = '') -> Result<Binding, ScopeError> {
     match typePath {
       TypePath::Member(identifier) => {
         if let Some(binding) = self.getBinding(identifier.name, visitor) {

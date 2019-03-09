@@ -127,7 +127,7 @@ impl ToSpan for Token {
 
 impl SyntaxKind {
   fn fromText(text: String) -> Option<SyntaxKind> {
-    // As keyword is missing becouse as is a contextual keyword
+    // "as" keyword is missing becouse it is a contextual keyword
     if text == 'and' then Some(SyntaxKind::AndKeyword)
     else if text == 'break' then Some(SyntaxKind::BreakKeyword)
     else if text == 'else' then Some(SyntaxKind::ElseKeyword)

@@ -34,7 +34,7 @@ if ($puck_5 !== undefined) {
 else {
   let $puck_7;
   if (true) {
-    const None = $puck_5;
+    const value = $puck_5;
     $puck_7 = "nothing";
   };
   $puck_6 = $puck_7;

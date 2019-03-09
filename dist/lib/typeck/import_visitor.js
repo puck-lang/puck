@@ -139,9 +139,7 @@ visitTupleLiteral: $puck_5.EmptyVisitor.visitTupleLiteral,
 visitPattern: $puck_5.EmptyVisitor.visitPattern,
 visitIdentifierPattern: $puck_5.EmptyVisitor.visitIdentifierPattern,
 visitRecordPattern: $puck_5.EmptyVisitor.visitRecordPattern,
-visitRecordTypePattern: $puck_5.EmptyVisitor.visitRecordTypePattern,
 visitTuplePattern: $puck_5.EmptyVisitor.visitTuplePattern,
-visitTupleTypePattern: $puck_5.EmptyVisitor.visitTupleTypePattern,
 visitTypeBound: $puck_5.EmptyVisitor.visitTypeBound,
 visitFunctionTypeBound: $puck_5.EmptyVisitor.visitFunctionTypeBound,
 visitIntersectionTypeBound: $puck_5.EmptyVisitor.visitIntersectionTypeBound,
@@ -149,7 +147,9 @@ visitNamedTypeBound: $puck_5.EmptyVisitor.visitNamedTypeBound,
 visitRecordTypeBound: $puck_5.EmptyVisitor.visitRecordTypeBound,
 visitRecordTypeBoundMember: $puck_5.EmptyVisitor.visitRecordTypeBoundMember,
 visitTupleTypeBound: $puck_5.EmptyVisitor.visitTupleTypeBound,
-visitTypeParameter: $puck_5.EmptyVisitor.visitTypeParameter
+visitTypeParameter: $puck_5.EmptyVisitor.visitTypeParameter,
+visitTypeParameterBound: $puck_5.EmptyVisitor.visitTypeParameterBound,
+visitWhereClause: $puck_5.EmptyVisitor.visitWhereClause
 };
 ImportVisitor._new = function (context, file, declarations) {
   return {

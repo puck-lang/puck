@@ -12,12 +12,12 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.isNull.call($puck_4.Unknown.from(""))).toBe(false);
       $puck_3.expect($puck_4.Unknown.isNull.call($puck_4.Unknown.from(0))).toBe(false);
       $puck_3.expect($puck_4.Unknown.isNull.call($puck_4.Unknown.from(false))).toBe(false);
-      return $puck_3.expect($puck_4.Unknown.isNull.call($puck_4.Unknown.from($puck_2._undefined))).toBe(false);
+      return $puck_3.expect($puck_4.Unknown.isNull.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toBe(false);
     });
   });
   $puck_3.describe("isUndefined", function () {
     return $puck_3.it("should check if the object is undefined", function () {
-      $puck_3.expect($puck_4.Unknown.isUndefined.call($puck_4.Unknown.from($puck_2._undefined))).toBe(true);
+      $puck_3.expect($puck_4.Unknown.isUndefined.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toBe(true);
       $puck_3.expect($puck_4.Unknown.isUndefined.call($puck_4.Unknown.from(""))).toBe(false);
       $puck_3.expect($puck_4.Unknown.isUndefined.call($puck_4.Unknown.from(0))).toBe(false);
       $puck_3.expect($puck_4.Unknown.isUndefined.call($puck_4.Unknown.from(false))).toBe(false);
@@ -30,7 +30,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.isBool.call($puck_4.Unknown.from(false))).toBe(true);
       $puck_3.expect($puck_4.Unknown.isBool.call($puck_4.Unknown.from(""))).toBe(false);
       $puck_3.expect($puck_4.Unknown.isBool.call($puck_4.Unknown.from(0))).toBe(false);
-      $puck_3.expect($puck_4.Unknown.isBool.call($puck_4.Unknown.from($puck_2._undefined))).toBe(false);
+      $puck_3.expect($puck_4.Unknown.isBool.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toBe(false);
       return $puck_3.expect($puck_4.Unknown.isBool.call($puck_4.Unknown.from($puck_2._null))).toBe(false);
     });
   });
@@ -40,7 +40,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.isNum.call($puck_4.Unknown.from(-54.2))).toBe(true);
       $puck_3.expect($puck_4.Unknown.isNum.call($puck_4.Unknown.from(123))).toBe(true);
       $puck_3.expect($puck_4.Unknown.isNum.call($puck_4.Unknown.from(""))).toBe(false);
-      $puck_3.expect($puck_4.Unknown.isNum.call($puck_4.Unknown.from($puck_2._undefined))).toBe(false);
+      $puck_3.expect($puck_4.Unknown.isNum.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toBe(false);
       return $puck_3.expect($puck_4.Unknown.isNum.call($puck_4.Unknown.from($puck_2._null))).toBe(false);
     });
   });
@@ -48,7 +48,7 @@ $puck_3.describe("Unknown", function () {
     return $puck_3.it("should check if the object is a string", function () {
       $puck_3.expect($puck_4.Unknown.isString.call($puck_4.Unknown.from(""))).toBe(true);
       $puck_3.expect($puck_4.Unknown.isString.call($puck_4.Unknown.from(0))).toBe(false);
-      $puck_3.expect($puck_4.Unknown.isString.call($puck_4.Unknown.from($puck_2._undefined))).toBe(false);
+      $puck_3.expect($puck_4.Unknown.isString.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toBe(false);
       return $puck_3.expect($puck_4.Unknown.isString.call($puck_4.Unknown.from($puck_2._null))).toBe(false);
     });
   });
@@ -58,7 +58,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.isList.call($puck_4.Unknown.from([""]))).toBe(true);
       $puck_3.expect($puck_4.Unknown.isList.call($puck_4.Unknown.from(""))).toBe(false);
       $puck_3.expect($puck_4.Unknown.isList.call($puck_4.Unknown.from(0))).toBe(false);
-      $puck_3.expect($puck_4.Unknown.isList.call($puck_4.Unknown.from($puck_2._undefined))).toBe(false);
+      $puck_3.expect($puck_4.Unknown.isList.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toBe(false);
       return $puck_3.expect($puck_4.Unknown.isList.call($puck_4.Unknown.from($puck_2._null))).toBe(false);
     });
   });
@@ -69,7 +69,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.isObject.call($puck_4.Unknown.from([""]))).toBe(true);
       $puck_3.expect($puck_4.Unknown.isObject.call($puck_4.Unknown.from(""))).toBe(false);
       $puck_3.expect($puck_4.Unknown.isObject.call($puck_4.Unknown.from(0))).toBe(false);
-      $puck_3.expect($puck_4.Unknown.isObject.call($puck_4.Unknown.from($puck_2._undefined))).toBe(false);
+      $puck_3.expect($puck_4.Unknown.isObject.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toBe(false);
       return $puck_3.expect($puck_4.Unknown.isObject.call($puck_4.Unknown.from($puck_2._null))).toBe(false);
     });
   });
@@ -79,7 +79,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.asBool.call($puck_4.Unknown.from(false))).toEqual($puck_1.Some(false));
       $puck_3.expect($puck_4.Unknown.asBool.call($puck_4.Unknown.from(""))).toEqual($puck_1.None);
       $puck_3.expect($puck_4.Unknown.asBool.call($puck_4.Unknown.from(0))).toEqual($puck_1.None);
-      $puck_3.expect($puck_4.Unknown.asBool.call($puck_4.Unknown.from($puck_2._undefined))).toEqual($puck_1.None);
+      $puck_3.expect($puck_4.Unknown.asBool.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toEqual($puck_1.None);
       return $puck_3.expect($puck_4.Unknown.asBool.call($puck_4.Unknown.from($puck_2._null))).toEqual($puck_1.None);
     });
   });
@@ -89,7 +89,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.asNum.call($puck_4.Unknown.from(-54.2))).toEqual($puck_1.Some(-54.2));
       $puck_3.expect($puck_4.Unknown.asNum.call($puck_4.Unknown.from(123))).toEqual($puck_1.Some(123));
       $puck_3.expect($puck_4.Unknown.asNum.call($puck_4.Unknown.from(""))).toEqual($puck_1.None);
-      $puck_3.expect($puck_4.Unknown.asNum.call($puck_4.Unknown.from($puck_2._undefined))).toEqual($puck_1.None);
+      $puck_3.expect($puck_4.Unknown.asNum.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toEqual($puck_1.None);
       return $puck_3.expect($puck_4.Unknown.asNum.call($puck_4.Unknown.from($puck_2._null))).toEqual($puck_1.None);
     });
   });
@@ -98,7 +98,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.asString.call($puck_4.Unknown.from(""))).toEqual($puck_1.Some(""));
       $puck_3.expect($puck_4.Unknown.asString.call($puck_4.Unknown.from("Hello"))).toEqual($puck_1.Some("Hello"));
       $puck_3.expect($puck_4.Unknown.asString.call($puck_4.Unknown.from(0))).toEqual($puck_1.None);
-      $puck_3.expect($puck_4.Unknown.asString.call($puck_4.Unknown.from($puck_2._undefined))).toEqual($puck_1.None);
+      $puck_3.expect($puck_4.Unknown.asString.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toEqual($puck_1.None);
       return $puck_3.expect($puck_4.Unknown.asString.call($puck_4.Unknown.from($puck_2._null))).toEqual($puck_1.None);
     });
   });
@@ -108,7 +108,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.asList.call($puck_4.Unknown.from([""]))).toEqual($puck_1.Some([$puck_4.Unknown.from("")]));
       $puck_3.expect($puck_4.Unknown.asList.call($puck_4.Unknown.from(""))).toEqual($puck_1.None);
       $puck_3.expect($puck_4.Unknown.asList.call($puck_4.Unknown.from(0))).toEqual($puck_1.None);
-      $puck_3.expect($puck_4.Unknown.asList.call($puck_4.Unknown.from($puck_2._undefined))).toEqual($puck_1.None);
+      $puck_3.expect($puck_4.Unknown.asList.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toEqual($puck_1.None);
       return $puck_3.expect($puck_4.Unknown.asList.call($puck_4.Unknown.from($puck_2._null))).toEqual($puck_1.None);
     });
   });
@@ -119,7 +119,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($puck_4.Unknown.getProp.call($puck_4.Unknown.from(""), "length")).toEqual($puck_1.Some($puck_4.Unknown.from(0)));
       $puck_3.expect($puck_4.Unknown.getProp.call($puck_4.Unknown.from("Hello"), "length")).toEqual($puck_1.Some($puck_4.Unknown.from(5)));
       $puck_3.expect($puck_4.Unknown.getProp.call($puck_4.Unknown.from(0), "length")).toEqual($puck_1.None);
-      $puck_3.expect($puck_4.Unknown.getProp.call($puck_4.Unknown.from($puck_2._undefined), "length")).toEqual($puck_1.None);
+      $puck_3.expect($puck_4.Unknown.getProp.call($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)), "length")).toEqual($puck_1.None);
       return $puck_3.expect($puck_4.Unknown.getProp.call($puck_4.Unknown.from($puck_2._null), "length")).toEqual($puck_1.None);
     });
   });
@@ -130,7 +130,7 @@ $puck_3.describe("Unknown", function () {
       $puck_3.expect($unwrapTraitObject($puck_4.Unknown.from([""]))).toEqual([""]);
       $puck_3.expect($unwrapTraitObject($puck_4.Unknown.from(""))).toEqual("");
       $puck_3.expect($unwrapTraitObject($puck_4.Unknown.from(0))).toEqual(0);
-      $puck_3.expect($unwrapTraitObject($puck_4.Unknown.from($puck_2._undefined))).toEqual($unwrapTraitObject($puck_2._undefined));
+      $puck_3.expect($unwrapTraitObject($puck_4.Unknown.from($unwrapTraitObject($puck_2._undefined)))).toEqual($unwrapTraitObject($puck_2._undefined));
       return $puck_3.expect($unwrapTraitObject($puck_4.Unknown.from($puck_2._null))).toEqual($puck_2._null);
     });
   });

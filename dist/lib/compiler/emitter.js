@@ -355,6 +355,7 @@ function Emitter() {
             var scalarExpression = emitScalarExpression(expression, assignedTo);
             if (scalarExpression) {
                 var expressionType = getType(expression);
+                var origExpressionType = getType(expression, false);
                 if (assignedTo && expressionType && (context == Context.Return || context == Context.Value)) {
                     if (assignedTo.kind.kind === 'Trait' && expressionType.kind.kind === 'Intersection') {
                         var baseType = expressionType;
@@ -375,6 +376,9 @@ function Emitter() {
                     }
                     else if (assignedTo.kind.kind === 'Trait' && expressionType.kind.kind !== 'Trait') {
                         scalarExpression = "{type: '" + getImplId(expressionType, assignedTo) + "', value: " + scalarExpression + ", $isTraitObject: true}";
+                    }
+                    else if (assignedTo.kind.kind === 'Trait' && expressionType.kind.kind === 'Trait' && assignedTo.id !== expressionType.id && !types_1.isAssignable(assignedTo, expressionType) && types_1.isAssignable(assignedTo, origExpressionType)) {
+                        scalarExpression = "{type: '" + getImplId(origExpressionType, assignedTo) + "', value: " + scalarExpression + ".value, $isTraitObject: true}";
                     }
                     else if (assignedTo.kind.kind === 'Intersection' && expressionType.kind.kind !== 'Intersection') {
                         var traits = [];
@@ -540,7 +544,10 @@ function Emitter() {
             return members;
         }, {});
         i.members.forEach(function (m) { return functions[m.name.name] = emitFunctionDeclaration(m, false); });
-        return "" + emitTypePath(i.trait_.path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(inherited).map(function (f) {
+        var extensions = (i.trait_.type_.kind.value.requiredTraits || []).map(function (extendedTrait) {
+            return "" + emitIdentifier(i.extendedTraits[extendedTrait.id]) + implProp(i.implementation) + " = ";
+        });
+        return "" + extensions.join('') + emitTypePath(i.trait_.path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(inherited).map(function (f) {
             return emitIdentifier({ name: f }) + ": " + (emitIdentifier(i.extendedTraits[inherited[f].id]) + "." + emitIdentifier({ name: f }));
         }).concat(Object.keys(functions).map(function (f) {
             return emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
@@ -601,6 +608,9 @@ function Emitter() {
         var binding;
         if (vd.pattern.kind === 'Identifier') {
             binding = scope_1.Scope.getBinding.call(vd.scope, vd.pattern.value.identifier.name);
+            if (!binding) {
+                console.log('vd', vd, vd.pattern.value.identifier);
+            }
             willBeRedefined = binding.redefined || binding.previous;
             while (binding && binding.definition && binding.definition.token.value !== vd.pattern) {
                 binding = binding.previous;
@@ -1023,7 +1033,7 @@ function Emitter() {
             ifLet = {
                 pattern: arm.pattern,
                 expression: { kind: 'Identifier', value: { name: valueVariable, type_: getType(e.expression) } },
-                scope: e.scope,
+                scope: arm.scope,
                 then_: arm.block,
                 else_: ifLet && {
                     statements: [{ kind: 'Expression', value: { kind: 'IfLetExpression', value: ifLet } }],

@@ -67,6 +67,8 @@ import 'ast.puck' as {
   RecordTypeBoundMember
   TupleTypeBound
   TypeParameter
+  TypeParameterBound
+  WhereClause
 }
 import 'span.puck' as {
   Position
@@ -74,76 +76,75 @@ import 'span.puck' as {
   ToSpan
 }
 
-/// A visitor that does nothing by default
 export trait EmptyVisitor {
-  fn visitModule(mut self, mut m: Module) -> () {}
-  fn visitTopLevelStatement(mut self, e: TopLevelStatement) -> () {}
-  fn visitBlockLevelStatement(mut self, e: BlockLevelStatement) -> () {}
-  fn visitExpression(mut self, e: Expression) -> () {}
+  fn visitModule(mut self, mut m: Module) -> () {walkModule(self, m)}
+  fn visitTopLevelStatement(mut self, e: TopLevelStatement) -> () {walkTopLevelStatement(self, e)}
+  fn visitBlockLevelStatement(mut self, e: BlockLevelStatement) -> () {walkBlockLevelStatement(self, e)}
+  fn visitExpression(mut self, e: Expression) -> () {walkExpression(self, e)}
 
-  fn visitEnumDeclaration(mut self, e: EnumDeclaration) -> () {}
-  fn visitEnumMember(mut self, e: EnumMember) -> () {}
-  fn visitImplDeclaration(mut self, i: ImplDeclaration) -> () {}
-  fn visitImplShorthandDeclaration(mut self, i: ImplShorthandDeclaration) -> () {}
-  fn visitMethodDeclaration(mut self, f: FunctionDeclaration) -> () {}
-  fn visitTraitDeclaration(mut self, t: TraitDeclaration) -> () {}
-  fn visitTypeDeclaration(mut self, t: TypeDeclaration) -> () {}
+  fn visitEnumDeclaration(mut self, e: EnumDeclaration) -> () {walkEnumDeclaration(self, e)}
+  fn visitEnumMember(mut self, e: EnumMember) -> () {walkEnumMember(self, e)}
+  fn visitImplDeclaration(mut self, i: ImplDeclaration) -> () {walkImplDeclaration(self, i)}
+  fn visitImplShorthandDeclaration(mut self, i: ImplShorthandDeclaration) -> () {walkImplShorthandDeclaration(self, i)}
+  fn visitMethodDeclaration(mut self, f: FunctionDeclaration) -> () {walkFunctionDeclaration(self, f)}
+  fn visitTraitDeclaration(mut self, t: TraitDeclaration) -> () {walkTraitDeclaration(self, t)}
+  fn visitTypeDeclaration(mut self, t: TypeDeclaration) -> () {walkTypeDeclaration(self, t)}
 
-  fn visitExportDirective(mut self, e: ExportDirective) -> () {}
-  fn visitImportDirective(mut self, mut i: ImportDirective) -> () {}
-  fn visitObjectDestructure(mut self, o: ObjectDestructure) -> () {}
-  fn visitObjectDestructureMember(mut self, m: ObjectDestructureMember) -> () {}
+  fn visitExportDirective(mut self, e: ExportDirective) -> () {walkExportDirective(self, e)}
+  fn visitImportDirective(mut self, mut i: ImportDirective) -> () {walkImportDirective(self, i)}
+  fn visitObjectDestructure(mut self, o: ObjectDestructure) -> () {walkObjectDestructure(self, o)}
+  fn visitObjectDestructureMember(mut self, m: ObjectDestructureMember) -> () {walkObjectDestructureMember(self, m)}
 
-  fn visitBlock(mut self, b: Block) -> () {}
+  fn visitBlock(mut self, b: Block) -> () {walkBlock(self, b)}
   fn visitBreakStatement(mut self, b: BreakStatement) -> () {}
-  fn visitReturnStatement(mut self, r: ReturnStatement) -> () {}
-  fn visitForLoop(mut self, e: ForLoop) -> () {}
-  fn visitWhileLoop(mut self, e: WhileLoop) -> () {}
+  fn visitReturnStatement(mut self, r: ReturnStatement) -> () {walkReturnStatement(self, r)}
+  fn visitForLoop(mut self, e: ForLoop) -> () {walkForLoop(self, e)}
+  fn visitWhileLoop(mut self, e: WhileLoop) -> () {walkWhileLoop(self, e)}
 
   fn visitIdentifier(mut self, i: Identifier) -> () {}
-  fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {}
-  fn visitVariableDeclaration(mut self, d: VariableDeclaration) -> () {}
+  fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {walkFunctionDeclaration(self, f)}
+  fn visitVariableDeclaration(mut self, d: VariableDeclaration) -> () {walkVariableDeclaration(self, d)}
 
-  fn visitAssignmentExpression(mut self, e: AssignmentExpression) -> () {}
-  fn visitBinaryExpression(mut self, e: BinaryExpression) -> () {}
-  fn visitCallExpression(mut self, e: CallExpression) -> () {}
-  fn visitIfExpression(mut self, e: IfExpression) -> () {}
-  fn visitIfLetExpression(mut self, e: IfLetExpression) -> () {}
-  fn visitMatchExpression(mut self, e: MatchExpression) -> () {}
-  fn visitMatchArm(mut self, e: MatchArm) -> () {}
-  fn visitTypePath(mut self, e: TypePath) -> () {}
-  fn visitTypePathExpression(mut self, e: TypePathExpression) -> () {}
-  fn visitUnaryExpression(mut self, e: UnaryExpression) -> () {}
-  fn visitIndexAccess(mut self, a: IndexAccess) -> () {}
-  fn visitMemberAccess(mut self, a: MemberAccess) -> () {}
-  fn visitTupleIndexAccess(mut self, a: TupleIndexAccess) -> () {}
-  fn visitUnknownAccess(mut self, a: UnknownAccess) -> () {}
-  fn visitUnknownIndexAccess(mut self, a: UnknownIndexAccess) -> () {}
-  fn visitListLiteral(mut self, l: ListLiteral) -> () {}
+  fn visitAssignmentExpression(mut self, e: AssignmentExpression) -> () {walkAssignmentExpression(self, e)}
+  fn visitBinaryExpression(mut self, e: BinaryExpression) -> () {walkBinaryExpression(self, e)}
+  fn visitCallExpression(mut self, e: CallExpression) -> () {walkCallExpression(self, e)}
+  fn visitIfExpression(mut self, e: IfExpression) -> () {walkIfExpression(self, e)}
+  fn visitIfLetExpression(mut self, e: IfLetExpression) -> () {walkIfLetExpression(self, e)}
+  fn visitMatchExpression(mut self, e: MatchExpression) -> () {walkMatchExpression(self, e)}
+  fn visitMatchArm(mut self, e: MatchArm) -> () {walkMatchArm(self, e)}
+  fn visitTypePath(mut self, e: TypePath) -> () {walkTypePath(self, e)}
+  fn visitTypePathExpression(mut self, e: TypePathExpression) -> () {walkTypePathExpression(self, e)}
+  fn visitUnaryExpression(mut self, e: UnaryExpression) -> () {walkUnaryExpression(self, e)}
+  fn visitIndexAccess(mut self, a: IndexAccess) -> () {walkIndexAccess(self, a)}
+  fn visitMemberAccess(mut self, a: MemberAccess) -> () {walkMemberAccess(self, a)}
+  fn visitTupleIndexAccess(mut self, a: TupleIndexAccess) -> () {walkTupleIndexAccess(self, a)}
+  fn visitUnknownAccess(mut self, a: UnknownAccess) -> () {walkUnknownAccess(self, a)}
+  fn visitUnknownIndexAccess(mut self, a: UnknownIndexAccess) -> () {walkUnknownIndexAccess(self, a)}
+  fn visitListLiteral(mut self, l: ListLiteral) -> () {walkListLiteral(self, l)}
   fn visitBooleanLiteral(mut self, l: BooleanLiteral) -> () {}
   fn visitNumberLiteral(mut self, l: NumberLiteral) -> () {}
-  fn visitRangeLiteral(mut self, l: RangeLiteral) -> () {}
-  fn visitRecordLiteral(mut self, l: RecordLiteral) -> () {}
-  fn visitRecordLiteralMember(mut self, l: RecordLiteralMember) -> () {}
-  fn visitStringLiteral(mut self, l: StringLiteral) -> () {}
+  fn visitRangeLiteral(mut self, l: RangeLiteral) -> () {walkRangeLiteral(self, l)}
+  fn visitRecordLiteral(mut self, l: RecordLiteral) -> () {walkRecordLiteral(self, l)}
+  fn visitRecordLiteralMember(mut self, l: RecordLiteralMember) -> () {walkRecordLiteralMember(self, l)}
+  fn visitStringLiteral(mut self, l: StringLiteral) -> () {walkStringLiteral(self, l)}
   fn visitStringLiteralPart(mut self, l: StringLiteralPart) -> () {}
-  fn visitTupleLiteral(mut self, l: TupleLiteral) -> () {}
+  fn visitTupleLiteral(mut self, l: TupleLiteral) -> () {walkTupleLiteral(self, l)}
 
-  fn visitPattern(mut self, p: Pattern) -> () {}
-  fn visitIdentifierPattern(mut self, p: Identifier, mutable: Bool) -> () {}
-  fn visitRecordPattern(mut self, p: RecordPattern) -> () {}
-  fn visitRecordTypePattern(mut self, t: TypePath, p: RecordPattern) -> () {}
-  fn visitTuplePattern(mut self, p: TuplePattern) -> () {}
-  fn visitTupleTypePattern(mut self, t: TypePath, p: TuplePattern) -> () {}
+  fn visitPattern(mut self, p: Pattern) -> () {walkPattern(self, p)}
+  fn visitIdentifierPattern(mut self, p: Identifier, mutable: Bool) -> () {walkIdentifierPattern(self, p)}
+  fn visitRecordPattern(mut self, p: RecordPattern) -> () {walkRecordPattern(self, p)}
+  fn visitTuplePattern(mut self, p: TuplePattern) -> () {walkTuplePattern(self, p)}
 
-  fn visitTypeBound(mut self, t: TypeBound) -> () {}
-  fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {}
-  fn visitIntersectionTypeBound(mut self, t: IntersectionTypeBound) -> () {}
-  fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {}
-  fn visitRecordTypeBound(mut self, t: RecordTypeBound) -> () {}
-  fn visitRecordTypeBoundMember(mut self, t: RecordTypeBoundMember) -> () {}
-  fn visitTupleTypeBound(mut self, t: TupleTypeBound) -> () {}
-  fn visitTypeParameter(mut self, t: TypeParameter) -> () {}
+  fn visitTypeBound(mut self, t: TypeBound) -> () {walkTypeBound(self, t)}
+  fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {walkFunctionTypeBound(self, t)}
+  fn visitIntersectionTypeBound(mut self, t: IntersectionTypeBound) -> () {walkIntersectionTypeBound(self, t)}
+  fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {walkNamedTypeBound(self, t)}
+  fn visitRecordTypeBound(mut self, t: RecordTypeBound) -> () {walkRecordTypeBound(self, t)}
+  fn visitRecordTypeBoundMember(mut self, t: RecordTypeBoundMember) -> () {walkRecordTypeBoundMember(self, t)}
+  fn visitTupleTypeBound(mut self, t: TupleTypeBound) -> () {walkTupleTypeBound(self, t)}
+  fn visitTypeParameter(mut self, t: TypeParameter) -> () {walkTypeParameter(self, t)}
+  fn visitTypeParameterBound(mut self, t: TypeParameterBound) -> () {walkTypeParameterBound(self, t)}
+  fn visitWhereClause(mut self, t: WhereClause) -> () {walkWhereClause(self, t)}
 }
 
 export fn walkModule(mut visitor: EmptyVisitor, m: Module) {
@@ -220,17 +221,19 @@ export fn walkImplDeclaration(mut visitor: EmptyVisitor, i: ImplDeclaration) {
   i.typeParameters.forEach(|p| visitor.visitTypeParameter(p))
   visitor.visitNamedTypeBound(i.trait_)
   visitor.visitNamedTypeBound(i.type_)
-  i.members.forEach(|m| visitor.visitFunctionDeclaration(m))
+  if let Option::Some(whereClause) = i.whereClause
+    then visitor.visitWhereClause(whereClause)
+  i.members.forEach(|m| visitor.visitMethodDeclaration(m))
 }
 export fn walkImplShorthandDeclaration(mut visitor: EmptyVisitor, i: ImplShorthandDeclaration) {
   i.typeParameters.forEach(|p| visitor.visitTypeParameter(p))
   visitor.visitNamedTypeBound(i.type_)
-  i.members.forEach(|m| visitor.visitFunctionDeclaration(m))
+  i.members.forEach(|m| visitor.visitMethodDeclaration(m))
 }
 export fn walkTraitDeclaration(mut visitor: EmptyVisitor, t: TraitDeclaration) {
   if t.typeParameters
     then t.typeParameters.forEach(|p| visitor.visitTypeParameter(p))
-  t.members.forEach(|t| visitor.visitFunctionDeclaration(t))
+  t.members.forEach(|t| visitor.visitMethodDeclaration(t))
 }
 export fn walkTypeDeclaration(mut visitor: EmptyVisitor, t: TypeDeclaration) {
   // visitor.visitIdentifier(t.name)
@@ -257,9 +260,12 @@ export fn walkImportDirective(mut visitor: EmptyVisitor, i: ImportDirective) {
 }
 export fn walkObjectDestructure(mut visitor: EmptyVisitor, o: ObjectDestructure) {
   o.members.forEach(|m| {
-    visitor.visitIdentifier(m.property)
-    visitor.visitIdentifier(m.local)
+    visitor.visitObjectDestructureMember(m)
   })
+}
+export fn walkObjectDestructureMember(mut visitor: EmptyVisitor, m: ObjectDestructureMember) {
+  visitor.visitIdentifier(m.property)
+  visitor.visitIdentifier(m.local)
 }
 
 export fn walkBlock(mut visitor: EmptyVisitor, b: Block) {
@@ -321,6 +327,17 @@ export fn walkMatchExpression(mut visitor: EmptyVisitor, e: MatchExpression) {
 export fn walkMatchArm(mut visitor: EmptyVisitor, e: MatchArm) {
   visitor.visitPattern(e.pattern)
   visitor.visitBlock(e.block)
+}
+export fn walkTypePath(mut visitor: EmptyVisitor, e: TypePath) {
+  match e {
+    TypePath::Object(_, typePath) => {
+      visitor.visitTypePath(typePath)
+    }
+    TypePath::Member(_) => {}
+  }
+}
+export fn walkTypePathExpression(mut visitor: EmptyVisitor, e: TypePathExpression) {
+  visitor.visitTypePath(e.typePath)
 }
 export fn walkUnaryExpression(mut visitor: EmptyVisitor, e: UnaryExpression) {
   visitor.visitExpression(e.rhs)
@@ -421,6 +438,10 @@ export fn walkFunctionTypeBound(mut visitor: EmptyVisitor, t: FunctionTypeBound)
   visitor.visitTupleTypeBound(t.parameters)
   visitor.visitTypeBound(t.returnType)
 }
+export fn walkIntersectionTypeBound(mut visitor: EmptyVisitor, t: IntersectionTypeBound) {
+  visitor.visitTypeBound(t.baseType)
+  visitor.visitNamedTypeBound(t.traitBound)
+}
 export fn walkNamedTypeBound(mut visitor: EmptyVisitor, t: NamedTypeBound) {
   t.typeParameters.forEach(|p| visitor.visitTypeBound(p))
 }
@@ -442,4 +463,11 @@ export fn walkTupleTypeBound(mut visitor: EmptyVisitor, t: TupleTypeBound) {
 export fn walkTypeParameter(mut visitor: EmptyVisitor, t: TypeParameter) {
   // visitor.visitIdentifier(t.name)
   if let Option::Some(defaultValue) = t.defaultValue then visitor.visitTypeBound(defaultValue)
+}
+export fn walkTypeParameterBound(mut visitor: EmptyVisitor, t: TypeParameterBound) {
+  visitor.visitTypeBound(t.subType)
+  visitor.visitTypeBound(t.superType)
+}
+export fn walkWhereClause(mut visitor: EmptyVisitor, w: WhereClause) {
+  w.bounds.forEach(|b| visitor.visitTypeParameterBound(b))
 }

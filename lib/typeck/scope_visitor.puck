@@ -1,5 +1,5 @@
 import 'puck:core' as core
-import 'puck:js' as {Object, global, undefined}
+import 'puck:js' as {Object, global, undefined, console}
 import 'node:util' as {inspect}
 import '../ast/ast.puck' as {
   Module
@@ -125,6 +125,10 @@ export fn getBinding(e: Expression) -> Option<Binding> {
   match e {
     Expression::Identifier(i) => {
       let scope: Scope = i->scope.transmute()
+      if not scope {
+        console->error('no scope for', i)
+        return None
+      }
       scope.getBinding(i.name)
     }
     Expression::IndexAccess(i) => getBinding(i.object)

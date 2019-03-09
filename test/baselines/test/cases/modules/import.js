@@ -27,7 +27,7 @@ _static: $puck_4.Trait._static,
 implemented: function () {},
 _default: $puck_4.Trait._default
 };
-SubTrait["$impl_test/cases/modules/import.puck:SubTrait$test/cases/modules/import.puck:Type"] = {
+$puck_6.Trait["$impl_test/cases/modules/import.puck:SubTrait$test/cases/modules/import.puck:Type"] = SubTrait["$impl_test/cases/modules/import.puck:SubTrait$test/cases/modules/import.puck:Type"] = {
 _static: $puck_6.Trait._static,
 implemented: $puck_6.Trait.implemented,
 _default: $puck_6.Trait._default

@@ -48,7 +48,7 @@ CompilerContext.runImplVisitor = function () {
   $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if ((!file.implVisitorStarted && $puck_1.Option.isSome.call(file.ast))) {
       file.implVisitorStarted = true;
-      $puck_11.ImplVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+      $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor', value: $puck_11.ImplVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
       return $puck_11.checkDefferedImpls(self.deferredImpl);
     };
   });
@@ -102,7 +102,7 @@ CompilerContext.runImplVisitorOnFile = function (file) {
     $puck_1.panic($puck_2.Error("runImplVisitorOnFile??"));
   };
   file.implVisitorStarted = true;
-  $puck_11.ImplVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+  $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor', value: $puck_11.ImplVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
   $puck_11.checkDefferedImpls(self.deferredImpl);
 };
 CompilerContext.runCheckerOnFile = function (file) {

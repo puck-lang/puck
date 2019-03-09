@@ -69,7 +69,7 @@ export type CompilerContext {
 }
 
 impl CompilerContext {
-  fn new(projectPath: String, onReportError: (File, ToSpan, CompilationError) -> (), onFileParsed = |_: File| {}) -> CompilerContext {{
+  fn new(projectPath: String, onReportError: (File, ToSpan, CompilationError) -> (), onFileParsed: (File) -> () = |_: File| {}) -> CompilerContext {{
     projectPath
     impls: Map.new()
     files: Map.new()
@@ -95,7 +95,7 @@ impl CompilerContext {
       .forEach(|mut file| {
         if not file->implVisitorStarted and file.ast.isSome() {
           file->implVisitorStarted = true
-          ImplVisitor(self, file)->visitModule(file.ast.unwrap())
+          ImplVisitor.new(self, file).visitModule(file.ast.unwrap())
           checkDefferedImpls(self.deferredImpl)
         }
       })
@@ -132,7 +132,7 @@ impl CompilerContext {
       panic(Error('runImplVisitorOnFile??'))
     }
     file->implVisitorStarted = true
-    ImplVisitor(self, file)->visitModule(file.ast.unwrap())
+    ImplVisitor.new(self, file).visitModule(file.ast.unwrap())
     checkDefferedImpls(self.deferredImpl)
   }
 
@@ -180,7 +180,7 @@ impl CompilerContext {
     }
   }
 
-  fn importFile(mut self, mut file: File, force = false, recoverFromSyntaxErrors = false) -> File {
+  fn importFile(mut self, mut file: File, force: Bool = false, recoverFromSyntaxErrors: Bool = false) -> File {
     if let Some(outFile) = file.outFile {
       if let Some(mut existingFile) = self.files.get(file.absolutePath) {
         existingFile.outFile = Some(outFile)

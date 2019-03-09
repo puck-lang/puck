@@ -92,7 +92,7 @@ _static: SelfAware._static,
 withImmutableSelf: SelfAware.withImmutableSelf,
 withMutableSelf: SelfAware.withMutableSelf
 };
-MoreFunctions["$impl_test/cases/types/traits.puck:MoreFunctions$test/cases/types/traits.puck:FunctionsType"] = {
+Functions["$impl_test/cases/types/traits.puck:MoreFunctions$test/cases/types/traits.puck:FunctionsType"] = MoreFunctions["$impl_test/cases/types/traits.puck:MoreFunctions$test/cases/types/traits.puck:FunctionsType"] = {
 noBody: Functions.noBody,
 withBody: Functions.withBody,
 doubleNoBody: MoreFunctions.doubleNoBody,

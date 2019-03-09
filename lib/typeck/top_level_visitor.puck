@@ -49,18 +49,6 @@ impl TopLevelVisitor {
 }
 
 impl EmptyVisitor for TopLevelVisitor {
-  fn visitModule(mut self, m: Module) -> () {
-    visit.walkModule(self, m)
-  }
-  fn visitTopLevelStatement(mut self, e: TopLevelStatement) -> () {
-    visit.walkTopLevelStatement(self, e)
-  }
-  fn visitBlockLevelStatement(mut self, e: BlockLevelStatement) -> () {
-    visit.walkBlockLevelStatement(self, e)
-  }
-  fn visitExpression(mut self, e: Expression) -> () {
-    visit.walkExpression(self, e)
-  }
   fn visitEnumDeclaration(mut self, t: EnumDeclaration) -> () {
     self.declarations.set(t.name.name, t)
   }
@@ -71,9 +59,6 @@ impl EmptyVisitor for TopLevelVisitor {
     self.declarations.set(t.name.name, t)
   }
 
-  fn visitExportDirective(mut self, e: ExportDirective) -> () {
-    visit.walkExportDirective(self, e)
-  }
   fn visitImportDirective(mut self, i: ImportDirective) -> () {
     match i.specifier {
       ImportSpecifier::Identifier(identifier) => {
@@ -96,19 +81,8 @@ impl EmptyVisitor for TopLevelVisitor {
       self.declarations.set(name.name, f)
     }
   }
-  fn visitVariableDeclaration(mut self, d: VariableDeclaration) -> () {
-    visit.walkVariableDeclaration(self, d)
-  }
 
-  fn visitTypeBound(mut self, t: TypeBound) -> () {
-    visit.walkTypeBound(self, t)
-  }
-
-  fn visitPattern(mut self, p: Pattern) -> () {
-    visit.walkPattern(self, p)
-  }
-
-  fn visitIdentifierPattern(mut self, p: Identifier, _) -> () {
+  fn visitIdentifierPattern(mut self, p: Identifier, _: Bool) -> () {
     self.declarations.set(p.name, p)
   }
 }

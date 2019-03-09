@@ -616,7 +616,7 @@ isNotEmpty: function () {
 first: function () {
   const self = this;
   if (Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self) > 0) {
-    return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, 0)));
+    return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self.value, $isTraitObject: true}, 0)));
   }
   else {
     return None;
@@ -625,7 +625,7 @@ first: function () {
 last: function () {
   const self = this;
   if (Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self) > 0) {
-    return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self) - 1)));
+    return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self.value, $isTraitObject: true}, Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self) - 1)));
   }
   else {
     return None;
@@ -635,7 +635,7 @@ all: function (predicate) {
   const self = this;
   let i = 0;
   while ((i < Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self))) {
-    if ((!predicate($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, i))))) {
+    if ((!predicate($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self.value, $isTraitObject: true}, i))))) {
       return false;
     };
     i += 1;
@@ -646,7 +646,7 @@ any: function (predicate) {
   const self = this;
   let i = 0;
   while (i < Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self)) {
-    if (predicate($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, i)))) {
+    if (predicate($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self.value, $isTraitObject: true}, i)))) {
       return true;
     };
     i += 1;
@@ -657,7 +657,7 @@ find: function (predicate) {
   const self = this;
   const index = $unwrapTraitObject(self.value.findIndex(predicate));
   if (index >= 0) {
-    return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call(self, index)));
+    return Some($unwrapTraitObject(Index["$impl_Index$List"].index.call({type: '$impl_Index$List', value: self.value, $isTraitObject: true}, index)));
   }
   else {
     return None;
@@ -754,8 +754,8 @@ index: function (index) {
   if (index < 0) {
     panic("index out of bounds: index must be positive but is " + index + "");
   };
-  if (index >= Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self)) {
-    panic("index out of bounds: the length is " + Num.toString.call(Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call(self)) + " but the index is " + index + "");
+  if (index >= Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value, $isTraitObject: true})) {
+    panic("index out of bounds: the length is " + Num.toString.call(Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].size.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: self.value, $isTraitObject: true})) + " but the index is " + index + "");
   };
   return $unwrapTraitObject(self.value[$unwrapTraitObject(index)]);
 }
@@ -859,7 +859,7 @@ PartialOrd["$impl_PartialOrd$String"] = {
 partialCmp: function (other) {
   const self = this;
   const o = $unwrapTraitObject(other);
-  return Some(Ord["$impl_lib/stdlib/core.puck:Ord$String"].cmp.call(self, {type: '$impl_lib/stdlib/core.puck:Ord$String', value: o, $isTraitObject: true}));
+  return Some(Ord["$impl_lib/stdlib/core.puck:Ord$String"].cmp.call({type: '$impl_lib/stdlib/core.puck:Ord$String', value: self.value, $isTraitObject: true}, {type: '$impl_lib/stdlib/core.puck:Ord$String', value: o, $isTraitObject: true}));
 },
 lt: PartialOrd.lt,
 le: PartialOrd.le,

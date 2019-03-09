@@ -77,7 +77,7 @@ export trait Concat<RHS, Output> {
 export type RegExp {}
 
 impl RegExp {
-  fn new(pattern, flags = '') -> RegExp {
+  fn new(pattern: String, flags: String = '') -> RegExp {
     js->RegExp(pattern, flags).transmute()
   }
 

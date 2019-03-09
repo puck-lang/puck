@@ -24,11 +24,11 @@ a: TraitFoo.a
 TraitBar["$impl_test/cases/types/impl.puck:TraitBar$test/cases/types/impl.puck:TypeBar"] = {
 b: function () {
   const self = this;
-  TraitFoo["$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar"].a.call(self);
-  TraitFoo["$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar"].a.call(self);
+  TraitFoo["$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar"].a.call({type: '$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar', value: self.value, $isTraitObject: true});
+  TraitFoo["$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar"].a.call({type: '$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar', value: self.value, $isTraitObject: true});
 }
 };
-TraitFooBar["$impl_test/cases/types/impl.puck:TraitFooBar$test/cases/types/impl.puck:TypeBar"] = {
+TraitFoo["$impl_test/cases/types/impl.puck:TraitFooBar$test/cases/types/impl.puck:TypeBar"] = TraitFooBar["$impl_test/cases/types/impl.puck:TraitFooBar$test/cases/types/impl.puck:TypeBar"] = {
 a: TraitFoo.a,
 c: TraitFooBar.c
 };

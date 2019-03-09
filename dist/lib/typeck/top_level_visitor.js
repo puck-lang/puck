@@ -11,22 +11,10 @@ const $puck_7 = require("./../compiler/ast");
 const $puck_8 = require("./../entities");
 var TopLevelVisitor = exports.TopLevelVisitor = (object) => object;
 $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/top_level_visitor.puck:TopLevelVisitor"] = {
-visitModule: function (m) {
-  let self = this;
-  visit.walkModule(self, m);
-},
-visitTopLevelStatement: function (e) {
-  let self = this;
-  visit.walkTopLevelStatement(self, e);
-},
-visitBlockLevelStatement: function (e) {
-  let self = this;
-  visit.walkBlockLevelStatement(self, e);
-},
-visitExpression: function (e) {
-  let self = this;
-  visit.walkExpression(self, e);
-},
+visitModule: $puck_5.EmptyVisitor.visitModule,
+visitTopLevelStatement: $puck_5.EmptyVisitor.visitTopLevelStatement,
+visitBlockLevelStatement: $puck_5.EmptyVisitor.visitBlockLevelStatement,
+visitExpression: $puck_5.EmptyVisitor.visitExpression,
 visitEnumDeclaration: function (t) {
   let self = this;
   $puck_1.ObjectMap.set.call(self.value.declarations, t.name.name, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:EnumDeclaration', value: t, $isTraitObject: true});
@@ -43,10 +31,7 @@ visitTypeDeclaration: function (t) {
   let self = this;
   $puck_1.ObjectMap.set.call(self.value.declarations, t.name.name, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:TypeDeclaration', value: t, $isTraitObject: true});
 },
-visitExportDirective: function (e) {
-  let self = this;
-  visit.walkExportDirective(self, e);
-},
+visitExportDirective: $puck_5.EmptyVisitor.visitExportDirective,
 visitImportDirective: function (i) {
   let self = this;
   let $puck_9 = i.specifier;
@@ -87,10 +72,7 @@ visitFunctionDeclaration: function (f) {
     $puck_1.ObjectMap.set.call(self.value.declarations, name.name, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:FunctionDeclaration', value: f, $isTraitObject: true});
   };
 },
-visitVariableDeclaration: function (d) {
-  let self = this;
-  visit.walkVariableDeclaration(self, d);
-},
+visitVariableDeclaration: $puck_5.EmptyVisitor.visitVariableDeclaration,
 visitAssignmentExpression: $puck_5.EmptyVisitor.visitAssignmentExpression,
 visitBinaryExpression: $puck_5.EmptyVisitor.visitBinaryExpression,
 visitCallExpression: $puck_5.EmptyVisitor.visitCallExpression,
@@ -115,29 +97,23 @@ visitRecordLiteralMember: $puck_5.EmptyVisitor.visitRecordLiteralMember,
 visitStringLiteral: $puck_5.EmptyVisitor.visitStringLiteral,
 visitStringLiteralPart: $puck_5.EmptyVisitor.visitStringLiteralPart,
 visitTupleLiteral: $puck_5.EmptyVisitor.visitTupleLiteral,
-visitPattern: function (p) {
-  let self = this;
-  visit.walkPattern(self, p);
-},
+visitPattern: $puck_5.EmptyVisitor.visitPattern,
 visitIdentifierPattern: function (p, $puck_11) {
   let self = this;
   $puck_1.ObjectMap.set.call(self.value.declarations, p.name, {type: '$impl_lib/ast/span.puck:ToSpan$lib/ast/ast.puck:Identifier', value: p, $isTraitObject: true});
 },
 visitRecordPattern: $puck_5.EmptyVisitor.visitRecordPattern,
-visitRecordTypePattern: $puck_5.EmptyVisitor.visitRecordTypePattern,
 visitTuplePattern: $puck_5.EmptyVisitor.visitTuplePattern,
-visitTupleTypePattern: $puck_5.EmptyVisitor.visitTupleTypePattern,
-visitTypeBound: function (t) {
-  let self = this;
-  visit.walkTypeBound(self, t);
-},
+visitTypeBound: $puck_5.EmptyVisitor.visitTypeBound,
 visitFunctionTypeBound: $puck_5.EmptyVisitor.visitFunctionTypeBound,
 visitIntersectionTypeBound: $puck_5.EmptyVisitor.visitIntersectionTypeBound,
 visitNamedTypeBound: $puck_5.EmptyVisitor.visitNamedTypeBound,
 visitRecordTypeBound: $puck_5.EmptyVisitor.visitRecordTypeBound,
 visitRecordTypeBoundMember: $puck_5.EmptyVisitor.visitRecordTypeBoundMember,
 visitTupleTypeBound: $puck_5.EmptyVisitor.visitTupleTypeBound,
-visitTypeParameter: $puck_5.EmptyVisitor.visitTypeParameter
+visitTypeParameter: $puck_5.EmptyVisitor.visitTypeParameter,
+visitTypeParameterBound: $puck_5.EmptyVisitor.visitTypeParameterBound,
+visitWhereClause: $puck_5.EmptyVisitor.visitWhereClause
 };
 TopLevelVisitor._new = function (context, file) {
   return {

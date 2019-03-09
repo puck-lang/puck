@@ -8,7 +8,7 @@ print(
 print(
   match Some(5) {
     Some(num) => '$num'
-    None => 'nothing'
+    value => 'nothing'
   }
 )
 

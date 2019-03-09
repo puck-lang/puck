@@ -30,6 +30,10 @@ function getBinding(e) {
   if ($puck_19.kind === "Identifier") {
     let {value: i} = $puck_19;
     const scope = $unwrapTraitObject(i.scope);
+    if ((!scope)) {
+      $puck_2.console.error("no scope for", i);
+      return $puck_1.None;
+    };
     return $puck_13.Scope.getBinding.call(scope, i.name);
   }
   else {

@@ -9,6 +9,17 @@ impl Type {
   }
 }
 
+///// Trait function parameters must have a type
+type Type {
+  value: Num
+}
+
+impl Type {
+  fn isAnswer(self, a) -> Bool {
+    self.value == a
+  }
+}
+
 ///// Type has already been implemented
 type Type {
   value: Num

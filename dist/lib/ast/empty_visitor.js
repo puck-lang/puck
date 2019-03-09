@@ -1,70 +1,238 @@
 'use strict';
-exports.EmptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRangeLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = undefined;
+exports.EmptyVisitor = exports.walkModule = exports.walkTopLevelStatement = exports.walkBlockLevelStatement = exports.walkExpression = exports.walkEnumDeclaration = exports.walkEnumMember = exports.walkImplDeclaration = exports.walkImplShorthandDeclaration = exports.walkTraitDeclaration = exports.walkTypeDeclaration = exports.walkExportDirective = exports.walkImportDirective = exports.walkObjectDestructure = exports.walkObjectDestructureMember = exports.walkBlock = exports.walkReturnStatement = exports.walkForLoop = exports.walkWhileLoop = exports.walkFunctionDeclaration = exports.walkVariableDeclaration = exports.walkAssignmentExpression = exports.walkBinaryExpression = exports.walkCallExpression = exports.walkIfExpression = exports.walkIfLetExpression = exports.walkMatchExpression = exports.walkMatchArm = exports.walkTypePath = exports.walkTypePathExpression = exports.walkUnaryExpression = exports.walkIndexAccess = exports.walkMemberAccess = exports.walkTupleIndexAccess = exports.walkUnknownAccess = exports.walkUnknownIndexAccess = exports.walkListLiteral = exports.walkRangeLiteral = exports.walkRecordLiteral = exports.walkRecordLiteralMember = exports.walkStringLiteral = exports.walkTupleLiteral = exports.walkPattern = exports.walkIdentifierPattern = exports.walkRecordPattern = exports.walkTuplePattern = exports.walkTypeBound = exports.walkFunctionTypeBound = exports.walkIntersectionTypeBound = exports.walkNamedTypeBound = exports.walkRecordTypeBound = exports.walkRecordTypeBoundMember = exports.walkTupleTypeBound = exports.walkTypeParameter = exports.walkTypeParameterBound = exports.walkWhereClause = undefined;
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./ast");
 const $puck_3 = require("./span");
 var EmptyVisitor = exports.EmptyVisitor = {
-visitModule: function (m) {},
-visitTopLevelStatement: function (e) {},
-visitBlockLevelStatement: function (e) {},
-visitExpression: function (e) {},
-visitEnumDeclaration: function (e) {},
-visitEnumMember: function (e) {},
-visitImplDeclaration: function (i) {},
-visitImplShorthandDeclaration: function (i) {},
-visitMethodDeclaration: function (f) {},
-visitTraitDeclaration: function (t) {},
-visitTypeDeclaration: function (t) {},
-visitExportDirective: function (e) {},
-visitImportDirective: function (i) {},
-visitObjectDestructure: function (o) {},
-visitObjectDestructureMember: function (m) {},
-visitBlock: function (b) {},
+visitModule: function (m) {
+  let self = this;
+  walkModule(self, m);
+},
+visitTopLevelStatement: function (e) {
+  let self = this;
+  walkTopLevelStatement(self, e);
+},
+visitBlockLevelStatement: function (e) {
+  let self = this;
+  walkBlockLevelStatement(self, e);
+},
+visitExpression: function (e) {
+  let self = this;
+  walkExpression(self, e);
+},
+visitEnumDeclaration: function (e) {
+  let self = this;
+  walkEnumDeclaration(self, e);
+},
+visitEnumMember: function (e) {
+  let self = this;
+  walkEnumMember(self, e);
+},
+visitImplDeclaration: function (i) {
+  let self = this;
+  walkImplDeclaration(self, i);
+},
+visitImplShorthandDeclaration: function (i) {
+  let self = this;
+  walkImplShorthandDeclaration(self, i);
+},
+visitMethodDeclaration: function (f) {
+  let self = this;
+  walkFunctionDeclaration(self, f);
+},
+visitTraitDeclaration: function (t) {
+  let self = this;
+  walkTraitDeclaration(self, t);
+},
+visitTypeDeclaration: function (t) {
+  let self = this;
+  walkTypeDeclaration(self, t);
+},
+visitExportDirective: function (e) {
+  let self = this;
+  walkExportDirective(self, e);
+},
+visitImportDirective: function (i) {
+  let self = this;
+  walkImportDirective(self, i);
+},
+visitObjectDestructure: function (o) {
+  let self = this;
+  walkObjectDestructure(self, o);
+},
+visitObjectDestructureMember: function (m) {
+  let self = this;
+  walkObjectDestructureMember(self, m);
+},
+visitBlock: function (b) {
+  let self = this;
+  walkBlock(self, b);
+},
 visitBreakStatement: function (b) {},
-visitReturnStatement: function (r) {},
-visitForLoop: function (e) {},
-visitWhileLoop: function (e) {},
+visitReturnStatement: function (r) {
+  let self = this;
+  walkReturnStatement(self, r);
+},
+visitForLoop: function (e) {
+  let self = this;
+  walkForLoop(self, e);
+},
+visitWhileLoop: function (e) {
+  let self = this;
+  walkWhileLoop(self, e);
+},
 visitIdentifier: function (i) {},
-visitFunctionDeclaration: function (f) {},
-visitVariableDeclaration: function (d) {},
-visitAssignmentExpression: function (e) {},
-visitBinaryExpression: function (e) {},
-visitCallExpression: function (e) {},
-visitIfExpression: function (e) {},
-visitIfLetExpression: function (e) {},
-visitMatchExpression: function (e) {},
-visitMatchArm: function (e) {},
-visitTypePath: function (e) {},
-visitTypePathExpression: function (e) {},
-visitUnaryExpression: function (e) {},
-visitIndexAccess: function (a) {},
-visitMemberAccess: function (a) {},
-visitTupleIndexAccess: function (a) {},
-visitUnknownAccess: function (a) {},
-visitUnknownIndexAccess: function (a) {},
-visitListLiteral: function (l) {},
+visitFunctionDeclaration: function (f) {
+  let self = this;
+  walkFunctionDeclaration(self, f);
+},
+visitVariableDeclaration: function (d) {
+  let self = this;
+  walkVariableDeclaration(self, d);
+},
+visitAssignmentExpression: function (e) {
+  let self = this;
+  walkAssignmentExpression(self, e);
+},
+visitBinaryExpression: function (e) {
+  let self = this;
+  walkBinaryExpression(self, e);
+},
+visitCallExpression: function (e) {
+  let self = this;
+  walkCallExpression(self, e);
+},
+visitIfExpression: function (e) {
+  let self = this;
+  walkIfExpression(self, e);
+},
+visitIfLetExpression: function (e) {
+  let self = this;
+  walkIfLetExpression(self, e);
+},
+visitMatchExpression: function (e) {
+  let self = this;
+  walkMatchExpression(self, e);
+},
+visitMatchArm: function (e) {
+  let self = this;
+  walkMatchArm(self, e);
+},
+visitTypePath: function (e) {
+  let self = this;
+  walkTypePath(self, e);
+},
+visitTypePathExpression: function (e) {
+  let self = this;
+  walkTypePathExpression(self, e);
+},
+visitUnaryExpression: function (e) {
+  let self = this;
+  walkUnaryExpression(self, e);
+},
+visitIndexAccess: function (a) {
+  let self = this;
+  walkIndexAccess(self, a);
+},
+visitMemberAccess: function (a) {
+  let self = this;
+  walkMemberAccess(self, a);
+},
+visitTupleIndexAccess: function (a) {
+  let self = this;
+  walkTupleIndexAccess(self, a);
+},
+visitUnknownAccess: function (a) {
+  let self = this;
+  walkUnknownAccess(self, a);
+},
+visitUnknownIndexAccess: function (a) {
+  let self = this;
+  walkUnknownIndexAccess(self, a);
+},
+visitListLiteral: function (l) {
+  let self = this;
+  walkListLiteral(self, l);
+},
 visitBooleanLiteral: function (l) {},
 visitNumberLiteral: function (l) {},
-visitRangeLiteral: function (l) {},
-visitRecordLiteral: function (l) {},
-visitRecordLiteralMember: function (l) {},
-visitStringLiteral: function (l) {},
+visitRangeLiteral: function (l) {
+  let self = this;
+  walkRangeLiteral(self, l);
+},
+visitRecordLiteral: function (l) {
+  let self = this;
+  walkRecordLiteral(self, l);
+},
+visitRecordLiteralMember: function (l) {
+  let self = this;
+  walkRecordLiteralMember(self, l);
+},
+visitStringLiteral: function (l) {
+  let self = this;
+  walkStringLiteral(self, l);
+},
 visitStringLiteralPart: function (l) {},
-visitTupleLiteral: function (l) {},
-visitPattern: function (p) {},
-visitIdentifierPattern: function (p, mutable) {},
-visitRecordPattern: function (p) {},
-visitRecordTypePattern: function (t, p) {},
-visitTuplePattern: function (p) {},
-visitTupleTypePattern: function (t, p) {},
-visitTypeBound: function (t) {},
-visitFunctionTypeBound: function (t) {},
-visitIntersectionTypeBound: function (t) {},
-visitNamedTypeBound: function (t) {},
-visitRecordTypeBound: function (t) {},
-visitRecordTypeBoundMember: function (t) {},
-visitTupleTypeBound: function (t) {},
-visitTypeParameter: function (t) {}
+visitTupleLiteral: function (l) {
+  let self = this;
+  walkTupleLiteral(self, l);
+},
+visitPattern: function (p) {
+  let self = this;
+  walkPattern(self, p);
+},
+visitIdentifierPattern: function (p, mutable) {
+  let self = this;
+  walkIdentifierPattern(self, p);
+},
+visitRecordPattern: function (p) {
+  let self = this;
+  walkRecordPattern(self, p);
+},
+visitTuplePattern: function (p) {
+  let self = this;
+  walkTuplePattern(self, p);
+},
+visitTypeBound: function (t) {
+  let self = this;
+  walkTypeBound(self, t);
+},
+visitFunctionTypeBound: function (t) {
+  let self = this;
+  walkFunctionTypeBound(self, t);
+},
+visitIntersectionTypeBound: function (t) {
+  let self = this;
+  walkIntersectionTypeBound(self, t);
+},
+visitNamedTypeBound: function (t) {
+  let self = this;
+  walkNamedTypeBound(self, t);
+},
+visitRecordTypeBound: function (t) {
+  let self = this;
+  walkRecordTypeBound(self, t);
+},
+visitRecordTypeBoundMember: function (t) {
+  let self = this;
+  walkRecordTypeBoundMember(self, t);
+},
+visitTupleTypeBound: function (t) {
+  let self = this;
+  walkTupleTypeBound(self, t);
+},
+visitTypeParameter: function (t) {
+  let self = this;
+  walkTypeParameter(self, t);
+},
+visitTypeParameterBound: function (t) {
+  let self = this;
+  walkTypeParameterBound(self, t);
+},
+visitWhereClause: function (t) {
+  let self = this;
+  walkWhereClause(self, t);
+}
 };
 function walkModule(visitor, m) {
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: m.statements, $isTraitObject: true}, function (s) {
@@ -329,8 +497,13 @@ function walkImplDeclaration(visitor, i) {
   });
   EmptyVisitor[visitor.type].visitNamedTypeBound.call(visitor, i.trait_);
   EmptyVisitor[visitor.type].visitNamedTypeBound.call(visitor, i.type_);
+  let $puck_9 = i.whereClause;
+  if ($puck_9 !== undefined) {
+    let whereClause = $puck_9;
+    EmptyVisitor[visitor.type].visitWhereClause.call(visitor, whereClause);
+  };
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true}, function (m) {
-    return EmptyVisitor[visitor.type].visitFunctionDeclaration.call(visitor, m);
+    return EmptyVisitor[visitor.type].visitMethodDeclaration.call(visitor, m);
   });
 };
 exports.walkImplDeclaration = walkImplDeclaration;
@@ -340,7 +513,7 @@ function walkImplShorthandDeclaration(visitor, i) {
   });
   EmptyVisitor[visitor.type].visitNamedTypeBound.call(visitor, i.type_);
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true}, function (m) {
-    return EmptyVisitor[visitor.type].visitFunctionDeclaration.call(visitor, m);
+    return EmptyVisitor[visitor.type].visitMethodDeclaration.call(visitor, m);
   });
 };
 exports.walkImplShorthandDeclaration = walkImplShorthandDeclaration;
@@ -351,7 +524,7 @@ function walkTraitDeclaration(visitor, t) {
     });
   };
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.members, $isTraitObject: true}, function (t) {
-    return EmptyVisitor[visitor.type].visitFunctionDeclaration.call(visitor, t);
+    return EmptyVisitor[visitor.type].visitMethodDeclaration.call(visitor, t);
   });
 };
 exports.walkTraitDeclaration = walkTraitDeclaration;
@@ -359,42 +532,42 @@ function walkTypeDeclaration(visitor, t) {
   $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.typeParameters, $isTraitObject: true}, function (t) {
     return EmptyVisitor[visitor.type].visitTypeParameter.call(visitor, t);
   });
-  let $puck_9 = t.bound;
-  if ($puck_9 !== undefined) {
-    let typeBound = $puck_9;
+  let $puck_10 = t.bound;
+  if ($puck_10 !== undefined) {
+    let typeBound = $puck_10;
     return EmptyVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
   };
 };
 exports.walkTypeDeclaration = walkTypeDeclaration;
 function walkExportDirective(visitor, e) {
-  let $puck_10 = e.statement;
-  if ($puck_10.kind === "EnumDeclaration") {
-    let {value: d} = $puck_10;
+  let $puck_11 = e.statement;
+  if ($puck_11.kind === "EnumDeclaration") {
+    let {value: d} = $puck_11;
     return EmptyVisitor[visitor.type].visitEnumDeclaration.call(visitor, d);
   }
   else {
-    if ($puck_10.kind === "FunctionDeclaration") {
-      let {value: d} = $puck_10;
+    if ($puck_11.kind === "FunctionDeclaration") {
+      let {value: d} = $puck_11;
       return EmptyVisitor[visitor.type].visitFunctionDeclaration.call(visitor, d);
     }
     else {
-      if ($puck_10.kind === "Identifier") {
-        let {value: d} = $puck_10;
+      if ($puck_11.kind === "Identifier") {
+        let {value: d} = $puck_11;
         return EmptyVisitor[visitor.type].visitIdentifier.call(visitor, d);
       }
       else {
-        if ($puck_10.kind === "TraitDeclaration") {
-          let {value: d} = $puck_10;
+        if ($puck_11.kind === "TraitDeclaration") {
+          let {value: d} = $puck_11;
           return EmptyVisitor[visitor.type].visitTraitDeclaration.call(visitor, d);
         }
         else {
-          if ($puck_10.kind === "TypeDeclaration") {
-            let {value: d} = $puck_10;
+          if ($puck_11.kind === "TypeDeclaration") {
+            let {value: d} = $puck_11;
             return EmptyVisitor[visitor.type].visitTypeDeclaration.call(visitor, d);
           }
           else {
-            if ($puck_10.kind === "VariableDeclaration") {
-              let {value: d} = $puck_10;
+            if ($puck_11.kind === "VariableDeclaration") {
+              let {value: d} = $puck_11;
               return EmptyVisitor[visitor.type].visitVariableDeclaration.call(visitor, d);
             };
           };
@@ -405,20 +578,20 @@ function walkExportDirective(visitor, e) {
 };
 exports.walkExportDirective = walkExportDirective;
 function walkImportDirective(visitor, i) {
-  let $puck_11 = i.specifier;
-  if ($puck_11.kind === "Identifier") {
-    let {value: identifier} = $puck_11;
+  let $puck_12 = i.specifier;
+  if ($puck_12.kind === "Identifier") {
+    let {value: identifier} = $puck_12;
     return EmptyVisitor[visitor.type].visitIdentifier.call(visitor, identifier);
   }
   else {
-    if ($puck_11.kind === "ObjectDestructure") {
-      let {value: d} = $puck_11;
+    if ($puck_12.kind === "ObjectDestructure") {
+      let {value: d} = $puck_12;
       return EmptyVisitor[visitor.type].visitObjectDestructure.call(visitor, d);
     }
     else {
-      if ($puck_11.kind === "Asterisk") {
-        let $puck_12 = $puck_11;;
-        return $puck_12;
+      if ($puck_12.kind === "Asterisk") {
+        let $puck_13 = $puck_12;;
+        return $puck_13;
       };
     };
   };
@@ -426,11 +599,15 @@ function walkImportDirective(visitor, i) {
 exports.walkImportDirective = walkImportDirective;
 function walkObjectDestructure(visitor, o) {
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: o.members, $isTraitObject: true}, function (m) {
-    EmptyVisitor[visitor.type].visitIdentifier.call(visitor, m.property);
-    return EmptyVisitor[visitor.type].visitIdentifier.call(visitor, m.local);
+    return EmptyVisitor[visitor.type].visitObjectDestructureMember.call(visitor, m);
   });
 };
 exports.walkObjectDestructure = walkObjectDestructure;
+function walkObjectDestructureMember(visitor, m) {
+  EmptyVisitor[visitor.type].visitIdentifier.call(visitor, m.property);
+  return EmptyVisitor[visitor.type].visitIdentifier.call(visitor, m.local);
+};
+exports.walkObjectDestructureMember = walkObjectDestructureMember;
 function walkBlock(visitor, b) {
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: b.statements, $isTraitObject: true}, function (s) {
     return EmptyVisitor[visitor.type].visitBlockLevelStatement.call(visitor, s);
@@ -461,28 +638,28 @@ function walkFunctionDeclaration(visitor, f) {
   $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: f.parameterList, $isTraitObject: true}, function (p) {
     return EmptyVisitor[visitor.type].visitVariableDeclaration.call(visitor, p);
   });
-  let $puck_13 = f.returnType;
-  if ($puck_13 !== undefined) {
-    let returnType = $puck_13;
+  let $puck_14 = f.returnType;
+  if ($puck_14 !== undefined) {
+    let returnType = $puck_14;
     EmptyVisitor[visitor.type].visitTypeBound.call(visitor, returnType);
   };
-  let $puck_14 = f.body;
-  if ($puck_14 !== undefined) {
-    let body = $puck_14;
+  let $puck_15 = f.body;
+  if ($puck_15 !== undefined) {
+    let body = $puck_15;
     return EmptyVisitor[visitor.type].visitBlock.call(visitor, body);
   };
 };
 exports.walkFunctionDeclaration = walkFunctionDeclaration;
 function walkVariableDeclaration(visitor, d) {
   EmptyVisitor[visitor.type].visitPattern.call(visitor, d.pattern);
-  let $puck_15 = d.typeBound;
-  if ($puck_15 !== undefined) {
-    let typeBound = $puck_15;
+  let $puck_16 = d.typeBound;
+  if ($puck_16 !== undefined) {
+    let typeBound = $puck_16;
     EmptyVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
   };
-  let $puck_16 = d.initializer;
-  if ($puck_16 !== undefined) {
-    let initializer = $puck_16;
+  let $puck_17 = d.initializer;
+  if ($puck_17 !== undefined) {
+    let initializer = $puck_17;
     return EmptyVisitor[visitor.type].visitExpression.call(visitor, initializer);
   };
 };
@@ -507,9 +684,9 @@ exports.walkCallExpression = walkCallExpression;
 function walkIfExpression(visitor, e) {
   EmptyVisitor[visitor.type].visitExpression.call(visitor, e.condition);
   EmptyVisitor[visitor.type].visitBlock.call(visitor, e.then_);
-  let $puck_17 = e.else_;
-  if ($puck_17 !== undefined) {
-    let else_ = $puck_17;
+  let $puck_18 = e.else_;
+  if ($puck_18 !== undefined) {
+    let else_ = $puck_18;
     return EmptyVisitor[visitor.type].visitBlock.call(visitor, else_);
   };
 };
@@ -518,9 +695,9 @@ function walkIfLetExpression(visitor, e) {
   EmptyVisitor[visitor.type].visitPattern.call(visitor, e.pattern);
   EmptyVisitor[visitor.type].visitExpression.call(visitor, e.expression);
   EmptyVisitor[visitor.type].visitBlock.call(visitor, e.then_);
-  let $puck_18 = e.else_;
-  if ($puck_18 !== undefined) {
-    let else_ = $puck_18;
+  let $puck_19 = e.else_;
+  if ($puck_19 !== undefined) {
+    let else_ = $puck_19;
     return EmptyVisitor[visitor.type].visitBlock.call(visitor, else_);
   };
 };
@@ -537,6 +714,24 @@ function walkMatchArm(visitor, e) {
   return EmptyVisitor[visitor.type].visitBlock.call(visitor, e.block);
 };
 exports.walkMatchArm = walkMatchArm;
+function walkTypePath(visitor, e) {
+  let $puck_20 = e;
+  if ($puck_20.kind === "_Object") {
+    let {value: [, typePath]} = $puck_20;
+    return EmptyVisitor[visitor.type].visitTypePath.call(visitor, typePath);
+  }
+  else {
+    if ($puck_20.kind === "Member") {
+      let $puck_21 = $puck_20;;
+      return $puck_21;
+    };
+  };
+};
+exports.walkTypePath = walkTypePath;
+function walkTypePathExpression(visitor, e) {
+  return EmptyVisitor[visitor.type].visitTypePath.call(visitor, e.typePath);
+};
+exports.walkTypePathExpression = walkTypePathExpression;
 function walkUnaryExpression(visitor, e) {
   return EmptyVisitor[visitor.type].visitExpression.call(visitor, e.rhs);
 };
@@ -581,35 +776,35 @@ function walkRecordLiteral(visitor, l) {
 };
 exports.walkRecordLiteral = walkRecordLiteral;
 function walkRecordLiteralMember(visitor, l) {
-  let $puck_19 = l;
-  if ($puck_19.kind === "Property") {
-    let {value: {name: name, value: value}} = $puck_19;
+  let $puck_22 = l;
+  if ($puck_22.kind === "Property") {
+    let {value: {name: name, value: value}} = $puck_22;
     return EmptyVisitor[visitor.type].visitExpression.call(visitor, value);
   }
   else {
-    if ($puck_19.kind === "Spread") {
-      let {value: e} = $puck_19;
+    if ($puck_22.kind === "Spread") {
+      let {value: e} = $puck_22;
       return EmptyVisitor[visitor.type].visitExpression.call(visitor, e);
     };
   };
 };
 exports.walkRecordLiteralMember = walkRecordLiteralMember;
 function walkStringLiteral(visitor, l) {
-  let $puck_20 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.parts, $isTraitObject: true}, function (p) {
-    let $puck_21 = p;
-    if ($puck_21.kind === "Identifier") {
-      let {value: identifier} = $puck_21;
+  let $puck_23 = $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].filterMap.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: l.parts, $isTraitObject: true}, function (p) {
+    let $puck_24 = p;
+    if ($puck_24.kind === "Identifier") {
+      let {value: identifier} = $puck_24;
       return $puck_1.Some(identifier);
     }
     else {
       if (true) {
-        $puck_21;
+        $puck_24;
         return $puck_1.None;
       };
     };
   })
 ;
-  return $puck_1.Iterable[$puck_20.type].forEach.call($puck_20, function (i) {
+  return $puck_1.Iterable[$puck_23.type].forEach.call($puck_23, function (i) {
     return EmptyVisitor[visitor.type].visitIdentifier.call(visitor, i);
   });
 };
@@ -621,41 +816,41 @@ function walkTupleLiteral(visitor, l) {
 };
 exports.walkTupleLiteral = walkTupleLiteral;
 function walkPattern(visitor, p) {
-  let $puck_22 = p;
-  if ($puck_22.kind === "CatchAll") {
-    let $puck_23 = $puck_22;;
-    return $puck_23;
+  let $puck_25 = p;
+  if ($puck_25.kind === "CatchAll") {
+    let $puck_26 = $puck_25;;
+    return $puck_26;
   }
   else {
-    if ($puck_22.kind === "Identifier") {
-      let {value: {identifier: identifier, mutable: mutable}} = $puck_22;
+    if ($puck_25.kind === "Identifier") {
+      let {value: {identifier: identifier, mutable: mutable}} = $puck_25;
       return EmptyVisitor[visitor.type].visitIdentifierPattern.call(visitor, identifier, mutable);
     }
     else {
-      if ($puck_22.kind === "Record") {
-        let {value: record} = $puck_22;
+      if ($puck_25.kind === "Record") {
+        let {value: record} = $puck_25;
         return EmptyVisitor[visitor.type].visitRecordPattern.call(visitor, record);
       }
       else {
-        if ($puck_22.kind === "RecordType") {
-          let {value: [typePath, record]} = $puck_22;
+        if ($puck_25.kind === "RecordType") {
+          let {value: [typePath, record]} = $puck_25;
           EmptyVisitor[visitor.type].visitTypePath.call(visitor, typePath);
           return EmptyVisitor[visitor.type].visitRecordPattern.call(visitor, record);
         }
         else {
-          if ($puck_22.kind === "Tuple") {
-            let {value: tuple} = $puck_22;
+          if ($puck_25.kind === "Tuple") {
+            let {value: tuple} = $puck_25;
             return EmptyVisitor[visitor.type].visitTuplePattern.call(visitor, tuple);
           }
           else {
-            if ($puck_22.kind === "TupleType") {
-              let {value: [typePath, tuple]} = $puck_22;
+            if ($puck_25.kind === "TupleType") {
+              let {value: [typePath, tuple]} = $puck_25;
               EmptyVisitor[visitor.type].visitTypePath.call(visitor, typePath);
               return EmptyVisitor[visitor.type].visitTuplePattern.call(visitor, tuple);
             }
             else {
-              if ($puck_22.kind === "UnitType") {
-                let {value: typePath} = $puck_22;
+              if ($puck_25.kind === "UnitType") {
+                let {value: typePath} = $puck_25;
                 return EmptyVisitor[visitor.type].visitTypePath.call(visitor, typePath);
               };
             };
@@ -681,29 +876,29 @@ function walkTuplePattern(visitor, p) {
 };
 exports.walkTuplePattern = walkTuplePattern;
 function walkTypeBound(visitor, t) {
-  let $puck_24 = t;
-  if ($puck_24.kind === "FunctionTypeBound") {
-    let {value: t} = $puck_24;
+  let $puck_27 = t;
+  if ($puck_27.kind === "FunctionTypeBound") {
+    let {value: t} = $puck_27;
     return EmptyVisitor[visitor.type].visitFunctionTypeBound.call(visitor, t);
   }
   else {
-    if ($puck_24.kind === "IntersectionTypeBound") {
-      let {value: t} = $puck_24;
+    if ($puck_27.kind === "IntersectionTypeBound") {
+      let {value: t} = $puck_27;
       return EmptyVisitor[visitor.type].visitIntersectionTypeBound.call(visitor, t);
     }
     else {
-      if ($puck_24.kind === "NamedTypeBound") {
-        let {value: t} = $puck_24;
+      if ($puck_27.kind === "NamedTypeBound") {
+        let {value: t} = $puck_27;
         return EmptyVisitor[visitor.type].visitNamedTypeBound.call(visitor, t);
       }
       else {
-        if ($puck_24.kind === "RecordTypeBound") {
-          let {value: t} = $puck_24;
+        if ($puck_27.kind === "RecordTypeBound") {
+          let {value: t} = $puck_27;
           return EmptyVisitor[visitor.type].visitRecordTypeBound.call(visitor, t);
         }
         else {
-          if ($puck_24.kind === "TupleTypeBound") {
-            let {value: t} = $puck_24;
+          if ($puck_27.kind === "TupleTypeBound") {
+            let {value: t} = $puck_27;
             return EmptyVisitor[visitor.type].visitTupleTypeBound.call(visitor, t);
           };
         };
@@ -720,6 +915,11 @@ function walkFunctionTypeBound(visitor, t) {
   return EmptyVisitor[visitor.type].visitTypeBound.call(visitor, t.returnType);
 };
 exports.walkFunctionTypeBound = walkFunctionTypeBound;
+function walkIntersectionTypeBound(visitor, t) {
+  EmptyVisitor[visitor.type].visitTypeBound.call(visitor, t.baseType);
+  return EmptyVisitor[visitor.type].visitNamedTypeBound.call(visitor, t.traitBound);
+};
+exports.walkIntersectionTypeBound = walkIntersectionTypeBound;
 function walkNamedTypeBound(visitor, t) {
   return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: t.typeParameters, $isTraitObject: true}, function (p) {
     return EmptyVisitor[visitor.type].visitTypeBound.call(visitor, p);
@@ -733,14 +933,14 @@ function walkRecordTypeBound(visitor, t) {
 };
 exports.walkRecordTypeBound = walkRecordTypeBound;
 function walkRecordTypeBoundMember(visitor, t) {
-  let $puck_25 = t;
-  if ($puck_25.kind === "Property") {
-    let {value: {name: name, typeBound: typeBound}} = $puck_25;
+  let $puck_28 = t;
+  if ($puck_28.kind === "Property") {
+    let {value: {name: name, typeBound: typeBound}} = $puck_28;
     return EmptyVisitor[visitor.type].visitTypeBound.call(visitor, typeBound);
   }
   else {
-    if ($puck_25.kind === "Spread") {
-      let {value: t} = $puck_25;
+    if ($puck_28.kind === "Spread") {
+      let {value: t} = $puck_28;
       return EmptyVisitor[visitor.type].visitTypeBound.call(visitor, t);
     };
   };
@@ -753,10 +953,21 @@ function walkTupleTypeBound(visitor, t) {
 };
 exports.walkTupleTypeBound = walkTupleTypeBound;
 function walkTypeParameter(visitor, t) {
-  let $puck_26 = t.defaultValue;
-  if ($puck_26 !== undefined) {
-    let defaultValue = $puck_26;
+  let $puck_29 = t.defaultValue;
+  if ($puck_29 !== undefined) {
+    let defaultValue = $puck_29;
     return EmptyVisitor[visitor.type].visitTypeBound.call(visitor, defaultValue);
   };
 };
-exports.walkTypeParameter = walkTypeParameter
+exports.walkTypeParameter = walkTypeParameter;
+function walkTypeParameterBound(visitor, t) {
+  EmptyVisitor[visitor.type].visitTypeBound.call(visitor, t.subType);
+  return EmptyVisitor[visitor.type].visitTypeBound.call(visitor, t.superType);
+};
+exports.walkTypeParameterBound = walkTypeParameterBound;
+function walkWhereClause(visitor, w) {
+  return $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: w.bounds, $isTraitObject: true}, function (b) {
+    return EmptyVisitor[visitor.type].visitTypeParameterBound.call(visitor, b);
+  });
+};
+exports.walkWhereClause = walkWhereClause
