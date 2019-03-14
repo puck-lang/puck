@@ -316,7 +316,10 @@ function ImplVisitor(context, file) {
             let binding = $puck_39;
             return $puck_1.Some([
               $puck_1.Option.unwrap.call(trait_.id),
-              binding.name,
+              {
+              name: binding.name,
+              binding: binding,
+            },
             ]);
           }
           else {

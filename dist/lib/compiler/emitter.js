@@ -537,7 +537,7 @@ function Emitter() {
         }, {});
         i.members.forEach(function (m) { return functions[m.name.name] = emitFunctionDeclaration(m, false); });
         return "" + emitTypePath(i.trait_.path) + implProp(i.implementation) + " = {\n" + indent(Object.keys(inherited).map(function (f) {
-            return emitIdentifier({ name: f }) + ": " + (i.extendedTraits[inherited[f].id] + "." + emitIdentifier({ name: f }));
+            return emitIdentifier({ name: f }) + ": " + (emitIdentifier(i.extendedTraits[inherited[f].id]) + "." + emitIdentifier({ name: f }));
         }).concat(Object.keys(functions).map(function (f) {
             return emitIdentifier({ name: f }) + ": " + (typeof functions[f] === 'string'
                 ? functions[f]

@@ -245,7 +245,7 @@ export fn ImplVisitor(mut context: CompilerContext, file: File) {
           i->extendedTraits = ObjectMap.fromIter(
             traitType.getTrait().requiredTraits.iter().filterMap(|trait_| {
               if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap(), 'ImplVisitor') {
-                Some((trait_.id.unwrap(), binding.name))
+                Some((trait_.id.unwrap(), {name: binding.name, binding}))
               }
               else {
                 let typeName = trait_.name.unwrap()

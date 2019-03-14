@@ -39,3 +39,6 @@ let k: re::Type = ReexportedType(3)
 let l: e::Type = ReexportedType(3)
 let m: RenamedType = re::Type(3)
 let n: RenamedType = re::exportModule::Type(3)
+
+trait SubTrait: RenamedTrait {}
+impl SubTrait for Type {}

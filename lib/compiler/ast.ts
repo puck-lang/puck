@@ -69,7 +69,7 @@ export interface ImplDeclaration {
   trait_: NamedTypeBound
   type_: NamedTypeBound
   members: Array<FunctionDeclaration>
-  extendedTraits: Record<string, string>
+  extendedTraits: Record<string, any>
 }
 
 export interface ImplShorthandDeclaration {
