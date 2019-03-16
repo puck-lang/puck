@@ -16,11 +16,10 @@ trait Functions {
   fn noBody(self) {1}
 }
 
-// TODO: Make this error
-//// Trait function parameters must have a type
-// trait Functions {
-//   fn noBody(self, a) -> Num {a}
-// }
+///// Trait function parameters must have a type
+trait Functions {
+  fn noBody(self, a) -> Num {a}
+}
 
 ///// Functions has already been implemented for FunctionsType
 import 'traits.puck' as {Functions, FunctionsType}

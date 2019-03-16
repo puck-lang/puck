@@ -25,19 +25,25 @@ import '../ast/ast.puck' as {
   FunctionDeclaration
   VariableDeclaration
 
+  Pattern
   TypeBound
   FunctionTypeBound
+  IntersectionTypeBound
   NamedTypeBound
+  RecordTypeBound
+  TupleTypeBound
   TypeParameter
   TypePath
 }
 import '../ast/span.puck' as {ToSpan}
 import '../compiler.puck' as {CompilerContext}
-import '../ast/visit.puck' as visit
+import '../ast/empty_visitor.puck' as {EmptyVisitor}
 import '../entities.puck' as {Definition, File, StructKind, Type, TypeClass, TypeKind, CompilationError}
 import 'src/scope.puck' as {Binding, Scope, ScopeError}
-import 'src/structure_visitor.puck' as {structureVisitor}
+import 'src/structure_visitor.puck' as {TypeBoundVisitor, visitMethodDeclaration}
 import 'src/types.puck' as {isSameId}
+
+fn asMut<T>(i: T) {i}
 
 fn isTypeScope(e: ExportDirective) {
   match e.statement {
@@ -96,466 +102,497 @@ fn getTraits(type_: Type) -> Result<List<Type>, (ToSpan, String)> {
 /// defined. Then will all type parameters be defined and after that is finally the
 /// bodies visited and properties or functions are defined.
 /// This assures that the hoisting rules is followed and all required information is known.
-export fn TypeVisitor(mut context: CompilerContext, file: File) {
-  let mut imports = ObjectMap.new::<File>()
+export type TypeVisitor {
+  file: File
+  context: CompilerContext
+  scope: Scope
+  assignedTo: Option<Type>
+  typeBoundVisitor: TypeBoundVisitor
+}
 
-  fn reportError(token: ToSpan, message: String) {
-    context.reportError(file, token, CompilationError::Other(message))
+impl TypeVisitor {
+  fn new(mut context: CompilerContext, file: File) -> TypeVisitor {
+    let mut typeVisitor = {
+      context
+      file
+      scope: Scope.new(context)
+      assignedTo: None
+      typeBoundVisitor: {
+        getScope: || typeVisitor.scope
+        setScope: |scope| typeVisitor.scope = scope
+        file
+        reportError: |token: ToSpan, error: CompilationError| {
+          context.reportError(file, token, error)
+        }
+        visitorName: 'TypeVisitor'
+      }
+    }
+
+    typeVisitor
   }
 
-  let structureVisitorInstance = structureVisitor(context, file, 'TypeVisitor')
-  Object->assign({}, visit.emptyVisitor, structureVisitorInstance, {
-    scope: Scope.new(context)
+  fn reportError(self, token: ToSpan, error: CompilationError) -> () {
+    self.context.reportError(self.file, token, error)
+  }
+}
 
-    visitModule: |mut self, mut m: Module| {
-      m->scope = self.scope
-      let mut imports = []
-      let mut reexports = []
-      let mut declarations = []
+impl EmptyVisitor for TypeVisitor {
+  fn visitModule(mut self, m: Module) -> () {
+    asMut(m)->scope = self.scope
+    let mut imports = []
+    let mut reexports = []
+    let mut declarations = []
 
-      m.statements.forEach(|s: TopLevelStatement|
-        match s {
-          TopLevelStatement::EnumDeclaration(_) => declarations.push(s)
-          TopLevelStatement::ImportDirective(i) => imports.push(i)
-          TopLevelStatement::TraitDeclaration(_) => declarations.push(s)
-          TopLevelStatement::TypeDeclaration(_) => declarations.push(s)
-          TopLevelStatement::ExportDirective(e) => match e.statement {
-            ExportedStatement::EnumDeclaration(_) => declarations.push(s)
-            ExportedStatement::TraitDeclaration(_) => declarations.push(s)
-            ExportedStatement::TypeDeclaration(_) => declarations.push(s)
-            ExportedStatement::Identifier(_) => reexports.push(s)
-            _ => {}
+    m.statements.forEach(|s: TopLevelStatement|
+      match s {
+        TopLevelStatement::EnumDeclaration(_) => declarations.push(s)
+        TopLevelStatement::ImportDirective(i) => imports.push(i)
+        TopLevelStatement::TraitDeclaration(_) => declarations.push(s)
+        TopLevelStatement::TypeDeclaration(_) => declarations.push(s)
+        TopLevelStatement::ExportDirective(e) => match e.statement {
+          ExportedStatement::EnumDeclaration(_) => declarations.push(s)
+          ExportedStatement::TraitDeclaration(_) => declarations.push(s)
+          ExportedStatement::TypeDeclaration(_) => declarations.push(s)
+          ExportedStatement::Identifier(_) => reexports.push(s)
+          _ => {}
+        }
+        _ => {}
+      }
+    )
+
+    declarations.forEach(|mut e| self.visitTopLevelStatement(e))
+    imports.forEach(|mut i| self.visitImportDirective(i))
+    reexports.forEach(|mut e| self.visitTopLevelStatement(e))
+    declarations.forEach(|mut e| self.visitTopLevelStatement(e))
+    declarations.forEach(|mut e| self.visitTopLevelStatement(e))
+  }
+
+  fn visitEnumDeclaration(mut self, t: EnumDeclaration) -> () {
+    let mut parentScope: Scope = self.scope
+    let mut type_: Type = t->type_.transmute()
+    if not t->type_ {
+      let definition = Definition({file: self.file, token: t})
+      t->type_ = Type.provides({
+        definition
+        id: getTypeId(t, self.context, self.file)
+        displayName: None
+        name: Some(t.name.name)
+        kind: TypeKind::Enum({
+          implementations: []
+          members: ObjectMap.new()
+        })
+        class: TypeClass.fromAstNode(t, |token, message| self.reportError(token, CompilationError::Other(message)))
+        instance: None
+        providesType: None
+        enumMember: None
+      })
+      if let Result::Err(error) = parentScope.define({
+        definition
+        name: t.name.name
+        mutable: false
+        allowRedeclare: false
+        type_: t->type_.transmute()
+        previous: None
+        completeType: None
+      })
+        then self.reportError(t.name, CompilationError::Other(error))
+    }
+    else if not t->scope {
+      let mut scope = parentScope.createChild()
+      t->scope = scope
+      self.scope = scope
+      if let Some(class) = type_.providesType.unwrap().class {
+        let mut c = class
+        t.typeParameters.forEach(|p| {
+          self.visitTypeParameter(p)
+          c.typeParameters.push(p->type_.transmute())
+        })
+      }
+      scope.setSelfType(type_.providesType.unwrap())
+      self.scope = parentScope
+    }
+    else {
+      self.scope = t->scope.transmute()
+      t.members.forEach(|m| self.visitEnumMember(m))
+
+      let memberMap = ObjectMap.fromIter(
+        t.members.map(|p: EnumMember| {
+          let definition = Definition({file: self.file, token: p})
+          (
+            p.name.name
+            p.bound.mapOr(
+              Type({
+                definition
+                id: generateTypeId(self.context, self.file, t.name.name ++ '::' ++ p.name.name)
+                displayName: None
+                name: Some(t.name.name ++ '::' ++ p.name.name)
+                kind: TypeKind::Struct({
+                  implementations: []
+                  kind: StructKind::Unit
+                })
+                class: None
+                instance: None
+                providesType: None
+                enumMember: Some((p.name.name, type_.providesType.unwrap()))
+              })
+              |bound| Type({
+                definition
+                id: generateTypeId(self.context, self.file, t.name.name ++ '::' ++ p.name.name)
+                displayName: None
+                name: None
+                kind: bound.getType().kind
+                class: None
+                instance: None
+                providesType: None
+                enumMember: Some((p.name.name, type_.providesType.unwrap()))
+              })
+            )
+          )
+        })
+      )
+
+      if t.members.size() != memberMap.size() {
+        let mut members = ObjectMap.new()
+        t.members.forEach(|p| {
+          if members.has(p.name.name) then self.reportError(p, CompilationError::Other('Duplicate member ' ++ p.name.name))
+          members[p.name.name] = p
+        })
+      }
+
+      if let TypeKind::Enum(enum_) = type_.providesType.unwrap().kind {
+        Object->assign(enum_.members, memberMap)
+      }
+      else panic('is not an enum')
+
+      self.scope = parentScope
+    }
+    ()
+  }
+  fn visitTraitDeclaration(mut self, t: TraitDeclaration) -> () {
+    let mut parentScope: Scope = self.scope
+    let type_: Type = t->type_.transmute()
+    if not t->type_ {
+      let definition = Definition({file: self.file, token: t})
+      t->type_ = Type.provides({
+        definition
+        id: getTypeId(t, self.context, self.file)
+        displayName: None
+        name: Some(t.name.name)
+        kind: TypeKind::Trait({
+          isShorthand: false
+          requiredTraits: []
+          functions: ObjectMap.new()
+        })
+        class: TypeClass.fromAstNode(t, |token, message| self.reportError(token, CompilationError::Other(message)))
+        instance: None
+        providesType: None
+        enumMember: None
+      })
+      if let Result::Err(error) = parentScope.define({
+        definition
+        name: t.name.name
+        mutable: false
+        allowRedeclare: false
+        type_: t->type_.transmute()
+        previous: None
+        completeType: None
+      })
+        then self.reportError(t.name, CompilationError::Other(error))
+    }
+    else if not t->scope {
+      let mut scope = parentScope.createChild()
+      t->scope = scope
+      self.scope = scope
+      if let Some(class) = type_.providesType.unwrap().class {
+        let mut c = class
+        t.typeParameters.forEach(|p| {
+          self.visitTypeParameter(p)
+          c.typeParameters.push(p->type_.transmute())
+        })
+      }
+      if let Some({bound}) = t.traitBound {
+        self.visitTypeBound(bound)
+        match getTraits(bound.getType()) {
+          Ok(requiredTraits) => {
+            if let Some(trait_) = requiredTraits.find(|t| isSameId(t, type_.providesType.unwrap())) {
+              self.reportError(trait_.definition.token, CompilationError::Other('A trait can not extend itself'))
+            }
+            let mut trait_ = type_.getTrait()
+            trait_.requiredTraits = requiredTraits
+          }
+          Err((token, message)) => self.reportError(token, CompilationError::Other(message))
+        }
+      }
+      scope.setSelfType(type_.providesType.unwrap())
+      self.scope = parentScope
+    }
+    else {
+      self.scope = t->scope.transmute()
+      t.members.forEach(|m| {
+        visitMethodDeclaration(self.typeBoundVisitor, m, type_.providesType.unwrap())
+      })
+
+      let mut trait_ = type_.getTrait()
+      trait_.functions.merge(ObjectMap.fromIter(
+        t.members.map(|m| {
+          if let TypeKind::Function(function) = m.type_.kind {
+            if function.isAbstract and function.selfBinding.isNone() {
+              self.reportError(m, CompilationError::Other('Static trait functions can not be abstract'))
+            }
+          }
+          (m.name.unwrap().name, m.type_)
+        })
+      ))
+
+      if let Some(class) = type_.providesType.unwrap().class {
+        class.instances.forEach(|mut instance| {
+          let mut instanceTrait = instance.getTrait()
+          instanceTrait.functions = trait_.functions
+        })
+      }
+
+      self.scope = parentScope
+    }
+    ()
+  }
+  fn visitTypeDeclaration(mut self, t: TypeDeclaration) -> () {
+    let mut parentScope: Scope = self.scope
+    let type_: Type = t->type_.transmute()
+    if not t->type_ {
+      let structKind =
+        if let Some(typeBound) = t.bound {
+          match typeBound {
+            TypeBound::RecordTypeBound(record) => StructKind::Record({properties: ObjectMap.new()})
+            TypeBound::TupleTypeBound(tuple) => StructKind::Tuple({properties: []})
+            _ => panic('Unreachable')
+          }
+        }
+        else StructKind::Unit
+
+      let definition = Definition({file: self.file, token: t})
+      t->type_ = Type.provides({
+        definition
+        id: getTypeId(t, self.context, self.file)
+        displayName: None
+        name: Some(t.name.name)
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: structKind
+        })
+        class: TypeClass.fromAstNode(t, |token, message| self.reportError(token, CompilationError::Other(message)))
+        instance: None
+        providesType: None
+        enumMember: None
+      })
+      if let Result::Err(error) = parentScope.define({
+        definition
+        name: t.name.name
+        mutable: false
+        allowRedeclare: false
+        type_: t->type_.transmute()
+        previous: None
+        completeType: None
+      })
+        then self.reportError(t.name, CompilationError::Other(error))
+    }
+    else if not t->scope {
+      let mut scope = parentScope.createChild()
+      t->scope = scope
+      self.scope = scope
+      if let Some(class) = type_.providesType.unwrap().class {
+        let mut c = class
+        t.typeParameters.forEach(|p| {
+          self.visitTypeParameter(p)
+          c.typeParameters.push(p->type_.transmute())
+        })
+      }
+      scope.setSelfType(type_.providesType.unwrap())
+      self.scope = parentScope
+    }
+    else {
+      self.scope = t->scope.transmute()
+      if let Some(typeBound) = t.bound {
+        self.visitTypeBound(typeBound)
+
+        match type_.providesType.unwrap().kind {
+          TypeKind::Struct({kind: StructKind::Record(mut r)}) => {
+            match typeBound.getType().kind {
+              TypeKind::Struct({kind: StructKind::Record(tr)}) => {
+                r.properties.merge(tr.properties)
+              }
+              _ => {}
+            }
+          }
+          TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
+            Object->assign(tuple, {
+              properties: typeBound.getTupleTypeBound().properties.map(|p| p.getType()).toList()
+            })
           }
           _ => {}
         }
-      )
+      }
 
-      declarations.forEach(|mut e| self.visitTopLevelStatement(e))
-      imports.forEach(|mut i| self.visitImportDirective(i))
-      reexports.forEach(|mut e| self.visitTopLevelStatement(e))
-      declarations.forEach(|mut e| self.visitTopLevelStatement(e))
-      declarations.forEach(|mut e| self.visitTopLevelStatement(e))
+      self.scope = parentScope
+    }
+    ()
+  }
+
+  fn visitImportDirective(mut self, importDirective: ImportDirective) -> () {
+    let mut scope: Scope = self.scope
+    if let Some(mut module) = importDirective.module {
+      if not module->scope {
+        self.context.runTypeVisitorOnFile(module.file)
+      }
     }
 
-    visitEnumDeclaration: |mut self, mut t: EnumDeclaration| {
-      let mut parentScope: Scope = self.scope
-      let mut type_: Type = t->type_.transmute()
-      if not t->type_ {
-        let definition = Definition({file, token: t})
-        t->type_ = Type.provides({
-          definition
-          id: getTypeId(t, context, file)
-          displayName: None
-          name: Some(t.name.name)
-          kind: TypeKind::Enum({
-            implementations: []
-            members: ObjectMap.new()
-          })
-          class: TypeClass.fromAstNode(t, reportError)
-          instance: None
-          providesType: None
-          enumMember: None
-        })
-        if let Result::Err(error) = parentScope.define({
-          definition
-          name: t.name.name
-          mutable: false
-          allowRedeclare: false
-          type_: t->type_.transmute()
-          previous: None
-          completeType: None
-        })
-          then reportError(t.name, error)
-      }
-      else if not t->scope {
-        let mut scope = parentScope.createChild()
-        t->scope = scope
-        self.scope = scope
-        if let Some(class) = type_.providesType.unwrap().class {
-          let mut c = class
-          t.typeParameters.forEach(|p| {
-            self.visitTypeParameter(p)
-            c.typeParameters.push(p->type_.transmute())
-          })
-        }
-        scope.setSelfType(type_.providesType.unwrap())
-        self.scope = parentScope
-      }
-      else {
-        self.scope = t->scope
-        t.members.forEach(|m| self.visitEnumMember(m))
-
-        let memberMap = ObjectMap.fromIter(
-          t.members.map(|p: EnumMember| {
-            let definition = Definition({file, token: p})
-            (
-              p.name.name
-              p.bound.mapOr(
-                Type({
-                  definition
-                  id: generateTypeId(context, file, t.name.name ++ '::' ++ p.name.name)
-                  displayName: None
-                  name: Some(t.name.name ++ '::' ++ p.name.name)
-                  kind: TypeKind::Struct({
-                    implementations: []
-                    kind: StructKind::Unit
-                  })
-                  class: None
-                  instance: None
-                  providesType: None
-                  enumMember: Some((p.name.name, type_.providesType.unwrap()))
-                })
-                |bound| Type({
-                  definition
-                  id: generateTypeId(context, file, t.name.name ++ '::' ++ p.name.name)
-                  displayName: None
-                  name: None
-                  kind: bound.getType().kind
-                  class: None
-                  instance: None
-                  providesType: None
-                  enumMember: Some((p.name.name, type_.providesType.unwrap()))
-                })
-              )
-            )
-          })
-        )
-
-        if t.members.size() != memberMap.size() {
-          let mut members = ObjectMap.new()
-          t.members.forEach(|p| {
-            if members.has(p.name.name) then reportError(p, 'Duplicate member ' ++ p.name.name)
-            members[p.name.name] = p
-          })
-        }
-
-        if let TypeKind::Enum(enum_) = type_.providesType.unwrap().kind {
-          Object->assign(enum_.members, memberMap)
-        }
-        else panic('is not an enum')
-
-        self.scope = parentScope
-      }
-      ()
-    }
-    visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
-      let mut parentScope: Scope = self.scope
-      let type_: Type = t->type_.transmute()
-      if not t->type_ {
-        let definition = Definition({file, token: t})
-        t->type_ = Type.provides({
-          definition
-          id: getTypeId(t, context, file)
-          displayName: None
-          name: Some(t.name.name)
-          kind: TypeKind::Trait({
-            isShorthand: false
-            requiredTraits: []
-            functions: ObjectMap.new()
-          })
-          class: TypeClass.fromAstNode(t, reportError)
-          instance: None
-          providesType: None
-          enumMember: None
-        })
-        if let Result::Err(error) = parentScope.define({
-          definition
-          name: t.name.name
-          mutable: false
-          allowRedeclare: false
-          type_: t->type_.transmute()
-          previous: None
-          completeType: None
-        })
-          then reportError(t.name, error)
-      }
-      else if not t->scope {
-        let mut scope = parentScope.createChild()
-        t->scope = scope
-        self.scope = scope
-        if let Some(class) = type_.providesType.unwrap().class {
-          let mut c = class
-          t.typeParameters.forEach(|p| {
-            self.visitTypeParameter(p)
-            c.typeParameters.push(p->type_.transmute())
-          })
-        }
-        if let Some({bound}) = t.traitBound {
-          self.visitTypeBound(bound)
-          match getTraits(bound.getType()) {
-            Ok(requiredTraits) => {
-              if let Some(trait_) = requiredTraits.find(|t| isSameId(t, type_.providesType.unwrap())) {
-                reportError(trait_.definition.token, 'A trait can not extend itself')
-              }
-              let mut trait_ = type_.getTrait()
-              trait_.requiredTraits = requiredTraits
-            }
-            Err((token, message)) => reportError(token, message)
+    match importDirective.specifier {
+      ImportSpecifier::Identifier(identifier) => {
+        let typeProperties =
+          if let Some(module) = importDirective.module {
+            module.exports.map(|exportDirective| {{
+              type_: exportDirective.getType()
+              optional: false
+            }})
           }
-        }
-        scope.setSelfType(type_.providesType.unwrap())
-        self.scope = parentScope
-      }
-      else {
-        self.scope = t->scope
-        t.members.forEach(|m| self.visitMethodDeclaration(m, type_.providesType.unwrap()))
-
-        let mut trait_ = type_.getTrait()
-        trait_.functions.merge(ObjectMap.fromIter(
-          t.members.map(|m| {
-            if let TypeKind::Function(function) = m.type_.kind {
-              if function.isAbstract and function.selfBinding.isNone() {
-                reportError(m, 'Static trait functions can not be abstract')
-              }
-            }
-            (m.name.unwrap().name, m.type_)
-          })
-        ))
-
-        if let Some(class) = type_.providesType.unwrap().class {
-          class.instances.forEach(|mut instance| {
-            let mut instanceTrait = instance.getTrait()
-            instanceTrait.functions = trait_.functions
-          })
-        }
-
-        self.scope = parentScope
-      }
-      ()
-    }
-    visitTypeDeclaration: |mut self, mut t: TypeDeclaration| {
-      let mut parentScope: Scope = self.scope
-      let type_: Type = t->type_.transmute()
-      if not t->type_ {
-        let structKind =
-          if let Some(typeBound) = t.bound {
-            match typeBound {
-              TypeBound::RecordTypeBound(record) => StructKind::Record({properties: ObjectMap.new()})
-              TypeBound::TupleTypeBound(tuple) => StructKind::Tuple({properties: []})
-              _ => panic('Unreachable')
-            }
-          }
-          else StructKind::Unit
-
-        let definition = Definition({file, token: t})
-        t->type_ = Type.provides({
+          else ObjectMap.new()
+          let definition = Definition({file: self.file, token: identifier})
+        let mut type_ = Type({
           definition
-          id: getTypeId(t, context, file)
-          displayName: None
-          name: Some(t.name.name)
+          id: None
+          displayName: Some(identifier.name)
+          name: None
           kind: TypeKind::Struct({
             implementations: []
-            kind: structKind
+            kind: StructKind::Record({
+              properties: typeProperties
+            })
           })
-          class: TypeClass.fromAstNode(t, reportError)
           instance: None
+          class: None
           providesType: None
           enumMember: None
         })
-        if let Result::Err(error) = parentScope.define({
+        if let Result::Err(error) = scope.define({
           definition
-          name: t.name.name
+          name: identifier.name
           mutable: false
           allowRedeclare: false
-          type_: t->type_.transmute()
+          type_
           previous: None
-          completeType: None
+          completeType: importDirective.module.map(|mut module| |visitor: String| {
+            if visitor == 'TypeVisitor' then return None
+            if visitor == 'ImplVisitor' {
+              self.context.runTypeVisitorOnFile(module.file)
+            } else {
+              self.context.runCheckerOnFile(module.file)
+            }
+            let moduleScope: Scope = module->scope.transmute()
+            let mut typeProperties = module.exports.map(|exportDirective| {{
+              type_: exportDirective.getType()
+              optional: false
+            }})
+            match type_.kind {
+              TypeKind::Struct({kind: StructKind::Record(record)}) => {
+                let mut r = record
+                r.properties = typeProperties
+              }
+              _ => panic('Unreachable')
+            }
+            Some(type_)
+          })
         })
-          then reportError(t.name, error)
+          then self.reportError(identifier, CompilationError::Other(error))
       }
-      else if not t->scope {
-        let mut scope = parentScope.createChild()
-        t->scope = scope
-        self.scope = scope
-        if let Some(class) = type_.providesType.unwrap().class {
-          let mut c = class
-          t.typeParameters.forEach(|p| {
-            self.visitTypeParameter(p)
-            c.typeParameters.push(p->type_.transmute())
-          })
-        }
-        scope.setSelfType(type_.providesType.unwrap())
-        self.scope = parentScope
-      }
-      else {
-        self.scope = t->scope
-        if let Some(typeBound) = t.bound {
-          self.visitTypeBound(typeBound)
-
-          match type_.providesType.unwrap().kind {
-            TypeKind::Struct({kind: StructKind::Record(mut r)}) => {
-              match typeBound.getType().kind {
-                TypeKind::Struct({kind: StructKind::Record(tr)}) => {
-                  r.properties.merge(tr.properties)
+      ImportSpecifier::ObjectDestructure(d) => {
+        d.members.forEach(|mut m| {
+          if let Some(mut module) = importDirective.module {
+            let moduleScope: Scope = module->scope.transmute()
+            let importedBinding = moduleScope.getBinding(m.property.name, 'TypeVisitor').unwrapOr(Object->assign({}).transmute())
+            if let Result::Err(error) = scope.define({
+              definition: Definition({file: m.file.unwrapOr(self.file), token: m})
+              name: m.local.name
+              mutable: false
+              allowRedeclare: false
+              type_: importedBinding.type_
+              previous: None
+              completeType: Some(|visitor: String| {
+                if visitor == 'TypeVisitor' then return None
+                if visitor == 'ImplVisitor' {
+                  self.context.runTypeVisitorOnFile(module.file)
+                } else {
+                  self.context.runCheckerOnFile(module.file)
                 }
-                _ => {}
-              }
-            }
-            TypeKind::Struct({kind: StructKind::Tuple(tuple)}) => {
-              Object->assign(tuple, {
-                properties: typeBound.getTupleTypeBound().properties.map(|p| p.getType()).toList()
+                let externalBinding = moduleScope.getBinding(m.property.name, visitor)
+                externalBinding.map(|binding| binding.type_)
               })
-            }
-            _ => {}
+            })
+              then self.reportError(m.local, CompilationError::Other(error))
+            m.local->type_ = importedBinding.type_
+            // imports[m.local.name] = importDirective->file
+            ()
           }
-        }
-
-        self.scope = parentScope
-      }
-      ()
-    }
-
-    visitExportDirective: |self, mut e: ExportDirective| {
-      visit.walkExportDirective(self, e)
-    }
-    visitImportDirective: |mut self, mut importDirective: ImportDirective| {
-      let mut scope: Scope = self.scope
-      if let Some(mut module) = importDirective.module {
-        if not module->scope {
-          context.runTypeVisitorOnFile(module.file)
-        }
-      }
-
-      match importDirective.specifier {
-        ImportSpecifier::Identifier(identifier) => {
-          let typeProperties =
-            if let Some(module) = importDirective.module {
-              module.exports.map(|exportDirective| {{
-                type_: exportDirective.getType()
-                optional: false
-              }})
-            }
-            else ObjectMap.new()
-           let definition = Definition({file, token: identifier})
-          let mut type_ = Type({
-            definition
-            id: None
-            displayName: Some(identifier.name)
-            name: None
-            kind: TypeKind::Struct({
-              implementations: []
-              kind: StructKind::Record({
-                properties: typeProperties
-              })
+          else {
+            if let Result::Err(error) = scope.define({
+              definition: Definition({file: self.file, token: m})
+              name: m.local.name
+              mutable: false
+              allowRedeclare: false
+              type_: undefined
+              providesType: None
+              previous: None
+              completeType: None
             })
-            instance: None
-            class: None
-            providesType: None
-            enumMember: None
-          })
-          if let Result::Err(error) = scope.define({
-            definition
-            name: identifier.name
-            mutable: false
-            allowRedeclare: false
-            type_
-            previous: None
-            completeType: importDirective.module.map(|mut module| |visitor: String| {
-              if visitor == 'TypeVisitor' then return None
-              if visitor == 'ImplVisitor' {
-                context.runTypeVisitorOnFile(module.file)
-              } else {
-                context.runCheckerOnFile(module.file)
-              }
-              let moduleScope: Scope = module->scope.transmute()
-              let mut typeProperties = module.exports.map(|exportDirective| {{
-                type_: exportDirective.getType()
-                optional: false
-              }})
-              match type_.kind {
-                TypeKind::Struct({kind: StructKind::Record(record)}) => {
-                  let mut r = record
-                  r.properties = typeProperties
-                }
-                _ => panic('Unreachable')
-              }
-              Some(type_)
-            })
-          })
-            then reportError(identifier, error)
-        }
-        ImportSpecifier::ObjectDestructure(d) => {
-          d.members.forEach(|mut m| {
-            if let Some(mut module) = importDirective.module {
-              let moduleScope: Scope = module->scope.transmute()
-              let importedBinding = moduleScope.getBinding(m.property.name, 'TypeVisitor').unwrapOr(Object->assign({}).transmute())
-              if let Result::Err(error) = scope.define({
-                definition: Definition({file: m.file.unwrapOr(file), token: m})
-                name: m.local.name
-                mutable: false
-                allowRedeclare: false
-                type_: importedBinding.type_
-                previous: None
-                completeType: Some(|visitor: String| {
-                  if visitor == 'TypeVisitor' then return None
-                  if visitor == 'ImplVisitor' {
-                    context.runTypeVisitorOnFile(module.file)
-                  } else {
-                    context.runCheckerOnFile(module.file)
-                  }
-                  let externalBinding = moduleScope.getBinding(m.property.name, visitor)
-                  externalBinding.map(|binding| binding.type_)
-                })
-              })
-                then reportError(m.local, error)
-              m.local->type_ = importedBinding.type_
-              imports[m.local.name] = importDirective->file
-              ()
-            }
-            else {
-              if let Result::Err(error) = scope.define({
-                definition: Definition({file, token: m})
-                name: m.local.name
-                mutable: false
-                allowRedeclare: false
-                type_: undefined
-                providesType: None
-                previous: None
-                completeType: None
-              })
-                then reportError(m.local, error)
-            }
-          })
-        }
-        ImportSpecifier::Asterisk(_) => {}
+              then self.reportError(m.local, CompilationError::Other(error))
+          }
+        })
       }
+      ImportSpecifier::Asterisk(_) => {}
     }
+  }
 
-    visitIdentifier: |self, mut i: Identifier| {
-      let scope: Scope = self.scope
-      if let Some(binding) = scope.getBinding(i.name, 'ImplVisitor') {
-        i->binding = binding
-        i->type_ = binding.type_
+  fn visitIdentifier(self, i: Identifier) -> () {
+    let scope: Scope = self.scope
+    if let Some(binding) = scope.getBinding(i.name, 'ImplVisitor') {
+      asMut(i)->binding = binding
+      asMut(i)->type_ = binding.type_
+    }
+    else self.context.reportError(
+      self.file
+      i
+      CompilationError::UndefinedVariable(i.name)
+    )
+    ()
+  }
+
+  fn visitFunctionTypeBound(mut self,  t: FunctionTypeBound) -> () {
+    self.typeBoundVisitor.visitFunctionTypeBound(t)
+  }
+  fn visitIntersectionTypeBound(mut self,  t: IntersectionTypeBound) -> () {
+    self.typeBoundVisitor.visitIntersectionTypeBound(t)
+  }
+  fn visitNamedTypeBound(mut self,  t: NamedTypeBound) -> () {
+    let result = self.scope.getTypePath(t.path, 'TypeVisitor')
+
+    match result {
+      Ok(binding) => {}
+      Err(ScopeError::UndefinedType(name)) => {
+        self.reportError(t, CompilationError::UndefinedVariable(name))
       }
-      else context.reportError(
-        file
-        i
-        CompilationError::UndefinedVariable(i.name)
-      )
-      ()
+      Err(ScopeError::Other(err)) => self.reportError(t, CompilationError::Other(err))
     }
 
-    visitTypeBound: |self, mut t: TypeBound| {
-      visit.walkTypeBound(self, t)
-    }
-    visitNamedTypeBound: |self, mut t: NamedTypeBound| {
-      let scope: Scope = self.scope
-      let result = scope.getTypePath(t.path, 'TypeVisitor')
-
-      match result {
-        Ok(binding) => {}
-        Err(ScopeError::UndefinedType(name)) => {
-          context.reportError(
-            file
-            t
-            CompilationError::UndefinedVariable(name)
-          )
-        }
-        Err(ScopeError::Other(err)) => reportError(t, err)
-      }
-
-      structureVisitorInstance.visitNamedTypeBound->call(self, t)
-    }
-    visitTypeProperty: visit.walkingVisitor->visitTypeProperty
-  })
+    self.typeBoundVisitor.visitNamedTypeBound(t)
+  }
+  fn visitRecordTypeBound(mut self,  t: RecordTypeBound) -> () {
+    self.typeBoundVisitor.visitRecordTypeBound(t)
+  }
+  fn visitTupleTypeBound(mut self,  t: TupleTypeBound) -> () {
+    self.typeBoundVisitor.visitTupleTypeBound(t)
+  }
+  fn visitTypeParameter(mut self,  t: TypeParameter) -> () {
+    self.typeBoundVisitor.visitTypeParameter(t)
+  }
+  fn visitTypePath(mut self,  t: TypePath) -> () {
+    self.typeBoundVisitor.visitTypePath(t)
+  }
 }

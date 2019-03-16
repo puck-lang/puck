@@ -38,7 +38,7 @@ CompilerContext.runTypeVisitor = function () {
   $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if (!file.typeVisitorStarted && $puck_1.Option.isSome.call(file.ast)) {
       file.typeVisitorStarted = true;
-      $puck_15.TypeVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+      $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/type_visitor.puck:TypeVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/type_visitor.puck:TypeVisitor', value: $puck_15.TypeVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
       return file.typeVisitorCompleted = true;
     };
   });
@@ -90,7 +90,7 @@ CompilerContext.runTypeVisitorOnFile = function (file) {
   let self = this;
   if (!file.typeVisitorStarted) {
     file.typeVisitorStarted = true;
-    $puck_15.TypeVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+    $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/type_visitor.puck:TypeVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/type_visitor.puck:TypeVisitor', value: $puck_15.TypeVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
   };
 };
 CompilerContext.runImplVisitorOnFile = function (file) {
@@ -244,7 +244,7 @@ function buildString(code, filePath, projectPath, options = {useBabel: false}) {
     function reportError(file, token, error) {
       const self = this;
       let {line: line, column: column} = $puck_5.ToSpan[token.type].span.call(token).start;
-      return $puck_1.panic($puck_2.Error($puck_16.CompilationError.message.call(error) + "\n  in " + file.absolutePath + " (" + line + ":" + column + ")"));
+      return $puck_1.panic($puck_2.Error($puck_16.CompilationError.message.call(error) + "\n  in " + file.absolutePath + ":" + line + ":" + column + ""));
     };
     let context = CompilerContext._new(projectPath, reportError);
     let file = CompilerContext.importFile.call(context, {

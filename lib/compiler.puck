@@ -84,7 +84,7 @@ impl CompilerContext {
       .forEach(|mut file| {
         if not file->typeVisitorStarted and file.ast.isSome() {
           file->typeVisitorStarted = true
-          TypeVisitor(self, file)->visitModule(file.ast.unwrap())
+          TypeVisitor.new(self, file).visitModule(file.ast.unwrap())
           file->typeVisitorCompleted = true
         }
       })
@@ -120,7 +120,7 @@ impl CompilerContext {
   fn runTypeVisitorOnFile(mut self, mut file: File) -> () {
     if not file->typeVisitorStarted {
       file->typeVisitorStarted = true
-      TypeVisitor(self, file)->visitModule(file.ast.unwrap())
+      TypeVisitor.new(self, file).visitModule(file.ast.unwrap())
     }
   }
 
@@ -213,7 +213,7 @@ export fn buildString(code: String, filePath: String, projectPath: String, optio
   asResult(|| {
     fn reportError(self, file: File, token: ToSpan, error: CompilationError) {
       let {line, column} = token.span().start
-      panic(Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ' ($line:$column)'))
+      panic(Error(error.message() ++ '\n  in ' ++ file.absolutePath ++ ':$line:$column'))
     }
     let mut context = CompilerContext.new(projectPath, reportError)
     let mut file = context.importFile({
