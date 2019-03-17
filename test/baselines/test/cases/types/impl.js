@@ -1,23 +1,51 @@
 'use strict';
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
-var Type = (object) => object;
-var Trait = {
+var TypeFoo = (object) => object;
+var TypeBar = (object) => object;
+var TraitFoo = {
 a: function () {}
 };
-Trait["$impl_test/cases/types/impl.puck:Trait$test/cases/types/impl.puck:Type"] = {
+var TraitBar = {
+
+};
+var TraitFooBar = {
+c: function () {
+  const self = this;
+  TraitFooBar[self.type].a.call(self);
+  TraitFooBar[self.type].a.call(self);
+}
+};
+TraitFoo["$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeFoo"] = {
 a: function () {}
 };
-Type.isAnswer = function () {
+TraitFoo["$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar"] = {
+a: TraitFoo.a
+};
+TraitBar["$impl_test/cases/types/impl.puck:TraitBar$test/cases/types/impl.puck:TypeBar"] = {
+b: function () {
+  const self = this;
+  TraitFoo["$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar"].a.call({type: '$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar', value: self.value, $isTraitObject: true});
+  TraitFoo["$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar"].a.call({type: '$impl_test/cases/types/impl.puck:TraitFoo$test/cases/types/impl.puck:TypeBar', value: self.value, $isTraitObject: true});
+}
+};
+TraitFoo["$impl_test/cases/types/impl.puck:TraitFooBar$test/cases/types/impl.puck:TypeBar"] = TraitFooBar["$impl_test/cases/types/impl.puck:TraitFooBar$test/cases/types/impl.puck:TypeBar"] = {
+a: TraitFoo.a,
+c: TraitFooBar.c
+};
+TypeFoo.isAnswer = function () {
   const self = this;
   return self.value === 42;
 };
-Type.isNegative = function (other) {
+TypeFoo.isNegative = function (other) {
   const self = this;
   return {value: self.value + other.value};
 };
-Type.isAnswer2 = function () {
+TypeFoo.isAnswer2 = function () {
   const self = this;
-  return Type.isAnswer.call(self);
+  return TypeFoo.isAnswer.call(self);
 };
 const type_ = {value: 42};
-Type.isAnswer.call(type_)
+TypeFoo.isAnswer.call(type_);
+const bar = TypeBar({});
+TraitBar["$impl_test/cases/types/impl.puck:TraitBar$test/cases/types/impl.puck:TypeBar"].b.call({type: '$impl_test/cases/types/impl.puck:TraitBar$test/cases/types/impl.puck:TypeBar', value: bar, $isTraitObject: true});
+TraitFooBar["$impl_test/cases/types/impl.puck:TraitFooBar$test/cases/types/impl.puck:TypeBar"].c.call({type: '$impl_test/cases/types/impl.puck:TraitFooBar$test/cases/types/impl.puck:TypeBar', value: bar, $isTraitObject: true})

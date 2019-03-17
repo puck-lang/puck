@@ -12,9 +12,13 @@ impl Empty for FunctionsType {}
 impl Empty for FunctionsType {}
 
 ///// Trait functions must have a return type
-import 'traits.puck' as {Functions, FunctionsType}
-impl Functions for FunctionsType {
+trait Functions {
   fn noBody(self) {1}
+}
+
+///// Trait function parameters must have a type
+trait Functions {
+  fn noBody(self, a) -> Num {a}
 }
 
 ///// Functions has already been implemented for FunctionsType

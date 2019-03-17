@@ -145,7 +145,7 @@ export function Emitter() {
     if (isOverriden(e) && allowOverriden) {
       return typeOverrides[(e.value as Identifier).name].new
     }
-    return e.value.type_
+    return (e.value as Identifier).type_!
   }
 
   function unwrap(code: string, e: Expression) {
@@ -208,11 +208,15 @@ export function Emitter() {
 
   function getImplId(type: Type, trait: Type) {
     let opt = getImplementationForTrait(type, trait).value
-    if (!opt) {
+    if (!opt || !opt.id) {
       console.error('type displayName', Type.displayName.call(type))
       console.error('type verboseName', Type.verboseName.call(type))
       console.error('trait displayName', Type.displayName.call(trait))
       console.error('trait verboseName', Type.verboseName.call(trait))
+      console.error('trait id', trait.id)
+      if (opt) {
+        console.error('opt', opt)
+      }
       throw Error('No impl')
     }
     return opt.id
@@ -420,6 +424,7 @@ export function Emitter() {
       let scalarExpression = emitScalarExpression(expression, assignedTo)
       if (scalarExpression) {
         const expressionType = getType(expression)
+        const origExpressionType = getType(expression, false)
         if (assignedTo && expressionType && (context == Context.Return || context == Context.Value)) {
           if (
             assignedTo.kind.kind === 'Trait' && expressionType.kind.kind === 'Intersection'
@@ -443,6 +448,11 @@ export function Emitter() {
             assignedTo.kind.kind === 'Trait' && expressionType.kind.kind !== 'Trait'
           ) {
             scalarExpression = `{type: '${getImplId(expressionType, assignedTo)}', value: ${scalarExpression}, $isTraitObject: true}`
+          }
+          else if (
+            assignedTo.kind.kind === 'Trait' && expressionType.kind.kind === 'Trait' && assignedTo.id !== expressionType.id && !isAssignable(assignedTo, expressionType) && isAssignable(assignedTo, origExpressionType)
+          ) {
+            scalarExpression = `{type: '${getImplId(origExpressionType, assignedTo)}', value: ${scalarExpression}.value, $isTraitObject: true}`
           }
           else if (
             assignedTo.kind.kind === 'Intersection' && expressionType.kind.kind !== 'Intersection'
@@ -636,12 +646,14 @@ export function Emitter() {
         {} as {[name: string]: Type}
       )
     i.members.forEach(m => functions[m.name!.name] = emitFunctionDeclaration(m, false))
-    return `${emitTypePath(i.trait_.path)}${implProp(i.implementation)} = {\n${
+    const extensions = (i.trait_.type_.kind.value.requiredTraits || []).map(extendedTrait => {
+      return `${emitIdentifier(i.extendedTraits[extendedTrait.id!])}${implProp(i.implementation)} = `
+    })
+    return `${extensions.join('')}${emitTypePath(i.trait_.path)}${implProp(i.implementation)} = {\n${
       indent(
-
         Object.keys(inherited).map(f =>
           `${emitIdentifier({name: f})}: ${
-            `${i.extendedTraits[inherited[f].id!]}.${emitIdentifier({name: f})}`
+            `${emitIdentifier(i.extendedTraits[inherited[f].id!])}.${emitIdentifier({name: f})}`
           }`
         ).concat(
           Object.keys(functions).map(f =>
@@ -714,6 +726,11 @@ export function Emitter() {
     let binding
     if (vd.pattern.kind === 'Identifier') {
       binding = Scope.getBinding.call(vd.scope, vd.pattern.value.identifier.name)
+
+      if (!binding) {
+        console.log('vd', vd, vd.pattern.value.identifier)
+      }
+
       willBeRedefined = binding.redefined || binding.previous
       while (binding && binding.definition && binding.definition.token.value !== vd.pattern) {
         binding = binding.previous
@@ -934,7 +951,7 @@ export function Emitter() {
             kind: 'Identifier',
             value: {
               name: valueVariable,
-              type_: (fn.func.value as MemberAccess).object.value.type_,
+              type_: ((fn.func.value as MemberAccess).object.value as Identifier).type_,
             } as Identifier,
           })
         }
@@ -1181,7 +1198,7 @@ export function Emitter() {
       ifLet = {
         pattern: arm.pattern,
         expression: {kind: 'Identifier', value: {name: valueVariable, type_: getType(e.expression)} as Identifier},
-        scope: e.scope,
+        scope: arm.scope,
         then_: arm.block,
         else_: ifLet && {
           statements: [{kind: 'Expression', value: {kind: 'IfLetExpression', value: ifLet}}],

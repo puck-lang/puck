@@ -1,5 +1,5 @@
 import 'puck:core' as core
-import 'puck:js' as {Object, global, undefined}
+import 'puck:js' as {Object, global, undefined, console}
 import 'node:util' as {inspect}
 import '../ast/ast.puck' as {
   Module
@@ -61,19 +61,21 @@ import '../ast/ast.puck' as {
 
   TypeBound
   FunctionTypeBound
+  IntersectionTypeBound
   NamedTypeBound
   RecordTypeBound
-  RecordTypeBoundMember
   TupleTypeBound
   TypeParameter
 }
 import '../ast/span.puck' as {Span, ToSpan}
-import '../compiler.puck' as {CompilerContext}
-import '../ast/token.puck' as {SyntaxKind}
+import '../ast/visit.puck' as {Visit}
 import '../ast/visit.puck' as visit
+import '../ast/token.puck' as {SyntaxKind}
+import '../compiler.puck' as {CompilerContext}
 import 'src/enums.puck' as {checkExhaustive}
 import 'src/functions.puck' as {
   checkFunctionCall
+  createFunctionType
   resolveFunctionTypeParameters
   resolveFunctionTypeParametersByReturnValue
 }
@@ -89,7 +91,7 @@ import 'src/impls.puck' as {
 import 'src/patterns.puck' as {PatternError, declarePatternVariables}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {Binding, Scope}
-import 'src/structure_visitor.puck' as {notAssignableError, structureVisitor}
+import 'src/type_bound_visitor.puck' as {TypeBoundVisitor, notAssignableError, visitMethodDeclaration}
 import 'src/type_function.puck' as {enumMemberToFunction}
 import 'src/types.puck' as {
   createTypeInstance
@@ -119,12 +121,17 @@ import 'src/core_type_helpers.puck' as {
   getIndexedPropertyType
 }
 
+fn asMut<T>(i: T) {i}
 fn asType(a: Unknown) -> Type {a.transmute()}
 
 export fn getBinding(e: Expression) -> Option<Binding> {
   match e {
     Expression::Identifier(i) => {
       let scope: Scope = i->scope.transmute()
+      if not scope {
+        console->error('no scope for', i)
+        return None
+      }
       scope.getBinding(i.name)
     }
     Expression::IndexAccess(i) => getBinding(i.object)
@@ -133,9 +140,9 @@ export fn getBinding(e: Expression) -> Option<Binding> {
   }
 }
 
-fn asTraitCall(visitor, mut e: BinaryExpression, trait_: String, method: String, desription: String) -> Result<(), String> {
+fn asTraitCall(mut visitor: ScopeVisitor, mut e: BinaryExpression, trait_: String, method: String, desription: String) -> Result<(), String> {
   match getCoreType(visitor.scope, trait_, desription) {
-    Ok((_, binding)) => {
+    Result::Ok((_, binding)) => {
       let mut call = CallExpression({
         func: Expression::MemberAccess({
           object: Expression::Identifier({name: binding.name, span: e.operator.span})
@@ -152,1172 +159,1367 @@ fn asTraitCall(visitor, mut e: BinaryExpression, trait_: String, method: String,
       e->type_ = call->type_
       Ok(())
     }
-    Err(err) => Err(err)
+    Result::Err(err) => Result::Err(err)
   }
 }
 
-export fn ScopeVisitor(context: CompilerContext, file: File) {
-  let mut importDirective: ImportDirective
-  let mut matchExpression: Option<MatchExpression> = None
-  let mut accessError: Option<(ToSpan, String)> = None
+fn visitExpression(mut visitor: ScopeVisitor, e: Expression, assignedTo: Option<Type> = None, isUsed = true) -> () {
+  let parentAssignedTo = visitor.assignedTo
+  let parentIsUsed = visitor.isUsed
+  visitor.assignedTo = assignedTo
+  visitor.isUsed = isUsed
+  visit.walkExpression(visitor, e)
+  visitor.assignedTo = parentAssignedTo
+  visitor.isUsed = parentIsUsed
+}
 
-  fn reportError(token: ToSpan, message: String) {
-    context.reportError(file, token, CompilationError::Other(message))
+fn visitBlock(mut visitor: ScopeVisitor, b: Block, isUsed = true) -> () {
+  b->scope = visitor.scope
+  let assignedTo = visitor.assignedTo
+
+  // Hoist function declarations
+  b.statements.forEach(|s| match s {
+    BlockLevelStatement::Expression(Expression::FunctionDeclaration(mut f)) => {
+      visitFunctionDeclaration(visitor, f)
+    }
+    _ => {}
+  })
+
+  let lastIndex = b.statements.size() - 1
+  b.statements.enumerate().forEach(|(index, s)| {
+    if index == lastIndex {
+      visitor.assignedTo = assignedTo
+      visitor.isUsed = isUsed
+      visitor.visitBlockLevelStatement(s)
+    }
+    else {
+      visitor.assignedTo = None
+      visitor.isUsed = false
+      visitor.visitBlockLevelStatement(s)
+    }
+  })
+
+  b->type_ =
+    if let Option::Some(last) = b.statements.last()
+      then last.getType()
+      else Type.empty({file: visitor.file, token: b})
+
+  visitor.assignedTo = assignedTo
+  visitor.isUsed = isUsed
+}
+
+fn visitFunctionDeclaration(mut visitor: ScopeVisitor, mut f: FunctionDeclaration, assignedTo: Option<Type> = None) -> () {
+  let assignedTo = assignedTo.andThen(|assignedTo| {
+    match assignedTo.kind {
+      TypeKind::Function(func) => Some(func)
+      _ => None
+    }
+  })
+
+  if not f->type_ {
+    let mut parentScope = visitor.scope
+    visitor.scope = parentScope.createChild()
+    f->scope = visitor.scope
+
+    f.typeParameters.forEach(|p| visitor.visitTypeParameter(p))
+    f.parameterList.enumerate().forEach(|(i, mut p)| {
+      let parameterType = assignedTo.andThen(|assignedTo| {
+        if assignedTo.parameters.size() > i and assignedTo.parameters->[i]->type_
+          then Some(assignedTo.parameters->[i]->type_.transmute())
+          else None
+      })
+      visitVariableDeclaration(visitor, p, parameterType)
+    })
+    f.returnType.map(|returnType| visitor.visitTypeBound(returnType))
+
+    f.type_ = createFunctionType(
+      visitor.file, f->scope.transmute(), f,
+      |token, message| visitor.reportOtherError(token, message)
+    )
+    if let Option::Some(name) = f.name {
+      if let Result::Err(err) = parentScope.define({
+        definition: Definition({file: visitor.file, token: f})
+        name: name.name
+        allowRedeclare: false
+        mutable: false
+        type_: f.type_
+        previous: None
+        completeType: None
+      })
+        then visitor.reportOtherError(name, err)
+    }
+
+    visitor.scope = parentScope
+  } else {
+    let parentScope = visitor.scope
+    visitor.scope = f->scope.transmute()
+
+    f.parameterList.enumerate().forEach(|(i, mut p)| {
+      let parameterType = assignedTo.andThen(|assignedTo| {
+        if assignedTo.parameters.size() > i and assignedTo.parameters->[i]->type_
+          then Some(assignedTo.parameters->[i]->type_.transmute())
+          else None
+      })
+      visitVariableDeclaration(visitor, p, parameterType)
+    })
+
+    visitor.scope = parentScope
+  }
+}
+
+fn visitVariableDeclaration(mut visitor: ScopeVisitor, mut d: VariableDeclaration, assignedTo: Option<Type>) {
+  if d->scope then return ()
+  d->scope = visitor.scope
+  visitor.visitPattern(d.pattern)
+
+  let type_: Type = d.typeBound
+    .andThen(|bound| {
+      visitor.visitTypeBound(bound)
+      if bound.getType()
+        then Some(bound.getType())
+        else None
+    })
+    .orValue(assignedTo)
+    .unwrapOr(undefined)
+
+  d->type_ = type_
+
+  if not isAssignable(d.pattern->type_.transmute(), type_)
+    then return visitor.reportOtherError(
+      d.pattern, type_.displayName() ++
+      ' is not assignable to pattern ' ++
+      d.pattern.displayName()
+    )
+
+  let mut childScope =
+    if d.initializer.isSome()
+      then visitor.scope.createChild()
+      else visitor.scope
+
+  match declarePatternVariables(childScope, visitor, d.pattern, type_, false, d.initializer.isSome()) {
+    Result::Ok(_) => {}
+    Result::Err(PatternError::PatternMismatch(_, to, subject)) => {
+      visitor.reportOtherError(d, notAssignableError(to, subject))
+    }
+    Result::Err(PatternError::NotExhaustive) => {
+      visitor.reportOtherError(d, 'non exhaustive pattern')
+    }
+    Result::Err(PatternError::ScopeError(token, err)) => visitor.reportOtherError(token, err)
   }
 
-  let structureVisitorInstance = structureVisitor(context, file)
-  Object->assign({}, visit.walkingVisitor, structureVisitorInstance, {
-    reportError
+  if let Option::Some(initializer) = d.initializer {
+    let parentVariableDeclarationScope = visitor.variableDeclarationScope
+    visitor.variableDeclarationScope = Some(childScope)
 
-    visitModule: |mut self, mut m: Module| {
-      self.scope = m->scope
+    visitExpression(visitor, initializer, if type_ then Some(type_) else undefined, true)
 
-      // Hoist function declarations
-      m.statements.forEach(|s| match s {
-        TopLevelStatement::ExportDirective(
-          {statement: ExportedStatement::FunctionDeclaration(f)}
-        ) => {
-          self.visitFunctionDeclaration(f, true)
-        }
-        TopLevelStatement::BlockLevelStatement(
-          BlockLevelStatement::Expression(Expression::FunctionDeclaration(f))
-        ) => {
-          self.visitFunctionDeclaration(f, true)
-        }
-        _ => {}
-      })
+    visitor.scope.merge(childScope)
+    visitor.variableDeclarationScope = parentVariableDeclarationScope
 
-      m.statements.forEach(|s| {
-        self.isUsed = false
-        self.visitTopLevelStatement(s)
-      })
+    let initializerType = initializer.getType()
+    if not d->type_ and d.pattern->binding {
+      d.pattern->binding->type_ = initializerType
+      d->type_ = initializerType
     }
-    visitBlockLevelStatement: |mut self, s: BlockLevelStatement, assignedTo = undefined, isUsed = true| {
-      match s {
-        BlockLevelStatement::Expression(e) => self.visitExpression(e, assignedTo, isUsed)
-        _ => visit.walkBlockLevelStatement(self, s)
+    else if not isAssignable(type_, initializerType)
+      then return visitor.reportOtherError(initializer, notAssignableError(type_, initializerType))
+    if not isAssignable(d.pattern->type_.transmute(), initializerType)
+      then return visitor.reportOtherError(d, notAssignableError(d.pattern->type_.transmute(), initializerType))
+  }
+}
+
+fn visitMemberAccess(mut visitor: ScopeVisitor, a: MemberAccess) -> Result<(), (ToSpan, String)> {
+  visitExpression(visitor, a.object)
+
+  if a.object.getType() {
+    match getNamedPropertyType(visitor.scope, a.object.getType(), a.member.name) {
+      Result::Ok(type_) => {
+        a->type_ = type_
+        Result::Ok(())
+      }
+      Result::Err(PropertyError::MissingProperty) => {
+        let span: ToSpan = a.member
+        Result::Err((
+          span
+          a.object.getType().displayName() ++ ' has no property ' ++ a.member.name
+        ))
+      }
+      Result::Err(PropertyError::UnsupportedType) => {
+        Result::Err((
+          a
+          'Can only read properties on record types'
+        ))
+      }
+      Result::Err(PropertyError::Scope(message)) =>  Result::Err((a, message))
+    }
+  }
+  else Result::Ok(())
+}
+
+export type ScopeVisitor {
+  file: File
+  context: CompilerContext
+  scope: Scope
+  variableDeclarationScope: Option<Scope>
+  matchExpression: Option<MatchExpression>
+  assignedTo: Option<Type>
+  isUsed: Bool
+  functionContext: Option<{returnType: Option<Type>, returnTypes: List<Type>}>
+  typeBoundVisitor: TypeBoundVisitor
+}
+
+impl ScopeVisitor {
+  fn new(mut context: CompilerContext, file: File) -> ScopeVisitor {
+    let mut scopeVisitor = {
+      file
+      context
+      scope: Scope.new(context)
+      variableDeclarationScope: None
+      matchExpression: None
+      assignedTo: None
+      isUsed: false
+      functionContext: None
+      typeBoundVisitor: {
+        getScope: || scopeVisitor.scope
+        setScope: |scope| scopeVisitor.scope = scope
+        file
+        reportError: |token: ToSpan, error: CompilationError| {
+          context.reportError(file, token, error)
+        }
+        visitorName: 'ScopeVisitor'
       }
     }
-    visitExpression: |mut self, e: Expression, assignedTo = undefined, isUsed = true| {
-      self.isUsed = isUsed
-      let parentAssignedTo = self.assignedTo
-      self.assignedTo = assignedTo
-      visit.walkExpression(self, e)
-      self.assignedTo = parentAssignedTo
-    }
 
-    visitImplDeclaration: |self, mut i: ImplDeclaration| {
-      i.members.forEach(|f| self.visitFunctionDeclaration(f))
-    }
-    visitImplShorthandDeclaration: |self, mut i: ImplShorthandDeclaration| {
-      i.members.forEach(|f| self.visitFunctionDeclaration(f))
-    }
-    visitTraitDeclaration: |mut self, mut t: TraitDeclaration| {
-      let parentScope = self.scope
-      self.scope = t->scope
-      visit.walkTraitDeclaration(self, t)
-      self.scope = parentScope
-    }
-    visitTypeDeclaration: |self, mut t: TypeDeclaration| {}
+    scopeVisitor
+  }
 
-    visitExportDirective: |self, mut e: ExportDirective| {
-      visit.walkExportDirective(self, e)
-    }
-    visitImportDirective: |self, mut i: ImportDirective| {}
-    visitObjectDestructure: |self, mut i: ObjectDestructure| {}
+  fn reportError(mut self, token: ToSpan, error: CompilationError) -> () {
+    self.context.reportError(self.file, token, error)
+  }
 
-    visitBlock: |mut self, mut b: Block, isUsed = true| {
-      b->scope = self.scope
-      let assignedTo = self.assignedTo
+  fn reportOtherError(mut self, token: ToSpan, error: String) -> () {
+    self.context.reportError(self.file, token, CompilationError::Other(error))
+  }
+}
 
-      // Hoist function declarations
-      b.statements.forEach(|s| match s {
-        BlockLevelStatement::Expression(Expression::FunctionDeclaration(f)) => {
-          self.visitFunctionDeclaration(f, true)
-        }
-        _ => {}
-      })
 
-      let lastIndex = b.statements.size() - 1
-      b.statements.enumerate().forEach(|(index, s)| {
-        if index == lastIndex
-          then self.visitBlockLevelStatement(s, assignedTo, isUsed)
-          else self.visitBlockLevelStatement(s, undefined, false)
-      })
+impl Visit for ScopeVisitor {
+  fn visitModule(mut self, m: Module) -> () {
+    self.scope = m->scope.transmute()
 
-      b->type_ =
-        if let Option::Some(last) = b.statements.last()
-          then last.getType()
-          else Type.empty({file, token: b})
-    }
-    visitBreak: |self, mut b: BreakStatement| {
-      b->scope = self.scope
-    }
-    visitReturn: |mut self, mut r: ReturnStatement| {
-      if not self.functionContext
-        then reportError(r, 'Return used outside of a function')
-
-      r->type_ = Type.never({file, token: r})
-
-      let returnType: Option<Type> = self.functionContext.returnType
-
-      if let Some(returnType) = returnType {
-        self.visitExpression(r.expression, returnType)
-        if not isAssignable(returnType, r.expression.getType())
-          then reportError(r.expression, notAssignableError(returnType, r.expression.getType()))
+    // Hoist function declarations
+    m.statements.forEach(|s| match s {
+      TopLevelStatement::ExportDirective(
+        {statement: ExportedStatement::FunctionDeclaration(mut f)}
+      ) => {
+        visitFunctionDeclaration(self, f)
       }
-      else {
-        self.visitExpression(r.expression)
-        if r.expression.getType() {
-          self.functionContext.returnTypes.push(r.expression.getType())
-        }
+      TopLevelStatement::BlockLevelStatement(
+        BlockLevelStatement::Expression(Expression::FunctionDeclaration(mut f))
+      ) => {
+        visitFunctionDeclaration(self, f)
+      }
+      _ => {}
+    })
+
+    m.statements.forEach(|s| {
+      self.isUsed = false
+      self.visitTopLevelStatement(s)
+    })
+  }
+  fn visitBlockLevelStatement(mut self, s: BlockLevelStatement) -> () {
+    match s {
+      BlockLevelStatement::Expression(e) => visitExpression(self, e, self.assignedTo, self.isUsed)
+      _ => visit.walkBlockLevelStatement(self, s)
+    }
+  }
+  fn visitExpression(mut self, e: Expression) -> () {
+    visitExpression(self, e, self.assignedTo, true)
+  }
+
+  fn visitImplDeclaration(mut self, i: ImplDeclaration) -> () {
+    i.members.forEach(|mut f| self.visitFunctionDeclaration(f))
+  }
+  fn visitImplShorthandDeclaration(mut self, i: ImplShorthandDeclaration) -> () {
+    i.members.forEach(|mut f| self.visitFunctionDeclaration(f))
+  }
+  fn visitTraitDeclaration(mut self, t: TraitDeclaration) -> () {
+    let parentScope = self.scope
+    self.scope = t->scope.transmute()
+    visit.walkTraitDeclaration(self, t)
+    self.scope = parentScope
+  }
+  fn visitTypeDeclaration(mut self, t: TypeDeclaration) -> () {}
+
+  fn visitExportDirective(mut self, e: ExportDirective) -> () {
+    visit.walkExportDirective(self, e)
+  }
+  fn visitImportDirective(mut self, i: ImportDirective) -> () {}
+  fn visitObjectDestructure(mut self, i: ObjectDestructure) -> () {}
+
+  fn visitReturnStatement(mut self, r: ReturnStatement) -> () {
+    if self.functionContext.isNone()
+      then self.reportOtherError(r, 'Return used outside of a function')
+
+    r->type_ = Type.never({file: self.file, token: r})
+
+    let returnType: Option<Type> = self.functionContext.unwrap().returnType
+
+    visitExpression(self, r.expression, returnType)
+    if let Some(returnType) = returnType {
+      if not isAssignable(returnType, r.expression.getType())
+        then self.reportOtherError(r.expression, notAssignableError(returnType, r.expression.getType()))
+    }
+    else {
+      if r.expression.getType() {
+        self.functionContext.unwrap().returnTypes.push(r.expression.getType())
       }
     }
-    visitForLoop: |mut self, mut e: ForLoop| {
-      let parentScope: Scope = self.scope
-      self.scope = parentScope.createChild()
-      e->scope = self.scope
-      self.visitPattern(e.pattern)
-      self.visitExpression(e.expression)
-      if let Some(intoIteratorBinding) = parentScope.getBindingByTypeId('IntoIterator') {
-        if let Some(iteratorBinding) = parentScope.getBindingByTypeId('Iterator') {
-          if let Some(optionBinding) = parentScope.getBindingByTypeId('Option') {
-            let intoIteratorType = intoIteratorBinding.type_.providesType.unwrap()
-            let iteratorType = iteratorBinding.type_.providesType.unwrap()
-            if not isAssignable(intoIteratorType, e.expression.getType())
-              then reportError(e.expression
-                notAssignableError(intoIteratorType, e.expression.getType())
-              )
-            match getImplementationForTrait(e.expression.getType(), intoIteratorType) {
-              Ok(Some(mut implementation)) => {
-                let type_ = resolveImplTypeParameters(implementation, e.expression.getType())
-                  .unwrap().instance.unwrap().typeParameters.first().unwrap()
+  }
+  fn visitForLoop(mut self, e: ForLoop) -> () {
+    let parentScope = self.scope
+    self.scope = parentScope.createChild()
+    e->scope = self.scope
+    self.visitPattern(e.pattern)
+    visitExpression(self, e.expression)
 
-                let mut createIterCall = CallExpression({
-                  func: Expression::MemberAccess({
-                    object: Expression::Identifier({name: intoIteratorBinding.name, span: e.expression.span()})
-                    dotToken: e.ofKeyword
-                    member: {name: 'iter', span: e.expression.span()}
-                  })
-                  typeArguments: None
-                  openParen: e.ofKeyword
-                  argumentList: [e.expression]
-                  closeParen: e.ofKeyword
-                })
-                e->createIterCall = createIterCall
+    match (
+      parentScope.getBindingByTypeId('IntoIterator'),
+      parentScope.getBindingByTypeId('Iterator'),
+      parentScope.getBindingByTypeId('Option'),
+    ) {
+      (Some(intoIteratorBinding), Some(iteratorBinding), Some(optionBinding)) => {
+        let intoIteratorType = intoIteratorBinding.type_.providesType.unwrap()
+        let iteratorType = iteratorBinding.type_.providesType.unwrap()
+        if not isAssignable(intoIteratorType, e.expression.getType())
+          then return self.reportOtherError(e.expression
+            notAssignableError(intoIteratorType, e.expression.getType())
+          )
 
-                let mut nextCall = CallExpression({
-                  func: Expression::MemberAccess({
-                    object: Expression::CallExpression(createIterCall)
-                    dotToken: e.ofKeyword
-                    member: {name: 'next', span: e.pattern.span()}
-                  })
-                  typeArguments: None
-                  openParen: e.ofKeyword
-                  argumentList: []
-                  closeParen: e.ofKeyword
-                })
-                e->nextCall = nextCall
-                self.visitCallExpression(nextCall)
+        match getImplementationForTrait(e.expression.getType(), intoIteratorType) {
+          // TODO: Only Some here causes no type error
+          Ok(Option::Some(mut implementation)) => {
+            let type_ = resolveImplTypeParameters(implementation, e.expression.getType())
+              .unwrap().instance.unwrap().typeParameters.first().unwrap()
 
-                let optionSome = TypePath::Object(
-                  {name: optionBinding.name, span: e.pattern.span()}
-                  TypePath::Member({name: 'Some', span: e.pattern.span()})
-                )
-                e->optionSome = optionSome
-                self.visitTypePath(optionSome)
+            let mut createIterCall = CallExpression({
+              func: Expression::MemberAccess({
+                object: Expression::Identifier({name: intoIteratorBinding.name, span: e.expression.span()})
+                dotToken: e.ofKeyword
+                member: {name: 'iter', span: e.expression.span()}
+              })
+              typeArguments: None
+              openParen: e.ofKeyword
+              argumentList: [e.expression]
+              closeParen: e.ofKeyword
+            })
+            e->createIterCall = createIterCall
 
-                match declarePatternVariables(self.scope, self, e.pattern, type_, false) {
-                  Result::Ok(_) => {}
-                  Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
-                    reportError(e.expression, notAssignableError(to, subject))
-                  }
-                  Result::Err(PatternError::ScopeError(token, err)) => reportError(token, err)
-                  Result::Err(PatternError::NotExhaustive) => {
-                    reportError(e.pattern, 'non exhaustive pattern')
-                  }
-                }
+            let mut nextCall = CallExpression({
+              func: Expression::MemberAccess({
+                object: Expression::CallExpression(createIterCall)
+                dotToken: e.ofKeyword
+                member: {name: 'next', span: e.pattern.span()}
+              })
+              typeArguments: None
+              openParen: e.ofKeyword
+              argumentList: []
+              closeParen: e.ofKeyword
+            })
+            e->nextCall = nextCall
+            self.visitCallExpression(nextCall)
+
+            let optionSome = TypePath::Object(
+              {name: optionBinding.name, span: e.pattern.span()}
+              TypePath::Member({name: 'Some', span: e.pattern.span()})
+            )
+            e->optionSome = optionSome
+            self.visitTypePath(optionSome)
+
+            match declarePatternVariables(self.scope, self, asMut(e.pattern), type_, false) {
+              Ok(_) => {}
+              Err(PatternError::PatternMismatch(pattern, to, subject)) => {
+                self.reportOtherError(e.expression, notAssignableError(to, subject))
               }
-              Ok(Option::None) => {
-                reportError(e,
-                  intoIteratorType.displayName() ++ ' has not been implemented for type ' ++ e.expression.getType().displayName()
-                )
+              Err(PatternError::ScopeError(token, err)) => self.reportOtherError(token, err)
+              Err(PatternError::NotExhaustive) => {
+                self.reportOtherError(e.pattern, 'non exhaustive pattern')
               }
-              Err => reportError(e, 'Ambiguous trait call')
             }
           }
-          else reportError(e
-            'puck:core::Option is not in scope. Please import Option from puck:core to use for loops.'
-          )
+          Ok(Option::None) => {
+            self.reportOtherError(e,
+              intoIteratorType.displayName() ++ ' has not been implemented for type ' ++ e.expression.getType().displayName()
+            )
+          }
+          Result::Err => self.reportOtherError(e, 'Ambiguous trait call')
         }
-        else reportError(e
+      }
+      // TODO: Only None here causes "undefined variable None" elsewhere
+      (Option::None, _, _) => {
+        self.reportOtherError(e
+          'puck:core::IntoIterator is not in scope. Please import IntoIterator from puck:core to use for loops.'
+        )
+      }
+      (_, Option::None, _) => {
+        self.reportOtherError(e
           'puck:core::Iterator is not in scope. Please import Iterator from puck:core to use for loops.'
         )
       }
-      else reportError(e
-        'puck:core::IntoIterator is not in scope. Please import IntoIterator from puck:core to use for loops.'
-      )
-      self.visitBlock(e.body, false)
-      e->type_ = Type.empty({file, token: e})
-      self.scope = parentScope
-    }
-    visitWhileLoop: |mut self, mut e: WhileLoop| {
-      let parentScope: Scope = self.scope
-      self.scope = parentScope.createChild()
-      e->scope = self.scope
-      self.visitExpression(e.condition)
-      self.visitBlock(e.body, false)
-      e->type_ = Type.empty({file, token: e})
-      self.scope = parentScope
-    }
-
-    visitIdentifier: |self, mut i: Identifier| {
-      let scope: Scope = self.scope
-      i->scope = self.scope
-      if let Option::Some(binding) = scope.getBinding(i.name) {
-        let mut b = binding
-        i->binding = binding
-        i->type_ =
-          if binding.type_ and binding.type_.providesType.isSome()
-            then enumMemberToFunction(b.type_)
-            else binding.type_
+      (_, _, Option::None) => {
+        self.reportOtherError(e
+          'puck:core::Option is not in scope. Please import Option from puck:core to use for loops.'
+        )
       }
-      else context.reportError(
-        file
-        i
-        CompilationError::UndefinedVariable(i.name)
-      )
-      ()
     }
-    visitFunctionDeclaration: |mut self, mut f: FunctionDeclaration, isHoisting = false| {
-      structureVisitorInstance.visitFunctionDeclaration->call(self, f)
 
-      if not isHoisting {
-        let selfScope = self.scope
-        self.scope = f->scope
+    visitBlock(self, e.body, false)
 
-        if self.variableDeclarationScope {
-          let vdScope: Scope = self.variableDeclarationScope
-          let mut fScope: Scope = self.scope
-          let mut bindings = fScope.bindings
-          if let Some(vdParent) = vdScope.parent {
-            while true {
-              if let Some(fParent) = fScope.parent {
-                if identical(vdParent, fParent) {
-                  break
-                }
-                else {
-                  bindings = Object->assign({}, fParent.bindings, bindings).transmute()
-                  fScope = fParent
-                }
-              }
-              else break
-            }
-          }
-          self.scope = Scope({
-            context: self.scope.context
-            parent: Some(self.variableDeclarationScope)
-            bindings: bindings
-            bindingsByTypeId: self.scope.bindingsByTypeId
-          })
-        }
+    e->type_ = Type.empty({file: self.file, token: e})
+    self.scope = parentScope
+  }
+  fn visitWhileLoop(mut self, e: WhileLoop) -> () {
+    let parentScope = self.scope
+    self.scope = parentScope.createChild()
+    e->scope = self.scope
+    visitExpression(self, e.condition)
+    visitBlock(self, e.body, false)
+    e->type_ = Type.empty({file: self.file, token: e})
+    self.scope = parentScope
+  }
 
-        if let Option::Some(body) = f.body {
-          let parentAssignedTo = self.assignedTo
-          let parentContext = self.functionContext
-          let mut isUsed = true
-          self.functionContext = {
-            returnType: None
-            returnTypes: []
-          }
-          if let TypeKind::Function(func) = f.type_.kind {
-            self.assignedTo = func.returnType
-            if func.returnType {
-              self.functionContext.returnType = Some(func.returnType)
+  fn visitIdentifier(mut self, i: Identifier) -> () {
+    i->scope = self.scope
+    if let Option::Some(mut binding) = self.scope.getBinding(i.name) {
+      i->binding = binding
+      i->type_ =
+        if binding.type_ and binding.type_.providesType.isSome()
+          then enumMemberToFunction(binding.type_)
+          else binding.type_
+    }
+    else self.reportError(
+      i
+      CompilationError::UndefinedVariable(i.name)
+    )
+  }
+  fn visitMethodDeclaration(mut self, f: FunctionDeclaration) -> () {
+    self.visitFunctionDeclaration(f)
+  }
+  fn visitFunctionDeclaration(mut self, f: FunctionDeclaration) -> () {
+    visitFunctionDeclaration(self, asMut(f), self.assignedTo)
 
-              if func.returnType.isEmpty() {
-                isUsed = false
-              }
-            }
-          }
-          self.visitBlock(body, isUsed)
-          if let Option::None = self.functionContext {
-          }
+    let selfScope = self.scope
+    self.scope = f->scope.transmute()
 
-          if let TypeKind::Function(func) = f.type_.kind {
-            if func.returnType {
-              if not isAssignable(func.returnType, body.type_) and not func.returnType.isEmpty()
-                then reportError(f, notAssignableError(func.returnType, body.type_))
+    if let Some(vdScope) = self.variableDeclarationScope {
+      let mut fScope: Scope = self.scope
+      let mut bindings = fScope.bindings
+      if let Some(vdParent) = vdScope.parent {
+        while true {
+          if let Some(fParent) = fScope.parent {
+            if identical(vdParent, fParent) {
+              break
             }
             else {
-              let mut types: List<Type> = self.functionContext.returnTypes
-              if body.type_ {
-                types.push(body.type_)
-              }
-
-              if types.isNotEmpty() {
-                match findCommonType(types) {
-                  Result::Ok(type_) => {
-                    Object->assign(func, {
-                      returnType: body.type_
-                    })
-                  }
-                  Result::Err(_) => reportError(f,
-                    'No best common type exists among return expressions. Found ' ++ types.map(|type_| type_.displayName())->join(', ').transmute::<String>()
-                  )
-                }
-              }
+              // self.scope.merge(fParent)
+              bindings = Object->assign({}, fParent.bindings, bindings).transmute()
+              fScope = fParent
             }
           }
-
-          self.assignedTo = parentAssignedTo
-          self.functionContext = parentContext
+          else break
         }
-
-        self.scope = selfScope
       }
+      self.scope = Scope({
+        context: self.scope.context
+        parent: Some(vdScope)
+        bindings: bindings
+        bindingsByTypeId: self.scope.bindingsByTypeId
+      })
     }
-    visitVariableDeclaration: |mut self, mut d: VariableDeclaration, visitInitializer, type_| {
-      structureVisitorInstance.visitVariableDeclaration->call(
-        self
-        d
-        if visitInitializer
-          then visitInitializer
-          else |e| {
-            self.isUsed = true
-            self.visitExpression(e, d->type_)
+
+    if let Option::Some(body) = f.body {
+      let parentAssignedTo = self.assignedTo
+      let parentContext = self.functionContext
+      let mut isUsed = true
+      self.functionContext = Some({
+        returnType: None
+        returnTypes: []
+      })
+      if let TypeKind::Function(func) = f.type_.kind {
+        if func.returnType {
+          self.assignedTo = Some(func.returnType)
+          self.functionContext.unwrap().returnType = Some(func.returnType)
+
+          if func.returnType.isEmpty() {
+            isUsed = false
           }
-        type_
-      )
-    }
-
-    visitAssignmentExpression: |self, mut e: AssignmentExpression| {
-      e->scope = self.scope
-      if let Expression::IndexAccess(a) = e.lhs {
-        visit.walkIndexAccess(self, a)
-        self.visitExpression(e.rhs)
-      }
-      else {
-        visit.walkAssignmentExpression(self, e)
-      }
-      if let Option::Some(binding) = getBinding(e.lhs) {
-        if not binding.mutable
-          then reportError(e, "Can't assign to immutable variable " ++ binding.name)
-
-        if not isAssignable(e.lhs.getType(), e.rhs.getType())
-          then reportError(e, notAssignableError(e.lhs.getType(), e.rhs.getType()))
-      }
-
-      e->type_ = e.lhs.getType() or e.rhs.getType()
-    }
-    visitBinaryExpression: |self, mut e: BinaryExpression| {
-      match e.operator.kind {
-        SyntaxKind::PlusToken => {
-          asTraitCall(self, e, 'Add', 'add', 'the addition operator')
-        }
-        SyntaxKind::MinusToken => {
-          asTraitCall(self, e, 'Sub', 'sub', 'the subtraction operator')
-        }
-        SyntaxKind::AsteriskToken => {
-          asTraitCall(self, e, 'Mul', 'mul', 'the multiplication operator')
-        }
-        SyntaxKind::SlashToken => {
-          asTraitCall(self, e, 'Div', 'div', 'the division operator')
-        }
-        SyntaxKind::PercentToken => {
-          asTraitCall(self, e, 'Rem', 'rem', 'the reminder operator')
-        }
-        SyntaxKind::AsteriskAsteriskToken => {
-          asTraitCall(self, e, 'Mul', 'mul', 'the power operator')
-        }
-        SyntaxKind::EqualsEqualsToken => {
-          asTraitCall(self, e, 'PartialEq', 'eq', 'equal operators')
-        }
-        SyntaxKind::ExclamationEqualsToken => {
-          asTraitCall(self, e, 'PartialEq', 'ne', 'equal operators')
-        }
-        SyntaxKind::LessThanToken => {
-          asTraitCall(self, e, 'PartialOrd', 'lt', 'comparison operators')
-        }
-        SyntaxKind::LessThanEqualsToken => {
-          asTraitCall(self, e, 'PartialOrd', 'le', 'comparison operators')
-        }
-        SyntaxKind::GreaterThanToken => {
-          asTraitCall(self, e, 'PartialOrd', 'gt', 'comparison operators')
-        }
-        SyntaxKind::GreaterThanEqualsToken => {
-          asTraitCall(self, e, 'PartialOrd', 'ge', 'comparison operators')
-        }
-        SyntaxKind::PlusPlusToken => {
-          asTraitCall(self, e, 'Concat', 'concat', 'the concat operator')
-        }
-        _ => {
-          visit.walkBinaryExpression(self, e)
         }
       }
-    }
-    visitCallExpression: |mut self, mut e: CallExpression| {
-      e->scope = self.scope
-      let scope: Scope = self.scope
+      visitBlock(self, body, isUsed)
 
-      let mut functionType: Type;
-      let mut isUnknownCall = false
-      // If it's a direct trait call the first argument is walked when
-      // resolving the implementation
-      let mut skipFirstArgument = false
+      if let TypeKind::Function(func) = f.type_.kind {
+        if func.returnType {
+          if not isAssignable(func.returnType, body.type_) and not func.returnType.isEmpty()
+            then self.reportOtherError(f, notAssignableError(func.returnType, body.type_))
+        }
+        else {
+          let mut types: List<Type> = self.functionContext.unwrap().returnTypes
+          if body.type_ {
+            types.push(body.type_)
+          }
 
-      if let Expression::MemberAccess(access) = e.func {
-        self.visitMemberAccess(access, true)
-        functionType = e.func.getType()
-
-        if access.object.getType() {
-          let name = access.member.name
-          let objectType = access.object.getType()
-
-          // If the call is directly on the type, for example Num.parse()
-          if let Option::Some(providesType) = objectType.providesType {
-            match providesType.kind {
-              TypeKind::Enum(enum_) => {
-                functionType = enum_.implementations
-                  .find(|{trait_}| trait_.getTrait().isShorthand)
-                  .andThen(|{trait_}| trait_.getTrait().functions.get(name))
-                  .unwrapOr(undefined)
+          if types.isNotEmpty() {
+            match findCommonType(types) {
+              Result::Ok(type_) => {
+                Object->assign(func, {
+                  returnType: body.type_
+                })
               }
-              TypeKind::Struct(struct) => {
-                functionType = struct.implementations
-                  .find(|{trait_}| trait_.getTrait().isShorthand)
-                  .andThen(|{trait_}| trait_.getTrait().functions.get(name))
-                  .unwrapOr(undefined)
-              }
-              TypeKind::Trait(trait_) => {
-                functionType = trait_.functions.get(name).unwrapOr(undefined)
-              }
-              _ => {}
+              Result::Err(_) => self.reportOtherError(f,
+                'No best common type exists among return expressions. Found ' ++ types.map(|type_| type_.displayName())->join(', ').transmute::<String>()
+              )
             }
+          }
+        }
+      }
 
-            if functionType {
-              let function = functionType.getFunction()
+      self.assignedTo = parentAssignedTo
+      self.functionContext = parentContext
+    }
 
-              if let Some(selfBinding) = function.selfBinding {
-                functionType = {
-                  definition: functionType.definition
-                  id: functionType.id
-                  displayName: functionType.displayName
-                  name: functionType.name
-                  kind: TypeKind::Function({
-                    selfBinding: None
-                    parameters: [selfBinding]->concat(function.parameters).transmute()
-                    parameterRange: {start: function.parameterRange.start + 1, end: function.parameterRange.end + 1}
-                    returnType: function.returnType
-                    isAbstract: function.isAbstract
-                  })
-                  class: functionType.class
-                  instance: functionType.instance
-                  providesType: functionType.providesType
-                  enumMember: functionType.enumMember
+    self.scope = selfScope
+  }
+  fn visitVariableDeclaration(mut self, d: VariableDeclaration) -> () {
+    visitVariableDeclaration(self, asMut(d), None)
+  }
+
+  fn visitAssignmentExpression(mut self, e: AssignmentExpression) -> () {
+    e->scope = self.scope
+    if let Expression::IndexAccess(a) = e.lhs {
+      visit.walkIndexAccess(self, a)
+      visitExpression(self, e.rhs)
+    }
+    else {
+      visit.walkAssignmentExpression(self, e)
+    }
+    if let Option::Some(binding) = getBinding(e.lhs) {
+      if not binding.mutable
+        then self.reportOtherError(e, "Can't assign to immutable variable " ++ binding.name)
+
+      if not isAssignable(e.lhs.getType(), e.rhs.getType())
+        then self.reportOtherError(e, notAssignableError(e.lhs.getType(), e.rhs.getType()))
+    }
+
+    e->type_ = e.lhs.getType() or e.rhs.getType()
+  }
+  fn visitBinaryExpression(mut self, e: BinaryExpression) -> () {
+    match e.operator.kind {
+      SyntaxKind::PlusToken => {
+        asTraitCall(self, asMut(e), 'Add', 'add', 'the addition operator')
+      }
+      SyntaxKind::MinusToken => {
+        asTraitCall(self, asMut(e), 'Sub', 'sub', 'the subtraction operator')
+      }
+      SyntaxKind::AsteriskToken => {
+        asTraitCall(self, asMut(e), 'Mul', 'mul', 'the multiplication operator')
+      }
+      SyntaxKind::SlashToken => {
+        asTraitCall(self, asMut(e), 'Div', 'div', 'the division operator')
+      }
+      SyntaxKind::PercentToken => {
+        asTraitCall(self, asMut(e), 'Rem', 'rem', 'the reminder operator')
+      }
+      SyntaxKind::AsteriskAsteriskToken => {
+        asTraitCall(self, asMut(e), 'Mul', 'mul', 'the power operator')
+      }
+      SyntaxKind::EqualsEqualsToken => {
+        asTraitCall(self, asMut(e), 'PartialEq', 'eq', 'equal operators')
+      }
+      SyntaxKind::ExclamationEqualsToken => {
+        asTraitCall(self, asMut(e), 'PartialEq', 'ne', 'equal operators')
+      }
+      SyntaxKind::LessThanToken => {
+        asTraitCall(self, asMut(e), 'PartialOrd', 'lt', 'comparison operators')
+      }
+      SyntaxKind::LessThanEqualsToken => {
+        asTraitCall(self, asMut(e), 'PartialOrd', 'le', 'comparison operators')
+      }
+      SyntaxKind::GreaterThanToken => {
+        asTraitCall(self, asMut(e), 'PartialOrd', 'gt', 'comparison operators')
+      }
+      SyntaxKind::GreaterThanEqualsToken => {
+        asTraitCall(self, asMut(e), 'PartialOrd', 'ge', 'comparison operators')
+      }
+      SyntaxKind::PlusPlusToken => {
+        asTraitCall(self, asMut(e), 'Concat', 'concat', 'the concat operator')
+      }
+      _ => {
+        visit.walkBinaryExpression(self, e)
+      }
+    }
+  }
+  fn visitCallExpression(mut self, e: CallExpression) -> () {
+    e->scope = self.scope
+
+    let mut functionType: Type;
+    let mut isUnknownCall = false
+    // If it's a direct trait call the first argument is walked when
+    // resolving the implementation
+    let mut skipFirstArgument = false
+
+    if let Expression::MemberAccess(access) = e.func {
+      let accessError =
+        match visitMemberAccess(self, access) {
+          Ok(_) => None
+          Result::Err(error) => Some(error)
+        }
+      functionType = e.func.getType()
+
+      if access.object.getType() {
+        let name = access.member.name
+        let objectType = access.object.getType()
+
+        // If the call is directly on the type, for example Num.parse()
+        if let Option::Some(providesType) = objectType.providesType {
+          match providesType.kind {
+            TypeKind::Enum(enum_) => {
+              functionType = enum_.implementations
+                .find(|{trait_}| trait_.getTrait().isShorthand)
+                .andThen(|{trait_}| trait_.getTrait().functions.get(name))
+                .unwrapOr(undefined)
+            }
+            TypeKind::Struct(struct) => {
+              functionType = struct.implementations
+                .find(|{trait_}| trait_.getTrait().isShorthand)
+                .andThen(|{trait_}| trait_.getTrait().functions.get(name))
+                .unwrapOr(undefined)
+            }
+            TypeKind::Trait(trait_) => {
+              functionType = trait_.functions.get(name).unwrapOr(undefined)
+            }
+            _ => {}
+          }
+
+          if functionType {
+            let function = functionType.getFunction()
+
+            if let Some(selfBinding) = function.selfBinding {
+              functionType = {
+                definition: functionType.definition
+                id: functionType.id
+                displayName: functionType.displayName
+                name: functionType.name
+                kind: TypeKind::Function({
+                  selfBinding: None
+                  parameters: [selfBinding]->concat(function.parameters).transmute()
+                  parameterRange: {start: function.parameterRange.start + 1, end: function.parameterRange.end + 1}
+                  returnType: function.returnType
+                  isAbstract: function.isAbstract
+                })
+                class: functionType.class
+                instance: functionType.instance
+                providesType: functionType.providesType
+                enumMember: functionType.enumMember
+              }
+              if let Some(selfArgument) = e.argumentList.first() {
+                skipFirstArgument = true
+                visitExpression(self, selfArgument)
+                if not selfArgument.getType() {
+                  return self.reportOtherError(selfArgument, 'selfArgument has no type')
                 }
-                if let Some(selfArgument) = e.argumentList.first() {
-                  skipFirstArgument = true
-                  self.visitExpression(selfArgument)
-                  if not selfArgument.getType() {
-                    reportError(selfArgument, 'selfArgument has no type')
-                  }
-                  match getTraitObjectCall(name, selfArgument.getType(), objectType.providesType.unwrapOr(objectType), e, functionType) {
-                    TraitCall::TraitObject({objectType}) => {
-                      if let Some(binding) = scope.getBindingByTypeId(objectType.id.unwrap()) {
-                        e->traitName = binding.name
-                        e->traitBinding = binding
-                        e->isTraitObject =  true
-                        e->isDirectTraitCall =  true
-                      }
-                      else {
-                        let typeName = objectType.name.unwrap()
-                        context.reportError(
-                          file
-                          e
-                          CompilationError::TraitNotInScope({
-                            functionName: name
-                            traitName: typeName
-                            id: objectType.id.unwrap()
-                          })
-                        )
-                      }
-                    }
-                    TraitCall::TypeObject(implementation) => {
-                      e->traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
-                      e->traitBinding = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap()
+                let traitCall = getTraitObjectCall(
+                  name, selfArgument.getType(),
+                  objectType.providesType.unwrapOr(objectType),
+                  e, functionType
+                )
+                match traitCall {
+                  TraitCall::TraitObject({objectType}) => {
+                    if let Some(binding) = self.scope.getBindingByTypeId(objectType.id.unwrap()) {
+                      e->traitName = binding.name
+                      e->traitBinding = binding
+                      e->isTraitObject =  true
                       e->isDirectTraitCall =  true
-                      e->implementation = implementation
-                      if providesType.class.isSome() {
-                        match resolveImplTypeParameters(e->implementation.transmute(), selfArgument.getType()) {
-                          Ok(resolvedTrait) => {
-                            let mut parameterMap = resolvedTrait.instance.unwrap().parameterMap
-                            functionType = resolveTypeParameters(parameterMap)(functionType)
-                          }
-                          Err((to, subject)) => return reportError(e, notAssignableError(to, subject))
-                        }
-                      }
                     }
-                    TraitCall::None => {
-                      reportError(e,
-                        objectType.displayName() ++ ' has not been implemented for type ' ++ selfArgument.getType().displayName()
+                    else {
+                      let typeName = objectType.name.unwrap()
+                      self.reportError(
+                        e
+                        CompilationError::TraitNotInScope({
+                          functionName: name
+                          traitName: typeName
+                          id: objectType.id.unwrap()
+                        })
                       )
                     }
-                    TraitCall::Error(token, message) => reportError(token, message)
                   }
-                }
-              }
-              else {
-                e->traitName = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
-                e->traitBinding = scope.getBindingByTypeId(providesType.id.unwrap()).unwrap()
-                e->isTraitObject =  true
-              }
-            }
-            else reportError(e, providesType.displayName() ++ ' has no function named $name')
-          }
-          // It is a normal trait call, for example 'hello'.toUpperCase()
-          else {
-            match getTraitCall(objectType, name, e) {
-              TraitCall::TraitObject({objectType, functionType: func}) => {
-                functionType = func
-                let function = functionType.getFunction()
-
-                if function.selfBinding.isSome() {
-                  if let Some(binding) = scope.getBindingByTypeId(objectType.id.unwrap()) {
-                    e->traitName = binding.name
-                    e->traitBinding = binding
-                    e->isTraitObject =  true
+                  TraitCall::TypeObject(implementation) => {
+                    e->traitName = self.scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
+                    e->traitBinding = self.scope.getBindingByTypeId(providesType.id.unwrap()).unwrap()
+                    e->isDirectTraitCall =  true
+                    e->implementation = implementation
+                    if providesType.class.isSome() {
+                      match resolveImplTypeParameters(e->implementation.transmute(), selfArgument.getType()) {
+                        Ok(resolvedTrait) => {
+                          let mut parameterMap = resolvedTrait.instance.unwrap().parameterMap
+                          functionType = resolveTypeParameters(parameterMap)(functionType)
+                        }
+                        Result::Err((to, subject)) => return self.reportOtherError(e, notAssignableError(to, subject))
+                      }
+                    }
                   }
-                  else {
-                    let typeName = objectType.name.unwrap()
-                    context.reportError(
-                      file
-                      e
-                      CompilationError::TraitNotInScope({
-                        functionName: name
-                        traitName: typeName
-                        id: objectType.id.unwrap()
-                      })
+                  TraitCall::None => {
+                    self.reportOtherError(e,
+                      objectType.displayName() ++ ' has not been implemented for type ' ++ selfArgument.getType().displayName()
                     )
                   }
+                  TraitCall::Error(token, message) => self.reportOtherError(token, message)
                 }
               }
-              TraitCall::TypeObject(implementation) => {
-                let trait_: Type =
-                  if let Option::Some(instance) = implementation.trait_.instance
-                    then instance.class
-                    else implementation.trait_
+            }
+            else {
+              e->traitName = self.scope.getBindingByTypeId(providesType.id.unwrap()).unwrap().name
+              e->traitBinding = self.scope.getBindingByTypeId(providesType.id.unwrap()).unwrap()
+              e->isTraitObject =  true
+            }
+          }
+          else self.reportOtherError(e, providesType.displayName() ++ ' has no function named $name')
+        }
+        // It is a normal trait call, for example 'hello'.toUpperCase()
+        else {
+          match getTraitCall(objectType, name, e) {
+            TraitCall::TraitObject({objectType, functionType: func}) => {
+              functionType = func
+              let function = functionType.getFunction()
 
-                if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap()) {
+              if function.selfBinding.isSome() {
+                if let Some(binding) = self.scope.getBindingByTypeId(objectType.id.unwrap()) {
                   e->traitName = binding.name
                   e->traitBinding = binding
-                  e->isShorthand =  trait_.getTrait().isShorthand
-                  e->implementation = implementation
-
-                  functionType = implementation.trait_.getTrait().functions[name]
+                  e->isTraitObject =  true
                 }
                 else {
-                  let traitName = trait_.name.unwrap()
-                  context.reportError(
-                    file
+                  let typeName = objectType.name.unwrap()
+                  self.reportError(
                     e
                     CompilationError::TraitNotInScope({
                       functionName: name
-                      traitName
-                      id: trait_.id.unwrap()
+                      traitName: typeName
+                      id: objectType.id.unwrap()
                     })
                   )
                 }
               }
-              TraitCall::None => {}
-              TraitCall::Error(token, message) => reportError(token, message)
             }
+            TraitCall::TypeObject(implementation) => {
+              let trait_: Type =
+                if let Option::Some(instance) = implementation.trait_.instance
+                  then instance.class
+                  else implementation.trait_
 
-            if e->traitName {
-              if let Option::Some(instance) = objectType.instance {
-                functionType = resolveTypeParameters(instance.parameterMap)(functionType)
+              if let Some(binding) = self.scope.getBindingByTypeId(trait_.id.unwrap()) {
+                e->traitName = binding.name
+                e->traitBinding = binding
+                e->isShorthand =  trait_.getTrait().isShorthand
+                e->implementation = implementation
+
+                functionType = implementation.trait_.getTrait().functions[name]
+              }
+              else {
+                let traitName = trait_.name.unwrap()
+                self.reportError(
+                  e
+                  CompilationError::TraitNotInScope({
+                    functionName: name
+                    traitName
+                    id: trait_.id.unwrap()
+                  })
+                )
               }
             }
+            TraitCall::None => {}
+            TraitCall::Error(token, message) => self.reportOtherError(token, message)
           }
-        }
 
-        if e->traitName {
-          accessError = None
-        }
-        else if let Some((token, message)) = accessError {
-          reportError(token, message)
-          accessError = None
-        }
-      }
-      else {
-        self.visitExpression(e.func)
-        functionType = e.func.getType()
-
-        if let Expression::UnknownAccess(_) = e.func {
-          isUnknownCall = true
-        }
-        else if let Expression::UnknownIndexAccess(_) = e.func {
-          isUnknownCall = true
-        }
-      }
-
-      if let Some(t) = e.typeArguments {
-        let callParameterMap: ObjectMap<Type> = ObjectMap.new()
-
-        t.typeArguments.forEach(|t| self.visitTypeBound(t))
-
-        if functionType {
-          if let Some(class) = functionType.class {
-            if class.parameterRange.contains(t.typeArguments.size()) {
-              functionType = createTypeInstance(functionType, t.typeArguments.map(|t| t.getType()).toList())
+          if e->traitName {
+            if let Option::Some(instance) = objectType.instance {
+              functionType = resolveTypeParameters(instance.parameterMap)(functionType)
             }
           }
         }
       }
 
-      if not isUnknownCall and functionType and functionType.isFunction() {
-        let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
-        let mut callParameterMap: ObjectMap<Type> = ObjectMap.new()
-        let mut functionKind = functionType.getFunction()
-        let resolveParameter = resolveTypeParameters(callParameterMap, false)
+      if e->traitName {
+        // do nothing
+      }
+      else if let Some((token, message)) = accessError {
+        self.reportOtherError(token, message)
+      }
+    }
+    else {
+      visitExpression(self, e.func)
+      functionType = e.func.getType()
 
-        if self.assignedTo and functionKind.returnType {
+      if let Expression::UnknownAccess(_) = e.func {
+        isUnknownCall = true
+      }
+      else if let Expression::UnknownIndexAccess(_) = e.func {
+        isUnknownCall = true
+      }
+    }
+
+    if let Some(t) = e.typeArguments {
+      let callParameterMap: ObjectMap<Type> = ObjectMap.new()
+
+      t.typeArguments.forEach(|t| self.visitTypeBound(t))
+
+      if functionType {
+        if let Some(class) = functionType.class {
+          if class.parameterRange.contains(t.typeArguments.size()) {
+            functionType = createTypeInstance(functionType, t.typeArguments.map(|t| t.getType()).toList())
+          }
+        }
+      }
+    }
+
+    if not isUnknownCall and functionType and functionType.isFunction() {
+      let callTypeParameters = functionType.class.map(|class| class.typeParameters).unwrapOr([])
+      let mut callParameterMap = ObjectMap.new::<Type>()
+      let mut functionKind = functionType.getFunction()
+      let resolveParameter = resolveTypeParameters(callParameterMap, false)
+
+      if let Some(assignedTo) = self.assignedTo {
+        if (functionKind.returnType) {
           resolveFunctionTypeParametersByReturnValue(
             callParameterMap
             callTypeParameters
             functionKind.returnType
-            self.assignedTo
+            assignedTo
           )
         }
+      }
 
-        e.argumentList.enumerate()
-          // If too many arguments are passed e.argumentList will be longer than functionKind.parameters
-          .take(functionKind.parameters.size())
-          .forEach(|(i, a)| {
-            let mut parameter = functionKind.parameters[i]
-            let parameterType =
-              if not parameter.type_ or callTypeParameters.isEmpty()
-                then parameter.type_
-                else resolveParameter(parameter.type_)
-            if not skipFirstArgument or i > 0 {
-              self.visitExpression(a, parameterType)
-            }
-            if callTypeParameters.isNotEmpty() and parameterType and a.getType() {
-              resolveFunctionTypeParameters(
-                callParameterMap
-                callTypeParameters
-                parameterType
-                a.getType()
+      e.argumentList.enumerate()
+        // If too many arguments are passed e.argumentList will be longer than functionKind.parameters
+        .take(functionKind.parameters.size())
+        .forEach(|(i, a)| {
+          let mut parameter = functionKind.parameters[i]
+          let parameterType =
+            if not parameter.type_ or callTypeParameters.isEmpty()
+              then parameter.type_
+              else resolveParameter(parameter.type_)
+          if not skipFirstArgument or i > 0 {
+            visitExpression(self, a, if parameterType then Some(parameterType) else None)
+          }
+          if callTypeParameters.isNotEmpty() and parameterType and a.getType() {
+            resolveFunctionTypeParameters(
+              callParameterMap
+              callTypeParameters
+              parameterType
+              a.getType()
+            )
+          }
+        })
+      if callTypeParameters.isNotEmpty() {
+        functionType = resolveTypeParameters(callParameterMap)(functionType)
+      }
+    }
+    else {
+      e.argumentList.forEach(|a| visitExpression(self, a))
+    }
+    if isUnknownCall {
+      e->type_ = functionType
+    }
+    else if functionType {
+      e->functionType = functionType
+      match checkFunctionCall(functionType, e) {
+        Ok(function) => {
+          if function {
+            e->type_ = function.returnType
+          }
+        }
+        Err((token, message)) => self.reportOtherError(token, message)
+      }
+    }
+    ()
+  }
+  fn visitIfExpression(mut self, e: IfExpression) -> () {
+    let parentScope = self.scope
+    e->scope = self.scope
+    let isUsed = self.isUsed
+    visitExpression(self, e.condition)
+    self.scope = parentScope.createChild()
+    visitBlock(self, e.then_, isUsed and e.else_.isSome())
+    if let Option::Some(else_) = e.else_ {
+      self.scope = parentScope.createChild()
+      visitBlock(self, else_, isUsed)
+    }
+    if isUsed {
+      e->type_ =
+        if let Option::Some(else_) = e.else_ {
+          match  findCommonType([e.then_.type_, else_.type_]) {
+            Result::Ok(type_) => type_
+            Result::Err(_) => {
+              self.reportOtherError(e
+                'Type ' ++ e.then_.type_.displayName() ++ ' and ' ++ else_.type_.displayName() ++ ' is not compatible'
               )
+              Type.empty({file: self.file, token: e})
             }
+          }
+        }
+        else Type.empty({file: self.file, token: e})
+    }
+    self.scope = parentScope
+  }
+  fn visitIfLetExpression(mut self, e: IfLetExpression) -> () {
+    let parentScope = self.scope
+    e->scope = self.scope
+    self.scope = parentScope.createChild()
+    let isUsed = self.isUsed
+    self.visitPattern(e.pattern)
+    visitExpression(self, e.expression)
+
+    match declarePatternVariables(self.scope, self, asMut(e.pattern), e.expression.getType(), true) {
+      Ok(_) => {}
+      Err(PatternError::PatternMismatch(pattern, to, subject)) => {
+        self.reportOtherError(e.expression, notAssignableError(to, subject))
+      }
+      Err(PatternError::ScopeError(token, err)) => self.reportOtherError(token, err)
+      Err(PatternError::NotExhaustive) => {
+        // Allowed in if let expressions
+      }
+    }
+
+    let expressionScope = self.scope
+    self.scope = expressionScope.createChild()
+    visitBlock(self, e.then_, isUsed)
+    if let Option::Some(else_) = e.else_ {
+      self.scope = expressionScope.createChild()
+      visitBlock(self, else_, isUsed)
+    }
+
+    if isUsed {
+      e->type_ =
+        if let Option::Some(else_) = e.else_ {
+          match findCommonType([e.then_.type_, else_.type_]) {
+            Ok(type_) => type_
+            Err(_) => {
+              self.reportOtherError(e
+                'Type ' ++ e.then_.type_.displayName() ++ ' and ' ++ else_.type_.displayName() ++ ' is not compatible'
+              )
+              Type.empty({file: self.file, token: e})
+            }
+          }
+        }
+        else Type.empty({file: self.file, token: e})
+    }
+    self.scope = parentScope
+  }
+  fn visitMatchExpression(mut self, e: MatchExpression) -> () {
+    e->scope = self.scope
+    let oldMatchExpression = self.matchExpression
+    self.matchExpression = Some(e)
+
+    let isUsed = self.isUsed
+
+    visitExpression(self, e.expression)
+
+    e.patterns.forEach(|a| self.visitMatchArm(a))
+
+    if not e.expression.getType() {
+      return self.reportOtherError(e.expression, 'No type in match expression')
+    }
+
+    if let Err(error) = checkExhaustive(e) {
+      self.reportOtherError(e, error)
+    }
+    if isUsed {
+      e->type_ =
+        if e.patterns.isNotEmpty() {
+          match findCommonType(e.patterns.map(|arm| arm->type_.transmute()).toList()) {
+            Ok(type_) => type_
+            Err(_) => {
+              self.reportOtherError(e
+                'Match arms return mixed types ' ++ e.patterns.map(|arm| asType(arm->type_.transmute()).displayName())->join(', ').transmute::<String>()
+              )
+              Type.empty({file: self.file, token: e})
+            }
+          }
+        }
+        else Type.empty({file: self.file, token: e})
+    }
+
+    self.matchExpression = oldMatchExpression
+  }
+  fn visitMatchArm(mut self, a: MatchArm) -> () {
+    let parentScope = self.scope
+    self.scope = parentScope.createChild()
+    a->scope = self.scope
+
+    let m = self.matchExpression.unwrap()
+
+    self.visitPattern(a.pattern)
+    match declarePatternVariables(self.scope, self, asMut(a.pattern), m.expression.getType(), true) {
+      Ok(_) => {}
+      Err(PatternError::PatternMismatch(pattern, to, subject)) => {
+        self.reportOtherError(a, notAssignableError(to, subject))
+      }
+      Err(PatternError::ScopeError(token, err)) => self.reportOtherError(token, err)
+      Err(PatternError::NotExhaustive) => {
+        // Allowed in match expressions
+      }
+    }
+
+    visitBlock(self, a.block, self.isUsed)
+    a->type_ = a.block->type_
+
+    self.scope = parentScope
+  }
+  fn visitTypePathExpression(mut self, e: TypePathExpression) -> () {
+    e->scope = self.scope
+    let typePath = e.typePath
+    self.visitTypePath(e.typePath)
+    let mut type_: Type = e.typePath->type_.transmute()
+    if type_ {
+      e->type_ = enumMemberToFunction(type_)
+    }
+  }
+  fn visitUnaryExpression(mut self, e: UnaryExpression) -> () {
+    e->scope = self.scope
+    visit.walkUnaryExpression(self, e)
+
+    match e.operator.kind {
+      SyntaxKind::NotKeyword => {
+        if let Some(binding) = self.scope.getBindingByTypeId('Bool') {
+          e->type_ = binding.type_.providesType.unwrap()
+        }
+        else self.reportOtherError(e
+          'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
+        )
+      }
+      SyntaxKind::MinusToken => {
+        if let Some(binding) = self.scope.getBindingByTypeId('Num') {
+          e->type_ = binding.type_.providesType.unwrap()
+        }
+        else self.reportOtherError(e
+          'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+        )
+      }
+      SyntaxKind::PlusToken => {
+        if let Some(binding) = self.scope.getBindingByTypeId('Num') {
+          e->type_ = binding.type_.providesType.unwrap()
+        }
+        else self.reportOtherError(e
+          'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+        )
+      }
+      _ => {}
+    }
+    ()
+  }
+
+  fn visitIndexAccess(mut self, a: IndexAccess) -> () {
+    match getCoreType(self.scope, 'Index', 'index access') {
+      Ok((_, binding)) => {
+        let mut call = CallExpression({
+          func: Expression::MemberAccess({
+            object: Expression::Identifier({name: binding.name, span: a.object.span()})
+            dotToken: a.openBracket
+            member: {name: 'index', span: {start: a.openBracket.span.start, end: a.closeBracket.span.end}}
           })
-        if callTypeParameters.isNotEmpty() {
-          functionType = resolveTypeParameters(callParameterMap)(functionType)
+          typeArguments: None
+          openParen: a.openBracket
+          argumentList: [a.object, a.index]
+          closeParen: a.closeBracket
+        })
+        self.visitCallExpression(call)
+        a->call = call
+        a->type_ = call->type_
+        ()
+      }
+      Result::Err(err) => self.reportOtherError(a, err)
+    }
+  }
+  fn visitMemberAccess(mut self, a: MemberAccess) -> () {
+    if let Result::Err((token, message)) = visitMemberAccess(self, a) {
+      self.reportOtherError(token, message)
+    }
+  }
+  fn visitTupleIndexAccess(mut self, a: TupleIndexAccess) -> () {
+    visitExpression(self, a.object)
+    if a.object.getType() {
+      match getIndexedPropertyType(a.object.getType(), a.index.value) {
+        Ok(type_) => a->type_ = type_
+        Result::Err(PropertyError::MissingProperty) => {
+          let message = a.object.getType().displayName() ++ ' has no index ' ++ a.index.value.toString()
+          let token: ToSpan = a.index
+          self.reportOtherError(a, message)
+        }
+        Result::Err(PropertyError::UnsupportedType) => {
+          let message = 'Can only read indexed properties on tuple types'
+          let token: ToSpan = a.index
+          self.reportOtherError(a, message)
+        }
+        Result::Err(PropertyError::Scope(message)) => self.reportOtherError(a, message)
+      }
+    }
+  }
+  fn visitUnknownAccess(mut self, a: UnknownAccess) -> () {
+    visit.walkExpression(self, a.object)
+    match getCoreType(self.scope, 'Unknown', 'unknown access') {
+      Ok((type_, _)) => a->type_ = type_
+      Result::Err(err) => self.reportOtherError(a, err)
+    }
+    ()
+  }
+  fn visitUnknownIndexAccess(mut self, a: UnknownIndexAccess) -> () {
+    visit.walkUnknownIndexAccess(self, a)
+    match getCoreType(self.scope, 'Unknown', 'unknown access') {
+      Ok((type_, _)) => a->type_ = type_
+      Result::Err(err) => self.reportOtherError(a, err)
+    }
+    ()
+  }
+
+  fn visitBooleanLiteral(mut self, l: BooleanLiteral) -> () {
+    l->scope = self.scope
+    if let Some(binding) = self.scope.getBindingByTypeId('Bool') {
+      l->type_ = binding.type_.providesType.unwrap()
+    }
+    else self.reportOtherError(l
+      'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
+    )
+    ()
+  }
+  fn visitListLiteral(mut self, l: ListLiteral) -> () {
+    let mut listType =
+      if let Some(binding) = self.scope.getBindingByTypeId('List') {
+        binding.type_.providesType.unwrap()
+      }
+      else return self.reportOtherError(l
+        'puck:core::List is not in scope. Please import List from puck:core to use list literals.'
+      )
+    let mut type_: Option<Type> = None
+    if let Some(assignedTo) = self.assignedTo {
+      if let TypeKind::Struct(_) = assignedTo.kind {
+        if assignedTo.id.unwrapOr('') == 'List' {
+          type_ = Some(assignedTo)
+        }
+      }
+    }
+    visit.walkListLiteral(self, l)
+    if let Some(type_) = type_ {
+      l->type_ = type_
+    } else {
+      if l.members.size() >= 1 {
+        let types = l.members.map(|m| m.getType()).toList()
+        match findCommonType(types) {
+          Ok(type_) => {
+            if not type_ {
+              l->type_ = listType
+            } else {
+              l->type_ = createTypeInstance(listType, [type_])
+            }
+          }
+          Err(_) => self.reportOtherError(l, 'List contains mixed types')
         }
       }
       else {
-        e.argumentList.forEach(|a| self.visitExpression(a))
+        l->type_ = listType
       }
-      if isUnknownCall {
-        e->type_ = functionType
-      }
-      else if functionType {
-        e->functionType = functionType
-        match checkFunctionCall(functionType, e) {
-          Ok(function) => {
-            if function {
-              e->type_ = function.returnType
-            }
-          }
-          Err((token, message)) => reportError(token, message)
-        }
-      }
+    }
+    ()
+  }
+  fn visitNumberLiteral(mut self, l: NumberLiteral) -> () {
+    if let Some(binding) = self.scope.getBindingByTypeId('Num') {
+      l->type_ = binding.type_.providesType.unwrap()
       ()
     }
-    visitIfExpression: |mut self, mut e: IfExpression| {
-      let parentScope: Scope = self.scope
-      e->scope = self.scope
-      let isUsed = self.isUsed
-      self.visitExpression(e.condition)
-      self.scope = parentScope.createChild()
-      self.visitBlock(e.then_, isUsed and e.else_.isSome())
-      if let Option::Some(else_) = e.else_ {
-        self.scope = parentScope.createChild()
-        self.visitBlock(else_, isUsed)
-      }
-      if isUsed {
-        e->type_ =
-          if let Option::Some(else_) = e.else_ {
-            match  findCommonType([e.then_.type_, else_.type_]) {
-              Result::Ok(type_) => type_
-              Result::Err(_) => {
-                reportError(e
-                  'Type ' ++ e.then_.type_.displayName() ++ ' and ' ++ else_.type_.displayName() ++ ' is not compatible'
-                )
-                Type.empty({file, token: e})
-              }
-            }
-          }
-          else Type.empty({file, token: e})
-      }
-      self.scope = parentScope
-    }
-    visitIfLetExpression: |mut self, mut e: IfLetExpression| {
-      let parentScope: Scope = self.scope
-      e->scope = self.scope
-      self.scope = parentScope.createChild()
-      let isUsed = self.isUsed
-      self.visitPattern(e.pattern)
-      self.visitExpression(e.expression)
-      match declarePatternVariables(self.scope, self, e.pattern, e.expression.getType(), true) {
-        Result::Ok(_) => {}
-        Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
-          reportError(e.expression, notAssignableError(to, subject))
-        }
-        Result::Err(PatternError::ScopeError(token, err)) => reportError(token, err)
-        Result::Err(PatternError::NotExhaustive) => {
-          // Allowed in if let expressions
-        }
-      }
-      let expressionScope: Scope = self.scope
-      self.scope = expressionScope.createChild()
-      self.visitBlock(e.then_, isUsed)
-      if let Option::Some(else_) = e.else_ {
-        self.scope = expressionScope.createChild()
-        self.visitBlock(else_, isUsed)
-      }
-      if isUsed {
-        e->type_ =
-          if let Option::Some(else_) = e.else_ {
-            match findCommonType([e.then_.type_, else_.type_]) {
-              Result::Ok(type_) => type_
-              Result::Err(_) => {
-                reportError(e
-                  'Type ' ++ e.then_.type_.displayName() ++ ' and ' ++ else_.type_.displayName() ++ ' is not compatible'
-                )
-                Type.empty({file, token: e})
-              }
-            }
-          }
-          else Type.empty({file, token: e})
-      }
-      self.scope = parentScope
-    }
-    visitMatchExpression: |mut self, mut e: MatchExpression| {
-      e->scope = self.scope
-      let oldMatchExpression = matchExpression
-      matchExpression = Some(e)
-
-      let isUsed = self.isUsed
-
-      self.visitExpression(e.expression)
-
-      e.patterns.forEach(|a| self.visitMatchArm(a, isUsed))
-
-      if not e.expression.getType() {
-        return reportError(e.expression, 'No type in match expression')
-      }
-
-      if let Result::Err(error) = checkExhaustive(e) {
-        reportError(e, error)
-      }
-      if isUsed {
-        e->type_ =
-          if e.patterns.isNotEmpty() {
-            match findCommonType(e.patterns.map(|arm| arm->type_.transmute()).toList()) {
-              Result::Ok(type_) => type_
-              Result::Err(_) => {
-                reportError(e
-                  'Match arms return mixed types ' ++ e.patterns.map(|arm| asType(arm->type_.transmute()).displayName())->join(', ').transmute::<String>()
-                )
-                Type.empty({file, token: e})
-              }
-            }
-          }
-          else Type.empty({file, token: e})
-      }
-
-      matchExpression = oldMatchExpression
-      ()
-    }
-    visitMatchArm: |mut self, mut a: MatchArm, isUsed| {
-      let parentScope: Scope = self.scope
-      self.scope = parentScope.createChild()
-      a->scope = self.scope
-
-      let m = matchExpression.unwrap()
-
-      self.visitPattern(a.pattern)
-      match declarePatternVariables(self.scope, self, a.pattern, m.expression.getType(), true) {
-        Result::Ok(_) => {}
-        Result::Err(PatternError::PatternMismatch(pattern, to, subject)) => {
-          reportError(a, notAssignableError(to, subject))
-        }
-        Result::Err(PatternError::ScopeError(token, err)) => reportError(token, err)
-        Result::Err(PatternError::NotExhaustive) => {
-          // Allowed in match expressions
-        }
-      }
-
-      self.visitBlock(a.block, isUsed)
-      a->type_ = a.block->type_
-
-      self.scope = parentScope
-    }
-    visitTypePathExpression: |self, mut e: TypePathExpression| {
-      e->scope = self.scope
-      let typePath = e.typePath
-      self.visitTypePath(e.typePath)
-      let mut type_: Type = e.typePath->type_.transmute()
-      if type_ {
-        e->type_ = enumMemberToFunction(type_)
-      }
-    }
-    visitUnaryExpression: |self, mut e: UnaryExpression| {
-      let scope: Scope = self.scope
-      e->scope = self.scope
-      visit.walkUnaryExpression(self, e)
-
-      match e.operator.kind {
-        SyntaxKind::NotKeyword => {
-          if let Some(binding) = scope.getBindingByTypeId('Bool') {
-            e->type_ = binding.type_.providesType.unwrap()
-          }
-          else reportError(e
-            'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
-          )
-        }
-        SyntaxKind::MinusToken => {
-          if let Some(binding) = scope.getBindingByTypeId('Num') {
-            e->type_ = binding.type_.providesType.unwrap()
-          }
-          else reportError(e
-            'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
-          )
-        }
-        SyntaxKind::PlusToken => {
-          if let Some(binding) = scope.getBindingByTypeId('Num') {
-            e->type_ = binding.type_.providesType.unwrap()
-          }
-          else reportError(e
-            'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
-          )
-        }
-        _ => {}
-      }
-      ()
-    }
-
-    visitIndexAccess: |self, mut a: IndexAccess| {
-      match getCoreType(self.scope, 'Index', 'index access') {
-        Ok((_, binding)) => {
-          let mut call = CallExpression({
-            func: Expression::MemberAccess({
-              object: Expression::Identifier({name: binding.name, span: a.object.span()})
-              dotToken: a.openBracket
-              member: {name: 'index', span: {start: a.openBracket.span.start, end: a.closeBracket.span.end}}
-            })
-            typeArguments: None
-            openParen: a.openBracket
-            argumentList: [a.object, a.index]
-            closeParen: a.closeBracket
+    else self.reportOtherError(l
+      'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
+    )
+  }
+  fn visitRangeLiteral(mut self, l: RangeLiteral) -> () {
+    visit.walkRangeLiteral(self, l)
+    match getCoreType(self.scope, 'Range', 'range literals') {
+      Ok((_, binding)) => {
+        let mut call = CallExpression({
+          func: Expression::MemberAccess({
+            object: Expression::Identifier({name: binding.name, span: l.dotDotToken.span})
+            dotToken: l.dotDotToken
+            member: {name: 'new', span: l.dotDotToken.span}
           })
-          self.visitCallExpression(call)
-          a->call = call
-          a->type_ = call->type_
-          ()
+          typeArguments: None
+          openParen: l.dotDotToken
+          argumentList: [l.start, l.end]
+          closeParen: l.dotDotToken
+        })
+        self.visitCallExpression(call)
+        l->call = call
+        l->type_ = call->type_
+      }
+      Result::Err(err) => self.reportOtherError(l, err)
+    }
+    ()
+  }
+  fn visitRecordLiteral(mut self, l: RecordLiteral) -> () {
+    visit.walkRecordLiteral(self, l)
+    let mut properties = ObjectMap.new::<RecordMember>()
+    l.members.forEach(|m| {
+      match m {
+        RecordLiteralMember::Property {name, value} => {
+          properties.set(name.name, {type_: value.getType(), optional: false})
         }
-        Err(err) => reportError(a, err)
-      }
-    }
-    visitMemberAccess: |self, mut a: MemberAccess, inCallExpression = false| {
-      self.visitExpression(a.object)
-      if a.object.getType() {
-        match getNamedPropertyType(self.scope, a.object.getType(), a.member.name) {
-          Ok(type_) => a->type_ = type_
-          Err(PropertyError::MissingProperty) => {
-            let message = a.object.getType().displayName() ++ ' has no property ' ++ a.member.name
-            let token: ToSpan = a.member
-            if inCallExpression
-              then accessError = Some((token, message))
-              else reportError(a, message)
-          }
-          Err(PropertyError::UnsupportedType) => {
-            let message = 'Can only read properties on record types'
-            let token: ToSpan = a.member
-            if inCallExpression
-              then accessError = Some((token, message))
-              else reportError(a, message)
-          }
-          Err(PropertyError::Scope(message)) => reportError(a, message)
-        }
-      }
-    }
-    visitTupleIndexAccess: |self, mut a: TupleIndexAccess, inCallExpression = false| {
-      self.visitExpression(a.object)
-      if a.object.getType() {
-        match getIndexedPropertyType(a.object.getType(), a.index.value) {
-          Ok(type_) => a->type_ = type_
-          Err(PropertyError::MissingProperty) => {
-            let message = a.object.getType().displayName() ++ ' has no index ' ++ a.index.value.toString()
-            let token: ToSpan = a.index
-            if inCallExpression
-              then accessError = Some((token, message))
-              else reportError(a, message)
-          }
-          Err(PropertyError::UnsupportedType) => {
-            let message = 'Can only read indexed properties on tuple types'
-            let token: ToSpan = a.index
-            if inCallExpression
-              then accessError = Some((token, message))
-              else reportError(a, message)
-          }
-          Err(PropertyError::Scope(message)) => reportError(a, message)
-        }
-      }
-    }
-    visitUnknownAccess: |self, mut a: UnknownAccess| {
-      visit.walkExpression(self, a.object)
-      match getCoreType(self.scope, 'Unknown', 'unknown access') {
-        Ok((type_, _)) => a->type_ = type_
-        Err(err) => reportError(a, err)
-      }
-      ()
-    }
-    visitUnknownIndexAccess: |self, mut a: UnknownIndexAccess| {
-      visit.walkUnknownIndexAccess(self, a)
-      match getCoreType(self.scope, 'Unknown', 'unknown access') {
-        Ok((type_, _)) => a->type_ = type_
-        Err(err) => reportError(a, err)
-      }
-      ()
-    }
-
-    visitBooleanLiteral: |self, mut l: BooleanLiteral| {
-      let scope: Scope = self.scope
-      l->scope = self.scope
-      if let Some(binding) = scope.getBindingByTypeId('Bool') {
-        l->type_ = binding.type_.providesType.unwrap()
-      }
-      else reportError(l
-        'puck:core::Bool is not in scope. Please import Bool from puck:core to use boolean literals.'
-      )
-      ()
-    }
-    visitListLiteral: |self, mut l: ListLiteral| {
-      let scope: Scope = self.scope
-      let mut listType =
-        if let Some(binding) = scope.getBindingByTypeId('List') {
-          binding.type_.providesType.unwrap()
-        }
-        else return reportError(l
-          'puck:core::List is not in scope. Please import List from puck:core to use list literals.'
-        )
-      let mut type_: Option<Type> = None
-      if self.assignedTo {
-        let a: Type = self.assignedTo
-        if let TypeKind::Struct(_) = a.kind {
-          if a.id.unwrapOr('') == 'List' {
-            type_ = Some(a)
-          }
-        }
-      }
-      visit.walkListLiteral(self, l)
-      if let Some(type_) = type_ {
-        l->type_ = type_
-      } else {
-        if l.members.size() >= 1 {
-          let types = l.members.map(|m| m.getType()).toList()
-          match findCommonType(types) {
-            Result::Ok(type_) => {
-              if not type_ {
-                l->type_ = listType
-              } else {
-                l->type_ = createTypeInstance(listType, [type_])
-              }
+        RecordLiteralMember::Spread(e) => {
+          match e.getType().kind {
+            TypeKind::Struct({kind: StructKind::Record(r)}) => {
+              properties.merge(r.properties)
             }
-            Result::Err(_) => reportError(l, 'List contains mixed types')
+            _ => {}
           }
         }
-        else {
-          l->type_ = listType
-        }
       }
-      ()
-    }
-    visitNumberLiteral: |self, mut l: NumberLiteral| {
-      let scope: Scope = self.scope
-      if let Some(binding) = scope.getBindingByTypeId('Num') {
-        l->type_ = binding.type_.providesType.unwrap()
-        ()
-      }
-      else reportError(l
-        'puck:core::Num is not in scope. Please import Num from puck:core to use number literals.'
-      )
-    }
-    visitRangeLiteral: |self, mut l: RangeLiteral| {
-      visit.walkRangeLiteral(self, l)
-      let scope: Scope = self.scope
-      match getCoreType(scope, 'Range', 'range literals') {
-        Ok((_, binding)) => {
-          let mut call = CallExpression({
-            func: Expression::MemberAccess({
-              object: Expression::Identifier({name: binding.name, span: l.dotDotToken.span})
-              dotToken: l.dotDotToken
-              member: {name: 'new', span: l.dotDotToken.span}
-            })
-            typeArguments: None
-            openParen: l.dotDotToken
-            argumentList: [l.start, l.end]
-            closeParen: l.dotDotToken
-          })
-          self.visitCallExpression(call)
-          l->call = call
-          l->type_ = call->type_
-        }
-        Err(err) => reportError(l, err)
-      }
-      ()
-    }
-    visitRecordLiteral: |self, mut l: RecordLiteral| {
-      visit.walkRecordLiteral(self, l)
-      let mut properties = ObjectMap.new::<RecordMember>()
-      l.members.forEach(|m| {
-        match m {
-          RecordLiteralMember::Property {name, value} => {
-            properties.set(name.name, {type_: value.getType(), optional: false})
-          }
-          RecordLiteralMember::Spread(e) => {
-            match e.getType().kind {
-              TypeKind::Struct({kind: StructKind::Record(r)}) => {
-                properties.merge(r.properties)
-              }
-              _ => {}
-            }
-          }
-        }
+    })
+    l->type_ = Type({
+      definition: Definition({file: self.file, token: l})
+      id: None
+      displayName: None
+      name: None
+      kind: TypeKind::Struct({
+        implementations: []
+        kind: StructKind::Record({properties})
       })
-      l->type_ = Type({
-        definition: Definition({file, token: l})
-        id: None
-        displayName: None
-        name: None
-        kind: TypeKind::Struct({
-          implementations: []
-          kind: StructKind::Record({properties})
+      class: None
+      instance: None
+      providesType: None
+      enumMember: None
+    })
+  }
+  fn visitRecordLiteralMember(mut self, l: RecordLiteralMember) -> () {
+    visit.walkRecordLiteralMember(self, l)
+    if let RecordLiteralMember::Spread(e) = l {
+      match e.getType().kind {
+        TypeKind::Struct({kind: StructKind::Record(_)}) => {}
+        _ => {
+          self.reportOtherError(e, 'Can only spread record types')
+        }
+      }
+    }
+  }
+  fn visitStringLiteral(mut self, l: StringLiteral) -> () {
+    l->scope = self.scope
+    if let Some(binding) = self.scope.getBindingByTypeId('String') {
+      l->type_ = binding.type_.providesType.unwrap()
+    }
+    else self.reportOtherError(l
+      'puck:core::String is not in scope. Please import String from puck:core to use string literals.'
+    )
+    visit.walkStringLiteral(self, l)
+  }
+  fn visitTupleLiteral(mut self, l: TupleLiteral) -> () {
+    l->scope = self.scope
+    visit.walkTupleLiteral(self, l)
+    l->type_ = Type({
+      definition: Definition({file: self.file, token: l})
+      id: None
+      displayName: None
+      name: None
+      kind: TypeKind::Struct({
+        implementations: []
+        kind: StructKind::Tuple({
+          properties: l.expressions.map(|e| e.getType()).toList()
         })
-        class: None
-        instance: None
-        providesType: None
-        enumMember: None
       })
-    }
-    visitRecordLiteralMember: |self, mut l: RecordLiteralMember| {
-      visit.walkRecordLiteralMember(self, l)
-      if let RecordLiteralMember::Spread(e) = l {
-        match e.getType().kind {
-          TypeKind::Struct({kind: StructKind::Record(_)}) => {}
-          _ => {
-            reportError(e, 'Can only spread record types')
-          }
-        }
-      }
-    }
-    visitStringLiteral: |self, mut l: StringLiteral| {
-      let scope: Scope = self.scope
-      l->scope = self.scope
-      if let Some(binding) = scope.getBindingByTypeId('String') {
-        l->type_ = binding.type_.providesType.unwrap()
-      }
-      else reportError(l
-        'puck:core::String is not in scope. Please import String from puck:core to use string literals.'
-      )
-      visit.walkStringLiteral(self, l)
-    }
-    visitTupleLiteral: |self, mut l: TupleLiteral| {
-      l->scope = self.scope
-      visit.walkTupleLiteral(self, l)
-      l->type_ = Type({
-        definition: Definition({file, token: l})
-        id: None
-        displayName: None
-        name: None
-        kind: TypeKind::Struct({
-          implementations: []
-          kind: StructKind::Tuple({
-            properties: l.expressions.map(|e| e.getType()).toList()
-          })
-        })
-        class: None
-        instance: None
-        providesType: None
-        enumMember: None
-      })
-    }
+      class: None
+      instance: None
+      providesType: None
+      enumMember: None
+    })
+  }
 
-    visitPattern: |self, mut p: Pattern| {
-      p->scope = self.scope
-      visit.walkPattern(self, p)
-      p->type_ =
-        match p {
-          Pattern::CatchAll => Type.unused({file, token: p})
-          Pattern::Identifier {identifier} => undefined
-          Pattern::Record(record) => record->type_.transmute()
-          Pattern::RecordType(typePath, record) => {
-            let type_: Type = typePath->providesType.transmute()
-            if not isAssignable(record->type_.transmute(), type_)
-              then reportError(p, type_.displayName() ++ ' is not assignable to pattern ' ++ record.displayName())
-            type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
-          }
-          Pattern::Tuple(tuple) => tuple->type_.transmute()
-          Pattern::TupleType(typePath, tuple) => {
-            let type_: Type = typePath->providesType.transmute()
-            if not isAssignable(tuple->type_.transmute(), type_)
-              then reportError(p, type_.displayName() ++ ' is not assignable to pattern ' ++ tuple.displayName())
-            type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
-          }
-          Pattern::UnitType(typePath) => undefined
+  fn visitPattern(mut self, p: Pattern) -> () {
+    p->scope = self.scope
+    visit.walkPattern(self, p)
+    p->type_ =
+      match p {
+        Pattern::CatchAll => Type.unused({file: self.file, token: p})
+        Pattern::Identifier {identifier} => undefined
+        Pattern::Record(record) => record->type_.transmute()
+        Pattern::RecordType(typePath, record) => {
+          let type_: Type = typePath->providesType.transmute()
+          if not isAssignable(record->type_.transmute(), type_)
+            then self.reportOtherError(p, type_.displayName() ++ ' is not assignable to pattern ' ++ record.displayName())
+          type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
         }
-    }
+        Pattern::Tuple(tuple) => tuple->type_.transmute()
+        Pattern::TupleType(typePath, tuple) => {
+          let type_: Type = typePath->providesType.transmute()
+          if not isAssignable(tuple->type_.transmute(), type_)
+            then self.reportOtherError(p, type_.displayName() ++ ' is not assignable to pattern ' ++ tuple.displayName())
+          type_.enumMember.mapOr(type_, |(_, enum_)| enum_)
+        }
+        Pattern::UnitType(typePath) => undefined
+      }
+  }
 
-    visitRecordPattern: |self, mut p: RecordPattern| {
-      p->scope = self.scope
-      visit.walkRecordPattern(self, p)
-      p->type_ = Type({
-        definition: Definition({file, token: p})
-        id: None
-        displayName: None
-        name: None
-        kind: TypeKind::Struct({
-          implementations: []
-          kind: StructKind::Record({properties: ObjectMap.fromIter(p.properties.map(|p| {
-            let type_: Type = p.pattern->type_.transmute()
-            (p.property.name, {type_, optional: false})
-          }))})
-        })
-        instance: None
-        class: None
-        providesType: None
-        enumMember: None
+  fn visitRecordPattern(mut self, p: RecordPattern) -> () {
+    p->scope = self.scope
+    visit.walkRecordPattern(self, p)
+    p->type_ = Type({
+      definition: Definition({file: self.file, token: p})
+      id: None
+      displayName: None
+      name: None
+      kind: TypeKind::Struct({
+        implementations: []
+        kind: StructKind::Record({properties: ObjectMap.fromIter(p.properties.map(|p| {
+          let type_: Type = p.pattern->type_.transmute()
+          (p.property.name, {type_, optional: false})
+        }))})
       })
-    }
-    visitTuplePattern: |self, mut p: TuplePattern| {
-      p->scope = self.scope
-      visit.walkTuplePattern(self, p)
-      p->type_ = Type({
-        definition: Definition({file, token: p})
-        id: None
-        displayName: None
-        name: None
-        kind: TypeKind::Struct({
-          implementations: []
-          kind: StructKind::Tuple({properties: p.properties.map(|p| p->type_.transmute()).toList()})
-        })
-        instance: None
-        class: None
-        providesType: None
-        enumMember: None
+      instance: None
+      class: None
+      providesType: None
+      enumMember: None
+    })
+  }
+  fn visitTuplePattern(mut self, p: TuplePattern) -> () {
+    p->scope = self.scope
+    visit.walkTuplePattern(self, p)
+    p->type_ = Type({
+      definition: Definition({file: self.file, token: p})
+      id: None
+      displayName: None
+      name: None
+      kind: TypeKind::Struct({
+        implementations: []
+        kind: StructKind::Tuple({properties: p.properties.map(|p| p->type_.transmute()).toList()})
       })
-    }
-  })
+      instance: None
+      class: None
+      providesType: None
+      enumMember: None
+    })
+  }
+
+  fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {
+    self.typeBoundVisitor.visitFunctionTypeBound(t)
+  }
+  fn visitIntersectionTypeBound(mut self, t: IntersectionTypeBound) -> () {
+    self.typeBoundVisitor.visitIntersectionTypeBound(t)
+  }
+  fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {
+    self.typeBoundVisitor.visitNamedTypeBound(t)
+  }
+  fn visitRecordTypeBound(mut self, t: RecordTypeBound) -> () {
+    self.typeBoundVisitor.visitRecordTypeBound(t)
+  }
+  fn visitTupleTypeBound(mut self, t: TupleTypeBound) -> () {
+    self.typeBoundVisitor.visitTupleTypeBound(t)
+  }
+  fn visitTypeParameter(mut self, t: TypeParameter) -> () {
+    self.typeBoundVisitor.visitTypeParameter(t)
+  }
+  fn visitTypePath(mut self, t: TypePath) -> () {
+    self.typeBoundVisitor.visitTypePath(t)
+  }
 }

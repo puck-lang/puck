@@ -14,7 +14,7 @@ import '../../entities.puck' as {Definition, File, Function, StructKind, Type, T
 import 'range.puck' as {checkRange, getRange}
 import 'scope.puck' as {Binding, Scope}
 import 'types.puck' as {isAssignable, isSameId}
-import 'structure_visitor.puck' as {notAssignableError}
+import 'type_bound_visitor.puck' as {notAssignableError}
 
 fn getPatternName(pattern: Pattern) -> Option<String> {
   match pattern {

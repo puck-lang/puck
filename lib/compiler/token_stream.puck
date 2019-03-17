@@ -63,7 +63,7 @@ impl TokenStream {
     inImport: false
   }}
 
-  fn peek(mut self, returnDummy = false) -> Token {
+  fn peek(mut self, returnDummy: Bool = false) -> Token {
     if returnDummy {
       if let Some(token) = self.currentDummy then return token
     }
@@ -88,7 +88,7 @@ impl TokenStream {
     token
   }
 
-  fn next(mut self, returnDummy = false) -> Token {
+  fn next(mut self, returnDummy: Bool = false) -> Token {
     if let Some(token) = self.currentDummy {
       self.currentDummy = None
 

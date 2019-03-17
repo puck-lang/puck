@@ -16,6 +16,9 @@ inner: function () {
   return self;
 }
 };
+var SubTrait = {
+
+};
 Trait["$impl_test/cases/modules/import.puck:Trait$test/cases/modules/export.puck:Type"] = {
 inner: Trait.inner
 };
@@ -23,6 +26,11 @@ $puck_4.Trait["$impl_test/cases/modules/export.puck:Trait$test/cases/modules/imp
 _static: $puck_4.Trait._static,
 implemented: function () {},
 _default: $puck_4.Trait._default
+};
+$puck_6.Trait["$impl_test/cases/modules/import.puck:SubTrait$test/cases/modules/import.puck:Type"] = SubTrait["$impl_test/cases/modules/import.puck:SubTrait$test/cases/modules/import.puck:Type"] = {
+_static: $puck_6.Trait._static,
+implemented: $puck_6.Trait.implemented,
+_default: $puck_6.Trait._default
 };
 var foo = exports.foo = e.b + $puck_3.a + $puck_5.b + $puck_3.b;
 const q = "not imported";

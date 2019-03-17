@@ -1,6 +1,5 @@
 import 'puck:js' as {Object, null, undefined}
 import '../../ast/ast.puck' as {TypeBound}
-import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
   Enum
@@ -259,9 +258,11 @@ fn _isAssignable(to: Type, subject: Type, mut checked: Map<Type, Set<Type>>) {
       _ => false
     }
     TypeKind::Trait => match subject.kind {
-      TypeKind::Trait => {
-        isSameId(to, subject) and
-        checkTypeParameters(to, subject)
+      TypeKind::Trait(subjectTrait) => {
+        (
+          isSameId(to, subject) and
+          checkTypeParameters(to, subject)
+        ) or subjectTrait.requiredTraits.any(|requiredTrait| _isAssignable(to, requiredTrait, checked))
       }
       TypeKind::Enum(subjectEnum) => {
         subjectEnum.implementations.any(|implementation|

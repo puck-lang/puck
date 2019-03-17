@@ -5,7 +5,6 @@ exports.resolveTypeParameters = exports.createTypeInstance = exports.isSameId = 
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("./../../ast/ast");
-const visit = require("./../../ast/visit");
 const $puck_4 = require("./../../compiler/ast");
 const $puck_5 = require("./../../entities");
 function assign(a, b) {
@@ -384,8 +383,10 @@ function _isAssignable(to, subject, checked) {
               $puck_34;
               let $puck_38 = subject.kind;
               if ($puck_38.kind === "Trait") {
-                $puck_38;
-                return (isSameId(to, subject) && checkTypeParameters(to, subject));
+                let {value: subjectTrait} = $puck_38;
+                return (isSameId(to, subject) && checkTypeParameters(to, subject) || $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].any.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: subjectTrait.requiredTraits, $isTraitObject: true}, function (requiredTrait) {
+                  return _isAssignable(to, requiredTrait, checked);
+                }));
               }
               else {
                 if ($puck_38.kind === "Enum") {

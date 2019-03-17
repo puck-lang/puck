@@ -7,7 +7,7 @@ const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const js = require("puck-lang/dist/lib/stdlib/js");
 var Unknown = exports.Unknown = (object) => object;
 Unknown.from = function (value) {
-  return value;
+  return $unwrapTraitObject(value);
 };
 Unknown.isNull = function () {
   const self = this;

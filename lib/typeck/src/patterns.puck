@@ -1,7 +1,8 @@
+import 'puck:js' as {undefined}
 import '../../ast/ast.puck' as {Pattern, TypePath}
 import '../../ast/span.puck' as {ToSpan}
-import 'puck:js' as {undefined}
 import '../../entities.puck' as {Definition, RecordMember, StructKind, Type, TypeKind}
+import '../scope_visitor.puck' as {ScopeVisitor}
 import 'scope.puck' as {Scope}
 import 'types.puck' as {isAssignable}
 import 'core_type_helpers.puck' as {getRecordPropType, wrapInOption}
@@ -55,7 +56,7 @@ fn isNonExhaustive(typePath: TypePath) -> Bool {
   false
 }
 
-export fn declarePatternVariables(mut scope: Scope, visitor, mut p: Pattern, type_: Type, allowNotExhaustive: Bool, useParentScope = false, mut definitions: ObjectMap<Bool> = ObjectMap.new()) ->
+export fn declarePatternVariables(mut scope: Scope, visitor: ScopeVisitor, mut p: Pattern, type_: Type, allowNotExhaustive: Bool, useParentScope = false, mut definitions: ObjectMap<Bool> = ObjectMap.new()) ->
     Result<(), PatternError> {
   match p {
     Pattern::CatchAll => Ok(())

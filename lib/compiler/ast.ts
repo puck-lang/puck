@@ -69,7 +69,7 @@ export interface ImplDeclaration {
   trait_: NamedTypeBound
   type_: NamedTypeBound
   members: Array<FunctionDeclaration>
-  extendedTraits: Record<string, string>
+  extendedTraits: Record<string, any>
 }
 
 export interface ImplShorthandDeclaration {
@@ -298,6 +298,7 @@ export interface MatchExpression extends SimpleToken {
 export interface MatchArm {
   pattern: Pattern
   block: BlockNode
+  scope: any
 }
 
 export interface TypePathExpression extends SimpleToken {

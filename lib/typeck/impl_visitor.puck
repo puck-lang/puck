@@ -1,4 +1,3 @@
-import 'puck:js' as {Object, undefined}
 import '../ast/ast.puck' as {
   Module
   TopLevelStatement
@@ -8,6 +7,7 @@ import '../ast/ast.puck' as {
   ImplShorthandDeclaration
   TraitDeclaration
   TypeDeclaration
+  FunctionDeclaration
 
   ImportDirective
   ImportSpecifier
@@ -15,17 +15,25 @@ import '../ast/ast.puck' as {
   ExportDirective
   ExportedStatement
 
+  Pattern
   TypeBound
+  FunctionTypeBound
+  IntersectionTypeBound
   NamedTypeBound
+  RecordTypeBound
+  TupleTypeBound
+  TypeParameter
+  TypePath
 }
 import '../ast/span.puck' as {ToSpan}
 import '../compiler.puck' as {CompilerContext}
+import '../ast/visit.puck' as {Visit}
 import '../ast/visit.puck' as visit
 import '../compiler/ast.ts' as {SyntaxKind}
-import 'src/functions.puck' as {checkFunctionAssignability}
+import 'src/functions.puck' as {checkFunctionAssignability, createFunctionType}
 import 'src/range.puck' as {checkRange}
 import 'src/scope.puck' as {Binding, Scope}
-import 'src/structure_visitor.puck' as {structureVisitor}
+import 'src/type_bound_visitor.puck' as {TypeBoundVisitor, visitMethodDeclaration}
 import 'src/types.puck' as {
   isAssignable
   isSameType
@@ -40,6 +48,8 @@ import '../entities.puck' as {
   TypeKind
   CompilationError
 }
+
+fn asMut<T>(i: T) {i}
 
 export fn checkDefferedImpls(mut deferredImpl: Map<Type, List<(List<Type>, () -> ())>>) {
   for (type_, mut awaiters) of deferredImpl.entries() {
@@ -181,125 +191,175 @@ fn implementShorthand(type_: Type, mut implementable: {implementations: List<Imp
   })
 }
 
-export fn ImplVisitor(mut context: CompilerContext, file: File) {
-  let mut importDirective: ImportDirective
+export type ImplVisitor {
+  file: File
+  context: CompilerContext
+  scope: Scope
+  typeBoundVisitor: TypeBoundVisitor
+}
 
-  fn getImplId(type_: Type, trait_: Type) {
+impl ImplVisitor {
+  fn new(mut context: CompilerContext, file: File) -> ImplVisitor {
+    let mut implVisitor = {
+      context
+      file
+      scope: Scope.new(context)
+      typeBoundVisitor: {
+        getScope: || implVisitor.scope
+        setScope: |scope| implVisitor.scope = scope
+        file
+        reportError: |token: ToSpan, error: CompilationError| {
+          context.reportError(file, token, error)
+        }
+        visitorName: 'ImplVisitor'
+      }
+    }
+
+    implVisitor
+  }
+
+  fn getImplId(mut self, type_: Type, trait_: Type) -> String {
     let mut id = '\$impl_' ++ type_.id.unwrap() ++ '\$' ++ trait_.id.unwrap()
-    if let Some(count) = context.impls.get(id) {
-      context.impls.set(id, count + 1)
+    if let Some(count) = self.context.impls.get(id) {
+      self.context.impls.set(id, count + 1)
       id = '$id\$$count'
     }
     else {
-      context.impls.set(id, 1)
+      self.context.impls.set(id, 1)
     }
     id
   }
 
-  fn reportError(token: ToSpan, message: String) {
-    context.reportError(file, token, CompilationError::Other(message))
+  fn reportError(self, token: ToSpan, error: CompilationError) -> () {
+    self.context.reportError(self.file, token, error)
+  }
+}
+
+
+impl Visit for ImplVisitor {
+  fn visitModule(mut self, m: Module) -> () {
+    self.scope = m->scope.transmute()
+    m.statements
+      .filter(|e| match e {
+        TopLevelStatement::ImplDeclaration(_) => true
+        TopLevelStatement::ImplShorthandDeclaration(_) => true
+        _ => false
+      })
+      .forEach(|s| self.visitTopLevelStatement(s))
   }
 
-  Object->assign({}, visit.emptyVisitor, structureVisitor(context, file, 'ImplVisitor'), {
-    visitModule: |mut self, mut m: Module| {
-      self.scope = m->scope
-      m.statements
-        .filter(|e| match e {
-          TopLevelStatement::ImplDeclaration(_) => true
-          TopLevelStatement::ImplShorthandDeclaration(_) => true
-          _ => false
-        })
-        .forEach(|s| self.visitTopLevelStatement(s))
-    }
+  fn visitImplDeclaration(mut self, i: ImplDeclaration) -> () {
+    let parentScope = self.scope
+    let mut scope = parentScope.createChild()
+    self.scope = scope
+    i.typeParameters.forEach(|mut p| self.visitTypeParameter(p))
+    self.visitNamedTypeBound(asMut(i).trait_)
+    self.visitNamedTypeBound(asMut(i).type_)
 
-    visitImplDeclaration: |mut self, mut i: ImplDeclaration| {
-      let parentScope: Scope = self.scope
-      let mut scope = parentScope.createChild()
-      self.scope = scope
-      i.typeParameters.forEach(self.visitTypeParameter.bind(self))
-      self.visitNamedTypeBound(i.trait_)
-      self.visitNamedTypeBound(i.type_)
+    let traitType = i.trait_.getType()
+    let mut structType = i.type_.getType()
+    scope.setSelfType(structType)
+    if let Option::Some(whereClause) = i.whereClause
+      then self.visitWhereClause(whereClause)
+    i.members.forEach(|mut m| visitMethodDeclaration(self.typeBoundVisitor, m, structType))
+    let id = self.getImplId(traitType, structType)
 
-      let traitType = i.trait_.getType()
-      let mut structType = i.type_.getType()
-      scope.setSelfType(structType)
-      if let Option::Some(whereClause) = i.whereClause
-        then self.visitWhereClause(whereClause)
-      i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
-      let id = getImplId(traitType, structType)
-
-      if let TypeKind::Trait(trait_) = traitType.kind {
-        fn implement() {
-          match structType.kind {
-            TypeKind::Enum(mut enum_) => {
-              implementTrait(traitType, trait_, structType, enum_, i, reportError, id)
-            }
-            TypeKind::Struct(mut struct) => {
-              implementTrait(traitType, trait_, structType, struct, i, reportError, id)
-            }
-            _ => context.reportError(file, i.type_,
-              CompilationError::Other(structType.displayName() ++ ' is not a struct or an enum')
-            )
+    if let TypeKind::Trait(trait_) = traitType.kind {
+      fn implement() {
+        match structType.kind {
+          TypeKind::Enum(mut enum_) => {
+            implementTrait(traitType, trait_, structType, enum_, asMut(i), |token, message| self.reportError(token, CompilationError::Other(message)), id)
           }
-
-          i->extendedTraits = ObjectMap.fromIter(
-            traitType.getTrait().requiredTraits.iter().filterMap(|trait_| {
-              if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap(), 'ImplVisitor') {
-                Some((trait_.id.unwrap(), binding.name))
-              }
-              else {
-                let typeName = trait_.name.unwrap()
-                context.reportError(
-                  file
-                  i
-                  CompilationError::TraitNotInScope({
-                    traitName: typeName
-                    id: trait_.id.unwrap()
-                  })
-                )
-                None
-              }
-            }).collect()
+          TypeKind::Struct(mut struct) => {
+            implementTrait(traitType, trait_, structType, struct, asMut(i), |token, message| self.reportError(token, CompilationError::Other(message)), id)
+          }
+          _ => self.reportError(i.type_,
+            CompilationError::Other(structType.displayName() ++ ' is not a struct or an enum')
           )
         }
 
-        if trait_.requiredTraits.isNotEmpty()
-          then context.deferAfterImpl(structType, trait_.requiredTraits, implement)
-          else implement()
-      }
-      else context.reportError(file, i.trait_,
-        CompilationError::Other(traitType.displayName() ++ ' is not a trait')
-      )
-
-      self.scope = parentScope
-    }
-    visitImplShorthandDeclaration: |mut self, mut i: ImplShorthandDeclaration| {
-      let parentScope: Scope = self.scope
-      let mut scope = parentScope.createChild()
-      self.scope = scope
-      i.typeParameters.forEach(self.visitTypeParameter.bind(self))
-      self.visitNamedTypeBound(i.type_)
-
-      let mut structType = i.type_.getType()
-      scope.setSelfType(structType)
-      i.members.forEach(|m| self.visitMethodDeclaration(m, structType))
-
-      match structType.kind {
-        TypeKind::Enum(enum_) => {
-          let mut e = enum_
-          implementShorthand(structType, e, i, reportError)
-        }
-        TypeKind::Struct(struct) => {
-          let mut s = struct
-          implementShorthand(structType, s, i, reportError)
-        }
-        _ => context.reportError(file, i.type_,
-          CompilationError::Other(structType.displayName() ++ ' is not a struct or an enum')
+        i->extendedTraits = ObjectMap.fromIter(
+          traitType.getTrait().requiredTraits.iter().filterMap(|trait_| {
+            if let Some(binding) = scope.getBindingByTypeId(trait_.id.unwrap(), 'ImplVisitor') {
+              Some((trait_.id.unwrap(), {name: binding.name, binding}))
+            }
+            else {
+              let typeName = trait_.name.unwrap()
+              self.reportError(
+                i
+                CompilationError::TraitNotInScope({
+                  traitName: typeName
+                  id: trait_.id.unwrap()
+                })
+              )
+              None
+            }
+          }).collect()
         )
       }
 
-      self.scope = parentScope
+      if trait_.requiredTraits.isNotEmpty()
+        then self.context.deferAfterImpl(structType, trait_.requiredTraits, implement)
+        else implement()
     }
-  })
-}
+    else self.reportError(i.trait_,
+      CompilationError::Other(traitType.displayName() ++ ' is not a trait')
+    )
 
+    self.scope = parentScope
+  }
+
+  fn visitImplShorthandDeclaration(mut self, i: ImplShorthandDeclaration) -> () {
+    let parentScope = self.scope
+    let mut scope = parentScope.createChild()
+    self.scope = scope
+    i.typeParameters.forEach(|mut p| self.visitTypeParameter(p))
+    self.visitNamedTypeBound(asMut(i).type_)
+
+    let mut structType = i.type_.getType()
+    scope.setSelfType(structType)
+    i.members.forEach(|mut m| visitMethodDeclaration(self.typeBoundVisitor, m, structType))
+
+    match structType.kind {
+      TypeKind::Enum(mut enum_) => {
+        implementShorthand(
+          structType, enum_, asMut(i),
+          |token, message| self.reportError(token, CompilationError::Other(message))
+        )
+      }
+      TypeKind::Struct(mut struct) => {
+        implementShorthand(
+          structType, struct, asMut(i),
+          |token, message| self.reportError(token, CompilationError::Other(message))
+        )
+      }
+      _ => self.reportError(i.type_,
+        CompilationError::Other(structType.displayName() ++ ' is not a struct or an enum')
+      )
+    }
+
+    self.scope = parentScope
+  }
+
+  fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {
+    self.typeBoundVisitor.visitFunctionTypeBound(t)
+  }
+  fn visitIntersectionTypeBound(mut self, t: IntersectionTypeBound) -> () {
+    self.typeBoundVisitor.visitIntersectionTypeBound(t)
+  }
+  fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {
+    self.typeBoundVisitor.visitNamedTypeBound(t)
+  }
+  fn visitRecordTypeBound(mut self, t: RecordTypeBound) -> () {
+    self.typeBoundVisitor.visitRecordTypeBound(t)
+  }
+  fn visitTupleTypeBound(mut self, t: TupleTypeBound) -> () {
+    self.typeBoundVisitor.visitTupleTypeBound(t)
+  }
+  fn visitTypeParameter(mut self, t: TypeParameter) -> () {
+    self.typeBoundVisitor.visitTypeParameter(t)
+  }
+  fn visitTypePath(mut self, t: TypePath) -> () {
+    self.typeBoundVisitor.visitTypePath(t)
+  }
+}

@@ -6,7 +6,7 @@ import 'puck:js' as js
 #[type_id = 'Unknown']
 export type Unknown {}
 impl Unknown {
-  fn from<T>(value) -> Unknown {value}
+  fn from<T>(value: T) -> Unknown {value}
 
   fn isNull(self) -> Bool {
     identical(self, null)

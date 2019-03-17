@@ -43,7 +43,7 @@ impl InputStream {
     ch
   }
 
-  fn peek(self, distance = 0) -> String {
+  fn peek(self, distance: Num = 0) -> String {
     if self.code.size() <= self.pos + distance
       then ''
       else self.code[self.pos + distance]
