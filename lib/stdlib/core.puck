@@ -866,7 +866,7 @@ export trait Iterator<E> {
     iter
   }
 
-  fn flatMap<U> (self, f: (E) -> IntoIterator<U>) -> Iterator<U> {
+  fn flatMap<U>(self, f: (E) -> IntoIterator<U>) -> Iterator<U> {
     let iter: FlatMapIterator<Self, E, U> = {
       iter: self
       flatteningIter: None

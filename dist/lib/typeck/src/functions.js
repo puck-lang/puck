@@ -11,7 +11,7 @@ const $puck_6 = require("./../../entities");
 const $puck_7 = require("./range");
 const $puck_8 = require("./scope");
 const $puck_9 = require("./types");
-const $puck_10 = require("./structure_visitor");
+const $puck_10 = require("./type_bound_visitor");
 function getPatternName(pattern) {
   let $puck_11 = pattern;
   if ($puck_11.kind === "Identifier") {

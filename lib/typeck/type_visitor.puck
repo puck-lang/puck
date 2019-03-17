@@ -37,10 +37,10 @@ import '../ast/ast.puck' as {
 }
 import '../ast/span.puck' as {ToSpan}
 import '../compiler.puck' as {CompilerContext}
-import '../ast/empty_visitor.puck' as {EmptyVisitor}
+import '../ast/visit.puck' as {Visit}
 import '../entities.puck' as {Definition, File, StructKind, Type, TypeClass, TypeKind, CompilationError}
 import 'src/scope.puck' as {Binding, Scope, ScopeError}
-import 'src/structure_visitor.puck' as {TypeBoundVisitor, visitMethodDeclaration}
+import 'src/type_bound_visitor.puck' as {TypeBoundVisitor, visitMethodDeclaration}
 import 'src/types.puck' as {isSameId}
 
 fn asMut<T>(i: T) {i}
@@ -136,7 +136,7 @@ impl TypeVisitor {
   }
 }
 
-impl EmptyVisitor for TypeVisitor {
+impl Visit for TypeVisitor {
   fn visitModule(mut self, m: Module) -> () {
     asMut(m)->scope = self.scope
     let mut imports = []
@@ -564,13 +564,13 @@ impl EmptyVisitor for TypeVisitor {
     ()
   }
 
-  fn visitFunctionTypeBound(mut self,  t: FunctionTypeBound) -> () {
+  fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {
     self.typeBoundVisitor.visitFunctionTypeBound(t)
   }
-  fn visitIntersectionTypeBound(mut self,  t: IntersectionTypeBound) -> () {
+  fn visitIntersectionTypeBound(mut self, t: IntersectionTypeBound) -> () {
     self.typeBoundVisitor.visitIntersectionTypeBound(t)
   }
-  fn visitNamedTypeBound(mut self,  t: NamedTypeBound) -> () {
+  fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {
     let result = self.scope.getTypePath(t.path, 'TypeVisitor')
 
     match result {
@@ -583,16 +583,16 @@ impl EmptyVisitor for TypeVisitor {
 
     self.typeBoundVisitor.visitNamedTypeBound(t)
   }
-  fn visitRecordTypeBound(mut self,  t: RecordTypeBound) -> () {
+  fn visitRecordTypeBound(mut self, t: RecordTypeBound) -> () {
     self.typeBoundVisitor.visitRecordTypeBound(t)
   }
-  fn visitTupleTypeBound(mut self,  t: TupleTypeBound) -> () {
+  fn visitTupleTypeBound(mut self, t: TupleTypeBound) -> () {
     self.typeBoundVisitor.visitTupleTypeBound(t)
   }
-  fn visitTypeParameter(mut self,  t: TypeParameter) -> () {
+  fn visitTypeParameter(mut self, t: TypeParameter) -> () {
     self.typeBoundVisitor.visitTypeParameter(t)
   }
-  fn visitTypePath(mut self,  t: TypePath) -> () {
+  fn visitTypePath(mut self, t: TypePath) -> () {
     self.typeBoundVisitor.visitTypePath(t)
   }
 }

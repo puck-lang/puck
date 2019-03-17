@@ -6,34 +6,34 @@ const $puck_3 = require("fs");
 const path = require("path");
 const requireRelative = require("require-relative");
 const $puck_4 = require("./../ast/ast");
-const $puck_5 = require("./../ast/empty_visitor");
+const $puck_5 = require("./../ast/visit");
 const $puck_6 = require("./../ast/span");
 const $puck_7 = require("./../compiler");
 const $puck_8 = require("./../entities");
 const $puck_9 = require("./../compiler/ast");
 var ImportVisitor = exports.ImportVisitor = (object) => object;
-$puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/import_visitor.puck:ImportVisitor"] = {
+$puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/import_visitor.puck:ImportVisitor"] = {
 visitModule: function (m) {
   let self = this;
   $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: m.statements, $isTraitObject: true}, function (s) {
     let $puck_10 = s;
     if ($puck_10.kind === "ImportDirective") {
       let {value: e} = $puck_10;
-      return $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/import_visitor.puck:ImportVisitor"].visitImportDirective.call(self, e);
+      return $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/import_visitor.puck:ImportVisitor"].visitImportDirective.call(self, e);
     };
   });
 },
-visitTopLevelStatement: $puck_5.EmptyVisitor.visitTopLevelStatement,
-visitBlockLevelStatement: $puck_5.EmptyVisitor.visitBlockLevelStatement,
-visitExpression: $puck_5.EmptyVisitor.visitExpression,
-visitEnumDeclaration: $puck_5.EmptyVisitor.visitEnumDeclaration,
-visitEnumMember: $puck_5.EmptyVisitor.visitEnumMember,
-visitImplDeclaration: $puck_5.EmptyVisitor.visitImplDeclaration,
-visitImplShorthandDeclaration: $puck_5.EmptyVisitor.visitImplShorthandDeclaration,
-visitMethodDeclaration: $puck_5.EmptyVisitor.visitMethodDeclaration,
-visitTraitDeclaration: $puck_5.EmptyVisitor.visitTraitDeclaration,
-visitTypeDeclaration: $puck_5.EmptyVisitor.visitTypeDeclaration,
-visitExportDirective: $puck_5.EmptyVisitor.visitExportDirective,
+visitTopLevelStatement: $puck_5.Visit.visitTopLevelStatement,
+visitBlockLevelStatement: $puck_5.Visit.visitBlockLevelStatement,
+visitExpression: $puck_5.Visit.visitExpression,
+visitEnumDeclaration: $puck_5.Visit.visitEnumDeclaration,
+visitEnumMember: $puck_5.Visit.visitEnumMember,
+visitImplDeclaration: $puck_5.Visit.visitImplDeclaration,
+visitImplShorthandDeclaration: $puck_5.Visit.visitImplShorthandDeclaration,
+visitMethodDeclaration: $puck_5.Visit.visitMethodDeclaration,
+visitTraitDeclaration: $puck_5.Visit.visitTraitDeclaration,
+visitTypeDeclaration: $puck_5.Visit.visitTypeDeclaration,
+visitExportDirective: $puck_5.Visit.visitExportDirective,
 visitImportDirective: function (i) {
   let self = this;
   let $puck_11 = i.domain;
@@ -102,54 +102,54 @@ visitImportDirective: function (i) {
   };
   undefined;
 },
-visitObjectDestructure: $puck_5.EmptyVisitor.visitObjectDestructure,
-visitObjectDestructureMember: $puck_5.EmptyVisitor.visitObjectDestructureMember,
-visitBlock: $puck_5.EmptyVisitor.visitBlock,
-visitBreakStatement: $puck_5.EmptyVisitor.visitBreakStatement,
-visitReturnStatement: $puck_5.EmptyVisitor.visitReturnStatement,
-visitForLoop: $puck_5.EmptyVisitor.visitForLoop,
-visitWhileLoop: $puck_5.EmptyVisitor.visitWhileLoop,
-visitIdentifier: $puck_5.EmptyVisitor.visitIdentifier,
-visitFunctionDeclaration: $puck_5.EmptyVisitor.visitFunctionDeclaration,
-visitVariableDeclaration: $puck_5.EmptyVisitor.visitVariableDeclaration,
-visitAssignmentExpression: $puck_5.EmptyVisitor.visitAssignmentExpression,
-visitBinaryExpression: $puck_5.EmptyVisitor.visitBinaryExpression,
-visitCallExpression: $puck_5.EmptyVisitor.visitCallExpression,
-visitIfExpression: $puck_5.EmptyVisitor.visitIfExpression,
-visitIfLetExpression: $puck_5.EmptyVisitor.visitIfLetExpression,
-visitMatchExpression: $puck_5.EmptyVisitor.visitMatchExpression,
-visitMatchArm: $puck_5.EmptyVisitor.visitMatchArm,
-visitTypePath: $puck_5.EmptyVisitor.visitTypePath,
-visitTypePathExpression: $puck_5.EmptyVisitor.visitTypePathExpression,
-visitUnaryExpression: $puck_5.EmptyVisitor.visitUnaryExpression,
-visitIndexAccess: $puck_5.EmptyVisitor.visitIndexAccess,
-visitMemberAccess: $puck_5.EmptyVisitor.visitMemberAccess,
-visitTupleIndexAccess: $puck_5.EmptyVisitor.visitTupleIndexAccess,
-visitUnknownAccess: $puck_5.EmptyVisitor.visitUnknownAccess,
-visitUnknownIndexAccess: $puck_5.EmptyVisitor.visitUnknownIndexAccess,
-visitListLiteral: $puck_5.EmptyVisitor.visitListLiteral,
-visitBooleanLiteral: $puck_5.EmptyVisitor.visitBooleanLiteral,
-visitNumberLiteral: $puck_5.EmptyVisitor.visitNumberLiteral,
-visitRangeLiteral: $puck_5.EmptyVisitor.visitRangeLiteral,
-visitRecordLiteral: $puck_5.EmptyVisitor.visitRecordLiteral,
-visitRecordLiteralMember: $puck_5.EmptyVisitor.visitRecordLiteralMember,
-visitStringLiteral: $puck_5.EmptyVisitor.visitStringLiteral,
-visitStringLiteralPart: $puck_5.EmptyVisitor.visitStringLiteralPart,
-visitTupleLiteral: $puck_5.EmptyVisitor.visitTupleLiteral,
-visitPattern: $puck_5.EmptyVisitor.visitPattern,
-visitIdentifierPattern: $puck_5.EmptyVisitor.visitIdentifierPattern,
-visitRecordPattern: $puck_5.EmptyVisitor.visitRecordPattern,
-visitTuplePattern: $puck_5.EmptyVisitor.visitTuplePattern,
-visitTypeBound: $puck_5.EmptyVisitor.visitTypeBound,
-visitFunctionTypeBound: $puck_5.EmptyVisitor.visitFunctionTypeBound,
-visitIntersectionTypeBound: $puck_5.EmptyVisitor.visitIntersectionTypeBound,
-visitNamedTypeBound: $puck_5.EmptyVisitor.visitNamedTypeBound,
-visitRecordTypeBound: $puck_5.EmptyVisitor.visitRecordTypeBound,
-visitRecordTypeBoundMember: $puck_5.EmptyVisitor.visitRecordTypeBoundMember,
-visitTupleTypeBound: $puck_5.EmptyVisitor.visitTupleTypeBound,
-visitTypeParameter: $puck_5.EmptyVisitor.visitTypeParameter,
-visitTypeParameterBound: $puck_5.EmptyVisitor.visitTypeParameterBound,
-visitWhereClause: $puck_5.EmptyVisitor.visitWhereClause
+visitObjectDestructure: $puck_5.Visit.visitObjectDestructure,
+visitObjectDestructureMember: $puck_5.Visit.visitObjectDestructureMember,
+visitBlock: $puck_5.Visit.visitBlock,
+visitBreakStatement: $puck_5.Visit.visitBreakStatement,
+visitReturnStatement: $puck_5.Visit.visitReturnStatement,
+visitForLoop: $puck_5.Visit.visitForLoop,
+visitWhileLoop: $puck_5.Visit.visitWhileLoop,
+visitIdentifier: $puck_5.Visit.visitIdentifier,
+visitFunctionDeclaration: $puck_5.Visit.visitFunctionDeclaration,
+visitVariableDeclaration: $puck_5.Visit.visitVariableDeclaration,
+visitAssignmentExpression: $puck_5.Visit.visitAssignmentExpression,
+visitBinaryExpression: $puck_5.Visit.visitBinaryExpression,
+visitCallExpression: $puck_5.Visit.visitCallExpression,
+visitIfExpression: $puck_5.Visit.visitIfExpression,
+visitIfLetExpression: $puck_5.Visit.visitIfLetExpression,
+visitMatchExpression: $puck_5.Visit.visitMatchExpression,
+visitMatchArm: $puck_5.Visit.visitMatchArm,
+visitTypePath: $puck_5.Visit.visitTypePath,
+visitTypePathExpression: $puck_5.Visit.visitTypePathExpression,
+visitUnaryExpression: $puck_5.Visit.visitUnaryExpression,
+visitIndexAccess: $puck_5.Visit.visitIndexAccess,
+visitMemberAccess: $puck_5.Visit.visitMemberAccess,
+visitTupleIndexAccess: $puck_5.Visit.visitTupleIndexAccess,
+visitUnknownAccess: $puck_5.Visit.visitUnknownAccess,
+visitUnknownIndexAccess: $puck_5.Visit.visitUnknownIndexAccess,
+visitListLiteral: $puck_5.Visit.visitListLiteral,
+visitBooleanLiteral: $puck_5.Visit.visitBooleanLiteral,
+visitNumberLiteral: $puck_5.Visit.visitNumberLiteral,
+visitRangeLiteral: $puck_5.Visit.visitRangeLiteral,
+visitRecordLiteral: $puck_5.Visit.visitRecordLiteral,
+visitRecordLiteralMember: $puck_5.Visit.visitRecordLiteralMember,
+visitStringLiteral: $puck_5.Visit.visitStringLiteral,
+visitStringLiteralPart: $puck_5.Visit.visitStringLiteralPart,
+visitTupleLiteral: $puck_5.Visit.visitTupleLiteral,
+visitPattern: $puck_5.Visit.visitPattern,
+visitIdentifierPattern: $puck_5.Visit.visitIdentifierPattern,
+visitRecordPattern: $puck_5.Visit.visitRecordPattern,
+visitTuplePattern: $puck_5.Visit.visitTuplePattern,
+visitTypeBound: $puck_5.Visit.visitTypeBound,
+visitFunctionTypeBound: $puck_5.Visit.visitFunctionTypeBound,
+visitIntersectionTypeBound: $puck_5.Visit.visitIntersectionTypeBound,
+visitNamedTypeBound: $puck_5.Visit.visitNamedTypeBound,
+visitRecordTypeBound: $puck_5.Visit.visitRecordTypeBound,
+visitRecordTypeBoundMember: $puck_5.Visit.visitRecordTypeBoundMember,
+visitTupleTypeBound: $puck_5.Visit.visitTupleTypeBound,
+visitTypeParameter: $puck_5.Visit.visitTypeParameter,
+visitTypeParameterBound: $puck_5.Visit.visitTypeParameterBound,
+visitWhereClause: $puck_5.Visit.visitWhereClause
 };
 ImportVisitor._new = function (context, file, declarations) {
   return {

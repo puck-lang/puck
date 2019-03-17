@@ -6,17 +6,17 @@ const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("./../ast/ast");
 const $puck_3 = require("./../ast/span");
 const $puck_4 = require("./../compiler");
-const $puck_5 = require("./../ast/empty_visitor");
-const visit = require("./../ast/empty_visitor");
+const $puck_5 = require("./../ast/visit");
+const visit = require("./../ast/visit");
 const $puck_6 = require("./../compiler/ast");
 const $puck_7 = require("./src/functions");
 const $puck_8 = require("./src/range");
 const $puck_9 = require("./src/scope");
-const $puck_10 = require("./src/structure_visitor");
+const $puck_10 = require("./src/type_bound_visitor");
 const $puck_11 = require("./src/types");
 const $puck_12 = require("./../entities");
 var ImplVisitor = exports.ImplVisitor = (object) => object;
-$puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"] = {
+$puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"] = {
 visitModule: function (m) {
   let self = this;
   self.value.scope = $unwrapTraitObject(m.scope);
@@ -41,31 +41,31 @@ visitModule: function (m) {
   })
 ;
   $puck_1.Iterable[$puck_13.type].forEach.call($puck_13, function (s) {
-    return $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitTopLevelStatement.call(self, s);
+    return $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitTopLevelStatement.call(self, s);
   });
 },
-visitTopLevelStatement: $puck_5.EmptyVisitor.visitTopLevelStatement,
-visitBlockLevelStatement: $puck_5.EmptyVisitor.visitBlockLevelStatement,
-visitExpression: $puck_5.EmptyVisitor.visitExpression,
-visitEnumDeclaration: $puck_5.EmptyVisitor.visitEnumDeclaration,
-visitEnumMember: $puck_5.EmptyVisitor.visitEnumMember,
+visitTopLevelStatement: $puck_5.Visit.visitTopLevelStatement,
+visitBlockLevelStatement: $puck_5.Visit.visitBlockLevelStatement,
+visitExpression: $puck_5.Visit.visitExpression,
+visitEnumDeclaration: $puck_5.Visit.visitEnumDeclaration,
+visitEnumMember: $puck_5.Visit.visitEnumMember,
 visitImplDeclaration: function (i) {
   let self = this;
   const parentScope = self.value.scope;
   let scope = $puck_9.Scope.createChild.call(parentScope);
   self.value.scope = scope;
   $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.typeParameters, $isTraitObject: true}, function (p) {
-    return $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitTypeParameter.call(self, p);
+    return $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitTypeParameter.call(self, p);
   });
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitNamedTypeBound.call(self, asMut(i).trait_);
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitNamedTypeBound.call(self, asMut(i).type_);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitNamedTypeBound.call(self, asMut(i).trait_);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitNamedTypeBound.call(self, asMut(i).type_);
   const traitType = $puck_2.NamedTypeBound.getType.call(i.trait_);
   let structType = $puck_2.NamedTypeBound.getType.call(i.type_);
   $puck_9.Scope.setSelfType.call(scope, structType);
   let $puck_15 = i.whereClause;
   if ($puck_15 !== undefined) {
     let whereClause = $puck_15;
-    $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitWhereClause.call(self, whereClause);
+    $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitWhereClause.call(self, whereClause);
   };
   $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true}, function (m) {
     return $puck_10.visitMethodDeclaration(self.value.typeBoundVisitor, m, structType);
@@ -140,9 +140,9 @@ visitImplShorthandDeclaration: function (i) {
   let scope = $puck_9.Scope.createChild.call(parentScope);
   self.value.scope = scope;
   $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.typeParameters, $isTraitObject: true}, function (p) {
-    return $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitTypeParameter.call(self, p);
+    return $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitTypeParameter.call(self, p);
   });
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitNamedTypeBound.call(self, asMut(i).type_);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitNamedTypeBound.call(self, asMut(i).type_);
   let structType = $puck_2.NamedTypeBound.getType.call(i.type_);
   $puck_9.Scope.setSelfType.call(scope, structType);
   $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].forEach.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: i.members, $isTraitObject: true}, function (m) {
@@ -171,87 +171,86 @@ visitImplShorthandDeclaration: function (i) {
   };
   self.value.scope = parentScope;
 },
-visitMethodDeclaration: $puck_5.EmptyVisitor.visitMethodDeclaration,
-visitTraitDeclaration: $puck_5.EmptyVisitor.visitTraitDeclaration,
-visitTypeDeclaration: $puck_5.EmptyVisitor.visitTypeDeclaration,
-visitExportDirective: $puck_5.EmptyVisitor.visitExportDirective,
-visitImportDirective: $puck_5.EmptyVisitor.visitImportDirective,
-visitObjectDestructure: $puck_5.EmptyVisitor.visitObjectDestructure,
-visitObjectDestructureMember: $puck_5.EmptyVisitor.visitObjectDestructureMember,
-visitBlock: $puck_5.EmptyVisitor.visitBlock,
-visitBreakStatement: $puck_5.EmptyVisitor.visitBreakStatement,
-visitReturnStatement: $puck_5.EmptyVisitor.visitReturnStatement,
-visitForLoop: $puck_5.EmptyVisitor.visitForLoop,
-visitWhileLoop: $puck_5.EmptyVisitor.visitWhileLoop,
-visitIdentifier: $puck_5.EmptyVisitor.visitIdentifier,
-visitFunctionDeclaration: $puck_5.EmptyVisitor.visitFunctionDeclaration,
-visitVariableDeclaration: $puck_5.EmptyVisitor.visitVariableDeclaration,
-visitAssignmentExpression: $puck_5.EmptyVisitor.visitAssignmentExpression,
-visitBinaryExpression: $puck_5.EmptyVisitor.visitBinaryExpression,
-visitCallExpression: $puck_5.EmptyVisitor.visitCallExpression,
-visitIfExpression: $puck_5.EmptyVisitor.visitIfExpression,
-visitIfLetExpression: $puck_5.EmptyVisitor.visitIfLetExpression,
-visitMatchExpression: $puck_5.EmptyVisitor.visitMatchExpression,
-visitMatchArm: $puck_5.EmptyVisitor.visitMatchArm,
+visitMethodDeclaration: $puck_5.Visit.visitMethodDeclaration,
+visitTraitDeclaration: $puck_5.Visit.visitTraitDeclaration,
+visitTypeDeclaration: $puck_5.Visit.visitTypeDeclaration,
+visitExportDirective: $puck_5.Visit.visitExportDirective,
+visitImportDirective: $puck_5.Visit.visitImportDirective,
+visitObjectDestructure: $puck_5.Visit.visitObjectDestructure,
+visitObjectDestructureMember: $puck_5.Visit.visitObjectDestructureMember,
+visitBlock: $puck_5.Visit.visitBlock,
+visitBreakStatement: $puck_5.Visit.visitBreakStatement,
+visitReturnStatement: $puck_5.Visit.visitReturnStatement,
+visitForLoop: $puck_5.Visit.visitForLoop,
+visitWhileLoop: $puck_5.Visit.visitWhileLoop,
+visitIdentifier: $puck_5.Visit.visitIdentifier,
+visitFunctionDeclaration: $puck_5.Visit.visitFunctionDeclaration,
+visitVariableDeclaration: $puck_5.Visit.visitVariableDeclaration,
+visitAssignmentExpression: $puck_5.Visit.visitAssignmentExpression,
+visitBinaryExpression: $puck_5.Visit.visitBinaryExpression,
+visitCallExpression: $puck_5.Visit.visitCallExpression,
+visitIfExpression: $puck_5.Visit.visitIfExpression,
+visitIfLetExpression: $puck_5.Visit.visitIfLetExpression,
+visitMatchExpression: $puck_5.Visit.visitMatchExpression,
+visitMatchArm: $puck_5.Visit.visitMatchArm,
 visitTypePath: function (t) {
   let self = this;
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor"].visitTypePath.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor"].visitTypePath.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
 },
-visitTypePathExpression: $puck_5.EmptyVisitor.visitTypePathExpression,
-visitUnaryExpression: $puck_5.EmptyVisitor.visitUnaryExpression,
-visitIndexAccess: $puck_5.EmptyVisitor.visitIndexAccess,
-visitMemberAccess: $puck_5.EmptyVisitor.visitMemberAccess,
-visitTupleIndexAccess: $puck_5.EmptyVisitor.visitTupleIndexAccess,
-visitUnknownAccess: $puck_5.EmptyVisitor.visitUnknownAccess,
-visitUnknownIndexAccess: $puck_5.EmptyVisitor.visitUnknownIndexAccess,
-visitListLiteral: $puck_5.EmptyVisitor.visitListLiteral,
-visitBooleanLiteral: $puck_5.EmptyVisitor.visitBooleanLiteral,
-visitNumberLiteral: $puck_5.EmptyVisitor.visitNumberLiteral,
-visitRangeLiteral: $puck_5.EmptyVisitor.visitRangeLiteral,
-visitRecordLiteral: $puck_5.EmptyVisitor.visitRecordLiteral,
-visitRecordLiteralMember: $puck_5.EmptyVisitor.visitRecordLiteralMember,
-visitStringLiteral: $puck_5.EmptyVisitor.visitStringLiteral,
-visitStringLiteralPart: $puck_5.EmptyVisitor.visitStringLiteralPart,
-visitTupleLiteral: $puck_5.EmptyVisitor.visitTupleLiteral,
-visitPattern: $puck_5.EmptyVisitor.visitPattern,
-visitIdentifierPattern: $puck_5.EmptyVisitor.visitIdentifierPattern,
-visitRecordPattern: $puck_5.EmptyVisitor.visitRecordPattern,
-visitTuplePattern: $puck_5.EmptyVisitor.visitTuplePattern,
-visitTypeBound: $puck_5.EmptyVisitor.visitTypeBound,
+visitTypePathExpression: $puck_5.Visit.visitTypePathExpression,
+visitUnaryExpression: $puck_5.Visit.visitUnaryExpression,
+visitIndexAccess: $puck_5.Visit.visitIndexAccess,
+visitMemberAccess: $puck_5.Visit.visitMemberAccess,
+visitTupleIndexAccess: $puck_5.Visit.visitTupleIndexAccess,
+visitUnknownAccess: $puck_5.Visit.visitUnknownAccess,
+visitUnknownIndexAccess: $puck_5.Visit.visitUnknownIndexAccess,
+visitListLiteral: $puck_5.Visit.visitListLiteral,
+visitBooleanLiteral: $puck_5.Visit.visitBooleanLiteral,
+visitNumberLiteral: $puck_5.Visit.visitNumberLiteral,
+visitRangeLiteral: $puck_5.Visit.visitRangeLiteral,
+visitRecordLiteral: $puck_5.Visit.visitRecordLiteral,
+visitRecordLiteralMember: $puck_5.Visit.visitRecordLiteralMember,
+visitStringLiteral: $puck_5.Visit.visitStringLiteral,
+visitStringLiteralPart: $puck_5.Visit.visitStringLiteralPart,
+visitTupleLiteral: $puck_5.Visit.visitTupleLiteral,
+visitPattern: $puck_5.Visit.visitPattern,
+visitIdentifierPattern: $puck_5.Visit.visitIdentifierPattern,
+visitRecordPattern: $puck_5.Visit.visitRecordPattern,
+visitTuplePattern: $puck_5.Visit.visitTuplePattern,
+visitTypeBound: $puck_5.Visit.visitTypeBound,
 visitFunctionTypeBound: function (t) {
   let self = this;
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor"].visitFunctionTypeBound.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor"].visitFunctionTypeBound.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
 },
 visitIntersectionTypeBound: function (t) {
   let self = this;
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor"].visitIntersectionTypeBound.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor"].visitIntersectionTypeBound.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
 },
 visitNamedTypeBound: function (t) {
   let self = this;
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor"].visitNamedTypeBound.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor"].visitNamedTypeBound.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
 },
 visitRecordTypeBound: function (t) {
   let self = this;
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor"].visitRecordTypeBound.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor"].visitRecordTypeBound.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
 },
-visitRecordTypeBoundMember: $puck_5.EmptyVisitor.visitRecordTypeBoundMember,
+visitRecordTypeBoundMember: $puck_5.Visit.visitRecordTypeBoundMember,
 visitTupleTypeBound: function (t) {
   let self = this;
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor"].visitTupleTypeBound.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor"].visitTupleTypeBound.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
 },
 visitTypeParameter: function (t) {
   let self = this;
-  $puck_5.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor"].visitTypeParameter.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/src/structure_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
+  $puck_5.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor"].visitTypeParameter.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/src/type_bound_visitor.puck:TypeBoundVisitor', value: self.value.typeBoundVisitor, $isTraitObject: true}, t);
 },
-visitTypeParameterBound: $puck_5.EmptyVisitor.visitTypeParameterBound,
-visitWhereClause: $puck_5.EmptyVisitor.visitWhereClause
+visitTypeParameterBound: $puck_5.Visit.visitTypeParameterBound,
+visitWhereClause: $puck_5.Visit.visitWhereClause
 };
 ImplVisitor._new = function (context, file) {
   let implVisitor = {
     context: context,
     file: file,
     scope: $puck_9.Scope._new(context),
-    assignedTo: $puck_1.None,
     typeBoundVisitor: {
     getScope: function () {
     return $unwrapTraitObject(implVisitor).scope;

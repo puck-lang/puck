@@ -275,48 +275,62 @@ Scope.merge = function (other) {
   let self = this;
   $puck_2._Object.assign(self.bindings, other.bindings);
 };
+Scope.debugString = function () {
+  const self = this;
+  const current = "Scope [" + $puck_1.ObjectMap.keys.call(self.bindings).join(", ") + "]";
+  let $puck_36 = self.parent;
+  if (($puck_36 !== undefined)) {
+    let parent = $puck_36;
+    return current + "\n" + $puck_1.Iterable["$impl_lib/stdlib/core.puck:Iterable$List"].map.call({type: '$impl_lib/stdlib/core.puck:Iterable$List', value: $puck_1.String.split.call(Scope.debugString.call(parent), "\n"), $isTraitObject: true}, function (row) {
+      return "  " + row;
+    }).value.join("\n");
+  }
+  else {
+    return current;
+  };
+};
 function getTypeMember(type_, displayPath, member) {
-  let $puck_36 = type_.kind;
-  if ($puck_36.kind === "Enum") {
-    let {value: enum_} = $puck_36;
-    let $puck_37 = $puck_1.ObjectMap.get.call(enum_.members, member);
-    if ($puck_37 !== undefined) {
-      let memberType = $puck_37;
+  let $puck_37 = type_.kind;
+  if (($puck_37.kind === "Enum")) {
+    let {value: enum_} = $puck_37;
+    let $puck_38 = $puck_1.ObjectMap.get.call(enum_.members, member);
+    if ($puck_38 !== undefined) {
+      let memberType = $puck_38;
       return $puck_1.Ok(memberType);
     }
     else {
-      if ($puck_37 === undefined) {
-        $puck_37;
+      if ($puck_38 === undefined) {
+        $puck_38;
         return $puck_1.Err("Use of undeclared type " + displayPath + "::" + member + "");
       };
     };
   }
   else {
-    if ($puck_36.kind === "Struct") {
-      let {value: struct} = $puck_36;
-      let $puck_38 = struct.kind;
-      if ($puck_38.kind === "Record") {
-        let {value: record} = $puck_38;
-        let $puck_39 = $puck_1.ObjectMap.get.call(record.properties, member);
-        if ($puck_39 !== undefined) {
-          let {type_: type_} = $puck_39;
+    if ($puck_37.kind === "Struct") {
+      let {value: struct} = $puck_37;
+      let $puck_39 = struct.kind;
+      if ($puck_39.kind === "Record") {
+        let {value: record} = $puck_39;
+        let $puck_40 = $puck_1.ObjectMap.get.call(record.properties, member);
+        if ($puck_40 !== undefined) {
+          let {type_: type_} = $puck_40;
           return $puck_1.Ok(type_);
         }
         else {
-          if ($puck_39 === undefined) {
-            $puck_39;
+          if ($puck_40 === undefined) {
+            $puck_40;
             return $puck_1.Err("Use of undeclared type " + displayPath + "::" + member + "");
           };
         };
       }
       else {
-        if ($puck_38.kind === "Tuple") {
-          $puck_38;
+        if ($puck_39.kind === "Tuple") {
+          $puck_39;
           return $puck_1.Err("Can not access members on a tuple type");
         }
         else {
-          if ($puck_38.kind === "Unit") {
-            $puck_38;
+          if ($puck_39.kind === "Unit") {
+            $puck_39;
             return $puck_1.Err("Can not access members on a unit type");
           };
         };
@@ -324,7 +338,7 @@ function getTypeMember(type_, displayPath, member) {
     }
     else {
       if (true) {
-        $puck_36;
+        $puck_37;
         return $puck_1.Err("Type paths can only access enums or records");
       };
     };

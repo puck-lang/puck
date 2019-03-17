@@ -298,7 +298,7 @@ export interface MatchExpression extends SimpleToken {
 export interface MatchArm {
   pattern: Pattern
   block: BlockNode
-  scope: any;
+  scope: any
 }
 
 export interface TypePathExpression extends SimpleToken {

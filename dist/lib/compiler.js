@@ -8,7 +8,7 @@ const babel = require("babel-core");
 const fs = require("fs");
 const path = require("path");
 const $puck_3 = require("util");
-const $puck_4 = require("./ast/empty_visitor");
+const $puck_4 = require("./ast/visit");
 const $puck_5 = require("./ast/span");
 const $puck_6 = require("./compiler/emitter");
 const $puck_7 = require("./compiler/input_stream");
@@ -38,7 +38,7 @@ CompilerContext.runTypeVisitor = function () {
   $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if (!file.typeVisitorStarted && $puck_1.Option.isSome.call(file.ast)) {
       file.typeVisitorStarted = true;
-      $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/type_visitor.puck:TypeVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/type_visitor.puck:TypeVisitor', value: $puck_15.TypeVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
+      $puck_4.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/type_visitor.puck:TypeVisitor"].visitModule.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/type_visitor.puck:TypeVisitor', value: $puck_15.TypeVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
       return file.typeVisitorCompleted = true;
     };
   });
@@ -48,7 +48,7 @@ CompilerContext.runImplVisitor = function () {
   $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if ((!file.implVisitorStarted && $puck_1.Option.isSome.call(file.ast))) {
       file.implVisitorStarted = true;
-      $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor', value: $puck_11.ImplVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
+      $puck_4.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitModule.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor', value: $puck_11.ImplVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
       return $puck_11.checkDefferedImpls(self.deferredImpl);
     };
   });
@@ -82,7 +82,7 @@ CompilerContext.runChecker = function () {
   $puck_1.Iterator["$impl_Iterator$lib/stdlib/core.puck:JsIterator"].forEach.call({type: '$impl_Iterator$lib/stdlib/core.puck:JsIterator', value: $puck_1.Map.values.call(self.files), $isTraitObject: true}, function (file) {
     if ((!file.scopeVisitorStarted && $puck_1.Option.isSome.call(file.ast))) {
       file.scopeVisitorStarted = true;
-      return $puck_13.ScopeVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+      return $puck_4.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/scope_visitor.puck:ScopeVisitor"].visitModule.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/scope_visitor.puck:ScopeVisitor', value: $puck_13.ScopeVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
     };
   });
 };
@@ -90,7 +90,7 @@ CompilerContext.runTypeVisitorOnFile = function (file) {
   let self = this;
   if (!file.typeVisitorStarted) {
     file.typeVisitorStarted = true;
-    $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/type_visitor.puck:TypeVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/type_visitor.puck:TypeVisitor', value: $puck_15.TypeVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
+    $puck_4.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/type_visitor.puck:TypeVisitor"].visitModule.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/type_visitor.puck:TypeVisitor', value: $puck_15.TypeVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
   };
 };
 CompilerContext.runImplVisitorOnFile = function (file) {
@@ -102,7 +102,7 @@ CompilerContext.runImplVisitorOnFile = function (file) {
     $puck_1.panic($puck_2.Error("runImplVisitorOnFile??"));
   };
   file.implVisitorStarted = true;
-  $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/impl_visitor.puck:ImplVisitor', value: $puck_11.ImplVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
+  $puck_4.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor"].visitModule.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/impl_visitor.puck:ImplVisitor', value: $puck_11.ImplVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
   $puck_11.checkDefferedImpls(self.deferredImpl);
 };
 CompilerContext.runCheckerOnFile = function (file) {
@@ -112,7 +112,7 @@ CompilerContext.runCheckerOnFile = function (file) {
   };
   if (!file.scopeVisitorStarted) {
     file.scopeVisitorStarted = true;
-    $puck_13.ScopeVisitor(self, file).visitModule($puck_1.Option.unwrap.call(file.ast));
+    $puck_4.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/scope_visitor.puck:ScopeVisitor"].visitModule.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/scope_visitor.puck:ScopeVisitor', value: $puck_13.ScopeVisitor._new(self, file), $isTraitObject: true}, $puck_1.Option.unwrap.call(file.ast));
   };
 };
 CompilerContext.defer = function (file, func) {
@@ -196,8 +196,8 @@ function fileInspect(depth, opts) {
 function parseString(context, file, recoverFromSyntaxErrors = false) {
   let ast = $puck_8.parse($puck_9.TokenStream._new($puck_7.InputStream._new(context, file)), file, recoverFromSyntaxErrors);
   let topLevelVisitor = $puck_14.TopLevelVisitor._new(context, file);
-  $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/top_level_visitor.puck:TopLevelVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/top_level_visitor.puck:TopLevelVisitor', value: topLevelVisitor, $isTraitObject: true}, ast);
-  $puck_4.EmptyVisitor["$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/import_visitor.puck:ImportVisitor"].visitModule.call({type: '$impl_lib/ast/empty_visitor.puck:EmptyVisitor$lib/typeck/import_visitor.puck:ImportVisitor', value: $puck_12.ImportVisitor._new(context, file, topLevelVisitor.declarations), $isTraitObject: true}, ast);
+  $puck_4.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/top_level_visitor.puck:TopLevelVisitor"].visitModule.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/top_level_visitor.puck:TopLevelVisitor', value: topLevelVisitor, $isTraitObject: true}, ast);
+  $puck_4.Visit["$impl_lib/ast/visit.puck:Visit$lib/typeck/import_visitor.puck:ImportVisitor"].visitModule.call({type: '$impl_lib/ast/visit.puck:Visit$lib/typeck/import_visitor.puck:ImportVisitor', value: $puck_12.ImportVisitor._new(context, file, topLevelVisitor.declarations), $isTraitObject: true}, ast);
   return ast;
 };
 exports.parseString = parseString;

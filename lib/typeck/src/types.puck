@@ -1,6 +1,5 @@
 import 'puck:js' as {Object, null, undefined}
 import '../../ast/ast.puck' as {TypeBound}
-import '../../ast/visit.puck' as visit
 import '../../compiler/ast.ts' as {SyntaxKind}
 import '../../entities.puck' as {
   Enum

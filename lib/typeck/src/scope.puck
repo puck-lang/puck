@@ -204,6 +204,13 @@ impl Scope {
   fn merge(mut self, other: Scope) -> () {
     Object->assign(self.bindings, other.bindings)
   }
+
+  fn debugString(self) -> String {
+    let current = 'Scope [' ++ self.bindings.keys()->join(', ').transmute::<String>() ++ ']'
+    if let Some(parent) = self.parent
+      then current ++ '\n' ++ parent.debugString().split('\n').map(|row| '  ' ++ row)->join('\n').transmute::<String>()
+      else current
+  }
 }
 
 fn getTypeMember(type_: Type, displayPath: String, member: String) -> Result<Type, String> {

@@ -5,7 +5,6 @@ exports.resolveTypeParameters = exports.createTypeInstance = exports.isSameId = 
 const $puck_1 = require("puck-lang/dist/lib/stdlib/core");
 const $puck_2 = require("puck-lang/dist/lib/stdlib/js");
 const $puck_3 = require("./../../ast/ast");
-const visit = require("./../../ast/visit");
 const $puck_4 = require("./../../compiler/ast");
 const $puck_5 = require("./../../entities");
 function assign(a, b) {

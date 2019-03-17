@@ -8,7 +8,7 @@ import '../ast/ast.puck' as {
   ImportDirective
   ImportSpecifier
 }
-import '../ast/empty_visitor.puck' as {EmptyVisitor}
+import '../ast/visit.puck' as {Visit}
 import '../ast/span.puck' as {ToSpan}
 import '../compiler.puck' as {CompilerContext}
 import '../entities.puck' as {File, CompilationError}
@@ -80,7 +80,7 @@ impl ImportVisitor {
   }
 }
 
-impl EmptyVisitor for ImportVisitor {
+impl Visit for ImportVisitor {
   fn visitModule(mut self, m: Module) -> () {
     m.statements.forEach(|s| {
       if let TopLevelStatement::ImportDirective(mut e) = s {

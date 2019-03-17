@@ -1,0 +1,361 @@
+import 'puck:js' as {Error, Object, undefined}
+import 'node:util' as {inspect}
+import '../../ast/ast.puck' as {
+  TopLevelStatement
+  BlockLevelStatement
+  Expression
+  EnumMember
+
+  FunctionDeclaration
+  Identifier
+  TypeParameter
+  TypePath
+  VariableDeclaration
+
+  Pattern
+
+  TypeBound
+  FunctionTypeBound
+  IntersectionTypeBound
+  NamedTypeBound
+  RecordTypeBound
+  RecordTypeBoundMember
+  TupleTypeBound
+  TypeParameterBound
+  WhereClause
+
+  BooleanLiteral
+  ListLiteral
+  NumberLiteral
+  RecordLiteral
+  StringLiteral
+  TupleLiteral
+}
+import '../../ast/span.puck' as {ToSpan}
+import '../../compiler.puck' as {CompilerContext}
+import '../../ast/visit.puck' as {Visit}
+import '../../ast/visit.puck' as visit
+import '../../compiler/ast.ts' as {SyntaxKind}
+import '../../entities.puck' as {
+  Definition
+  RecordMember
+  Enum
+  File
+  StructKind
+  Type
+  TypeClass
+  TypeKind
+  CompilationError
+}
+import 'functions.puck' as {createFunctionType}
+import 'patterns.puck' as {PatternError, declarePatternVariables}
+import 'range.puck' as {checkRange}
+import 'scope.puck' as {Scope, ScopeError}
+import 'types.puck' as {createTypeInstance, isAssignable}
+
+fn asMut<T>(i: T) {i}
+
+export fn notAssignableError(to: Type, subject: Type) {
+  subject.displayName() ++ ' is not assignable to type ' ++ to.displayName()
+}
+
+export type TypeBoundVisitor {
+  getScope: () -> Scope
+  setScope: (Scope) -> ()
+  file: File
+  reportError: (ToSpan, CompilationError) -> ()
+  visitorName: String
+}
+
+impl Visit for TypeBoundVisitor {
+  fn visitFunctionTypeBound(mut self, t: FunctionTypeBound) -> () {
+    if not t->scope {
+      let parentScope: Scope = self.getScope()
+      self.setScope(parentScope.createChild())
+      t->scope = self.getScope()
+
+      visit.walkFunctionTypeBound(self, t)
+      let parameters = t.parameters.properties
+        .enumerate()
+        .map(|(i, t)| {{
+          definition: Definition({file: self.file, token: t})
+          name: '$i'
+          mutable: false
+          allowRedeclare: true
+          type_: t.getType()
+          completeType: None
+          previous: None
+        }})
+        .toList()
+
+      t->type_ = Type({
+        definition: Definition({
+          file: self.file
+          token: t
+        })
+        id: None
+        displayName: None
+        name: None
+        kind: TypeKind::Function({
+          selfBinding: None
+          parameters
+          parameterRange: {start: parameters.size(), end: parameters.size() + 1}
+          returnType: t.returnType.getType()
+          isAbstract: false
+        })
+        class: TypeClass.fromAstNode(t, |token, message| self.reportError(token, CompilationError::Other(message)))
+        instance: None
+        providesType: None
+        enumMember: None
+      })
+
+      self.setScope(parentScope)
+    }
+  }
+
+  fn visitIntersectionTypeBound(mut self, t: IntersectionTypeBound) -> () {
+    if not t->scope {
+      t->scope = self.getScope()
+      visit.walkIntersectionTypeBound(self, t)
+
+      if not t.traitBound.getType().isTrait()
+        then self.reportError(t.traitBound
+          CompilationError::Other('Can only add a trait bound, ' ++ t.traitBound.getType().displayName() ++ ' is not a trait')
+        )
+
+      t->type_ = Type({
+        definition: Definition({file: self.file, token: t})
+        id: None
+        displayName: None
+        name: None
+        kind: TypeKind::Intersection({
+          baseType: t.baseType.getType()
+          intersectedTrait: t.traitBound.getType().providesType.unwrapOr(t.traitBound.getType())
+        })
+        class: None
+        instance: None
+        providesType: None
+        enumMember: None
+      })
+    }
+  }
+
+  fn visitNamedTypeBound(mut self, t: NamedTypeBound) -> () {
+    if not t->scope {
+      t->scope = self.getScope()
+
+      self.visitTypePath(t.path)
+      let mut type_: Type = t.path->providesType.transmute()
+      if not type_ then return ()
+      type_ = Type({
+        definition: Definition({file: self.file, token: t})
+        id: type_.id
+        displayName: type_.displayName
+        name: type_.name
+        kind: type_.kind
+        class: type_.class
+        instance: type_.instance
+        providesType: type_.providesType
+        enumMember: type_.enumMember
+      })
+
+      let isSelf =
+        if let TypePath::Member({name}) = t.path {
+          if name == 'Self' {
+            if t.typeParameters.size() > 0
+              then self.reportError(t, CompilationError::Other('Self is not generic'))
+
+            true
+          }
+          else false
+        }
+        else false
+
+      if not isSelf {
+        if let Option::Some(class) = type_.class {
+          if let Result::Err(error) =
+            checkRange(t.typeParameters, class.parameterRange, 'type parameters', type_.displayName()) {
+            self.reportError(t, CompilationError::Other(error))
+          }
+        }
+        else if t.typeParameters.size() > 0
+          then self.reportError(t, CompilationError::Other('Type ' ++ type_.displayName() ++ ' is not generic'))
+      }
+
+      visit.walkNamedTypeBound(self, t)
+
+      t->type_ =
+        if type_.class.isSome()
+          then createTypeInstance(type_, t.typeParameters.map(|typeBound| typeBound.getType()).toList())
+          else type_
+    }
+  }
+
+  fn visitRecordTypeBound(mut self, t: RecordTypeBound) -> () {
+    if not t->scope {
+      t->scope = self.getScope()
+
+      visit.walkRecordTypeBound(self, t)
+
+      let mut properties = ObjectMap.new::<RecordMember>()
+      t.properties.map(|p| {
+        match p {
+          RecordTypeBoundMember::Property {name, optional, typeBound} => {
+            properties.set(name.name, {type_: typeBound.getType(), optional})
+          }
+          RecordTypeBoundMember::Spread(typeBound) => {
+            match typeBound.getType().kind {
+              TypeKind::Struct({kind: StructKind::Record(r)}) => {
+                properties.merge(r.properties)
+              }
+              _ => {
+                self.reportError(typeBound, CompilationError::Other('Can only spread record types'))
+              }
+            }
+          }
+        }
+      })
+
+      t->type_ = Type({
+        definition: Definition({file: self.file, token: t})
+        id: None
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Record({properties})
+        })
+        class: None
+        instance: None
+        providesType: None
+        enumMember: None
+      })
+    }
+  }
+
+  fn visitTupleTypeBound(mut self, t: TupleTypeBound) -> () {
+    if not t->scope {
+      t->scope = self.getScope()
+
+      visit.walkTupleTypeBound(self, t)
+
+      t->type_ = Type({
+        definition: Definition({file: self.file, token: t})
+        id: None
+        displayName: None
+        name: None
+        kind: TypeKind::Struct({
+          implementations: []
+          kind: StructKind::Tuple({properties: t.properties.map(|p| p.getType()).toList()})
+        })
+        class: None
+        instance: None
+        providesType: None
+        enumMember: None
+      })
+    }
+  }
+
+  fn visitTypeParameter(mut self, t: TypeParameter) -> () {
+    if not t->scope {
+      t->scope = self.getScope()
+
+      visit.walkTypeParameter(self, t)
+
+      t->type_ = Type({
+        definition: Definition({file: self.file, token: t})
+        id: Some(t.name.name)
+        displayName: None
+        name: Some(t.name.name)
+        kind: TypeKind::Parameter({
+          defaultValue: t.defaultValue.map(|typeBound| typeBound.getType())
+        })
+        class: None
+        instance: None
+        providesType: None
+        enumMember: None
+      })
+      let mut scope: Scope = self.getScope()
+      if let Result::Err(err) = scope.define({
+        definition: Definition({file: self.file, token: t})
+        name: t.name.name
+        mutable: false
+        allowRedeclare: false
+        type_: Type.provides(t->type_.transmute())
+        completeType: None
+        previous: None
+      })
+        then self.reportError(t.name, CompilationError::Other(err))
+    }
+  }
+
+  fn visitTypePath(mut self, t: TypePath) -> () {
+    if not t->type_ {
+      t->scope = self.getScope()
+      let scope = self.getScope()
+      match scope.getTypePath(t, self.visitorName) {
+        Result::Ok(binding) => {
+          t->type_= binding.type_
+          t->providesType = binding.type_ and binding.type_.providesType.unwrapOr(binding.type_)
+        }
+        Result::Err(ScopeError::UndefinedType(name)) => {
+          self.reportError(t, CompilationError::UndefinedVariable(name))
+        }
+        Result::Err(ScopeError::Other(err)) => self.reportError(t, CompilationError::Other(err))
+      }
+    }
+  }
+}
+
+export fn visitMethodDeclaration(mut visitor: TypeBoundVisitor, f: FunctionDeclaration, selfType: Type) -> () {
+  if not f->type_ {
+    let parentScope = visitor.getScope()
+    let scope = parentScope.createChild()
+    visitor.setScope(scope)
+    f->scope = scope
+
+    if f.name.isNone()
+      then visitor.reportError(f, CompilationError::Other('Trait functions must have a name'))
+    if f.returnType.isNone()
+      then visitor.reportError(f, CompilationError::Other('Trait functions must have a return type'))
+
+    f.typeParameters.forEach(|mut p| visitor.visitTypeParameter(p))
+
+    if let Option::Some(mut first) = f.parameterList.first() {
+      if let Pattern::Identifier {identifier} = first.pattern {
+        if identifier.name == 'self' {
+          if let Some(typeBound) = first.typeBound {
+            visitor.visitTypeBound(typeBound)
+            if not isAssignable(typeBound.getType(), selfType)
+              then visitor.reportError(first, CompilationError::Other(notAssignableError(typeBound.getType(), selfType)))
+          }
+          else {
+            asMut(f).parameterList[0].typeBound = Some(TypeBound::NamedTypeBound({
+              path: TypePath::Member({name: 'Self', span: identifier.span})
+              typeParameters: []
+            }))
+          }
+        }
+      }
+    }
+
+    f.parameterList.forEach(|mut p| {
+      if let Some(typeBound) = p.typeBound {
+        visitor.visitTypeBound(typeBound)
+        p->type_ = typeBound.getType()
+        ()
+      } else {
+        visitor.reportError(p, CompilationError::Other('Trait function parameters must have a type'))
+      }
+    })
+    if let Option::Some(mut returnType) = f.returnType
+      then visitor.visitTypeBound(returnType)
+
+    asMut(f).type_ = createFunctionType(
+      visitor.file, scope, f,
+      |token, message| visitor.reportError(token, CompilationError::Other(message))
+    )
+
+    visitor.setScope(parentScope)
+  }
+}
